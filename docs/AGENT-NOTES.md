@@ -161,7 +161,8 @@ CodeQL runs on every PR and its alerts can block a merge.
 ### Assistant (pydantic-ai)
 
 - pydantic-ai here is 2.x (`pydantic-ai-slim`): store chats with `ConversationTypeAdapter` (a `Conversation` carries usage for `UsageLimits` across turns), stop runs with a `CancellationToken` (`RunCancelled.all_messages()` keeps the partial reply), and pass the model per run. Read the installed source under `.venv/…/pydantic_ai/` before trusting older docs. <!-- docs-check: ignore -->
-- `FunctionModel` needs `stream_function=` for `run_stream_events()`; a plain function errors with "must receive a stream_function". Tool calls are yielded as `{0: DeltaToolCall(...)}`.
+- `UsageLimits` passed with a `conversation=` are checked against the **whole chat's** usage (`Conversation.usage` is cumulative), not the run's. A fixed `request_limit=25` once stopped every chat for good after 25 requests in total. Per-turn limits must add what the chat already used: see `turn_limits` in `assistant/chat.py`. The spend limit is meant per chat, so it stays fixed.
+- `FunctionModel` needs `stream_function=` for `run_stream_events()` (a plain function errors with "must receive a stream_function") and `function=` for a plain `agent.run()`, like the title agent's; give a test model both when it serves both. Tool calls are yielded as `{0: DeltaToolCall(...)}`.
 - A route that starts an `asyncio` task must be `async def`: sync routes run in a thread with no running loop.
 - OpenRouter model ids must include the upstream (`openai/gpt-x`); `build_model` raises `UserError` otherwise, which the API returns as a 409.
 - Newer Ollama returns `capabilities` in `/api/tags`; older ones need `/api/show` per model. Both are handled. `ATHENA_OLLAMA_TESTS=1` runs a real Ollama test.

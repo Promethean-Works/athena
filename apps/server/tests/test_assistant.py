@@ -419,3 +419,26 @@ def test_real_ollama_lists_models(tmp_path):
         signed_in(client)
         pid = add_provider(client, "ollama", "Ollama", {"base_url": "http://127.0.0.1:11434"})["id"]
         assert client.post(f"/api/assistant/providers/{pid}/test").json()["ok"] is True
+
+
+def test_turn_limits_count_from_what_the_chat_used(tmp_path, monkeypatch):
+    """A long chat keeps working: the per-turn request limit isn't a per-chat one."""
+    monkeypatch.setattr(chat, "TURN_REQUESTS", 1)
+
+    async def reply(messages, info) -> AsyncIterator[str]:
+        yield "ok"
+
+    app = chat_app(tmp_path, monkeypatch, FunctionModel(stream_function=reply))
+    with TestClient(app) as client:
+        signed_in(client)
+        pid = add_provider(client)["id"]
+        conv = client.post(
+            "/api/assistant/conversations", json={"model": {"provider_id": pid, "model": "m"}}
+        ).json()
+        url = f"/api/assistant/conversations/{conv['id']}/messages"
+        for _ in range(3):
+            with client.stream("POST", url, json={"text": "again"}) as res:
+                events = read_events(res)
+            assert not [d for e, d in events if e == "error"]
+        detail = client.get(f"/api/assistant/conversations/{conv['id']}").json()
+        assert [m["role"] for m in detail["messages"]] == ["user", "assistant"] * 3
