@@ -81,7 +81,7 @@ def test_run_stops_a_command_that_takes_too_long():
 
 
 def test_run_keeps_the_end_of_long_output(monkeypatch):
-    monkeypatch.setattr(shell, "MAX_OUTPUT", 10)
+    monkeypatch.setattr(shell, "MAX_OUTPUT", 12)  # "last-line" plus \r\n on Windows
     result = asyncio.run(shell.run("echo first; echo last-line", 30))
     assert result.truncated and "last-line" in result.output and "first" not in result.output
 
