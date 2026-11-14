@@ -1,0 +1,85 @@
+{
+  // Debug configurations for Athena. Dev data lives in .dev-data/ (git-ignored),
+  // never in the data dir of an installed Athena.
+  // Python configs need the Python Debugger extension (ms-python.debugpy) and
+  // `uv sync` run once in apps/server.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Server: athena serve (:8420)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "athena",
+      "args": ["serve", "--host", "127.0.0.1", "--port", "8420", "--data-dir", "${workspaceFolder}/.dev-data/dev"],
+      "cwd": "${workspaceFolder}/apps/server",
+      "python": "${workspaceFolder}/apps/server/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/apps/server/.venv/Scripts/python.exe" },
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Server: release build (:8421, serves apps/web/out)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "athena",
+      "args": ["serve", "--host", "127.0.0.1", "--port", "8421", "--data-dir", "${workspaceFolder}/.dev-data/release"],
+      "cwd": "${workspaceFolder}/apps/server",
+      "env": { "ATHENA_WEB_DIR": "${workspaceFolder}/apps/web/out" },
+      "python": "${workspaceFolder}/apps/server/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/apps/server/.venv/Scripts/python.exe" },
+      "preLaunchTask": "build: all",
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Server: pytest (current file)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-q", "${file}"],
+      "cwd": "${workspaceFolder}/apps/server",
+      "python": "${workspaceFolder}/apps/server/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/apps/server/.venv/Scripts/python.exe" },
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Server: pytest (all)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-q"],
+      "cwd": "${workspaceFolder}/apps/server",
+      "python": "${workspaceFolder}/apps/server/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/apps/server/.venv/Scripts/python.exe" },
+      "justMyCode": false,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Web: next dev (:3000)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm dev",
+      "cwd": "${workspaceFolder}/apps/web",
+      "serverReadyAction": {
+        "pattern": "- Local:.+(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      }
+    },
+    {
+      "name": "Web: Chrome (attach to :3000)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/apps/web"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full stack: server + web (dev)",
+      "configurations": ["Server: athena serve (:8420)", "Web: next dev (:3000)"],
+      "stopAll": true
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  // Run with "Tasks: Run Task". Ctrl/Cmd+Shift+B runs the default build task,
+  // and "Tasks: Run Test Task" runs the server tests.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev: server (reload)",
+      "detail": "athena serve on 127.0.0.1:8420 with --reload, data in .dev-data/dev",
+      "type": "shell",
+      "command": "uv run athena serve --host 127.0.0.1 --port 8420 --data-dir \"${workspaceFolder}/.dev-data/dev\" --reload",
+      "options": { "cwd": "${workspaceFolder}/apps/server" },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "athena-server",
+        "pattern": { "regexp": "^__never_matches__$" },
+        "background": {
+          "beginsPattern": "alembic\\.runtime|Started server process",
+          "endsPattern": "Application startup complete"
+        }
+      },
+      "presentation": { "group": "dev", "panel": "dedicated" }
+    },
+    {
+      "label": "dev: web",
+      "detail": "next dev on :3000, proxies /api to :8420",
+      "type": "shell",
+      "command": "pnpm dev",
+      "options": { "cwd": "${workspaceFolder}/apps/web" },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "athena-web",
+        "pattern": { "regexp": "^__never_matches__$" },
+        "background": {
+          "beginsPattern": "next dev|Next\\.js",
+          "endsPattern": "Ready in|- Local:"
+        }
+      },
+      "presentation": { "group": "dev", "panel": "dedicated" }
+    },
+    {
+      "label": "dev: all",
+      "detail": "Server (reload) and web dev server side by side",
+      "dependsOn": ["dev: server (reload)", "dev: web"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "build: all",
+      "detail": "pnpm build (web static export into apps/web/out)",
+      "type": "shell",
+      "command": "pnpm build",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "serve: release (:8421)",
+      "detail": "Builds, then serves apps/web/out from the Python server, data in .dev-data/release",
+      "type": "shell",
+      "command": "uv run athena serve --host 127.0.0.1 --port 8421 --data-dir \"${workspaceFolder}/.dev-data/release\"",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/server",
+        "env": { "ATHENA_WEB_DIR": "${workspaceFolder}/apps/web/out" }
+      },
+      "dependsOn": ["build: all"],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "athena-server",
+        "pattern": { "regexp": "^__never_matches__$" },
+        "background": {
+          "beginsPattern": "alembic\\.runtime|Started server process",
+          "endsPattern": "Application startup complete"
+        }
+      }
+    },
+    {
+      "label": "test: server",
+      "detail": "uv run pytest -q",
+      "type": "shell",
+      "command": "uv run pytest -q",
+      "options": { "cwd": "${workspaceFolder}/apps/server" },
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "lint: server",
+      "detail": "ruff check and format check",
+      "type": "shell",
+      "command": "uv run ruff check . && uv run ruff format --check .",
+      "options": { "cwd": "${workspaceFolder}/apps/server" },
+      "problemMatcher": []
+    },
+    {
+      "label": "lint: web",
+      "type": "shell",
+      "command": "pnpm lint",
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "typecheck: web",
+      "type": "shell",
+      "command": "pnpm typecheck",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "check: all (CI)",
+      "detail": "scripts/check.sh: the same checks as CI",
+      "type": "shell",
+      "command": "scripts/check.sh",
+      "problemMatcher": []
+    },
+    {
+      "label": "check: quick",
+      "detail": "scripts/check.sh --quick (skips the web build)",
+      "type": "shell",
+      "command": "scripts/check.sh --quick",
+      "problemMatcher": []
+    },
+    {
+      "label": "gen: api client",
+      "detail": "pnpm gen:api (after any API change)",
+      "type": "shell",
+      "command": "pnpm gen:api",
+      "problemMatcher": []
+    },
+    {
+      "label": "gen: theme css",
+      "detail": "pnpm gen:theme (after shadcn upgrades; needs network)",
+      "type": "shell",
+      "command": "pnpm gen:theme",
+      "problemMatcher": []
+    }
+  ]
+}
