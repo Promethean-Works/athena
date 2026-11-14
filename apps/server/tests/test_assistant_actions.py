@@ -162,6 +162,7 @@ def test_a_new_message_denies_waiting_actions(tmp_path, monkeypatch):
         events = send(client, conv, "Actually, never mind")
         assert not (share / "a").exists()
         assert seen[0] == f"denied: {assistant_api.chat.DENIED_BY_NEW_MESSAGE}"
+        assert ("assistant.deny", "Create the folder a in Share") in audit_rows(client)
         assert events[-1][0] == "done"
         roles = [m["role"] for m in detail(client, conv)["messages"]]
         assert roles == ["user", "assistant", "user", "assistant"]

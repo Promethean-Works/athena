@@ -439,6 +439,7 @@ async def send_message(
     if turns.get(row.id) is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "This chat is still answering")
     model = _model_for(request, db, row, body.model)
+    _audit_skipped(db, user, row)
     settings = ai_settings.load(db)
     assert user.user.id is not None
     turn = turns.start(
@@ -507,6 +508,18 @@ async def answer_approvals(
         user_id=user.user.id,
     )
     return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
+
+
+def _audit_skipped(db: Session, user: CurrentUser, row: AiConversation) -> None:
+    """A new message denies the actions still waiting (see `chat._results`); record
+    those denials like the ones answered on their card."""
+    conv = chat.load_history(row)
+    pending = conv.deferred_tool_requests if conv else None
+    for call in pending.approvals if pending else []:
+        what = chat.summarizer(db)(call.tool_name, chat.args_of(call)) or call.tool_name
+        audit.record(
+            db, user.user.username, "assistant.deny", what, f"{call.tool_name}, by a new message"
+        )
 
 
 def _model_for(
