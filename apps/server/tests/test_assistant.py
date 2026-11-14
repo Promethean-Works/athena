@@ -10,12 +10,13 @@ import pytest
 from conftest import make_app, signed_in
 from fake_probe import FakeProbe
 from fastapi.testclient import TestClient
-from pydantic_ai.messages import ModelMessage
+from pydantic_ai.messages import ModelMessage, ModelResponse, TextPart
 from pydantic_ai.models.function import AgentInfo, DeltaToolCall, FunctionModel
 from pydantic_ai.models.test import TestModel
 from sqlmodel import select
 
 from athena.api import assistant as assistant_api
+from athena.assistant import chat
 from athena.assistant.kinds import KINDS
 from athena.assistant.providers import ProviderConfig, build_model
 from athena.crypto import SecretBox, SecretError
@@ -279,7 +280,11 @@ def test_chat_streams_a_reply_with_tools_and_saves_it(tmp_path, monkeypatch):
             yield "This is "
             yield "a Mac."
 
-    app = chat_app(tmp_path, monkeypatch, FunctionModel(stream_function=reply))
+    def title(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        assert not info.function_tools  # the title agent has none
+        return ModelResponse(parts=[TextPart('"Server OS check."')])
+
+    app = chat_app(tmp_path, monkeypatch, FunctionModel(title, stream_function=reply))
     with TestClient(app) as client:
         signed_in(client)
         pid = add_provider(client)["id"]
@@ -296,7 +301,7 @@ def test_chat_streams_a_reply_with_tools_and_saves_it(tmp_path, monkeypatch):
         result = next(d for e, d in events if e == "tool-result")
         assert '"os": "darwin"' in result["result"] and result["error"] is None
         assert "".join(d["delta"] for e, d in events if e == "text") == "This is a Mac."
-        assert ("title", {"title": "What OS is this server running?"}) in events
+        assert ("title", {"title": "Server OS check"}) in events
 
         detail = client.get(f"/api/assistant/conversations/{conv['id']}").json()
         assert detail["running"] is False
@@ -310,7 +315,59 @@ def test_chat_streams_a_reply_with_tools_and_saves_it(tmp_path, monkeypatch):
             read_events(res)
         detail = client.get(f"/api/assistant/conversations/{conv['id']}").json()
         assert [m["role"] for m in detail["messages"]] == ["user", "assistant"] * 2
-        assert client.get("/api/assistant/conversations").json()[0]["title"].startswith("What OS")
+        # Only the first message names the chat.
+        assert client.get("/api/assistant/conversations").json()[0]["title"] == "Server OS check"
+
+
+def test_titles_use_the_title_model_and_fall_back_to_the_message(tmp_path, monkeypatch):
+    async def chat_reply(messages, info) -> AsyncIterator[str]:
+        yield "Sure."
+
+    def title_reply(messages, info) -> ModelResponse:
+        return ModelResponse(parts=[TextPart("Disk space on the NAS")])
+
+    def broken(messages, info) -> ModelResponse:
+        raise RuntimeError("title model down")
+
+    models = {
+        "chat": FunctionModel(stream_function=chat_reply),
+        "small": FunctionModel(title_reply),
+        "broken": FunctionModel(broken),
+    }
+    app = make_app(tmp_path)
+    monkeypatch.setattr(assistant_api, "build_model", lambda cfg, model_id: models[model_id])
+    with TestClient(app) as client:
+        signed_in(client)
+        pid = add_provider(client)["id"]
+
+        def first_title(title_model: str) -> str:
+            ref = {"provider_id": pid, "model": title_model}
+            client.put("/api/settings/ai", json={"title_model": ref}).raise_for_status()
+            body = {"model": {"provider_id": pid, "model": "chat"}}
+            conv = client.post("/api/assistant/conversations", json=body).json()
+            url = f"/api/assistant/conversations/{conv['id']}/messages"
+            with client.stream("POST", url, json={"text": "How full is   my\ndisk?"}) as res:
+                events = read_events(res)
+            assert "".join(d["delta"] for e, d in events if e == "text") == "Sure."
+            return next(d["title"] for e, d in events if e == "title")
+
+        assert first_title("small") == "Disk space on the NAS"
+        assert first_title("broken") == "How full is my disk?"
+
+
+@pytest.mark.parametrize(
+    ("raw", "title"),
+    [
+        ("Backup plan", "Backup plan"),
+        ('"Jellyfin setup."', "Jellyfin setup"),
+        ("\n**Title: “Docker logs”**\nMore text", "Docker logs"),
+        ("# Ports  ", "Ports"),
+        ("x" * 80, "x" * 59 + "…"),
+        ('  ""  ', None),
+    ],
+)
+def test_clean_title(raw, title):
+    assert chat.clean_title(raw) == title
 
 
 def test_chat_reports_model_errors(tmp_path, monkeypatch):
