@@ -509,6 +509,7 @@ GET/PUT /api/settings/{appearance|ai|system}   POST /api/auth/password
 | dashboard-icons (catalog icons, loaded by URL) | Apache-2.0 |
 | httpx2 (test client) | BSD-3-Clause |
 | Playwright for Python (e2e smoke test only, not shipped) | Apache-2.0 |
+| pytest-cov, coverage.py (test coverage only, not shipped) | MIT / Apache-2.0 |
 | FastAPI, SQLModel, Pydantic, pydantic-ai, pydantic-ai-harness, uvicorn | MIT / BSD |
 | Docker Engine (Moby), Docker CLI, Compose v2 | Apache-2.0 |
 | python-on-whales, psutil, platformdirs, pywinpty (Windows only), send2trash | MIT / BSD / ISC |
