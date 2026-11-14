@@ -58,7 +58,8 @@ from sqlmodel import Session
 
 from athena.assistant import actions
 from athena.assistant import settings as ai_settings
-from athena.assistant.tools import Deps, toolset_for
+from athena.assistant.tools import Deps, shell_provider, toolset_for
+from athena.assistant.workspace import shell_capabilities
 from athena.auth.deps import CurrentUser
 from athena.db.models import AiConversation, AuthSession, User
 from athena.platform.capabilities import CapabilityManifest
@@ -431,6 +432,7 @@ async def _stream(
         model=model,
         deps=deps,
         toolsets=[toolset_for(deps.manifest, deps.shell_commands)],
+        capabilities=shell_capabilities(shell_provider(deps.manifest), deps.shell_commands),
         instructions=_host_instructions(deps.manifest),
         usage_limits=limits,
         cancellation_token=turn.token,

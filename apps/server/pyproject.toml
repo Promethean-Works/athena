@@ -23,6 +23,7 @@ dependencies = [
     "pydantic-ai-slim[anthropic,bedrock,google,groq,mistral,openai]>=2.68.0",
     "cryptography>=50.0.2",
     "httpx2>=2.16.0",
+    "pydantic-ai-harness==0.68.0",
 ]
 
 [project.scripts]

@@ -489,7 +489,7 @@ function ShellCard({
   settings: AiSettings | null
   save: SaveAi
 }) {
-  const terminal = useCapability("terminal.host")
+  const where = useCapability("assistant.shell")
   const [text, setText] = React.useState("")
   const saved = settings
     ? (settings.shell_commands ?? []).join("\n")
@@ -522,7 +522,7 @@ function ShellCard({
     )
   }
 
-  if (terminal?.status === "unsupported") return null
+  if (where?.status !== "ready") return null
 
   return (
     <Card>
@@ -545,6 +545,7 @@ function ShellCard({
                 <FieldDescription>
                   Off by default. Athena&apos;s own tools (apps, packages,
                   files) don&apos;t need it.
+                  {where.detail && ` ${where.detail}.`}
                 </FieldDescription>
               </FieldContent>
               <Switch
