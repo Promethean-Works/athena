@@ -2,7 +2,7 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Part A (providers and chat) is done (#37); parts B (actions with approval) and C (polish) follow.
+**Current milestone:** M7, the AI assistant (§4.5). Parts A (providers and chat, #37) and B (actions with approval) are done; part C (polish) follows.
 
 ## Done
 
@@ -155,6 +155,8 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 - M7 part A, AI providers and chat (#37): AI providers (12 kinds, keys encrypted with `athena/crypto.py`), live model lists with tool support, the `ai.ollama` capability, Settings → AI (providers, default and title model, spend limit), and `/assistant` with streaming chat over our own SSE and read-only tools (capabilities, stats, apps, logs, file locations, files). The UI uses shadcn's chat components, not the Vercel AI SDK. Verified: server tests (30 new), a real chat against local Ollama `qwen2.5` (tool call, streaming, Stop keeps the partial reply), and the browser check (one-click Ollama, a real Anthropic 401 shown as "refused the API key", "Unchanged" key, phone width, dark mode). Not tested against a real cloud model (no keys here), Bedrock or Azure. The title model setting is saved but titles are still the first message (generated titles are part C). The `shell_enabled` setting exists but has no UI or effect until part C.
 
+- M7 part B, assistant actions with approval (branch `feat/m7-assistant-actions`): twelve actions in `assistant/actions.py` (store install, compose app, start/stop/restart/update, remove; package install/uninstall/upgrade; write text file, folder, rename, delete, copy/move) as pydantic-ai deferred tools, plus read tools for the store, packages and text files. Approve/Deny cards (summary with names resolved, exact arguments, destructive style), `POST …/approvals` (every waiting call answered, each audited as `assistant.approve`/`deny`), a new message denies what's waiting, job-starting actions wait for the job and show a Log button. 21 new server tests. Verified in the browser with a real Ollama `qwen2.5`: deny (the model had guessed the wrong location; the card named it), approve (folder created), a copy job with its log, a destructive delete card skipped by a new message (file kept, still denied after reload), phone width, dark mode, audit rows, no console errors. Not tested: app and package actions against a real engine or manager (the tests cover gating and the shared route helpers; brew is real on the dev Mac, so it was left alone), a cloud model, and a job that outlives the 15-minute wait. A denial caused by a new message isn't audited (only explicit Approve/Deny answers are).
+
 ## In progress
 
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
@@ -166,7 +168,7 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 ## Next
 
-M7 part B: tools that change things (install apps, deploy, packages, file operations) as deferred tools with Approve/Deny cards and audit. Then part C: the opt-in shell, spend shown in the UI, the assistant side sheet on every page, generated titles, and the setup-wizard step.
+M7 part C: the opt-in shell, spend shown in the UI, the assistant side sheet on every page, generated titles, and the setup-wizard step.
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 

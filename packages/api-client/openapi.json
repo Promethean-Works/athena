@@ -4719,7 +4719,7 @@
           "assistant"
         ],
         "summary": "Send Message",
-        "description": "Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a\nnew block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,\n`error`), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`.",
+        "description": "Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a\nnew block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,\n`error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,\n`name`, `args`, `summary` and `destructive`), `job` (`id` of the tool call, `job_id`,\n`title`: a job an approved action started), `title`, `usage`, `stopped`, `error`\n(`message`) and finally `done`. While actions wait, a new message denies them.",
         "operationId": "sendMessage",
         "parameters": [
           {
@@ -4739,6 +4739,56 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/event-stream": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/conversations/{conversation_id}/approvals": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Answer Approvals",
+        "description": "Approve or deny the actions a paused chat is waiting on, and continue it. Approved\nactions run as you, and each answer is audited. Streams the same events as\nsendMessage.",
+        "operationId": "answerApprovals",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalsIn"
               }
             }
           }
@@ -5150,6 +5200,24 @@
         "type": "object",
         "title": "Appearance"
       },
+      "ApprovalsIn": {
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/Decision"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Decisions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decisions"
+        ],
+        "title": "ApprovalsIn"
+      },
       "AuthStatus": {
         "properties": {
           "setup_required": {
@@ -5508,7 +5576,9 @@
                 "enum": [
                   "running",
                   "done",
-                  "error"
+                  "error",
+                  "approval",
+                  "denied"
                 ]
               },
               {
@@ -5516,6 +5586,33 @@
               }
             ],
             "title": "State"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "destructive": {
+            "type": "boolean",
+            "title": "Destructive",
+            "default": false
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
           }
         },
         "type": "object",
@@ -6000,6 +6097,38 @@
           "password"
         ],
         "title": "Credentials"
+      },
+      "Decision": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "approve": {
+            "type": "boolean",
+            "title": "Approve"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "approve"
+        ],
+        "title": "Decision"
       },
       "DeleteIn": {
         "properties": {

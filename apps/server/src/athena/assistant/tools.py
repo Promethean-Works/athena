@@ -1,34 +1,52 @@
 """The assistant's tools: Athena's own service layer, filtered by the capability manifest
-(docs/mvp-design.md §4.5). Part A has read-only tools only; nothing here changes the host.
+(docs/mvp-design.md §4.5). Everything here only reads; the tools that change things are in
+`actions.py` and need the admin's approval.
 """
 
 import asyncio
+import re
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
-from fastapi import FastAPI, Request
-from pydantic_ai import FunctionToolset, RunContext, ToolFailed
+from fastapi import FastAPI, HTTPException, Request
+from pydantic_ai import FunctionToolset, RunContext, Tool, ToolFailed
 from sqlmodel import Session, select
 
+from athena.auth.deps import CurrentUser
+from athena.catalog.model import APP_ID
 from athena.containers import service as containers
 from athena.containers.runtime import Runtime, RuntimeUnavailableError, runtime_from
 from athena.containers.service import ContainerError
 from athena.db.models import App
 from athena.files import locations, ops
 from athena.files.paths import FileError, resolve, root_of
+from athena.packages.base import SEARCH_QUERY
 from athena.platform.capabilities import CapabilityManifest
 
 MAX_LOG_LINES = 300
 MAX_LOG_CHARS = 20_000
 MAX_FILE_ENTRIES = 200
+MAX_TEXT_CHARS = 20_000
+MAX_STORE_APPS = 50
+MAX_PACKAGES = 50
+CATALOG_NAME = r"^[a-z0-9][a-z0-9-]{0,62}$"
+MANAGER_ID = r"^[a-z]{2,16}$"
 
 
 @dataclass
 class Deps:
     app: FastAPI
     db: Session
-    username: str
+    user: CurrentUser
+    """The admin chatting; actions run (and are audited) as them."""
     manifest: CapabilityManifest
+    emit: Callable[[str, Any], None] = lambda event, data: None
+    """Sends an extra event to the chat stream (the `job` a tool started)."""
+
+    @property
+    def username(self) -> str:
+        return self.user.user.username
 
     def request(self) -> Request:
         """A bare request whose `.app` is the server, for helpers written for routes."""
@@ -152,13 +170,135 @@ async def list_files(ctx: Ctx, location_id: int, path: str = "") -> dict[str, An
     }
 
 
+async def read_text_file(ctx: Ctx, location_id: int, path: str) -> dict[str, Any]:
+    """A text file's content (at most 20,000 characters) inside a file location."""
+    try:
+        loc = locations.get(ctx.deps.db, location_id)
+        root = root_of(loc.path)
+        text = await asyncio.to_thread(ops.read_text, root, resolve(root, path))
+    except (FileError, OSError) as exc:
+        raise ToolFailed(str(exc)) from exc
+    content = text.content
+    cut = len(content) > MAX_TEXT_CHARS
+    return {"path": text.path, "content": content[:MAX_TEXT_CHARS], "truncated": cut}
+
+
+# ---------------------------------------------------------------- store
+
+
+async def search_store(ctx: Ctx, query: str = "", category: str | None = None) -> dict[str, Any]:
+    """Apps in the app store matching `query` (title, description or id; "" for all),
+    optionally in one category. At most 50. `installed` lists Athena apps made from it."""
+    from athena.api import store
+
+    found = _call(store.list_store_apps, ctx.deps.request(), ctx.deps.db, query[:100], category)
+    return {
+        "apps": [
+            a.model_dump(include={"catalog", "id", "title", "description", "category", "installed"})
+            for a in found[:MAX_STORE_APPS]
+        ],
+        "truncated": len(found) > MAX_STORE_APPS,
+    }
+
+
+async def get_store_app(ctx: Ctx, catalog: str, app_id: str) -> dict[str, Any]:
+    """One store app: its install form (fields with defaults, required ones, choices),
+    the suggested app name, notes and images. Call this before install_store_app."""
+    from athena.api import store
+
+    _check(catalog, CATALOG_NAME, "catalog")
+    _check(app_id, APP_ID, "app id")
+    app = _call(store.get_store_app, catalog, app_id, ctx.deps.request(), ctx.deps.db)
+    return app.model_dump(exclude={"compose", "icon"})
+
+
+# ---------------------------------------------------------------- packages
+
+
+async def list_package_managers(ctx: Ctx) -> list[dict[str, Any]]:
+    """The host's package managers (apt, brew, winget…) with their status."""
+    from athena.api import packages
+
+    found = await packages.list_managers(ctx.deps.request())
+    return [m.model_dump() for m in found]
+
+
+async def search_packages(ctx: Ctx, manager: str, query: str) -> list[dict[str, Any]]:
+    """Search a package manager (its id from list_package_managers). At most 50 results."""
+    from athena.api import packages
+
+    _check(manager, MANAGER_ID, "manager")
+    _check(query.strip(), SEARCH_QUERY.pattern, "query")
+    pm = await _http(packages._manager(ctx.deps.request(), manager))
+    found = await _http(packages._read(pm.search(query.strip())))
+    return [p.model_dump() for p in found[:MAX_PACKAGES]]
+
+
+async def list_upgradable_packages(ctx: Ctx, manager: str) -> list[dict[str, Any]]:
+    """Packages with an update, from the lists as last refreshed."""
+    from athena.api import packages
+
+    _check(manager, MANAGER_ID, "manager")
+    pm = await _http(packages._manager(ctx.deps.request(), manager))
+    found = await _http(packages._read(pm.upgradable()))
+    return [p.model_dump() for p in found[:MAX_PACKAGES]]
+
+
+# ---------------------------------------------------------------- helpers
+
+
+async def _http[T](work: Awaitable[T]) -> T:
+    """Run a route helper; its HTTP errors become the tool's failure message."""
+    try:
+        return await work
+    except HTTPException as exc:
+        raise ToolFailed(http_detail(exc)) from exc
+
+
+def _call[T](fn: Callable[..., T], *args: Any) -> T:
+    """`_http` for a route helper that isn't async (they use the chat's database session,
+    so they run on the event loop, not in a thread)."""
+    try:
+        return fn(*args)
+    except HTTPException as exc:
+        raise ToolFailed(http_detail(exc)) from exc
+
+
+def http_detail(exc: HTTPException) -> str:
+    detail = exc.detail
+    if isinstance(detail, dict):
+        errors = detail.get("errors") or {}
+        lines = [str(detail.get("message", "Invalid values"))]
+        lines += [f"- {key}: {msg}" for key, msg in errors.items()]
+        return "\n".join(lines)
+    return str(detail)
+
+
+def _check(value: str, pattern: str, what: str) -> None:
+    if not re.fullmatch(pattern, value):
+        raise ToolFailed(f"That isn't a valid {what}: {value!r}")
+
+
+def _has_packages(manifest: CapabilityManifest) -> bool:
+    return any(c.id.startswith("packages.") and c.available for c in manifest.capabilities)
+
+
 def toolset_for(manifest: CapabilityManifest) -> FunctionToolset[Deps]:
-    """The tools this host supports right now."""
+    """The tools this host supports right now. Tools that change something (from
+    `actions.py`) need the admin's approval for every call."""
+    from athena.assistant import actions
+
     tools: list[Any] = [get_capabilities, get_system_stats]
+    changes: list[Any] = []
     cap = manifest.get("containers")
     if cap is not None and cap.available:
-        tools += [list_apps, app_logs]
+        tools += [list_apps, app_logs, search_store, get_store_app]
+        changes += actions.APP_ACTIONS
     files = manifest.get("files")
     if files is not None and files.available:
-        tools += [list_file_locations, list_files]
-    return FunctionToolset(tools)
+        tools += [list_file_locations, list_files, read_text_file]
+        changes += actions.FILE_ACTIONS
+    if _has_packages(manifest):
+        tools += [list_package_managers, search_packages, list_upgradable_packages]
+        changes += actions.PACKAGE_ACTIONS
+    return FunctionToolset([*tools, *(Tool(fn, requires_approval=True) for fn in changes)])

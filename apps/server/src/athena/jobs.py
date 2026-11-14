@@ -104,6 +104,11 @@ class Job:
             self.finished_at = datetime.now(UTC)
             self._changed.notify_all()
 
+    async def wait(self) -> None:
+        """Return once the job has finished (the assistant waits for the jobs it starts)."""
+        async with self._changed:
+            await self._changed.wait_for(lambda: self.status != "running")
+
     async def events(self) -> AsyncIterator[str]:
         """SSE stream: every line so far, then new lines and `progress` updates, then a
         final `status` event."""

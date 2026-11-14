@@ -164,6 +164,10 @@ CodeQL runs on every PR and its alerts can block a merge.
 - A route that starts an `asyncio` task must be `async def`: sync routes run in a thread with no running loop.
 - OpenRouter model ids must include the upstream (`openai/gpt-x`); `build_model` raises `UserError` otherwise, which the API returns as a 409.
 - Newer Ollama returns `capabilities` in `/api/tags`; older ones need `/api/show` per model. Both are handled. `ATHENA_OLLAMA_TESTS=1` runs a real Ollama test.
+- Approvals: give the agent `output_type=[str, DeferredToolRequests]` and register actions with `Tool(fn, requires_approval=True)`. The paused run's `Conversation.deferred_tool_requests` survives `ConversationTypeAdapter` round trips, so answer from the stored copy with `build_results(approvals=...)`. A resumed run re-emits `FunctionToolCallEvent` for the approved calls (the UI updates the existing part by id instead of adding one). A new prompt is refused while calls are unanswered unless `deferred_tool_results` comes with it, which is how a new message denies them. A denial comes back as a `ToolReturnPart` with `outcome="denied"`.
+- Assistant actions call route functions directly (`apps.app_action(name, action, request, runtime, user, db)`). FastAPI's `Path`/`Query` checks don't run on a direct call, so the tool's own parameters carry the same patterns (`Annotated[str, Field(pattern=...)]`; pydantic-ai validates them and asks the model to retry). Route helpers that use the chat's db session run on the event loop, not `asyncio.to_thread` (SQLite sessions are per thread).
+- Small local models (qwen2.5 7B) guess ids, e.g. a file location id, instead of calling the list tool first. The approval card resolves ids to names ("… in App data"), which is how the admin catches it; the instructions also tell the model never to guess.
+- `packages.brew` is really `ready` on the maintainer's Mac, so an approved package action in a browser check really runs `brew`. Only approve file actions inside a scratch location, or stub `brew` on `PATH`.
 
 ### Browser verification (`athena-ui-verify`)
 

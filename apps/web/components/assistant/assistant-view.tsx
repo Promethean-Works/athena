@@ -53,7 +53,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 import { Markdown } from "@/components/assistant/markdown"
 import { ModelPicker } from "@/components/assistant/model-picker"
-import { Steps } from "@/components/assistant/steps"
+import { ApprovalProvider, Steps } from "@/components/assistant/steps"
 import {
   useChatStream,
   type ChatMessage,
@@ -326,6 +326,8 @@ function Chat() {
     />
   )
   const lastId = chat.messages.at(-1)?.id
+  const approvals = { decide: chat.decide, decided: chat.decided, busy }
+  const waiting = chat.waiting.length > 0
 
   return (
     <div className="flex h-[calc(100svh-var(--header-height)-2rem)] min-h-96 gap-4 md:h-[calc(100svh-var(--header-height)-4rem)]">
@@ -359,8 +361,8 @@ function Chat() {
                 </EmptyMedia>
                 <EmptyTitle>Ask about this server</EmptyTitle>
                 <EmptyDescription>
-                  The assistant can look up apps, logs, files and system stats.
-                  It can't change anything yet.
+                  The assistant can look up apps, logs, files and system stats,
+                  and install or change things once you approve each action.
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent className="flex-row flex-wrap justify-center">
@@ -377,48 +379,50 @@ function Chat() {
               </EmptyContent>
             </Empty>
           ) : (
-            <MessageScrollerProvider autoScroll>
-              <MessageScroller>
-                <MessageScrollerViewport>
-                  <MessageScrollerContent
-                    aria-busy={busy}
-                    className="gap-6 py-2 md:px-4"
-                  >
-                    {chat.messages.map((m) =>
-                      m.role === "user" ? (
-                        <MessageScrollerItem
-                          key={m.id}
-                          messageId={m.id}
-                          scrollAnchor
-                        >
-                          <Message align="end">
-                            <MessageContent>
-                              <Bubble align="end" variant="muted">
-                                <BubbleContent className="whitespace-pre-wrap">
-                                  {m.parts.map((p) => p.text).join("\n")}
-                                </BubbleContent>
-                              </Bubble>
-                            </MessageContent>
-                          </Message>
-                        </MessageScrollerItem>
-                      ) : (
-                        <MessageScrollerItem key={m.id} messageId={m.id}>
-                          <Message>
-                            <MessageContent className="gap-3">
-                              <Reply
-                                message={m}
-                                streaming={busy && m.id === lastId}
-                              />
-                            </MessageContent>
-                          </Message>
-                        </MessageScrollerItem>
-                      )
-                    )}
-                  </MessageScrollerContent>
-                </MessageScrollerViewport>
-                <MessageScrollerButton />
-              </MessageScroller>
-            </MessageScrollerProvider>
+            <ApprovalProvider value={approvals}>
+              <MessageScrollerProvider autoScroll>
+                <MessageScroller>
+                  <MessageScrollerViewport>
+                    <MessageScrollerContent
+                      aria-busy={busy}
+                      className="gap-6 py-2 md:px-4"
+                    >
+                      {chat.messages.map((m) =>
+                        m.role === "user" ? (
+                          <MessageScrollerItem
+                            key={m.id}
+                            messageId={m.id}
+                            scrollAnchor
+                          >
+                            <Message align="end">
+                              <MessageContent>
+                                <Bubble align="end" variant="muted">
+                                  <BubbleContent className="whitespace-pre-wrap">
+                                    {m.parts.map((p) => p.text).join("\n")}
+                                  </BubbleContent>
+                                </Bubble>
+                              </MessageContent>
+                            </Message>
+                          </MessageScrollerItem>
+                        ) : (
+                          <MessageScrollerItem key={m.id} messageId={m.id}>
+                            <Message>
+                              <MessageContent className="gap-3">
+                                <Reply
+                                  message={m}
+                                  streaming={busy && m.id === lastId}
+                                />
+                              </MessageContent>
+                            </Message>
+                          </MessageScrollerItem>
+                        )
+                      )}
+                    </MessageScrollerContent>
+                  </MessageScrollerViewport>
+                  <MessageScrollerButton />
+                </MessageScroller>
+              </MessageScrollerProvider>
+            </ApprovalProvider>
           )}
         </div>
         {chat.error ? (
@@ -437,7 +441,11 @@ function Chat() {
             <InputGroupTextarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="Ask about this server…"
+              placeholder={
+                waiting
+                  ? "Approve or deny above, or send a message to skip it…"
+                  : "Ask about this server…"
+              }
               aria-label="Message"
               className="max-h-48 min-h-14"
               onKeyDown={(e) => {
