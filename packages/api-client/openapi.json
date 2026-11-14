@@ -5621,6 +5621,33 @@
         ],
         "title": "ChatPart"
       },
+      "ChatUsage": {
+        "properties": {
+          "input_tokens": {
+            "type": "integer",
+            "title": "Input Tokens",
+            "default": 0
+          },
+          "output_tokens": {
+            "type": "integer",
+            "title": "Output Tokens",
+            "default": 0
+          },
+          "cost": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost"
+          }
+        },
+        "type": "object",
+        "title": "ChatUsage"
+      },
       "CloudDeleteIn": {
         "properties": {
           "remote": {
@@ -5939,6 +5966,20 @@
           "running": {
             "type": "boolean",
             "title": "Running"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/ChatUsage"
+          },
+          "spend_limit_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spend Limit Usd"
           }
         },
         "type": "object",
@@ -5949,7 +5990,9 @@
           "created_at",
           "updated_at",
           "messages",
-          "running"
+          "running",
+          "usage",
+          "spend_limit_usd"
         ],
         "title": "ConversationDetail"
       },

@@ -8,6 +8,8 @@ model had already said.
 
 import asyncio
 import contextlib
+import copy
+import dataclasses
 import json
 import logging
 from collections.abc import AsyncIterator, Callable
@@ -33,6 +35,7 @@ from pydantic_ai import (
     RunCancelled,
     ToolDenied,
     UsageLimits,
+    capture_run_messages,
 )
 from pydantic_ai.capabilities import Caching
 from pydantic_ai.exceptions import UsageLimitExceeded
@@ -307,13 +310,22 @@ class Turn:
             yield item
 
 
-def _usage_out(usage: Any) -> dict[str, Any]:
-    cost = getattr(usage, "cost", None)
-    return {
-        "input_tokens": usage.input_tokens,
-        "output_tokens": usage.output_tokens,
-        "cost": float(cost) if cost is not None else None,
-    }
+class ChatUsage(BaseModel):
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost: float | None = None
+    """USD, when the model's prices are known."""
+
+
+def usage_of(usage: RunUsage | None) -> ChatUsage:
+    if usage is None:
+        return ChatUsage()
+    cost = usage.cost
+    return ChatUsage(
+        input_tokens=usage.input_tokens,
+        output_tokens=usage.output_tokens,
+        cost=float(cost) if cost is not None else None,
+    )
 
 
 async def _run(
@@ -347,30 +359,18 @@ async def _run(
         limits = turn_limits(previous, spend_limit)
         saved: Conversation | None = None
         try:
-            async with agent.run_stream_events(
-                text,
-                conversation=previous,
-                model=model,
-                deps=deps,
-                toolsets=[toolset_for(manifest)],
-                instructions=_host_instructions(manifest),
-                usage_limits=limits,
-                cancellation_token=turn.token,
-                deferred_tool_results=results,
-            ) as events:
-                async for event in events:
-                    _forward(turn, event)
-                    if isinstance(event, AgentRunResultEvent):
-                        saved = event.result.conversation
-                        if isinstance(event.result.output, DeferredToolRequests):
-                            turn.emit("approval", _approvals_out(db, event.result.output))
+            with capture_run_messages() as captured:
+                saved = await _stream(turn, db, previous, results, text, model, deps, limits)
         except RunCancelled as exc:
             saved = Conversation(messages=list(exc.all_messages()), usage=exc.usage or RunUsage())
             if exc.conversation_id:
                 saved.conversation_id = exc.conversation_id
             turn.emit("stopped", {})
         except UsageLimitExceeded as exc:
-            turn.emit("error", {"message": f"Stopped: {exc}"})
+            # The turn's work is dropped, but what it cost is kept, so the spend limit
+            # holds: the next message is refused before it spends anything.
+            saved = _with_spend(previous, captured)
+            turn.emit("error", {"message": _limit_message(exc, spend_limit)})
         except Exception as exc:  # the model's errors are for the person to read
             log.warning("assistant turn failed: %s", exc)
             turn.emit("error", {"message": _readable(exc)})
@@ -382,7 +382,7 @@ async def _run(
             row.updated_at = datetime.now(UTC)
             db.add(row)
             db.commit()
-            turn.emit("usage", _usage_out(saved.usage))
+            turn.emit("usage", usage_of(saved.usage).model_dump())
         if titling is not None and not titling.done():
             titling.cancel()
         turn.emit("done", {})
@@ -402,6 +402,74 @@ def turn_limits(previous: Conversation | None, spend_limit: float | None) -> Usa
         tool_calls_limit=used.tool_calls + TURN_TOOL_CALLS,
         cost_limit=Decimal(str(spend_limit)) if spend_limit else None,
     )
+
+
+async def _stream(
+    turn: Turn,
+    db: Session,
+    previous: Conversation | None,
+    results: DeferredToolResults | None,
+    text: str | None,
+    model: Model,
+    deps: Deps,
+    limits: UsageLimits,
+) -> Conversation | None:
+    """Runs the agent, forwarding its events; returns the chat to save."""
+    saved: Conversation | None = None
+    async with agent.run_stream_events(
+        text,
+        conversation=previous,
+        model=model,
+        deps=deps,
+        toolsets=[toolset_for(deps.manifest)],
+        instructions=_host_instructions(deps.manifest),
+        usage_limits=limits,
+        cancellation_token=turn.token,
+        deferred_tool_results=results,
+    ) as events:
+        async for event in events:
+            _forward(turn, event)
+            if isinstance(event, AgentRunResultEvent):
+                saved = event.result.conversation
+                if isinstance(event.result.output, DeferredToolRequests):
+                    turn.emit("approval", _approvals_out(db, event.result.output))
+    return saved
+
+
+def _with_spend(previous: Conversation | None, captured: list[ModelMessage]) -> Conversation:
+    """The chat as it was, plus the usage of the responses a stopped run got."""
+    kept = previous or Conversation()
+    usage = copy.copy(kept.usage)
+    for msg in captured[len(kept.messages) :]:
+        if isinstance(msg, ModelResponse):
+            usage.incr(msg.usage)
+            usage.requests += 1
+    return dataclasses.replace(kept, usage=usage)
+
+
+def usd(amount: float) -> str:
+    """$2.00, or $0.005 when two decimals would hide the amount."""
+    return f"${amount:.2f}" if round(amount, 2) == amount else f"${amount:g}"
+
+
+def _limit_message(exc: UsageLimitExceeded, spend_limit: float | None) -> str:
+    text = str(exc)
+    if "cost_limit" in text and spend_limit:
+        return (
+            f"This chat reached its spend limit of {usd(spend_limit)}. Start a new chat, "
+            "or raise the limit in Settings → AI."
+        )
+    if "request_limit" in text:
+        return (
+            f"Stopped: this reply needed more than {TURN_REQUESTS} model requests. "
+            "Try a narrower question."
+        )
+    if "tool_calls_limit" in text:
+        return (
+            f"Stopped: this reply needed more than {TURN_TOOL_CALLS} tool calls. "
+            "Try a narrower question."
+        )
+    return "Stopped: " + text.split(". Consider raising the limit")[0]
 
 
 async def _await_title(task: asyncio.Task[str | None] | None) -> str | None:

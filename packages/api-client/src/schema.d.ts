@@ -1976,6 +1976,21 @@ export interface components {
             /** Job Id */
             job_id?: string | null;
         };
+        /** ChatUsage */
+        ChatUsage: {
+            /**
+             * Input Tokens
+             * @default 0
+             */
+            input_tokens: number;
+            /**
+             * Output Tokens
+             * @default 0
+             */
+            output_tokens: number;
+            /** Cost */
+            cost?: number | null;
+        };
         /** CloudDeleteIn */
         CloudDeleteIn: {
             /** Remote */
@@ -2089,6 +2104,9 @@ export interface components {
             messages: components["schemas"]["ChatMessage"][];
             /** Running */
             running: boolean;
+            usage: components["schemas"]["ChatUsage"];
+            /** Spend Limit Usd */
+            spend_limit_usd: number | null;
         };
         /** ConversationIn */
         ConversationIn: {

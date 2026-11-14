@@ -14,6 +14,11 @@ import type { ModelRef } from "@/components/assistant/use-models"
 export type ChatMessage = Schemas["ChatMessage"]
 export type ChatPart = Schemas["ChatPart"]
 export type ChatStatus = "loading" | "ready" | "streaming"
+/** What a chat has used so far, and the spend limit per chat (Settings → AI). */
+export type ChatSpend = {
+  usage: Schemas["ChatUsage"]
+  limit: number | null
+}
 
 type Handlers = {
   /** The server named the chat (first message). */
@@ -141,6 +146,7 @@ export function useChatStream(
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const [status, setStatus] = React.useState<ChatStatus>("loading")
   const [error, setError] = React.useState<string | null>(null)
+  const [spend, setSpend] = React.useState<ChatSpend | null>(null)
   const sending = React.useRef(false)
   const handlersRef = React.useRef(handlers)
   handlersRef.current = handlers
@@ -148,6 +154,7 @@ export function useChatStream(
   const load = React.useCallback(async () => {
     if (!conversationId) {
       setMessages([])
+      setSpend(null)
       setStatus("ready")
       return
     }
@@ -159,6 +166,7 @@ export function useChatStream(
     )
     if (data) {
       setMessages(data.messages)
+      setSpend({ usage: data.usage, limit: data.spend_limit_usd })
       setStatus(data.running ? "streaming" : "ready")
     } else {
       setStatus("ready")
@@ -209,6 +217,9 @@ export function useChatStream(
             setError(String(d.message ?? "The assistant failed"))
           } else if (event === "title") {
             handlersRef.current.onTitle?.(String(d.title))
+          } else if (event === "usage") {
+            const usage = d as Schemas["ChatUsage"]
+            setSpend((s) => ({ usage, limit: s?.limit ?? null }))
           } else if (event === "done") {
             break
           } else {
@@ -232,7 +243,10 @@ export function useChatStream(
           params: { path: { conversation_id: id } },
         }
       )
-      if (data) setMessages(data.messages)
+      if (data) {
+        setMessages(data.messages)
+        setSpend({ usage: data.usage, limit: data.spend_limit_usd })
+      }
       setStatus("ready")
       handlersRef.current.onDone?.()
       return ok
@@ -334,5 +348,6 @@ export function useChatStream(
     decide,
     decided,
     waiting: waitingCalls(messages),
+    spend,
   }
 }

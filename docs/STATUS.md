@@ -161,6 +161,8 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 - Fixed: chats stopped for good after 25 model requests in total, because pydantic-ai checks `UsageLimits` against the whole conversation's usage. Per-turn limits now count from what the chat already used (`chat.turn_limits`).
 
+- **M7 part C, spend in the UI** (branch `feat/assistant-spend`): `SpendButton` (`components/assistant/spend.tsx`) in the prompt bar; the chat detail returns `usage` and `spend_limit_usd`; a turn stopped by the spend limit now records what it cost (before, each new message bought one more uncounted request). Verified in the browser with a fake priced endpoint: $0.07 of $0.10, then over the limit (red, refused without a model call), a model without prices (tokens only), phone width and dark mode.
+
 ## In progress
 
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
@@ -172,7 +174,7 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 ## Next
 
-M7 part C, what's left: the opt-in shell, spend shown in the UI, the assistant side sheet on every page, and the setup-wizard step.
+M7 part C, what's left: the opt-in shell, the assistant side sheet on every page, and the setup-wizard step.
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 

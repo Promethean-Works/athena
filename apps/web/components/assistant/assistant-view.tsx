@@ -53,6 +53,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 import { Markdown } from "@/components/assistant/markdown"
 import { ModelPicker } from "@/components/assistant/model-picker"
+import { SpendButton } from "@/components/assistant/spend"
 import { ApprovalProvider, Steps } from "@/components/assistant/steps"
 import {
   useChatStream,
@@ -465,6 +466,7 @@ function Chat() {
                 value={model}
                 onChange={pickModel}
               />
+              <SpendButton spend={current ? chat.spend : null} />
               {busy ? (
                 <InputGroupButton
                   type="button"
