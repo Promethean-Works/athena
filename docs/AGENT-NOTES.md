@@ -41,6 +41,7 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Agent config sync | `node scripts/agents-sync.mjs` (after editing `.mcp.json`); `--check` is what CI runs |
 | Release server for UI checks | `pnpm build` then `cd apps/server && ATHENA_WEB_DIR=../web/out uv run athena serve --port 8421 --data-dir "$DATA"` |
 | Dev mode | `pnpm dev` (Next on :3000, proxies `/api` to :8420) plus `uv run athena serve` |
+| VS Code | `.vscode/launch.json` (debug the server, pytest, Next with Chrome, or both as "Full stack") and `.vscode/tasks.json` (dev, build, release serve, tests, checks, codegen). Data goes to the git-ignored `.dev-data/` |
 | Build the wheel | `scripts/build-wheel.sh` (also used by `release.yml` and the E2E workflow) |
 | Installer dry run | `scripts/install.sh --dry-run`; `athena service install --dry-run` |
 | PR status | `gh pr checks <n>`, `gh run view <run-id> --log-failed`, `gh api repos/tiagozaccaro/athena/code-scanning/alerts?state=open` |
