@@ -344,11 +344,7 @@ async def _run(
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
         deps = Deps(app=app, db=db, user=current, manifest=manifest, emit=turn.emit)
-        limits = UsageLimits(
-            request_limit=25,
-            tool_calls_limit=50,
-            cost_limit=Decimal(str(spend_limit)) if spend_limit else None,
-        )
+        limits = turn_limits(previous, spend_limit)
         saved: Conversation | None = None
         try:
             async with agent.run_stream_events(
@@ -390,6 +386,22 @@ async def _run(
         if titling is not None and not titling.done():
             titling.cancel()
         turn.emit("done", {})
+
+
+TURN_REQUESTS = 25
+TURN_TOOL_CALLS = 50
+
+
+def turn_limits(previous: Conversation | None, spend_limit: float | None) -> UsageLimits:
+    """Limits for one turn. pydantic-ai checks them against the whole chat's usage, so
+    the per-turn counts start from what the chat has used; the spend limit is for the
+    whole chat (§4.5)."""
+    used = previous.usage if previous else RunUsage()
+    return UsageLimits(
+        request_limit=used.requests + TURN_REQUESTS,
+        tool_calls_limit=used.tool_calls + TURN_TOOL_CALLS,
+        cost_limit=Decimal(str(spend_limit)) if spend_limit else None,
+    )
 
 
 async def _await_title(task: asyncio.Task[str | None] | None) -> str | None:

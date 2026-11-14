@@ -159,6 +159,8 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 - **M7 part C, generated titles** (branch `feat/assistant-generated-titles`): `chat.generate_title` runs alongside a chat's first reply with Settings → AI's title model (or the chat's model), falls back to the first line of the message, and sends `title` before `done`.
 
+- Fixed: chats stopped for good after 25 model requests in total, because pydantic-ai checks `UsageLimits` against the whole conversation's usage. Per-turn limits now count from what the chat already used (`chat.turn_limits`).
+
 ## In progress
 
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
