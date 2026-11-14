@@ -1,0 +1,11 @@
+{
+  // The server's uv environment (create it with `uv sync` in apps/server). On Windows,
+  // pick apps/server/.venv/Scripts/python.exe with "Python: Select Interpreter".
+  "python.defaultInterpreterPath": "${workspaceFolder}/apps/server/.venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  // Run tests from apps/server so pyproject.toml's pytest settings apply, as in CI.
+  "python.testing.cwd": "${workspaceFolder}/apps/server",
+  "python.testing.pytestArgs": ["tests"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
+}
