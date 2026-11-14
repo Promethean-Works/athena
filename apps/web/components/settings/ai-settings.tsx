@@ -50,6 +50,7 @@ import {
 } from "@workspace/ui/components/empty"
 import {
   Field,
+  FieldContent,
   FieldDescription,
   FieldGroup,
   FieldLabel,
@@ -65,6 +66,8 @@ import {
 } from "@workspace/ui/components/item"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { Switch } from "@workspace/ui/components/switch"
+import { Textarea } from "@workspace/ui/components/textarea"
 import { toast } from "@workspace/ui/components/toast"
 
 import { ModelPicker } from "@/components/assistant/model-picker"
@@ -319,36 +322,63 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
   )
 }
 
-function DefaultsCard({ version }: { version: number }) {
-  const { providers, reload } = useModels()
+type SaveAi = (next: AiSettings, message: string) => Promise<void>
+
+/**
+ * The AI settings row, shared by the cards so one card's save never undoes another's.
+ * Reloaded when providers change (removing one can clear the default model).
+ */
+function useAiSettings(version: number) {
   const [settings, setSettings] = React.useState<AiSettings | null>(null)
-  const [limit, setLimit] = React.useState("")
 
   React.useEffect(() => {
     void api.GET("/api/settings/ai").then(({ data }) => {
-      if (!data) return
-      setSettings(data)
-      setLimit(data.spend_limit_usd ? String(data.spend_limit_usd) : "")
+      if (data) setSettings(data)
     })
+  }, [version])
+
+  const save = React.useCallback<SaveAi>(
+    async (next, message) => {
+      const previous = settings
+      setSettings(next)
+      const { data, error } = await api.PUT("/api/settings/ai", { body: next })
+      if (data) {
+        setSettings(data)
+        toast.add({ type: "success", title: message })
+      } else {
+        setSettings(previous)
+        toast.add({
+          type: "error",
+          title: "Couldn't save",
+          description: errorMessage(error),
+        })
+      }
+    },
+    [settings]
+  )
+  return { settings, save }
+}
+
+function DefaultsCard({
+  version,
+  settings,
+  save,
+}: {
+  version: number
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  const { providers, reload } = useModels()
+  const [limit, setLimit] = React.useState("")
+  const savedLimit = settings?.spend_limit_usd
+
+  React.useEffect(() => {
+    setLimit(savedLimit ? String(savedLimit) : "")
+  }, [savedLimit])
+
+  React.useEffect(() => {
     if (version > 0) void reload()
   }, [version, reload])
-
-  async function save(next: AiSettings, message: string) {
-    const previous = settings
-    setSettings(next)
-    const { data, error } = await api.PUT("/api/settings/ai", { body: next })
-    if (data) {
-      setSettings(data)
-      toast.add({ type: "success", title: message })
-    } else {
-      setSettings(previous)
-      toast.add({
-        type: "error",
-        title: "Couldn't save",
-        description: errorMessage(error),
-      })
-    }
-  }
 
   function saveLimit() {
     if (!settings) return
@@ -447,10 +477,122 @@ function DefaultsCard({ version }: { version: number }) {
   )
 }
 
+/** Splits what the admin typed into program names: spaces, commas or new lines. */
+function parseCommands(text: string): string[] {
+  return [...new Set(text.split(/[\s,]+/).filter(Boolean))]
+}
+
+function ShellCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  const terminal = useCapability("terminal.host")
+  const [text, setText] = React.useState("")
+  const saved = settings
+    ? (settings.shell_commands ?? []).join("\n")
+    : undefined
+
+  React.useEffect(() => {
+    if (saved !== undefined) setText(saved)
+  }, [saved])
+
+  function saveCommands() {
+    if (!settings) return
+    const commands = parseCommands(text)
+    const bad = commands.find((c) => /[;&|<>()`$]/.test(c))
+    if (bad) {
+      toast.add({
+        type: "error",
+        title: `“${bad}” isn't a program name`,
+        description:
+          "List programs only, one per line, without shell operators like ; | & > or $.",
+      })
+      return
+    }
+    if (commands.join("\n") === saved) {
+      setText(saved)
+      return
+    }
+    void save(
+      { ...settings, shell_commands: commands },
+      commands.length ? "Allowlist saved" : "Allowlist emptied"
+    )
+  }
+
+  if (terminal?.status === "unsupported") return null
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Shell</CardTitle>
+        <CardDescription>
+          Let the assistant ask to run commands on this server, as the user
+          Athena runs as. You approve every command before it runs, and each one
+          is written to the audit log.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {settings === null ? (
+          <Skeleton className="h-24 w-full" />
+        ) : (
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="shell-enabled">Assistant shell</FieldLabel>
+                <FieldDescription>
+                  Off by default. Athena&apos;s own tools (apps, packages,
+                  files) don&apos;t need it.
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="shell-enabled"
+                checked={settings.shell_enabled}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, shell_enabled: checked },
+                    checked
+                      ? "Assistant shell turned on"
+                      : "Assistant shell turned off"
+                  )
+                }
+              />
+            </Field>
+            <Field data-disabled={!settings.shell_enabled || undefined}>
+              <FieldLabel htmlFor="shell-commands">Allowed programs</FieldLabel>
+              <Textarea
+                id="shell-commands"
+                value={text}
+                disabled={!settings.shell_enabled}
+                onChange={(e) => setText(e.target.value)}
+                onBlur={saveCommands}
+                rows={6}
+                spellCheck={false}
+                className="font-mono"
+              />
+              <FieldDescription>
+                One per line. Every program in a command is checked, including
+                each part of a pipe (<code>|</code>) or chain (<code>&&</code>,{" "}
+                <code>;</code>); others are refused before you&apos;re asked.
+                This guards against mistakes, not a determined model: an allowed
+                program can start others, so read each command before you
+                approve it. Empty means no shell.
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 /** Settings → AI: providers, default models and limits (admins only). */
 export function AiSettingsView() {
   const { user } = useAuth()
   const [version, setVersion] = React.useState(0)
+  const { settings, save } = useAiSettings(version)
   if (!user.is_admin) {
     return (
       <Empty className="border">
@@ -463,7 +605,8 @@ export function AiSettingsView() {
   return (
     <div className="flex flex-col gap-4 md:gap-6">
       <ProvidersCard onChanged={() => setVersion((v) => v + 1)} />
-      <DefaultsCard version={version} />
+      <DefaultsCard version={version} settings={settings} save={save} />
+      <ShellCard settings={settings} save={save} />
     </div>
   )
 }
