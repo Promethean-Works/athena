@@ -23,8 +23,25 @@ from test_assistant_actions import (
 from athena.assistant import actions, shell, workspace
 from athena.assistant.tools import toolset_for
 from athena.platform.capabilities import Capability
-from athena.platform.detect import WSL_CHECK, detect_assistant_shell
+from athena.platform.detect import WSL_CHECK, detect, detect_assistant_shell
 from athena.platform.probe import RunResult
+from athena.platform.store import CapabilityStore
+
+
+@pytest.fixture(autouse=True)
+def host_like_this_one(monkeypatch):
+    """The chat tests' fake host matches the OS they run on: macOS (the harness Shell) on
+    POSIX, a Windows host without WSL (the PowerShell run_command) on Windows, where the
+    harness's local workspace can't run."""
+    if sys.platform == "win32":  # pragma: no cover - Windows CI
+        import test_assistant_actions
+
+        def windows_app(tmp_path):
+            probe = FakeProbe(os="windows")
+            return make_app(tmp_path, store=CapabilityStore(detector=lambda: detect(probe)))
+
+        monkeypatch.setattr(test_assistant_actions, "make_app", windows_app)
+
 
 # ---------------------------------------------------------------- the allowlist
 
@@ -119,8 +136,9 @@ def test_posix_and_wsl_get_the_harness_shell():
     assert workspace.shell_capabilities("posix", ()) == []  # switch off or empty list
     assert workspace.shell_capabilities("powershell", ("ls",)) == []
     assert workspace.shell_capabilities(None, ("ls",)) == []
-    posix = [type(c) for c in workspace.shell_capabilities("posix", ("ls",))]
-    assert posix == [LocalWorkspace, Shell, Permissions, workspace.ShellGuard]
+    if sys.platform != "win32":  # LocalWorkspace refuses to be built on Windows
+        posix = [type(c) for c in workspace.shell_capabilities("posix", ("ls",))]
+        assert posix == [LocalWorkspace, Shell, Permissions, workspace.ShellGuard]
     wsl = [type(c) for c in workspace.shell_capabilities("wsl", ("ls",))]
     assert wsl == [workspace.WSLWorkspace, Shell, Permissions, workspace.ShellGuard]
 
@@ -260,7 +278,7 @@ def test_a_failing_command_is_audited_with_its_exit_code(tmp_path, monkeypatch):
         send(client, conv, "List it")
         events = answer(client, conv, [{"id": "s1", "approve": True}])
         result = next(d for e, d in events if e == "tool-result")
-        assert "[exit code:" in result["result"]
+        assert "exit" in result["result"].lower()  # "[exit code: N]", or PowerShell's "exit_code"
         target, detail = audit_details(client, "assistant.shell")[0]
         assert target == "ls /no-such-folder-athena" and detail not in (None, "exit 0")
     finally:
