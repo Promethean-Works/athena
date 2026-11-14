@@ -4,6 +4,7 @@ Everything here is admin only: the assistant reads the host, and providers hold 
 """
 
 import json
+import logging
 import secrets
 from datetime import datetime
 from typing import Annotated
@@ -36,6 +37,8 @@ from athena.assistant.settings import ModelRef
 from athena.auth.deps import Authed, CurrentUser, DbSession, current_user
 from athena.crypto import SecretBox, SecretError
 from athena.db.models import AiConversation, AiProvider
+
+log = logging.getLogger(__name__)
 
 
 def require_admin(user: Annotated[CurrentUser, Depends(current_user)]) -> None:
@@ -449,6 +452,9 @@ async def send_message(
         text=body.text,
         spend_limit=settings.spend_limit_usd,
         user_id=user.user.id,
+        title_model=(
+            _title_model(request, db, settings, model) if row.title == chat.NEW_CHAT else None
+        ),
     )
     return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
 
@@ -534,19 +540,36 @@ def _model_for(
     )
     if ref is None:
         raise HTTPException(status.HTTP_409_CONFLICT, "Pick a model first")
+    model = _build(request, db, ref)
+    row.provider_id, row.model = ref.provider_id, ref.model
+    db.add(row)
+    db.commit()
+    return model
+
+
+def _title_model(
+    request: Request, db: Session, settings: ai_settings.AiSettings, chat_model: Model
+) -> Model:
+    """Settings → AI's title model, else (or when it's gone) the chat's own."""
+    if settings.title_model is None:
+        return chat_model
+    try:
+        return _build(request, db, settings.title_model)
+    except HTTPException as exc:
+        log.info("title model unavailable, using the chat's: %s", exc.detail)
+        return chat_model
+
+
+def _build(request: Request, db: Session, ref: ModelRef) -> Model:
     provider = db.get(AiProvider, ref.provider_id)
     if provider is None or provider.kind not in BY_ID:
         raise HTTPException(
             status.HTTP_409_CONFLICT, "That model's provider was removed. Pick another model."
         )
     try:
-        model = build_model(_config(provider, _box(request)), ref.model)
+        return build_model(_config(provider, _box(request)), ref.model)
     except (ProviderError, ValueError, UserError) as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
-    row.provider_id, row.model = ref.provider_id, ref.model
-    db.add(row)
-    db.commit()
-    return model
 
 
 @router.post(

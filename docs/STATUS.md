@@ -157,6 +157,8 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 - M7 part B, assistant actions with approval (#39): twelve actions in `assistant/actions.py` (store install, compose app, start/stop/restart/update, remove; package install/uninstall/upgrade; write text file, folder, rename, delete, copy/move) as pydantic-ai deferred tools, plus read tools for the store, packages and text files. Approve/Deny cards (summary with names resolved, exact arguments, destructive style), `POST …/approvals` (every waiting call answered, each audited as `assistant.approve`/`deny`), a new message denies what's waiting, job-starting actions wait for the job and show a Log button. 21 new server tests. Verified in the browser with a real Ollama `qwen2.5`: deny (the model had guessed the wrong location; the card named it), approve (folder created), a copy job with its log, a destructive delete card skipped by a new message (file kept, still denied after reload), phone width, dark mode, audit rows, no console errors. Not tested: app and package actions against a real engine or manager (the tests cover gating and the shared route helpers; brew is real on the dev Mac, so it was left alone), a cloud model, and a job that outlives the 15-minute wait.
 
+- **M7 part C, generated titles** (branch `feat/assistant-generated-titles`): `chat.generate_title` runs alongside a chat's first reply with Settings → AI's title model (or the chat's model), falls back to the first line of the message, and sends `title` before `done`.
+
 ## In progress
 
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
@@ -168,7 +170,7 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 ## Next
 
-M7 part C: the opt-in shell, spend shown in the UI, the assistant side sheet on every page, generated titles, and the setup-wizard step.
+M7 part C, what's left: the opt-in shell, spend shown in the UI, the assistant side sheet on every page, and the setup-wizard step.
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 

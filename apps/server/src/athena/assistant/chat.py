@@ -62,6 +62,8 @@ from athena.platform.capabilities import CapabilityManifest
 log = logging.getLogger(__name__)
 
 TITLE_LENGTH = 60
+TITLE_WAIT = 10
+"""Seconds to wait for a generated title after the reply ends before using the first line."""
 RESULT_CHARS = 4000
 """Tool results shown in the UI are cut to this; the model still gets all of it."""
 
@@ -97,6 +99,38 @@ agent: Agent[Deps, str | DeferredToolRequests] = Agent(
     capabilities=[Caching()],
     name="athena",
 )
+
+
+title_agent: Agent[None, str] = Agent(
+    output_type=str,
+    instructions=(
+        "Write a title of at most six words for a chat that starts with the user's message. "
+        "Use the message's language. Reply with the title only: no quotes, no Markdown, "
+        "no final period."
+    ),
+    name="athena-title",
+)
+
+
+async def generate_title(model: Model, text: str) -> str | None:
+    """A short title for a new chat from its first message, or None when the model gives
+    nothing usable. Errors are left to the caller."""
+    result = await title_agent.run(
+        text[:2000], model=model, usage_limits=UsageLimits(request_limit=1)
+    )
+    return clean_title(result.output)
+
+
+QUOTES = "\"'\u201c\u201d\u2018\u2019 "
+"""Straight and curly quotes, and spaces: what models wrap titles in."""
+
+
+def clean_title(raw: str) -> str | None:
+    """The first line of a model's answer, without Markdown, quotes or a final period."""
+    line = next((ln for ln in raw.splitlines() if ln.strip()), "")
+    line = line.strip().strip("#*_`" + QUOTES).removeprefix("Title:")
+    line = line.strip().rstrip(".").strip(QUOTES)
+    return _title(line) if line else None
 
 
 # ---------------------------------------------------------------- UI messages
@@ -243,6 +277,9 @@ def pending_ids(conv: Conversation | None) -> frozenset[str]:
 Decisions = dict[str, bool | ToolDenied]
 """Tool call id -> approved, or the denial (with what the model is told)."""
 
+NEW_CHAT = "New chat"
+"""The title a chat has until its first message names it."""
+
 DENIED_BY_NEW_MESSAGE = "The admin didn't approve this; they sent a new message instead."
 
 
@@ -288,6 +325,7 @@ async def _run(
     decisions: Decisions | None,
     spend_limit: float | None,
     user_id: int,
+    title_model: Model | None,
 ) -> None:
     db_factory = app.state.db
     manifest = await app.state.capabilities.get()
@@ -297,6 +335,12 @@ async def _run(
         assert row is not None and user is not None
         previous = load_history(row)
         results = _results(previous, decisions)
+        # A new chat's title is written alongside the reply, so it rarely adds a wait.
+        titling = (
+            asyncio.create_task(generate_title(title_model, text))
+            if text and title_model is not None and row.title == NEW_CHAT
+            else None
+        )
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
         deps = Deps(app=app, db=db, user=current, manifest=manifest, emit=turn.emit)
@@ -336,14 +380,26 @@ async def _run(
             turn.emit("error", {"message": _readable(exc)})
         if saved is not None:
             row.history = ConversationTypeAdapter.dump_json(saved).decode()
-            if text and row.title == "New chat":
-                row.title = _title(text)
+            if text and row.title == NEW_CHAT:
+                row.title = await _await_title(titling) or _title(text)
                 turn.emit("title", {"title": row.title})
             row.updated_at = datetime.now(UTC)
             db.add(row)
             db.commit()
             turn.emit("usage", _usage_out(saved.usage))
+        if titling is not None and not titling.done():
+            titling.cancel()
         turn.emit("done", {})
+
+
+async def _await_title(task: asyncio.Task[str | None] | None) -> str | None:
+    if task is None:
+        return None
+    try:
+        return await asyncio.wait_for(task, TITLE_WAIT)
+    except Exception as exc:  # a missing title isn't worth failing the turn over
+        log.info("couldn't generate a chat title: %s", _readable(exc))
+        return None
 
 
 def _results(
@@ -455,6 +511,7 @@ class Turns:
         spend_limit: float | None,
         user_id: int,
         decisions: Decisions | None = None,
+        title_model: Model | None = None,
     ) -> Turn:
         turn = Turn(conversation_id)
 
@@ -468,6 +525,7 @@ class Turns:
                     decisions=decisions,
                     spend_limit=spend_limit,
                     user_id=user_id,
+                    title_model=title_model,
                 )
             except Exception:
                 log.exception("assistant turn crashed")
