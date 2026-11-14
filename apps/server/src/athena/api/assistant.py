@@ -294,6 +294,10 @@ class ConversationOut(BaseModel):
 class ConversationDetail(ConversationOut):
     messages: list[chat.ChatMessage]
     running: bool
+    usage: chat.ChatUsage
+    """What the whole chat has used so far."""
+    spend_limit_usd: float | None
+    """Settings → AI's limit per chat, if any."""
 
 
 class ConversationIn(BaseModel):
@@ -389,6 +393,8 @@ def get_conversation(
         **_conv_out(row).model_dump(),
         messages=chat.ui_messages(messages, chat.pending_ids(conv), chat.summarizer(db)),
         running=_turns(request).get(row.id) is not None,
+        usage=chat.usage_of(conv.usage if conv else None),
+        spend_limit_usd=ai_settings.load(db).spend_limit_usd,
     )
 
 

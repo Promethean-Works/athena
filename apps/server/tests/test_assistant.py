@@ -442,3 +442,46 @@ def test_turn_limits_count_from_what_the_chat_used(tmp_path, monkeypatch):
             assert not [d for e, d in events if e == "error"]
         detail = client.get(f"/api/assistant/conversations/{conv['id']}").json()
         assert [m["role"] for m in detail["messages"]] == ["user", "assistant"] * 3
+
+
+def test_the_spend_limit_holds_and_is_shown(tmp_path, monkeypatch):
+    """A turn that crosses the limit still counts what it cost, so the next message is
+    refused without calling the model."""
+    calls = []
+
+    async def reply(messages, info) -> AsyncIterator[str]:
+        calls.append(1)
+        yield "word " * 50
+
+    # A real model name, so pydantic-ai prices it from its bundled price list.
+    model = FunctionModel(stream_function=reply, model_name="gpt-4o")
+    app = chat_app(tmp_path, monkeypatch, model)
+    with TestClient(app) as client:
+        signed_in(client)
+        pid = add_provider(client)["id"]
+        client.put("/api/settings/ai", json={"spend_limit_usd": 0.001}).raise_for_status()
+        conv = client.post(
+            "/api/assistant/conversations", json={"model": {"provider_id": pid, "model": "m"}}
+        ).json()
+        url = f"/api/assistant/conversations/{conv['id']}/messages"
+
+        def send() -> list[tuple[str, dict]]:
+            with client.stream("POST", url, json={"text": "hi"}) as res:
+                return read_events(res)
+
+        first = send()
+        cost = next(d for e, d in first if e == "usage")["cost"]
+        assert 0 < cost < 0.001
+        detail = client.get(f"/api/assistant/conversations/{conv['id']}").json()
+        assert detail["usage"]["cost"] == cost and detail["spend_limit_usd"] == 0.001
+        assert detail["usage"]["input_tokens"] > 0 and detail["usage"]["output_tokens"] > 0
+
+        second = send()  # crosses the limit
+        errors = [d["message"] for e, d in second if e == "error"]
+        assert errors and "spend limit of $0.001." in errors[0]
+        over = client.get(f"/api/assistant/conversations/{conv['id']}").json()["usage"]["cost"]
+        assert over > 0.001
+
+        assert len(calls) == 2
+        third = send()
+        assert [d for e, d in third if e == "error"] and len(calls) == 2
