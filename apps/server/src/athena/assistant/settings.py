@@ -2,11 +2,13 @@
 `system_settings` under the key "ai". Invalid stored values fall back to defaults."""
 
 import logging
+from typing import Annotated
 
 from pydantic import BaseModel, Field, ValidationError
 from sqlmodel import Session
 
 from athena.db.models import SystemSetting
+from athena.terminal.shells import default_commands
 
 log = logging.getLogger(__name__)
 KEY = "ai"
@@ -17,6 +19,10 @@ class ModelRef(BaseModel):
     model: str = Field(min_length=1, max_length=255)
 
 
+ShellCommand = Annotated[str, Field(min_length=1, max_length=255, pattern=r"^[^\s;&|<>()`$]+$")]
+"""One program name (or path): no spaces or shell operators."""
+
+
 class AiSettings(BaseModel):
     default_model: ModelRef | None = None
     """Used for new chats."""
@@ -24,6 +30,8 @@ class AiSettings(BaseModel):
     """A small model for writing chat titles; the chat's own model when empty."""
     shell_enabled: bool = False
     """Lets the assistant ask to run shell commands (each still needs approval)."""
+    shell_commands: list[ShellCommand] = Field(default_factory=default_commands, max_length=200)
+    """The programs it may ask to run; every part of a pipe or chain is checked."""
     spend_limit_usd: float | None = Field(default=None, gt=0, le=10_000)
     """Stops a chat once its cost reaches this, for models with known prices."""
 

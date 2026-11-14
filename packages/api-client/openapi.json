@@ -4879,6 +4879,17 @@
             "title": "Shell Enabled",
             "default": false
           },
+          "shell_commands": {
+            "items": {
+              "type": "string",
+              "maxLength": 255,
+              "minLength": 1,
+              "pattern": "^[^\\s;&|<>()`$]+$"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Shell Commands"
+          },
           "spend_limit_usd": {
             "anyOf": [
               {

@@ -57,6 +57,7 @@ from pydantic_ai.usage import RunUsage
 from sqlmodel import Session
 
 from athena.assistant import actions
+from athena.assistant import settings as ai_settings
 from athena.assistant.tools import Deps, toolset_for
 from athena.auth.deps import CurrentUser
 from athena.db.models import AiConversation, AuthSession, User
@@ -355,7 +356,15 @@ async def _run(
         )
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
-        deps = Deps(app=app, db=db, user=current, manifest=manifest, emit=turn.emit)
+        ai = ai_settings.load(db)
+        deps = Deps(
+            app=app,
+            db=db,
+            user=current,
+            manifest=manifest,
+            emit=turn.emit,
+            shell_commands=tuple(ai.shell_commands) if ai.shell_enabled else (),
+        )
         limits = turn_limits(previous, spend_limit)
         saved: Conversation | None = None
         try:
@@ -421,7 +430,7 @@ async def _stream(
         conversation=previous,
         model=model,
         deps=deps,
-        toolsets=[toolset_for(deps.manifest)],
+        toolsets=[toolset_for(deps.manifest, deps.shell_commands)],
         instructions=_host_instructions(deps.manifest),
         usage_limits=limits,
         cancellation_token=turn.token,

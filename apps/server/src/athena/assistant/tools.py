@@ -43,6 +43,8 @@ class Deps:
     manifest: CapabilityManifest
     emit: Callable[[str, Any], None] = lambda event, data: None
     """Sends an extra event to the chat stream (the `job` a tool started)."""
+    shell_commands: tuple[str, ...] = ()
+    """The shell allowlist when the assistant shell is on (Settings → AI); empty when off."""
 
     @property
     def username(self) -> str:
@@ -283,9 +285,12 @@ def _has_packages(manifest: CapabilityManifest) -> bool:
     return any(c.id.startswith("packages.") and c.available for c in manifest.capabilities)
 
 
-def toolset_for(manifest: CapabilityManifest) -> FunctionToolset[Deps]:
+def toolset_for(
+    manifest: CapabilityManifest, shell_commands: tuple[str, ...] = ()
+) -> FunctionToolset[Deps]:
     """The tools this host supports right now. Tools that change something (from
-    `actions.py`) need the admin's approval for every call."""
+    `actions.py`) need the admin's approval for every call. `run_command` is there only
+    when the assistant shell is on with a non-empty allowlist and the host has a shell."""
     from athena.assistant import actions
 
     tools: list[Any] = [get_capabilities, get_system_stats]
@@ -301,4 +306,12 @@ def toolset_for(manifest: CapabilityManifest) -> FunctionToolset[Deps]:
     if _has_packages(manifest):
         tools += [list_package_managers, search_packages, list_upgradable_packages]
         changes += actions.PACKAGE_ACTIONS
-    return FunctionToolset([*tools, *(Tool(fn, requires_approval=True) for fn in changes)])
+    approved = [Tool(fn, requires_approval=True) for fn in changes]
+    term = manifest.get("terminal.host")
+    if shell_commands and term is not None and term.available:
+        listed = ", ".join(shell_commands)
+        doc = actions.run_command.__doc__ or ""
+        approved.append(
+            Tool(actions.run_command, description=f"{doc}\n\nAllowed programs: {listed}.")
+        )
+    return FunctionToolset([*tools, *approved])

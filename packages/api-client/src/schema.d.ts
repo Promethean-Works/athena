@@ -1721,6 +1721,8 @@ export interface components {
              * @default false
              */
             shell_enabled: boolean;
+            /** Shell Commands */
+            shell_commands?: string[];
             /** Spend Limit Usd */
             spend_limit_usd?: number | null;
         };

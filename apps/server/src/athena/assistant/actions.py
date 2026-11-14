@@ -11,10 +11,12 @@ import asyncio
 from typing import Annotated, Any, Literal
 
 from pydantic import Field
-from pydantic_ai import ToolFailed
+from pydantic_ai import ApprovalRequired, ToolFailed
 from sqlmodel import Session
 
+from athena import audit
 from athena.apps.store import APP_NAME
+from athena.assistant import shell
 from athena.assistant.tools import CATALOG_NAME, MANAGER_ID, Ctx, _http
 from athena.catalog.model import APP_ID
 from athena.files import locations
@@ -235,6 +237,40 @@ async def copy_or_move_files(
     return await _follow(ctx, started)
 
 
+# ---------------------------------------------------------------- shell (opt-in)
+
+
+async def run_command(
+    ctx: Ctx,
+    command: Annotated[str, Field(min_length=1, max_length=4000)],
+    timeout_seconds: Annotated[int, Field(ge=1, le=600)] = 60,
+) -> dict[str, Any]:
+    """Run a command line on the server with its shell, as the user Athena runs as, and
+    get its exit code and output (stdout and stderr, the last part when it's long).
+    Prefer Athena's own tools when one fits; use this for what they can't do. There's no
+    input and no terminal, so interactive commands (editors, prompts, sudo asking for a
+    password, top) hang until the timeout: use their batch flags (`ps aux`, `ping -c 4`,
+    `journalctl -n 100 --no-pager`)."""
+    d = ctx.deps
+    problem = shell.check(command, d.shell_commands)
+    if problem:  # before the card: the admin is only asked about commands that can run
+        raise ToolFailed(problem)
+    if not ctx.tool_call_approved:
+        raise ApprovalRequired()
+    result = await shell.run(command, timeout_seconds)
+    outcome = "timed out" if result.timed_out else f"exit {result.exit_code}"
+    audit.record(d.db, d.username, "assistant.shell", command[:500], outcome)
+    out: dict[str, Any] = {"exit_code": result.exit_code, "output": result.output}
+    if result.truncated:
+        out["note"] = f"Only the last {shell.MAX_OUTPUT} characters of output are shown."
+    if result.timed_out:
+        out["note"] = f"Stopped after {timeout_seconds} s; the output so far is shown."
+    return out
+
+
+SHELL_ACTION = "run_command"
+"""Asks for approval itself (after the allowlist check), so it isn't `requires_approval`."""
+
 APP_ACTIONS = [install_store_app, create_app, change_app, remove_app]
 PACKAGE_ACTIONS = [install_package, uninstall_package, upgrade_packages]
 FILE_ACTIONS = [write_text_file, create_folder, rename_file, delete_files, copy_or_move_files]
@@ -261,10 +297,14 @@ def _items(paths: Any) -> str:
 
 def summarize(db: Session, name: str, args: Any) -> str | None:
     """One sentence for the approval card, or None for a tool that needs no approval."""
-    if name not in NAMES:
+    if name not in NAMES and name != SHELL_ACTION:
         return None
     a: dict[str, Any] = args if isinstance(args, dict) else {}
     match name:
+        case "run_command":
+            command = " ".join(str(a.get("command", "")).split())
+            short = command if len(command) <= 120 else command[:119] + "…"
+            return f"Run on the server: {short}"
         case "install_store_app":
             return f"Install {a.get('catalog')}/{a.get('app_id')} from the store as {a.get('name')}"
         case "create_app":
@@ -303,7 +343,9 @@ def summarize(db: Session, name: str, args: Any) -> str | None:
     return None  # pragma: no cover - every name in NAMES has a case
 
 
-DESTRUCTIVE = frozenset({"remove_app", "uninstall_package", "delete_files", "write_text_file"})
+DESTRUCTIVE = frozenset(
+    {SHELL_ACTION, "remove_app", "uninstall_package", "delete_files", "write_text_file"}
+)
 
 
 def is_destructive(name: str, args: Any) -> bool:

@@ -157,11 +157,13 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 - M7 part B, assistant actions with approval (#39): twelve actions in `assistant/actions.py` (store install, compose app, start/stop/restart/update, remove; package install/uninstall/upgrade; write text file, folder, rename, delete, copy/move) as pydantic-ai deferred tools, plus read tools for the store, packages and text files. Approve/Deny cards (summary with names resolved, exact arguments, destructive style), `POST …/approvals` (every waiting call answered, each audited as `assistant.approve`/`deny`), a new message denies what's waiting, job-starting actions wait for the job and show a Log button. 21 new server tests. Verified in the browser with a real Ollama `qwen2.5`: deny (the model had guessed the wrong location; the card named it), approve (folder created), a copy job with its log, a destructive delete card skipped by a new message (file kept, still denied after reload), phone width, dark mode, audit rows, no console errors. Not tested: app and package actions against a real engine or manager (the tests cover gating and the shared route helpers; brew is real on the dev Mac, so it was left alone), a cloud model, and a job that outlives the 15-minute wait.
 
-- **M7 part C, generated titles** (branch `feat/assistant-generated-titles`): `chat.generate_title` runs alongside a chat's first reply with Settings → AI's title model (or the chat's model), falls back to the first line of the message, and sends `title` before `done`.
+- **M7 part C, generated titles** (#43): `chat.generate_title` runs alongside a chat's first reply with Settings → AI's title model (or the chat's model), falls back to the first line of the message, and sends `title` before `done`.
 
 - Fixed: chats stopped for good after 25 model requests in total, because pydantic-ai checks `UsageLimits` against the whole conversation's usage. Per-turn limits now count from what the chat already used (`chat.turn_limits`).
 
-- **M7 part C, spend in the UI** (branch `feat/assistant-spend`): `SpendButton` (`components/assistant/spend.tsx`) in the prompt bar; the chat detail returns `usage` and `spend_limit_usd`; a turn stopped by the spend limit now records what it cost (before, each new message bought one more uncounted request). Verified in the browser with a fake priced endpoint: $0.07 of $0.10, then over the limit (red, refused without a model call), a model without prices (tokens only), phone width and dark mode.
+- **M7 part C, spend in the UI** (#45): `SpendButton` (`components/assistant/spend.tsx`) in the prompt bar; the chat detail returns `usage` and `spend_limit_usd`; a turn stopped by the spend limit now records what it cost (before, each new message bought one more uncounted request). Verified in the browser with a fake priced endpoint: $0.07 of $0.10, then over the limit (red, refused without a model call), a model without prices (tokens only), phone width and dark mode.
+
+- **M7 part C, the opt-in assistant shell** (branch `feat/assistant-shell`): `run_command` in `assistant/actions.py` with `assistant/shell.py` (allowlist check of every program in a pipe or chain, `$( )`/backticks refused, runner with timeout and process-tree kill, output tail). It runs with the host's shell from `terminal/shells.py` (login shell on POSIX, PowerShell on Windows), is offered only when the switch is on, the allowlist isn't empty and `terminal.host` is ready, refuses commands off the list before any card, needs approval for every call, rechecks the list after approval, and audits `assistant.shell` with the exit code. Settings → AI has a Shell card (switch plus allowlist, one program per line; the cards now share one settings state). Not pydantic-ai-harness's `Shell`, which is POSIX-only (design §11). 18 new tests. Verified in the browser with qwen2.5 on Ollama: switch on, allowlist `df uname`, a bad entry `ls;rm` (readable toast, text kept), `uname -a` approved and run (real output, audit rows), `ls -la` refused with no card, phone width and dark mode. Windows: only CI's tests so far (PowerShell `echo`, `exit 3`, `sleep`).
 
 ## In progress
 
@@ -174,7 +176,7 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 ## Next
 
-M7 part C, what's left: the opt-in shell, the assistant side sheet on every page, and the setup-wizard step.
+M7 part C, what's left: the assistant side sheet on every page, then the setup-wizard step.
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 
