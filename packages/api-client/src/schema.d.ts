@@ -1657,9 +1657,34 @@ export interface paths {
          * Send Message
          * @description Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a
          *     new block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,
-         *     `error`), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`.
+         *     `error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,
+         *     `name`, `args`, `summary` and `destructive`), `job` (`id` of the tool call, `job_id`,
+         *     `title`: a job an approved action started), `title`, `usage`, `stopped`, `error`
+         *     (`message`) and finally `done`. While actions wait, a new message denies them.
          */
         post: operations["sendMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistant/conversations/{conversation_id}/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Answer Approvals
+         * @description Approve or deny the actions a paused chat is waiting on, and continue it. Approved
+         *     actions run as you, and each answer is audited. Streams the same events as
+         *     sendMessage.
+         */
+        post: operations["answerApprovals"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1823,6 +1848,11 @@ export interface components {
              */
             radius: string;
         };
+        /** ApprovalsIn */
+        ApprovalsIn: {
+            /** Decisions */
+            decisions: components["schemas"]["Decision"][];
+        };
         /** AuthStatus */
         AuthStatus: {
             /** Setup Required */
@@ -1935,7 +1965,16 @@ export interface components {
             /** Error */
             error?: string | null;
             /** State */
-            state?: ("running" | "done" | "error") | null;
+            state?: ("running" | "done" | "error" | "approval" | "denied") | null;
+            /** Summary */
+            summary?: string | null;
+            /**
+             * Destructive
+             * @default false
+             */
+            destructive: boolean;
+            /** Job Id */
+            job_id?: string | null;
         };
         /** CloudDeleteIn */
         CloudDeleteIn: {
@@ -2099,6 +2138,15 @@ export interface components {
             username: string;
             /** Password */
             password: string;
+        };
+        /** Decision */
+        Decision: {
+            /** Id */
+            id: string;
+            /** Approve */
+            approve: boolean;
+            /** Reason */
+            reason?: string | null;
         };
         /** DeleteIn */
         DeleteIn: {
@@ -6405,6 +6453,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["MessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    answerApprovals: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApprovalsIn"];
             };
         };
         responses: {

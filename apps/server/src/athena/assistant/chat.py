@@ -10,7 +10,7 @@ import asyncio
 import contextlib
 import json
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -24,11 +24,14 @@ from pydantic_ai import (
     CancellationToken,
     Conversation,
     ConversationTypeAdapter,
+    DeferredToolRequests,
+    DeferredToolResults,
     FunctionToolCallEvent,
     FunctionToolResultEvent,
     PartDeltaEvent,
     PartStartEvent,
     RunCancelled,
+    ToolDenied,
     UsageLimits,
 )
 from pydantic_ai.capabilities import Caching
@@ -48,9 +51,12 @@ from pydantic_ai.messages import (
 )
 from pydantic_ai.models import Model
 from pydantic_ai.usage import RunUsage
+from sqlmodel import Session
 
+from athena.assistant import actions
 from athena.assistant.tools import Deps, toolset_for
-from athena.db.models import AiConversation
+from athena.auth.deps import CurrentUser
+from athena.db.models import AiConversation, AuthSession, User
 from athena.platform.capabilities import CapabilityManifest
 
 log = logging.getLogger(__name__)
@@ -67,8 +73,15 @@ cloud storage. You help the server's admin understand and run this server.
 - Use your tools to look things up instead of guessing. Only the tools you have exist on \
 this host; if something isn't available, say so and point to the page in Athena that \
 would handle it.
-- You can only read for now: you can't install, start, stop, change or delete anything. \
-When the admin asks for a change, explain how to do it in Athena's UI.
+- Tools that change something (install, deploy, start, stop, remove, package and file \
+changes) need the admin's approval: calling one shows them an Approve/Deny card with the \
+exact action, and it runs only if they approve. So don't ask "shall I?" in text first; \
+call the tool, and the card is the question.
+- Never guess ids or names: look them up first (list_file_locations and list_files, \
+list_apps, list_package_managers, search_store and get_store_app for an install's fields), \
+so the call is right the first time.
+- When an action is denied, don't call it again unless the admin asks; ask what they want \
+instead. Report what an approved action did, including failures from its log.
 - Be brief and concrete. Use Markdown for lists, tables and code.
 """
 
@@ -77,8 +90,9 @@ def _host_instructions(manifest: CapabilityManifest) -> str:
     return f"This server runs {manifest.os_version} ({manifest.os}, {manifest.arch})."
 
 
-agent: Agent[Deps, str] = Agent(
+agent: Agent[Deps, str | DeferredToolRequests] = Agent(
     deps_type=Deps,
+    output_type=[str, DeferredToolRequests],
     instructions=[INSTRUCTIONS],
     capabilities=[Caching()],
     name="athena",
@@ -97,7 +111,13 @@ class ChatPart(BaseModel):
     result: str | None = None
     """The tool's result as JSON or text, cut to RESULT_CHARS."""
     error: str | None = None
-    state: Literal["running", "done", "error"] | None = None
+    state: Literal["running", "done", "error", "approval", "denied"] | None = None
+    """`approval`: waiting for Approve/Deny. `denied`: the admin said no."""
+    summary: str | None = None
+    """For tools that need approval: the action in one sentence."""
+    destructive: bool = False
+    job_id: str | None = None
+    """The job an approved action started (GET /api/jobs/{id} while it's kept)."""
 
 
 class ChatMessage(BaseModel):
@@ -111,15 +131,28 @@ def _result_text(content: Any) -> str:
     return text if len(text) <= RESULT_CHARS else text[:RESULT_CHARS] + "…"
 
 
+def _job_of(content: Any) -> str | None:
+    job = content.get("job_id") if isinstance(content, dict) else None
+    return job if isinstance(job, str) else None
+
+
 def _user_text(part: UserPromptPart) -> str:
     if isinstance(part.content, str):
         return part.content
     return "\n".join(c for c in part.content if isinstance(c, str))
 
 
-def ui_messages(messages: list[ModelMessage]) -> list[ChatMessage]:
+Summarize = Callable[[str, Any], str | None]
+
+
+def ui_messages(
+    messages: list[ModelMessage],
+    pending: frozenset[str] = frozenset(),
+    summarize: Summarize = lambda name, args: None,
+) -> list[ChatMessage]:
     """The stored history as chat bubbles: user prompts, and one assistant message per
-    reply with its text, reasoning and tool calls (with their results)."""
+    reply with its text, reasoning and tool calls (with their results). Calls in
+    `pending` are waiting for the admin's approval."""
     out: list[ChatMessage] = []
     tools: dict[str, ChatPart] = {}
     current: ChatMessage | None = None
@@ -138,7 +171,14 @@ def ui_messages(messages: list[ModelMessage]) -> list[ChatMessage]:
                 elif isinstance(part, ToolReturnPart) and part.tool_call_id in tools:
                     tool = tools[part.tool_call_id]
                     tool.result = _result_text(part.content)
-                    tool.state = "error" if part.outcome == "failed" else "done"
+                    tool.job_id = _job_of(part.content)
+                    tool.state = (
+                        "error"
+                        if part.outcome == "failed"
+                        else "denied"
+                        if part.outcome == "denied"
+                        else "done"
+                    )
                 elif isinstance(part, RetryPromptPart) and part.tool_call_id in tools:
                     tool = tools[part.tool_call_id]
                     tool.error = _result_text(part.content)
@@ -153,19 +193,22 @@ def ui_messages(messages: list[ModelMessage]) -> list[ChatMessage]:
                 elif isinstance(part, ThinkingPart) and part.content:
                     current.parts.append(ChatPart(type="reasoning", text=part.content))
                 elif isinstance(part, ToolCallPart):
+                    args = args_of(part)
                     tool = ChatPart(
                         type="tool",
                         tool_call_id=part.tool_call_id,
                         tool_name=part.tool_name,
-                        args=_args(part),
-                        state="running",
+                        args=args,
+                        state="approval" if part.tool_call_id in pending else "running",
+                        summary=summarize(part.tool_name, args),
+                        destructive=actions.is_destructive(part.tool_name, args),
                     )
                     tools[part.tool_call_id] = tool
                     current.parts.append(tool)
     return out
 
 
-def _args(part: ToolCallPart) -> Any:
+def args_of(part: ToolCallPart) -> Any:
     try:
         return part.args_as_dict()
     except (ValueError, TypeError):
@@ -188,6 +231,19 @@ def load_history(row: AiConversation) -> Conversation | None:
 def history_messages(row: AiConversation) -> list[ModelMessage]:
     conv = load_history(row)
     return list(conv.messages) if conv else []
+
+
+def pending_ids(conv: Conversation | None) -> frozenset[str]:
+    """The tool calls a paused chat is waiting on the admin for."""
+    if conv is None or conv.deferred_tool_requests is None:
+        return frozenset()
+    return frozenset(c.tool_call_id for c in conv.deferred_tool_requests.approvals)
+
+
+Decisions = dict[str, bool | ToolDenied]
+"""Tool call id -> approved, or the denial (with what the model is told)."""
+
+DENIED_BY_NEW_MESSAGE = "The admin didn't approve this; they sent a new message instead."
 
 
 # ---------------------------------------------------------------- running a turn
@@ -228,17 +284,22 @@ async def _run(
     *,
     app: FastAPI,
     model: Model,
-    text: str,
+    text: str | None,
+    decisions: Decisions | None,
     spend_limit: float | None,
-    username: str,
+    user_id: int,
 ) -> None:
     db_factory = app.state.db
     manifest = await app.state.capabilities.get()
     for db in db_factory.session():
         row = db.get(AiConversation, turn.conversation_id)
-        assert row is not None
+        user = db.get(User, user_id)
+        assert row is not None and user is not None
         previous = load_history(row)
-        deps = Deps(app=app, db=db, username=username, manifest=manifest)
+        results = _results(previous, decisions)
+        # Actions call route helpers, which take the signed-in user; the session isn't used.
+        current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
+        deps = Deps(app=app, db=db, user=current, manifest=manifest, emit=turn.emit)
         limits = UsageLimits(
             request_limit=25,
             tool_calls_limit=50,
@@ -255,11 +316,14 @@ async def _run(
                 instructions=_host_instructions(manifest),
                 usage_limits=limits,
                 cancellation_token=turn.token,
+                deferred_tool_results=results,
             ) as events:
                 async for event in events:
                     _forward(turn, event)
                     if isinstance(event, AgentRunResultEvent):
                         saved = event.result.conversation
+                        if isinstance(event.result.output, DeferredToolRequests):
+                            turn.emit("approval", _approvals_out(db, event.result.output))
         except RunCancelled as exc:
             saved = Conversation(messages=list(exc.all_messages()), usage=exc.usage or RunUsage())
             if exc.conversation_id:
@@ -272,7 +336,7 @@ async def _run(
             turn.emit("error", {"message": _readable(exc)})
         if saved is not None:
             row.history = ConversationTypeAdapter.dump_json(saved).decode()
-            if row.title == "New chat":
+            if text and row.title == "New chat":
                 row.title = _title(text)
                 turn.emit("title", {"title": row.title})
             row.updated_at = datetime.now(UTC)
@@ -280,6 +344,39 @@ async def _run(
             db.commit()
             turn.emit("usage", _usage_out(saved.usage))
         turn.emit("done", {})
+
+
+def _results(
+    previous: Conversation | None, decisions: Decisions | None
+) -> DeferredToolResults | None:
+    """What to resume a paused chat with: the admin's answers, or, when they sent a new
+    message instead, a denial of every waiting call (a run can't start with calls left
+    unanswered)."""
+    pending = previous.deferred_tool_requests if previous else None
+    if pending is None:
+        return None
+    if decisions is None:
+        decisions = {c.tool_call_id: ToolDenied(DENIED_BY_NEW_MESSAGE) for c in pending.approvals}
+    return pending.build_results(approvals=decisions)
+
+
+def summarizer(db: Session) -> Summarize:
+    return lambda name, args: actions.summarize(db, name, args)
+
+
+def _approvals_out(db: Session, requests: DeferredToolRequests) -> dict[str, Any]:
+    return {
+        "calls": [
+            {
+                "id": c.tool_call_id,
+                "name": c.tool_name,
+                "args": args_of(c),
+                "summary": actions.summarize(db, c.tool_name, args_of(c)),
+                "destructive": actions.is_destructive(c.tool_name, args_of(c)),
+            }
+            for c in requests.approvals
+        ]
+    }
 
 
 def _forward(turn: Turn, event: Any) -> None:
@@ -298,7 +395,7 @@ def _forward(turn: Turn, event: Any) -> None:
     elif isinstance(event, FunctionToolCallEvent):
         part = event.part
         turn.emit(
-            "tool-call", {"id": part.tool_call_id, "name": part.tool_name, "args": _args(part)}
+            "tool-call", {"id": part.tool_call_id, "name": part.tool_name, "args": args_of(part)}
         )
     elif isinstance(event, FunctionToolResultEvent):
         part = event.part
@@ -310,12 +407,18 @@ def _forward(turn: Turn, event: Any) -> None:
                     "id": part.tool_call_id,
                     "result": _result_text(part.content),
                     "error": _result_text(part.content) if failed else None,
+                    "denied": part.outcome == "denied",
                 },
             )
         elif isinstance(part, RetryPromptPart):
             turn.emit(
                 "tool-result",
-                {"id": part.tool_call_id, "result": None, "error": _result_text(part.content)},
+                {
+                    "id": part.tool_call_id,
+                    "result": None,
+                    "error": _result_text(part.content),
+                    "denied": False,
+                },
             )
 
 
@@ -348,9 +451,10 @@ class Turns:
         *,
         app: FastAPI,
         model: Model,
-        text: str,
+        text: str | None,
         spend_limit: float | None,
-        username: str,
+        user_id: int,
+        decisions: Decisions | None = None,
     ) -> Turn:
         turn = Turn(conversation_id)
 
@@ -361,8 +465,9 @@ class Turns:
                     app=app,
                     model=model,
                     text=text,
+                    decisions=decisions,
                     spend_limit=spend_limit,
-                    username=username,
+                    user_id=user_id,
                 )
             except Exception:
                 log.exception("assistant turn crashed")

@@ -11,7 +11,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from pydantic_ai import ToolDenied
 from pydantic_ai.exceptions import UserError
+from pydantic_ai.models import Model
 from sqlmodel import Session, col, select
 
 from athena import audit
@@ -300,6 +302,19 @@ class ConversationPatch(BaseModel):
     model: ModelRef | None = None
 
 
+class Decision(BaseModel):
+    id: str = Field(min_length=1, max_length=200)
+    """The tool call's id."""
+    approve: bool
+    reason: str | None = Field(default=None, max_length=1000)
+    """For a denial: what the model is told instead of the default."""
+
+
+class ApprovalsIn(BaseModel):
+    decisions: list[Decision] = Field(min_length=1, max_length=100)
+    """One per waiting action: every one must be answered."""
+
+
 class MessageIn(BaseModel):
     text: str = Field(min_length=1, max_length=32_000)
     model: ModelRef | None = None
@@ -365,9 +380,11 @@ def get_conversation(
     conversation_id: ConversationId, request: Request, user: Authed, db: DbSession
 ) -> ConversationDetail:
     row = _get_conv(db, user, conversation_id)
+    conv = chat.load_history(row)
+    messages = list(conv.messages) if conv else []
     return ConversationDetail(
         **_conv_out(row).model_dump(),
-        messages=chat.ui_messages(chat.history_messages(row)),
+        messages=chat.ui_messages(messages, chat.pending_ids(conv), chat.summarizer(db)),
         running=_turns(request).get(row.id) is not None,
     )
 
@@ -413,12 +430,91 @@ async def send_message(
 ) -> StreamingResponse:
     """Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a
     new block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,
-    `error`), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`."""
+    `error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,
+    `name`, `args`, `summary` and `destructive`), `job` (`id` of the tool call, `job_id`,
+    `title`: a job an approved action started), `title`, `usage`, `stopped`, `error`
+    (`message`) and finally `done`. While actions wait, a new message denies them."""
     row = _get_conv(db, user, conversation_id)
     turns = _turns(request)
     if turns.get(row.id) is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "This chat is still answering")
-    ref = body.model or (
+    model = _model_for(request, db, row, body.model)
+    settings = ai_settings.load(db)
+    assert user.user.id is not None
+    turn = turns.start(
+        row.id,
+        app=request.app,
+        model=model,
+        text=body.text,
+        spend_limit=settings.spend_limit_usd,
+        user_id=user.user.id,
+    )
+    return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
+
+
+@router.post(
+    "/conversations/{conversation_id}/approvals",
+    operation_id="answerApprovals",
+    response_class=StreamingResponse,
+    responses={200: {"content": {"text/event-stream": {}}}},
+)
+async def answer_approvals(
+    conversation_id: ConversationId,
+    body: ApprovalsIn,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+) -> StreamingResponse:
+    """Approve or deny the actions a paused chat is waiting on, and continue it. Approved
+    actions run as you, and each answer is audited. Streams the same events as
+    sendMessage."""
+    row = _get_conv(db, user, conversation_id)
+    turns = _turns(request)
+    if turns.get(row.id) is not None:
+        raise HTTPException(status.HTTP_409_CONFLICT, "This chat is still answering")
+    conv = chat.load_history(row)
+    pending = conv.deferred_tool_requests if conv else None
+    if pending is None or not pending.approvals:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Nothing in this chat is waiting for you")
+    calls = {c.tool_call_id: c for c in pending.approvals}
+    answers = {d.id: d for d in body.decisions}
+    if set(answers) != set(calls):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, "Answer every waiting action, and only those"
+        )
+    model = _model_for(request, db, row, None)
+    decisions: chat.Decisions = {}
+    for call_id, d in answers.items():
+        call = calls[call_id]
+        what = chat.summarizer(db)(call.tool_name, chat.args_of(call)) or call.tool_name
+        if d.approve:
+            decisions[call_id] = True
+        else:
+            reason = (d.reason or "").strip()
+            decisions[call_id] = ToolDenied(
+                f"The admin denied this: {reason}" if reason else "The admin denied this."
+            )
+        action = "assistant.approve" if d.approve else "assistant.deny"
+        audit.record(db, user.user.username, action, what, call.tool_name)
+    assert user.user.id is not None
+    turn = turns.start(
+        row.id,
+        app=request.app,
+        model=model,
+        text=None,
+        decisions=decisions,
+        spend_limit=ai_settings.load(db).spend_limit_usd,
+        user_id=user.user.id,
+    )
+    return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
+
+
+def _model_for(
+    request: Request, db: Session, row: AiConversation, chosen: ModelRef | None
+) -> Model:
+    """The model to answer with (the one picked, else the chat's last, else the default),
+    remembered on the chat."""
+    ref = chosen or (
         ModelRef(provider_id=row.provider_id, model=row.model)
         if row.provider_id and row.model
         else ai_settings.load(db).default_model
@@ -437,16 +533,7 @@ async def send_message(
     row.provider_id, row.model = ref.provider_id, ref.model
     db.add(row)
     db.commit()
-    settings = ai_settings.load(db)
-    turn = turns.start(
-        row.id,
-        app=request.app,
-        model=model,
-        text=body.text,
-        spend_limit=settings.spend_limit_usd,
-        username=user.user.username,
-    )
-    return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
+    return model
 
 
 @router.post(

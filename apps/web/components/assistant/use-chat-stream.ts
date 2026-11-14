@@ -66,31 +66,68 @@ function applyEvent(
     if (last && last.type === type && !data.new) {
       parts[parts.length - 1] = { ...last, text: (last.text ?? "") + delta }
     } else {
-      parts.push({ type, text: delta })
+      parts.push({ type, text: delta, destructive: false })
     }
   } else if (event === "tool-call") {
-    parts.push({
-      type: "tool",
-      tool_call_id: String(data.id),
-      tool_name: String(data.name),
-      args: data.args,
-      state: "running",
-    })
+    const i = toolIndex(parts, data.id)
+    if (i >= 0) {
+      // An approved action is announced again when it runs.
+      parts[i] = { ...parts[i]!, state: "running" }
+    } else {
+      parts.push({
+        type: "tool",
+        tool_call_id: String(data.id),
+        tool_name: String(data.name),
+        args: data.args,
+        state: "running",
+        destructive: false,
+      })
+    }
   } else if (event === "tool-result") {
-    const i = parts.findIndex(
-      (p) => p.type === "tool" && p.tool_call_id === data.id
-    )
+    const i = toolIndex(parts, data.id)
     if (i >= 0) {
       const error = (data.error as string | null) ?? null
       parts[i] = {
         ...parts[i]!,
         result: (data.result as string | null) ?? null,
         error,
-        state: error ? "error" : "done",
+        state: data.denied ? "denied" : error ? "error" : "done",
       }
     }
+  } else if (event === "approval") {
+    for (const call of (data.calls ?? []) as ApprovalCall[]) {
+      const i = toolIndex(parts, call.id)
+      if (i >= 0) {
+        parts[i] = {
+          ...parts[i]!,
+          state: "approval",
+          summary: call.summary,
+          destructive: call.destructive,
+        }
+      }
+    }
+  } else if (event === "job") {
+    const i = toolIndex(parts, data.id)
+    if (i >= 0) parts[i] = { ...parts[i]!, job_id: String(data.job_id) }
   }
   return { ...reply, parts }
+}
+
+type ApprovalCall = {
+  id: string
+  summary: string | null
+  destructive: boolean
+}
+
+function toolIndex(parts: ChatPart[], id: unknown) {
+  return parts.findIndex((p) => p.type === "tool" && p.tool_call_id === id)
+}
+
+/** The actions the chat is waiting on: tool calls in the last reply still asking for approval. */
+export function waitingCalls(messages: ChatMessage[]): ChatPart[] {
+  const last = messages.at(-1)
+  if (!last || last.role !== "assistant") return []
+  return last.parts.filter((p) => p.type === "tool" && p.state === "approval")
 }
 
 /**
@@ -143,28 +180,12 @@ export function useChatStream(
     return () => window.clearInterval(timer)
   }, [status, load])
 
-  const send = React.useCallback(
-    async (
-      text: string,
-      model: ModelRef | null,
-      /** For a chat created just now, before the `conversationId` prop catches up. */
-      id: string | null = conversationId
-    ): Promise<boolean> => {
-      if (!id) return false
+  /** POSTs to a streaming endpoint and applies its events to the last reply. */
+  const run = React.useCallback(
+    async (id: string, path: string, body: unknown): Promise<boolean> => {
       setError(null)
       sending.current = true
       setStatus("streaming")
-      const userMsg: ChatMessage = {
-        id: `local-${Date.now()}`,
-        role: "user",
-        parts: [{ type: "text", text }],
-      }
-      const reply: ChatMessage = {
-        id: `local-${Date.now()}-r`,
-        role: "assistant",
-        parts: [],
-      }
-      setMessages((m) => [...m, userMsg, reply])
       let ok = true
       try {
         const headers: Record<string, string> = {
@@ -172,14 +193,14 @@ export function useChatStream(
         }
         const token = getCsrfToken()
         if (token) headers["X-CSRF-Token"] = token
-        const res = await fetch(`/api/assistant/conversations/${id}/messages`, {
+        const res = await fetch(`/api/assistant/conversations/${id}/${path}`, {
           method: "POST",
           headers,
-          body: JSON.stringify({ text, model }),
+          body: JSON.stringify(body),
         })
         if (!res.ok || !res.body) {
-          const body = await res.json().catch(() => null)
-          throw new Error(errorMessage(body, `HTTP ${res.status}`))
+          const data = await res.json().catch(() => null)
+          throw new Error(errorMessage(data, `HTTP ${res.status}`))
         }
         for await (const [event, data] of readEvents(res.body)) {
           const d = (data ?? {}) as Record<string, unknown>
@@ -216,7 +237,84 @@ export function useChatStream(
       handlersRef.current.onDone?.()
       return ok
     },
-    [conversationId]
+    []
+  )
+
+  const send = React.useCallback(
+    async (
+      text: string,
+      model: ModelRef | null,
+      /** For a chat created just now, before the `conversationId` prop catches up. */
+      id: string | null = conversationId
+    ): Promise<boolean> => {
+      if (!id) return false
+      setDecided({})
+      const userMsg: ChatMessage = {
+        id: `local-${Date.now()}`,
+        role: "user",
+        parts: [{ type: "text", text, destructive: false }],
+      }
+      const reply: ChatMessage = {
+        id: `local-${Date.now()}-r`,
+        role: "assistant",
+        parts: [],
+      }
+      // A new message denies the waiting actions; show that before the reply.
+      setMessages((m) => [
+        ...m.map((msg, i) =>
+          i === m.length - 1
+            ? {
+                ...msg,
+                parts: msg.parts.map((p) =>
+                  p.state === "approval"
+                    ? { ...p, state: "denied" as const }
+                    : p
+                ),
+              }
+            : msg
+        ),
+        userMsg,
+        reply,
+      ])
+      return run(id, "messages", { text, model })
+    },
+    [conversationId, run]
+  )
+
+  /** Approve or deny one waiting action. Once every one has an answer, they're sent
+   * together and the reply continues in the same message. */
+  const [decided, setDecided] = React.useState<Record<string, boolean>>({})
+  React.useEffect(() => setDecided({}), [conversationId])
+  const decide = React.useCallback(
+    (callId: string, approve: boolean) => {
+      if (!conversationId || sending.current) return
+      const waiting = waitingCalls(messages)
+      const next = { ...decided, [callId]: approve }
+      setDecided(next)
+      if (!waiting.every((p) => p.tool_call_id! in next)) return
+      setDecided({})
+      setMessages((m) => {
+        const last = m.at(-1)
+        if (!last) return m
+        const parts = last.parts.map((p) =>
+          p.state === "approval" && p.tool_call_id
+            ? {
+                ...p,
+                state: next[p.tool_call_id]
+                  ? ("running" as const)
+                  : ("denied" as const),
+              }
+            : p
+        )
+        return [...m.slice(0, -1), { ...last, parts }]
+      })
+      const decisions = waiting.map((p) => ({
+        id: p.tool_call_id!,
+        approve: next[p.tool_call_id!]!,
+      }))
+      void run(conversationId, "approvals", { decisions })
+    },
+    [conversationId, decided, messages, run]
   )
 
   const stop = React.useCallback(async () => {
@@ -226,5 +324,15 @@ export function useChatStream(
     })
   }, [conversationId])
 
-  return { messages, status, error, send, stop, setError }
+  return {
+    messages,
+    status,
+    error,
+    send,
+    stop,
+    setError,
+    decide,
+    decided,
+    waiting: waitingCalls(messages),
+  }
 }
