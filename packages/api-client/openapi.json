@@ -4922,6 +4922,14 @@
               }
             ],
             "title": "Spend Limit Usd"
+          },
+          "mcp_servers": {
+            "items": {
+              "$ref": "#/components/schemas/McpServer"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Mcp Servers"
           }
         },
         "type": "object",
@@ -6933,6 +6941,110 @@
           "can_refresh"
         ],
         "title": "ManagerOut"
+      },
+      "McpHttp": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "http",
+            "title": "Type",
+            "default": "http"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Url"
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "maxProperties": 50,
+            "title": "Headers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "McpHttp",
+        "description": "An MCP server reached over streamable HTTP."
+      },
+      "McpServer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+            "title": "Id"
+          },
+          "transport": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/McpStdio"
+              },
+              {
+                "$ref": "#/components/schemas/McpHttp"
+              }
+            ],
+            "title": "Transport",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "http": "#/components/schemas/McpHttp",
+                "stdio": "#/components/schemas/McpStdio"
+              }
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "transport"
+        ],
+        "title": "McpServer",
+        "description": "One configured MCP server the assistant may use."
+      },
+      "McpStdio": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "stdio",
+            "title": "Type",
+            "default": "stdio"
+          },
+          "command": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Command"
+          },
+          "args": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Args"
+          },
+          "env": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "maxProperties": 50,
+            "title": "Env"
+          }
+        },
+        "type": "object",
+        "required": [
+          "command"
+        ],
+        "title": "McpStdio",
+        "description": "An MCP server launched with a local command (stdio transport)."
       },
       "MessageIn": {
         "properties": {
