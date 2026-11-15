@@ -851,6 +851,56 @@ function ReviewCard({
   )
 }
 
+function DockerSandboxCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  const where = useCapability("containers")
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Docker sandbox</CardTitle>
+        <CardDescription>
+          Run commands and edit files in an isolated container instead of directly
+          on this server. Needs the {where?.label ?? "containers"} capability ready
+          and pulls a small Python image on first use.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {settings === null ? (
+          <Skeleton className="h-12 w-full" />
+        ) : (
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="docker-sandbox-enabled">Docker sandbox</FieldLabel>
+                <FieldDescription>
+                  Off by default. Only offered when this server has a ready
+                  container engine (Docker or Podman).
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="docker-sandbox-enabled"
+                checked={settings.docker_sandbox_enabled}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, docker_sandbox_enabled: checked },
+                    checked ? "Docker sandbox turned on" : "Docker sandbox turned off"
+                  )
+                }
+              />
+            </Field>
+          </FieldGroup>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 /** Settings → AI: providers, default models and limits (admins only). */
 export function AiSettingsView() {
   const { user } = useAuth()
@@ -872,6 +922,7 @@ export function AiSettingsView() {
       <MemoryCard settings={settings} save={save} />
       <WebResearchCard settings={settings} save={save} />
       <ReviewCard settings={settings} save={save} />
+      <DockerSandboxCard settings={settings} save={save} />
       <ShellCard settings={settings} save={save} />
     </div>
   )

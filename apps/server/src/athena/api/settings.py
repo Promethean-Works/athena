@@ -125,4 +125,7 @@ def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
     if before.review_tool_calls != body.review_tool_calls:
         state = "on" if body.review_tool_calls else "off"
         audit.record(db, user.user.username, "settings.assistant_review_tool_calls", state)
+    if before.docker_sandbox_enabled != body.docker_sandbox_enabled:
+        state = "on" if body.docker_sandbox_enabled else "off"
+        audit.record(db, user.user.username, "settings.assistant_docker_sandbox", state)
     return body

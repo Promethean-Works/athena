@@ -1749,6 +1749,11 @@ export interface components {
              * @default false
              */
             review_tool_calls: boolean;
+            /**
+             * Docker Sandbox Enabled
+             * @default false
+             */
+            docker_sandbox_enabled: boolean;
             /** Mcp Servers */
             mcp_servers?: components["schemas"]["McpServer"][];
         };

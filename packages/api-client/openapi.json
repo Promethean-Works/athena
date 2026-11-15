@@ -4943,6 +4943,11 @@
             "title": "Review Tool Calls",
             "default": false
           },
+          "docker_sandbox_enabled": {
+            "type": "boolean",
+            "title": "Docker Sandbox Enabled",
+            "default": false
+          },
           "mcp_servers": {
             "items": {
               "$ref": "#/components/schemas/McpServer"
