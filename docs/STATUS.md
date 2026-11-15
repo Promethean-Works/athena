@@ -10,13 +10,13 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
-- M7 D stage 1, robustness: PRs 1–3 merged (#59, #60, #62). `artifact_scanning` moved to stage 2 (it only scans `memory` and `skills`). Next PR, the last of stage 1: `system_reminders`, `warn_on_cache_busts`, and harness `spend` vs our own limit (keep one). Follow-up idea: warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (4,096 by default; see AGENT-NOTES → Assistant).
+- M7 D stage 1 (robustness) is done once #64 merges. Next: stage 2, agent features (design §4.5 Parts D; `artifact_scanning` arrives with `memory` and `skills`). Follow-up idea: warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (4,096 by default; see AGENT-NOTES → Assistant).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 
 ## Next
 
-M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): finish stage 1 (see In progress); then agent features; extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
+M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): agent features (stage 2); extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 
