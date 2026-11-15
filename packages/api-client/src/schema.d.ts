@@ -1738,6 +1738,8 @@ export interface components {
             memory_enabled: boolean;
             /** Spend Limit Usd */
             spend_limit_usd?: number | null;
+            /** Mcp Servers */
+            mcp_servers?: components["schemas"]["McpServer"][];
         };
         /** Answer */
         Answer: {
@@ -2448,6 +2450,52 @@ export interface components {
             can_refresh: boolean;
             /** Note */
             note?: string | null;
+        };
+        /**
+         * McpHttp
+         * @description An MCP server reached over streamable HTTP.
+         */
+        McpHttp: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "http";
+            /** Url */
+            url: string;
+            /** Headers */
+            headers?: {
+                [key: string]: string;
+            };
+        };
+        /**
+         * McpServer
+         * @description One configured MCP server the assistant may use.
+         */
+        McpServer: {
+            /** Id */
+            id: string;
+            /** Transport */
+            transport: components["schemas"]["McpStdio"] | components["schemas"]["McpHttp"];
+        };
+        /**
+         * McpStdio
+         * @description An MCP server launched with a local command (stdio transport).
+         */
+        McpStdio: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "stdio";
+            /** Command */
+            command: string;
+            /** Args */
+            args?: string[];
+            /** Env */
+            env?: {
+                [key: string]: string;
+            };
         };
         /** MessageIn */
         MessageIn: {

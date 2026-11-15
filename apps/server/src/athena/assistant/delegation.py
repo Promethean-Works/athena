@@ -31,6 +31,7 @@ from typing import Any
 
 from pydantic_ai import Agent, FunctionToolset, RunContext, UsageLimits
 from pydantic_ai.capabilities import AbstractCapability, Caching, SetToolMetadata
+from pydantic_ai.mcp import MCPToolset
 from pydantic_ai.messages import (
     ModelMessage,
     ModelRequest,
@@ -40,8 +41,10 @@ from pydantic_ai.messages import (
 from pydantic_ai.models import Model, ModelRequestContext
 from pydantic_ai_harness import Advisor, BackgroundTools, DynamicWorkflow, SubAgent, SubAgents
 
+from athena.assistant.mcp import mcp_toolsets
 from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
+from athena.assistant.settings import McpServer
 from athena.assistant.tools import Deps, read_only_tools
 from athena.platform.capabilities import CapabilityManifest
 
@@ -80,7 +83,12 @@ lines that matter. Say what you couldn't find or check.
 """
 
 
-def investigator(model: Model, manifest: CapabilityManifest, data_dir: Any) -> Agent[Deps, str]:
+def investigator(
+    model: Model,
+    manifest: CapabilityManifest,
+    data_dir: Any,
+    mcp: list[MCPToolset[Any]] = (),
+) -> Agent[Deps, str]:
     """The read-only helper for one turn, on the chat's model."""
     return Agent(
         model,
@@ -92,21 +100,25 @@ def investigator(model: Model, manifest: CapabilityManifest, data_dir: Any) -> A
             INVESTIGATOR_INSTRUCTIONS,
             f"This server runs {manifest.os_version} ({manifest.os}, {manifest.arch}).",
         ],
-        toolsets=[FunctionToolset(read_only_tools(manifest))],
+        toolsets=[FunctionToolset(read_only_tools(manifest)), *mcp],
         capabilities=[Caching(), *robustness_capabilities(data_dir), *safety_capabilities()],
     )
 
 
 def delegation_capabilities(
-    model: Model, manifest: CapabilityManifest, data_dir: Any
+    model: Model,
+    manifest: CapabilityManifest,
+    data_dir: Any,
+    mcp_servers: list[McpServer] = (),
 ) -> list[AbstractCapability[Any]]:
     """`delegate_task` with the investigator. Goes after the safety capabilities, so the
     child's answer is screened like any other tool result."""
+    mcp = mcp_toolsets(mcp_servers)
     return [
         SubAgents(
             agents=[
                 SubAgent(
-                    investigator(model, manifest, data_dir),
+                    investigator(model, manifest, data_dir, mcp=mcp),
                     usage_limits=CHILD_LIMITS,
                     timeout_seconds=CHILD_TIMEOUT,
                     max_calls=MAX_DELEGATIONS,
@@ -133,16 +145,21 @@ True` loop that never calls one."""
 
 
 def workflow_capabilities(
-    model: Model, manifest: CapabilityManifest, data_dir: Any, window_tokens: int
+    model: Model,
+    manifest: CapabilityManifest,
+    data_dir: Any,
+    window_tokens: int,
+    mcp_servers: list[McpServer] = (),
 ) -> list[AbstractCapability[Any]]:
     """`run_workflow`: a short Python script (in the Monty sandbox) that runs several
     investigators at once and combines their findings, for models with room for it. The
     helpers share the chat's usage, so the spend limit counts them."""
     if window_tokens < WORKFLOW_MIN_WINDOW:
         return []
+    mcp = mcp_toolsets(mcp_servers)
     return [
         DynamicWorkflow(
-            agents=[investigator(model, manifest, data_dir)],
+            agents=[investigator(model, manifest, data_dir, mcp=mcp)],
             max_agent_calls=WORKFLOW_CALLS,
             resource_limits={"max_duration_seconds": WORKFLOW_SCRIPT_SECONDS},
         )

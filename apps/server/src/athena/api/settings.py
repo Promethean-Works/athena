@@ -106,4 +106,11 @@ def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
         ref = body.advisor_model
         target = f"{ref.provider_id}/{ref.model}" if ref else "off"
         audit.record(db, user.user.username, "settings.assistant_advisor", target)
+    if before.mcp_servers != body.mcp_servers:
+        audit.record(
+            db,
+            user.user.username,
+            "settings.assistant_mcp",
+            ", ".join(s.id for s in body.mcp_servers) or "none",
+        )
     return body
