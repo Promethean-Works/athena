@@ -39,6 +39,7 @@ from pydantic_ai import (
 )
 from pydantic_ai.capabilities import AbstractCapability, Caching
 from pydantic_ai.exceptions import UsageLimitExceeded
+from pydantic_ai.mcp import MCPToolset
 from pydantic_ai.messages import (
     ModelMessage,
     ModelMessagesTypeAdapter,
@@ -70,6 +71,7 @@ from athena.assistant.delegation import (
     workflow_capabilities,
 )
 from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
+from athena.assistant.mcp import mcp_toolsets
 from athena.assistant.plans import PLAN_TOOL, plan_of, planning_capabilities
 from athena.assistant.questions import (
     DECLINED_BY_NEW_MESSAGE,
@@ -79,6 +81,7 @@ from athena.assistant.questions import (
 from athena.assistant.review import review_capabilities, starts_review
 from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
+from athena.assistant.settings import McpServer
 from athena.assistant.tools import Deps, shell_provider, toolset_for
 from athena.assistant.workspace import shell_capabilities
 from athena.auth.deps import CurrentUser
@@ -477,7 +480,7 @@ async def _run(
         compaction = compaction_capabilities(window_tokens, recorder)
         data_dir = app.state.settings.data_dir
         extras = [
-            *workflow_capabilities(model, manifest, data_dir, window_tokens),
+            *workflow_capabilities(model, manifest, data_dir, window_tokens, ai.mcp_servers),
             *planning_capabilities(app.state.settings.data_dir, turn.conversation_id),
             *question_capabilities(),
             *advisor_capabilities(advisor_model),
@@ -488,7 +491,17 @@ async def _run(
         try:
             with capture_run_messages() as captured:
                 saved = await _stream(
-                    turn, db, previous, results, text, model, deps, limits, [*extras, *compaction]
+                    turn,
+                    db,
+                    previous,
+                    results,
+                    text,
+                    model,
+                    deps,
+                    limits,
+                    [*extras, *compaction],
+                    mcp_toolsets(ai.mcp_servers),
+                    ai.mcp_servers,
                 )
         except RunCancelled as exc:
             saved = Conversation(messages=list(exc.all_messages()), usage=exc.usage or RunUsage())
@@ -561,10 +574,13 @@ async def _stream(
     deps: Deps,
     limits: UsageLimits,
     extras: list[AbstractCapability[Any]],
+    mcp: list[MCPToolset[Any]] = (),
+    mcp_servers: list[McpServer] = (),
 ) -> Conversation | None:
     """Runs the agent, forwarding its events; returns the chat to save. `extras` are the
     turn's workflow, planning, questions, advisor, review and compaction (compaction last, so
-    it measures and records the request as everything else left it)."""
+    it measures and records the request as everything else left it). `mcp` are the configured
+    MCP server toolsets, fresh per turn so concurrent runs never share a connection."""
     saved: Conversation | None = None
     data_dir = deps.app.state.settings.data_dir
     async with agent.run_stream_events(
@@ -572,11 +588,11 @@ async def _stream(
         conversation=previous,
         model=model,
         deps=deps,
-        toolsets=[toolset_for(deps.manifest, deps.shell_commands)],
+        toolsets=[toolset_for(deps.manifest, deps.shell_commands), *mcp],
         capabilities=[
             *robustness_capabilities(data_dir, after_repair=background_capabilities()),
             *safety_capabilities(),
-            *delegation_capabilities(model, deps.manifest, data_dir),
+            *delegation_capabilities(model, deps.manifest, data_dir, mcp_servers),
             *knowledge_capabilities(
                 deps.app.state.settings.data_dir,
                 user_id=deps.user.user.id,

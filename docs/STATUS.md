@@ -11,6 +11,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 ## In progress
 
 - M7 D stage 2 (agent features): PRs 1 (#65), 2 (#66), 3a (#67), 3b (#68) and 4 (refine + workflow; done once it merges) of 5. Next: `step_persistence` + `conversation_search` + `media`. Follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
+- MCP server support for the assistant added: `McpStdio` and `McpHttp` server configs in `ai_settings.mcp_servers` (Settings → AI), built as fresh `MCPToolset`s per turn and wired into the chat agent, investigator (delegation) and `run_workflow` helpers. Audit logs MCP server changes.
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 
