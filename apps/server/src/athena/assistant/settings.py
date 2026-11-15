@@ -76,6 +76,9 @@ class AiSettings(BaseModel):
     """Lets the assistant keep notes across chats (`<data-dir>/assistant/memory.db`)."""
     spend_limit_usd: float | None = Field(default=None, gt=0, le=10_000)
     """Stops a chat once its cost reaches this, for models with known prices."""
+    web_research_enabled: bool = False
+    """Lets the assistant search the web with Exa (needs EXA_API_KEY in the
+    server environment)."""
     mcp_servers: list[McpServer] = Field(default_factory=list, max_length=50)
     """MCP servers the assistant can connect to and use tools from (Settings → AI)."""
 

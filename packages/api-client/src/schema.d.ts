@@ -1738,6 +1738,11 @@ export interface components {
             memory_enabled: boolean;
             /** Spend Limit Usd */
             spend_limit_usd?: number | null;
+            /**
+             * Web Research Enabled
+             * @default false
+             */
+            web_research_enabled: boolean;
             /** Mcp Servers */
             mcp_servers?: components["schemas"]["McpServer"][];
         };

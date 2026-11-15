@@ -707,6 +707,59 @@ function MemoryCard({
   )
 }
 
+function WebResearchCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Web research</CardTitle>
+        <CardDescription>
+          Let the assistant search the web with Exa and read pages it finds. The
+          server needs an <code>EXA_API_KEY</code> environment variable (from
+          <a href="https://exa.ai" target="_blank" rel="noopener noreferrer">
+            Exa
+          </a>
+          ); the setting only turns the tools on.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {settings === null ? (
+          <Skeleton className="h-12 w-full" />
+        ) : (
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="web-research-enabled">Web research</FieldLabel>
+                <FieldDescription>
+                  Off by default. Requires an <code>EXA_API_KEY</code> in the
+                  server&rsquo;s environment before any search works.
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="web-research-enabled"
+                checked={settings.web_research_enabled}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, web_research_enabled: checked },
+                    checked
+                      ? "Web research turned on"
+                      : "Web research turned off"
+                  )
+                }
+              />
+            </Field>
+          </FieldGroup>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 /** Settings → AI: providers, default models and limits (admins only). */
 export function AiSettingsView() {
   const { user } = useAuth()
@@ -726,6 +779,7 @@ export function AiSettingsView() {
       <ProvidersCard onChanged={() => setVersion((v) => v + 1)} />
       <DefaultsCard version={version} settings={settings} save={save} />
       <MemoryCard settings={settings} save={save} />
+      <WebResearchCard settings={settings} save={save} />
       <ShellCard settings={settings} save={save} />
     </div>
   )
