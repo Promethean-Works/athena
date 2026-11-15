@@ -1720,6 +1720,11 @@ export interface components {
             title_model?: components["schemas"]["ModelRef"] | null;
             advisor_model?: components["schemas"]["ModelRef"] | null;
             /**
+             * Refine Answers
+             * @default false
+             */
+            refine_answers: boolean;
+            /**
              * Shell Enabled
              * @default false
              */
@@ -1999,6 +2004,11 @@ export interface components {
             destructive: boolean;
             /** Job Id */
             job_id?: string | null;
+            /**
+             * Draft
+             * @default false
+             */
+            draft: boolean;
         };
         /** ChatUsage */
         ChatUsage: {

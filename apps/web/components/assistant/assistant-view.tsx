@@ -76,11 +76,12 @@ const SUGGESTIONS = [
   "Which apps are running?",
 ]
 
-/** Groups a reply's parts: runs of reasoning/tool steps, and text blocks. */
+/** Groups a reply's parts: runs of steps (reasoning, tools, revised drafts), and text
+ * blocks. */
 function blocks(parts: ChatPart[]): (ChatPart[] | string)[] {
   const out: (ChatPart[] | string)[] = []
   for (const part of parts) {
-    if (part.type === "text") {
+    if (part.type === "text" && !part.draft) {
       if (part.text) out.push(part.text)
     } else {
       const last = out.at(-1)

@@ -99,6 +99,9 @@ def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
     if before.memory_enabled != body.memory_enabled:
         state = "on" if body.memory_enabled else "off"
         audit.record(db, user.user.username, "settings.assistant_memory", state)
+    if before.refine_answers != body.refine_answers:
+        state = "on" if body.refine_answers else "off"
+        audit.record(db, user.user.username, "settings.assistant_refine", state)
     if before.advisor_model != body.advisor_model:
         ref = body.advisor_model
         target = f"{ref.provider_id}/{ref.model}" if ref else "off"

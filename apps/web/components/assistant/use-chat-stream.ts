@@ -73,7 +73,7 @@ function applyEvent(
     if (last && last.type === type && !data.new) {
       parts[parts.length - 1] = { ...last, text: (last.text ?? "") + delta }
     } else {
-      parts.push({ type, text: delta, destructive: false })
+      parts.push({ type, text: delta, destructive: false, draft: false })
     }
   } else if (event === "tool-call") {
     const i = toolIndex(parts, data.id)
@@ -88,6 +88,7 @@ function applyEvent(
         args: data.args,
         state: "running",
         destructive: false,
+        draft: false,
       })
     }
   } else if (event === "tool-result") {
@@ -117,6 +118,11 @@ function applyEvent(
     for (const id of (data.ids ?? []) as string[]) {
       const i = toolIndex(parts, id)
       if (i >= 0) parts[i] = { ...parts[i]!, state: "question" }
+    }
+  } else if (event === "draft") {
+    // "Double-check answers": what was written so far is revised next, so fold it away.
+    for (const [i, p] of parts.entries()) {
+      if (p.type === "text") parts[i] = { ...p, draft: true }
     }
   } else if (event === "job") {
     const i = toolIndex(parts, data.id)
@@ -284,7 +290,7 @@ export function useChatStream(
       const userMsg: ChatMessage = {
         id: `local-${Date.now()}`,
         role: "user",
-        parts: [{ type: "text", text, destructive: false }],
+        parts: [{ type: "text", text, destructive: false, draft: false }],
       }
       const reply: ChatMessage = {
         id: `local-${Date.now()}-r`,

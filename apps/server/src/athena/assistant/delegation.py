@@ -13,6 +13,10 @@ stage 2).
   approval or a question cancels the background tasks still running, which for an install or
   an upgrade would lose its result while the job kept going.
 
+- `DynamicWorkflow` gives models with a large enough context `run_workflow`: a sandboxed
+  Python script that runs several investigators at once (`asyncio.gather`) and returns only
+  what it combines from them.
+
 - `Advisor` gives the chat's model `advisor(prompt)` when Settings → AI names an advisor model:
   a second opinion from another (usually stronger) model, at most once per model request. It
   sees only the question (`forward_history=False`), never the chat, the tools or the host.
@@ -34,7 +38,7 @@ from pydantic_ai.messages import (
     UserPromptPart,
 )
 from pydantic_ai.models import Model, ModelRequestContext
-from pydantic_ai_harness import Advisor, BackgroundTools, SubAgent, SubAgents
+from pydantic_ai_harness import Advisor, BackgroundTools, DynamicWorkflow, SubAgent, SubAgents
 
 from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
@@ -112,6 +116,36 @@ def delegation_capabilities(
             max_depth=2,
         ),
         SetToolMetadata(tools=[DELEGATE_TOOL], background="optional"),
+    ]
+
+
+WORKFLOW_TOOL = "run_workflow"
+WORKFLOW_MIN_WINDOW = 32_000
+"""Tokens. `run_workflow`'s description costs ~900 tokens on every request, too much for a
+small local context (an Ollama model at 4,096 would lose a quarter of it)."""
+WORKFLOW_CALLS = 5
+"""Investigator runs per turn across every script. Their requests share the turn's counter
+(`forward_usage`), so the turn's request limit bounds the whole tree; five short look-ups
+fit in it with room for the chat's own requests."""
+WORKFLOW_SCRIPT_SECONDS = 30
+"""CPU time of the script itself (time waiting on helpers doesn't count): stops a `while
+True` loop that never calls one."""
+
+
+def workflow_capabilities(
+    model: Model, manifest: CapabilityManifest, data_dir: Any, window_tokens: int
+) -> list[AbstractCapability[Any]]:
+    """`run_workflow`: a short Python script (in the Monty sandbox) that runs several
+    investigators at once and combines their findings, for models with room for it. The
+    helpers share the chat's usage, so the spend limit counts them."""
+    if window_tokens < WORKFLOW_MIN_WINDOW:
+        return []
+    return [
+        DynamicWorkflow(
+            agents=[investigator(model, manifest, data_dir)],
+            max_agent_calls=WORKFLOW_CALLS,
+            resource_limits={"max_duration_seconds": WORKFLOW_SCRIPT_SECONDS},
+        )
     ]
 
 
