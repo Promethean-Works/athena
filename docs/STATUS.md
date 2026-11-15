@@ -2,7 +2,7 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Parts A, B and C are done; part D stage 1 and stage 2 done (#65–#73 merged). Stage 3 parts 1 and 2 done (#75 web research, #76 second-model reviews both merged). Browser is blocked by a dependency conflict (see below); next candidate is stage 3 part 3, sandboxes — waiting for a yes before starting a new part.
+**Current milestone:** M7, the AI assistant (§4.5). Parts A, B and C are done; part D stage 1 and stage 2 done (#65–#73 merged). Stage 3: web research (#75), second-model reviews (#76) and Docker sandbox (#77) done; browser blocked by a dependency conflict (see below).
 
 ## Done
 
@@ -20,9 +20,9 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 M7 part D stage 3 (design §4.5 Parts): extras with outside services.
 - Web research: done — Exa (`web_search`/`get_page`), gated by `web_research_enabled` + `EXA_API_KEY` (#75 merged).
 - Second-model reviews: done — `ApprovalReviewer` consults a second model per action awaiting approval, gated by `review_model`/`review_tool_calls` (#76 merged; auto-approve needs deferred-flow changes, a follow-up).
+- Docker sandbox: done — `DockerSandbox` (`python:3.13-slim` container) offered when `docker_sandbox_enabled` is on and the `containers` capability is ready (#77 open with auto-merge).
 - Browser: blocked — `pydantic-ai-harness[browser-use]` is incompatible with the pinned `pydantic-ai-harness==0.68.0` / `pydantic-ai-slim>=2.68.0` (pydantic version conflict uv can't lock); needs a harness upgrade the maintainer controls.
-- Recommended next (stage 3 part 3): `docker_sandbox` — local sandbox through the existing `containers` capability (no account needed), giving the assistant shell real isolation. See design §4.5 Parts D.4.
-Then after sandboxes: hosted integrations, durable execution and operations, and the coding stack.
+Then: hosted integrations (D.5), durable execution and operations (D.6), and the coding stack (D.7).
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 
