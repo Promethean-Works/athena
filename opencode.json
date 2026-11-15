@@ -47,5 +47,26 @@
   "tool_output": {
     "max_lines": 500,
     "max_bytes": 20000
+  },
+  "permissions": [
+    {
+      "action": "playwright_*",
+      "resource": "*",
+      "effect": "deny"
+    }
+  ],
+  "agents": {
+    "ui-verify": {
+      "description": "Verifies an Athena UI or API change in a real browser (release build, Playwright). Use after changing apps/web or an API the UI calls.",
+      "mode": "subagent",
+      "system": "Follow the athena-ui-verify skill (.agents/skills/athena-ui-verify/SKILL.md) exactly. Report what you verified, what you couldn't and why, and any bugs you found.",
+      "permissions": [
+        {
+          "action": "playwright_*",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
+    }
   }
 }
