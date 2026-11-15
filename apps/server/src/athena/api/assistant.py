@@ -208,7 +208,7 @@ def delete_provider(
     row = _get_provider(db, provider_id)
     db.delete(row)
     settings = ai_settings.load(db)
-    for attr in ("default_model", "title_model"):
+    for attr in ("default_model", "title_model", "advisor_model"):
         ref: ModelRef | None = getattr(settings, attr)
         if ref and ref.provider_id == provider_id:
             setattr(settings, attr, None)
@@ -474,6 +474,7 @@ async def send_message(
         title_model=(
             _title_model(request, db, settings, model) if row.title == chat.NEW_CHAT else None
         ),
+        advisor_model=_advisor_model(request, db, settings),
     )
     return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
 
@@ -517,6 +518,7 @@ async def answer_approvals(
         except ValueError as exc:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
     model = _model_for(request, db, row, None)
+    settings = ai_settings.load(db)
     decisions = resume.approvals
     for call_id, d in decided.items():
         call = calls[call_id]
@@ -537,9 +539,10 @@ async def answer_approvals(
         model=model,
         text=None,
         resume=resume,
-        spend_limit=ai_settings.load(db).spend_limit_usd,
+        spend_limit=settings.spend_limit_usd,
         user_id=user.user.id,
         window=_window_of(request, db, row, model),
+        advisor_model=_advisor_model(request, db, settings),
     )
     return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
 
@@ -600,6 +603,17 @@ def _title_model(
     except HTTPException as exc:
         log.info("title model unavailable, using the chat's: %s", exc.detail)
         return chat_model
+
+
+def _advisor_model(request: Request, db: Session, settings: ai_settings.AiSettings) -> Model | None:
+    """Settings → AI's advisor model; none (no `advisor` tool) when unset or unavailable."""
+    if settings.advisor_model is None:
+        return None
+    try:
+        return _build(request, db, settings.advisor_model)
+    except HTTPException as exc:
+        log.info("advisor model unavailable, chatting without it: %s", exc.detail)
+        return None
 
 
 def _build(request: Request, db: Session, ref: ModelRef) -> Model:

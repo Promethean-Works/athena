@@ -1718,6 +1718,7 @@ export interface components {
         AiSettings: {
             default_model?: components["schemas"]["ModelRef"] | null;
             title_model?: components["schemas"]["ModelRef"] | null;
+            advisor_model?: components["schemas"]["ModelRef"] | null;
             /**
              * Shell Enabled
              * @default false

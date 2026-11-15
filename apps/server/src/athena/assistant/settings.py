@@ -28,6 +28,9 @@ class AiSettings(BaseModel):
     """Used for new chats."""
     title_model: ModelRef | None = None
     """A small model for writing chat titles; the chat's own model when empty."""
+    advisor_model: ModelRef | None = None
+    """A second model the assistant may consult once per request (`advisor` tool); off when
+    empty. Its provider sees the question the chat's model writes, not the chat."""
     shell_enabled: bool = False
     """Lets the assistant ask to run shell commands (each still needs approval)."""
     shell_commands: list[ShellCommand] = Field(default_factory=default_commands, max_length=200)
