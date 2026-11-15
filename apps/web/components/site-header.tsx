@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation"
 
+import { AssistantSheet } from "@/components/assistant/assistant-sheet"
 import { titleForPath } from "@/components/nav"
 import { ServerStatusBadge } from "@/components/server-status-badge"
 import { Separator } from "@workspace/ui/components/separator"
@@ -19,6 +20,7 @@ export function SiteHeader() {
         />
         <h1 className="text-base font-medium">{titleForPath(pathname)}</h1>
         <div className="ml-auto flex items-center gap-2">
+          <AssistantSheet />
           <ServerStatusBadge />
         </div>
       </div>
