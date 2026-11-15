@@ -1,0 +1,52 @@
+# Agent tooling
+
+_How the coding agents (Claude Code, OpenCode, Hermes Agent) are set up for this repo. Read this when you change agent tooling (MCP servers, skills, generated agent config) or set up an agent on a new machine. Day-to-day work doesn't need it._
+
+## One source of truth
+
+Everything agent-related has one source of truth in the repo. Each agent reads it either directly or through a link or generated file.
+
+| What | Source of truth | Claude Code | OpenCode | Hermes Agent |
+|---|---|---|---|---|
+| Instructions | `AGENTS.md` | `CLAUDE.md` imports it | reads `AGENTS.md` | reads `AGENTS.md` |
+| Skills | `.agents/skills/` | `.claude/skills` → symlink | reads `.agents/skills` | reads `.agents/skills` after `hermes skills trust` |
+| MCP servers | `.mcp.json` | reads it | `opencode.json` (generated) | `~/.hermes/config.yaml` (snippet generated) |
+| Browser-check subagent | `scripts/agents-sync.mjs` | `.claude/agents/ui-verify.md` (generated) | `ui-verify` in `opencode.json` (generated) | none |
+| Project state | `docs/STATUS.md` (finished work: `docs/HISTORY.md`) | ← | ← | ← |
+| Lessons, gotchas, commands | `docs/AGENT-NOTES.md` | ← | ← | ← |
+
+## MCP servers (`.mcp.json`)
+
+- `shadcn`: browse, search and install registry items.
+- `next-devtools`: Next.js docs and runtime diagnostics while `pnpm dev` runs.
+- `playwright`: a headless browser with an in-memory profile, for UI verification (navigate, accessibility snapshots, screenshots in `.playwright-mcp/`, clicks, console, network, resize). It runs with `--snapshot-mode none` to save tokens: actions don't return the page, so call `browser_snapshot` when you need it. It uses the system Chrome; on a machine without Chrome, add `--browser firefox` or install Chrome.
+- `context7`: current docs and examples for any library (FastAPI, SQLModel, Alembic, wsgidav, xterm.js, Base UI, pydantic-ai, rclone…). It works without an API key (rate-limited); set `CONTEXT7_API_KEY` for higher limits.
+
+## Skills (`.agents/skills/`)
+
+Third-party ones are pinned in `skills-lock.json`: `shadcn`, `building-pydantic-ai-agents`, `pydantic-ai-harness`, `pydantic`. The project's own skills are listed in `AGENTS.md` → Agent tooling.
+
+## Changing tooling
+
+- *Add an MCP server:* edit `.mcp.json`, then run `node scripts/agents-sync.mjs` to regenerate `opencode.json`, `.claude/agents/ui-verify.md` and the Hermes snippet. Never edit the generated parts by hand: the `mcp` block of `opencode.json`, its `playwright_*` permission rules and `ui-verify` agent, and the Claude Code subagent file. Which tools each agent gets is set in `scripts/agents-sync.mjs` (`UNUSED_TOOLS`, `OPENCODE_SUBAGENT_ONLY`). CI runs `--check`.
+- *Add a third-party skill:* `npx skills add <owner/repo> --skill <name> -a claude-code -y`. It lands in `.agents/skills/` through the symlink and is recorded in `skills-lock.json`.
+- *Add a project skill:* create `.agents/skills/<name>/SKILL.md` with `name` and `description` frontmatter, and add it to the list in `AGENTS.md`.
+- *Restore skills on a new machine:* `npx skills experimental_install`.
+
+## One-time setup per agent
+
+- **Every agent and person:** `git config core.hooksPath .githooks` turns on the pre-push check.
+- **Claude Code:** nothing else to do. On Windows, enable symlinks in git (`git config core.symlinks true` with Developer Mode on) so `.claude/skills` works.
+- **OpenCode:** nothing to do. `opencode.json` is committed. To save tokens, the main agent doesn't get the Playwright tools: browser checks go to the `ui-verify` subagent, which follows the `athena-ui-verify` skill.
+- **Hermes Agent:** run `node scripts/agents-sync.mjs --hermes`. It trusts this repo's skills (`hermes skills trust`) and adds any missing MCP servers to `~/.hermes/config.yaml` through `hermes mcp add`. For servers already there, it re-applies their `args` and tool filters (unused tools are left out to save tokens) and leaves everything else alone. Then restart Hermes or run `/reload-mcp`. `--hermes-print` only prints the YAML block.
+  - Known gap: Hermes's skill scanner rates `pydantic-ai-harness` as "dangerous" and hides it. That's a false positive from its docs mentioning `~/.ssh`, `os.environ` and command denylists. Hermes agents should read `.agents/skills/pydantic-ai-harness/SKILL.md` directly when working on the assistant.
+
+## Token budget
+
+What's already in the repo is listed in `docs/AGENT-NOTES.md` → Agent environment. Two more things are per person, so they aren't committed:
+
+- **A cheaper model for browser checks.** UI verification is many small, repetitive steps. Claude Code's generated `ui-verify` subagent uses `model: sonnet`. OpenCode needs a `provider/model` id, which depends on your provider, so set it in your own `~/.config/opencode/opencode.json` (OpenCode merges it with the project file): `{"agents": {"ui-verify": {"model": "<provider>/<model>"}}}`.
+- **Optional tools, tried but not required:**
+  - [RTK](https://github.com/rtk-ai/rtk) (Apache-2.0): a hook that shortens the output of shell commands like `git`, `gh`, `pytest` and `pnpm` before the agent reads it. Works with Claude Code and OpenCode. It only covers shell commands (not built-in Read or Grep), and it runs your commands through a third-party binary. `scripts/check.sh` is already quiet without a terminal, so the gain here is mostly on `git`, `gh` and ad-hoc test runs.
+  - [TokenEconomizer](https://github.com/microsoft/TokenEconomizer) (Apache-2.0): learns repo facts, prunes unused tools, and nudges an agent stuck in a failure loop. The first two overlap with `athena-recipes`, the command cheat sheet and the MCP scoping above. What it learns stays in `~/.tokeneconomizer`, so anything another agent needs must still go in the repo.
+  - Not used: caveman (terse replies; measured at a few percent of a session's tokens, and the "Short replies" rule in `AGENTS.md` gets most of it).

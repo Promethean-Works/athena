@@ -46,6 +46,7 @@ const DOCS = [
   "AGENTS.md",
   "CLAUDE.md",
   "docs/AGENT-NOTES.md",
+  "docs/AGENT-TOOLING.md",
   "apps/web/AGENTS.md",
   "apps/server/AGENTS.md",
   "catalog/README.md",
