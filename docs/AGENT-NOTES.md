@@ -40,6 +40,8 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Installer dry run | `scripts/install.sh --dry-run`; `athena service install --dry-run` |
 | PR status | `gh pr checks <n>`, `gh run view <run-id> --log-failed`, `gh api repos/tiagozaccaro/athena/code-scanning/alerts?state=open` |
 
+If your session starts with "environment facts learned from earlier tasks in this checkout" (TokenEconomizer, on the maintainer's machine) and a fact isn't in this table yet, add it here: the facts stay on one machine, the table reaches every agent.
+
 ## Patterns to copy
 
 When adding something, start from the closest existing feature instead of inventing a new shape.
