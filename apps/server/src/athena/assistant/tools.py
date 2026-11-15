@@ -114,7 +114,7 @@ async def list_apps(ctx: Ctx) -> list[dict[str, Any]]:
     ]
 
 
-async def app_logs(ctx: Ctx, name: str, lines: int = 100) -> dict[str, list[str]]:
+async def app_logs(ctx: Ctx, name: str, lines: int = 100) -> list[dict[str, str]]:
     """The last `lines` log lines (at most 300) of each container in the app `name`."""
     lines = max(1, min(lines, MAX_LOG_LINES))
     if ctx.deps.db.exec(select(App).where(App.name == name)).first() is None:
@@ -122,7 +122,9 @@ async def app_logs(ctx: Ctx, name: str, lines: int = 100) -> dict[str, list[str]
     runtime = ctx.deps.runtime()
     try:
         found = await asyncio.to_thread(containers.list_containers, runtime)
-        out: dict[str, list[str]] = {}
+        # One text per container under `content`, the field the prompt injection defender
+        # reads (it skips lists of strings; see assistant/safety.py).
+        out: list[dict[str, str]] = []
         budget = MAX_LOG_CHARS
         for c in (c for c in found if c.project == name):
             got = await asyncio.to_thread(containers.logs, runtime, c.name, lines)
@@ -132,7 +134,7 @@ async def app_logs(ctx: Ctx, name: str, lines: int = 100) -> dict[str, list[str]
                 if budget < 0:
                     break
                 kept.append(line)
-            out[c.name] = list(reversed(kept))
+            out.append({"container": c.name, "content": "\n".join(reversed(kept))})
     except ContainerError as exc:
         raise ToolFailed(str(exc)) from exc
     if not out:
