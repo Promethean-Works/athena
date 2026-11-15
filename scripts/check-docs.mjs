@@ -108,6 +108,18 @@ for (const doc of DOCS) {
   })
 }
 
+// Every agent reads these at the start of every session, so their size is paid for
+// again and again. Finished work belongs in docs/HISTORY.md, detail in the design doc.
+const SIZE_LIMITS = { "docs/STATUS.md": 8 * 1024 }
+const tooBig = Object.entries(SIZE_LIMITS)
+  .map(([file, limit]) => [file, limit, existsSync(file) ? statSync(file).size : 0])
+  .filter(([, limit, size]) => size > limit)
+for (const [file, limit, size] of tooBig) {
+  console.error(
+    `${file} is ${size} bytes (limit ${limit}). Move finished items to docs/HISTORY.md and shorten the rest.`
+  )
+}
+
 if (process.argv.includes("--list")) console.log([...verified].sort().join("\n"))
 if (problems.length) {
   console.error(`Docs name ${problems.length} thing(s) that don't exist:\n`)
@@ -118,6 +130,7 @@ if (problems.length) {
   )
   process.exit(1)
 }
+if (tooBig.length) process.exit(1)
 console.log(`docs check: ${verified.size} paths and names in ${DOCS.length} files all exist.`)
 
 // ---------------------------------------------------------------------------------

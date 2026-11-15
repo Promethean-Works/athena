@@ -6,9 +6,9 @@ This file is the single source of instructions for every coding agent working he
 
 ## Start here (every session, every agent)
 
-1. Read `docs/STATUS.md`: the current milestone, what's done, what's in progress, and what's next.
+1. Read `docs/STATUS.md`: the current milestone, what's in progress, and what's next. Finished work is in `docs/HISTORY.md`; read it only when you need a feature's background.
 2. Read the rules file of the app you'll touch: `apps/server/AGENTS.md` or `apps/web/AGENTS.md`.
-3. Read `docs/AGENT-NOTES.md`: how the maintainer works, the command cheat sheet, patterns to copy, and the gotchas earlier sessions already hit (Windows CI, CodeQL, Base UI, wsgidav, …).
+3. Read `docs/AGENT-NOTES.md` down to **Gotchas** (how the maintainer works, the command cheat sheet, patterns to copy). Under Gotchas, read only the sections for the area you touch (Windows CI, CodeQL, Server, Web, Assistant, …), plus "Git, GitHub and CI" before you push.
 4. Read the parts of `docs/mvp-design.md` that the task touches. It holds the design and the decisions log (§11).
 5. Before ending a session, update `docs/STATUS.md` (see [Handoff](#handoff)). The next agent may be a different tool with no memory of yours.
 
@@ -57,13 +57,13 @@ Everything agent-related has one source of truth in the repo. Each agent reads i
 | Instructions | `AGENTS.md` | `CLAUDE.md` imports it | reads `AGENTS.md` | reads `AGENTS.md` |
 | Skills | `.agents/skills/` | `.claude/skills` → symlink | reads `.agents/skills` | reads `.agents/skills` after `hermes skills trust` |
 | MCP servers | `.mcp.json` | reads it | `opencode.json` (generated) | `~/.hermes/config.yaml` (snippet generated) |
-| Project state | `docs/STATUS.md` | ← | ← | ← |
+| Project state | `docs/STATUS.md` (finished work: `docs/HISTORY.md`) | ← | ← | ← |
 | Lessons, gotchas, commands | `docs/AGENT-NOTES.md` | ← | ← | ← |
 
 **MCP servers** (`.mcp.json`):
 - `shadcn`: browse, search and install registry items.
 - `next-devtools`: Next.js docs and runtime diagnostics while `pnpm dev` runs.
-- `playwright`: a headless browser with an in-memory profile, for UI verification (navigate, accessibility snapshots, screenshots in `.playwright-mcp/`, clicks, console, network, resize). It uses the system Chrome; on a machine without Chrome, add `--browser firefox` or install Chrome.
+- `playwright`: a headless browser with an in-memory profile, for UI verification (navigate, accessibility snapshots, screenshots in `.playwright-mcp/`, clicks, console, network, resize). It runs with `--snapshot-mode none` to save tokens: actions don't return the page, so call `browser_snapshot` when you need it. It uses the system Chrome; on a machine without Chrome, add `--browser firefox` or install Chrome.
 - `context7`: current docs and examples for any library (FastAPI, SQLModel, Alembic, wsgidav, xterm.js, Base UI, pydantic-ai, rclone…). Use it before writing code against a library API you aren't sure of. It works without an API key (rate-limited); set `CONTEXT7_API_KEY` for higher limits.
 
 **Skills** (`.agents/skills/`, third-party ones pinned in `skills-lock.json`):
@@ -107,10 +107,10 @@ Any change to `apps/web`, or to an API the UI uses, is verified in a real browse
 ## Handoff
 
 At the end of every session, update `docs/STATUS.md`:
-- Move finished items to **Done**, with the commit or PR if there is one.
+- Move finished items out of STATUS: add one short bullet to the end of `docs/HISTORY.md` (what, the PR, what was verified and what wasn't).
 - Under **In progress**, say exactly where you stopped: files touched, what works, what's broken, and the next concrete step.
 - Add new **Open questions** or **Blockers**.
-- Keep it short. Detail belongs in the design doc, commits and code.
+- Keep it short: every agent reads STATUS at the start of every session, so each line costs tokens many times over. `scripts/check-docs.mjs` fails if it grows past 8 KB. Detail belongs in the design doc, HISTORY, commits and code.
 
 If you learned something non-obvious, add it to `docs/AGENT-NOTES.md`. That covers a CI failure with a surprising cause, a tool quirk, a scanner false positive, or a pattern worth copying.
 

@@ -5,6 +5,9 @@
 #   scripts/check.sh            everything (repo, web, server)
 #   scripts/check.sh --quick    skip the web build (the slowest step)
 #   scripts/check.sh web        only the web checks (also: server, repo)
+#   --quiet / --verbose         print only ok/FAIL per step plus the end of a failing step's
+#                               output, or everything. Default: quiet when stdout isn't a
+#                               terminal (agents), so passing steps cost no tokens.
 #
 # What CI runs that this can't: the other two operating systems. Windows-only failures
 # (paths, CRLF, PowerShell lint without pwsh) still show up only in CI. See
@@ -14,12 +17,16 @@ set -uo pipefail
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
 QUICK=0
+QUIET=0
+[ -t 1 ] || QUIET=1
 PARTS=()
 for arg in "$@"; do
   case "$arg" in
     --quick) QUICK=1 ;;
+    --quiet) QUIET=1 ;;
+    --verbose) QUIET=0 ;;
     web | server | repo) PARTS+=("$arg") ;;
-    -h | --help) sed -n '2,11p' "$0"; exit 0 ;;
+    -h | --help) sed -n '2,14p' "$0"; exit 0 ;;
     *) echo "unknown argument: $arg (see --help)" >&2; exit 2 ;;
   esac
 done
@@ -28,20 +35,40 @@ done
 FAILED=()
 SKIPPED=()
 
+# Colors only on a terminal: escape codes are noise (and tokens) in an agent's log.
+if [ -t 1 ]; then B=$'\033[1m' G=$'\033[32m' R=$'\033[31m' Y=$'\033[33m' N=$'\033[0m'; else B='' G='' R='' Y='' N=''; fi
+LOGS=""
+if [ "$QUIET" = 1 ]; then
+  tmp="${TMPDIR:-/tmp}"
+  LOGS=$(mktemp -d "${tmp%/}/athena-check.XXXXXX")
+  echo "quiet mode: full output of each step in $LOGS (use --verbose to stream it)"
+fi
+
 step() { # step <name> <command...>
-  local name="$1"
+  local name="$1" log
   shift
-  printf '\n\033[1m== %s\033[0m\n' "$name"
+  if [ "$QUIET" = 1 ]; then
+    log="$LOGS/$(printf '%s' "$name" | tr -c 'A-Za-z0-9' '_').log"
+    if "$@" >"$log" 2>&1; then
+      printf '%sok%s  %s\n' "$G" "$N" "$name"
+    else
+      printf '%sFAIL%s %s (last 40 lines; full log: %s)\n' "$R" "$N" "$name" "$log"
+      tail -n 40 "$log" | sed 's/^/  | /'
+      FAILED+=("$name")
+    fi
+    return
+  fi
+  printf '\n%s== %s%s\n' "$B" "$name" "$N"
   if "$@"; then
-    printf '\033[32mok\033[0m  %s\n' "$name"
+    printf '%sok%s  %s\n' "$G" "$N" "$name"
   else
-    printf '\033[31mFAIL\033[0m %s\n' "$name"
+    printf '%sFAIL%s %s\n' "$R" "$N" "$name"
     FAILED+=("$name")
   fi
 }
 
 skip() { # skip <name> <reason>
-  printf '\n\033[33mskip\033[0m %s (%s)\n' "$1" "$2"
+  printf '%sskip%s %s (%s)\n' "$Y" "$N" "$1" "$2"
   SKIPPED+=("$1")
 }
 
@@ -94,7 +121,8 @@ done
 echo
 if [ ${#SKIPPED[@]} -gt 0 ]; then echo "Skipped: ${SKIPPED[*]}"; fi
 if [ ${#FAILED[@]} -gt 0 ]; then
-  printf '\033[31mFailed (%d): %s\033[0m\n' "${#FAILED[@]}" "$(IFS=,; echo "${FAILED[*]}")"
+  printf '%sFailed (%d): %s%s\n' "$R" "${#FAILED[@]}" "$(IFS=,; echo "${FAILED[*]}")" "$N"
   exit 1
 fi
-printf '\033[32mAll checks passed.\033[0m Windows and macOS-only issues still need CI.\n'
+[ -n "$LOGS" ] && rm -rf "$LOGS"
+printf '%sAll checks passed.%s Windows and macOS-only issues still need CI.\n' "$G" "$N"

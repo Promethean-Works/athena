@@ -85,6 +85,6 @@ Done when `gh pr view` says `MERGED`. Auto-merge waits only for the required che
 ## 6. Hand off
 
 Before ending the session, on the branch (or in a follow-up docs PR):
-- `docs/STATUS.md`: move finished items to Done with the PR number. Under In progress, say exactly where you stopped and the next concrete step.
+- `docs/STATUS.md`: take finished items out and add one short bullet each to the end of `docs/HISTORY.md` with the PR number. Under In progress, say exactly where you stopped and the next concrete step. Keep STATUS under 8 KB (the docs check enforces it).
 - `docs/AGENT-NOTES.md`: add anything non-obvious you learned (a surprising failure, a tool quirk, a pattern).
 - Report to the maintainer: what merged (with links), what's still running, what was verified and what wasn't, and the bugs fixed along the way.

@@ -27,7 +27,11 @@
           "--headless",
           "--isolated",
           "--output-dir",
-          ".playwright-mcp"
+          ".playwright-mcp",
+          "--snapshot-mode",
+          "none",
+          "--console-level",
+          "warning"
         ]
       },
       "context7": {
@@ -39,5 +43,9 @@
         ]
       }
     }
+  },
+  "tool_output": {
+    "max_lines": 500,
+    "max_bytes": 20000
   }
 }

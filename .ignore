@@ -1,0 +1,9 @@
+# Read by ripgrep, which Claude Code's Grep/Glob and OpenCode's search use (git and the
+# build ignore this file). Big generated files listed here stay out of agents' search
+# results, so one grep doesn't return thousands of lines of lockfile.
+# They can still be read directly, or searched with `rg --no-ignore-dot`.
+pnpm-lock.yaml
+apps/server/uv.lock
+CHANGELOG.md
+packages/ui/src/styles/themes.css
+packages/ui/src/styles/themes.json

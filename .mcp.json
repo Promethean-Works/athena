@@ -22,7 +22,11 @@
         "--headless",
         "--isolated",
         "--output-dir",
-        ".playwright-mcp"
+        ".playwright-mcp",
+        "--snapshot-mode",
+        "none",
+        "--console-level",
+        "warning"
       ]
     },
     "context7": {
