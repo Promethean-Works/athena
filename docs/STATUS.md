@@ -2,7 +2,7 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Parts A (providers and chat, #37), B (actions with approval) and C (polish) are done; part D (the rest of pydantic-ai-harness) is next.
+**Current milestone:** M7, the AI assistant (§4.5). Parts A, B and C are done; part D (the rest of pydantic-ai-harness) is in progress: stage 1 done, stage 2 started.
 
 ## Done
 
@@ -10,13 +10,13 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
-- M7 D stage 1 (robustness) is done once #64 merges. Next: stage 2, agent features (design §4.5 Parts D; `artifact_scanning` arrives with `memory` and `skills`). Follow-up idea: warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (4,096 by default; see AGENT-NOTES → Assistant).
+- M7 D stage 2 (agent features), PR 1 of 5 (memory and skills, #65) is done once it merges. Next PRs: `planning` + `ask_user` (question card), `subagents` + `background_tools` + `advisor` (needs a second-model setting), `refine_output` + `dynamic_workflow`, `step_persistence` + `conversation_search` + `media`. Follow-up ideas: a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 
 ## Next
 
-M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): agent features (stage 2); extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
+M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): the rest of stage 2; extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 

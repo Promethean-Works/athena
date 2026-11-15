@@ -57,9 +57,11 @@ from pydantic_ai.models import Model
 from pydantic_ai.usage import RunUsage
 from sqlmodel import Session
 
+from athena import audit
 from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
+from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
 from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
 from athena.assistant.tools import Deps, shell_provider, toolset_for
@@ -203,6 +205,8 @@ def ui_messages(
         if isinstance(msg, ModelRequest):
             for part in msg.parts:
                 if isinstance(part, UserPromptPart):
+                    if is_memory_snapshot(part):
+                        continue
                     current = None
                     out.append(
                         ChatMessage(
@@ -390,6 +394,7 @@ async def _run(
             manifest=manifest,
             emit=turn.emit,
             shell_commands=tuple(ai.shell_commands) if ai.shell_enabled else (),
+            memory=ai.memory_enabled,
         )
         limits = turn_limits(previous, spend_limit)
         recorder = TranscriptRecorder(start=len(previous.messages) if previous else 0)
@@ -484,6 +489,12 @@ async def _stream(
         capabilities=[
             *robustness_capabilities(deps.app.state.settings.data_dir),
             *safety_capabilities(),
+            *knowledge_capabilities(
+                deps.app.state.settings.data_dir,
+                user_id=deps.user.user.id,
+                memory=deps.memory,
+                record=_flagged_recorder(deps),
+            ),
             *shell_capabilities(shell_provider(deps.manifest), deps.shell_commands),
             # Last, so it measures and records the request as everything else left it.
             *compaction,
@@ -500,6 +511,15 @@ async def _stream(
                 if isinstance(event.result.output, DeferredToolRequests):
                     turn.emit("approval", _approvals_out(db, event.result.output))
     return saved
+
+
+def _flagged_recorder(deps: Deps) -> Callable[[str, str], None]:
+    """Audits memory and skills the scanner flagged (`knowledge.AuditingScanner`)."""
+
+    def record(source: str, summary: str) -> None:
+        audit.record(deps.db, deps.username, "assistant.injection", source, summary[:500])
+
+    return record
 
 
 def _with_spend(previous: Conversation | None, captured: list[ModelMessage]) -> Conversation:

@@ -210,7 +210,7 @@ def test_a_short_chat_keeps_no_separate_transcript(tmp_path, monkeypatch):
 def test_results_cleared_mid_turn_stay_whole_in_the_transcript(tmp_path, monkeypatch):
     """A long tool loop: old results are blanked for the model within the same turn, and
     the admin still sees every one."""
-    small_window(monkeypatch, 3_000)  # each result is ~230 tokens
+    small_window(monkeypatch, 3_500)  # each result is ~230 tokens
     calls = 10
     cleared_seen = []
 

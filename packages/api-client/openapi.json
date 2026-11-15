@@ -4890,6 +4890,11 @@
             "maxItems": 200,
             "title": "Shell Commands"
           },
+          "memory_enabled": {
+            "type": "boolean",
+            "title": "Memory Enabled",
+            "default": true
+          },
           "spend_limit_usd": {
             "anyOf": [
               {

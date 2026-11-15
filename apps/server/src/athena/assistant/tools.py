@@ -45,6 +45,8 @@ class Deps:
     """Sends an extra event to the chat stream (the `job` a tool started)."""
     shell_commands: tuple[str, ...] = ()
     """The shell allowlist when the assistant shell is on (Settings → AI); empty when off."""
+    memory: bool = True
+    """Whether the assistant keeps notes across chats (Settings → AI)."""
 
     @property
     def username(self) -> str:
