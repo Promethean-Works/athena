@@ -113,4 +113,7 @@ def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
             "settings.assistant_mcp",
             ", ".join(s.id for s in body.mcp_servers) or "none",
         )
+    if before.web_research_enabled != body.web_research_enabled:
+        state = "on" if body.web_research_enabled else "off"
+        audit.record(db, user.user.username, "settings.assistant_web_research", state)
     return body

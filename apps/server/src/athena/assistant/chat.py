@@ -12,6 +12,7 @@ import copy
 import dataclasses
 import json
 import logging
+import os
 from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -84,6 +85,7 @@ from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
 from athena.assistant.settings import McpServer
 from athena.assistant.tools import Deps, shell_provider, toolset_for
+from athena.assistant.web_research import web_research_capabilities
 from athena.assistant.workspace import shell_capabilities
 from athena.auth.deps import CurrentUser
 from athena.db.models import AiConversation, AuthSession, User
@@ -500,7 +502,14 @@ async def _run(
                     model,
                     deps,
                     limits,
-                    [*extras, *compaction],
+                    [
+                        *extras,
+                        *compaction,
+                        *web_research_capabilities(
+                            ai.web_research_enabled,
+                            os.environ.get("EXA_API_KEY"),
+                        ),
+                    ],
                     mcp_toolsets(ai.mcp_servers),
                     ai.mcp_servers,
                 )

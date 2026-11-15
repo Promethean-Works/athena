@@ -4923,6 +4923,11 @@
             ],
             "title": "Spend Limit Usd"
           },
+          "web_research_enabled": {
+            "type": "boolean",
+            "title": "Web Research Enabled",
+            "default": false
+          },
           "mcp_servers": {
             "items": {
               "$ref": "#/components/schemas/McpServer"
