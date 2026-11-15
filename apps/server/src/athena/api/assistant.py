@@ -22,6 +22,20 @@ from athena.api.jobs import SSE_HEADERS
 from athena.assistant import chat, questions
 from athena.assistant import settings as ai_settings
 from athena.assistant.context import window_for
+from athena.assistant.integrations import (
+    BY_ID as integration_kinds,
+)
+from athena.assistant.integrations import (
+    Integration,
+    IntegrationIn,
+    IntegrationKindOut,
+    IntegrationOut,
+    IntegrationUpdate,
+    integration_kinds_out,
+)
+from athena.assistant.integrations import (
+    _out as integration_out,
+)
 from athena.assistant.kinds import BY_ID, KINDS, KindId, ProviderKind, secret_keys
 from athena.assistant.plans import PlanStep, delete_plan, plan_of
 from athena.assistant.providers import (
@@ -38,7 +52,7 @@ from athena.assistant.providers import (
 from athena.assistant.settings import ModelRef
 from athena.auth.deps import Authed, CurrentUser, DbSession, current_user
 from athena.crypto import SecretBox, SecretError
-from athena.db.models import AiConversation, AiProvider
+from athena.db.models import AiConversation, AiIntegration, AiProvider
 
 log = logging.getLogger(__name__)
 
@@ -52,6 +66,7 @@ router = APIRouter(prefix="/assistant", tags=["assistant"], dependencies=[Depend
 
 ProviderId = Annotated[str, Path(pattern=r"^[a-f0-9]{16}$")]
 ConversationId = Annotated[str, Path(pattern=r"^[a-f0-9]{16}$")]
+IntegrationId = Annotated[str, Path(pattern=r"^[a-z0-9][a-z0-9-]{0,62}$")]
 Values = dict[Annotated[str, Field(max_length=64)], Annotated[str, Field(max_length=4096)]]
 
 
@@ -216,6 +231,116 @@ def delete_provider(
     audit.record(db, user.user.username, "ai.provider.remove", row.name)
     db.commit()
     _cache(request).drop(provider_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------- hosted integrations
+
+
+def _store_integration(
+    row: AiIntegration, body: IntegrationIn | IntegrationUpdate, box: SecretBox
+) -> None:
+    """Store an integration's non-secret config and its encrypted token.
+
+    An empty token keeps the stored value (the form shows it as "Unchanged").
+    """
+    if body.kind not in integration_kinds:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, f"No such integration kind {body.kind!r}"
+        )
+    key = body.token_env or body.token_header
+    if body.token:
+        if not key:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                "Set the token env var (stdio) or header (HTTP) when providing a token",
+            )
+        secret = {key: body.token}
+    elif row.secrets:
+        try:
+            secret = json.loads(box.decrypt(row.secrets))
+        except (SecretError, json.JSONDecodeError):
+            secret = {}
+    else:
+        secret = {}
+    integration = Integration(
+        id=row.id,
+        kind=body.kind,
+        name=body.name.strip(),
+        transport=body.transport,
+        token_env=body.token_env,
+        token_header=body.token_header,
+    )
+    row.config = integration.model_dump_json()
+    row.secrets = box.encrypt(json.dumps(secret)) if secret else None
+
+
+@router.get("/integrations", operation_id="listAiIntegrations")
+def list_integrations(request: Request, db: DbSession) -> list[IntegrationOut]:
+    rows = db.exec(select(AiIntegration).order_by(col(AiIntegration.created_at))).all()
+    return [integration_out(r, _box(request)) for r in rows]
+
+
+@router.get("/integrations/kinds", operation_id="listAiIntegrationKinds")
+def list_integration_kinds() -> list[IntegrationKindOut]:
+    """The curated integration kinds, for the add form."""
+    return integration_kinds_out()
+
+
+@router.post(
+    "/integrations",
+    operation_id="createAiIntegration",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_integration(
+    body: IntegrationIn, request: Request, user: Authed, db: DbSession
+) -> IntegrationOut:
+    if db.get(AiIntegration, body.id) is not None:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, f"Integration {body.id!r} already exists"
+        )
+    row = AiIntegration(id=body.id, kind=body.kind, name=body.name.strip())
+    _store_integration(row, body, _box(request))
+    db.add(row)
+    audit.record(db, user.user.username, "ai.integration.create", row.name)
+    db.commit()
+    return integration_out(row, _box(request))
+
+
+@router.put("/integrations/{integration_id}", operation_id="updateAiIntegration")
+def update_integration(
+    integration_id: IntegrationId,
+    body: IntegrationUpdate,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+) -> IntegrationOut:
+    row = db.get(AiIntegration, integration_id)
+    if row is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such integration")
+    _store_integration(row, body, _box(request))
+    row.name = body.name.strip()
+    db.add(row)
+    audit.record(db, user.user.username, "ai.integration.edit", row.name)
+    db.commit()
+    return integration_out(row, _box(request))
+
+
+@router.delete(
+    "/integrations/{integration_id}",
+    operation_id="deleteAiIntegration",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_integration(
+    integration_id: IntegrationId, request: Request, user: Authed, db: DbSession
+) -> Response:
+    row = db.get(AiIntegration, integration_id)
+    if row is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such integration")
+    name = row.name
+    db.delete(row)
+    audit.record(db, user.user.username, "ai.integration.remove", name)
+    db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

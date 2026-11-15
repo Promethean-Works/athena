@@ -57,7 +57,7 @@ from pydantic_ai.messages import (
 )
 from pydantic_ai.models import Model
 from pydantic_ai.usage import RunUsage
-from sqlmodel import Session
+from sqlmodel import Session, col, select
 
 from athena import audit
 from athena.assistant import actions
@@ -73,6 +73,7 @@ from athena.assistant.delegation import (
     workflow_capabilities,
 )
 from athena.assistant.docker_sandbox import docker_sandbox_capabilities
+from athena.assistant.integrations import integration_toolsets
 from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
 from athena.assistant.mcp import mcp_toolsets
 from athena.assistant.persistence import persistence_capabilities
@@ -90,7 +91,7 @@ from athena.assistant.tools import Deps, shell_provider, toolset_for
 from athena.assistant.web_research import web_research_capabilities
 from athena.assistant.workspace import shell_capabilities
 from athena.auth.deps import CurrentUser
-from athena.db.models import AiConversation, AuthSession, User
+from athena.db.models import AiConversation, AiIntegration, AuthSession, User
 from athena.platform.capabilities import CapabilityManifest
 
 log = logging.getLogger(__name__)
@@ -471,6 +472,9 @@ async def _run(
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
         ai = ai_settings.load(db)
+        integration_rows = db.exec(
+            select(AiIntegration).order_by(col(AiIntegration.created_at))
+        ).all()
         deps = Deps(
             app=app,
             db=db,
@@ -515,7 +519,10 @@ async def _run(
                             os.environ.get("EXA_API_KEY"),
                         ),
                     ],
-                    mcp_toolsets(ai.mcp_servers),
+                    [
+                        *mcp_toolsets(ai.mcp_servers),
+                        *integration_toolsets(integration_rows, app.state.secret_box),
+                    ],
                     ai.mcp_servers,
                 )
         except RunCancelled as exc:

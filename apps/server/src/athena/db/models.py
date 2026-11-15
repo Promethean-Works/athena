@@ -144,6 +144,27 @@ class AiProvider(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
 
 
+class AiIntegration(SQLModel, table=True):
+    """A hosted integration the assistant can use (docs/mvp-design.md §4.5, part D.5).
+
+    Each integration is an MCP server Athena runs (a stdio command or a streamable-HTTP
+    endpoint) with a per-server encrypted token. Server-wide, admins only.
+    """
+
+    __tablename__ = "ai_integrations"
+
+    id: str = Field(primary_key=True, max_length=64)
+    kind: str = Field(max_length=64)
+    """One of athena.assistant.integrations.KINDS, e.g. "github" or "linear"."""
+    name: str = Field(max_length=64)
+    config: str = "{}"
+    """The integration's transport and where its token goes, as JSON
+    (see athena.assistant.integrations.Integration)."""
+    secrets: str | None = None
+    """The token as JSON, encrypted with athena.crypto.SecretBox."""
+    created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+
+
 class AiConversation(SQLModel, table=True):
     """An assistant chat. `history` is pydantic-ai's Conversation as JSON."""
 
