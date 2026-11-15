@@ -31,6 +31,9 @@ class AiSettings(BaseModel):
     advisor_model: ModelRef | None = None
     """A second model the assistant may consult once per request (`advisor` tool); off when
     empty. Its provider sees the question the chat's model writes, not the chat."""
+    refine_answers: bool = False
+    """Has the model review and rewrite each answer once before the turn ends (at least one
+    more model request per turn)."""
     shell_enabled: bool = False
     """Lets the assistant ask to run shell commands (each still needs approval)."""
     shell_commands: list[ShellCommand] = Field(default_factory=default_commands, max_length=200)

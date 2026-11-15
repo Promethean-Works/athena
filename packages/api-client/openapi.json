@@ -4884,6 +4884,11 @@
               }
             ]
           },
+          "refine_answers": {
+            "type": "boolean",
+            "title": "Refine Answers",
+            "default": false
+          },
           "shell_enabled": {
             "type": "boolean",
             "title": "Shell Enabled",
@@ -5672,6 +5677,11 @@
               }
             ],
             "title": "Job Id"
+          },
+          "draft": {
+            "type": "boolean",
+            "title": "Draft",
+            "default": false
           }
         },
         "type": "object",

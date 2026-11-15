@@ -488,6 +488,31 @@ function DefaultsCard({
                 toward the spend limit.
               </FieldDescription>
             </Field>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="refine-answers">
+                  Double-check answers
+                </FieldLabel>
+                <FieldDescription>
+                  Before it finishes, the assistant reviews its answer and
+                  writes it again, fixed. At least one more model request per
+                  reply, so slower and costlier; the first draft stays folded in
+                  the reply.
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="refine-answers"
+                checked={settings.refine_answers}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, refine_answers: checked },
+                    checked
+                      ? "Answers are double-checked"
+                      : "Answers are no longer double-checked"
+                  )
+                }
+              />
+            </Field>
             <Field>
               <FieldLabel htmlFor="spend-limit">
                 Spend limit per chat (USD)
@@ -655,8 +680,8 @@ function MemoryCard({
                   Remember across chats
                 </FieldLabel>
                 <FieldDescription>
-                  Turning it off keeps the saved notes; the assistant just
-                  stops reading and writing them.
+                  Turning it off keeps the saved notes; the assistant just stops
+                  reading and writing them.
                 </FieldDescription>
               </FieldContent>
               <Switch

@@ -67,6 +67,7 @@ from athena.assistant.delegation import (
     background_result,
     delegation_capabilities,
     is_started_notice,
+    workflow_capabilities,
 )
 from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
 from athena.assistant.plans import PLAN_TOOL, plan_of, planning_capabilities
@@ -75,6 +76,7 @@ from athena.assistant.questions import (
     question_capabilities,
     question_ids,
 )
+from athena.assistant.review import review_capabilities, starts_review
 from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
 from athena.assistant.tools import Deps, shell_provider, toolset_for
@@ -184,6 +186,8 @@ class ChatPart(BaseModel):
     destructive: bool = False
     job_id: str | None = None
     """The job an approved action started (GET /api/jobs/{id} while it's kept)."""
+    draft: bool = False
+    """Text the model revised afterwards ("Double-check answers"); the UI folds it away."""
 
 
 class ChatMessage(BaseModel):
@@ -228,6 +232,10 @@ def ui_messages(
     current: ChatMessage | None = None
     for i, msg in enumerate(messages):
         if isinstance(msg, ModelRequest):
+            if current is not None and starts_review(msg):
+                for part in current.parts:
+                    if part.type == "text":
+                        part.draft = True
             for part in msg.parts:
                 if isinstance(part, UserPromptPart):
                     if is_memory_snapshot(part):
@@ -465,11 +473,15 @@ async def _run(
         )
         limits = turn_limits(previous, spend_limit)
         recorder = TranscriptRecorder(start=len(previous.messages) if previous else 0)
-        compaction = compaction_capabilities(await _window_tokens(window), recorder)
+        window_tokens = await _window_tokens(window)
+        compaction = compaction_capabilities(window_tokens, recorder)
+        data_dir = app.state.settings.data_dir
         extras = [
+            *workflow_capabilities(model, manifest, data_dir, window_tokens),
             *planning_capabilities(app.state.settings.data_dir, turn.conversation_id),
             *question_capabilities(),
             *advisor_capabilities(advisor_model),
+            *review_capabilities(ai.refine_answers),
         ]
         saved: Conversation | None = None
         compacted_ok = True
@@ -551,8 +563,8 @@ async def _stream(
     extras: list[AbstractCapability[Any]],
 ) -> Conversation | None:
     """Runs the agent, forwarding its events; returns the chat to save. `extras` are the
-    turn's planning, questions, advisor and compaction (compaction last, so it measures and records
-    the request as everything else left it)."""
+    turn's workflow, planning, questions, advisor, review and compaction (compaction last, so
+    it measures and records the request as everything else left it)."""
     saved: Conversation | None = None
     data_dir = deps.app.state.settings.data_dir
     async with agent.run_stream_events(

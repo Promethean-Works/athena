@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   BanIcon,
   CircleCheckIcon,
+  FilePenLineIcon,
   LoaderCircleIcon,
   ScrollTextIcon,
   ShieldQuestionIcon,
@@ -32,6 +33,7 @@ import {
   QuestionCard,
   type Answer,
 } from "@/components/assistant/question-card"
+import { Markdown } from "@/components/assistant/markdown"
 import type { ChatPart } from "@/components/assistant/use-chat-stream"
 import { JobDialog } from "@/components/job-dialog"
 
@@ -73,6 +75,10 @@ const TOOL_TITLES: Record<string, [running: string, done: string]> = {
   read_tool_result: ["Reading a saved tool result", "Read a saved tool result"],
   ask_user_question: ["Waiting for your answer", "Asked you"],
   advisor: ["Asking the advisor", "Asked the advisor"],
+  run_workflow: [
+    "Helpers looking things up together",
+    "Helpers looked things up together",
+  ],
   get_store_app: ["Reading a store app", "Read a store app"],
   list_package_managers: [
     "Listing package managers",
@@ -138,6 +144,36 @@ function ReasoningRow({ text, running }: { text: string; running: boolean }) {
       </TraceCollapsibleTrigger>
       <TraceCollapsibleContent className="whitespace-pre-wrap">
         {text}
+      </TraceCollapsibleContent>
+    </TraceCollapsible>
+  )
+}
+
+/** The script a `run_workflow` call ran, above its result. */
+function WorkflowScript({ part }: { part: ChatPart }) {
+  const code = (part.args as Record<string, unknown> | null)?.code
+  if (part.tool_name !== "run_workflow" || typeof code !== "string") return null
+  return (
+    <CodeBlock size="sm" className="mb-2">
+      <CodeBlockContent className="max-h-48">{code}</CodeBlockContent>
+    </CodeBlock>
+  )
+}
+
+/** An answer the assistant revised afterwards ("Double-check answers"). */
+function DraftRow({ text }: { text: string }) {
+  return (
+    <TraceCollapsible>
+      <TraceCollapsibleTrigger>
+        <TraceLine>
+          <TraceIcon>
+            <FilePenLineIcon />
+          </TraceIcon>
+          <TraceTitle>First draft, revised below</TraceTitle>
+        </TraceLine>
+      </TraceCollapsibleTrigger>
+      <TraceCollapsibleContent>
+        <Markdown>{text}</Markdown>
       </TraceCollapsibleContent>
     </TraceCollapsible>
   )
@@ -313,6 +349,7 @@ function ToolRow({ part, streaming }: { part: ChatPart; streaming: boolean }) {
         </TraceLine>
       </TraceCollapsibleTrigger>
       <TraceCollapsibleContent>
+        <WorkflowScript part={part} />
         <CodeBlock size="sm" variant={failed ? "destructive" : "default"}>
           <CodeBlockContent wrap className="max-h-64">
             {pretty(failed ? (part.error ?? part.result) : part.result)}
@@ -347,7 +384,9 @@ export function Steps({
   return (
     <Trace>
       {parts.map((part, i) =>
-        part.type === "reasoning" ? (
+        part.type === "text" ? (
+          <DraftRow key={i} text={part.text ?? ""} />
+        ) : part.type === "reasoning" ? (
           <ReasoningRow
             key={i}
             text={part.text ?? ""}
