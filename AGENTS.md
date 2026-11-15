@@ -102,7 +102,7 @@ Turn on the pre-push hook once per clone so this happens even when you forget: `
 
 ### UI work
 
-Any change to `apps/web`, or to an API the UI uses, is verified in a real browser with the `athena-ui-verify` skill (release build on port 8421, fresh data dir, happy path plus a failure, console and network checks, phone width and dark mode, cleanup) before it's reported as done.
+Any change to `apps/web`, or to an API the UI uses, is verified in a real browser with the `athena-ui-verify` skill (release build on port 8421, fresh data dir, happy path plus a failure, console and network checks, phone width and dark mode when layout changed, cleanup) before it's reported as done.
 
 ## Handoff
 
