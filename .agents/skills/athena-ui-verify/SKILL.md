@@ -1,11 +1,12 @@
 ---
 name: athena-ui-verify
 description: Verifies an Athena UI or API change end to end in a real browser before calling it done. It builds and serves the release version on a spare port with a fresh data dir, signs in, exercises the feature with Playwright MCP (snapshots, clicks, console and network checks, phone width, dark mode), checks side effects outside the browser, and cleans up. Use after changing anything under apps/web, any API the UI calls, or any feature that touches containers, apps, the store or files, and whenever asked to test, verify, screenshot or check the app.
+model: sonnet
 ---
 
 # Verify Athena changes in a real browser
 
-Unit tests prove the parts work. This proves the feature works for a person using it. Do every step; don't report a UI change as done without it.
+Unit tests prove the parts work. This proves the feature works for a person using it. Don't report a UI change as done without it, but size the run to the change.
 
 The browser comes from the **`playwright` MCP server** (`.mcp.json`; headless, in-memory profile, screenshots in `.playwright-mcp/`). Claude's desktop browser pane works the same way when available. The tools you need:
 
@@ -18,6 +19,18 @@ The browser comes from the **`playwright` MCP server** (`.mcp.json`; headless, i
 | Catch errors | `browser_console_messages` |
 | Prove what was sent | `browser_network_requests` |
 | Phone width / dark mode | `browser_resize`, or `browser_evaluate` to toggle the `dark` class |
+
+## 0. Pick the scope
+
+Browser output (snapshots, screenshots, console and network dumps) is most of this skill's cost. Do only what the diff needs:
+
+| Change | Do |
+|---|---|
+| API only, UI untouched | Steps 1–2 and 4 with `curl`. No browser and no `pnpm build` if `apps/web/out` is current. |
+| Behavior in the UI (forms, actions, data shown) | Steps 1–4, with no phone or dark-mode pass. |
+| Layout or styling (components, CSS, theme) | Everything, including phone width and dark mode, for the pages touched. |
+
+Steps 5 (safety) and 6 (cleanup) always apply.
 
 ## 1. Build and serve the release version
 
@@ -55,13 +68,13 @@ curl -s -b jar -X POST -H "X-CSRF-Token: $CSRF" localhost:8421/api/...
 
 ## 3. Exercise the feature like a user
 
-1. `browser_navigate` to the page, then `browser_snapshot` and `browser_take_screenshot`.
+1. `browser_navigate` to the page, then `browser_snapshot`. Take a screenshot only to judge layout, at most once per page and viewport.
 2. Use the feature through the UI: the happy path **and** at least one failure (bad input, a 409, a stopped runtime). Errors must show next to the field or in a toast or dialog, never silently.
-3. After each action:
+3. Once per flow (not after every click):
    - `browser_console_messages`: there must be no errors from this run. Errors from earlier servers in the same tab don't count; reload to be sure.
-   - `browser_network_requests`: the request carried what the UI claimed (query params, body, status). This is how you catch a click that "worked" but sent the wrong value.
+   - `browser_network_requests`: check only the requests the feature sends; the request carried what the UI claimed (query params, body, status). This is how you catch a click that "worked" but sent the wrong value.
 4. Long operations (deploy, refresh, runtime start) stream a job dialog. Wait for it to finish, then read its final status and lines.
-5. Check the layout at **phone width** (`browser_resize` 375x812) and in **dark mode**. Look for no horizontal scroll, readable contrast, and nothing hidden.
+5. Layout or styling changes only: check **phone width** (`browser_resize` 375x812) and **dark mode** on the pages you touched. Look for no horizontal scroll, readable contrast, and nothing hidden.
 
 Clicking tips:
 - Base UI checkboxes and switches render a hidden `<input>` next to the visible control. Click the visible element, then confirm the state in a fresh snapshot.

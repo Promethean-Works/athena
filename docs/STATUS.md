@@ -15,6 +15,7 @@ _Shared handoff log for every coding agent. Update it at the end of each session
   - More shared tooling: `scripts/check.sh` runs CI's checks locally; the Context7 MCP server gives every agent current library docs; four new skills (`athena-recipes`, `athena-ship`, `athena-host-test`, `athena-catalog-app`).
   - Guards: `scripts/check-docs.mjs` (CI) fails when agent docs name a file or symbol that doesn't exist. It found the `athena-platform-feature` skill pointing at a `providers/` layout that was never built, now fixed. An opt-in pre-push hook (`git config core.hooksPath .githooks`) runs the relevant `scripts/check.sh --quick` parts.
   - Per-app rules: `apps/server/AGENTS.md` and `apps/web/AGENTS.md` (each with a `CLAUDE.md` importing it) hold the area detail that used to be in the root Layout section. The root's "Start here" points every agent at them.
+  - `athena-ui-verify` costs less (2026-11-15): it runs on Sonnet (`model: sonnet`, Claude Code only), starts by picking a scope (API-only changes skip the browser), checks console and network once per flow, and does phone and dark-mode passes only for layout changes.
   - Verified on 2026-11-13: OpenCode 2.2.5 connects to shadcn and next-devtools. Hermes 0.23.1 has both servers enabled and loads 4 of 5 project skills; `pydantic-ai-harness` is quarantined by Hermes's scanner as a false positive (see AGENTS.md).
 - GitHub setup for the public repo `tiagozaccaro/athena`:
   - Apache-2.0 license, README, CONTRIBUTING, Code of Conduct, SECURITY, issue and PR templates, CODEOWNERS.
