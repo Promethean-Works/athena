@@ -83,7 +83,7 @@ import {
 
 type AiSettings = Schemas["AiSettings"]
 
-function AddMenu({
+export function AddMenu({
   kinds,
   onPick,
   label = "Add provider",

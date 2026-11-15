@@ -12,18 +12,28 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 
+import { CapabilitiesProvider } from "@/components/capabilities-provider"
 import { CredentialsForm } from "@/components/credentials-form"
+import { AiSetupStep } from "@/components/settings/ai-setup-step"
 
 export default function SetupPage() {
   const router = useRouter()
+  const [step, setStep] = React.useState<"account" | "ai">("account")
 
-  // Setup only makes sense on first run.
+  // Setup only makes sense on first run (checked once, before the account exists).
   React.useEffect(() => {
     api.GET("/api/auth/status").then(({ data }) => {
       if (data && !data.setup_required)
         router.replace(data.user ? "/" : "/login/")
     })
   }, [router])
+
+  if (step === "ai")
+    return (
+      <CapabilitiesProvider>
+        <AiSetupStep onDone={() => router.replace("/")} />
+      </CapabilitiesProvider>
+    )
 
   return (
     <Card>
@@ -43,7 +53,7 @@ export default function SetupPage() {
             })
             if (!data) return errorMessage(error, "Couldn't create the account")
             setCsrfToken(data.csrf_token ?? null)
-            router.replace("/")
+            setStep("ai")
             return null
           }}
         />

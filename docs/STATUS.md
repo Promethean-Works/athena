@@ -2,7 +2,7 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Parts A (providers and chat, #37) and B (actions with approval) are done; part C (polish) follows.
+**Current milestone:** M7, the AI assistant (§4.5). Parts A (providers and chat, #37), B (actions with approval) and C (polish) are done; part D (the rest of pydantic-ai-harness) is next.
 
 ## Done
 
@@ -18,8 +18,6 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
   - First CI run: Ubuntu and macOS (launchd) passed everything. Windows Server 2025: `install.ps1 -Wheel`, the Scheduled Task, detection (docker-engine, winget, choco, conpty, files, webdav) and the whole smoke test passed, **including the ConPTY terminal in the browser**. The uninstall failed: `schtasks /End` only kills the venv launcher `pythonw.exe`, and its child (the real interpreter) kept the port and locked the install folder. Upgrades had the same bug. Fixed: install and uninstall now also stop `pythonw.exe -m athena serve` processes and wait for them. Confirmed on the re-run (917d140): all three OSes pass install, smoke, uninstall and the port-closed check. The `-Wheel` lint warning needed a `SuppressMessageAttribute`, because the rule doesn't see uses inside functions.
 
 ## Next
-
-M7 part C, what's left: the setup-wizard step.
 
 M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): next is stage 1, robustness (`repair_tool_arguments`, `detect_loops`, `tool_output_limits`, `compaction`, `prompt_injection_defender`); then agent features; extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
 
