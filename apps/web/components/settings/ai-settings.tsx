@@ -589,6 +589,62 @@ function ShellCard({
   )
 }
 
+function MemoryCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Memory and skills</CardTitle>
+        <CardDescription>
+          The assistant can keep notes that later chats read, such as how this
+          server is set up. Each admin has their own notes. Notes and skills
+          that look like hidden instructions are refused and written to the
+          audit log.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {settings === null ? (
+          <Skeleton className="h-12 w-full" />
+        ) : (
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="memory-enabled">
+                  Remember across chats
+                </FieldLabel>
+                <FieldDescription>
+                  Turning it off keeps the saved notes; the assistant just
+                  stops reading and writing them.
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="memory-enabled"
+                checked={settings.memory_enabled}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, memory_enabled: checked },
+                    checked ? "Memory turned on" : "Memory turned off"
+                  )
+                }
+              />
+            </Field>
+            <FieldDescription>
+              Skills are instructions the assistant loads when a task needs
+              them. Add one as a folder with a <code>SKILL.md</code> file in{" "}
+              <code>assistant/skills</code> inside Athena&apos;s data folder.
+            </FieldDescription>
+          </FieldGroup>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 /** Settings → AI: providers, default models and limits (admins only). */
 export function AiSettingsView() {
   const { user } = useAuth()
@@ -607,6 +663,7 @@ export function AiSettingsView() {
     <div className="flex flex-col gap-4 md:gap-6">
       <ProvidersCard onChanged={() => setVersion((v) => v + 1)} />
       <DefaultsCard version={version} settings={settings} save={save} />
+      <MemoryCard settings={settings} save={save} />
       <ShellCard settings={settings} save={save} />
     </div>
   )

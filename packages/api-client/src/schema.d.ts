@@ -1723,6 +1723,11 @@ export interface components {
             shell_enabled: boolean;
             /** Shell Commands */
             shell_commands?: string[];
+            /**
+             * Memory Enabled
+             * @default true
+             */
+            memory_enabled: boolean;
             /** Spend Limit Usd */
             spend_limit_usd?: number | null;
         };

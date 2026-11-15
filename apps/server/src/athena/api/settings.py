@@ -96,5 +96,7 @@ def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
     if before.shell_enabled != body.shell_enabled:
         state = "on" if body.shell_enabled else "off"
         audit.record(db, user.user.username, "settings.assistant_shell", state)
-        db.commit()
+    if before.memory_enabled != body.memory_enabled:
+        state = "on" if body.memory_enabled else "off"
+        audit.record(db, user.user.username, "settings.assistant_memory", state)
     return body

@@ -32,6 +32,8 @@ class AiSettings(BaseModel):
     """Lets the assistant ask to run shell commands (each still needs approval)."""
     shell_commands: list[ShellCommand] = Field(default_factory=default_commands, max_length=200)
     """The programs it may ask to run; every part of a pipe or chain is checked."""
+    memory_enabled: bool = True
+    """Lets the assistant keep notes across chats (`<data-dir>/assistant/memory.db`)."""
     spend_limit_usd: float | None = Field(default=None, gt=0, le=10_000)
     """Stops a chat once its cost reaches this, for models with known prices."""
 

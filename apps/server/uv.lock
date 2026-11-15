@@ -148,7 +148,7 @@ dependencies = [
     { name = "httpx2" },
     { name = "platformdirs" },
     { name = "psutil" },
-    { name = "pydantic-ai-harness", extra = ["prompt-injection-defender", "repair-tool-arguments"] },
+    { name = "pydantic-ai-harness", extra = ["prompt-injection-defender", "repair-tool-arguments", "skills"] },
     { name = "pydantic-ai-slim", extra = ["anthropic", "bedrock", "google", "groq", "mistral", "openai"] },
     { name = "pydantic-settings" },
     { name = "python-on-whales" },
@@ -177,7 +177,7 @@ requires-dist = [
     { name = "httpx2", specifier = ">=2.16.0" },
     { name = "platformdirs", specifier = ">=4.14" },
     { name = "psutil", specifier = ">=7" },
-    { name = "pydantic-ai-harness", extras = ["prompt-injection-defender", "repair-tool-arguments"], specifier = "==0.68.0" },
+    { name = "pydantic-ai-harness", extras = ["prompt-injection-defender", "repair-tool-arguments", "skills"], specifier = "==0.68.0" },
     { name = "pydantic-ai-slim", extras = ["anthropic", "bedrock", "google", "groq", "mistral", "openai"], specifier = ">=2.68.0" },
     { name = "pydantic-settings", specifier = ">=2.16" },
     { name = "python-on-whales", specifier = ">=0.81" },
@@ -1414,6 +1414,9 @@ prompt-injection-defender = [
 ]
 repair-tool-arguments = [
     { name = "json-repair" },
+]
+skills = [
+    { name = "pyyaml" },
 ]
 
 [[package]]
