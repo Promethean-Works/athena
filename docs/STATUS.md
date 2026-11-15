@@ -19,7 +19,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## Next
 
-M7 part C, what's left: the assistant side sheet on every page, then the setup-wizard step.
+M7 part C, what's left: the setup-wizard step.
 
 M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): next is stage 1, robustness (`repair_tool_arguments`, `detect_loops`, `tool_output_limits`, `compaction`, `prompt_injection_defender`); then agent features; extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
 
