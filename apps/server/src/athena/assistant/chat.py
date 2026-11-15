@@ -62,6 +62,7 @@ from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
 from athena.assistant.delegation import (
+    advisor_capabilities,
     background_capabilities,
     background_result,
     delegation_capabilities,
@@ -433,6 +434,7 @@ async def _run(
     spend_limit: float | None,
     user_id: int,
     title_model: Model | None,
+    advisor_model: Model | None,
     window: "Window",
 ) -> None:
     db_factory = app.state.db
@@ -467,6 +469,7 @@ async def _run(
         extras = [
             *planning_capabilities(app.state.settings.data_dir, turn.conversation_id),
             *question_capabilities(),
+            *advisor_capabilities(advisor_model),
         ]
         saved: Conversation | None = None
         compacted_ok = True
@@ -548,7 +551,7 @@ async def _stream(
     extras: list[AbstractCapability[Any]],
 ) -> Conversation | None:
     """Runs the agent, forwarding its events; returns the chat to save. `extras` are the
-    turn's planning, questions and compaction (compaction last, so it measures and records
+    turn's planning, questions, advisor and compaction (compaction last, so it measures and records
     the request as everything else left it)."""
     saved: Conversation | None = None
     data_dir = deps.app.state.settings.data_dir
@@ -771,6 +774,7 @@ class Turns:
         window: Window,
         resume: Resume | None = None,
         title_model: Model | None = None,
+        advisor_model: Model | None = None,
     ) -> Turn:
         turn = Turn(conversation_id)
 
@@ -785,6 +789,7 @@ class Turns:
                     spend_limit=spend_limit,
                     user_id=user_id,
                     title_model=title_model,
+                    advisor_model=advisor_model,
                     window=window,
                 )
             except Exception:

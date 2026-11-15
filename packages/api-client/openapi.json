@@ -4874,6 +4874,16 @@
               }
             ]
           },
+          "advisor_model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "shell_enabled": {
             "type": "boolean",
             "title": "Shell Enabled",

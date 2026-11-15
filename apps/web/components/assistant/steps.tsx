@@ -72,6 +72,7 @@ const TOOL_TITLES: Record<string, [running: string, done: string]> = {
   search_store: ["Searching the app store", "Searched the app store"],
   read_tool_result: ["Reading a saved tool result", "Read a saved tool result"],
   ask_user_question: ["Waiting for your answer", "Asked you"],
+  advisor: ["Asking the advisor", "Asked the advisor"],
   get_store_app: ["Reading a store app", "Read a store app"],
   list_package_managers: [
     "Listing package managers",

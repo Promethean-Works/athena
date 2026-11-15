@@ -88,7 +88,7 @@ def get_ai(db: DbSession) -> AiSettings:
 def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
     if not user.user.is_admin:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change AI settings")
-    for ref in (body.default_model, body.title_model):
+    for ref in (body.default_model, body.title_model, body.advisor_model):
         if ref is not None and db.get(AiProvider, ref.provider_id) is None:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "No such provider")
     before = ai_settings.load(db)
@@ -99,4 +99,8 @@ def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
     if before.memory_enabled != body.memory_enabled:
         state = "on" if body.memory_enabled else "off"
         audit.record(db, user.user.username, "settings.assistant_memory", state)
+    if before.advisor_model != body.advisor_model:
+        ref = body.advisor_model
+        target = f"{ref.provider_id}/{ref.model}" if ref else "off"
+        audit.record(db, user.user.username, "settings.assistant_advisor", target)
     return body

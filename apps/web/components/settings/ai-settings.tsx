@@ -452,6 +452,43 @@ function DefaultsCard({
               </FieldDescription>
             </Field>
             <Field>
+              <FieldLabel htmlFor="advisor-model">Advisor model</FieldLabel>
+              <div className="flex gap-2">
+                <ModelPicker
+                  id="advisor-model"
+                  variant="field"
+                  className="flex-1"
+                  providers={providers}
+                  value={settings.advisor_model}
+                  onChange={(ref: ModelRef) =>
+                    void save(
+                      { ...settings, advisor_model: ref },
+                      "Advisor model saved"
+                    )
+                  }
+                />
+                {settings.advisor_model && (
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      void save(
+                        { ...settings, advisor_model: null },
+                        "Advisor turned off"
+                      )
+                    }
+                  >
+                    Turn off
+                  </Button>
+                )}
+              </div>
+              <FieldDescription>
+                Optional. A stronger model the assistant can ask for a second
+                opinion, once per step. Its provider sees the question the
+                assistant writes, not the whole chat, and what it costs counts
+                toward the spend limit.
+              </FieldDescription>
+            </Field>
+            <Field>
               <FieldLabel htmlFor="spend-limit">
                 Spend limit per chat (USD)
               </FieldLabel>

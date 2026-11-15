@@ -1,4 +1,5 @@
-"""Delegated look-ups and background work (docs/mvp-design.md §4.5, part D stage 2).
+"""Delegated look-ups, background work and the advisor (docs/mvp-design.md §4.5, part D
+stage 2).
 
 - `SubAgents` gives the chat's model `delegate_task(agent_name, task)` with one helper, the
   `investigator`: a fresh run on the chat's own model with only the read-only tools, built per
@@ -11,6 +12,10 @@
   two look-ups and keep working while they run. Only delegations: a run that pauses for an
   approval or a question cancels the background tasks still running, which for an install or
   an upgrade would lose its result while the job kept going.
+
+- `Advisor` gives the chat's model `advisor(prompt)` when Settings → AI names an advisor model:
+  a second opinion from another (usually stronger) model, at most once per model request. It
+  sees only the question (`forward_history=False`), never the chat, the tools or the host.
 
 The order matters (see `chat._stream`): `RepairToolArguments` before `BackgroundTools`, so a
 malformed call is repaired, and the safety capabilities after it, so they screen the real
@@ -29,7 +34,7 @@ from pydantic_ai.messages import (
     UserPromptPart,
 )
 from pydantic_ai.models import Model, ModelRequestContext
-from pydantic_ai_harness import BackgroundTools, SubAgent, SubAgents
+from pydantic_ai_harness import Advisor, BackgroundTools, SubAgent, SubAgents
 
 from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
@@ -108,6 +113,21 @@ def delegation_capabilities(
         ),
         SetToolMetadata(tools=[DELEGATE_TOOL], background="optional"),
     ]
+
+
+ADVISOR_TOOL = "advisor"
+ADVISOR_USES = 1
+"""Per model request of the chat's model: a second opinion, not a second assistant."""
+
+
+def advisor_capabilities(model: Model | None) -> list[AbstractCapability[Any]]:
+    """The `advisor` tool on Settings → AI's advisor model, or nothing when there's none.
+    Always the local tool (a separate run with the question only), never a provider's native
+    advisor, so it works the same on every provider and its answer is screened like any
+    other tool result. Its usage counts toward the chat's limits and spend."""
+    if model is None:
+        return []
+    return [Advisor(model, mode="local", max_uses=ADVISOR_USES, forward_history=False)]
 
 
 def background_capabilities() -> list[AbstractCapability[Any]]:
