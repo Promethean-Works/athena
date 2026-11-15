@@ -10,7 +10,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
-- M7 D stage 2 (agent features), PR 1 of 5: memory and skills with the artifact scanner (`assistant/knowledge.py`, branch `feat/assistant-memory-skills`). Next PRs: `planning` + `ask_user` (question card), `subagents` + `background_tools` + `advisor` (needs a second-model setting), `refine_output` + `dynamic_workflow`, `step_persistence` + `conversation_search` + `media`. Follow-up ideas: a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant).
+- M7 D stage 2 (agent features), PR 1 of 5 (memory and skills, #65) is done once it merges. Next PRs: `planning` + `ask_user` (question card), `subagents` + `background_tools` + `advisor` (needs a second-model setting), `refine_output` + `dynamic_workflow`, `step_persistence` + `conversation_search` + `media`. Follow-up ideas: a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 
