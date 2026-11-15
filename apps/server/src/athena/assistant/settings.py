@@ -84,6 +84,9 @@ class AiSettings(BaseModel):
     low-risk ones so the admin only sees the risky ones (off when empty)."""
     review_tool_calls: bool = False
     """Let the review model approve safe actions before the admin sees them."""
+    docker_sandbox_enabled: bool = False
+    """Lets the assistant run commands and edit files in an isolated Docker
+    container, instead of on the host directly."""
     mcp_servers: list[McpServer] = Field(default_factory=list, max_length=50)
     """MCP servers the assistant can connect to and use tools from (Settings → AI)."""
 
