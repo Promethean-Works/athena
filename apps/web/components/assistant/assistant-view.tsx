@@ -41,6 +41,11 @@ import {
   MessageScrollerViewport,
 } from "@workspace/ui/components/message-scroller"
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -198,10 +203,20 @@ function NoProviders() {
   )
 }
 
-function Chat() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const current = useSearchParams().get("c")
+/**
+ * One assistant chat with its chat list. `current` is the open chat (null for a new
+ * one); `onOpen` switches chats. `compact` fits it in a narrow side sheet: the chat
+ * list is always a popover and the height follows the parent.
+ */
+export function AssistantChat({
+  current,
+  onOpen,
+  compact = false,
+}: {
+  current: string | null
+  onOpen: (id: string | null) => void
+  compact?: boolean
+}) {
   const { providers } = useModels()
   const [conversations, setConversations] = React.useState<
     Conversation[] | null
@@ -218,11 +233,10 @@ function Chat() {
   }, [])
 
   React.useEffect(() => {
-    void loadList()
     void api
       .GET("/api/settings/ai")
       .then(({ data }) => setDefaultModel(data?.default_model ?? null))
-  }, [loadList])
+  }, [])
 
   const chat = useChatStream(current, {
     onTitle: (title) =>
@@ -230,9 +244,14 @@ function Chat() {
         (list) =>
           list?.map((c) => (c.id === current ? { ...c, title } : c)) ?? list
       ),
-    onDone: () => void loadList(),
   })
   const busy = chat.status === "streaming"
+
+  // Refresh titles and order whenever a reply ends, including one that finished
+  // while this view was only polling (reopened sheet, another tab).
+  React.useEffect(() => {
+    if (chat.status === "ready") void loadList()
+  }, [chat.status, loadList])
 
   // The picker follows the chat's own model, or the default for a new chat.
   const currentConv = conversations?.find((c) => c.id === current)
@@ -242,7 +261,7 @@ function Chat() {
 
   function open(id: string | null) {
     setListOpen(false)
-    router.replace(id ? `${pathname}?c=${id}` : pathname)
+    onOpen(id)
   }
 
   async function pickModel(ref: ModelRef) {
@@ -331,22 +350,43 @@ function Chat() {
   const waiting = chat.waiting.length > 0
 
   return (
-    <div className="flex h-[calc(100svh-var(--header-height)-2rem)] min-h-96 gap-4 md:h-[calc(100svh-var(--header-height)-4rem)]">
-      <aside className="hidden w-60 shrink-0 flex-col md:flex">{list}</aside>
+    <div
+      className={cn(
+        "flex gap-4",
+        compact
+          ? "h-full min-h-0"
+          : "h-[calc(100svh-var(--header-height)-2rem)] min-h-96 md:h-[calc(100svh-var(--header-height)-4rem)]"
+      )}
+    >
+      {compact ? null : (
+        <aside className="hidden w-60 shrink-0 flex-col md:flex">{list}</aside>
+      )}
       <section className="flex min-w-0 flex-1 flex-col gap-3">
-        <div className="flex items-center gap-2 md:hidden">
-          <Sheet open={listOpen} onOpenChange={setListOpen}>
-            <SheetTrigger render={<Button variant="outline" size="sm" />}>
-              <MessagesSquareIcon />
-              Chats
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-4">
-              <SheetHeader className="p-0">
-                <SheetTitle>Chats</SheetTitle>
-              </SheetHeader>
-              {list}
-            </SheetContent>
-          </Sheet>
+        <div className={cn("flex items-center gap-2", !compact && "md:hidden")}>
+          {compact ? (
+            <Popover open={listOpen} onOpenChange={setListOpen}>
+              <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+                <MessagesSquareIcon />
+                Chats
+              </PopoverTrigger>
+              <PopoverContent align="start" className="flex h-80 w-64 p-2">
+                {list}
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <Sheet open={listOpen} onOpenChange={setListOpen}>
+              <SheetTrigger render={<Button variant="outline" size="sm" />}>
+                <MessagesSquareIcon />
+                Chats
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 p-4">
+                <SheetHeader className="p-0">
+                  <SheetTitle>Chats</SheetTitle>
+                </SheetHeader>
+                {list}
+              </SheetContent>
+            </Sheet>
+          )}
           <span className="min-w-0 truncate text-sm font-medium">
             {currentConv?.title ?? "New chat"}
           </span>
@@ -354,6 +394,11 @@ function Chat() {
         <div className="min-h-0 flex-1">
           {chat.status === "loading" ? (
             <Skeleton className="h-24 w-full" />
+          ) : chat.messages.length === 0 && busy ? (
+            // Reopened mid-reply: the server saves the turn only when it ends.
+            <p className="shimmer p-2 text-sm text-muted-foreground">
+              Still working on a reply. It shows here when it&apos;s done.
+            </p>
           ) : chat.messages.length === 0 ? (
             <Empty className="h-full">
               <EmptyHeader>
@@ -386,7 +431,7 @@ function Chat() {
                   <MessageScrollerViewport>
                     <MessageScrollerContent
                       aria-busy={busy}
-                      className="gap-6 py-2 md:px-4"
+                      className={cn("gap-6 py-2", !compact && "md:px-4")}
                     >
                       {chat.messages.map((m) =>
                         m.role === "user" ? (
@@ -499,11 +544,24 @@ function Chat() {
   )
 }
 
+/** The full page keeps the open chat in the URL (`?c=`). */
+function PageChat() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const current = useSearchParams().get("c")
+  return (
+    <AssistantChat
+      current={current}
+      onOpen={(id) => router.replace(id ? `${pathname}?c=${id}` : pathname)}
+    />
+  )
+}
+
 /** /assistant: chats with the AI assistant (docs/mvp-design.md §4.5). */
 export function AssistantView() {
   return (
     <React.Suspense fallback={<Skeleton className="h-64 w-full" />}>
-      <Chat />
+      <PageChat />
     </React.Suspense>
   )
 }
