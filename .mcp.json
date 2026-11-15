@@ -23,10 +23,10 @@
         "--isolated",
         "--output-dir",
         ".playwright-mcp",
-        "--snapshot-mode",
-        "none",
         "--console-level",
-        "warning"
+        "error",
+        "--snapshot-mode",
+        "none"
       ]
     },
     "context7": {
