@@ -61,6 +61,7 @@ from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
 from athena.assistant.robustness import robustness_capabilities
+from athena.assistant.safety import safety_capabilities
 from athena.assistant.tools import Deps, shell_provider, toolset_for
 from athena.assistant.workspace import shell_capabilities
 from athena.auth.deps import CurrentUser
@@ -482,6 +483,7 @@ async def _stream(
         toolsets=[toolset_for(deps.manifest, deps.shell_commands)],
         capabilities=[
             *robustness_capabilities(deps.app.state.settings.data_dir),
+            *safety_capabilities(),
             *shell_capabilities(shell_provider(deps.manifest), deps.shell_commands),
             # Last, so it measures and records the request as everything else left it.
             *compaction,
