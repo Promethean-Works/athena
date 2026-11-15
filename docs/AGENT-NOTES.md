@@ -172,6 +172,9 @@ CodeQL runs on every PR and its alerts can block a merge.
 - The harness redaction detectors (`guardrails.detectors`) take text only and `for_tool_result_text` raises on dicts, so `safety.redact_result` walks Athena's dict and list results itself. `after_tool_validate` hooks run before an approval card (`ShellGuard`, `RedactionGuard`); `ToolGuardrail` arg guards don't see approval-required calls until they're approved.
 - Ollama runs a model at its server-wide context (4,096 on the maintainer's Mac; `context_length` in `/api/ps` while loaded), and its `/v1` API ignores `options.num_ctx`. Athena's instructions and tool schemas alone are a few thousand tokens, so small Ollama contexts truncate the prompt silently; raise `OLLAMA_CONTEXT_LENGTH` on the Ollama server.
 
+- The harness `WarnOnCacheBusts` reports through `warnings.warn`, which shows once per code location and never reaches our logs. `robustness.CacheBustLog` catches them around its `after_model_request` and logs each one; that's safe with concurrent chats only because the harness judges and warns without an `await` in between. Recheck that on harness upgrades. Its marks live on the instance, so keep the single `CACHE_BUSTS`.
+- `FunctionModel` has no system role for request-scoped prompts: a `SystemReminders` note arrives merged into the last request as `<system>…</system>` user text (a real provider gets a system message). Match on the text, not the part type, in tests.
+
 ### Browser verification (`athena-ui-verify`)
 
 - Base UI checkboxes and switches render a hidden `<input>`. A click on it "works" but sends the wrong value, and only `browser_network_requests` showed that. Click the visible control and re-snapshot.
