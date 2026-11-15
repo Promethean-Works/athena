@@ -269,7 +269,9 @@ async def run_command(
 
 
 SHELL_ACTION = "run_command"
-"""Asks for approval itself (after the allowlist check), so it isn't `requires_approval`."""
+"""Asks for approval itself (after the allowlist check), so it isn't `requires_approval`.
+The harness Shell's tool has the same name and arguments (`workspace.py`)."""
+SHELL_TOOLS = frozenset({SHELL_ACTION, "start_command"})
 
 APP_ACTIONS = [install_store_app, create_app, change_app, remove_app]
 PACKAGE_ACTIONS = [install_package, uninstall_package, upgrade_packages]
@@ -297,13 +299,15 @@ def _items(paths: Any) -> str:
 
 def summarize(db: Session, name: str, args: Any) -> str | None:
     """One sentence for the approval card, or None for a tool that needs no approval."""
-    if name not in NAMES and name != SHELL_ACTION:
+    if name not in NAMES and name not in SHELL_TOOLS:
         return None
     a: dict[str, Any] = args if isinstance(args, dict) else {}
     match name:
-        case "run_command":
+        case "run_command" | "start_command":
             command = " ".join(str(a.get("command", "")).split())
             short = command if len(command) <= 120 else command[:119] + "…"
+            if name == "start_command":
+                return f"Start in the background on the server: {short}"
             return f"Run on the server: {short}"
         case "install_store_app":
             return f"Install {a.get('catalog')}/{a.get('app_id')} from the store as {a.get('name')}"
@@ -344,7 +348,7 @@ def summarize(db: Session, name: str, args: Any) -> str | None:
 
 
 DESTRUCTIVE = frozenset(
-    {SHELL_ACTION, "remove_app", "uninstall_package", "delete_files", "write_text_file"}
+    {*SHELL_TOOLS, "remove_app", "uninstall_package", "delete_files", "write_text_file"}
 )
 
 

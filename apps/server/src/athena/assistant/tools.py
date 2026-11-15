@@ -285,12 +285,18 @@ def _has_packages(manifest: CapabilityManifest) -> bool:
     return any(c.id.startswith("packages.") and c.available for c in manifest.capabilities)
 
 
+def shell_provider(manifest: CapabilityManifest) -> str | None:
+    """posix, wsl or powershell (the `assistant.shell` capability), or None."""
+    cap = manifest.get("assistant.shell")
+    return cap.provider if cap is not None and cap.available else None
+
+
 def toolset_for(
     manifest: CapabilityManifest, shell_commands: tuple[str, ...] = ()
 ) -> FunctionToolset[Deps]:
     """The tools this host supports right now. Tools that change something (from
-    `actions.py`) need the admin's approval for every call. `run_command` is there only
-    when the assistant shell is on with a non-empty allowlist and the host has a shell."""
+    `actions.py`) need the admin's approval for every call. The PowerShell `run_command` is
+    here only on Windows hosts without WSL, with the shell on and a non-empty allowlist."""
     from athena.assistant import actions
 
     tools: list[Any] = [get_capabilities, get_system_stats]
@@ -307,8 +313,9 @@ def toolset_for(
         tools += [list_package_managers, search_packages, list_upgradable_packages]
         changes += actions.PACKAGE_ACTIONS
     approved = [Tool(fn, requires_approval=True) for fn in changes]
-    term = manifest.get("terminal.host")
-    if shell_commands and term is not None and term.available:
+    # Linux, macOS and WSL get the harness Shell as capabilities (`workspace.py`); a Windows
+    # host without WSL gets the PowerShell `run_command` here.
+    if shell_commands and shell_provider(manifest) == "powershell":
         listed = ", ".join(shell_commands)
         doc = actions.run_command.__doc__ or ""
         approved.append(

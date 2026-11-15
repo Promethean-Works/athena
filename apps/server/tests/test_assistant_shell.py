@@ -5,7 +5,11 @@ import sys
 
 import pytest
 from conftest import make_app, signed_in
+from fake_probe import FakeProbe
 from fastapi.testclient import TestClient
+from pydantic_ai.capabilities import LocalWorkspace
+from pydantic_ai_harness import Shell
+from pydantic_ai_harness.permissions import Permissions
 from test_assistant_actions import (
     answer,
     audit_rows,
@@ -16,8 +20,28 @@ from test_assistant_actions import (
     use,
 )
 
-from athena.assistant import actions, shell
+from athena.assistant import actions, shell, workspace
 from athena.assistant.tools import toolset_for
+from athena.platform.capabilities import Capability
+from athena.platform.detect import WSL_CHECK, detect, detect_assistant_shell
+from athena.platform.probe import RunResult
+from athena.platform.store import CapabilityStore
+
+
+@pytest.fixture(autouse=True)
+def host_like_this_one(monkeypatch):
+    """The chat tests' fake host matches the OS they run on: macOS (the harness Shell) on
+    POSIX, a Windows host without WSL (the PowerShell run_command) on Windows, where the
+    harness's local workspace can't run."""
+    if sys.platform == "win32":  # pragma: no cover - Windows CI
+        import test_assistant_actions
+
+        def windows_app(tmp_path):
+            probe = FakeProbe(os="windows")
+            return make_app(tmp_path, store=CapabilityStore(detector=lambda: detect(probe)))
+
+        monkeypatch.setattr(test_assistant_actions, "make_app", windows_app)
+
 
 # ---------------------------------------------------------------- the allowlist
 
@@ -89,17 +113,62 @@ def test_run_keeps_the_end_of_long_output(monkeypatch):
 # ---------------------------------------------------------------- the tool
 
 
-def test_run_command_needs_the_switch_and_a_shell():
-    term = ("terminal.host", "ready")
-    assert "run_command" not in toolset_for(manifest(term)).tools
-    assert "run_command" not in toolset_for(manifest(), ("ls",)).tools
-    assert (
-        "run_command" not in toolset_for(manifest(("terminal.host", "unsupported")), ("ls",)).tools
-    )
-    tool = toolset_for(manifest(term), ("ls", "df")).tools["run_command"]
+def shell_manifest(provider: str | None):
+    m = manifest(("terminal.host", "ready"))
+    if provider:
+        m.capabilities.append(
+            Capability(id="assistant.shell", label="x", status="ready", provider=provider)
+        )
+    return m
+
+
+def test_powershell_run_command_is_only_for_windows_without_wsl():
+    assert "run_command" not in toolset_for(shell_manifest("powershell")).tools  # switch off
+    assert "run_command" not in toolset_for(shell_manifest(None), ("ls",)).tools
+    for provider in ("posix", "wsl"):  # these get the harness Shell instead
+        assert "run_command" not in toolset_for(shell_manifest(provider), ("ls",)).tools
+    tool = toolset_for(shell_manifest("powershell"), ("ls", "df")).tools["run_command"]
     assert "Allowed programs: ls, df." in (tool.description or "")
-    # It asks for approval itself, after the allowlist check.
-    assert not tool.requires_approval
+    assert not tool.requires_approval  # it asks itself, after the allowlist check
+
+
+def test_posix_and_wsl_get_the_harness_shell():
+    assert workspace.shell_capabilities("posix", ()) == []  # switch off or empty list
+    assert workspace.shell_capabilities("powershell", ("ls",)) == []
+    assert workspace.shell_capabilities(None, ("ls",)) == []
+    if sys.platform != "win32":  # LocalWorkspace refuses to be built on Windows
+        posix = [type(c) for c in workspace.shell_capabilities("posix", ("ls",))]
+        assert posix == [LocalWorkspace, Shell, Permissions, workspace.ShellGuard]
+    wsl = [type(c) for c in workspace.shell_capabilities("wsl", ("ls",))]
+    assert wsl == [workspace.WSLWorkspace, Shell, Permissions, workspace.ShellGuard]
+
+
+def test_detection_picks_where_the_shell_runs():
+    assert detect_assistant_shell(FakeProbe(os="linux")).provider == "posix"
+    assert detect_assistant_shell(FakeProbe(os="darwin")).provider == "posix"
+    wsl = FakeProbe(
+        os="windows",
+        binaries={"wsl": "C:/Windows/System32/wsl.exe"},
+        commands={tuple(WSL_CHECK): RunResult(0, "athena-wsl-ok\n")},
+    )
+    assert detect_assistant_shell(wsl).provider == "wsl"
+    no_distro = FakeProbe(os="windows", binaries={"wsl": "C:/Windows/System32/wsl.exe"})
+    assert detect_assistant_shell(no_distro).provider == "powershell"
+    assert detect_assistant_shell(FakeProbe(os="windows")).provider == "powershell"
+
+
+@pytest.mark.parametrize(
+    ("tool", "result", "outcome"),
+    [
+        ("run_command", "[stdout]\nok\n", "exit 0"),
+        ("run_command", "[stderr]\nno\n\n[exit code: 2]", "exit 2"),
+        ("run_command", "[stdout]\n[exit code: 9]\n\n[exit code: 1]", "exit 1"),
+        ("run_command", "[stdout]\npartial\n[Command timed out after 5s]", "timed out"),
+        ("start_command", "Started command abc", "started in the background"),
+    ],
+)
+def test_the_audit_row_reads_the_harness_result(tool, result, outcome):
+    assert workspace._outcome(tool, result) == outcome
 
 
 def test_the_card_names_the_command():
@@ -159,7 +228,6 @@ def test_an_approved_command_runs_and_is_audited(tmp_path, monkeypatch):
         events = answer(client, conv, [{"id": "s1", "approve": True}])
         result = next(d for e, d in events if e == "tool-result")
         assert result["error"] is None and "athena-shell" in result["result"]
-        assert '"exit_code": 0' in result["result"]
         rows = audit_rows(client)
         assert ("assistant.approve", "Run on the server: echo athena-shell") in rows
         assert ("assistant.shell", "echo athena-shell") in rows
@@ -188,3 +256,106 @@ def test_the_allowlist_rejects_operators(tmp_path):
         signed_in(client)
         bad = {"shell_enabled": True, "shell_commands": ["ls; rm"]}
         assert client.put("/api/settings/ai", json=bad).status_code == 422
+
+
+def audit_details(client, action: str) -> list[tuple[str | None, str | None]]:
+    from sqlmodel import select
+
+    from athena.db.models import AuditEntry
+
+    for session in client.app.state.db.session():
+        rows = session.exec(select(AuditEntry).where(AuditEntry.action == action)).all()
+        return [(r.target, r.detail) for r in rows]
+    return []
+
+
+def test_a_failing_command_is_audited_with_its_exit_code(tmp_path, monkeypatch):
+    seen: list[str] = []
+    client, conv, _, _ = setup(tmp_path)
+    use(monkeypatch, scripted(shell_call("ls /no-such-folder-athena"), seen))
+    try:
+        enable_shell(client, ["ls"])
+        send(client, conv, "List it")
+        events = answer(client, conv, [{"id": "s1", "approve": True}])
+        result = next(d for e, d in events if e == "tool-result")
+        assert "exit" in result["result"].lower()  # "[exit code: N]", or PowerShell's "exit_code"
+        target, detail = audit_details(client, "assistant.shell")[0]
+        assert target == "ls /no-such-folder-athena" and detail not in (None, "exit 0")
+    finally:
+        client.__exit__(None, None, None)
+
+
+# ---------------------------------------------------------------- the WSL workspace
+# The same script, run by the local sh instead of wsl.exe (launcher=()).
+
+posix_only = pytest.mark.skipif(sys.platform == "win32", reason="needs a POSIX sh")
+
+
+def local_wsl(**kwargs) -> workspace.WSLWorkspaceBackend:
+    return workspace.WSLWorkspaceBackend(launcher=(), **kwargs)
+
+
+@posix_only
+def test_wsl_backend_runs_commands_in_the_home_folder(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    backend = local_wsl(env={"GREETING": "hi there"})
+
+    async def go():
+        assert await backend.working_dir() == str(tmp_path.resolve())
+        ok = await backend.run('echo "$GREETING"; echo oops >&2', shell=True, timeout=30)
+        assert (ok.exit_code, ok.stdout, ok.stderr) == (0, "hi there\n", "oops\n")
+        failed = await backend.run(["sh", "-c", "exit 7"], timeout=30)
+        assert failed.exit_code == 7
+        missing = await backend.run(["athena-no-such-program"], timeout=30)
+        assert missing.exit_code == 127
+
+    asyncio.run(go())
+
+
+@posix_only
+def test_wsl_backend_kills_the_whole_command_on_timeout(tmp_path, monkeypatch):
+    from pydantic_ai.workspaces import WorkspaceTimeoutError
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    marker = tmp_path / "survived"
+    backend = local_wsl()
+
+    async def go():
+        with pytest.raises(WorkspaceTimeoutError) as caught:
+            await backend.run(f"echo started; sleep 3 && touch {marker}", shell=True, timeout=1)
+        assert "started" in caught.value.stdout
+        await asyncio.sleep(3)
+
+    asyncio.run(go())
+    assert not marker.exists()  # the sleep's group was killed, not just the outer sh
+
+
+@posix_only
+def test_wsl_backend_reports_when_wsl_is_unavailable():
+    from pydantic_ai.workspaces import WorkspaceUnavailableError
+
+    backend = workspace.WSLWorkspaceBackend(launcher=("false",))
+    with pytest.raises(WorkspaceUnavailableError):
+        asyncio.run(backend.run("echo hi", shell=True, timeout=30))
+
+
+@posix_only
+def test_the_harness_shell_runs_through_the_wsl_workspace(tmp_path, monkeypatch):
+    from pydantic_ai import Agent
+    from pydantic_ai.messages import ModelMessage, ModelResponse, TextPart, ToolCallPart
+    from pydantic_ai.models.function import AgentInfo, FunctionModel
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        returns = [p for p in messages[-1].parts if p.part_kind == "tool-return"]
+        if returns:
+            return ModelResponse(parts=[TextPart(str(returns[0].content))])
+        return ModelResponse(parts=[ToolCallPart("run_command", {"command": "echo via-wsl; pwd"})])
+
+    agent = Agent(
+        FunctionModel(reply),
+        capabilities=[workspace.WSLWorkspace(launcher=()), Shell(allowed_commands=["echo", "pwd"])],
+    )
+    output = agent.run_sync("go").output
+    assert "via-wsl" in output and str(tmp_path.resolve()) in output

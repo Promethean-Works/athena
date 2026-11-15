@@ -222,6 +222,32 @@ def detect_terminal(probe: Probe) -> Capability:
     return Capability(id="terminal.host", label="Terminal", status="ready", provider="pty")
 
 
+WSL_CHECK = ["wsl.exe", "-e", "sh", "-c", "echo athena-wsl-ok"]
+
+
+def detect_assistant_shell(probe: Probe) -> Capability:
+    """Where the assistant's shell runs (§4.5): the host's own sh on Linux and macOS; on
+    Windows, the default WSL distro when there is one, else PowerShell."""
+    label = "Assistant shell"
+    if probe.os != "windows":
+        return Capability(id="assistant.shell", label=label, status="ready", provider="posix")
+    if probe.which("wsl") and probe.run(WSL_CHECK, timeout=10).first_line == "athena-wsl-ok":
+        return Capability(
+            id="assistant.shell",
+            label=label,
+            status="ready",
+            provider="wsl",
+            detail="Runs in the default WSL distro",
+        )
+    return Capability(
+        id="assistant.shell",
+        label=label,
+        status="ready",
+        provider="powershell",
+        detail="Runs in PowerShell (install a WSL distro for a Linux shell)",
+    )
+
+
 def detect_rclone(probe: Probe) -> Capability:
     path = probe.which("rclone")
     if not path:
@@ -311,7 +337,14 @@ def detectors_for(probe: Probe) -> list[Detector]:
     package_detectors: list[Detector] = [
         (lambda p, spec=spec: detect_package_manager(spec, p)) for spec in managers
     ]
-    return [containers, *package_detectors, detect_terminal, detect_rclone, detect_ollama]
+    return [
+        containers,
+        *package_detectors,
+        detect_terminal,
+        detect_assistant_shell,
+        detect_rclone,
+        detect_ollama,
+    ]
 
 
 def _safe(detector: Detector, probe: Probe) -> Capability | None:
