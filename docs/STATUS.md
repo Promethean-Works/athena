@@ -11,11 +11,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 ## In progress
 
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
-- Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt is done, see below) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
-- E2E install testing (branch `ci/e2e-install`): the `E2E` workflow runs the real installers with a wheel built from the commit, on Ubuntu, macOS and Windows runners, then `scripts/e2e/smoke.py` (Playwright) and an uninstall check. New: `scripts/build-wheel.sh` (now also used by `release.yml`), and `--wheel` / `-Wheel` in the installers. Verified locally on 2026-11-14:
-  - macOS: the smoke test against the wheel on :8421 passes.
-  - Ubuntu 24.04 arm64 in a Lima VM: `sudo install.sh --wheel` installed Docker Engine (get.docker.com), uv, Python 3.13 and the systemd unit; the service ran as root; detection found docker-engine, apt, snap, terminal.host, files and webdav; the smoke test passed; apt install/uninstall of `sl` through the API worked (checked with dpkg); `--uninstall --purge` left no unit, data, `/opt/athena` or binary, and the port was closed.
-  - First CI run: Ubuntu and macOS (launchd) passed everything. Windows Server 2025: `install.ps1 -Wheel`, the Scheduled Task, detection (docker-engine, winget, choco, conpty, files, webdav) and the whole smoke test passed, **including the ConPTY terminal in the browser**. The uninstall failed: `schtasks /End` only kills the venv launcher `pythonw.exe`, and its child (the real interpreter) kept the port and locked the install folder. Upgrades had the same bug. Fixed: install and uninstall now also stop `pythonw.exe -m athena serve` processes and wait for them. Confirmed on the re-run (917d140): all three OSes pass install, smoke, uninstall and the port-closed check. The `-Wheel` lint warning needed a `SuppressMessageAttribute`, because the rule doesn't see uses inside functions.
+- Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 
 ## Next
 
@@ -43,4 +39,4 @@ Later: per-container stats, verifying temperatures on a real Linux host, importi
 
 ## Blockers
 
-- The release PR needs a `RELEASE_PLEASE_TOKEN` repo secret (a fine-grained PAT with contents + pull-requests write on this repo). Without it, CI doesn't run on release-please PRs, and they can only be merged with admin bypass.
+- None. The first release (release-please PR #3, `RELEASE_PLEASE_TOKEN` is set) is on hold: the maintainer merges it once the plan under **Next** is complete. Agents: don't merge it or turn on its auto-merge.
