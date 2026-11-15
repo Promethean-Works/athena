@@ -89,11 +89,25 @@ function toolTitle(part: ChatPart, running: boolean): string {
   // Actions that needed approval are titled by what they do.
   if (part.summary) return part.summary
   if (name === "ask_user_question" && !running) return answerSummary(part)
+  if (name === "delegate_task") return delegateTitle(part, running)
   const titles = TOOL_TITLES[name]
   const args = part.args as Record<string, unknown> | null
   const subject = typeof args?.name === "string" ? ` of ${args.name}` : ""
   if (!titles) return running ? `Running ${name}` : `Ran ${name}`
   return (running ? titles[0] : titles[1]) + subject
+}
+
+/** A delegation is titled by its task, cut to one line. */
+function delegateTitle(part: ChatPart, running: boolean): string {
+  const args = part.args as Record<string, unknown> | null
+  const task = typeof args?.task === "string" ? args.task.split("\n")[0]! : ""
+  const short = task.length > 80 ? `${task.slice(0, 79)}…` : task
+  const verb = running ? "Helper looking into" : "Helper looked into"
+  return short
+    ? `${verb}: ${short}`
+    : running
+      ? "Helper looking things up"
+      : "Helper looked things up"
 }
 
 function pretty(text: string | null | undefined): string {

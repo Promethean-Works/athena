@@ -61,6 +61,12 @@ from athena import audit
 from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
+from athena.assistant.delegation import (
+    background_capabilities,
+    background_result,
+    delegation_capabilities,
+    is_started_notice,
+)
 from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
 from athena.assistant.plans import PLAN_TOOL, plan_of, planning_capabilities
 from athena.assistant.questions import (
@@ -102,6 +108,10 @@ so the call is right the first time.
 - When you need the admin to choose (which app, which folder, keep or replace), ask with \
 ask_user_question and concrete options instead of asking in text. For a task with several \
 steps, keep a plan with write_plan and update each step's status as you go.
+- For a broad look-up whose details you won't need afterwards (every app's logs, a folder \
+tree, comparing several store apps), hand it to the investigator with delegate_task: a \
+helper that can only read, with a task that says everything it needs (it can't see this \
+chat). Set run_in_background to start two at once or to keep working meanwhile.
 - When an action is denied, don't call it again unless the admin asks; ask what they want \
 instead. Report what an approved action did, including failures from its log.
 - Be brief and concrete. Use Markdown for lists, tables and code.
@@ -212,12 +222,22 @@ def ui_messages(
     answer."""
     out: list[ChatMessage] = []
     tools: dict[str, ChatPart] = {}
+    started: set[str] = set()
+    """Background calls whose result hasn't arrived yet."""
     current: ChatMessage | None = None
     for i, msg in enumerate(messages):
         if isinstance(msg, ModelRequest):
             for part in msg.parts:
                 if isinstance(part, UserPromptPart):
                     if is_memory_snapshot(part):
+                        continue
+                    if found := background_result(part):
+                        call_id, text, failed = found
+                        if (tool := tools.get(call_id)) is not None:
+                            tool.result = None if failed else _result_text(text)
+                            tool.error = _result_text(text) if failed else None
+                            tool.state = "error" if failed else "done"
+                            started.discard(call_id)
                         continue
                     current = None
                     out.append(
@@ -229,6 +249,9 @@ def ui_messages(
                     )
                 elif isinstance(part, ToolReturnPart) and part.tool_call_id in tools:
                     tool = tools[part.tool_call_id]
+                    if is_started_notice(part.content):
+                        started.add(part.tool_call_id)  # its real result comes later
+                        continue
                     tool.result = _result_text(part.content)
                     tool.job_id = _job_of(part.content)
                     tool.state = (
@@ -270,7 +293,16 @@ def ui_messages(
                     )
                     tools[part.tool_call_id] = tool
                     current.parts.append(tool)
+    for call_id in started:
+        # A run that paused or stopped cancels its background calls.
+        tools[call_id].state = "error"
+        tools[call_id].error = STOPPED_IN_BACKGROUND
     return out
+
+
+STOPPED_IN_BACKGROUND = (
+    "Stopped before it finished: the reply ended while it ran in the background."
+)
 
 
 def args_of(part: ToolCallPart) -> Any:
@@ -519,6 +551,7 @@ async def _stream(
     turn's planning, questions and compaction (compaction last, so it measures and records
     the request as everything else left it)."""
     saved: Conversation | None = None
+    data_dir = deps.app.state.settings.data_dir
     async with agent.run_stream_events(
         text,
         conversation=previous,
@@ -526,8 +559,9 @@ async def _stream(
         deps=deps,
         toolsets=[toolset_for(deps.manifest, deps.shell_commands)],
         capabilities=[
-            *robustness_capabilities(deps.app.state.settings.data_dir),
+            *robustness_capabilities(data_dir, after_repair=background_capabilities()),
             *safety_capabilities(),
+            *delegation_capabilities(model, deps.manifest, data_dir),
             *knowledge_capabilities(
                 deps.app.state.settings.data_dir,
                 user_id=deps.user.user.id,
@@ -678,6 +712,8 @@ def _forward(turn: Turn, event: Any) -> None:
     elif isinstance(event, FunctionToolResultEvent):
         part = event.part
         if isinstance(part, ToolReturnPart):
+            if is_started_notice(part.content):
+                return  # the row keeps running; `BackgroundResults` sends the real result
             failed = part.outcome == "failed"
             turn.emit(
                 "tool-result",

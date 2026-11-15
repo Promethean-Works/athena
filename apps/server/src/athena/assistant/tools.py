@@ -295,6 +295,24 @@ def shell_provider(manifest: CapabilityManifest) -> str | None:
     return cap.provider if cap is not None and cap.available else None
 
 
+def _ready(manifest: CapabilityManifest, capability: str) -> bool:
+    cap = manifest.get(capability)
+    return cap is not None and cap.available
+
+
+def read_only_tools(manifest: CapabilityManifest) -> list[Any]:
+    """The tools that only read, for what this host supports right now. They're all a
+    delegated helper gets (`delegation.py`)."""
+    tools: list[Any] = [get_capabilities, get_system_stats]
+    if _ready(manifest, "containers"):
+        tools += [list_apps, app_logs, search_store, get_store_app]
+    if _ready(manifest, "files"):
+        tools += [list_file_locations, list_files, read_text_file]
+    if _has_packages(manifest):
+        tools += [list_package_managers, search_packages, list_upgradable_packages]
+    return tools
+
+
 def toolset_for(
     manifest: CapabilityManifest, shell_commands: tuple[str, ...] = ()
 ) -> FunctionToolset[Deps]:
@@ -303,18 +321,13 @@ def toolset_for(
     here only on Windows hosts without WSL, with the shell on and a non-empty allowlist."""
     from athena.assistant import actions
 
-    tools: list[Any] = [get_capabilities, get_system_stats]
+    tools = read_only_tools(manifest)
     changes: list[Any] = []
-    cap = manifest.get("containers")
-    if cap is not None and cap.available:
-        tools += [list_apps, app_logs, search_store, get_store_app]
+    if _ready(manifest, "containers"):
         changes += actions.APP_ACTIONS
-    files = manifest.get("files")
-    if files is not None and files.available:
-        tools += [list_file_locations, list_files, read_text_file]
+    if _ready(manifest, "files"):
         changes += actions.FILE_ACTIONS
     if _has_packages(manifest):
-        tools += [list_package_managers, search_packages, list_upgradable_packages]
         changes += actions.PACKAGE_ACTIONS
     approved = [Tool(fn, requires_approval=True) for fn in changes]
     # Linux, macOS and WSL get the harness Shell as capabilities (`workspace.py`); a Windows

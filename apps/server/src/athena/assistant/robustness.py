@@ -22,6 +22,7 @@ part D stage 1). They're always on and have no settings.
 
 import logging
 import warnings
+from collections.abc import Sequence
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
@@ -133,9 +134,14 @@ def spill_dir(data_dir: Path) -> Path:
     return data_dir / "assistant" / "tool-output"
 
 
-def robustness_capabilities(data_dir: Path) -> list[AbstractCapability[Any]]:
+def robustness_capabilities(
+    data_dir: Path, after_repair: Sequence[AbstractCapability[Any]] = ()
+) -> list[AbstractCapability[Any]]:
+    """`after_repair` goes right after `RepairToolArguments` (the chat's `BackgroundTools`,
+    which must see repaired arguments, and whose real results the rest should see)."""
     return [
         RepairToolArguments(),
+        *after_repair,
         DetectLoops(),
         ToolOutputLimits(
             bands=[Band(over=SPILL_OVER, action=Spill(then=Truncate()))],
