@@ -68,7 +68,8 @@ curl -s -b jar -X POST -H "X-CSRF-Token: $CSRF" localhost:8421/api/...
 
 ## 3. Exercise the feature like a user
 
-1. `browser_navigate` to the page, then `browser_snapshot`. Take a screenshot only to judge layout, at most once per page and viewport.
+1. `browser_navigate` to the page, then `browser_snapshot` scoped to what you need: `target` set to the dialog or `main`, or a small `depth`, never the whole page by default. Take a screenshot only to judge layout, at most once per page and viewport.
+   - Clicks and typing already save a snapshot file; don't take a fresh snapshot after every action. Wait with `browser_wait_for` (text appears or disappears) instead of polling snapshots.
 2. Use the feature through the UI: the happy path **and** at least one failure (bad input, a 409, a stopped runtime). Errors must show next to the field or in a toast or dialog, never silently.
 3. Once per flow (not after every click):
    - `browser_console_messages`: there must be no errors from this run. Errors from earlier servers in the same tab don't count; reload to be sure.

@@ -22,7 +22,9 @@
         "--headless",
         "--isolated",
         "--output-dir",
-        ".playwright-mcp"
+        ".playwright-mcp",
+        "--console-level",
+        "error"
       ]
     },
     "context7": {
