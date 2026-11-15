@@ -2429,6 +2429,8 @@ export interface components {
             name?: string | null;
             /** Tools */
             tools?: boolean | null;
+            /** Context Window */
+            context_window?: number | null;
         };
         /** ModelRef */
         ModelRef: {

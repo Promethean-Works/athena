@@ -166,6 +166,10 @@ CodeQL runs on every PR and its alerts can block a merge.
 - Browser check of the shell: qwen2.5 via the local Ollama follows "use run_command to run exactly: …" reliably. Allow only harmless programs (`uname`, `df`) while testing, because an approved command really runs on your machine.
 - `packages.brew` is really `ready` on the maintainer's Mac, so an approved package action in a browser check really runs `brew`. Only approve file actions inside a scratch location, or stub `brew` on `PATH`.
 
+- Compaction (`assistant/compaction.py`) rewrites the run's history in place (`ctx.messages[:] = ...`), so `result.conversation` comes back compacted. Loading a compacted history also merges the summary's request with the requests next to it, so counting stored messages doesn't find a turn's first message: `TranscriptRecorder` uses `run_id`, like pydantic-ai's `new_messages()`.
+- `FunctionModel` streams report a flat 50 input tokens, and the harness trusts provider usage over its own estimate, so compaction never fires in tests unless that's switched off (the `unmeasured_streams` fixture in `tests/test_assistant_compaction.py`).
+- Ollama runs a model at its server-wide context (4,096 on the maintainer's Mac; `context_length` in `/api/ps` while loaded), and its `/v1` API ignores `options.num_ctx`. Athena's instructions and tool schemas alone are a few thousand tokens, so small Ollama contexts truncate the prompt silently; raise `OLLAMA_CONTEXT_LENGTH` on the Ollama server.
+
 ### Browser verification (`athena-ui-verify`)
 
 - Base UI checkboxes and switches render a hidden `<input>`. A click on it "works" but sends the wrong value, and only `browser_network_requests` showed that. Click the visible control and re-snapshot.

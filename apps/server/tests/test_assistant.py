@@ -217,7 +217,7 @@ def test_anthropic_and_openrouter_lists(tmp_path):
             "/v1/models": {"data": [{"id": "claude-x", "display_name": "Claude X"}]},
             "/api/v1/models": {
                 "data": [
-                    {"id": "a/tools", "supported_parameters": ["tools"]},
+                    {"id": "a/tools", "supported_parameters": ["tools"], "context_length": 32768},
                     {"id": "b/none", "supported_parameters": []},
                 ]
             },
@@ -228,10 +228,12 @@ def test_anthropic_and_openrouter_lists(tmp_path):
         add_provider(client)
         add_provider(client, "openrouter", "OpenRouter")
         lists = client.get("/api/assistant/models").json()
-        assert lists[0]["models"] == [{"id": "claude-x", "name": "Claude X", "tools": True}]
-        assert [(m["id"], m["tools"]) for m in lists[1]["models"]] == [
-            ("a/tools", True),
-            ("b/none", False),
+        assert lists[0]["models"] == [
+            {"id": "claude-x", "name": "Claude X", "tools": True, "context_window": None}
+        ]
+        assert [(m["id"], m["tools"], m["context_window"]) for m in lists[1]["models"]] == [
+            ("a/tools", True, 32768),
+            ("b/none", False, None),
         ]
 
 

@@ -31,6 +31,19 @@ class ModelInfo(BaseModel):
     name: str | None = None
     tools: bool | None = None
     """Whether the model can call tools, when the provider says; None when unknown."""
+    context_window: int | None = None
+    """Tokens the model accepts, when the provider's list says."""
+
+
+def listed_window(entry: dict[str, Any]) -> int | None:
+    """A model list entry's window, under whichever name the provider uses: OpenRouter
+    `context_length`, Groq `context_window`, Mistral `max_context_length`, vLLM
+    `max_model_len`."""
+    for key in ("context_length", "context_window", "max_context_length", "max_model_len"):
+        value = entry.get(key)
+        if isinstance(value, int) and not isinstance(value, bool) and value > 0:
+            return value
+    return None
 
 
 @dataclass
@@ -78,6 +91,8 @@ def check_values(kind: ProviderKind, values: dict[str, str]) -> None:
             parts = urlsplit(value)
             if parts.scheme not in ("http", "https") or not parts.netloc:
                 raise ValueError(f"{f.label} must be an http:// or https:// address")
+        if f.key == "context_window" and value and not (value.isdigit() and int(value) >= 1024):
+            raise ValueError(f"{f.label} must be a number of tokens, at least 1024")
 
 
 # ---------------------------------------------------------------- models
@@ -217,7 +232,11 @@ def _bearer(key: str | None) -> dict[str, str]:
 
 async def _openai_style(client: httpx2.AsyncClient, base: str, key: str | None) -> list[ModelInfo]:
     data = await _json(client, "GET", f"{_strip(base)}/models", headers=_bearer(key))
-    return [ModelInfo(id=m["id"]) for m in data.get("data", []) if m.get("id")]
+    return [
+        ModelInfo(id=m["id"], context_window=listed_window(m))
+        for m in data.get("data", [])
+        if m.get("id")
+    ]
 
 
 async def _ollama(client: httpx2.AsyncClient, base: str, key: str | None) -> list[ModelInfo]:
@@ -292,6 +311,7 @@ async def _openrouter(client: httpx2.AsyncClient, cfg: ProviderConfig) -> list[M
             id=m["id"],
             name=m.get("name"),
             tools="tools" in (m.get("supported_parameters") or []),
+            context_window=listed_window(m),
         )
         for m in data.get("data", [])
         if m.get("id")
@@ -308,7 +328,13 @@ async def _mistral(client: httpx2.AsyncClient, cfg: ProviderConfig) -> list[Mode
         if caps.get("completion_chat") is False:
             continue
         tools = caps.get("function_calling")
-        out.append(ModelInfo(id=m["id"], tools=tools if isinstance(tools, bool) else None))
+        out.append(
+            ModelInfo(
+                id=m["id"],
+                tools=tools if isinstance(tools, bool) else None,
+                context_window=listed_window(m),
+            )
+        )
     return out
 
 

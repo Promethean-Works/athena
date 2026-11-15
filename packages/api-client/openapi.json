@@ -6920,6 +6920,17 @@
               }
             ],
             "title": "Tools"
+          },
+          "context_window": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Window"
           }
         },
         "type": "object",

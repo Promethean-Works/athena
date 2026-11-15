@@ -12,7 +12,7 @@ import copy
 import dataclasses
 import json
 import logging
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -37,10 +37,11 @@ from pydantic_ai import (
     UsageLimits,
     capture_run_messages,
 )
-from pydantic_ai.capabilities import Caching
+from pydantic_ai.capabilities import AbstractCapability, Caching
 from pydantic_ai.exceptions import UsageLimitExceeded
 from pydantic_ai.messages import (
     ModelMessage,
+    ModelMessagesTypeAdapter,
     ModelRequest,
     ModelResponse,
     RetryPromptPart,
@@ -58,6 +59,7 @@ from sqlmodel import Session
 
 from athena.assistant import actions
 from athena.assistant import settings as ai_settings
+from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
 from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.tools import Deps, shell_provider, toolset_for
 from athena.assistant.workspace import shell_capabilities
@@ -268,9 +270,29 @@ def load_history(row: AiConversation) -> Conversation | None:
         return None
 
 
-def history_messages(row: AiConversation) -> list[ModelMessage]:
-    conv = load_history(row)
+def transcript_messages(row: AiConversation, conv: Conversation | None) -> list[ModelMessage]:
+    """The whole chat as the admin saw it: the saved transcript once compaction has
+    shortened the history, else the history itself."""
+    if row.transcript:
+        try:
+            return list(ModelMessagesTypeAdapter.validate_json(row.transcript))
+        except ValueError:
+            log.warning("conversation %s has an unreadable transcript; showing history", row.id)
     return list(conv.messages) if conv else []
+
+
+def new_transcript(
+    row: AiConversation,
+    previous: Conversation | None,
+    recorder: TranscriptRecorder,
+    final: list[ModelMessage],
+) -> str | None:
+    """The transcript to save after a turn: None while nothing was ever compacted (the
+    history is the transcript), else the old one plus what this turn added."""
+    if row.transcript is None and not recorder.compacted:
+        return None
+    full = [*transcript_messages(row, previous), *recorder.finish(final)]
+    return ModelMessagesTypeAdapter.dump_json(full).decode()
 
 
 def pending_ids(conv: Conversation | None) -> frozenset[str]:
@@ -341,6 +363,7 @@ async def _run(
     spend_limit: float | None,
     user_id: int,
     title_model: Model | None,
+    window: "Window",
 ) -> None:
     db_factory = app.state.db
     manifest = await app.state.capabilities.get()
@@ -368,10 +391,15 @@ async def _run(
             shell_commands=tuple(ai.shell_commands) if ai.shell_enabled else (),
         )
         limits = turn_limits(previous, spend_limit)
+        recorder = TranscriptRecorder(start=len(previous.messages) if previous else 0)
+        compaction = compaction_capabilities(await _window_tokens(window), recorder)
         saved: Conversation | None = None
+        compacted_ok = True
         try:
             with capture_run_messages() as captured:
-                saved = await _stream(turn, db, previous, results, text, model, deps, limits)
+                saved = await _stream(
+                    turn, db, previous, results, text, model, deps, limits, compaction
+                )
         except RunCancelled as exc:
             saved = Conversation(messages=list(exc.all_messages()), usage=exc.usage or RunUsage())
             if exc.conversation_id:
@@ -381,11 +409,14 @@ async def _run(
             # The turn's work is dropped, but what it cost is kept, so the spend limit
             # holds: the next message is refused before it spends anything.
             saved = _with_spend(previous, captured)
+            compacted_ok = False  # the history is the one the turn started with
             turn.emit("error", {"message": _limit_message(exc, spend_limit)})
         except Exception as exc:  # the model's errors are for the person to read
             log.warning("assistant turn failed: %s", exc)
             turn.emit("error", {"message": _readable(exc)})
         if saved is not None:
+            if compacted_ok:
+                row.transcript = new_transcript(row, previous, recorder, list(saved.messages))
             row.history = ConversationTypeAdapter.dump_json(saved).decode()
             if text and row.title == NEW_CHAT:
                 row.title = await _await_title(titling) or _title(text)
@@ -397,6 +428,21 @@ async def _run(
         if titling is not None and not titling.done():
             titling.cancel()
         turn.emit("done", {})
+
+
+Window = Callable[[], Awaitable[int]]
+"""Looks up the model's context window (`context.window_for`) when the turn starts."""
+
+WINDOW_UNKNOWN = 8_192
+"""Used when looking the window up fails outright, which shouldn't happen."""
+
+
+async def _window_tokens(window: Window) -> int:
+    try:
+        return await window()
+    except Exception as exc:  # compaction with a small guess beats a failed turn
+        log.warning("couldn't look up the context window: %s", exc)
+        return WINDOW_UNKNOWN
 
 
 TURN_REQUESTS = 25
@@ -424,6 +470,7 @@ async def _stream(
     model: Model,
     deps: Deps,
     limits: UsageLimits,
+    compaction: list[AbstractCapability[Any]],
 ) -> Conversation | None:
     """Runs the agent, forwarding its events; returns the chat to save."""
     saved: Conversation | None = None
@@ -436,6 +483,8 @@ async def _stream(
         capabilities=[
             *robustness_capabilities(deps.app.state.settings.data_dir),
             *shell_capabilities(shell_provider(deps.manifest), deps.shell_commands),
+            # Last, so it measures and records the request as everything else left it.
+            *compaction,
         ],
         instructions=_host_instructions(deps.manifest),
         usage_limits=limits,
@@ -605,6 +654,7 @@ class Turns:
         text: str | None,
         spend_limit: float | None,
         user_id: int,
+        window: Window,
         decisions: Decisions | None = None,
         title_model: Model | None = None,
     ) -> Turn:
@@ -621,6 +671,7 @@ class Turns:
                     spend_limit=spend_limit,
                     user_id=user_id,
                     title_model=title_model,
+                    window=window,
                 )
             except Exception:
                 log.exception("assistant turn crashed")

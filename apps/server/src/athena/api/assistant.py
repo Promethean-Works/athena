@@ -21,6 +21,7 @@ from athena import audit
 from athena.api.jobs import SSE_HEADERS
 from athena.assistant import chat
 from athena.assistant import settings as ai_settings
+from athena.assistant.context import window_for
 from athena.assistant.kinds import BY_ID, KINDS, KindId, ProviderKind, secret_keys
 from athena.assistant.providers import (
     ModelCache,
@@ -388,7 +389,7 @@ def get_conversation(
 ) -> ConversationDetail:
     row = _get_conv(db, user, conversation_id)
     conv = chat.load_history(row)
-    messages = list(conv.messages) if conv else []
+    messages = chat.transcript_messages(row, conv)
     return ConversationDetail(
         **_conv_out(row).model_dump(),
         messages=chat.ui_messages(messages, chat.pending_ids(conv), chat.summarizer(db)),
@@ -458,6 +459,7 @@ async def send_message(
         text=body.text,
         spend_limit=settings.spend_limit_usd,
         user_id=user.user.id,
+        window=_window_of(request, db, row, model),
         title_model=(
             _title_model(request, db, settings, model) if row.title == chat.NEW_CHAT else None
         ),
@@ -518,6 +520,7 @@ async def answer_approvals(
         decisions=decisions,
         spend_limit=ai_settings.load(db).spend_limit_usd,
         user_id=user.user.id,
+        window=_window_of(request, db, row, model),
     )
     return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
 
@@ -551,6 +554,20 @@ def _model_for(
     db.add(row)
     db.commit()
     return model
+
+
+def _window_of(request: Request, db: Session, row: AiConversation, model: Model) -> chat.Window:
+    """Looks up the chat model's context window when the turn starts (after `_model_for`
+    saved the choice on the chat)."""
+    provider = db.get(AiProvider, row.provider_id)
+    assert provider is not None and row.model is not None
+    cfg, model_id = _config(provider, _box(request)), row.model
+    cache, transport = _cache(request), request.app.state.ai_transport
+
+    async def tokens() -> int:
+        return (await window_for(cfg, model_id, model, cache, transport)).tokens
+
+    return tokens
 
 
 def _title_model(
