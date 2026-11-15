@@ -19,10 +19,11 @@ from sqlmodel import Session, col, select
 
 from athena import audit
 from athena.api.jobs import SSE_HEADERS
-from athena.assistant import chat
+from athena.assistant import chat, questions
 from athena.assistant import settings as ai_settings
 from athena.assistant.context import window_for
 from athena.assistant.kinds import BY_ID, KINDS, KindId, ProviderKind, secret_keys
+from athena.assistant.plans import PlanStep, delete_plan, plan_of
 from athena.assistant.providers import (
     ModelCache,
     ModelInfo,
@@ -299,6 +300,8 @@ class ConversationDetail(ConversationOut):
     """What the whole chat has used so far."""
     spend_limit_usd: float | None
     """Settings → AI's limit per chat, if any."""
+    plan: list[PlanStep]
+    """The assistant's plan for this chat (empty until it writes one)."""
 
 
 class ConversationIn(BaseModel):
@@ -319,8 +322,10 @@ class Decision(BaseModel):
 
 
 class ApprovalsIn(BaseModel):
-    decisions: list[Decision] = Field(min_length=1, max_length=100)
-    """One per waiting action: every one must be answered."""
+    decisions: list[Decision] = Field(default_factory=list, max_length=100)
+    """One per waiting action."""
+    answers: list[questions.Answer] = Field(default_factory=list, max_length=20)
+    """One per waiting question."""
 
 
 class MessageIn(BaseModel):
@@ -384,7 +389,7 @@ def create_conversation(body: ConversationIn, user: Authed, db: DbSession) -> Co
 
 
 @router.get("/conversations/{conversation_id}", operation_id="getConversation")
-def get_conversation(
+async def get_conversation(
     conversation_id: ConversationId, request: Request, user: Authed, db: DbSession
 ) -> ConversationDetail:
     row = _get_conv(db, user, conversation_id)
@@ -392,10 +397,13 @@ def get_conversation(
     messages = chat.transcript_messages(row, conv)
     return ConversationDetail(
         **_conv_out(row).model_dump(),
-        messages=chat.ui_messages(messages, chat.pending_ids(conv), chat.summarizer(db)),
+        messages=chat.ui_messages(
+            messages, chat.pending_ids(conv), chat.summarizer(db), chat.waiting_questions(conv)
+        ),
         running=_turns(request).get(row.id) is not None,
         usage=chat.usage_of(conv.usage if conv else None),
         spend_limit_usd=ai_settings.load(db).spend_limit_usd,
+        plan=await plan_of(request.app.state.settings.data_dir, row.id),
     )
 
 
@@ -418,7 +426,7 @@ def update_conversation(
     operation_id="deleteConversation",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_conversation(
+async def delete_conversation(
     conversation_id: ConversationId, request: Request, user: Authed, db: DbSession
 ) -> Response:
     row = _get_conv(db, user, conversation_id)
@@ -426,6 +434,7 @@ def delete_conversation(
         raise HTTPException(status.HTTP_409_CONFLICT, "Stop the reply before deleting this chat")
     db.delete(row)
     db.commit()
+    await delete_plan(request.app.state.settings.data_dir, conversation_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -441,9 +450,11 @@ async def send_message(
     """Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a
     new block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,
     `error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,
-    `name`, `args`, `summary` and `destructive`), `job` (`id` of the tool call, `job_id`,
-    `title`: a job an approved action started), `title`, `usage`, `stopped`, `error`
-    (`message`) and finally `done`. While actions wait, a new message denies them."""
+    `name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`
+    calls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant
+    changed it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action
+    started), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`. While
+    actions or questions wait, a new message denies and declines them."""
     row = _get_conv(db, user, conversation_id)
     turns = _turns(request)
     if turns.get(row.id) is not None:
@@ -480,26 +491,34 @@ async def answer_approvals(
     user: Authed,
     db: DbSession,
 ) -> StreamingResponse:
-    """Approve or deny the actions a paused chat is waiting on, and continue it. Approved
-    actions run as you, and each answer is audited. Streams the same events as
-    sendMessage."""
+    """Answer everything a paused chat is waiting on, and continue it: Approve or Deny each
+    action (approved actions run as you, and each decision is audited) and answer or decline
+    each question. Streams the same events as sendMessage."""
     row = _get_conv(db, user, conversation_id)
     turns = _turns(request)
     if turns.get(row.id) is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "This chat is still answering")
     conv = chat.load_history(row)
     pending = conv.deferred_tool_requests if conv else None
-    if pending is None or not pending.approvals:
+    if pending is None:
         raise HTTPException(status.HTTP_409_CONFLICT, "Nothing in this chat is waiting for you")
     calls = {c.tool_call_id: c for c in pending.approvals}
-    answers = {d.id: d for d in body.decisions}
-    if set(answers) != set(calls):
+    decided = {d.id: d for d in body.decisions}
+    answered = {a.id: a for a in body.answers}
+    if set(decided) != set(calls) or set(answered) != questions.question_ids(pending):
         raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_CONTENT, "Answer every waiting action, and only those"
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "Answer every waiting action and question, and only those",
         )
+    resume = chat.Resume()
+    for call_id, a in answered.items():
+        try:
+            resume.answers[call_id] = questions.result_for(pending, a)
+        except ValueError as exc:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
     model = _model_for(request, db, row, None)
-    decisions: chat.Decisions = {}
-    for call_id, d in answers.items():
+    decisions = resume.approvals
+    for call_id, d in decided.items():
         call = calls[call_id]
         what = chat.summarizer(db)(call.tool_name, chat.args_of(call)) or call.tool_name
         if d.approve:
@@ -517,7 +536,7 @@ async def answer_approvals(
         app=request.app,
         model=model,
         text=None,
-        decisions=decisions,
+        resume=resume,
         spend_limit=ai_settings.load(db).spend_limit_usd,
         user_id=user.user.id,
         window=_window_of(request, db, row, model),

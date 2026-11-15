@@ -59,7 +59,8 @@ import { cn } from "@workspace/ui/lib/utils"
 import { Markdown } from "@/components/assistant/markdown"
 import { ModelPicker } from "@/components/assistant/model-picker"
 import { SpendButton } from "@/components/assistant/spend"
-import { ApprovalProvider, Steps } from "@/components/assistant/steps"
+import { PlanChecklist } from "@/components/assistant/plan"
+import { ApprovalProvider, isShown, Steps } from "@/components/assistant/steps"
 import {
   useChatStream,
   type ChatMessage,
@@ -97,7 +98,7 @@ function Reply({
   message: ChatMessage
   streaming: boolean
 }) {
-  const groups = blocks(message.parts)
+  const groups = blocks(message.parts.filter(isShown))
   if (groups.length === 0 && streaming) {
     return <p className="shimmer text-sm text-muted-foreground">Thinking…</p>
   }
@@ -346,7 +347,13 @@ export function AssistantChat({
     />
   )
   const lastId = chat.messages.at(-1)?.id
-  const approvals = { decide: chat.decide, decided: chat.decided, busy }
+  const approvals = {
+    decide: chat.decide,
+    decided: chat.decided,
+    answer: chat.answer,
+    answered: chat.answered,
+    busy,
+  }
   const waiting = chat.waiting.length > 0
 
   return (
@@ -471,6 +478,7 @@ export function AssistantChat({
             </ApprovalProvider>
           )}
         </div>
+        {current ? <PlanChecklist steps={chat.plan} running={busy} /> : null}
         {chat.error ? (
           <Alert variant="destructive">
             <AlertDescription>{chat.error}</AlertDescription>
@@ -489,7 +497,7 @@ export function AssistantChat({
               onChange={(e) => setDraft(e.target.value)}
               placeholder={
                 waiting
-                  ? "Approve or deny above, or send a message to skip it…"
+                  ? "Answer above, or send a message to skip it…"
                   : "Ask about this server…"
               }
               aria-label="Message"

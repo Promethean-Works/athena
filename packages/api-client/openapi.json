@@ -4719,7 +4719,7 @@
           "assistant"
         ],
         "summary": "Send Message",
-        "description": "Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a\nnew block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,\n`error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,\n`name`, `args`, `summary` and `destructive`), `job` (`id` of the tool call, `job_id`,\n`title`: a job an approved action started), `title`, `usage`, `stopped`, `error`\n(`message`) and finally `done`. While actions wait, a new message denies them.",
+        "description": "Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a\nnew block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,\n`error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,\n`name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`\ncalls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant\nchanged it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action\nstarted), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`. While\nactions or questions wait, a new message denies and declines them.",
         "operationId": "sendMessage",
         "parameters": [
           {
@@ -4769,7 +4769,7 @@
           "assistant"
         ],
         "summary": "Answer Approvals",
-        "description": "Approve or deny the actions a paused chat is waiting on, and continue it. Approved\nactions run as you, and each answer is audited. Streams the same events as\nsendMessage.",
+        "description": "Answer everything a paused chat is waiting on, and continue it: Approve or Deny each\naction (approved actions run as you, and each decision is audited) and answer or decline\neach question. Streams the same events as sendMessage.",
         "operationId": "answerApprovals",
         "parameters": [
           {
@@ -4911,6 +4911,34 @@
         },
         "type": "object",
         "title": "AiSettings"
+      },
+      "Answer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "declined": {
+            "type": "boolean",
+            "title": "Declined",
+            "default": false
+          },
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionAnswer"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Answers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "Answer"
       },
       "AnswerIn": {
         "properties": {
@@ -5224,14 +5252,18 @@
             },
             "type": "array",
             "maxItems": 100,
-            "minItems": 1,
             "title": "Decisions"
+          },
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/Answer"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Answers"
           }
         },
         "type": "object",
-        "required": [
-          "decisions"
-        ],
         "title": "ApprovalsIn"
       },
       "AuthStatus": {
@@ -5594,6 +5626,7 @@
                   "done",
                   "error",
                   "approval",
+                  "question",
                   "denied"
                 ]
               },
@@ -5996,6 +6029,13 @@
               }
             ],
             "title": "Spend Limit Usd"
+          },
+          "plan": {
+            "items": {
+              "$ref": "#/components/schemas/PlanStep"
+            },
+            "type": "array",
+            "title": "Plan"
           }
         },
         "type": "object",
@@ -6008,7 +6048,8 @@
           "messages",
           "running",
           "usage",
-          "spend_limit_usd"
+          "spend_limit_usd",
+          "plan"
         ],
         "title": "ConversationDetail"
       },
@@ -7230,6 +7271,41 @@
         "title": "Place",
         "description": "A folder in a location or on a remote: exactly one of `location` and `remote`."
       },
+      "PlanStep": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed",
+              "cancelled",
+              "blocked"
+            ],
+            "title": "Status"
+          },
+          "active_form": {
+            "type": "string",
+            "title": "Active Form",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "content",
+          "status"
+        ],
+        "title": "PlanStep"
+      },
       "Provider": {
         "properties": {
           "name": {
@@ -7658,6 +7734,41 @@
           "locked"
         ],
         "title": "PublicShare"
+      },
+      "QuestionAnswer": {
+        "properties": {
+          "header": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Header"
+          },
+          "selected": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Selected"
+          },
+          "custom": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom"
+          }
+        },
+        "type": "object",
+        "required": [
+          "header"
+        ],
+        "title": "QuestionAnswer"
       },
       "RemoteDetail": {
         "properties": {

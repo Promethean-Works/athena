@@ -62,6 +62,12 @@ from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
 from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
+from athena.assistant.plans import PLAN_TOOL, plan_of, planning_capabilities
+from athena.assistant.questions import (
+    DECLINED_BY_NEW_MESSAGE,
+    question_capabilities,
+    question_ids,
+)
 from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
 from athena.assistant.tools import Deps, shell_provider, toolset_for
@@ -93,6 +99,9 @@ call the tool, and the card is the question.
 - Never guess ids or names: look them up first (list_file_locations and list_files, \
 list_apps, list_package_managers, search_store and get_store_app for an install's fields), \
 so the call is right the first time.
+- When you need the admin to choose (which app, which folder, keep or replace), ask with \
+ask_user_question and concrete options instead of asking in text. For a task with several \
+steps, keep a plan with write_plan and update each step's status as you go.
 - When an action is denied, don't call it again unless the admin asks; ask what they want \
 instead. Report what an approved action did, including failures from its log.
 - Be brief and concrete. Use Markdown for lists, tables and code.
@@ -156,8 +165,9 @@ class ChatPart(BaseModel):
     result: str | None = None
     """The tool's result as JSON or text, cut to RESULT_CHARS."""
     error: str | None = None
-    state: Literal["running", "done", "error", "approval", "denied"] | None = None
-    """`approval`: waiting for Approve/Deny. `denied`: the admin said no."""
+    state: Literal["running", "done", "error", "approval", "question", "denied"] | None = None
+    """`approval`: waiting for Approve/Deny. `question`: an `ask_user_question` waiting for
+    the admin's answer. `denied`: the admin said no."""
     summary: str | None = None
     """For tools that need approval: the action in one sentence."""
     destructive: bool = False
@@ -194,10 +204,12 @@ def ui_messages(
     messages: list[ModelMessage],
     pending: frozenset[str] = frozenset(),
     summarize: Summarize = lambda name, args: None,
+    questions: frozenset[str] = frozenset(),
 ) -> list[ChatMessage]:
     """The stored history as chat bubbles: user prompts, and one assistant message per
     reply with its text, reasoning and tool calls (with their results). Calls in
-    `pending` are waiting for the admin's approval."""
+    `pending` are waiting for the admin's approval, and those in `questions` for an
+    answer."""
     out: list[ChatMessage] = []
     tools: dict[str, ChatPart] = {}
     current: ChatMessage | None = None
@@ -246,7 +258,13 @@ def ui_messages(
                         tool_call_id=part.tool_call_id,
                         tool_name=part.tool_name,
                         args=args,
-                        state="approval" if part.tool_call_id in pending else "running",
+                        state=(
+                            "approval"
+                            if part.tool_call_id in pending
+                            else "question"
+                            if part.tool_call_id in questions
+                            else "running"
+                        ),
                         summary=summarize(part.tool_name, args),
                         destructive=actions.is_destructive(part.tool_name, args),
                     )
@@ -307,8 +325,23 @@ def pending_ids(conv: Conversation | None) -> frozenset[str]:
     return frozenset(c.tool_call_id for c in conv.deferred_tool_requests.approvals)
 
 
+def waiting_questions(conv: Conversation | None) -> frozenset[str]:
+    """The questions a paused chat is waiting on the admin to answer."""
+    return question_ids(conv.deferred_tool_requests if conv else None)
+
+
 Decisions = dict[str, bool | ToolDenied]
 """Tool call id -> approved, or the denial (with what the model is told)."""
+
+
+@dataclass
+class Resume:
+    """The admin's answers to a paused chat: Approve/Deny per action, and the tool result
+    per question (`questions.result_for`). Every waiting call needs one."""
+
+    approvals: Decisions = field(default_factory=dict)
+    answers: dict[str, Any] = field(default_factory=dict)
+
 
 NEW_CHAT = "New chat"
 """The title a chat has until its first message names it."""
@@ -364,7 +397,7 @@ async def _run(
     app: FastAPI,
     model: Model,
     text: str | None,
-    decisions: Decisions | None,
+    resume: Resume | None,
     spend_limit: float | None,
     user_id: int,
     title_model: Model | None,
@@ -377,7 +410,7 @@ async def _run(
         user = db.get(User, user_id)
         assert row is not None and user is not None
         previous = load_history(row)
-        results = _results(previous, decisions)
+        results = _results(previous, resume)
         # A new chat's title is written alongside the reply, so it rarely adds a wait.
         titling = (
             asyncio.create_task(generate_title(title_model, text))
@@ -399,12 +432,16 @@ async def _run(
         limits = turn_limits(previous, spend_limit)
         recorder = TranscriptRecorder(start=len(previous.messages) if previous else 0)
         compaction = compaction_capabilities(await _window_tokens(window), recorder)
+        extras = [
+            *planning_capabilities(app.state.settings.data_dir, turn.conversation_id),
+            *question_capabilities(),
+        ]
         saved: Conversation | None = None
         compacted_ok = True
         try:
             with capture_run_messages() as captured:
                 saved = await _stream(
-                    turn, db, previous, results, text, model, deps, limits, compaction
+                    turn, db, previous, results, text, model, deps, limits, [*extras, *compaction]
                 )
         except RunCancelled as exc:
             saved = Conversation(messages=list(exc.all_messages()), usage=exc.usage or RunUsage())
@@ -476,9 +513,11 @@ async def _stream(
     model: Model,
     deps: Deps,
     limits: UsageLimits,
-    compaction: list[AbstractCapability[Any]],
+    extras: list[AbstractCapability[Any]],
 ) -> Conversation | None:
-    """Runs the agent, forwarding its events; returns the chat to save."""
+    """Runs the agent, forwarding its events; returns the chat to save. `extras` are the
+    turn's planning, questions and compaction (compaction last, so it measures and records
+    the request as everything else left it)."""
     saved: Conversation | None = None
     async with agent.run_stream_events(
         text,
@@ -496,8 +535,7 @@ async def _stream(
                 record=_flagged_recorder(deps),
             ),
             *shell_capabilities(shell_provider(deps.manifest), deps.shell_commands),
-            # Last, so it measures and records the request as everything else left it.
-            *compaction,
+            *extras,
         ],
         instructions=_host_instructions(deps.manifest),
         usage_limits=limits,
@@ -506,11 +544,26 @@ async def _stream(
     ) as events:
         async for event in events:
             _forward(turn, event)
+            if _changes_plan(event):
+                plan = await plan_of(deps.app.state.settings.data_dir, turn.conversation_id)
+                turn.emit("plan", {"steps": [s.model_dump() for s in plan]})
             if isinstance(event, AgentRunResultEvent):
                 saved = event.result.conversation
-                if isinstance(event.result.output, DeferredToolRequests):
-                    turn.emit("approval", _approvals_out(db, event.result.output))
+                output = event.result.output
+                if isinstance(output, DeferredToolRequests):
+                    if output.approvals:
+                        turn.emit("approval", _approvals_out(db, output))
+                    if asked := question_ids(output):
+                        turn.emit("question", {"ids": sorted(asked)})
     return saved
+
+
+def _changes_plan(event: Any) -> bool:
+    return (
+        isinstance(event, FunctionToolResultEvent)
+        and isinstance(event.part, ToolReturnPart)
+        and event.part.tool_name == PLAN_TOOL
+    )
 
 
 def _flagged_recorder(deps: Deps) -> Callable[[str, str], None]:
@@ -568,18 +621,21 @@ async def _await_title(task: asyncio.Task[str | None] | None) -> str | None:
         return None
 
 
-def _results(
-    previous: Conversation | None, decisions: Decisions | None
-) -> DeferredToolResults | None:
+def _results(previous: Conversation | None, resume: Resume | None) -> DeferredToolResults | None:
     """What to resume a paused chat with: the admin's answers, or, when they sent a new
-    message instead, a denial of every waiting call (a run can't start with calls left
-    unanswered)."""
+    message instead, a denial of every waiting action and a decline of every question (a
+    run can't start with calls left unanswered)."""
     pending = previous.deferred_tool_requests if previous else None
     if pending is None:
         return None
-    if decisions is None:
-        decisions = {c.tool_call_id: ToolDenied(DENIED_BY_NEW_MESSAGE) for c in pending.approvals}
-    return pending.build_results(approvals=decisions)
+    if resume is None:
+        resume = Resume(
+            approvals={
+                c.tool_call_id: ToolDenied(DENIED_BY_NEW_MESSAGE) for c in pending.approvals
+            },
+            answers={c.tool_call_id: DECLINED_BY_NEW_MESSAGE for c in pending.calls},
+        )
+    return pending.build_results(approvals=resume.approvals, calls=resume.answers)
 
 
 def summarizer(db: Session) -> Summarize:
@@ -677,7 +733,7 @@ class Turns:
         spend_limit: float | None,
         user_id: int,
         window: Window,
-        decisions: Decisions | None = None,
+        resume: Resume | None = None,
         title_model: Model | None = None,
     ) -> Turn:
         turn = Turn(conversation_id)
@@ -689,7 +745,7 @@ class Turns:
                     app=app,
                     model=model,
                     text=text,
-                    decisions=decisions,
+                    resume=resume,
                     spend_limit=spend_limit,
                     user_id=user_id,
                     title_model=title_model,
