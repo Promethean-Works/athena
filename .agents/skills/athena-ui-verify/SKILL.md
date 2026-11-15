@@ -8,7 +8,7 @@ model: sonnet
 
 Unit tests prove the parts work. This proves the feature works for a person using it. Don't report a UI change as done without it, but size the run to the change.
 
-The browser comes from the **`playwright` MCP server** (`.mcp.json`; headless, in-memory profile, screenshots in `.playwright-mcp/`). It runs with `--snapshot-mode none`, so clicks, typing and navigation return only a short result, not the page: call `browser_snapshot` yourself when you need refs or text. Console output is limited to errors (`--console-level error`). Claude's desktop browser pane works the same way when available. In OpenCode, only the `ui-verify` subagent has the Playwright tools: hand this skill to it. The tools you need:
+The browser comes from the **`playwright` MCP server** (`.mcp.json`; headless, in-memory profile, screenshots in `.playwright-mcp/`). It runs with `--snapshot-mode none`, so clicks, typing and navigation return only a short result, not the page: call `browser_snapshot` yourself when you need refs or text. Console output is limited to errors (`--console-level error`). Claude's desktop browser pane works the same way when available. In OpenCode and Claude Code, hand this skill to the `ui-verify` subagent (in OpenCode only it has the Playwright tools; in Claude Code it runs on a cheaper model and keeps the browser output out of your context). The tools you need:
 
 | Need | Playwright MCP tool |
 |---|---|

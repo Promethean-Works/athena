@@ -2,11 +2,7 @@
 
 _Shared knowledge for every coding agent on Athena (Claude Code, OpenCode, Hermes Agent, others)._
 
-This file holds the lessons from earlier sessions: how the maintainer works, the commands that matter, the patterns to copy, and the traps that have already cost someone time. It complements the other docs:
-
-- `AGENTS.md`: the rules.
-- `docs/STATUS.md`: where the work is now.
-- `docs/mvp-design.md`: the design and the decisions.
+Lessons from earlier sessions: how the maintainer works, the commands that matter, the patterns to copy, and the traps that have already cost someone time. Rules are in `AGENTS.md`, design decisions in `docs/mvp-design.md`.
 
 Read this file once per session, after STATUS, down to **Gotchas**. Under Gotchas, read only the sections for the area you're touching (plus "Git, GitHub and CI" before you push); they're split by area so you don't have to read all of them.
 
@@ -30,7 +26,6 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Task | Command |
 |---|---|
 | **Everything CI runs** | `scripts/check.sh` (`--quick` skips the web build; `web`, `server` or `repo` runs one part). Without a terminal it's quiet: one `ok`/`FAIL` line per step and the last 40 lines of a failure, with the full log's path. `--verbose` streams everything |
-| Pre-push hook (once per clone) | `git config core.hooksPath .githooks`; skip once with `git push --no-verify` |
 | Docs name real things | `node scripts/check-docs.mjs` (`--list` prints everything it verified) |
 | All web checks | `pnpm lint && pnpm typecheck && pnpm build` |
 | Server lint | `cd apps/server && uv run ruff check . && uv run ruff format --check .` |
@@ -41,10 +36,20 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Agent config sync | `node scripts/agents-sync.mjs` (after editing `.mcp.json`); `--check` is what CI runs |
 | Release server for UI checks | `pnpm build` then `cd apps/server && ATHENA_WEB_DIR=../web/out uv run athena serve --port 8421 --data-dir "$DATA"` |
 | Dev mode | `pnpm dev` (Next on :3000, proxies `/api` to :8420) plus `uv run athena serve` |
-| VS Code | `.vscode/launch.json` (debug the server, pytest, Next with Chrome, or both as "Full stack") and `.vscode/tasks.json` (dev, build, release serve, tests, checks, codegen). Data goes to the git-ignored `.dev-data/` |
 | Build the wheel | `scripts/build-wheel.sh` (also used by `release.yml` and the E2E workflow) |
 | Installer dry run | `scripts/install.sh --dry-run`; `athena service install --dry-run` |
 | PR status | `gh pr checks <n>`, `gh run view <run-id> --log-failed`, `gh api repos/tiagozaccaro/athena/code-scanning/alerts?state=open` |
+
+## Patterns to copy
+
+When adding something, start from the closest existing feature instead of inventing a new shape.
+
+- **Host feature end to end:** follow the `athena-platform-feature` skill. Packages (`athena/packages/`, `api/packages.py`, `components/packages/`) is the cleanest full example: a capability per manager, pure parsers, jobs, audit, UI gated by `capability: "packages.*"`.
+- **Server patterns** (jobs, audit, running commands, parsers and fixtures, API tests, settings) are in `apps/server/AGENTS.md` → Conventions and Tests; **UI patterns** (data loading, capabilities, feedback, live output) in `apps/web/AGENTS.md` → Conventions.
+
+## Gotchas
+
+### Git, GitHub and CI
 
 CI jobs (`.github/workflows/ci.yml`):
 
@@ -55,23 +60,6 @@ CI jobs (`.github/workflows/ci.yml`):
 - `ci-ok`: the single required check.
 
 Other workflows: `pr-title`, CodeQL (separate; it can block merges), and `E2E` (`e2e.yml`). E2E is slow and not part of `ci-ok`. It runs on pushes to main, on installer or service changes, and on demand.
-
-## Patterns to copy
-
-When adding something, start from the closest existing feature instead of inventing a new shape.
-
-- **Host feature end to end:** follow the `athena-platform-feature` skill. Packages (`athena/packages/`, `api/packages.py`, `components/packages/`) is the cleanest full example: a capability per manager, pure parsers, jobs, audit, UI gated by `capability: "packages.*"`.
-- **Long operation:** `request.app.state.jobs.start(title, body)`, with `run_or_fail(job, argv, title, env=...)` from `athena/jobs.py` inside. Return the job id with 202. The UI opens `<JobDialog job>`. Allow one job per resource at a time (see `app.state.package_jobs`).
-- **Audit:** `athena.audit.record(db, username, "<area>.<action>", target)`, e.g. `package.install` with `apt:jq`.
-- **Command execution:** use argument lists, never a shell. Set `LC_ALL=C.UTF-8` for parseable output. Validate user-supplied names with a regex that rejects a leading `-`, so a value can't become a flag: `PACKAGE_NAME` in `packages/base.py`, `check_ref` in `containers/service.py`.
-- **Parsers:** pure functions over recorded output in `tests/fixtures/<area>/`, each recorded in a throwaway container where possible, with a README line saying how. Real-tool read-only tests use `pytest.mark.skipif` when the tool is missing, so Ubuntu CI runs apt, macOS runs brew and Windows runs winget/choco. Those real runs found bugs the hand-written fixtures missed.
-- **API tests:** use `conftest.make_app()` and `signed_in(client)`. Tests that start jobs must enter the `TestClient` as a context manager (see `client_for` in `test_packages_api.py` and `test_terminal.py`). Otherwise jobs die with "event loop is closed".
-- **Settings:** per-user settings go in `users.appearance` (`api/settings.py`). Host-wide switches go in the `system_settings` JSON row (`athena/system_settings.py`), and only admins can change them.
-- **Missing capability in the UI:** render shadcn `Empty` with the capability's `detail` and its setup/start action, never a broken page. Containers pages wrap in `<RequireContainers>`.
-
-## Gotchas
-
-### Git, GitHub and CI
 
 - Force pushes are blocked, so don't rebase a pushed branch. To bring in `main`, merge it into the branch; the squash merge hides the merge commit.
 - When a PR stacked on another PR's branch has its base merged, GitHub retargets it to `main`. Merging `main` in then shows conflicts that are only squash artifacts. Resolve them toward `main`'s content.
@@ -205,8 +193,11 @@ CodeQL runs on every PR and its alerts can block a merge.
 - Another agent session may be working in the main checkout at the same time (uncommitted changes on its feature branch). For unrelated work, use `git worktree add ../athena-<topic> -b <branch> origin/main` instead of switching branches under it.
 - The machine can be offline (no DNS, even outside the sandbox). `uv run --offline --with <pkg>==<version>` uses uv's cache when the package was installed before.
 - `pkill` and `ps` may fail in the sandbox ("Cannot get process list"). Find a server by its port with `lsof -nP -t -iTCP:<port> -sTCP:LISTEN` and `kill` that pid.
-- **Token budget.** Things every session pays for are kept small on purpose: STATUS is capped at 8 KB by `scripts/check-docs.mjs` (finished work goes to `docs/HISTORY.md`); `scripts/check.sh` is quiet without a terminal; Playwright runs with `--snapshot-mode none` (snapshot only when you need to read the page); `.ignore` keeps lockfiles, CHANGELOG and the generated theme files out of ripgrep searches; Claude Code caps Bash and MCP output at 20k (`.claude/settings.json` → `env`) and OpenCode caps tool output at 20 KB (`opencode.json` → `tool_output`, the rest is saved to disk). Pipe long commands through `tail` or `grep` yourself too.
+- **Token budget.** Things every session pays for are kept small on purpose: STATUS is capped at 8 KB by `scripts/check-docs.mjs` (finished work goes to `docs/HISTORY.md`); `scripts/check.sh` is quiet without a terminal; Playwright runs with `--snapshot-mode none` (snapshot only when you need to read the page); `.ignore` keeps lockfiles, CHANGELOG and the generated theme files out of ripgrep searches; Claude Code caps Bash and MCP output at 20k (`.claude/settings.json` → `env`) and OpenCode caps tool output at 20 KB (`opencode.json` → `tool_output`, the rest is saved to disk). Pipe long commands through `tail` or `grep` yourself too. The tooling section lives in `docs/AGENT-TOOLING.md`, not AGENTS.md, because only tooling changes need it.
+- **Dependencies ship their own agent files.** pydantic-ai has `CLAUDE.md`/`AGENTS.md` files in `.venv/…/pydantic_ai/` (about 40 KB, written for pydantic-ai's own contributors), and Next and recharts ship `AGENTS.md` in `node_modules`. Claude Code loads a subfolder's `CLAUDE.md` as soon as it reads a file there, which happens when you read pydantic-ai's source. `.claude/settings.json` → `claudeMdExcludes` skips them. <!-- docs-check: ignore -->
+- Claude Code's `ui-verify` subagent (`.claude/agents/ui-verify.md`, generated by `scripts/agents-sync.mjs`) runs on `sonnet`: browser checks are many small steps, and its output stays out of the main context.
 - **MCP tool definitions cost tokens on every request in OpenCode and Hermes** (Claude Code loads them on demand). Measured: Playwright 25 tools ≈ 21k characters, next-devtools ≈ 5.7k, context7 ≈ 5.2k, shadcn ≈ 4.3k. So `scripts/agents-sync.mjs` gives Playwright only to OpenCode's `ui-verify` subagent (a `playwright_*` deny rule globally, allow in the agent; agent rules come after global ones and the last match wins), and writes Hermes `tools.exclude` filters for unused tools. OpenCode 2.x already routes MCP tools through Code Mode by default (`codemode: true`). Hermes' `lazy: true` only delays connecting; the tools are still registered, so it saves memory, not tokens.
 - `node scripts/agents-sync.mjs --hermes` also re-applies `args` and `tools` to servers Hermes already has (via `hermes config set`, a no-op when unchanged), so flag changes in `.mcp.json` reach Hermes. Restart Hermes or run `/reload-mcp` afterwards.
+- VS Code: `.vscode/launch.json` (debug the server, pytest, Next with Chrome, or both as "Full stack") and `.vscode/tasks.json` (dev, build, release serve, tests, checks, codegen). Data goes to the git-ignored `.dev-data/`.
 - Port 8420 may be the maintainer's own Athena. Use 8421 or another spare port.
 - Act only on containers, apps and images named `athena-demo-*` / `athena-test-*`. The maintainer's own containers run on the same engine. Leave pulled images unless you know you pulled them, and say which ones are left.
