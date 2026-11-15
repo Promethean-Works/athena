@@ -10,7 +10,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
-- M7 D stage 1, robustness: PR 1 (`assistant/robustness.py`: argument repair, loop nudges, output spills) is open. Next PRs: `compaction` (needs each model's context window); `prompt_injection_defender` (StackOne `defender`, extra deps; check size and licence) with `artifact_scanning` and `guardrails`; then `system_reminders`, `warn_on_cache_busts`, and harness `spend` vs our own limit (keep one).
+- M7 D stage 1, robustness: PR 1 (argument repair, loop nudges, output spills, #59) merged; PR 2 (`compaction` with per-model context windows and a separate full transcript) is open. Next PRs: `prompt_injection_defender` (StackOne `defender`, extra deps; check size and licence) with `artifact_scanning` and `guardrails`; then `system_reminders`, `warn_on_cache_busts`, and harness `spend` vs our own limit (keep one). Follow-up idea: warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (4,096 by default; see AGENT-NOTES → Assistant).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 

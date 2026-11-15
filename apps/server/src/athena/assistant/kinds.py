@@ -48,6 +48,15 @@ def _key(required: bool = True, help: str | None = None) -> KindField:
     return KindField(key="api_key", label="API key", secret=True, required=required, help=help)
 
 
+def _window(help: str) -> KindField:
+    return KindField(
+        key="context_window",
+        label="Context window",
+        placeholder="e.g. 32768",
+        help=help + " Leave empty to detect it.",
+    )
+
+
 def _url(default: str | None, *, required: bool = False, help: str | None = None) -> KindField:
     return KindField(
         key="base_url",
@@ -92,6 +101,7 @@ KINDS: list[ProviderKind] = [
                 placeholder="https://<resource>.openai.azure.com",
             ),
             KindField(key="api_version", label="API version", default="2024-10-21"),
+            _window("Tokens your deployment's model accepts."),
         ],
     ),
     ProviderKind(
@@ -113,6 +123,7 @@ KINDS: list[ProviderKind] = [
         fields=[
             _url("http://127.0.0.1:11434", required=True),
             _key(required=False, help="Only for Ollama Cloud or a proxy that asks for one."),
+            _window("Tokens Ollama runs models with (OLLAMA_CONTEXT_LENGTH on the Ollama server)."),
         ],
     ),
     ProviderKind(
@@ -127,6 +138,7 @@ KINDS: list[ProviderKind] = [
                 "e.g. http://127.0.0.1:1234/v1",
             ),
             _key(required=False),
+            _window("Tokens the server runs the model with."),
         ],
     ),
 ]

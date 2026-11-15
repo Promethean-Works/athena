@@ -157,6 +157,9 @@ class AiConversation(SQLModel, table=True):
     its chats, which then ask for another model."""
     model: str | None = Field(default=None, max_length=255)
     history: str | None = None
+    transcript: str | None = None
+    """Every message as the admin saw it, once compaction has shortened `history` (the
+    model's view). None while the two are the same."""
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
     updated_at: datetime = Field(
         default_factory=utcnow, sa_type=DateTime(timezone=True), index=True
