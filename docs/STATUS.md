@@ -2,7 +2,7 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Parts A (providers and chat, #37) and B (actions with approval) are done; part C (polish) follows.
+**Current milestone:** M7, the AI assistant (§4.5). Parts A (providers and chat, #37), B (actions with approval) and C (polish) are done; part D (the rest of pydantic-ai-harness) is next.
 
 ## Done
 
@@ -14,8 +14,6 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 
 ## Next
-
-M7 part C, what's left: the setup-wizard step.
 
 M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): next is stage 1, robustness (`repair_tool_arguments`, `detect_loops`, `tool_output_limits`, `compaction`, `prompt_injection_defender`); then agent features; extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
 
