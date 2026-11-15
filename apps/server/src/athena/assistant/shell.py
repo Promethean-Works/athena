@@ -12,8 +12,10 @@ from dataclasses import dataclass
 
 from athena.terminal import shells
 
-MAX_OUTPUT = 20_000
-"""Characters of output kept, from the end (where errors and results usually are)."""
+MAX_OUTPUT = 400_000
+"""Characters of output kept, from the end (where errors and results usually are). Output
+over `robustness.SPILL_OVER` is saved to disk whole and the model gets a preview, so this
+only bounds memory and the spill file."""
 SEPARATORS = {"|", "||", "&", "&&", ";", ";;", "|&"}
 REFUSED = {"`": "backticks", "$(": "$( )", "<(": "<( )", ">(": ">( )"}
 

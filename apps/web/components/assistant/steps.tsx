@@ -63,6 +63,7 @@ const TOOL_TITLES: Record<string, [running: string, done: string]> = {
   list_files: ["Listing files", "Listed files"],
   read_text_file: ["Reading a file", "Read a file"],
   search_store: ["Searching the app store", "Searched the app store"],
+  read_tool_result: ["Reading a saved tool result", "Read a saved tool result"],
   get_store_app: ["Reading a store app", "Read a store app"],
   list_package_managers: [
     "Listing package managers",
@@ -269,9 +270,7 @@ function ToolRow({ part, streaming }: { part: ChatPart; streaming: boolean }) {
           </TraceIcon>
           <TraceTitle>
             {failed
-              ? part.summary
-                ? `Failed: ${part.summary}`
-                : `Couldn't ${toolTitle(part, true).toLowerCase()}`
+              ? `Failed: ${toolTitle(part, true)}`
               : toolTitle(part, false)}
           </TraceTitle>
         </TraceLine>
