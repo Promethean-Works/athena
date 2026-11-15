@@ -80,7 +80,7 @@ Everything agent-related has one source of truth in the repo. Each agent reads i
 Agents that don't load skills automatically can read them directly: `.agents/skills/<name>/SKILL.md`.
 
 **Changing tooling:**
-- *Add an MCP server:* edit `.mcp.json`, then run `node scripts/agents-sync.mjs` to regenerate `opencode.json` and the Hermes snippet. Never edit the `mcp` block of `opencode.json` by hand.
+- *Add an MCP server:* edit `.mcp.json`, then run `node scripts/agents-sync.mjs` to regenerate `opencode.json` and the Hermes snippet. Never edit the generated parts of `opencode.json` by hand: the `mcp` block, the `playwright_*` permission rules and the `ui-verify` agent. Which tools each agent gets is set in `scripts/agents-sync.mjs` (`UNUSED_TOOLS`, `OPENCODE_SUBAGENT_ONLY`).
 - *Add a third-party skill:* `npx skills add <owner/repo> --skill <name> -a claude-code -y`. It lands in `.agents/skills/` through the symlink and is recorded in `skills-lock.json`.
 - *Add a project skill:* create `.agents/skills/<name>/SKILL.md` with `name` and `description` frontmatter.
 - *Restore skills on a new machine:* `npx skills experimental_install`.
@@ -88,8 +88,8 @@ Agents that don't load skills automatically can read them directly: `.agents/ski
 **One-time setup per agent:**
 - **Every agent and person:** `git config core.hooksPath .githooks` turns on the pre-push check (see [Definition of done](#definition-of-done)).
 - **Claude Code:** nothing else to do. On Windows, enable symlinks in git (`git config core.symlinks true` with Developer Mode on) so `.claude/skills` works.
-- **OpenCode:** nothing to do. `opencode.json` is committed.
-- **Hermes Agent:** run `node scripts/agents-sync.mjs --hermes`. It trusts this repo's skills (`hermes skills trust`) and adds any missing MCP servers to `~/.hermes/config.yaml` through `hermes mcp add`. Then restart Hermes or run `/reload-mcp`. `--hermes-print` only prints the YAML block.
+- **OpenCode:** nothing to do. `opencode.json` is committed. To save tokens, the main agent doesn't get the Playwright tools: browser checks go to the `ui-verify` subagent, which follows the `athena-ui-verify` skill.
+- **Hermes Agent:** run `node scripts/agents-sync.mjs --hermes`. It trusts this repo's skills (`hermes skills trust`) and adds any missing MCP servers to `~/.hermes/config.yaml` through `hermes mcp add`. For servers already there, it re-applies their `args` and tool filters (unused tools are left out to save tokens) and leaves everything else alone. Then restart Hermes or run `/reload-mcp`. `--hermes-print` only prints the YAML block.
   - Known gap: Hermes's skill scanner rates `pydantic-ai-harness` as "dangerous" and hides it. That's a false positive from its docs mentioning `~/.ssh`, `os.environ` and command denylists. Hermes agents should read `.agents/skills/pydantic-ai-harness/SKILL.md` directly when working on the assistant.
 
 ## Definition of done
