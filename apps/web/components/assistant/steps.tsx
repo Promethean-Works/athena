@@ -27,19 +27,26 @@ import {
 } from "@workspace/ui/components/trace"
 import { toast } from "@workspace/ui/components/toast"
 
+import {
+  answerSummary,
+  QuestionCard,
+  type Answer,
+} from "@/components/assistant/question-card"
 import type { ChatPart } from "@/components/assistant/use-chat-stream"
 import { JobDialog } from "@/components/job-dialog"
 
 type Approvals = {
   decide: (callId: string, approve: boolean) => void
   decided: Record<string, boolean>
+  answer: (answer: Answer) => void
+  answered: Record<string, Answer>
   /** A reply is streaming, so answers wait. */
   busy: boolean
 }
 
 const ApprovalContext = React.createContext<Approvals | null>(null)
 
-/** Gives the approval cards in a chat their Approve/Deny handlers. */
+/** Gives the approval and question cards in a chat their handlers. */
 export function ApprovalProvider({
   value,
   children,
@@ -64,6 +71,7 @@ const TOOL_TITLES: Record<string, [running: string, done: string]> = {
   read_text_file: ["Reading a file", "Read a file"],
   search_store: ["Searching the app store", "Searched the app store"],
   read_tool_result: ["Reading a saved tool result", "Read a saved tool result"],
+  ask_user_question: ["Waiting for your answer", "Asked you"],
   get_store_app: ["Reading a store app", "Read a store app"],
   list_package_managers: [
     "Listing package managers",
@@ -80,6 +88,7 @@ function toolTitle(part: ChatPart, running: boolean): string {
   const name = part.tool_name ?? "tool"
   // Actions that needed approval are titled by what they do.
   if (part.summary) return part.summary
+  if (name === "ask_user_question" && !running) return answerSummary(part)
   const titles = TOOL_TITLES[name]
   const args = part.args as Record<string, unknown> | null
   const subject = typeof args?.name === "string" ? ` of ${args.name}` : ""
@@ -194,7 +203,7 @@ function ApprovalCard({ part }: { part: ChatPart }) {
         </div>
       ) : (
         <p className="text-muted-foreground">
-          {answer ? "Approved" : "Denied"}. Answer the other actions to go on.
+          {answer ? "Approved" : "Denied"}. Answer the other cards to go on.
         </p>
       )}
     </div>
@@ -229,9 +238,22 @@ function JobLogButton({ jobId }: { jobId: string }) {
   )
 }
 
+function WaitingQuestion({ part }: { part: ChatPart }) {
+  const approvals = React.useContext(ApprovalContext)
+  return (
+    <QuestionCard
+      part={part}
+      answered={approvals?.answered[part.tool_call_id ?? ""]}
+      busy={!approvals || approvals.busy}
+      onAnswer={(a) => approvals?.answer(a)}
+    />
+  )
+}
+
 function ToolRow({ part, streaming }: { part: ChatPart; streaming: boolean }) {
   const running = part.state === "running" && streaming
   if (part.state === "approval") return <ApprovalCard part={part} />
+  if (part.state === "question") return <WaitingQuestion part={part} />
   if (running || part.state === "running") {
     // Still running, or the reply stopped before the tool answered.
     return (
@@ -291,6 +313,11 @@ function ToolRow({ part, streaming }: { part: ChatPart; streaming: boolean }) {
       <JobLogButton jobId={part.job_id} />
     </div>
   )
+}
+
+/** Tool calls shown elsewhere: `write_plan` is the checklist above the prompt bar. */
+export function isShown(part: ChatPart): boolean {
+  return part.tool_name !== "write_plan"
 }
 
 /** Reasoning and tool calls of a reply, as a shadcn Trace. */

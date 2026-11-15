@@ -1658,9 +1658,11 @@ export interface paths {
          * @description Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a
          *     new block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,
          *     `error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,
-         *     `name`, `args`, `summary` and `destructive`), `job` (`id` of the tool call, `job_id`,
-         *     `title`: a job an approved action started), `title`, `usage`, `stopped`, `error`
-         *     (`message`) and finally `done`. While actions wait, a new message denies them.
+         *     `name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`
+         *     calls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant
+         *     changed it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action
+         *     started), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`. While
+         *     actions or questions wait, a new message denies and declines them.
          */
         post: operations["sendMessage"];
         delete?: never;
@@ -1680,9 +1682,9 @@ export interface paths {
         put?: never;
         /**
          * Answer Approvals
-         * @description Approve or deny the actions a paused chat is waiting on, and continue it. Approved
-         *     actions run as you, and each answer is audited. Streams the same events as
-         *     sendMessage.
+         * @description Answer everything a paused chat is waiting on, and continue it: Approve or Deny each
+         *     action (approved actions run as you, and each decision is audited) and answer or decline
+         *     each question. Streams the same events as sendMessage.
          */
         post: operations["answerApprovals"];
         delete?: never;
@@ -1730,6 +1732,18 @@ export interface components {
             memory_enabled: boolean;
             /** Spend Limit Usd */
             spend_limit_usd?: number | null;
+        };
+        /** Answer */
+        Answer: {
+            /** Id */
+            id: string;
+            /**
+             * Declined
+             * @default false
+             */
+            declined: boolean;
+            /** Answers */
+            answers?: components["schemas"]["QuestionAnswer"][];
         };
         /** AnswerIn */
         AnswerIn: {
@@ -1858,7 +1872,9 @@ export interface components {
         /** ApprovalsIn */
         ApprovalsIn: {
             /** Decisions */
-            decisions: components["schemas"]["Decision"][];
+            decisions?: components["schemas"]["Decision"][];
+            /** Answers */
+            answers?: components["schemas"]["Answer"][];
         };
         /** AuthStatus */
         AuthStatus: {
@@ -1972,7 +1988,7 @@ export interface components {
             /** Error */
             error?: string | null;
             /** State */
-            state?: ("running" | "done" | "error" | "approval" | "denied") | null;
+            state?: ("running" | "done" | "error" | "approval" | "question" | "denied") | null;
             /** Summary */
             summary?: string | null;
             /**
@@ -2114,6 +2130,8 @@ export interface components {
             usage: components["schemas"]["ChatUsage"];
             /** Spend Limit Usd */
             spend_limit_usd: number | null;
+            /** Plan */
+            plan: components["schemas"]["PlanStep"][];
         };
         /** ConversationIn */
         ConversationIn: {
@@ -2547,6 +2565,23 @@ export interface components {
              */
             path: string;
         };
+        /** PlanStep */
+        PlanStep: {
+            /** Id */
+            id: string;
+            /** Content */
+            content: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "in_progress" | "completed" | "cancelled" | "blocked";
+            /**
+             * Active Form
+             * @default
+             */
+            active_form: string;
+        };
         /** Provider */
         Provider: {
             /** Name */
@@ -2719,6 +2754,15 @@ export interface components {
             modified?: string | null;
             /** Expires At */
             expires_at?: string | null;
+        };
+        /** QuestionAnswer */
+        QuestionAnswer: {
+            /** Header */
+            header: string;
+            /** Selected */
+            selected?: string[];
+            /** Custom */
+            custom?: string | null;
         };
         /** RemoteDetail */
         RemoteDetail: {

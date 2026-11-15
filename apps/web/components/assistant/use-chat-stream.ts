@@ -9,6 +9,8 @@ import {
   type Schemas,
 } from "@workspace/api-client"
 
+import type { PlanStep } from "@/components/assistant/plan"
+import type { Answer } from "@/components/assistant/question-card"
 import type { ModelRef } from "@/components/assistant/use-models"
 
 export type ChatMessage = Schemas["ChatMessage"]
@@ -111,6 +113,11 @@ function applyEvent(
         }
       }
     }
+  } else if (event === "question") {
+    for (const id of (data.ids ?? []) as string[]) {
+      const i = toolIndex(parts, id)
+      if (i >= 0) parts[i] = { ...parts[i]!, state: "question" }
+    }
   } else if (event === "job") {
     const i = toolIndex(parts, data.id)
     if (i >= 0) parts[i] = { ...parts[i]!, job_id: String(data.job_id) }
@@ -128,11 +135,15 @@ function toolIndex(parts: ChatPart[], id: unknown) {
   return parts.findIndex((p) => p.type === "tool" && p.tool_call_id === id)
 }
 
-/** The actions the chat is waiting on: tool calls in the last reply still asking for approval. */
+/** What the chat is waiting on: tool calls in the last reply still asking for approval,
+ * or questions still waiting for an answer. */
 export function waitingCalls(messages: ChatMessage[]): ChatPart[] {
   const last = messages.at(-1)
   if (!last || last.role !== "assistant") return []
-  return last.parts.filter((p) => p.type === "tool" && p.state === "approval")
+  return last.parts.filter(
+    (p) =>
+      p.type === "tool" && (p.state === "approval" || p.state === "question")
+  )
 }
 
 /**
@@ -147,6 +158,7 @@ export function useChatStream(
   const [status, setStatus] = React.useState<ChatStatus>("loading")
   const [error, setError] = React.useState<string | null>(null)
   const [spend, setSpend] = React.useState<ChatSpend | null>(null)
+  const [plan, setPlan] = React.useState<PlanStep[]>([])
   const sending = React.useRef(false)
   const handlersRef = React.useRef(handlers)
   handlersRef.current = handlers
@@ -155,6 +167,7 @@ export function useChatStream(
     if (!conversationId) {
       setMessages([])
       setSpend(null)
+      setPlan([])
       setStatus("ready")
       return
     }
@@ -167,6 +180,7 @@ export function useChatStream(
     if (data) {
       setMessages(data.messages)
       setSpend({ usage: data.usage, limit: data.spend_limit_usd })
+      setPlan(data.plan)
       setStatus(data.running ? "streaming" : "ready")
     } else {
       setStatus("ready")
@@ -220,6 +234,8 @@ export function useChatStream(
           } else if (event === "usage") {
             const usage = d as Schemas["ChatUsage"]
             setSpend((s) => ({ usage, limit: s?.limit ?? null }))
+          } else if (event === "plan") {
+            setPlan((d.steps ?? []) as PlanStep[])
           } else if (event === "done") {
             break
           } else {
@@ -246,6 +262,7 @@ export function useChatStream(
       if (data) {
         setMessages(data.messages)
         setSpend({ usage: data.usage, limit: data.spend_limit_usd })
+        setPlan(data.plan)
       }
       setStatus("ready")
       handlersRef.current.onDone?.()
@@ -263,6 +280,7 @@ export function useChatStream(
     ): Promise<boolean> => {
       if (!id) return false
       setDecided({})
+      setAnswered({})
       const userMsg: ChatMessage = {
         id: `local-${Date.now()}`,
         role: "user",
@@ -273,7 +291,8 @@ export function useChatStream(
         role: "assistant",
         parts: [],
       }
-      // A new message denies the waiting actions; show that before the reply.
+      // A new message denies the waiting actions and skips the questions; show that
+      // before the reply.
       setMessages((m) => [
         ...m.map((msg, i) =>
           i === m.length - 1
@@ -282,7 +301,9 @@ export function useChatStream(
                 parts: msg.parts.map((p) =>
                   p.state === "approval"
                     ? { ...p, state: "denied" as const }
-                    : p
+                    : p.state === "question"
+                      ? { ...p, state: "done" as const, result: null }
+                      : p
                 ),
               }
             : msg
@@ -295,18 +316,33 @@ export function useChatStream(
     [conversationId, run]
   )
 
-  /** Approve or deny one waiting action. Once every one has an answer, they're sent
-   * together and the reply continues in the same message. */
+  /** Answers to what the chat waits on, kept until every card has one; then they're
+   * sent together (a run resumes only with every call answered) and the reply goes on
+   * in the same message. */
   const [decided, setDecided] = React.useState<Record<string, boolean>>({})
-  React.useEffect(() => setDecided({}), [conversationId])
-  const decide = React.useCallback(
-    (callId: string, approve: boolean) => {
+  const [answered, setAnswered] = React.useState<Record<string, Answer>>({})
+  React.useEffect(() => {
+    setDecided({})
+    setAnswered({})
+  }, [conversationId])
+
+  const submit = React.useCallback(
+    (
+      nextDecided: Record<string, boolean>,
+      nextAnswered: Record<string, Answer>
+    ) => {
       if (!conversationId || sending.current) return
       const waiting = waitingCalls(messages)
-      const next = { ...decided, [callId]: approve }
-      setDecided(next)
-      if (!waiting.every((p) => p.tool_call_id! in next)) return
+      setDecided(nextDecided)
+      setAnswered(nextAnswered)
+      const done = waiting.every((p) =>
+        p.state === "approval"
+          ? p.tool_call_id! in nextDecided
+          : p.tool_call_id! in nextAnswered
+      )
+      if (!done) return
       setDecided({})
+      setAnswered({})
       setMessages((m) => {
         const last = m.at(-1)
         if (!last) return m
@@ -314,21 +350,41 @@ export function useChatStream(
           p.state === "approval" && p.tool_call_id
             ? {
                 ...p,
-                state: next[p.tool_call_id]
+                state: nextDecided[p.tool_call_id]
                   ? ("running" as const)
                   : ("denied" as const),
               }
-            : p
+            : p.state === "question"
+              ? { ...p, state: "running" as const }
+              : p
         )
         return [...m.slice(0, -1), { ...last, parts }]
       })
-      const decisions = waiting.map((p) => ({
-        id: p.tool_call_id!,
-        approve: next[p.tool_call_id!]!,
-      }))
-      void run(conversationId, "approvals", { decisions })
+      const decisions = waiting
+        .filter((p) => p.state === "approval")
+        .map((p) => ({
+          id: p.tool_call_id!,
+          approve: nextDecided[p.tool_call_id!]!,
+        }))
+      const answers = waiting
+        .filter((p) => p.state === "question")
+        .map((p) => nextAnswered[p.tool_call_id!]!)
+      void run(conversationId, "approvals", { decisions, answers })
     },
-    [conversationId, decided, messages, run]
+    [conversationId, messages, run]
+  )
+
+  /** Approve or deny one waiting action. */
+  const decide = React.useCallback(
+    (callId: string, approve: boolean) =>
+      submit({ ...decided, [callId]: approve }, answered),
+    [submit, decided, answered]
+  )
+
+  /** Answer (or skip) one waiting question. */
+  const answer = React.useCallback(
+    (a: Answer) => submit(decided, { ...answered, [a.id]: a }),
+    [submit, decided, answered]
   )
 
   const stop = React.useCallback(async () => {
@@ -347,7 +403,10 @@ export function useChatStream(
     setError,
     decide,
     decided,
+    answer,
+    answered,
     waiting: waitingCalls(messages),
     spend,
+    plan,
   }
 }
