@@ -29,7 +29,9 @@
           "--output-dir",
           ".playwright-mcp",
           "--console-level",
-          "error"
+          "error",
+          "--snapshot-mode",
+          "none"
         ]
       },
       "context7": {
@@ -41,5 +43,9 @@
         ]
       }
     }
+  },
+  "tool_output": {
+    "max_lines": 500,
+    "max_bytes": 20000
   }
 }

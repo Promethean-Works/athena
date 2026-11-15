@@ -8,7 +8,7 @@ model: sonnet
 
 Unit tests prove the parts work. This proves the feature works for a person using it. Don't report a UI change as done without it, but size the run to the change.
 
-The browser comes from the **`playwright` MCP server** (`.mcp.json`; headless, in-memory profile, screenshots in `.playwright-mcp/`). Claude's desktop browser pane works the same way when available. The tools you need:
+The browser comes from the **`playwright` MCP server** (`.mcp.json`; headless, in-memory profile, screenshots in `.playwright-mcp/`). It runs with `--snapshot-mode none`, so clicks, typing and navigation return only a short result, not the page: call `browser_snapshot` yourself when you need refs or text. Console output is limited to errors (`--console-level error`). Claude's desktop browser pane works the same way when available. The tools you need:
 
 | Need | Playwright MCP tool |
 |---|---|
@@ -69,7 +69,7 @@ curl -s -b jar -X POST -H "X-CSRF-Token: $CSRF" localhost:8421/api/...
 ## 3. Exercise the feature like a user
 
 1. `browser_navigate` to the page, then `browser_snapshot` scoped to what you need: `target` set to the dialog or `main`, or a small `depth`, never the whole page by default. Take a screenshot only to judge layout, at most once per page and viewport.
-   - Clicks and typing already save a snapshot file; don't take a fresh snapshot after every action. Wait with `browser_wait_for` (text appears or disappears) instead of polling snapshots.
+   - Clicks and typing return no snapshot (`--snapshot-mode none`). Snapshot again only when the page changed in a way you need to read (a dialog opened or closed, an error appeared), scoped the same way. Wait with `browser_wait_for` (text appears or disappears) instead of polling snapshots.
 2. Use the feature through the UI: the happy path **and** at least one failure (bad input, a 409, a stopped runtime). Errors must show next to the field or in a toast or dialog, never silently.
 3. Once per flow (not after every click):
    - `browser_console_messages`: there must be no errors from this run. Errors from earlier servers in the same tab don't count; reload to be sure.

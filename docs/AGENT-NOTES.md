@@ -8,7 +8,7 @@ This file holds the lessons from earlier sessions: how the maintainer works, the
 - `docs/STATUS.md`: where the work is now.
 - `docs/mvp-design.md`: the design and the decisions.
 
-Read this file once per session, after STATUS.
+Read this file once per session, after STATUS, down to **Gotchas**. Under Gotchas, read only the sections for the area you're touching (plus "Git, GitHub and CI" before you push); they're split by area so you don't have to read all of them.
 
 **Keep it alive.** When you learn something non-obvious that the next agent would otherwise rediscover, add it in the right section. Examples: a CI failure with a surprising cause, a tool quirk, a false positive, a pattern that worked. Use one bullet per fact and say _why_. Delete bullets that stop being true. Design decisions still go in `docs/mvp-design.md` §11, not here.
 
@@ -29,7 +29,7 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 
 | Task | Command |
 |---|---|
-| **Everything CI runs** | `scripts/check.sh` (`--quick` skips the web build; `web`, `server` or `repo` runs one part) |
+| **Everything CI runs** | `scripts/check.sh` (`--quick` skips the web build; `web`, `server` or `repo` runs one part). Without a terminal it's quiet: one `ok`/`FAIL` line per step and the last 40 lines of a failure, with the full log's path. `--verbose` streams everything |
 | Pre-push hook (once per clone) | `git config core.hooksPath .githooks`; skip once with `git push --no-verify` |
 | Docs name real things | `node scripts/check-docs.mjs` (`--list` prints everything it verified) |
 | All web checks | `pnpm lint && pnpm typecheck && pnpm build` |
@@ -205,5 +205,7 @@ CodeQL runs on every PR and its alerts can block a merge.
 - Another agent session may be working in the main checkout at the same time (uncommitted changes on its feature branch). For unrelated work, use `git worktree add ../athena-<topic> -b <branch> origin/main` instead of switching branches under it.
 - The machine can be offline (no DNS, even outside the sandbox). `uv run --offline --with <pkg>==<version>` uses uv's cache when the package was installed before.
 - `pkill` and `ps` may fail in the sandbox ("Cannot get process list"). Find a server by its port with `lsof -nP -t -iTCP:<port> -sTCP:LISTEN` and `kill` that pid.
+- **Token budget.** Things every session pays for are kept small on purpose: STATUS is capped at 8 KB by `scripts/check-docs.mjs` (finished work goes to `docs/HISTORY.md`); `scripts/check.sh` is quiet without a terminal; Playwright runs with `--snapshot-mode none` (snapshot only when you need to read the page); `.ignore` keeps lockfiles, CHANGELOG and the generated theme files out of ripgrep searches; Claude Code caps Bash and MCP output at 20k (`.claude/settings.json` → `env`) and OpenCode caps tool output at 20 KB (`opencode.json` → `tool_output`, the rest is saved to disk). Pipe long commands through `tail` or `grep` yourself too.
+- `node scripts/agents-sync.mjs --hermes` skips MCP servers Hermes already has, so changed arguments in `.mcp.json` (like Playwright's flags) don't reach an existing Hermes config. Remove the server with `hermes mcp remove <name>` and run the sync again.
 - Port 8420 may be the maintainer's own Athena. Use 8421 or another spare port.
 - Act only on containers, apps and images named `athena-demo-*` / `athena-test-*`. The maintainer's own containers run on the same engine. Leave pulled images unless you know you pulled them, and say which ones are left.

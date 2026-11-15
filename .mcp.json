@@ -24,7 +24,9 @@
         "--output-dir",
         ".playwright-mcp",
         "--console-level",
-        "error"
+        "error",
+        "--snapshot-mode",
+        "none"
       ]
     },
     "context7": {
