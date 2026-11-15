@@ -72,6 +72,7 @@ from athena.assistant.delegation import (
 )
 from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
 from athena.assistant.mcp import mcp_toolsets
+from athena.assistant.persistence import persistence_capabilities
 from athena.assistant.plans import PLAN_TOOL, plan_of, planning_capabilities
 from athena.assistant.questions import (
     DECLINED_BY_NEW_MESSAGE,
@@ -599,6 +600,7 @@ async def _stream(
                 memory=deps.memory,
                 record=_flagged_recorder(deps),
             ),
+            *persistence_capabilities(deps.app.state.settings.data_dir),
             *shell_capabilities(shell_provider(deps.manifest), deps.shell_commands),
             *extras,
         ],
