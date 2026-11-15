@@ -208,7 +208,7 @@ def delete_provider(
     row = _get_provider(db, provider_id)
     db.delete(row)
     settings = ai_settings.load(db)
-    for attr in ("default_model", "title_model", "advisor_model"):
+    for attr in ("default_model", "title_model", "advisor_model", "review_model"):
         ref: ModelRef | None = getattr(settings, attr)
         if ref and ref.provider_id == provider_id:
             setattr(settings, attr, None)
@@ -475,6 +475,7 @@ async def send_message(
             _title_model(request, db, settings, model) if row.title == chat.NEW_CHAT else None
         ),
         advisor_model=_advisor_model(request, db, settings),
+        review_model=_review_model(request, db, settings),
     )
     return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
 
@@ -543,6 +544,7 @@ async def answer_approvals(
         user_id=user.user.id,
         window=_window_of(request, db, row, model),
         advisor_model=_advisor_model(request, db, settings),
+        review_model=_review_model(request, db, settings),
     )
     return StreamingResponse(turn.stream(), media_type="text/event-stream", headers=SSE_HEADERS)
 
@@ -613,6 +615,17 @@ def _advisor_model(request: Request, db: Session, settings: ai_settings.AiSettin
         return _build(request, db, settings.advisor_model)
     except HTTPException as exc:
         log.info("advisor model unavailable, chatting without it: %s", exc.detail)
+        return None
+
+
+def _review_model(request: Request, db: Session, settings: ai_settings.AiSettings) -> Model | None:
+    """Settings → AI's review model; none (no `ApprovalReviewer`) when unset or unavailable."""
+    if settings.review_model is None:
+        return None
+    try:
+        return _build(request, db, settings.review_model)
+    except HTTPException as exc:
+        log.info("review model unavailable, reviewing without it: %s", exc.detail)
         return None
 
 

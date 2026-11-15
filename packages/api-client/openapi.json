@@ -4928,6 +4928,21 @@
             "title": "Web Research Enabled",
             "default": false
           },
+          "review_model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_tool_calls": {
+            "type": "boolean",
+            "title": "Review Tool Calls",
+            "default": false
+          },
           "mcp_servers": {
             "items": {
               "$ref": "#/components/schemas/McpServer"

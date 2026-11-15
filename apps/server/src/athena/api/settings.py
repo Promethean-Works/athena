@@ -116,4 +116,13 @@ def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
     if before.web_research_enabled != body.web_research_enabled:
         state = "on" if body.web_research_enabled else "off"
         audit.record(db, user.user.username, "settings.assistant_web_research", state)
+    if before.review_model != body.review_model:
+        if body.review_model is None:
+            target = "off"
+        else:
+            target = f"{body.review_model.provider_id}/{body.review_model.model}"
+        audit.record(db, user.user.username, "settings.assistant_review_model", target)
+    if before.review_tool_calls != body.review_tool_calls:
+        state = "on" if body.review_tool_calls else "off"
+        audit.record(db, user.user.username, "settings.assistant_review_tool_calls", state)
     return body

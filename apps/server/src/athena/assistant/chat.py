@@ -62,6 +62,7 @@ from sqlmodel import Session
 from athena import audit
 from athena.assistant import actions
 from athena.assistant import settings as ai_settings
+from athena.assistant.approval_review import review_capabilities as approval_review_capabilities
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
 from athena.assistant.delegation import (
     advisor_capabilities,
@@ -449,6 +450,7 @@ async def _run(
     user_id: int,
     title_model: Model | None,
     advisor_model: Model | None,
+    review_model: Model | None,
     window: "Window",
 ) -> None:
     db_factory = app.state.db
@@ -488,6 +490,7 @@ async def _run(
             *question_capabilities(),
             *advisor_capabilities(advisor_model),
             *review_capabilities(ai.refine_answers),
+            *approval_review_capabilities(review_model, ai.review_tool_calls),
         ]
         saved: Conversation | None = None
         compacted_ok = True
@@ -814,6 +817,7 @@ class Turns:
         resume: Resume | None = None,
         title_model: Model | None = None,
         advisor_model: Model | None = None,
+        review_model: Model | None = None,
     ) -> Turn:
         turn = Turn(conversation_id)
 
@@ -829,6 +833,7 @@ class Turns:
                     user_id=user_id,
                     title_model=title_model,
                     advisor_model=advisor_model,
+                    review_model=review_model,
                     window=window,
                 )
             except Exception:
