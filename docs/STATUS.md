@@ -10,12 +10,13 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
+- M7 D stage 1, robustness: PR 1 (`assistant/robustness.py`: argument repair, loop nudges, output spills) is open. Next PRs: `compaction` (needs each model's context window); `prompt_injection_defender` (StackOne `defender`, extra deps; check size and licence) with `artifact_scanning` and `guardrails`; then `system_reminders`, `warn_on_cache_busts`, and harness `spend` vs our own limit (keep one).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 
 ## Next
 
-M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): next is stage 1, robustness (`repair_tool_arguments`, `detect_loops`, `tool_output_limits`, `compaction`, `prompt_injection_defender`); then agent features; extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
+M7 part D, the rest of pydantic-ai-harness (maintainer's request, design §4.5 Parts): finish stage 1 (see In progress); then agent features; extras with outside services; sandboxes and other workspaces; hosted integrations; durable execution and operations; the coding stack.
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 
