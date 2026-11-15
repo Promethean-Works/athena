@@ -760,6 +760,97 @@ function WebResearchCard({
   )
 }
 
+function ReviewCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  const { providers, reload } = useModels()
+  const [version, setVersion] = React.useState(0)
+
+  React.useEffect(() => {
+    if (version > 0) void reload()
+  }, [version, reload])
+
+  function saveModel(ref: ModelRef | null) {
+    if (!settings) return
+    if (ref === settings.review_model) return
+    void save(
+      { ...settings, review_model: ref },
+      ref ? "Review model saved" : "Review turned off"
+    )
+    setVersion((v) => v + 1)
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Review tool calls</CardTitle>
+        <CardDescription>
+          Before an action reaches your Approve/Deny card, a second model reviews it
+          and auto-approves the clearly safe ones, so you only see the risky ones. Needs
+          a review model (its key counts toward the spend limit like any model call).
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {settings === null ? (
+          <Skeleton className="h-24 w-full" />
+        ) : (
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="review-model">Review model</FieldLabel>
+              <ModelPicker
+                id="review-model"
+                variant="field"
+                providers={providers}
+                value={settings.review_model}
+                onChange={saveModel}
+              />
+              {settings.review_model && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    void saveModel(null)
+                    setVersion((v) => v + 1)
+                  }}
+                >
+                  Turn off
+                </Button>
+              )}
+              <FieldDescription>
+                Optional. A second model the assistant asks before each action. It
+                auto-approves clearly safe calls so you only see the risky ones. Its
+                provider sees the call's name and arguments, not the whole chat.
+              </FieldDescription>
+            </Field>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="review-tool-calls">Review tool calls</FieldLabel>
+                <FieldDescription>
+                  Off by default. When on, clearly safe actions are approved for you
+                  and only risky ones reach your card; each check is one more model call.
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="review-tool-calls"
+                checked={settings.review_tool_calls}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, review_tool_calls: checked },
+                    checked ? "Tool-call reviewing turned on" : "Tool-call reviewing turned off"
+                  )
+                }
+              />
+            </Field>
+          </FieldGroup>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 /** Settings → AI: providers, default models and limits (admins only). */
 export function AiSettingsView() {
   const { user } = useAuth()
@@ -780,6 +871,7 @@ export function AiSettingsView() {
       <DefaultsCard version={version} settings={settings} save={save} />
       <MemoryCard settings={settings} save={save} />
       <WebResearchCard settings={settings} save={save} />
+      <ReviewCard settings={settings} save={save} />
       <ShellCard settings={settings} save={save} />
     </div>
   )

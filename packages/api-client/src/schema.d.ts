@@ -1743,6 +1743,12 @@ export interface components {
              * @default false
              */
             web_research_enabled: boolean;
+            review_model?: components["schemas"]["ModelRef"] | null;
+            /**
+             * Review Tool Calls
+             * @default false
+             */
+            review_tool_calls: boolean;
             /** Mcp Servers */
             mcp_servers?: components["schemas"]["McpServer"][];
         };
