@@ -1549,6 +1549,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/assistant/integrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Integrations */
+        get: operations["listAiIntegrations"];
+        put?: never;
+        /** Create Integration */
+        post: operations["createAiIntegration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistant/integrations/kinds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Integration Kinds
+         * @description The curated integration kinds, for the add form.
+         */
+        get: operations["listAiIntegrationKinds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistant/integrations/{integration_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Integration */
+        put: operations["updateAiIntegration"];
+        post?: never;
+        /** Delete Integration */
+        delete: operations["deleteAiIntegration"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/assistant/providers/{provider_id}/test": {
         parameters: {
             query?: never;
@@ -2338,6 +2394,70 @@ export interface components {
             description?: string | null;
             /** Source */
             source?: string | null;
+        };
+        /**
+         * IntegrationIn
+         * @description Create or update a hosted integration: the token value is encrypted on write.
+         */
+        IntegrationIn: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** Transport */
+            transport: components["schemas"]["McpStdio"] | components["schemas"]["McpHttp"];
+            /** Token Env */
+            token_env?: string | null;
+            /** Token Header */
+            token_header?: string | null;
+            /** Token */
+            token?: string | null;
+        };
+        /** IntegrationKindOut */
+        IntegrationKindOut: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Description */
+            description: string;
+        };
+        /**
+         * IntegrationOut
+         * @description What the API returns: everything except the secret token.
+         */
+        IntegrationOut: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** Transport */
+            transport: components["schemas"]["McpStdio"] | components["schemas"]["McpHttp"];
+            /** Token Env */
+            token_env?: string | null;
+            /** Token Header */
+            token_header?: string | null;
+            /** Secrets Set */
+            secrets_set?: string[];
+        };
+        /** IntegrationUpdate */
+        IntegrationUpdate: {
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** Transport */
+            transport: components["schemas"]["McpStdio"] | components["schemas"]["McpHttp"];
+            /** Token Env */
+            token_env?: string | null;
+            /** Token Header */
+            token_header?: string | null;
+            /** Token */
+            token?: string | null;
         };
         /** ItemError */
         ItemError: {
@@ -6332,6 +6452,143 @@ export interface operations {
             header?: never;
             path: {
                 provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listAiIntegrations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationOut"][];
+                };
+            };
+        };
+    };
+    createAiIntegration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IntegrationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listAiIntegrationKinds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationKindOut"][];
+                };
+            };
+        };
+    };
+    updateAiIntegration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IntegrationUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deleteAiIntegration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration_id: string;
             };
             cookie?: never;
         };

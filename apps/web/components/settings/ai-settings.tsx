@@ -74,6 +74,7 @@ import { ModelPicker } from "@/components/assistant/model-picker"
 import { useModels, type ModelRef } from "@/components/assistant/use-models"
 import { useAuth } from "@/components/auth-provider"
 import { useCapability } from "@/components/capabilities-provider"
+import { IntegrationDialog } from "@/components/settings/ai-integration-dialog"
 import {
   ProviderDialog,
   type Provider,
@@ -82,6 +83,8 @@ import {
 } from "@/components/settings/ai-provider-dialog"
 
 type AiSettings = Schemas["AiSettings"]
+type Integration = Schemas["IntegrationOut"]
+type IntegrationKind = Schemas["IntegrationKindOut"]
 
 export function AddMenu({
   kinds,
@@ -901,6 +904,160 @@ function DockerSandboxCard({
   )
 }
 
+function IntegrationsCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  const [kinds, setKinds] = React.useState<IntegrationKind[]>([])
+  const [integrations, setIntegrations] = React.useState<Integration[] | null>(null)
+  const [editing, setEditing] = React.useState<{
+    integration: Integration | null
+    kinds: IntegrationKind[]
+  } | null>(null)
+  const [removing, setRemoving] = React.useState<Integration | null>(null)
+  const [version, setVersion] = React.useState(0)
+
+  React.useEffect(() => {
+    void (async () => {
+      const [k, i] = await Promise.all([
+        api.GET("/api/assistant/integrations/kinds"),
+        api.GET("/api/assistant/integrations"),
+      ])
+      setKinds(k.data ?? [])
+      setIntegrations(i.data ?? [])
+    })()
+  }, [])
+
+  async function remove(integration: Integration) {
+    setRemoving(null)
+    const { error } = await api.DELETE("/api/assistant/integrations/{integration_id}", {
+      params: { path: { integration_id: integration.id } },
+    })
+    if (error) {
+      toast.add({
+        type: "error",
+        title: "Couldn't remove",
+        description: errorMessage(error),
+      })
+      return
+    }
+    setVersion((v) => v + 1)
+  }
+
+  function saved(integration: Integration) {
+    setEditing(null)
+    setVersion((v) => v + 1)
+  }
+
+  const list = integrations ?? []
+  const transportSummary = (t: Integration["transport"]) =>
+    t.type === "stdio"
+      ? `${t.command} ${(t.args ?? []).join(" ")}`.trim()
+      : (t as { url: string }).url
+
+  if (integrations === null) {
+    return <Skeleton className="h-24 w-full" />
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Hosted integrations</CardTitle>
+        <CardDescription>
+          MCP servers Athena runs for the assistant (GitHub, Linear, Notion, …). Each
+          has an encrypted token, and its actions go through your Approve/Deny card.
+        </CardDescription>
+        <CardAction>
+          {kinds.length ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditing({ integration: null, kinds })}
+            >
+              <PlusIcon />
+              Add integration
+            </Button>
+          ) : null}
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        {list.length === 0 ? (
+          <Empty className="border">
+            <EmptyHeader>
+              <EmptyTitle>No integrations yet</EmptyTitle>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <ItemGroup className="gap-2">
+            {list.map((integration) => (
+              <Item key={integration.id} variant="outline" size="sm">
+                <ItemContent>
+                  <ItemTitle>{integration.name}</ItemTitle>
+                  <ItemDescription>
+                    {kinds.find((k) => k.id === integration.kind)?.label ??
+                      integration.kind}
+                    {` · ${transportSummary(integration.transport)}`}
+                    {integration.secrets_set?.length ? " · token set" : ""}
+                  </ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Edit ${integration.name}`}
+                    onClick={() => setEditing({ integration, kinds })}
+                  >
+                    <PencilIcon />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Remove ${integration.name}`}
+                    onClick={() => setRemoving(integration)}
+                  >
+                    <Trash2Icon />
+                  </Button>
+                </ItemActions>
+              </Item>
+            ))}
+          </ItemGroup>
+        )}
+      </CardContent>
+      <IntegrationDialog
+        editing={editing}
+        onClose={() => setEditing(null)}
+        onSaved={saved}
+      />
+      <AlertDialog
+        open={removing !== null}
+        onOpenChange={(o) => !o && setRemoving(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {removing?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Its token is deleted from this server. Chats that used its tools
+              will no longer have them.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => removing && void remove(removing)}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  )
+}
+
 /** Settings → AI: providers, default models and limits (admins only). */
 export function AiSettingsView() {
   const { user } = useAuth()
@@ -923,6 +1080,7 @@ export function AiSettingsView() {
       <WebResearchCard settings={settings} save={save} />
       <ReviewCard settings={settings} save={save} />
       <DockerSandboxCard settings={settings} save={save} />
+      <IntegrationsCard settings={settings} save={save} />
       <ShellCard settings={settings} save={save} />
     </div>
   )

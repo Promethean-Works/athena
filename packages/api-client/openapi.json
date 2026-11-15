@@ -4398,6 +4398,183 @@
         }
       }
     },
+    "/api/assistant/integrations": {
+      "get": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "List Integrations",
+        "operationId": "listAiIntegrations",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listaiintegrations"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Create Integration",
+        "operationId": "createAiIntegration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/integrations/kinds": {
+      "get": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "List Integration Kinds",
+        "description": "The curated integration kinds, for the add form.",
+        "operationId": "listAiIntegrationKinds",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationKindOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listaiintegrationkinds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/integrations/{integration_id}": {
+      "put": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Update Integration",
+        "operationId": "updateAiIntegration",
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Integration Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Delete Integration",
+        "operationId": "deleteAiIntegration",
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Integration Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/assistant/providers/{provider_id}/test": {
       "post": {
         "tags": [
@@ -6622,6 +6799,264 @@
           "name"
         ],
         "title": "InstalledPackage"
+      },
+      "IntegrationIn": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "transport": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/McpStdio"
+              },
+              {
+                "$ref": "#/components/schemas/McpHttp"
+              }
+            ],
+            "title": "Transport",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "http": "#/components/schemas/McpHttp",
+                "stdio": "#/components/schemas/McpStdio"
+              }
+            }
+          },
+          "token_env": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Env"
+          },
+          "token_header": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Header"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4096
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "transport"
+        ],
+        "title": "IntegrationIn",
+        "description": "Create or update a hosted integration: the token value is encrypted on write."
+      },
+      "IntegrationKindOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "description"
+        ],
+        "title": "IntegrationKindOut"
+      },
+      "IntegrationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "transport": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/McpStdio"
+              },
+              {
+                "$ref": "#/components/schemas/McpHttp"
+              }
+            ],
+            "title": "Transport",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "http": "#/components/schemas/McpHttp",
+                "stdio": "#/components/schemas/McpStdio"
+              }
+            }
+          },
+          "token_env": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Env"
+          },
+          "token_header": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Header"
+          },
+          "secrets_set": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Secrets Set"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "transport"
+        ],
+        "title": "IntegrationOut",
+        "description": "What the API returns: everything except the secret token."
+      },
+      "IntegrationUpdate": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "transport": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/McpStdio"
+              },
+              {
+                "$ref": "#/components/schemas/McpHttp"
+              }
+            ],
+            "title": "Transport",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "http": "#/components/schemas/McpHttp",
+                "stdio": "#/components/schemas/McpStdio"
+              }
+            }
+          },
+          "token_env": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Env"
+          },
+          "token_header": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Header"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4096
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "name",
+          "transport"
+        ],
+        "title": "IntegrationUpdate"
       },
       "ItemError": {
         "properties": {
