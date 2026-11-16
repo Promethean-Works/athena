@@ -67,6 +67,7 @@ from athena import audit
 from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.approval_review import review_capabilities as approval_review_capabilities
+from athena.assistant.code_mode import code_mode_capabilities
 from athena.assistant.coding_stack import CODING_INSTRUCTIONS, coding_stack_capabilities
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
 from athena.assistant.delegation import (
@@ -505,6 +506,7 @@ async def _run(
             *docker_sandbox_capabilities(ai.docker_sandbox_enabled, deps.manifest),
             *durable_execution_capabilities(ai.durable_execution_enabled),
             *coding_stack_capabilities(ai.coding_stack_enabled, data_dir, tuple(ai.shell_commands)),
+            *code_mode_capabilities(ai.code_mode_enabled),
         ]
         saved: Conversation | None = None
         compacted_ok = True
@@ -620,7 +622,7 @@ async def _stream(
         conversation=previous,
         model=model,
         deps=deps,
-        toolsets=[toolset_for(deps.manifest, deps.shell_commands), *mcp],
+        toolsets=[*toolset_for(deps.manifest, deps.shell_commands), *mcp],
         capabilities=[
             *robustness_capabilities(data_dir, after_repair=background_capabilities()),
             *safety_capabilities(),

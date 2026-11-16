@@ -99,6 +99,11 @@ class AiSettings(BaseModel):
     AGENTS.md / CLAUDE.md context into each reply). Off by default; capabilities
     are read-only and need no approval. More capabilities join here as they're
     wired up."""
+    code_mode_enabled: bool = False
+    """Let the assistant write Python that calls tools (Code Mode). Off by default;
+    sandboxed tools run inside a Monty sandbox with no third-party imports. Read-only
+    tools can be batched into one `run_code` call; approval-gated tools still need the
+    admin's Approve/Deny card."""
 
     @model_validator(mode="after")
     def _unique_mcp_ids(self) -> "AiSettings":

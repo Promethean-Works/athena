@@ -4,6 +4,7 @@ import json
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import pytest
 from conftest import make_app, signed_in
@@ -244,7 +245,10 @@ def manifest(*caps: tuple[str, str]) -> CapabilityManifest:
 
 
 def names(m: CapabilityManifest) -> set[str]:
-    return set(toolset_for(m).tools)
+    result: set[str] = set()
+    for ts in toolset_for(m):
+        result.update(ts.tools.keys())
+    return result
 
 
 def test_actions_follow_the_capabilities():
@@ -262,9 +266,12 @@ def test_actions_follow_the_capabilities():
 
 
 def test_every_action_needs_approval():
-    tools = toolset_for(
+    toolsets = toolset_for(
         manifest(("files", "ready"), ("containers", "ready"), ("packages.apt", "ready"))
-    ).tools
+    )
+    tools: dict[str, Any] = {}
+    for ts in toolsets:
+        tools.update(ts.tools)
     for name, tool in tools.items():
         assert tool.requires_approval == (name in actions.NAMES), name
 

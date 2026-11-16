@@ -5142,6 +5142,11 @@
             "type": "boolean",
             "title": "Coding Stack Enabled",
             "default": false
+          },
+          "code_mode_enabled": {
+            "type": "boolean",
+            "title": "Code Mode Enabled",
+            "default": false
           }
         },
         "type": "object",

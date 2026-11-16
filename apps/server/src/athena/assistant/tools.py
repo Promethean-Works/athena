@@ -302,26 +302,43 @@ def _ready(manifest: CapabilityManifest, capability: str) -> bool:
 
 def read_only_tools(manifest: CapabilityManifest) -> list[Any]:
     """The tools that only read, for what this host supports right now. They're all a
-    delegated helper gets (`delegation.py`)."""
-    tools: list[Any] = [get_capabilities, get_system_stats]
+    delegated helper gets (`delegation.py`). Each is tagged with `code_mode=True` so
+    Code Mode can batch them into `run_code` calls; approval-gated tools stay as regular
+    calls needing the admin's Approve/Deny card."""
+    tools: list[Any] = [
+        Tool(get_capabilities, metadata={"code_mode": True}),
+        Tool(get_system_stats, metadata={"code_mode": True}),
+    ]
     if _ready(manifest, "containers"):
-        tools += [list_apps, app_logs, search_store, get_store_app]
+        tools += [
+            Tool(list_apps, metadata={"code_mode": True}),
+            Tool(app_logs, metadata={"code_mode": True}),
+            Tool(search_store, metadata={"code_mode": True}),
+            Tool(get_store_app, metadata={"code_mode": True}),
+        ]
     if _ready(manifest, "files"):
-        tools += [list_file_locations, list_files, read_text_file]
+        tools += [
+            Tool(list_file_locations, metadata={"code_mode": True}),
+            Tool(list_files, metadata={"code_mode": True}),
+            Tool(read_text_file, metadata={"code_mode": True}),
+        ]
     if _has_packages(manifest):
-        tools += [list_package_managers, search_packages, list_upgradable_packages]
+        tools += [
+            Tool(list_package_managers, metadata={"code_mode": True}),
+            Tool(search_packages, metadata={"code_mode": True}),
+            Tool(list_upgradable_packages, metadata={"code_mode": True}),
+        ]
     return tools
 
 
 def toolset_for(
     manifest: CapabilityManifest, shell_commands: tuple[str, ...] = ()
-) -> FunctionToolset[Deps]:
-    """The tools this host supports right now. Tools that change something (from
-    `actions.py`) need the admin's approval for every call. The PowerShell `run_command` is
-    here only on Windows hosts without WSL, with the shell on and a non-empty allowlist."""
+) -> list[FunctionToolset[Deps]]:
+    """The tools this host supports right now, as separate toolsets: read-only tools
+    (tagged for Code Mode) and change tools (each needing approval)."""
     from athena.assistant import actions
 
-    tools = read_only_tools(manifest)
+    toolsets: list[FunctionToolset[Deps]] = [FunctionToolset(read_only_tools(manifest))]
     changes: list[Any] = []
     if _ready(manifest, "containers"):
         changes += actions.APP_ACTIONS
@@ -338,4 +355,6 @@ def toolset_for(
         approved.append(
             Tool(actions.run_command, description=f"{doc}\n\nAllowed programs: {listed}.")
         )
-    return FunctionToolset([*tools, *approved])
+    if approved:
+        toolsets.append(FunctionToolset(approved))
+    return toolsets

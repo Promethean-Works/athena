@@ -1822,6 +1822,11 @@ export interface components {
              * @default false
              */
             coding_stack_enabled: boolean;
+            /**
+             * Code Mode Enabled
+             * @default false
+             */
+            code_mode_enabled: boolean;
         };
         /** Answer */
         Answer: {

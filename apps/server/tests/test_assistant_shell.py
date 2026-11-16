@@ -122,12 +122,23 @@ def shell_manifest(provider: str | None):
     return m
 
 
+def _all_tool_names(manifest, shell_commands=()) -> set[str]:
+    names: set[str] = set()
+    for ts in toolset_for(manifest, shell_commands):
+        names.update(ts.tools.keys())
+    return names
+
+
 def test_powershell_run_command_is_only_for_windows_without_wsl():
-    assert "run_command" not in toolset_for(shell_manifest("powershell")).tools  # switch off
-    assert "run_command" not in toolset_for(shell_manifest(None), ("ls",)).tools
+    assert "run_command" not in _all_tool_names(shell_manifest("powershell"))  # switch off
+    assert "run_command" not in _all_tool_names(shell_manifest(None), ("ls",))
     for provider in ("posix", "wsl"):  # these get the harness Shell instead
-        assert "run_command" not in toolset_for(shell_manifest(provider), ("ls",)).tools
-    tool = toolset_for(shell_manifest("powershell"), ("ls", "df")).tools["run_command"]
+        assert "run_command" not in _all_tool_names(shell_manifest(provider), ("ls",))
+    tool = None
+    for ts in toolset_for(shell_manifest("powershell"), ("ls", "df")):
+        if "run_command" in ts.tools:
+            tool = ts.tools["run_command"]
+    assert tool is not None
     assert "Allowed programs: ls, df." in (tool.description or "")
     assert not tool.requires_approval  # it asks itself, after the allowlist check
 
