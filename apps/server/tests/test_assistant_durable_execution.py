@@ -1,8 +1,10 @@
 """Durable execution (`durable_execution.py`, M7 part D stage 3)."""
 
 import asyncio
+import socket
 
-from pgtask import TaskRegistry
+import pytest
+from pgtask import Client, TaskRegistry
 from pydantic_ai_harness.pgtask import PGTaskDurability
 
 from athena.assistant.chat import Turns
@@ -62,3 +64,42 @@ def test_pgtask_handler_without_executor_is_a_noop():
     handler = turns.pgtask_registry.definitions[0].handler
     # Should not raise even though nothing was registered.
     asyncio.run(handler(_FakeTask(), {"conversation_id": "missing"}))
+
+
+# -------------------------------------------------------------------- real Postgres
+
+_DATABASE_URL = "postgresql://postgres:athena@localhost:5433/athena"
+
+
+def _postgres_available() -> bool:
+    try:
+        with socket.create_connection(("localhost", 5433), timeout=2):
+            return True
+    except OSError:
+        return False
+
+
+@pytest.mark.skipif(not _postgres_available(), reason="Postgres not available on localhost:5433")
+def test_pgtask_client_connects_to_real_postgres(tmp_path, monkeypatch):
+    """The app wires a pgtask client and registry when the database URL is configured,
+    and pgtask migrates its tables into the database."""
+    monkeypatch.setenv("ATHENA_DURABLE_EXECUTION_DATABASE_URL", _DATABASE_URL)
+
+    from fastapi.testclient import TestClient
+
+    from athena.config import Settings
+    from athena.main import create_app
+
+    settings = Settings(data_dir=tmp_path / "data")
+    app = create_app(settings)
+
+    with TestClient(app):
+        assert app.state.assistant_turns.pgtask_client is not None
+        assert app.state.assistant_turns.pgtask_registry is not None
+
+        # pgtask should have migrated its tables into the database during lifespan.
+        async def check_migrate():
+            client = await Client.connect(_DATABASE_URL)
+            await client.migrate()
+
+        asyncio.run(check_migrate())

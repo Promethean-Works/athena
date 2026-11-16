@@ -31,7 +31,9 @@ def propfind(client: TestClient, path: str, auth, depth: str = "1"):
 
 
 def hrefs(body: str) -> list[str]:
-    return re.findall(r"<ns0:href>([^<]+)</ns0:href>", body)
+    # wsgidav serializes the DAV namespace with whatever prefix it chooses
+    # (historically `ns0`, now `D`), so match any prefix before `href`.
+    return re.findall(r"<[^:]+:href>([^<]+)</[^:]+:href>", body)
 
 
 def test_off_by_default(tmp_path: Path) -> None:
@@ -76,7 +78,7 @@ def test_browse_and_read(dav) -> None:
     client, auth, _, _ = dav
     res = propfind(client, "/dav/", auth)
     assert {"/dav/", "/dav/One/", "/dav/Two/"} <= set(hrefs(res.text))
-    assert "<ns0:displayname>One</ns0:displayname>" in res.text
+    assert re.search(r"<[^:]+:displayname>One</[^:]+:displayname>", res.text)
     res = propfind(client, "/dav/One/", auth)
     assert set(hrefs(res.text)) == {"/dav/One/", "/dav/One/docs/", "/dav/One/page.html"}
 
