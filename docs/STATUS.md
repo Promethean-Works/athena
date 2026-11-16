@@ -10,6 +10,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
+- PR #98 (49-app catalog plus the storefront UI: banner, covers, screenshot galleries) is open with auto-merge; CI and the browser pass are the last gates.
 - M7 D stage 2 complete: PRs 1–5 (#65–#73) all merged (#73 = `step_persistence` + `conversation_search` + `media`). Follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - MCP server support for the assistant added: `McpStdio` and `McpHttp` server configs in `ai_settings.mcp_servers` (Settings → AI), built as fresh `MCPToolset`s per turn and wired into the chat agent, investigator (delegation) and `run_workflow` helpers. Audit logs MCP server changes.
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
