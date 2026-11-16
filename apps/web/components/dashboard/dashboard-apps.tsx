@@ -113,7 +113,7 @@ function AppsList() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button render={<Link href="/store/" />}>
+          <Button render={<Link href="/store/" />} nativeButton={false}>
             <StoreIcon data-icon="inline-start" />
             Browse the store
           </Button>
@@ -152,11 +152,11 @@ export function DashboardApps() {
         <CardTitle>Apps</CardTitle>
         <CardDescription>What&apos;s running on this server</CardDescription>
         <CardAction className="flex gap-2">
-          <Button variant="outline" size="sm" render={<Link href="/store/" />}>
+          <Button variant="outline" size="sm" render={<Link href="/store/" />} nativeButton={false}>
             <StoreIcon data-icon="inline-start" />
             Store
           </Button>
-          <Button variant="ghost" size="sm" render={<Link href="/apps/" />}>
+          <Button variant="ghost" size="sm" render={<Link href="/apps/" />} nativeButton={false}>
             All apps
           </Button>
         </CardAction>

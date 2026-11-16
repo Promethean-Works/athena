@@ -91,7 +91,7 @@ export function AppsGrid() {
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button render={<Link href="/apps/new/" />}>
+            <Button render={<Link href="/apps/new/" />} nativeButton={false}>
               <PlusIcon data-icon="inline-start" />
               New app
             </Button>
