@@ -5,14 +5,6 @@ import * as React from "react"
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@workspace/ui/components/combobox"
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -41,6 +33,15 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { Switch } from "@workspace/ui/components/switch"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { toast } from "@workspace/ui/components/toast"
+import {
+  BoxIcon,
+  CloudIcon,
+  DatabaseIcon,
+  HardDriveIcon,
+  LinkIcon,
+  MailIcon,
+  Share2Icon,
+} from "lucide-react"
 
 type Provider = Schemas["Provider"]
 type Option = Schemas["ProviderOption"]
@@ -50,27 +51,106 @@ type Step = Schemas["ConfigStep"]
 /** `null` closes the dialog; `{name: null}` adds a remote. */
 export type RemoteEditing = { name: string | null } | null
 
-/** For backends with sub-providers (S3): does `option` apply to this one? */
-function appliesTo(option: Option, provider: string | undefined): boolean {
-  if (!option.provider) return true
-  const list = option.provider.replace(/^!/, "").split(",")
-  const listed = provider !== undefined && list.includes(provider)
-  return option.provider.startsWith("!") ? !listed : listed
-}
+/** The wizard's first step. */
+type WizardPhase = "provider" | "settings"
 
 /** rclone's help starts with a short summary line, then details after a blank line. */
 function firstParagraph(help: string): string {
   return help.split("\n\n")[0]!.trim()
 }
 
-const ACRONYMS = new Set(["id", "url", "api", "sse", "kms", "acl", "uri", "ssl", "tls"])
+const ACRONYMS = new Set([
+  "id",
+  "url",
+  "api",
+  "sse",
+  "kms",
+  "acl",
+  "uri",
+  "ssl",
+  "tls",
+])
 
 /** "client_id" → "Client ID": rclone names options for config files, not people. */
 export function optionLabel(name: string): string {
-  const words = name.split("_").map((w) => (ACRONYMS.has(w) ? w.toUpperCase() : w))
+  const words = name
+    .split("_")
+    .map((w) => (ACRONYMS.has(w) ? w.toUpperCase() : w))
   const first = words[0] ?? ""
   words[0] = first.charAt(0).toUpperCase() + first.slice(1)
   return words.join(" ")
+}
+
+/** Pick a lucide icon for a storage backend, falling back to a generic cloud. */
+function ProviderIcon({ provider }: { provider: Provider }) {
+  const key = (provider.name + " " + provider.description).toLowerCase()
+  let Icon = CloudIcon
+  if (
+    key.includes("drive") ||
+    key.includes("google") ||
+    key.includes("onedrive")
+  ) {
+    Icon = CloudIcon
+  } else if (key.includes("dropbox") || key.includes("box")) {
+    Icon = BoxIcon
+  } else if (
+    key.includes("s3") ||
+    key.includes("blob") ||
+    key.includes("azure")
+  ) {
+    Icon = DatabaseIcon
+  } else if (key.includes("webdav") || key.includes("http")) {
+    Icon = LinkIcon
+  } else if (key.includes("ftp") || key.includes("sftp")) {
+    Icon = Share2Icon
+  } else if (key.includes("mail") || key.includes("imap")) {
+    Icon = MailIcon
+  } else if (key.includes("disk") || key.includes("local")) {
+    Icon = HardDriveIcon
+  }
+  return (
+    <div className="flex size-10 items-center justify-center rounded-lg border bg-secondary/10 text-primary">
+      <Icon size={20} />
+    </div>
+  )
+}
+
+/** One storage backend in the provider catalog, like a store app tile. */
+function ProviderCard({
+  provider,
+  onSelect,
+}: {
+  provider: Provider
+  onSelect: (provider: Provider) => void
+}) {
+  return (
+    <button
+      onClick={() => onSelect(provider)}
+      className="rounded-xl border transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+    >
+      <div className="flex flex-col items-start gap-3 p-4">
+        <ProviderIcon provider={provider} />
+        <div className="w-full">
+          <p className="font-medium">{provider.description}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {provider.name}
+          </p>
+          <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+            {provider.options.length} setting
+            {provider.options.length === 1 ? "" : "s"}
+          </p>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+/** For backends with sub-providers (S3): does `option` apply to this one? */
+function appliesTo(option: Option, provider: string | undefined): boolean {
+  if (!option.provider) return true
+  const list = option.provider.replace(/^!/, "").split(",")
+  const listed = provider !== undefined && list.includes(provider)
+  return option.provider.startsWith("!") ? !listed : listed
 }
 
 /** One rclone setting as a form field: a choice, a yes/no, a password or text. */
@@ -278,8 +358,10 @@ function QuestionForm({
 }
 
 /**
- * Add or edit a cloud remote. The form comes from rclone's description of the
- * storage type; rclone may then ask follow-up questions, answered one at a time.
+ * Add or edit a cloud remote as a wizard:
+ * 1. Pick a storage provider from a catalog (add only).
+ * 2. Fill in the connection name and settings.
+ * rclone may then ask follow-up questions, answered one at a time.
  */
 export function RemoteDialog({
   editing,
@@ -300,20 +382,22 @@ export function RemoteDialog({
   const [advanced, setAdvanced] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [pending, setPending] = React.useState(false)
-  const [step, setStep] = React.useState<Step | null>(null)
+  const [configStep, setConfigStep] = React.useState<Step | null>(null)
   const [refused, setRefused] = React.useState("")
+  const [phase, setPhase] = React.useState<WizardPhase>("provider")
   const isNew = editing?.name === null
 
   React.useEffect(() => {
     if (!editing) return
     setError(null)
-    setStep(null)
+    setConfigStep(null)
     setRefused("")
     setAdvanced(false)
     setDetail(null)
     setName(editing.name ?? "")
     setType(null)
     setValues({})
+    setPhase(isNew ? "provider" : "settings")
     void api.GET("/api/cloud/providers").then(({ data, error }) => {
       if (data) setProviders(data)
       else setError(errorMessage(error))
@@ -333,7 +417,7 @@ export function RemoteDialog({
           setValues(data.values)
         })
     }
-  }, [editing])
+  }, [editing, isNew])
 
   const provider = providers?.find((p) => p.name === type)
   const subProvider = values.provider
@@ -357,18 +441,27 @@ export function RemoteDialog({
     setRefused(result.data.error ?? "")
     if (!result.data.done && !result.data.question) {
       // Refused: keep asking the same question.
-      if (!step) setError(result.data.error || "rclone refused that")
+      if (!configStep) setError(result.data.error || "rclone refused that")
       return
     }
     if (result.data.done) {
       toast.add({
         type: "success",
-        title: isNew ? `Added ${result.data.remote}` : `Saved ${result.data.remote}`,
+        title: isNew
+          ? `Added ${result.data.remote}`
+          : `Saved ${result.data.remote}`,
       })
-      setStep(null)
+      setConfigStep(null)
       onSaved()
       onClose()
-    } else setStep(result.data)
+    } else setConfigStep(result.data)
+  }
+
+  async function selectProvider(provider: Provider) {
+    setType(provider.name)
+    setValues({})
+    setError(null)
+    setPhase("settings")
   }
 
   async function submit(event: React.FormEvent) {
@@ -395,20 +488,20 @@ export function RemoteDialog({
   }
 
   async function answer(value: string) {
-    if (!step?.question) return
+    if (!configStep?.question) return
     await handle(
       await api.POST("/api/cloud/remotes/{name}/answer", {
-        params: { path: { name: step.remote } },
-        body: { state: step.question.state, answer: value },
+        params: { path: { name: configStep.remote } },
+        body: { state: configStep.question.state, answer: value },
       })
     )
   }
 
   async function cancel() {
     // A new remote that stopped halfway isn't usable: forget it.
-    if (isNew && step) {
+    if (isNew && configStep) {
       await api.DELETE("/api/cloud/remotes/{name}", {
-        params: { path: { name: step.remote } },
+        params: { path: { name: configStep.remote } },
       })
       onSaved()
     }
@@ -416,6 +509,34 @@ export function RemoteDialog({
   }
 
   const providerItems = providers ?? []
+  const loading = providers === null || (!isNew && detail === null)
+
+  // rclone follow-up question takes over the whole dialog.
+  if (configStep?.question) {
+    return (
+      <Dialog
+        open={editing !== null}
+        onOpenChange={(open) => !open && void cancel()}
+      >
+        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>
+              {isNew ? "Add a remote" : `Edit ${editing?.name ?? ""}`}
+            </DialogTitle>
+            <DialogDescription>
+              rclone needs one more answer to finish setting it up.
+            </DialogDescription>
+          </DialogHeader>
+          <QuestionForm
+            question={configStep.question}
+            refused={refused}
+            onAnswer={answer}
+            onCancel={() => void cancel()}
+          />
+        </DialogContent>
+      </Dialog>
+    )
+  }
 
   return (
     <Dialog
@@ -428,127 +549,196 @@ export function RemoteDialog({
             {isNew ? "Add a remote" : `Edit ${editing?.name ?? ""}`}
           </DialogTitle>
           <DialogDescription>
-            {step
-              ? "rclone needs one more answer to finish setting it up."
-              : provider
-                ? provider.description
-                : "Cloud storage that rclone connects to: Google Drive, OneDrive, Dropbox, S3, WebDAV and many more."}
+            {loading
+              ? "Loading storage providers…"
+              : phase === "provider"
+                ? "Pick the kind of storage to connect to."
+                : provider
+                  ? provider.description
+                  : "Cloud storage that rclone connects to: Google Drive, OneDrive, Dropbox, S3, WebDAV and many more."}
           </DialogDescription>
         </DialogHeader>
-        {step?.question ? (
-          <QuestionForm
-            question={step.question}
-            refused={refused}
-            onAnswer={answer}
-            onCancel={() => void cancel()}
-          />
-        ) : providers === null || (!isNew && detail === null) ? (
+        {loading || error ? (
           error ? (
             <FieldError>{error}</FieldError>
           ) : (
             <Skeleton className="h-48 w-full" />
           )
+        ) : phase === "provider" ? (
+          <ProviderCatalog
+            providers={providerItems}
+            onSelect={selectProvider}
+          />
         ) : (
-          <form onSubmit={submit} className="flex flex-col gap-4">
-            <FieldGroup>
-              {isNew ? (
-                <>
-                  <Field>
-                    <FieldLabel htmlFor="remote-name">Name</FieldLabel>
-                    <Input
-                      id="remote-name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="gdrive"
-                      required
-                      autoComplete="off"
-                    />
-                    <FieldDescription>
-                      How it shows in Files, e.g. gdrive or backups.
-                    </FieldDescription>
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="remote-type">Storage</FieldLabel>
-                    <Combobox
-                      items={providerItems}
-                      value={provider ?? null}
-                      onValueChange={(p: Provider | null) => {
-                        setType(p?.name ?? null)
-                        setValues({})
-                      }}
-                      itemToStringLabel={(p: Provider) => p.description}
-                      itemToStringValue={(p: Provider) => p.name}
-                    >
-                      <ComboboxInput
-                        id="remote-type"
-                        placeholder="Search: Drive, S3, Dropbox…"
-                        className="w-full"
-                      />
-                      <ComboboxContent>
-                        <ComboboxEmpty>No storage type matches.</ComboboxEmpty>
-                        <ComboboxList>
-                          {(p: Provider) => (
-                            <ComboboxItem key={p.name} value={p}>
-                              <span className="truncate">{p.description}</span>
-                              <span className="ml-auto font-mono text-xs text-muted-foreground">
-                                {p.name}
-                              </span>
-                            </ComboboxItem>
-                          )}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </Combobox>
-                  </Field>
-                </>
-              ) : null}
-              {basic.map((option) => (
-                <OptionField
-                  key={option.name}
-                  option={option}
-                  value={values[option.name] ?? ""}
-                  secretSet={secrets.has(option.name)}
-                  onChange={(v) => setValues((s) => ({ ...s, [option.name]: v }))}
-                />
-              ))}
-              {extra.length ? (
-                <Field orientation="horizontal">
-                  <Switch
-                    id="show-advanced"
-                    checked={advanced}
-                    onCheckedChange={setAdvanced}
-                  />
-                  <FieldLabel htmlFor="show-advanced">
-                    Advanced settings ({extra.length})
-                  </FieldLabel>
-                </Field>
-              ) : null}
-              {advanced
-                ? extra.map((option) => (
-                    <OptionField
-                      key={option.name}
-                      option={option}
-                      value={values[option.name] ?? ""}
-                      secretSet={secrets.has(option.name)}
-                      onChange={(v) =>
-                        setValues((s) => ({ ...s, [option.name]: v }))
-                      }
-                    />
-                  ))
-                : null}
-              {error ? <FieldError>{error}</FieldError> : null}
-            </FieldGroup>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={pending || !type || !remoteName}>
-                {pending ? <Spinner data-icon="inline-start" /> : null}
-                {isNew ? "Add" : "Save"}
-              </Button>
-            </DialogFooter>
-          </form>
+          <SettingsForm
+            isNew={isNew}
+            name={name}
+            setName={setName}
+            type={type ?? ""}
+            provider={provider!}
+            values={values}
+            setValues={setValues}
+            basic={basic}
+            extra={extra}
+            advanced={advanced}
+            setAdvanced={setAdvanced}
+            secrets={secrets}
+            error={error}
+            pending={pending}
+            remoteName={remoteName}
+            onBack={() => setPhase("provider")}
+            onSubmit={submit}
+          />
         )}
+        <DialogFooter>
+          {phase === "settings" && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPhase("provider")}
+            >
+              Back
+            </Button>
+          )}
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          {phase === "provider" ? null : (
+            <Button type="submit" disabled={pending || !type || !remoteName}>
+              {pending ? <Spinner data-icon="inline-start" /> : null}
+              {isNew ? "Add" : "Save"}
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function ProviderCatalog({
+  providers,
+  onSelect,
+}: {
+  providers: Provider[]
+  onSelect: (provider: Provider) => void
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-muted-foreground">
+        Choose the storage you want to connect to, then give it a name and fill
+        in its settings.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {providers.map((provider) => (
+          <ProviderCard
+            key={provider.name}
+            provider={provider}
+            onSelect={onSelect}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SettingsForm({
+  isNew,
+  name,
+  setName,
+  type,
+  provider,
+  values,
+  setValues,
+  basic,
+  extra,
+  advanced,
+  setAdvanced,
+  secrets,
+  error,
+  pending,
+  remoteName,
+  onBack,
+  onSubmit,
+}: {
+  isNew: boolean
+  name: string
+  setName: (value: string) => void
+  type: string
+  provider: Provider
+  values: Record<string, string>
+  setValues: React.Dispatch<React.SetStateAction<Record<string, string>>>
+  basic: Option[]
+  extra: Option[]
+  advanced: boolean
+  setAdvanced: (checked: boolean) => void
+  secrets: Set<string>
+  error: string | null
+  pending: boolean
+  remoteName: string
+  onBack: () => void
+  onSubmit: (event: React.FormEvent) => void
+}) {
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      <FieldGroup>
+        {isNew ? (
+          <>
+            <Field>
+              <FieldLabel htmlFor="remote-name">Name</FieldLabel>
+              <Input
+                id="remote-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="gdrive"
+                required
+                autoComplete="off"
+              />
+              <FieldDescription>
+                How it shows in Files, e.g. gdrive or backups.
+              </FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="remote-type">Storage</FieldLabel>
+              <p className="text-sm text-muted-foreground">
+                {provider.description}
+              </p>
+            </Field>
+          </>
+        ) : null}
+        {basic.map((option) => (
+          <OptionField
+            key={option.name}
+            option={option}
+            value={values[option.name] ?? ""}
+            secretSet={secrets.has(option.name)}
+            onChange={(v) => setValues((s) => ({ ...s, [option.name]: v }))}
+          />
+        ))}
+        {extra.length ? (
+          <Field orientation="horizontal">
+            <Switch
+              id="show-advanced"
+              checked={advanced}
+              onCheckedChange={setAdvanced}
+            />
+            <FieldLabel htmlFor="show-advanced">
+              Advanced settings ({extra.length})
+            </FieldLabel>
+          </Field>
+        ) : null}
+        {advanced
+          ? extra.map((option) => (
+              <OptionField
+                key={option.name}
+                option={option}
+                value={values[option.name] ?? ""}
+                secretSet={secrets.has(option.name)}
+                onChange={(v) => setValues((s) => ({ ...s, [option.name]: v }))}
+              />
+            ))
+          : null}
+        {error ? <FieldError>{error}</FieldError> : null}
+      </FieldGroup>
+    </form>
   )
 }
