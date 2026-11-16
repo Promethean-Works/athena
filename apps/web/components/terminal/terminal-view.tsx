@@ -57,7 +57,7 @@ export function TerminalUnavailable({
       </EmptyHeader>
       {settingsLink && (
         <EmptyContent>
-          <Button variant="outline" render={<Link href="/settings/system/" />}>
+          <Button variant="outline" render={<Link href="/settings/system/" />} nativeButton={false}>
             Open Settings
           </Button>
         </EmptyContent>

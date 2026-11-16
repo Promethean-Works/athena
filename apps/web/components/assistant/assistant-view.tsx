@@ -197,7 +197,7 @@ function NoProviders() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button render={<Link href="/settings/ai/" />}>
+        <Button render={<Link href="/settings/ai/" />} nativeButton={false}>
           Open Settings → AI
         </Button>
       </EmptyContent>

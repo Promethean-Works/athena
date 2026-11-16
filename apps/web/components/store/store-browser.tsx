@@ -102,6 +102,7 @@ export function StoreBrowser() {
           variant="outline"
           className="ml-auto"
           render={<Link href="/store/catalogs/" />}
+          nativeButton={false}
         >
           <LibraryIcon data-icon="inline-start" />
           Catalogs
