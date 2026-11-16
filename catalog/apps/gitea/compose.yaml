@@ -1,0 +1,26 @@
+x-athena:
+  title: Gitea
+  description: Self-hosted Git service with code hosting, issues and pull requests.
+  category: development
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/gitea.svg
+  homepage: https://gitea.io
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "3005"
+
+services:
+  gitea:
+    image: docker.gitea.com/gitea:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3000"
+    environment:
+      USER_UID: "1000"
+      USER_GID: "1000"
+    volumes:
+      - ${ATHENA_APP_DATA}/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro

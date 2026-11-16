@@ -9237,9 +9237,35 @@
             "type": "string",
             "title": "Description"
           },
+          "tagline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tagline"
+          },
           "category": {
             "type": "string",
             "title": "Category"
+          },
+          "category_label": {
+            "type": "string",
+            "title": "Category Label"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "popular": {
+            "type": "boolean",
+            "title": "Popular"
           },
           "icon": {
             "anyOf": [
@@ -9267,7 +9293,11 @@
           "id",
           "title",
           "description",
+          "tagline",
           "category",
+          "category_label",
+          "tags",
+          "popular",
           "icon",
           "installed"
         ],
@@ -9295,9 +9325,35 @@
             "type": "string",
             "title": "Description"
           },
+          "tagline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tagline"
+          },
           "category": {
             "type": "string",
             "title": "Category"
+          },
+          "category_label": {
+            "type": "string",
+            "title": "Category Label"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "popular": {
+            "type": "boolean",
+            "title": "Popular"
           },
           "icon": {
             "anyOf": [
@@ -9367,6 +9423,31 @@
             ],
             "title": "Web Port"
           },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Features"
+          },
+          "screenshots": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Screenshots"
+          },
+          "license": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License"
+          },
           "suggested_name": {
             "type": "string",
             "title": "Suggested Name"
@@ -9390,7 +9471,11 @@
           "id",
           "title",
           "description",
+          "tagline",
           "category",
+          "category_label",
+          "tags",
+          "popular",
           "icon",
           "installed",
           "homepage",
@@ -9398,6 +9483,9 @@
           "platforms",
           "images",
           "web_port",
+          "features",
+          "screenshots",
+          "license",
           "suggested_name",
           "fields",
           "compose"

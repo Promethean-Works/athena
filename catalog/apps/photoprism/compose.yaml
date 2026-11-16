@@ -1,0 +1,33 @@
+x-athena:
+  title: PhotoPrism
+  description: AI-powered photos app for the decentralized web.
+  category: media
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/photoprism.svg
+  homepage: https://photoprism.app
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "2342"
+    - key: ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  photoprism:
+    image: photoprism/photoprism:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:2342"
+    environment:
+      TZ: ${TZ}
+      PHOTOPRISM_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/storage:/photoprism/storage
+      - ${ATHENA_APP_DATA}/originals:/photoprism/originals

@@ -45,7 +45,11 @@ class StoreApp(BaseModel):
     id: str
     title: str
     description: str
+    tagline: str | None
     category: str
+    category_label: str
+    tags: list[str]
+    popular: bool
     icon: str | None
     installed: list[str]
     """Names of Athena apps installed from this catalog app."""
@@ -70,6 +74,9 @@ class StoreAppDetail(StoreApp):
     platforms: list[str]
     images: list[str]
     web_port: str | int | None
+    features: list[str]
+    screenshots: list[str]
+    license: str | None
     suggested_name: str
     fields: list[FormField]
     compose: str
@@ -111,7 +118,11 @@ def _summary(
         id=app.id,
         title=app.meta.title,
         description=app.meta.description,
+        tagline=app.meta.tagline,
         category=app.meta.category,
+        category_label=CATEGORY_LABELS.get(app.meta.category, app.meta.category),
+        tags=app.meta.tags,
+        popular=app.meta.popular,
         icon=app.meta.icon,
         installed=sorted(installed.get(f"{app.catalog}/{app.id}", [])),
     )
@@ -184,6 +195,9 @@ def get_store_app(
         platforms=app.meta.platforms,
         images=app.images,
         web_port=app.meta.web_port,
+        features=app.meta.features,
+        screenshots=app.meta.screenshots,
+        license=app.meta.license,
         suggested_name=name,
         fields=[_field(f, defaults[f.key]) for f in app.meta.env],
         compose=app.compose,

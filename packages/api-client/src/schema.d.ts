@@ -3288,8 +3288,16 @@ export interface components {
             title: string;
             /** Description */
             description: string;
+            /** Tagline */
+            tagline: string | null;
             /** Category */
             category: string;
+            /** Category Label */
+            category_label: string;
+            /** Tags */
+            tags: string[];
+            /** Popular */
+            popular: boolean;
             /** Icon */
             icon: string | null;
             /** Installed */
@@ -3307,8 +3315,16 @@ export interface components {
             title: string;
             /** Description */
             description: string;
+            /** Tagline */
+            tagline: string | null;
             /** Category */
             category: string;
+            /** Category Label */
+            category_label: string;
+            /** Tags */
+            tags: string[];
+            /** Popular */
+            popular: boolean;
             /** Icon */
             icon: string | null;
             /** Installed */
@@ -3323,6 +3339,12 @@ export interface components {
             images: string[];
             /** Web Port */
             web_port: string | number | null;
+            /** Features */
+            features: string[];
+            /** Screenshots */
+            screenshots: string[];
+            /** License */
+            license: string | null;
             /** Suggested Name */
             suggested_name: string;
             /** Fields */
