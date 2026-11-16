@@ -277,6 +277,10 @@ APP_ACTIONS = [install_store_app, create_app, change_app, remove_app]
 PACKAGE_ACTIONS = [install_package, uninstall_package, upgrade_packages]
 FILE_ACTIONS = [write_text_file, create_folder, rename_file, delete_files, copy_or_move_files]
 NAMES = frozenset(fn.__name__ for fn in (*APP_ACTIONS, *PACKAGE_ACTIONS, *FILE_ACTIONS))
+FILESYSTEM_NAMES = frozenset({"write_file", "edit_file", "create_directory"})
+"""Harness `FileSystem` tools that change the code-workspace and need approval
+(reads run free). They're raised by `Permissions`, not wrapped with
+`requires_approval`, so they aren't in `NAMES`."""
 
 
 # ---------------------------------------------------------------- approval cards
@@ -299,7 +303,7 @@ def _items(paths: Any) -> str:
 
 def summarize(db: Session, name: str, args: Any) -> str | None:
     """One sentence for the approval card, or None for a tool that needs no approval."""
-    if name not in NAMES and name not in SHELL_TOOLS:
+    if name not in NAMES and name not in SHELL_TOOLS and name not in FILESYSTEM_NAMES:
         return None
     a: dict[str, Any] = args if isinstance(args, dict) else {}
     match name:
@@ -344,6 +348,12 @@ def summarize(db: Session, name: str, args: Any) -> str | None:
             src = _where(db, a.get("location_id"))
             dest = _where(db, a.get("dest_location_id"), a.get("dest_path"))
             return f"{verb} {_items(a.get('paths', []))} from {src} to {dest}"
+        case "write_file":
+            return f"Replace the content of {a.get('path')}"
+        case "edit_file":
+            return f"Edit {a.get('path')}"
+        case "create_directory":
+            return f"Create the folder {a.get('path')}"
     return None  # pragma: no cover - every name in NAMES has a case
 
 
@@ -357,4 +367,6 @@ def is_destructive(name: str, args: Any) -> bool:
     a: dict[str, Any] = args if isinstance(args, dict) else {}
     if name == "copy_or_move_files":
         return a.get("op") == "move" or a.get("on_conflict") == "overwrite"
+    if name in {"write_file", "edit_file"}:
+        return True
     return name in DESTRUCTIVE
