@@ -500,7 +500,7 @@ async def _run(
             *approval_review_capabilities(review_model, ai.review_tool_calls),
             *docker_sandbox_capabilities(ai.docker_sandbox_enabled, deps.manifest),
             *durable_execution_capabilities(ai.durable_execution_enabled),
-            *coding_stack_capabilities(ai.coding_stack_enabled, deps.manifest, data_dir),
+            *coding_stack_capabilities(ai.coding_stack_enabled, data_dir),
         ]
         saved: Conversation | None = None
         compacted_ok = True
