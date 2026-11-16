@@ -6731,6 +6731,72 @@
         ],
         "title": "FormField"
       },
+      "GpuInfo": {
+        "properties": {
+          "index": {
+            "type": "integer",
+            "title": "Index"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "util": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Util"
+          },
+          "vram_used": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vram Used"
+          },
+          "vram_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vram Total"
+          },
+          "temp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "index",
+          "name",
+          "util",
+          "vram_used",
+          "vram_total",
+          "temp"
+        ],
+        "title": "GpuInfo"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -8814,6 +8880,39 @@
               }
             ],
             "title": "Cpu Temp"
+          },
+          "gpu_util": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gpu Util"
+          },
+          "vram_used": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vram Used"
+          },
+          "vram_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vram Total"
           }
         },
         "type": "object",
@@ -8828,7 +8927,10 @@
           "net_tx",
           "disk_read",
           "disk_write",
-          "cpu_temp"
+          "cpu_temp",
+          "gpu_util",
+          "vram_used",
+          "vram_total"
         ],
         "title": "StatsSample",
         "description": "One sample of the fast-changing metrics. Rates are per second since the last sample."
@@ -8893,6 +8995,13 @@
             ],
             "title": "Temperatures"
           },
+          "gpus": {
+            "items": {
+              "$ref": "#/components/schemas/GpuInfo"
+            },
+            "type": "array",
+            "title": "Gpus"
+          },
           "latest": {
             "anyOf": [
               {
@@ -8920,6 +9029,7 @@
           "load_avg",
           "disks",
           "temperatures",
+          "gpus",
           "latest",
           "history"
         ],

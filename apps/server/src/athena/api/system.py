@@ -87,8 +87,17 @@ async def system_stats(request: Request) -> StatsSnapshot:
 )
 def stream_system_stats(request: Request) -> StreamingResponse:
     """Server-Sent Events: a `stats` event (`HostStats` JSON) after every new sample."""
+    origin = request.headers.get("origin")
+    headers: dict[str, str] = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+    # In `next dev` the UI is on a different port than the API, so the browser
+    # connects to the Athena server directly (bypassing the Next.js dev proxy,
+    # which buffers SSE streams). CORS + credentials let the session cookie
+    # travel cross-origin (localhost:3000 <-> localhost:8420 are same-site).
+    if origin:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
     return StreamingResponse(
         _monitor(request).events(),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers=headers,
     )

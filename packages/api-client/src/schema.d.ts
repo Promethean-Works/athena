@@ -2387,6 +2387,21 @@ export interface components {
             /** Advanced */
             advanced: boolean;
         };
+        /** GpuInfo */
+        GpuInfo: {
+            /** Index */
+            index: number;
+            /** Name */
+            name: string;
+            /** Util */
+            util: number | null;
+            /** Vram Used */
+            vram_used: number | null;
+            /** Vram Total */
+            vram_total: number | null;
+            /** Temp */
+            temp: number | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -3148,6 +3163,12 @@ export interface components {
             disk_write: number | null;
             /** Cpu Temp */
             cpu_temp: number | null;
+            /** Gpu Util */
+            gpu_util: number | null;
+            /** Vram Used */
+            vram_used: number | null;
+            /** Vram Total */
+            vram_total: number | null;
         };
         /** StatsSnapshot */
         StatsSnapshot: {
@@ -3165,6 +3186,8 @@ export interface components {
             disks: components["schemas"]["DiskUsage"][];
             /** Temperatures */
             temperatures: components["schemas"]["Temperature"][] | null;
+            /** Gpus */
+            gpus: components["schemas"]["GpuInfo"][];
             latest: components["schemas"]["StatsSample"] | null;
             /** History */
             history: components["schemas"]["StatsSample"][];
