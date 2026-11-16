@@ -248,6 +248,31 @@ def detect_assistant_shell(probe: Probe) -> Capability:
     )
 
 
+def detect_smb(probe: Probe) -> Capability:
+    """SMB shares: publish a file location over the network via the host's Samba
+    server (§4.3). Linux uses the installed Samba server; macOS and Windows have
+    SMB built in but creating a share from Athena isn't wired on those OSes yet."""
+    label = "SMB shares"
+    if probe.os == "linux":
+        if probe.which("smbd"):
+            return Capability(id="shares.smb", label=label, status="ready", provider="samba")
+        return Capability(
+            id="shares.smb",
+            label=label,
+            status="missing",
+            provider="samba",
+            detail="Samba not installed. Install it (apt install samba) to share folders over SMB.",
+            actions=["setup"],
+        )
+    return Capability(
+        id="shares.smb",
+        label=label,
+        status="unsupported",
+        provider="built-in",
+        detail="Creating SMB shares from Athena isn't available on this operating system yet.",
+    )
+
+
 def detect_rclone(probe: Probe) -> Capability:
     path = probe.which("rclone")
     if not path:
@@ -343,6 +368,7 @@ def detectors_for(probe: Probe) -> list[Detector]:
         detect_terminal,
         detect_assistant_shell,
         detect_rclone,
+        detect_smb,
         detect_ollama,
     ]
 

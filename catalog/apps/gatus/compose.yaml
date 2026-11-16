@@ -1,0 +1,22 @@
+x-athena:
+  title: Gatus
+  description: Developer-oriented health dashboard to monitor services and endpoints.
+  category: monitoring
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/gatus.svg
+  homepage: https://gatus.io
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8097"
+
+services:
+  gatus:
+    image: twinproduction/gatus:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${ATHENA_APP_DATA}/data:/data

@@ -98,6 +98,55 @@ class AppMeta(BaseModel):
     env: list[EnvField] = Field(default_factory=list)
     notes: str | None = None
     """Shown on the app page, e.g. first-login instructions."""
+    tagline: str | None = None
+    """One short line for the store card and the popular banner."""
+    tags: list[str] = Field(default_factory=list)
+    """Small chips on the card, e.g. Movies, Transcoding."""
+    features: list[str] = Field(default_factory=list)
+    """Bullet points in the app page's "What you get" list."""
+    screenshots: list[str] = Field(default_factory=list)
+    """http(s) URLs shown in the app page's screenshot gallery."""
+    license: str | None = None
+    """SPDX-ish license name, shown in the app's details."""
+    popular: bool = False
+    """Feature in the store's front-page banner."""
+
+    @field_validator("tagline")
+    @classmethod
+    def tagline_is_short(cls, value: str | None) -> str | None:
+        if value is not None and len(value) > 90:
+            raise ValueError("keep the tagline under 90 characters")
+        return value
+
+    @field_validator("tags")
+    @classmethod
+    def tags_are_small(cls, value: list[str]) -> list[str]:
+        if len(value) > 6:
+            raise ValueError("at most 6 tags")
+        for tag in value:
+            if not tag.strip() or len(tag) > 24:
+                raise ValueError("each tag needs 1-24 characters")
+        return value
+
+    @field_validator("features")
+    @classmethod
+    def features_are_small(cls, value: list[str]) -> list[str]:
+        if len(value) > 8:
+            raise ValueError("at most 8 features")
+        for feature in value:
+            if not feature.strip() or len(feature) > 160:
+                raise ValueError("each feature needs 1-160 characters")
+        return value
+
+    @field_validator("screenshots")
+    @classmethod
+    def screenshots_are_urls(cls, value: list[str]) -> list[str]:
+        if len(value) > 6:
+            raise ValueError("at most 6 screenshots")
+        for url in value:
+            if not url.startswith(("http://", "https://")):
+                raise ValueError(f"screenshot {url!r} isn't an http(s) URL")
+        return value
 
 
 class CatalogApp(BaseModel):

@@ -128,6 +128,26 @@ class Share(SQLModel, table=True):
     uploads: int = 0
 
 
+class SmbShare(SQLModel, table=True):
+    """An SMB share Athena created for a file location (docs/mvp-design.md §4.3).
+
+    The share is published by the host's Samba server (Linux) from smb.conf; this
+    row tracks what Athena created so it can be listed and removed.
+    """
+
+    __tablename__ = "smb_shares"
+
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, index=True, max_length=64)
+    """The share name as it appears on the network (\\\\server\\name)."""
+    location_id: int = Field(foreign_key="file_locations.id", index=True, ondelete="CASCADE")
+    path: str = Field(max_length=1024)
+    """The shared folder's absolute path on the host."""
+    read_only: bool = Field(default=False)
+    guest_ok: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+
+
 class AiProvider(SQLModel, table=True):
     """An AI provider the assistant can use (docs/mvp-design.md §4.5). Server-wide."""
 

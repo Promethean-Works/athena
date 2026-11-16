@@ -17,6 +17,7 @@ from athena.api import files as files_api
 from athena.api import packages as packages_api
 from athena.api import settings as settings_api
 from athena.api import shares as shares_api
+from athena.api import smb as smb_api
 from athena.api import store as store_api
 from athena.api import terminal as terminal_api
 from athena.api import webdav as webdav_api
@@ -130,6 +131,7 @@ def create_app(
     app.include_router(files_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(shares_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(shares_api.public_router, prefix="/api")
+    app.include_router(smb_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(webdav_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(cloud_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(assistant_api.router, prefix="/api", dependencies=[require_user])

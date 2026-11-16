@@ -1,0 +1,43 @@
+x-athena:
+  title: Transmission
+  description: A fast and easy BitTorrent client with a web interface.
+  category: downloads
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/transmission.svg
+  homepage: https://transmissionbt.com
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "9091"
+    - key: DOWNLOADS_PATH
+      label: Downloads folder
+      type: path
+      description: Where finished downloads go.
+      default: "@app_data/downloads"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9091"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${DOWNLOADS_PATH}:/downloads

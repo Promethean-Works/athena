@@ -1203,6 +1203,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/shares/smb": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Smb Shares
+         * @description The SMB shares Athena created, newest first.
+         */
+        get: operations["listSmbShares"];
+        put?: never;
+        /**
+         * Create Smb Share
+         * @description Share a location over SMB. On Linux this writes a section to
+         *     /etc/samba/smb.conf and reloads smbd; on other operating systems it's 501.
+         */
+        post: operations["createSmbShare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shares/smb/{share_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Smb Share
+         * @description Remove an SMB share: drop its smb.conf section and the tracking row.
+         */
+        delete: operations["removeSmbShare"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/webdav": {
         parameters: {
             query?: never;
@@ -3136,6 +3181,45 @@ export interface components {
              */
             remove_password: boolean;
         };
+        /** SmbShareIn */
+        SmbShareIn: {
+            /** Location */
+            location: number;
+            /** Name */
+            name: string;
+            /**
+             * Read Only
+             * @default false
+             */
+            read_only: boolean;
+            /**
+             * Guest Ok
+             * @default false
+             */
+            guest_ok: boolean;
+        };
+        /** SmbShareOut */
+        SmbShareOut: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Location Id */
+            location_id: number;
+            /** Location Name */
+            location_name: string;
+            /** Path */
+            path: string;
+            /** Read Only */
+            read_only: boolean;
+            /** Guest Ok */
+            guest_ok: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /**
          * StatsSample
          * @description One sample of the fast-changing metrics. Rates are per second since the last sample.
@@ -3204,8 +3288,16 @@ export interface components {
             title: string;
             /** Description */
             description: string;
+            /** Tagline */
+            tagline: string | null;
             /** Category */
             category: string;
+            /** Category Label */
+            category_label: string;
+            /** Tags */
+            tags: string[];
+            /** Popular */
+            popular: boolean;
             /** Icon */
             icon: string | null;
             /** Installed */
@@ -3223,8 +3315,16 @@ export interface components {
             title: string;
             /** Description */
             description: string;
+            /** Tagline */
+            tagline: string | null;
             /** Category */
             category: string;
+            /** Category Label */
+            category_label: string;
+            /** Tags */
+            tags: string[];
+            /** Popular */
+            popular: boolean;
             /** Icon */
             icon: string | null;
             /** Installed */
@@ -3239,6 +3339,12 @@ export interface components {
             images: string[];
             /** Web Port */
             web_port: string | number | null;
+            /** Features */
+            features: string[];
+            /** Screenshots */
+            screenshots: string[];
+            /** License */
+            license: string | null;
             /** Suggested Name */
             suggested_name: string;
             /** Fields */
@@ -5749,6 +5855,88 @@ export interface operations {
             header?: never;
             path: {
                 token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listSmbShares: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SmbShareOut"][];
+                };
+            };
+        };
+    };
+    createSmbShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SmbShareIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SmbShareOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    removeSmbShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: number;
             };
             cookie?: never;
         };
