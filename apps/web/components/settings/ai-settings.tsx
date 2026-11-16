@@ -968,9 +968,9 @@ function CodingStackCard({
         <CardTitle>Coding stack</CardTitle>
         <CardDescription>
           Give the assistant coding-assistant capabilities that read code context
-          (AGENTS.md / CLAUDE.md) from a workspace inside Athena's data folder.
-          Nothing mutates files here, so nothing needs approval; more coding
-          capabilities join later, each with its own Approve/Deny card.
+          (AGENTS.md / CLAUDE.md) from a workspace inside Athena's data folder,
+          and read or write files inside that workspace. Reading runs free;
+          writing, editing or creating a file shows an Approve/Deny card first.
         </CardDescription>
       </CardHeader>
       <CardContent>
