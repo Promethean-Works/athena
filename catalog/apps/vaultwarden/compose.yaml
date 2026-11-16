@@ -1,6 +1,15 @@
 x-athena:
   title: Vaultwarden
   description: A lightweight server for the Bitwarden password manager apps.
+  tagline: "A lightweight Bitwarden-compatible password server."
+  tags: [Passwords, Security, Sync]
+  license: "AGPL-3.0"
+  popular: true
+  features:
+    - Works with the official Bitwarden apps and extensions
+    - End-to-end encrypted vaults
+    - TOTP, attachments and organisations
+    - Needs a fraction of Bitwarden's memory
   category: security
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/vaultwarden.svg
   homepage: https://github.com/dani-garcia/vaultwarden

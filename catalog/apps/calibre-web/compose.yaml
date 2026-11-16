@@ -1,0 +1,46 @@
+x-athena:
+  title: calibre-web
+  description: Web app for browsing, reading and downloading e-books from a Calibre library.
+  tagline: "Your Calibre library, browsable and readable in a browser."
+  tags: [E-books, Reading, Library]
+  license: "GPL-3.0"
+  features:
+    - Browse a Calibre library in a clean web UI
+    - Read EPUB, PDF and CBX files in the browser
+    - Send books to a Kindle or e-reader by email
+    - Shelves, ratings and reading progress
+  category: files
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/calibre-web.svg
+  homepage: https://www.calibre-ebook.com
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8088"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8083"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${ATHENA_APP_DATA}/books:/books

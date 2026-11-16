@@ -1,0 +1,40 @@
+x-athena:
+  title: Bazarr
+  description: Companion to Sonarr and Radarr that manages subtitles for your media.
+  tagline: "Automatic subtitles for everything Sonarr and Radarr download."
+  tags: [Subtitles, Automation]
+  license: "GPL-3.0"
+  category: media
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/bazarr.svg
+  homepage: https://www.bazarr.media
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "6767"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:6767"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

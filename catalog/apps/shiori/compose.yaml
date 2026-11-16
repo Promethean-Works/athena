@@ -1,0 +1,30 @@
+x-athena:
+  title: Shiori
+  description: Simple bookmarks manager built with Go.
+  tagline: "A simple bookmarks manager with offline copies."
+  tags: [Bookmarks, Reading]
+  license: "MIT"
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/shiori.svg
+  homepage: https://go-shiori.shiori.docs
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8095"
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  shiori:
+    image: ghcr.io/go-shiori/shiori:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

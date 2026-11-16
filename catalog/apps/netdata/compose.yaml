@@ -1,0 +1,35 @@
+x-athena:
+  title: Netdata
+  description: Real-time performance and health monitoring for systems and applications.
+  tagline: "Per-second metrics for every process and container."
+  tags: [Metrics, Monitoring, Containers]
+  license: "GPL-3.0"
+  features:
+    - Zero-configuration system monitoring
+    - Per-second resolution with no history database needed
+    - Containers, disks, network and services out of the box
+    - Built-in alerting and a dashboard
+  category: monitoring
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/netdata.svg
+  homepage: https://www.netdata.cloud
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "19999"
+
+services:
+  netdata:
+    image: netdata/netdata:stable
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:19999"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/var/lib/netdata
+      - ${ATHENA_APP_DATA}/cache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro

@@ -1,0 +1,38 @@
+x-athena:
+  title: ESPHome
+  description: Write YAML, flash ESP boards, control your sensors.
+  tagline: "Write YAML, flash ESP boards, control your sensors."
+  tags: [ESP32, Firmware, Home]
+  license: "GPL-3.0"
+  features:
+    - One YAML file per device, edited in the browser
+    - OTA updates with compiled firmware
+    - Hundreds of sensors and components
+    - Speaks natively to Home Assistant
+  category: home
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/esphome.svg
+  homepage: https://esphome.io
+  web_port: WEB_PORT
+  notes: >-
+    The dashboard works right away. Flashing over USB needs the board passed into the
+    container, and devices are discovered over the network coming from Home Assistant.
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "6052"
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  esphome:
+    image: ghcr.io/esphome/esphome:2026.10.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:6052"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

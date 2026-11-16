@@ -1,0 +1,46 @@
+x-athena:
+  title: Radarr
+  description: Movie collection manager for Usenet and BitTorrent users.
+  tagline: "Find, download and organise your movies."
+  tags: [Movies, Automation]
+  license: "GPL-3.0"
+  popular: true
+  features:
+    - Watches release feeds for the movies you want
+    - Sends downloads to qBittorrent, Deluge or SABnzbd
+    - Renames and organises files for Jellyfin or Plex
+    - Upgrades to better releases automatically
+  category: media
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/radarr.svg
+  homepage: https://radarr.video
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "7878"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:7878"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

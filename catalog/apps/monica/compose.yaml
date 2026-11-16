@@ -1,0 +1,75 @@
+x-athena:
+  title: Monica
+  description: A personal CRM that remembers people for you.
+  tagline: "A personal CRM that remembers people for you."
+  tags: [Contacts, Personal, Journal]
+  license: "AGPL-3.0"
+  features:
+    - Contact notes, birthdays and reminders
+    - Activities, tasks and gifts per person
+    - Relationships between people
+    - Multiple users, each with their own contacts
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/monica.svg
+  homepage: https://www.monicahq.com
+  web_port: WEB_PORT
+  notes: >-
+    Create your account on first visit. The database migrates itself, which takes a
+    couple of minutes on the first start.
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8093"
+    - key: APP_KEY
+      label: App encryption key
+      type: password
+      generate: secret
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+    - key: DB_ROOT_PASSWORD
+      label: Database root password
+      type: password
+      generate: secret
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  monica:
+    image: library/monica:4.1-apache
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY}
+      APP_URL: http://localhost:${WEB_PORT}
+      DB_CONNECTION: mysql
+      DB_HOST: monica-db
+      DB_PORT: "3306"
+      DB_DATABASE: monica
+      DB_USERNAME: monica
+      DB_PASSWORD: ${DB_PASSWORD}
+      MAIL_MAILER: log
+      LOG_CHANNEL: stderr
+    volumes:
+      - ${ATHENA_APP_DATA}/storage:/var/www/html/storage
+    depends_on:
+      - monica-db
+
+  monica-db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: monica
+      MARIADB_USER: monica
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/db:/var/lib/mysql

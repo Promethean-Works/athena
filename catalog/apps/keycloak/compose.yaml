@@ -1,0 +1,50 @@
+x-athena:
+  title: Keycloak
+  description: Open source identity and access management.
+  tagline: "Open source identity and access management."
+  tags: [SSO, OIDC, SAML]
+  license: "Apache-2.0"
+  features:
+    - Standards-based OIDC and SAML identity provider
+    - User federation with LDAP and Active Directory
+    - Fine-grained roles and authorisation services
+    - Social login and identity brokering
+  category: security
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/keycloak.svg
+  homepage: https://www.keycloak.org
+  web_port: WEB_PORT
+  notes: >-
+    Runs in development mode with an embedded database, which is fine for trying it out.
+    Sign in to the admin console with the admin user and password from the install form.
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8090"
+    - key: ADMIN_USER
+      label: Admin user
+      default: "admin"
+    - key: ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8
+    restart: unless-stopped
+    command: start-dev
+    ports:
+      - "${WEB_PORT}:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${ADMIN_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/opt/keycloak/data

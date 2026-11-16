@@ -1,6 +1,9 @@
 x-athena:
   title: Forgejo
   description: A lightweight, community-run Git forge with issues and pull requests.
+  tagline: "A community-run Git forge with issues and pull requests."
+  tags: [Git, Code hosting, Actions]
+  license: "GPL-3.0"
   category: development
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/forgejo.svg
   homepage: https://forgejo.org

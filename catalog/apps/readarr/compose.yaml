@@ -1,0 +1,40 @@
+x-athena:
+  title: Readarr
+  description: Book collection manager for Usenet and BitTorrent users.
+  tagline: "Book collection manager for Usenet and BitTorrent."
+  tags: [E-books, Automation]
+  license: "GPL-3.0"
+  category: media
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/readarr.svg
+  homepage: https://readarr.com
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8787"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  readarr:
+    image: lscr.io/linuxserver/readarr:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8787"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

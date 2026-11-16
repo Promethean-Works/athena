@@ -1,0 +1,24 @@
+x-athena:
+  title: Prometheus
+  description: Time-series database and monitoring system for metrics and alerting.
+  tagline: "Pull-based metrics collection and alerting."
+  tags: [Metrics, Monitoring]
+  license: "Apache-2.0"
+  category: monitoring
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prometheus.svg
+  homepage: https://prometheus.io
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "9090"
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9090"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/prometheus

@@ -1,6 +1,16 @@
 x-athena:
   title: Node-RED
   description: Low-code, flow-based programming for automations and IoT.
+  tagline: "Wire devices and APIs together with a visual flow editor."
+  tags: [Automation, IoT, Flows]
+  license: "Apache-2.0"
+  features:
+    - Drag-and-drop flows in the browser
+    - Thousands of community nodes
+    - MQTT, HTTP, WebSocket and serial built in
+    - Great companion to Home Assistant
+  screenshots:
+    - https://nodered.org/images/node-red-screenshot.png
   category: home
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/node-red.svg
   homepage: https://nodered.org

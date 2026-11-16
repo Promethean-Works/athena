@@ -1,6 +1,15 @@
 x-athena:
   title: Home Assistant
   description: Open-source home automation that puts local control first.
+  tagline: "Local-first home automation for thousands of devices."
+  tags: [Home automation, IoT, Local control]
+  license: "Apache-2.0"
+  popular: true
+  features:
+    - Control lights, switches, sensors and media players
+    - Thousands of integrations and add-ons
+    - Automations, scenes and dashboards
+    - Everything keeps working without the cloud
   category: home
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/home-assistant.svg
   homepage: https://www.home-assistant.io

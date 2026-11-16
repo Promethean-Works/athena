@@ -1,6 +1,18 @@
 x-athena:
   title: Nextcloud
   description: Your own cloud for files, calendars, contacts and more.
+  tagline: "Files, calendars, contacts and photos on your own server."
+  tags: [Files, Sync, Calendar, Contacts]
+  license: "AGPL-3.0"
+  popular: true
+  features:
+    - Sync files across desktop and mobile clients
+    - Calendars, contacts and tasks
+    - Share with links, groups and passwords
+    - Versioning and trash recovery
+    - Dozens of apps in the app store
+  screenshots:
+    - https://raw.githubusercontent.com/nextcloud/screenshots/master/nextcloud-hub-25-files.png
   category: files
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/nextcloud.svg
   homepage: https://nextcloud.com

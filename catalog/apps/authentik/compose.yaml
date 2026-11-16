@@ -1,0 +1,108 @@
+x-athena:
+  title: Authentik
+  description: Single sign-on, LDAP and MFA for everything you host.
+  tagline: "Single sign-on, LDAP and MFA for everything you host."
+  tags: [SSO, Identity, MFA]
+  license: "MIT"
+  features:
+    - OAuth2/OIDC, SAML and LDAP providers
+    - Multi-factor authentication and WebAuthn
+    - Proxy outposts protect apps that lack SSO
+    - User and group management with flows
+    - One login for every self-hosted app
+  category: security
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authentik.svg
+  homepage: https://goauthentik.io
+  web_port: WEB_PORT
+  notes: >-
+    Sign in as akadmin with the admin password from your install form. Point your apps
+    at Authentik from the admin interface; it speaks OAuth2/OIDC, SAML and LDAP.
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "9001"
+    - key: SECRET_KEY
+      label: Secret key
+      type: password
+      generate: secret
+    - key: ADMIN_EMAIL
+      label: Admin email
+      default: "admin@example.com"
+    - key: ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  server:
+    image: ghcr.io/goauthentik/server:2026.8.5
+    restart: unless-stopped
+    command: server
+    ports:
+      - "${WEB_PORT}:9000"
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${DB_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${SECRET_KEY}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${ADMIN_EMAIL}
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${ADMIN_PASSWORD}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/media:/media
+      - ${ATHENA_APP_DATA}/templates:/templates
+    depends_on:
+      - postgresql
+      - redis
+
+  worker:
+    image: ghcr.io/goauthentik/server:2026.8.5
+    restart: unless-stopped
+    command: worker
+    user: root
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${DB_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${SECRET_KEY}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/media:/media
+      - ${ATHENA_APP_DATA}/certs:/certs
+      - ${ATHENA_APP_DATA}/templates:/templates
+    depends_on:
+      - postgresql
+      - redis
+
+  postgresql:
+    image: docker.io/library/postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authentik
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/postgres:/var/lib/postgresql/data
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    restart: unless-stopped
+    command: --save 60 1 --loglevel warning
+    volumes:
+      - ${ATHENA_APP_DATA}/redis:/data

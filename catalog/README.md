@@ -19,6 +19,15 @@ x-athena:
   web_port: WEB_PORT     # env key (or a number) that the "Open" button uses
   notes: >-              # optional, shown on the store page
     First-run instructions.
+  tagline: Your own streaming service for movies, shows and music.  # card subtitle
+  tags: [Movies, TV, Music]      # up to 6 small chips on the card
+  license: GPL-2.0               # shown on the app page
+  popular: true                  # featured in the store's front-page banner
+  features:                      # up to 8 bullets, "What you get" on the app page
+    - Stream to TVs, phones, browsers and DLNA devices
+    - Hardware transcoding when the host supports it
+  screenshots:                   # up to 6 http(s) URLs; the first is the card cover
+    - https://example.com/screenshot.png
   env:                   # one form field per entry; answers are written to .env
     - key: WEB_PORT
       label: Web port
@@ -56,6 +65,8 @@ services:
 - **Pin image tags** to a release, a major version, or an official channel (`stable`). Check that they exist for `linux/amd64` and `linux/arm64`.
 - **Open-source apps only.** Use web ports that don't clash with other catalog apps, so several apps can run side by side.
 - **Icons** come from [dashboard-icons](https://github.com/homarr-labs/dashboard-icons) (Apache-2.0).
+- **Screenshots** should come from the project's own repository or documentation site (a raw GitHub URL is fine). Keep them under a few hundred KB, and check that the URL answers 200. The store falls back to the app icon when a screenshot can't load, so a missing or rotted URL is not fatal.
+- **`tagline`, `tags`, `features`, `license` and `popular`** are optional but make the store page useful. `popular: true` puts the app in the front-page banner, so use it for the handful of apps a home server actually starts with.
 
 ## Checks
 

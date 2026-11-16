@@ -1,0 +1,34 @@
+x-athena:
+  title: Portainer
+  description: Container management UI for Docker.
+  tagline: "A friendly UI for containers, images and volumes."
+  tags: [Containers, Docker, Admin]
+  license: "zlib"
+  popular: true
+  features:
+    - Start, stop and inspect containers from a UI
+    - Browse images, volumes and networks
+    - "Stacks: edit and redeploy compose files"
+    - Logs and a console into any container
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/portainer.svg
+  homepage: https://www.portainer.io
+  web_port: WEB_PORT
+  notes: >-
+    Mounts the host's Docker socket so Portainer can manage the server's containers.
+    Only makes sense on a host running Docker.
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "9000"
+
+services:
+  portainer:
+    image: portainer/portainer-ce:lts
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${ATHENA_APP_DATA}/data:/data

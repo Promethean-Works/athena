@@ -1,0 +1,32 @@
+x-athena:
+  title: Dozzle
+  description: Real-time log viewer for Docker containers.
+  tagline: "Live logs from every container, straight in the browser."
+  tags: [Logs, Containers, Developer]
+  license: "MIT"
+  features:
+    - Tail live logs from every container
+    - Search and filter across containers
+    - No database and no agent to install
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/dozzle.svg
+  homepage: https://dozzle.dev
+  web_port: WEB_PORT
+  notes: >-
+    Mounts the host's Docker socket so Dozzle can read container logs. Only
+    makes sense on a host running Docker.
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8098"
+
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${ATHENA_APP_DATA}/data:/data

@@ -1,0 +1,40 @@
+x-athena:
+  title: Prowlarr
+  description: Indexer manager for your Sonarr, Radarr, Lidarr and Readarr stack.
+  tagline: "One place to manage indexers for your *arr stack."
+  tags: [Indexers, Automation]
+  license: "GPL-3.0"
+  category: downloads
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prowlarr.svg
+  homepage: https://prowlarr.com
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "9696"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9696"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

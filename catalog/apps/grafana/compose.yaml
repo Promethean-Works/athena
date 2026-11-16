@@ -1,0 +1,36 @@
+x-athena:
+  title: Grafana
+  description: Visualize and query metrics from Prometheus and other data sources.
+  tagline: "Dashboards for every metric you collect."
+  tags: [Dashboards, Metrics, Alerts]
+  license: "AGPL-3.0"
+  popular: true
+  features:
+    - Beautiful dashboards from Prometheus, InfluxDB and 100+ sources
+    - Alerting with Slack, email and webhook delivery
+    - Variables, annotations and reusable panels
+    - Works with the bundled Prometheus app
+  category: monitoring
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/grafana.svg
+  homepage: https://grafana.com
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "3003"
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3000"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/var/lib/grafana

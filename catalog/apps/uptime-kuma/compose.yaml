@@ -1,6 +1,17 @@
 x-athena:
   title: Uptime Kuma
   description: Monitor websites and services and get alerts when they go down.
+  tagline: "Know when your sites and services go down."
+  tags: [Monitoring, Alerts, Status page]
+  license: "MIT"
+  popular: true
+  features:
+    - HTTP, TCP, ping, DNS and keyword monitors
+    - Notifications to 90+ services
+    - Public status pages
+    - Heartbeat history and response time charts
+  screenshots:
+    - https://uptime.kuma.pet/img/light.jpg
   category: monitoring
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/uptime-kuma.svg
   homepage: https://github.com/louislam/uptime-kuma

@@ -1,6 +1,16 @@
 x-athena:
   title: Stirling-PDF
   description: Merge, split, convert, sign and edit PDFs in your browser.
+  tagline: "Merge, split, convert and sign PDFs in the browser."
+  tags: [PDF, Tools, Privacy]
+  license: "MIT"
+  features:
+    - Merge, split, rotate and compress PDFs
+    - Convert to and from images and Office formats
+    - OCR, redaction and watermarking
+    - Files never leave your server
+  screenshots:
+    - https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/docs/images/home-light.png
   category: utilities
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/stirling-pdf.svg
   homepage: https://www.stirlingpdf.com

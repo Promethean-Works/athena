@@ -1,0 +1,42 @@
+x-athena:
+  title: Wallabag
+  description: Save articles and read them later, without the noise.
+  tagline: "Save articles and read them later, without the noise."
+  tags: [Read later, Articles, Offline]
+  license: "MIT"
+  features:
+    - Save a URL and keep a clean reading copy
+    - Browser extensions and mobile apps
+    - Tags, starred articles and full-text search
+    - Export to EPUB, PDF and JSON
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/wallabag.svg
+  homepage: https://wallabag.org
+  web_port: WEB_PORT
+  notes: >-
+    Sign in with wallabag / wallabag and change the password straight away. Browser
+    extensions and the mobile apps sync through the same account.
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8092"
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  wallabag:
+    image: wallabag/wallabag:2.6.17
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80"
+    environment:
+      SYMFONY__ENV__DATABASE_DRIVER: pdo_sqlite
+      SYMFONY__ENV__DATABASE_PATH: /var/www/wallabag/data/db/wallabag.sqlite
+      SYMFONY__ENV__DOMAIN_NAME: http://localhost:${WEB_PORT}
+      SYMFONY__ENV__REDIS_HOST: ""
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/var/www/wallabag/data
