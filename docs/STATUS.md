@@ -2,7 +2,7 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Parts A, B and C are done; part D stage 1 and stage 2 done (#65–#73 merged). Stage 3: web research (#75), second-model reviews (#76) and Docker sandbox (#77) done; browser blocked by a dependency conflict (see below).
+**Current milestone:** M7, the AI assistant (§4.5). Parts A, B and C are done; part D stage 1 and stage 2 done (#65–#73 merged). Stage 3: web research (#75), second-model reviews (#76), Docker sandbox (#77), hosted integrations (#78) and durable execution foundation (#80) done; browser blocked by a dependency conflict (see below).
 
 ## Done
 
@@ -23,8 +23,8 @@ M7 part D stage 3 (design §4.5 Parts): extras with outside services.
 - Docker sandbox: done — `DockerSandbox` (`python:3.13-slim` container) offered when `docker_sandbox_enabled` is on and the `containers` capability is ready (#77 merged).
 - Browser: blocked — `pydantic-ai-harness[browser-use]` is incompatible with the pinned `pydantic-ai-harness==0.68.0` / `pydantic-ai-slim>=2.68.0` (pydantic version conflict uv can't lock); needs a harness upgrade the maintainer controls.
 - Hosted integrations (D.5): done — curated MCP servers with a per-server encrypted token, Settings → AI card, actions through the same approval cards (#78 merged).
-- Durable execution (D.6): in progress — `durable_execution_enabled` setting + `PGTaskDurability` capability offered in Settings → AI, wired into chat runs; turns run durable inside pgtask tasks against Postgres (deployable as a compose app). PR #80 opened, CI running, auto-merge on. Turn-to-pgtask-task wiring + Postgres setup follow.
-Then: durable execution and operations (D.6) completion, and the coding stack (D.7).
+- Durable execution foundation (D.6): done — `durable_execution_enabled` switch + `PGTaskDurability` capability offered in Settings → AI, wired into chat runs (#80 merged). Turns still need to be wired to run inside pgtask tasks against Postgres (deployable as a compose app); real Postgres and a crash/resume flow not yet verified.
+Then: the coding stack (D.7).
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 
