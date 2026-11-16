@@ -30,6 +30,7 @@ export default function SettingsLayout({
               size="sm"
               aria-current={active ? "page" : undefined}
               render={<Link href={s.url} />}
+              nativeButton={false}
             >
               {s.title}
             </Button>

@@ -89,6 +89,11 @@ class AiSettings(BaseModel):
     container, instead of on the host directly."""
     mcp_servers: list[McpServer] = Field(default_factory=list, max_length=50)
     """MCP servers the assistant can connect to and use tools from (Settings → AI)."""
+    durable_execution_enabled: bool = False
+    """Let the assistant checkpoint each turn's model requests and tool calls so a
+    crashed run resumes from the last completed step instead of repeating paid work.
+    Needs pgtask and a Postgres database (run one as a compose app on this server);
+    the setting only turns the capability on."""
 
     @model_validator(mode="after")
     def _unique_mcp_ids(self) -> "AiSettings":

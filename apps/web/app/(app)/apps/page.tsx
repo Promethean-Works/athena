@@ -16,7 +16,7 @@ export default function AppsPage() {
           <p className="text-sm text-muted-foreground">
             Apps are compose projects that Athena manages.
           </p>
-          <Button render={<Link href="/apps/new/" />}>
+          <Button render={<Link href="/apps/new/" />} nativeButton={false}>
             <PlusIcon data-icon="inline-start" />
             New app
           </Button>
