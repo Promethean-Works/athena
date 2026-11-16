@@ -3,7 +3,10 @@
 
 A turn runs in its own task and keeps going if the browser goes away, so the answer is
 saved either way. Stopping uses pydantic-ai's CancellationToken, which keeps what the
-model had already said.
+model had already said. When durable execution is on and a pgtask/Postgres database is
+configured, the turn is enqueued as a pgtask task: every model request and tool call is
+checkpointed, so an interrupted run resumes from its last completed step instead of
+repeating paid work.
 """
 
 import asyncio
@@ -20,6 +23,7 @@ from decimal import Decimal
 from typing import Any, Literal
 
 from fastapi import FastAPI
+from pgtask import Client, EnqueueRequest, Task, TaskRegistry
 from pydantic import BaseModel
 from pydantic_ai import (
     Agent,
@@ -809,6 +813,11 @@ class Turns:
 
     def __init__(self) -> None:
         self._turns: dict[str, Turn] = {}
+        # Set by `create_app` when a pgtask/Postgres database URL is configured: turns are
+        # then enqueued as pgtask tasks so they're durable (checkpointed) across crashes.
+        self.pgtask_client: Client | None = None
+        self.pgtask_registry: TaskRegistry | None = None
+        self._pgtask_executors: dict[str, Callable[[Task], Awaitable[None]]] = {}
 
     def get(self, conversation_id: str) -> Turn | None:
         turn = self._turns.get(conversation_id)
@@ -816,6 +825,46 @@ class Turns:
             self._turns.pop(conversation_id, None)
             return None
         return turn
+
+    def register_pgtask_handlers(self) -> None:
+        """Register the pgtask task that runs each durable assistant turn.
+
+        The handler runs inside a pgtask task, so `current_task_steps()` is not None and
+        the `PGTaskDurability` capability checkpoints every model request and tool call.
+        """
+        if self.pgtask_registry is None:
+            return
+
+        @self.pgtask_registry.task("athena.assistant.turn")
+        async def handle_turn(task: Task, payload: dict[str, Any]) -> None:
+            cid = payload.get("conversation_id") if isinstance(payload, dict) else None
+            executor = self._pgtask_executors.pop(cid, None) if cid else None
+            if executor is None:
+                log.warning("pgtask turn %s has no executor to run", task.id)
+                return
+            await executor(task)
+
+    def _run_durable(self, conversation_id: str) -> Awaitable[None]:
+        """Enqueue this turn as a pgtask task and wait for it to complete.
+
+        `turn.task` is this awaitable, so stopping/shutdown can cancel it and the turn
+        stays "live" while its events stream to the browser.
+        """
+        assert self.pgtask_client is not None
+
+        async def run() -> None:
+            handle = await self.pgtask_client.enqueue(
+                EnqueueRequest(
+                    task_name="athena.assistant.turn",
+                    payload={"conversation_id": conversation_id},
+                )
+            )
+            try:
+                await handle.result()
+            finally:
+                self._pgtask_executors.pop(conversation_id, None)
+
+        return run()
 
     def start(
         self,
@@ -831,7 +880,10 @@ class Turns:
         title_model: Model | None = None,
         advisor_model: Model | None = None,
         review_model: Model | None = None,
+        durable: bool = False,
     ) -> Turn:
+        """Start one turn. When `durable` and a pgtask client are configured, the turn is
+        run inside a pgtask task (checkpointed, resumable); otherwise it runs inline."""
         turn = Turn(conversation_id)
 
         async def body() -> None:
@@ -858,7 +910,11 @@ class Turns:
                 self._turns.pop(conversation_id, None)
 
         self._turns[conversation_id] = turn
-        turn.task = asyncio.create_task(body())
+        if durable and self.pgtask_client is not None and self.pgtask_registry is not None:
+            self._pgtask_executors[conversation_id] = body
+            turn.task = asyncio.create_task(self._run_durable(conversation_id))
+        else:
+            turn.task = asyncio.create_task(body())
         return turn
 
     async def stop_all(self) -> None:

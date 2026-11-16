@@ -596,6 +596,7 @@ async def send_message(
         spend_limit=settings.spend_limit_usd,
         user_id=user.user.id,
         window=_window_of(request, db, row, model),
+        durable=settings.durable_execution_enabled,
         title_model=(
             _title_model(request, db, settings, model) if row.title == chat.NEW_CHAT else None
         ),
@@ -668,6 +669,7 @@ async def answer_approvals(
         spend_limit=settings.spend_limit_usd,
         user_id=user.user.id,
         window=_window_of(request, db, row, model),
+        durable=settings.durable_execution_enabled,
         advisor_model=_advisor_model(request, db, settings),
         review_model=_review_model(request, db, settings),
     )
