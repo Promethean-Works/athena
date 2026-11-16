@@ -3,7 +3,7 @@ x-athena:
   description: Developer-oriented health dashboard to monitor services and endpoints.
   tagline: "Monitor endpoints and get alerted when they go down."
   tags: [Monitoring, Alerts, Health checks]
-  license: "MIT"
+  license: "Apache-2.0"
   features:
     - HTTP, TCP, ICMP and DNS health checks
     - Latency charts and uptime history

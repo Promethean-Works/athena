@@ -42,6 +42,7 @@ export function StoreCover({
           src={screenshot ?? undefined}
           alt=""
           loading="lazy"
+          decoding="async"
           referrerPolicy="no-referrer"
           onError={() => setFailed(true)}
           className="size-full object-cover object-top"

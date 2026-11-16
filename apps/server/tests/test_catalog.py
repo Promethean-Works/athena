@@ -210,6 +210,26 @@ def test_store_detail_has_resolved_form(api: TestClient, tmp_path: Path) -> None
     assert api.get("/api/store/apps/builtin/nope").status_code == 404
 
 
+def test_store_front_metadata(api: TestClient) -> None:
+    apps = api.get("/api/store/apps").json()
+    by_id = {a["id"]: a for a in apps}
+    popular = {a["id"] for a in apps if a["popular"]}
+    assert {"jellyfin", "immich", "nextcloud"} <= popular
+
+    gitea = by_id["gitea"]
+    assert gitea["tagline"] and gitea["tags"] and gitea["category_label"] == "Development"
+    assert gitea["cover"] and gitea["cover"].startswith("https://")
+
+    detail = api.get("/api/store/apps/builtin/gitea").json()
+    assert detail["features"] and len(detail["screenshots"]) >= 2
+    assert detail["cover"] == detail["screenshots"][0]
+    assert detail["license"] == "MIT"
+
+    # Apps without screenshots fall back to their icon on a card.
+    assert by_id["jellyfin"]["cover"] is None
+    assert by_id["jellyfin"]["tagline"]
+
+
 def test_install_writes_env_and_deploys(api: TestClient, tmp_path: Path) -> None:
     res = api.post(
         "/api/store/apps/builtin/nextcloud/install",
