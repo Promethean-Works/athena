@@ -47,3 +47,4 @@ Later: per-container stats, verifying temperatures on a real Linux host, importi
 ## Blockers
 
 - None. The first release (release-please PR #3, `RELEASE_PLEASE_TOKEN` is set) is on hold: the maintainer merges it once the plan under **Next** is complete. Agents: don't merge it or turn on its auto-merge.
+- Pipeline on main: E2E install + smoke failed on all platforms because M7 part C added an optional AI step to `/setup` after account creation and the smoke test never dismissed it. Fixed in PR #90 (`fix/e2e-smoke-setup-ai-step`: click "Skip for now" after account creation). CI pending; auto-merge enabled.
