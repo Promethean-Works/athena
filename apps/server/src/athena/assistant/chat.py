@@ -67,7 +67,7 @@ from athena import audit
 from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.approval_review import review_capabilities as approval_review_capabilities
-from athena.assistant.coding_stack import coding_stack_capabilities
+from athena.assistant.coding_stack import CODING_INSTRUCTIONS, coding_stack_capabilities
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
 from athena.assistant.delegation import (
     advisor_capabilities,
@@ -504,7 +504,7 @@ async def _run(
             *approval_review_capabilities(review_model, ai.review_tool_calls),
             *docker_sandbox_capabilities(ai.docker_sandbox_enabled, deps.manifest),
             *durable_execution_capabilities(ai.durable_execution_enabled),
-            *coding_stack_capabilities(ai.coding_stack_enabled, data_dir),
+            *coding_stack_capabilities(ai.coding_stack_enabled, data_dir, tuple(ai.shell_commands)),
         ]
         saved: Conversation | None = None
         compacted_ok = True
@@ -532,6 +532,7 @@ async def _run(
                         *integration_toolsets(integration_rows, app.state.secret_box),
                     ],
                     ai.mcp_servers,
+                    CODING_INSTRUCTIONS if ai.coding_stack_enabled else "",
                 )
         except RunCancelled as exc:
             saved = Conversation(messages=list(exc.all_messages()), usage=exc.usage or RunUsage())
@@ -606,6 +607,7 @@ async def _stream(
     extras: list[AbstractCapability[Any]],
     mcp: list[MCPToolset[Any]] = (),
     mcp_servers: list[McpServer] = (),
+    coding_instructions: str = "",
 ) -> Conversation | None:
     """Runs the agent, forwarding its events; returns the chat to save. `extras` are the
     turn's workflow, planning, questions, advisor, review and compaction (compaction last, so
@@ -633,7 +635,10 @@ async def _stream(
             *shell_capabilities(shell_provider(deps.manifest), deps.shell_commands),
             *extras,
         ],
-        instructions=_host_instructions(deps.manifest),
+        instructions=[
+            _host_instructions(deps.manifest),
+            *([coding_instructions] if coding_instructions else []),
+        ],
         usage_limits=limits,
         cancellation_token=turn.token,
         deferred_tool_results=results,

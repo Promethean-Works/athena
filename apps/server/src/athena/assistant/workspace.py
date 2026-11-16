@@ -40,7 +40,7 @@ from athena import audit
 from athena.assistant import shell
 from athena.terminal import shells
 
-COMMAND_TOOLS = frozenset({"run_command", "start_command"})
+COMMAND_TOOLS = frozenset({"run_command", "start_command", "shell"})
 """The harness Shell tools that take a command line (check/stop take a job id)."""
 OUTPUT_LIMIT = 10 * 1024 * 1024
 """Bytes per stream before a WSL command is stopped, like the harness's own limit."""
