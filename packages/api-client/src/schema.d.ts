@@ -1817,6 +1817,11 @@ export interface components {
              * @default false
              */
             durable_execution_enabled: boolean;
+            /**
+             * Coding Stack Enabled
+             * @default false
+             */
+            coding_stack_enabled: boolean;
         };
         /** Answer */
         Answer: {

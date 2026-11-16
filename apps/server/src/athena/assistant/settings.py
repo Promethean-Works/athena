@@ -94,6 +94,11 @@ class AiSettings(BaseModel):
     crashed run resumes from the last completed step instead of repeating paid work.
     Needs pgtask and a Postgres database (run one as a compose app on this server);
     the setting only turns the capability on."""
+    coding_stack_enabled: bool = False
+    """Let the assistant use coding-assistant capabilities (RepoContext loads
+    AGENTS.md / CLAUDE.md context into each reply). Off by default; capabilities
+    are read-only and need no approval. More capabilities join here as they're
+    wired up."""
 
     @model_validator(mode="after")
     def _unique_mcp_ids(self) -> "AiSettings":

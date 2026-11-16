@@ -63,6 +63,7 @@ from athena import audit
 from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.approval_review import review_capabilities as approval_review_capabilities
+from athena.assistant.coding_stack import coding_stack_capabilities
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
 from athena.assistant.delegation import (
     advisor_capabilities,
@@ -499,6 +500,7 @@ async def _run(
             *approval_review_capabilities(review_model, ai.review_tool_calls),
             *docker_sandbox_capabilities(ai.docker_sandbox_enabled, deps.manifest),
             *durable_execution_capabilities(ai.durable_execution_enabled),
+            *coding_stack_capabilities(ai.coding_stack_enabled, data_dir),
         ]
         saved: Conversation | None = None
         compacted_ok = True
