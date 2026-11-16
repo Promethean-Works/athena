@@ -139,8 +139,13 @@ def test_invalid_share_name_is_refused(tmp_path: Path, monkeypatch: pytest.Monke
 # ---------------------------------------------------------------- API
 
 
-def test_api_list_and_create_on_unsupported_os(tmp_path: Path) -> None:
+def test_api_list_and_create_on_unsupported_os(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """On this machine (macOS) SMB share creation isn't wired, so it's 501."""
+    # Pretend we're not on Linux: _on_linux() reads sys.platform (the real host),
+    # which would be Linux on CI and would try to write /etc/samba/smb.conf.
+    monkeypatch.setattr("athena.files.smb._on_linux", lambda: False)
     with TestClient(make_app(tmp_path)) as client:
         signed_in(client)
         (tmp_path / "media").mkdir()
