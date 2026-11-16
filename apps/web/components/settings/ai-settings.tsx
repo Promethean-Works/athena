@@ -1005,6 +1005,55 @@ function CodingStackCard({
   )
 }
 
+function BrowserCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Browser</CardTitle>
+        <CardDescription>
+          Off by default. Lets the assistant hand an open-ended web task to an
+          autonomous browser agent (`browse_web`). Needs a pydantic-ai-harness
+          release whose browser-use extra is compatible with the server's other
+          dependencies before any tool is offered.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {settings === null ? (
+          <Skeleton className="h-12 w-full" />
+        ) : (
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="browser-use-enabled">Browser</FieldLabel>
+                <FieldDescription>
+                  Off by default. Offered only once the browser-use dependency can
+                  be installed alongside the rest of the server.
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="browser-use-enabled"
+                checked={settings.browser_use_enabled}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, browser_use_enabled: checked },
+                    checked ? "Browser turned on" : "Browser turned off"
+                  )
+                }
+              />
+            </Field>
+          </FieldGroup>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 function IntegrationsCard({
   settings,
   save,
@@ -1183,6 +1232,7 @@ export function AiSettingsView() {
       <DockerSandboxCard settings={settings} save={save} />
       <DurableExecutionCard settings={settings} save={save} />
       <CodingStackCard settings={settings} save={save} />
+      <BrowserCard settings={settings} save={save} />
       <IntegrationsCard settings={settings} save={save} />
       <ShellCard settings={settings} save={save} />
     </div>

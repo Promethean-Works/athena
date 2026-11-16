@@ -104,6 +104,11 @@ class AiSettings(BaseModel):
     sandboxed tools run inside a Monty sandbox with no third-party imports. Read-only
     tools can be batched into one `run_code` call; approval-gated tools still need the
     admin's Approve/Deny card."""
+    browser_use_enabled: bool = False
+    """Let the assistant hand an open-ended web task to an autonomous browser agent
+    (`browse_web`). Off by default; needs a `pydantic-ai-harness` release whose
+    `browser-use` extra is compatible with `pydantic-ai-slim[google]` before any tool
+    is offered."""
 
     @model_validator(mode="after")
     def _unique_mcp_ids(self) -> "AiSettings":

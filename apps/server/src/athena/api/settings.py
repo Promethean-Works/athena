@@ -128,4 +128,7 @@ def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
     if before.docker_sandbox_enabled != body.docker_sandbox_enabled:
         state = "on" if body.docker_sandbox_enabled else "off"
         audit.record(db, user.user.username, "settings.assistant_docker_sandbox", state)
+    if before.browser_use_enabled != body.browser_use_enabled:
+        state = "on" if body.browser_use_enabled else "off"
+        audit.record(db, user.user.username, "settings.assistant_browser", state)
     return body
