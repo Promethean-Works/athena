@@ -7,6 +7,7 @@ from collections.abc import AsyncIterator
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pgtask import Client, TaskRegistry, Worker
 
 from athena import __version__
 from athena.api import apps, auth, capabilities, containers, jobs, system
@@ -60,8 +61,27 @@ def create_app(
         # GET /api/system/capabilities waits for it if it isn't done yet.
         task = asyncio.create_task(store.get())
         app.state.monitor.start()
+        # Durable execution: run assistant turns inside pgtask tasks against Postgres so
+        # an interrupted turn resumes from its last checkpointed step. Only started when a
+        # database URL is configured; hosts without Postgres run turns inline instead.
+        worker: Worker | None = None
+        worker_task: asyncio.Task[None] | None = None
+        if settings.durable_execution_database_url:
+            pgtask_client = await Client.connect(settings.durable_execution_database_url)
+            await pgtask_client.migrate()
+            registry = TaskRegistry(queue_name="athena-assistant")
+            app.state.assistant_turns.pgtask_client = pgtask_client
+            app.state.assistant_turns.pgtask_registry = registry
+            app.state.assistant_turns.register_pgtask_handlers()
+            worker = Worker(settings.durable_execution_database_url, registry, poll_interval=1.0)
+            worker_task = asyncio.create_task(worker.run())
         yield
         task.cancel()
+        if worker is not None:
+            worker.shutdown()
+            if worker_task is not None:
+                with contextlib.suppress(Exception):
+                    await worker_task
         await app.state.assistant_turns.stop_all()
         await app.state.monitor.stop()
         await asyncio.to_thread(app.state.rclone.stop)

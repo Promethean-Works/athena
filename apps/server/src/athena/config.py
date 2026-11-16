@@ -28,3 +28,7 @@ class Settings(BaseSettings):
     web_dir: Path = Path(__file__).parent / "web"
     # Set by `athena serve`; tests leave it off so they don't write log files.
     log_to_file: bool = False
+    # Postgres database URL for pgtask durable execution. When set, assistant turns run
+    # inside pgtask tasks so every model request and tool call is checkpointed; an
+    # interrupted run resumes from its last completed step instead of repeating paid work.
+    durable_execution_database_url: str | None = None
