@@ -95,7 +95,9 @@ export function StoreBrowser() {
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-sm text-muted-foreground">
             {apps
-              ? `${apps.length} apps, each a compose project Athena sets up for you.`
+              ? browsing
+                ? `${shown.length} of ${apps.length} apps`
+                : `${apps.length} apps, each a compose project Athena sets up for you.`
               : "Browse apps to install."}
           </p>
           <div className="flex items-center gap-2 sm:ml-auto">

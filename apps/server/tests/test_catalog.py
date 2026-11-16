@@ -195,6 +195,8 @@ def test_store_lists_and_filters(api: TestClient) -> None:
     assert media and all(a["category"] == "media" for a in media)
     found = api.get("/api/store/apps", params={"q": "jelly"}).json()
     assert [a["id"] for a in found] == ["jellyfin"]
+    tagged = api.get("/api/store/apps", params={"q": "bittorrent"}).json()
+    assert {"deluge", "qbittorrent", "transmission"} <= {a["id"] for a in tagged}
     cats = api.get("/api/store/categories").json()
     assert sum(c["count"] for c in cats) == len(apps)
 

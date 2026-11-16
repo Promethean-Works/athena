@@ -175,6 +175,8 @@ def list_store_apps(
             not needle
             or needle in app.meta.title.lower()
             or needle in app.meta.description.lower()
+            or needle in (app.meta.tagline or "").lower()
+            or any(needle in tag.lower() for tag in app.meta.tags)
             or needle in app.id
         )
     ]

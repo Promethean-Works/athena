@@ -8,6 +8,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   ExternalLinkIcon,
+  ImageOffIcon,
   InfoIcon,
   MaximizeIcon,
 } from "lucide-react"
@@ -47,7 +48,6 @@ import {
 } from "@workspace/ui/components/empty"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
-
 import { AppIcon } from "@/components/store/app-icon"
 import { InstallForm } from "@/components/store/install-form"
 import { StoreCover } from "@/components/store/store-cover"
@@ -250,12 +250,54 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
   )
 }
 
+function ScreenshotImage({
+  src,
+  alt,
+  className,
+}: {
+  src?: string
+  alt: string
+  className?: string
+}) {
+  const [failed, setFailed] = React.useState(false)
+
+  React.useEffect(() => setFailed(false), [src])
+
+  if (failed || !src) {
+    return (
+      <div
+        role="img"
+        aria-label={alt}
+        className={cn(
+          "flex items-center justify-center bg-muted text-muted-foreground",
+          className
+        )}
+      >
+        <ImageOffIcon className="size-6" />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className={className}
+    />
+  )
+}
+
 function Screenshots({ title, images }: { title: string; images: string[] }) {
   const [active, setActive] = React.useState(0)
   const [open, setOpen] = React.useState(false)
 
   if (images.length === 0) return null
   const current = images[Math.min(active, images.length - 1)]
+  const alt = `${title} screenshot`
 
   return (
     <div className="flex flex-col gap-2">
@@ -265,11 +307,9 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
         className="group relative overflow-hidden rounded-xl border focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
         aria-label={`Open a larger ${title} screenshot`}
       >
-        <img
+        <ScreenshotImage
           src={current}
-          alt={`${title} screenshot`}
-          loading="lazy"
-          referrerPolicy="no-referrer"
+          alt={alt}
           className="aspect-video w-full bg-muted object-cover object-top"
         />
         <span className="absolute right-2 bottom-2 flex items-center gap-1 rounded-md bg-background/80 px-2 py-1 text-xs text-foreground opacity-0 transition-opacity group-hover:opacity-100">
@@ -294,11 +334,9 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
                   : "opacity-70 hover:opacity-100"
               )}
             >
-              <img
+              <ScreenshotImage
                 src={image}
                 alt=""
-                loading="lazy"
-                referrerPolicy="no-referrer"
                 className="aspect-video w-24 object-cover object-top"
               />
             </button>
@@ -307,15 +345,15 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
       ) : null}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-5xl border-0 bg-transparent p-0 ring-0 sm:max-w-5xl">
+        <DialogContent className="max-w-5xl sm:max-w-5xl">
           <DialogTitle className="sr-only">{title} screenshot</DialogTitle>
           <DialogDescription className="sr-only">
             A screenshot of {title}.
           </DialogDescription>
-          <img
+          <ScreenshotImage
             src={current}
-            alt={`${title} screenshot`}
-            className="max-h-[85vh] w-full rounded-xl object-contain"
+            alt={alt}
+            className="max-h-[80vh] w-full rounded-lg bg-muted object-contain"
           />
         </DialogContent>
       </Dialog>
