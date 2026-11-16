@@ -1827,6 +1827,11 @@ export interface components {
              * @default false
              */
             code_mode_enabled: boolean;
+            /**
+             * Browser Use Enabled
+             * @default false
+             */
+            browser_use_enabled: boolean;
         };
         /** Answer */
         Answer: {

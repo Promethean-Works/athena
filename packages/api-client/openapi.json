@@ -5147,6 +5147,11 @@
             "type": "boolean",
             "title": "Code Mode Enabled",
             "default": false
+          },
+          "browser_use_enabled": {
+            "type": "boolean",
+            "title": "Browser Use Enabled",
+            "default": false
           }
         },
         "type": "object",
