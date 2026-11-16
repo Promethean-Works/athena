@@ -1,0 +1,46 @@
+x-athena:
+  title: Directus
+  description: Open data platform that wraps any SQL database with an API and admin app.
+  category: development
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/directus.svg
+  homepage: https://directus.io
+  web_port: WEB_PORT
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8055"
+    - key: DIRECTUS_KEY
+      label: Encryption key
+      type: password
+      generate: secret
+    - key: DIRECTUS_SECRET
+      label: Session secret
+      type: password
+      generate: secret
+    - key: DIRECTUS_ADMIN_EMAIL
+      label: Admin email
+      default: "admin@example.com"
+    - key: DIRECTUS_ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  directus:
+    image: directus/directus:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8055"
+    environment:
+      TZ: ${TZ}
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/directus/database

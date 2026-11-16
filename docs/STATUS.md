@@ -15,6 +15,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - MCP server support for the assistant added: `McpStdio` and `McpHttp` server configs in `ai_settings.mcp_servers` (Settings → AI), built as fresh `MCPToolset`s per turn and wired into the chat agent, investigator (delegation) and `run_workflow` helpers. Audit logs MCP server changes.
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
+- Cloud add-storage wizard (PR #97, branch `feat/cloud-add-storage-wizard`, auto-merge on): "Add remote" on `/cloud` is now a two-step wizard — step 1 picks a storage provider from an icon catalog (like the app store), step 2 fills in the connection name and settings; rclone's follow-up questions are answered one at a time. No API change. Verified: web lint/typecheck/build, prettier, check-docs. Blocked on CI: the `server (macos-latest)` job is stuck QUEUED (GitHub runner infra, not a code problem; change is web-only). `athena-ui-verify` browser pass and a real rclone remote not yet done.
 
 ## Next
 

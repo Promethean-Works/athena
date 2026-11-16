@@ -3354,6 +3354,108 @@
         }
       }
     },
+    "/api/shares/smb": {
+      "get": {
+        "tags": [
+          "smb shares"
+        ],
+        "summary": "List Smb Shares",
+        "description": "The SMB shares Athena created, newest first.",
+        "operationId": "listSmbShares",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SmbShareOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listsmbshares"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "smb shares"
+        ],
+        "summary": "Create Smb Share",
+        "description": "Share a location over SMB. On Linux this writes a section to\n/etc/samba/smb.conf and reloads smbd; on other operating systems it's 501.",
+        "operationId": "createSmbShare",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SmbShareIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SmbShareOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shares/smb/{share_id}": {
+      "delete": {
+        "tags": [
+          "smb shares"
+        ],
+        "summary": "Remove Smb Share",
+        "description": "Remove an SMB share: drop its smb.conf section and the tracking row.",
+        "operationId": "removeSmbShare",
+        "parameters": [
+          {
+            "name": "share_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Share Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/webdav": {
       "get": {
         "tags": [
@@ -8813,6 +8915,84 @@
           "mode"
         ],
         "title": "ShareUpdate"
+      },
+      "SmbShareIn": {
+        "properties": {
+          "location": {
+            "type": "integer",
+            "title": "Location"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,62}$",
+            "title": "Name"
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only",
+            "default": false
+          },
+          "guest_ok": {
+            "type": "boolean",
+            "title": "Guest Ok",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "location",
+          "name"
+        ],
+        "title": "SmbShareIn"
+      },
+      "SmbShareOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "location_id": {
+            "type": "integer",
+            "title": "Location Id"
+          },
+          "location_name": {
+            "type": "string",
+            "title": "Location Name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only"
+          },
+          "guest_ok": {
+            "type": "boolean",
+            "title": "Guest Ok"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "location_id",
+          "location_name",
+          "path",
+          "read_only",
+          "guest_ok",
+          "created_at"
+        ],
+        "title": "SmbShareOut"
       },
       "StatsSample": {
         "properties": {
