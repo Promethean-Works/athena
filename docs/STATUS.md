@@ -45,6 +45,7 @@ Later: per-container stats, verifying temperatures on a real Linux host, importi
 ## Open questions
 
 - None. (The first AI provider question was settled in M7: no default; Ollama is offered when detected.)
+- QA review (#94, PR #94): full repo check done — four bugs fixed (assistant shell dual `run_command` registration, raw SQL DELETE in `delete_app`, upload disk-space check missing partial bytes, orphaned `docker logs -f` processes) and an e2e test suite added under `scripts/e2e/` (apps, files, shares, packages, assistant, terminal, settings, cloud). Verified: 506 server tests passed, ruff/format clean, check-docs clean, pre-push checks all green. Nothing left open.
 
 ## Blockers
 
