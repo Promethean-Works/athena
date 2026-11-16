@@ -12,10 +12,13 @@ can't report (temperatures outside Linux, disk I/O counters on some machines) ar
 import asyncio
 import contextlib
 import logging
+import subprocess
+import sys
 import time
 from collections import deque
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import psutil
@@ -54,6 +57,9 @@ class StatsSample(BaseModel):
     disk_read: float | None  # bytes/s; None when the host has no disk I/O counters
     disk_write: float | None
     cpu_temp: float | None  # °C; None when the host has no CPU sensor
+    gpu_util: float | None  # percent; max across GPUs, None when no GPU reports
+    vram_used: int | None  # bytes; total across GPUs
+    vram_total: int | None  # bytes; total across GPUs
 
 
 class DiskUsage(BaseModel):
@@ -73,6 +79,15 @@ class Temperature(BaseModel):
     critical: float | None = None
 
 
+class GpuInfo(BaseModel):
+    index: int
+    name: str
+    util: float | None  # percent
+    vram_used: int | None  # bytes
+    vram_total: int | None  # bytes
+    temp: float | None  # °C
+
+
 class HostStats(BaseModel):
     interval: float
     boot_time: float
@@ -81,6 +96,7 @@ class HostStats(BaseModel):
     load_avg: list[float] | None  # 1, 5, 15 minutes; None on Windows
     disks: list[DiskUsage]
     temperatures: list[Temperature] | None  # None when the host can't report them
+    gpus: list[GpuInfo]  # empty when no GPU tool reports (e.g. no nvidia-smi)
     latest: StatsSample | None
 
 
@@ -182,6 +198,158 @@ def read_temperatures() -> list[Temperature] | None:
     return out
 
 
+def read_gpus() -> list[GpuInfo]:
+    """Read GPU stats from whatever tool the host provides. Empty on unsupported hosts."""
+    gpus: list[GpuInfo] = []
+    gpus.extend(read_gpus_nvidia())
+    if sys.platform == "linux":
+        gpus.extend(read_gpus_linux_sysfs())
+    elif sys.platform == "darwin":
+        gpus.extend(read_gpus_macos_powermetrics())
+    return gpus
+
+
+def read_gpus_nvidia() -> list[GpuInfo]:
+    """Read NVIDIA GPU stats via nvidia-smi. Empty when nvidia-smi is missing or fails."""
+    try:
+        out = subprocess.run(
+            [
+                "nvidia-smi",
+                "--query-gpu=index,utilization.gpu,memory.used,memory.total,temperature.gpu",
+                "--format=csv,noheader,nounits",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (FileNotFoundError, OSError, subprocess.TimeoutExpired):
+        return []
+    if out.returncode != 0:
+        return []
+    gpus: list[GpuInfo] = []
+    for line in out.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = [p.strip() for p in line.split(",")]
+        if len(parts) < 5:
+            continue
+
+        def num(value: str) -> float | None:
+            value = value.strip()
+            if value in ("", "[Not Supported]", "[N/A]"):
+                return None
+            try:
+                return float(value)
+            except ValueError:
+                return None
+
+        index = num(parts[0])
+        if index is None:
+            continue
+        util = num(parts[1])
+        vram_used_mib = num(parts[2])
+        vram_total_mib = num(parts[3])
+        temp = num(parts[4])
+        gpus.append(
+            GpuInfo(
+                index=int(index),
+                name=f"GPU {int(index)}",
+                util=util,
+                vram_used=None if vram_used_mib is None else round(vram_used_mib * 1024 * 1024),
+                vram_total=None if vram_total_mib is None else round(vram_total_mib * 1024 * 1024),
+                temp=temp,
+            )
+        )
+    return gpus
+
+
+def _read_sysfs_int(path: str) -> int | None:
+    try:
+        with open(path, encoding="utf-8") as f:
+            return int(f.read().strip())
+    except (OSError, ValueError):
+        return None
+
+
+def read_gpus_linux_sysfs(drm_dir: Path = Path("/sys/class/drm")) -> list[GpuInfo]:
+    """Read AMD/Intel GPU busy % from sysfs (no root usually needed).
+
+    The amdgpu and i915 drivers expose ``gpu_busy_percent`` under
+    /sys/class/drm/card*/device/. NVIDIA cards also appear there but don't
+    expose that file, so this only adds cards nvidia-smi misses.
+    """
+    gpus: list[GpuInfo] = []
+    if not drm_dir.is_dir():
+        return gpus
+    index = 0
+    for card in sorted(drm_dir.iterdir()):
+        if not card.name.startswith("card"):
+            continue
+        device = card / "device"
+        if not device.is_dir():
+            continue
+        busy = _read_sysfs_int(device / "gpu_busy_percent")
+        if busy is None:
+            continue
+        # Some drivers expose VRAM counters too; they're optional.
+        vram_used = _read_sysfs_int(device / "mem_info_vram_used")
+        vram_total = _read_sysfs_int(device / "mem_info_vram_total")
+        # mem_info_* are in bytes on some drivers, KiB on others; only report
+        # when they look like bytes (>= 1 MiB) to avoid misreading KiB values.
+        if vram_used is not None and vram_used < 1024 * 1024:
+            vram_used = None
+        if vram_total is not None and vram_total < 1024 * 1024:
+            vram_total = None
+        gpus.append(
+            GpuInfo(
+                index=index,
+                name=f"GPU {index} ({card.name})",
+                util=float(busy),
+                vram_used=vram_used,
+                vram_total=vram_total,
+                temp=None,
+            )
+        )
+        index += 1
+    return gpus
+
+
+def read_gpus_macos_powermetrics() -> list[GpuInfo]:
+    """Read GPU busy % via powermetrics on macOS. Best-effort; may need root."""
+    try:
+        out = subprocess.run(
+            ["powermetrics", "-n", "1", "-i", "1000", "-s", "gpu_power"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (FileNotFoundError, OSError, subprocess.TimeoutExpired):
+        return []
+    if out.returncode != 0:
+        return []
+    gpus: list[GpuInfo] = []
+    busy: float | None = None
+    for line in out.stdout.splitlines():
+        line = line.strip()
+        if line.lower().startswith("gpu busy percent:"):
+            with contextlib.suppress(ValueError):
+                busy = float(line.split(":", 1)[1].strip())
+    if busy is None:
+        return []
+    gpus.append(
+        GpuInfo(
+            index=0,
+            name="GPU 0 (Apple Silicon / Mac)",
+            util=busy,
+            vram_used=None,
+            vram_total=None,
+            temp=None,
+        )
+    )
+    return gpus
+
+
 def cpu_temperature(temps: list[Temperature] | None) -> float | None:
     """The hottest CPU sensor, or the hottest sensor of any kind if none looks like a CPU."""
     if not temps:
@@ -270,6 +438,7 @@ class HostMonitor:
         self._disks_at = float("-inf")
         self._temps: list[Temperature] | None = None
         self._load: list[float] | None = None
+        self._gpus: list[GpuInfo] = []
         self._seq = 0  # bumped on every sample, so streams know when to send
         self._changed = asyncio.Condition()
         self._lock = asyncio.Lock()
@@ -299,6 +468,10 @@ class HostMonitor:
             disk_write = 0.0 if r.disk_write is not None else None
         self._temps = r.temperatures
         self._load = r.load_avg
+        self._gpus = read_gpus()
+        gpu_utils = [g.util for g in self._gpus if g.util is not None]
+        vram_used_vals = [g.vram_used for g in self._gpus if g.vram_used is not None]
+        vram_total_vals = [g.vram_total for g in self._gpus if g.vram_total is not None]
         return StatsSample(
             t=round(now, 3),
             cpu_percent=round(r.cpu_percent, 1),
@@ -311,6 +484,9 @@ class HostMonitor:
             disk_read=None if disk_read is None else round(disk_read, 1),
             disk_write=None if disk_write is None else round(disk_write, 1),
             cpu_temp=cpu_temperature(r.temperatures),
+            gpu_util=round(max(gpu_utils), 1) if gpu_utils else None,
+            vram_used=sum(vram_used_vals) if vram_used_vals else None,
+            vram_total=sum(vram_total_vals) if vram_total_vals else None,
         )
 
     async def sample_once(self) -> StatsSample:
@@ -361,6 +537,7 @@ class HostMonitor:
             load_avg=self._load,
             disks=self._disks,
             temperatures=self._temps,
+            gpus=self._gpus,
             latest=self.history[-1] if self.history else None,
         )
 

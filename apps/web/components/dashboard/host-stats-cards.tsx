@@ -171,6 +171,12 @@ const diskConfig = {
   read: { label: "Read", color: "var(--chart-1)" },
   write: { label: "Write", color: "var(--chart-5)" },
 } satisfies ChartConfig
+const gpuConfig = {
+  gpu: { label: "Util", color: "var(--chart-3)" },
+} satisfies ChartConfig
+const vramConfig = {
+  vram: { label: "Used", color: "var(--chart-4)" },
+} satisfies ChartConfig
 
 /** CPU, memory, network and disk activity cards with sparklines, fed by HostStatsProvider. */
 export function HostStatsCards() {
@@ -201,7 +207,14 @@ export function HostStatsCards() {
   }
 
   const memPercent = (latest.mem_used / latest.mem_total) * 100
-  const hasDiskIo = latest.disk_read !== null && latest.disk_write !== null
+  const hasDiskIo = latest.disk_read != null && latest.disk_write != null
+  const hasGpu =
+    latest.gpu_util != null ||
+    latest.vram_used != null ||
+    latest.vram_total != null ||
+    host.gpus?.length > 0
+  const gpuTemps = (host.gpus ?? []).map((g) => g.temp).filter((t): t is number => t != null)
+  const hottestGpuTemp = gpuTemps.length ? Math.max(...gpuTemps) : null
   const cores =
     host.cpu_count_physical && host.cpu_count_physical !== host.cpu_count
       ? `${host.cpu_count_physical} cores · ${host.cpu_count} threads`
@@ -309,6 +322,54 @@ export function HostStatsCards() {
               format={formatRate}
             />
           </StatCard>
+        ) : null}
+        {hasGpu ? (
+          <>
+            <StatCard
+              label="GPU"
+              value={latest.gpu_util !== null ? formatPercent(latest.gpu_util) : "—"}
+              badge={
+                hottestGpuTemp !== null ? (
+                  <Badge variant="outline">{Math.round(hottestGpuTemp)} °C</Badge>
+                ) : undefined
+              }
+              footer={
+                host.gpus?.length
+                  ? `${host.gpus.length} GPU${host.gpus.length === 1 ? "" : "s"}`
+                  : "no GPU reported"
+              }
+            >
+              <Sparkline
+                data={series(history, range, (s) => ({ gpu: s.gpu_util ?? 0 }))}
+                config={gpuConfig}
+                format={formatPercent}
+                max={100}
+              />
+            </StatCard>
+            <StatCard
+              label="VRAM"
+              value={
+                latest.vram_used !== null && latest.vram_total
+                  ? `${formatBytes(latest.vram_used)} of ${formatBytes(latest.vram_total)}`
+                  : "—"
+              }
+              footer={
+                latest.vram_used !== null && latest.vram_total
+                  ? `${formatPercent((latest.vram_used / latest.vram_total) * 100)}`
+                  : ""
+              }
+            >
+              <Sparkline
+                data={series(history, range, (s) => ({
+                  vram:
+                    ((s.vram_used ?? 0) / (s.vram_total ?? 1)) * 100,
+                }))}
+                config={vramConfig}
+                format={formatPercent}
+                max={100}
+              />
+            </StatCard>
+          </>
         ) : null}
       </div>
     </section>

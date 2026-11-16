@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from collections import namedtuple
 from pathlib import Path
 
@@ -10,11 +11,16 @@ from fastapi.testclient import TestClient
 from athena import monitor
 from athena.monitor import (
     DiskUsage,
+    GpuInfo,
     HostMonitor,
     Readings,
     Temperature,
     cpu_temperature,
     read_disks,
+    read_gpus,
+    read_gpus_linux_sysfs,
+    read_gpus_macos_powermetrics,
+    read_gpus_nvidia,
     read_host,
 )
 
@@ -238,6 +244,119 @@ def test_loopback_and_container_bridges_are_not_counted() -> None:
     names += ["Loopback Pseudo-Interface 1", "vEthernet (WSL)"]
     counted = [n for n in names if monitor._counted_nic(n)]
     assert counted == ["eth0", "en0", "Wi-Fi"]
+
+
+def test_read_gpus_nvidia_parses_output(monkeypatch) -> None:
+    class FakeProc:
+        returncode = 0
+        stdout = "0, 45, 4096, 8192, 65\n1, , 10240, 16384, \n"
+
+    monkeypatch.setattr(monitor.subprocess, "run", lambda *a, **k: FakeProc())
+    gpus = read_gpus_nvidia()
+    assert [g.index for g in gpus] == [0, 1]
+    assert gpus[0].name == "GPU 0"
+    assert gpus[0].util == 45
+    assert gpus[0].vram_used == 4096 * 1024 * 1024
+    assert gpus[0].vram_total == 8192 * 1024 * 1024
+    assert gpus[0].temp == 65
+    assert gpus[1].util is None
+    assert gpus[1].temp is None
+    assert gpus[1].vram_used == 10240 * 1024 * 1024
+
+
+def test_read_gpus_nvidia_empty_when_missing(monkeypatch) -> None:
+    monkeypatch.setattr(
+        monitor.subprocess,
+        "run",
+        lambda *a, **k: (_ for _ in ()).throw(FileNotFoundError("nvidia-smi")),
+    )
+    assert read_gpus_nvidia() == []
+
+
+def test_read_gpus_nvidia_empty_on_nonzero_returncode(monkeypatch) -> None:
+    class FakeProc:
+        returncode = 12
+        stdout = ""
+
+    monkeypatch.setattr(monitor.subprocess, "run", lambda *a, **k: FakeProc())
+    assert read_gpus_nvidia() == []
+
+
+def test_read_gpus_macos_powermetrics(monkeypatch) -> None:
+    class FakeProc:
+        returncode = 0
+        stdout = "GPU Idle percent: 95.0\nGPU Busy percent: 5.0\n"
+
+    monkeypatch.setattr(monitor.subprocess, "run", lambda *a, **k: FakeProc())
+    gpus = read_gpus_macos_powermetrics()
+    assert len(gpus) == 1
+    assert gpus[0].index == 0
+    assert gpus[0].util == 5.0
+
+
+def test_read_gpus_macos_powermetrics_ignored_without_root(monkeypatch) -> None:
+    class FakeProc:
+        returncode = 1
+        stdout = ""
+        stderr = "powermetrics: only root may run this tool"
+
+    monkeypatch.setattr(monitor.subprocess, "run", lambda *a, **k: FakeProc())
+    assert read_gpus_macos_powermetrics() == []
+
+
+def test_read_gpus_linux_sysfs_reads_amd_intel(tmp_path: Path) -> None:
+    drm = tmp_path / "drm"
+    (drm / "card0" / "device").mkdir(parents=True)
+    (drm / "card0" / "device" / "gpu_busy_percent").write_text("42\n")
+    (drm / "card0" / "device" / "mem_info_vram_used").write_text(str(4 * 1024 * 1024 * 1024))
+    (drm / "card0" / "device" / "mem_info_vram_total").write_text(str(8 * 1024 * 1024 * 1024))
+    # card1 has no busy file -> skipped
+    (drm / "card1" / "device").mkdir(parents=True)
+
+    gpus = read_gpus_linux_sysfs(drm)
+    assert len(gpus) == 1
+    assert gpus[0].index == 0
+    assert gpus[0].util == 42
+    assert gpus[0].vram_used == 4 * 1024 * 1024 * 1024
+    assert gpus[0].vram_total == 8 * 1024 * 1024 * 1024
+
+
+def test_read_gpus_linux_sysfs_empty_when_no_drm(tmp_path: Path) -> None:
+    assert read_gpus_linux_sysfs(tmp_path / "nonexistent") == []
+
+
+def test_read_gpus_dispatcher_routes_by_platform(monkeypatch) -> None:
+    calls: list[str] = []
+
+    def fake_nvidia() -> list[GpuInfo]:
+        calls.append("nvidia")
+        return []
+
+    def fake_sysfs() -> list[GpuInfo]:
+        calls.append("sysfs")
+        return []
+
+    def fake_powermetrics() -> list[GpuInfo]:
+        calls.append("powermetrics")
+        return []
+
+    monkeypatch.setattr(monitor, "read_gpus_nvidia", fake_nvidia)
+    monkeypatch.setattr(monitor, "read_gpus_linux_sysfs", fake_sysfs)
+    monkeypatch.setattr(monitor, "read_gpus_macos_powermetrics", fake_powermetrics)
+
+    monkeypatch.setattr(sys, "platform", "linux")
+    assert read_gpus() == []
+    assert calls == ["nvidia", "sysfs"]
+
+    calls.clear()
+    monkeypatch.setattr(sys, "platform", "darwin")
+    assert read_gpus() == []
+    assert calls == ["nvidia", "powermetrics"]
+
+    calls.clear()
+    monkeypatch.setattr(sys, "platform", "win32")
+    assert read_gpus() == []
+    assert calls == ["nvidia"]
 
 
 def test_read_host_works_on_this_machine() -> None:
