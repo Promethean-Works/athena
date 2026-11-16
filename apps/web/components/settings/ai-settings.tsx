@@ -955,6 +955,56 @@ function DurableExecutionCard({
   )
 }
 
+function CodingStackCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Coding stack</CardTitle>
+        <CardDescription>
+          Give the assistant coding-assistant capabilities that read code context
+          (AGENTS.md / CLAUDE.md) from a workspace inside Athena's data folder.
+          Nothing mutates files here, so nothing needs approval; more coding
+          capabilities join later, each with its own Approve/Deny card.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {settings === null ? (
+          <Skeleton className="h-12 w-full" />
+        ) : (
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="coding-stack-enabled">Coding stack</FieldLabel>
+                <FieldDescription>
+                  Off by default. Reads AGENTS.md / CLAUDE.md from
+                  <code>assistant/code-workspace</code> inside Athena's data
+                  folder and loads them into the assistant's instructions.
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="coding-stack-enabled"
+                checked={settings.coding_stack_enabled}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, coding_stack_enabled: checked },
+                    checked ? "Coding stack turned on" : "Coding stack turned off"
+                  )
+                }
+              />
+            </Field>
+          </FieldGroup>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 function IntegrationsCard({
   settings,
   save,
@@ -1132,6 +1182,7 @@ export function AiSettingsView() {
       <ReviewCard settings={settings} save={save} />
       <DockerSandboxCard settings={settings} save={save} />
       <DurableExecutionCard settings={settings} save={save} />
+      <CodingStackCard settings={settings} save={save} />
       <IntegrationsCard settings={settings} save={save} />
       <ShellCard settings={settings} save={save} />
     </div>

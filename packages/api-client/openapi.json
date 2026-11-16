@@ -5137,6 +5137,11 @@
             "type": "boolean",
             "title": "Durable Execution Enabled",
             "default": false
+          },
+          "coding_stack_enabled": {
+            "type": "boolean",
+            "title": "Coding Stack Enabled",
+            "default": false
           }
         },
         "type": "object",
