@@ -26,6 +26,14 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import { Button } from "@workspace/ui/components/button"
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -43,14 +51,6 @@ import {
 } from "@workspace/ui/components/empty"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@workspace/ui/components/table"
 import { toast } from "@workspace/ui/components/toast"
 
 import { useAuth } from "@/components/auth-provider"
@@ -58,7 +58,11 @@ import {
   useCapabilities,
   useCapability,
 } from "@/components/capabilities-provider"
-import { RemoteDialog, type RemoteEditing } from "@/components/cloud/remote-dialog"
+import { useRouter } from "next/navigation"
+import {
+  RemoteDialog,
+  type RemoteEditing,
+} from "@/components/cloud/remote-dialog"
 import { SyncDialog } from "@/components/cloud/sync-dialog"
 import { useRemotes } from "@/components/cloud/use-remotes"
 import { folderHref, type Location } from "@/components/files/file-utils"
@@ -87,24 +91,25 @@ function NoRclone({ detail }: { detail?: string | null }) {
   const { manifest, refresh, refreshing } = useCapabilities()
   const steps = SETUP[manifest?.os ?? "linux"] ?? SETUP.linux!
   return (
-    <Empty className="border">
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <CloudIcon />
-        </EmptyMedia>
-        <EmptyTitle>Cloud storage needs rclone</EmptyTitle>
-        <EmptyDescription>
-          {sentence(detail ?? "rclone isn't installed on this host")} Athena uses rclone
-          to connect to Google Drive, OneDrive, Dropbox, S3 and many more.
-        </EmptyDescription>
-      </EmptyHeader>
-      <EmptyContent>
-        <div className="flex w-full flex-col gap-2 text-left">
-          <p className="text-sm font-medium">Install rclone on the server</p>
-          <pre className="rounded-lg border bg-muted/50 p-3 font-mono text-xs whitespace-pre-wrap">
-            {steps.join("\n")}
-          </pre>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CloudIcon className="size-4 text-muted-foreground" />
+          Cloud storage needs rclone
+        </CardTitle>
+        <CardDescription>
+          {sentence(detail ?? "rclone isn't installed on this host")} Athena
+          uses rclone to connect to Google Drive, OneDrive, Dropbox, S3 and many
+          more.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex w-full flex-col gap-2 text-left">
+        <p className="text-sm font-medium">Install rclone on the server</p>
+        <pre className="rounded-lg border bg-muted/50 p-3 font-mono text-xs whitespace-pre-wrap">
+          {steps.join("\n")}
+        </pre>
+      </CardContent>
+      <CardFooter>
         <Button
           variant="outline"
           size="sm"
@@ -118,8 +123,83 @@ function NoRclone({ detail }: { detail?: string | null }) {
           )}
           Re-detect
         </Button>
-      </EmptyContent>
-    </Empty>
+      </CardFooter>
+    </Card>
+  )
+}
+
+/** One cloud remote (rclone): name, storage type and actions. */
+function RemoteCard({
+  remote,
+  admin,
+  onEdit,
+  onRemove,
+}: {
+  remote: Schemas["RemoteOut"]
+  admin: boolean
+  onEdit: () => void
+  onRemove: (name: string) => void
+}) {
+  const router = useRouter()
+  const browseHref = folderHref({ remote: remote.name }, "")
+
+  return (
+    <Card key={remote.name} className="flex flex-col gap-0">
+      <CardHeader className="flex flex-row items-center justify-between gap-2 py-3">
+        <Link
+          href={browseHref}
+          className="flex min-w-0 items-center gap-2 hover:underline"
+        >
+          <CloudIcon className="size-4 shrink-0 text-primary" />
+          <span className="truncate font-medium">{remote.name}</span>
+        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
+            <EllipsisVerticalIcon />
+            <span className="sr-only">Actions for {remote.name}</span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-40">
+            <DropdownMenuGroup>
+              <DropdownMenuItem render={<Link href={browseHref} />}>
+                <FolderOpenIcon />
+                Browse
+              </DropdownMenuItem>
+              {admin ? (
+                <DropdownMenuItem onClick={onEdit}>
+                  <PencilIcon />
+                  Edit
+                </DropdownMenuItem>
+              ) : null}
+            </DropdownMenuGroup>
+            {admin ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => onRemove(remote.name)}
+                  >
+                    <Trash2Icon />
+                    Remove
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+            ) : null}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardHeader>
+      {remote.description ? (
+        <CardContent className="pb-3">
+          <p className="text-sm text-muted-foreground">{remote.description}</p>
+        </CardContent>
+      ) : null}
+      <CardFooter>
+        <Button onClick={() => void router.push(browseHref)} className="w-full">
+          <FolderOpenIcon className="mr-2" />
+          Browse files
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
 
@@ -141,7 +221,8 @@ export function CloudView() {
   }, [])
 
   if (capability === undefined) return <Skeleton className="h-64 w-full" />
-  if (capability.status !== "ready") return <NoRclone detail={capability.detail} />
+  if (capability.status !== "ready")
+    return <NoRclone detail={capability.detail} />
 
   async function remove(name: string) {
     setRemoving(null)
@@ -163,7 +244,7 @@ export function CloudView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">
           {capability.detail ?? "rclone"}
         </p>
@@ -225,85 +306,16 @@ export function CloudView() {
           ) : null}
         </Empty>
       ) : (
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden sm:table-cell">Storage</TableHead>
-                <TableHead className="w-12">
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {list.map((remote) => (
-                <TableRow key={remote.name}>
-                  <TableCell className="max-w-0">
-                    <Link
-                      href={folderHref({ remote: remote.name }, "")}
-                      className="flex min-w-0 items-center gap-2 hover:underline"
-                    >
-                      <CloudIcon className="size-4 shrink-0 text-primary" />
-                      <span className="truncate font-medium">{remote.name}</span>
-                    </Link>
-                    <span className="text-xs text-muted-foreground sm:hidden">
-                      {remote.description}
-                    </span>
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground sm:table-cell">
-                    {remote.description}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        render={<Button variant="ghost" size="icon" />}
-                      >
-                        <EllipsisVerticalIcon />
-                        <span className="sr-only">
-                          Actions for {remote.name}
-                        </span>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="min-w-40">
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem
-                            render={
-                              <Link href={folderHref({ remote: remote.name }, "")} />
-                            }
-                          >
-                            <FolderOpenIcon />
-                            Browse
-                          </DropdownMenuItem>
-                          {admin ? (
-                            <DropdownMenuItem
-                              onClick={() => setEditing({ name: remote.name })}
-                            >
-                              <PencilIcon />
-                              Edit
-                            </DropdownMenuItem>
-                          ) : null}
-                        </DropdownMenuGroup>
-                        {admin ? (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuGroup>
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() => setRemoving(remote.name)}
-                              >
-                                <Trash2Icon />
-                                Remove
-                              </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                          </>
-                        ) : null}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {list.map((remote) => (
+            <RemoteCard
+              key={remote.name}
+              remote={remote}
+              admin={admin}
+              onEdit={() => setEditing({ name: remote.name })}
+              onRemove={(name) => setRemoving(name)}
+            />
+          ))}
         </div>
       )}
 
