@@ -1812,6 +1812,11 @@ export interface components {
             docker_sandbox_enabled: boolean;
             /** Mcp Servers */
             mcp_servers?: components["schemas"]["McpServer"][];
+            /**
+             * Durable Execution Enabled
+             * @default false
+             */
+            durable_execution_enabled: boolean;
         };
         /** Answer */
         Answer: {

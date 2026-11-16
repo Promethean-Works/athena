@@ -904,6 +904,57 @@ function DockerSandboxCard({
   )
 }
 
+function DurableExecutionCard({
+  settings,
+  save,
+}: {
+  settings: AiSettings | null
+  save: SaveAi
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Durable execution</CardTitle>
+        <CardDescription>
+          Checkpoint each turn's model requests and tool calls so an interrupted run
+          resumes from the last completed step instead of repeating paid work. Needs
+          pgtask and a Postgres database (run one as a compose app on this server);
+          the setting only turns the capability on.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {settings === null ? (
+          <Skeleton className="h-12 w-full" />
+        ) : (
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="durable-execution-enabled">Durable execution</FieldLabel>
+                <FieldDescription>
+                  Off by default. Only useful once turns run inside pgtask tasks
+                  against Postgres; without that it changes nothing.
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="durable-execution-enabled"
+                checked={settings.durable_execution_enabled}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { ...settings, durable_execution_enabled: checked },
+                    checked
+                      ? "Durable execution turned on"
+                      : "Durable execution turned off"
+                  )
+                }
+              />
+            </Field>
+          </FieldGroup>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 function IntegrationsCard({
   settings,
   save,
@@ -1080,6 +1131,7 @@ export function AiSettingsView() {
       <WebResearchCard settings={settings} save={save} />
       <ReviewCard settings={settings} save={save} />
       <DockerSandboxCard settings={settings} save={save} />
+      <DurableExecutionCard settings={settings} save={save} />
       <IntegrationsCard settings={settings} save={save} />
       <ShellCard settings={settings} save={save} />
     </div>

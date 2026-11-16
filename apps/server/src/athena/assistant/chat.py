@@ -73,6 +73,7 @@ from athena.assistant.delegation import (
     workflow_capabilities,
 )
 from athena.assistant.docker_sandbox import docker_sandbox_capabilities
+from athena.assistant.durable_execution import durable_execution_capabilities
 from athena.assistant.integrations import integration_toolsets
 from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
 from athena.assistant.mcp import mcp_toolsets
@@ -497,6 +498,7 @@ async def _run(
             *review_capabilities(ai.refine_answers),
             *approval_review_capabilities(review_model, ai.review_tool_calls),
             *docker_sandbox_capabilities(ai.docker_sandbox_enabled, deps.manifest),
+            *durable_execution_capabilities(ai.durable_execution_enabled),
         ]
         saved: Conversation | None = None
         compacted_ok = True

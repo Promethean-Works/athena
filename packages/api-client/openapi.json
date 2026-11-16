@@ -5132,6 +5132,11 @@
             "type": "array",
             "maxItems": 50,
             "title": "Mcp Servers"
+          },
+          "durable_execution_enabled": {
+            "type": "boolean",
+            "title": "Durable Execution Enabled",
+            "default": false
           }
         },
         "type": "object",
