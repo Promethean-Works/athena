@@ -1,6 +1,14 @@
 x-athena:
   title: qBittorrent
   description: A BitTorrent client with a full web interface.
+  tagline: "A fast BitTorrent client with a full web interface."
+  tags: [BitTorrent, Downloads]
+  license: "GPL-2.0"
+  features:
+    - A responsive web UI with search
+    - Sequential downloading and RSS
+    - Bandwidth scheduling and limits
+    - Works well behind a VPN container
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/qbittorrent.svg
   homepage: https://www.qbittorrent.org

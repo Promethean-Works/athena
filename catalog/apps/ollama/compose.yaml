@@ -1,6 +1,15 @@
 x-athena:
   title: Ollama
   description: Run large language models locally with a simple API.
+  tagline: "Run large language models locally with one command."
+  tags: [LLM, AI, Local]
+  license: "MIT"
+  popular: true
+  features:
+    - Pull and run Llama, Qwen, Gemma and other models
+    - An OpenAI-compatible API on port 11434
+    - Models stay on your hardware
+    - The assistant in Athena can use it for free
   category: development
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/ollama.svg
   homepage: https://ollama.com

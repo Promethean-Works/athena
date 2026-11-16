@@ -1,6 +1,9 @@
 x-athena:
   title: Transmission
   description: A fast and easy BitTorrent client with a web interface.
+  tagline: "A lightweight BitTorrent client with a web UI."
+  tags: [BitTorrent, Downloads]
+  license: "GPL-3.0"
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/transmission.svg
   homepage: https://transmissionbt.com

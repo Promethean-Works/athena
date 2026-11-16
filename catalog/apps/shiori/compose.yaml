@@ -1,6 +1,9 @@
 x-athena:
   title: Shiori
   description: Simple bookmarks manager built with Go.
+  tagline: "A simple bookmarks manager with offline copies."
+  tags: [Bookmarks, Reading]
+  license: "MIT"
   category: productivity
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/shiori.svg
   homepage: https://go-shiori.shiori.docs

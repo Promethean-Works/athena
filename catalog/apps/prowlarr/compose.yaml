@@ -1,6 +1,9 @@
 x-athena:
   title: Prowlarr
   description: Indexer manager for your Sonarr, Radarr, Lidarr and Readarr stack.
+  tagline: "One place to manage indexers for your *arr stack."
+  tags: [Indexers, Automation]
+  license: "GPL-3.0"
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prowlarr.svg
   homepage: https://prowlarr.com

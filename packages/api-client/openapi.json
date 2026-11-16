@@ -9267,6 +9267,17 @@
             "type": "boolean",
             "title": "Popular"
           },
+          "cover": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover"
+          },
           "icon": {
             "anyOf": [
               {
@@ -9298,6 +9309,7 @@
           "category_label",
           "tags",
           "popular",
+          "cover",
           "icon",
           "installed"
         ],
@@ -9354,6 +9366,17 @@
           "popular": {
             "type": "boolean",
             "title": "Popular"
+          },
+          "cover": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover"
           },
           "icon": {
             "anyOf": [
@@ -9476,6 +9499,7 @@
           "category_label",
           "tags",
           "popular",
+          "cover",
           "icon",
           "installed",
           "homepage",

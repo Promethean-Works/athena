@@ -1,6 +1,9 @@
 x-athena:
   title: IT Tools
   description: Handy online tools for developers, like encoders, converters and generators.
+  tagline: "A toolbox of handy converters and generators."
+  tags: [Tools, Developer]
+  license: "GPL-3.0"
   category: utilities
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/it-tools.svg
   homepage: https://it-tools.tech

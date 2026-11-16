@@ -3298,6 +3298,8 @@ export interface components {
             tags: string[];
             /** Popular */
             popular: boolean;
+            /** Cover */
+            cover: string | null;
             /** Icon */
             icon: string | null;
             /** Installed */
@@ -3325,6 +3327,8 @@ export interface components {
             tags: string[];
             /** Popular */
             popular: boolean;
+            /** Cover */
+            cover: string | null;
             /** Icon */
             icon: string | null;
             /** Installed */

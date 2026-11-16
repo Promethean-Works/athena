@@ -1,6 +1,15 @@
 x-athena:
   title: Portainer
   description: Container management UI for Docker.
+  tagline: "A friendly UI for containers, images and volumes."
+  tags: [Containers, Docker, Admin]
+  license: "zlib"
+  popular: true
+  features:
+    - Start, stop and inspect containers from a UI
+    - Browse images, volumes and networks
+    - "Stacks: edit and redeploy compose files"
+    - Logs and a console into any container
   category: utilities
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/portainer.svg
   homepage: https://www.portainer.io

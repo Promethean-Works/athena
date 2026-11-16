@@ -1,6 +1,15 @@
 x-athena:
   title: Sonarr
   description: TV collection manager for Usenet and BitTorrent users.
+  tagline: "Find, download and organise your TV shows."
+  tags: [TV, Automation]
+  license: "GPL-3.0"
+  popular: true
+  features:
+    - Follows shows and grabs new episodes
+    - Sends downloads to qBittorrent, Deluge or SABnzbd
+    - Renames and organises files for Jellyfin or Plex
+    - Calendar of upcoming episodes
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/sonarr.svg
   homepage: https://sonarr.tv

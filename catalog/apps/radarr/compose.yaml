@@ -1,6 +1,15 @@
 x-athena:
   title: Radarr
   description: Movie collection manager for Usenet and BitTorrent users.
+  tagline: "Find, download and organise your movies."
+  tags: [Movies, Automation]
+  license: "GPL-3.0"
+  popular: true
+  features:
+    - Watches release feeds for the movies you want
+    - Sends downloads to qBittorrent, Deluge or SABnzbd
+    - Renames and organises files for Jellyfin or Plex
+    - Upgrades to better releases automatically
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/radarr.svg
   homepage: https://radarr.video

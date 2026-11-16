@@ -1,6 +1,15 @@
 x-athena:
   title: Syncthing
   description: Continuous, peer-to-peer file synchronization between devices.
+  tagline: "Peer-to-peer file sync between your devices."
+  tags: [Sync, Files, P2P]
+  license: "MPL-2.0"
+  popular: true
+  features:
+    - Direct device-to-device sync, no cloud in between
+    - Versioned file history
+    - Selective folder sharing
+    - Runs on phones, laptops, NAS and servers
   category: files
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/syncthing.svg
   homepage: https://syncthing.net

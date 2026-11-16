@@ -1,6 +1,16 @@
 x-athena:
   title: Memos
   description: A lightweight, privacy-first note-taking service.
+  tagline: "A lightweight, privacy-first place for quick notes."
+  tags: [Notes, Markdown]
+  license: "MIT"
+  features:
+    - One-line notes with Markdown
+    - Tags, search and a timeline view
+    - Share a note with a public link
+    - Single Go binary, SQLite storage
+  screenshots:
+    - https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/previews/timeline-light.png
   category: productivity
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/memos.svg
   homepage: https://www.usememos.com

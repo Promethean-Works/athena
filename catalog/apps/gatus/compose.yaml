@@ -1,6 +1,16 @@
 x-athena:
   title: Gatus
   description: Developer-oriented health dashboard to monitor services and endpoints.
+  tagline: "Monitor endpoints and get alerted when they go down."
+  tags: [Monitoring, Alerts, Health checks]
+  license: "Apache-2.0"
+  features:
+    - HTTP, TCP, ICMP and DNS health checks
+    - Latency charts and uptime history
+    - Alerts to email, Slack, Discord, PagerDuty and more
+    - Configured entirely from one YAML file
+  screenshots:
+    - https://raw.githubusercontent.com/TwiN/gatus/master/.github/assets/dashboard-dark.jpg
   category: monitoring
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/gatus.svg
   homepage: https://gatus.io

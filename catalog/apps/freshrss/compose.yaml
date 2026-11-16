@@ -1,6 +1,16 @@
 x-athena:
   title: FreshRSS
   description: A fast, self-hosted RSS and Atom feed reader.
+  tagline: "A fast, self-hosted RSS and Atom feed reader."
+  tags: [RSS, Reading]
+  license: "AGPL-3.0"
+  features:
+    - Subscribe to RSS and Atom feeds in one place
+    - Keep articles read and starred across devices
+    - Mobile-friendly theme and a responsive reader
+    - Extensions for full-text search and scraping
+  screenshots:
+    - https://raw.githubusercontent.com/FreshRSS/FreshRSS/edge/docs/img/FreshRSS-screenshot.png
   category: productivity
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/freshrss.svg
   homepage: https://freshrss.org

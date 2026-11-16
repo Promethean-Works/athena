@@ -1,6 +1,16 @@
 x-athena:
   title: Jellyfin
   description: Stream your movies, shows and music to any device.
+  tagline: "Your own streaming service for movies, shows and music."
+  tags: [Movies, TV, Music, Transcoding]
+  license: "GPL-2.0"
+  popular: true
+  features:
+    - Stream to TVs, phones, browsers and DLNA devices
+    - Hardware transcoding when the host supports it
+    - Live TV and DVR with a tuner
+    - Subtitles, trailers and collections
+    - Apps for Android, iOS, Roku and more
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/jellyfin.svg
   homepage: https://jellyfin.org

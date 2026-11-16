@@ -1,6 +1,14 @@
 x-athena:
   title: Audiobookshelf
   description: An audiobook and podcast server with apps for every device.
+  tagline: "Audiobooks and podcasts, streamed to every device."
+  tags: [Audiobooks, Podcasts, Mobile apps]
+  license: "GPL-3.0"
+  features:
+    - Audiobook library with chapters and progress sync
+    - Podcast subscriptions with automatic downloads
+    - Official Android and iOS apps
+    - Multiple users with per-user progress
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/audiobookshelf.svg
   homepage: https://www.audiobookshelf.org

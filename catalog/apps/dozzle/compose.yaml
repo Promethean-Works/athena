@@ -1,6 +1,13 @@
 x-athena:
   title: Dozzle
   description: Real-time log viewer for Docker containers.
+  tagline: "Live logs from every container, straight in the browser."
+  tags: [Logs, Containers, Developer]
+  license: "MIT"
+  features:
+    - Tail live logs from every container
+    - Search and filter across containers
+    - No database and no agent to install
   category: utilities
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/dozzle.svg
   homepage: https://dozzle.dev

@@ -1,6 +1,9 @@
 x-athena:
   title: NZBGet
   description: Usenet downloader written in C++, optimized for speed and low system load.
+  tagline: "A fast Usenet downloader with a web UI."
+  tags: [Usenet, Downloads]
+  license: "GPL-2.0"
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/nzbget.svg
   homepage: https://nzbget.net

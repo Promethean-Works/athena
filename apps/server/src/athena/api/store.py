@@ -50,6 +50,8 @@ class StoreApp(BaseModel):
     category_label: str
     tags: list[str]
     popular: bool
+    cover: str | None
+    """The first screenshot, used as the card's cover image."""
     icon: str | None
     installed: list[str]
     """Names of Athena apps installed from this catalog app."""
@@ -123,6 +125,7 @@ def _summary(
         category_label=CATEGORY_LABELS.get(app.meta.category, app.meta.category),
         tags=app.meta.tags,
         popular=app.meta.popular,
+        cover=app.meta.screenshots[0] if app.meta.screenshots else None,
         icon=app.meta.icon,
         installed=sorted(installed.get(f"{app.catalog}/{app.id}", [])),
     )
@@ -172,6 +175,8 @@ def list_store_apps(
             not needle
             or needle in app.meta.title.lower()
             or needle in app.meta.description.lower()
+            or needle in (app.meta.tagline or "").lower()
+            or any(needle in tag.lower() for tag in app.meta.tags)
             or needle in app.id
         )
     ]

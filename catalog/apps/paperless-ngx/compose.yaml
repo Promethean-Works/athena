@@ -1,6 +1,18 @@
 x-athena:
   title: Paperless-ngx
   description: Scan, index and archive all your documents.
+  tagline: "Scan, index and search every document you own."
+  tags: [Documents, OCR, Search]
+  license: "GPL-3.0"
+  popular: true
+  features:
+    - OCR turns scans into searchable text
+    - Tags, correspondents and document types
+    - Automatic matching rules for new documents
+    - Email fetching and a mobile-friendly UI
+    - Full-text search across the archive
+  screenshots:
+    - https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/main/docs/assets/screenshots/documents-smallcards.png
   category: productivity
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/paperless-ngx.svg
   homepage: https://docs.paperless-ngx.com

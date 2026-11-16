@@ -1,6 +1,14 @@
 x-athena:
   title: calibre-web
   description: Web app for browsing, reading and downloading e-books from a Calibre library.
+  tagline: "Your Calibre library, browsable and readable in a browser."
+  tags: [E-books, Reading, Library]
+  license: "GPL-3.0"
+  features:
+    - Browse a Calibre library in a clean web UI
+    - Read EPUB, PDF and CBX files in the browser
+    - Send books to a Kindle or e-reader by email
+    - Shelves, ratings and reading progress
   category: files
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/calibre-web.svg
   homepage: https://www.calibre-ebook.com

@@ -195,6 +195,8 @@ def test_store_lists_and_filters(api: TestClient) -> None:
     assert media and all(a["category"] == "media" for a in media)
     found = api.get("/api/store/apps", params={"q": "jelly"}).json()
     assert [a["id"] for a in found] == ["jellyfin"]
+    tagged = api.get("/api/store/apps", params={"q": "bittorrent"}).json()
+    assert {"deluge", "qbittorrent", "transmission"} <= {a["id"] for a in tagged}
     cats = api.get("/api/store/categories").json()
     assert sum(c["count"] for c in cats) == len(apps)
 
@@ -208,6 +210,26 @@ def test_store_detail_has_resolved_form(api: TestClient, tmp_path: Path) -> None
     jelly = {f["key"]: f for f in api.get("/api/store/apps/builtin/jellyfin").json()["fields"]}
     assert Path(jelly["MEDIA_PATH"]["default"]).parts[-4:] == ("apps", "jellyfin", "data", "media")
     assert api.get("/api/store/apps/builtin/nope").status_code == 404
+
+
+def test_store_front_metadata(api: TestClient) -> None:
+    apps = api.get("/api/store/apps").json()
+    by_id = {a["id"]: a for a in apps}
+    popular = {a["id"] for a in apps if a["popular"]}
+    assert {"jellyfin", "immich", "nextcloud"} <= popular
+
+    gitea = by_id["gitea"]
+    assert gitea["tagline"] and gitea["tags"] and gitea["category_label"] == "Development"
+    assert gitea["cover"] and gitea["cover"].startswith("https://")
+
+    detail = api.get("/api/store/apps/builtin/gitea").json()
+    assert detail["features"] and len(detail["screenshots"]) >= 2
+    assert detail["cover"] == detail["screenshots"][0]
+    assert detail["license"] == "MIT"
+
+    # Apps without screenshots fall back to their icon on a card.
+    assert by_id["jellyfin"]["cover"] is None
+    assert by_id["jellyfin"]["tagline"]
 
 
 def test_install_writes_env_and_deploys(api: TestClient, tmp_path: Path) -> None:

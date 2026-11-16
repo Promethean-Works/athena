@@ -1,6 +1,9 @@
 x-athena:
   title: File Browser
   description: A simple web file manager for a folder on your server.
+  tagline: "A simple web file manager for a folder on your server."
+  tags: [Files, Sharing]
+  license: "Apache-2.0"
   category: files
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/filebrowser.svg
   homepage: https://filebrowser.org

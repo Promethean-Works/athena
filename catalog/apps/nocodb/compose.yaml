@@ -1,0 +1,43 @@
+x-athena:
+  title: NocoDB
+  description: Turn any database into a spreadsheet-style app.
+  tagline: "Turn any database into a spreadsheet-style app."
+  tags: [No-code, Database, Tables]
+  license: "AGPL-3.0"
+  features:
+    - Spreadsheet UI over SQLite, MySQL or Postgres
+    - Kanban, gallery, form and calendar views
+    - REST and GraphQL APIs generated for every table
+    - Roles, sharing links and webhooks
+  category: development
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/nocodb.svg
+  homepage: https://nocodb.com
+  web_port: WEB_PORT
+  notes: >-
+    Create the first user on the welcome screen. SQLite storage is created for you;
+    NocoDB can also connect to an existing MySQL, Postgres or SQL Server database.
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8099"
+    - key: JWT_SECRET
+      label: Session secret
+      type: password
+      generate: secret
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  nocodb:
+    image: nocodb/nocodb:2026.10.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080"
+    environment:
+      NC_AUTH_JWT_SECRET: ${JWT_SECRET}
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/usr/app/data

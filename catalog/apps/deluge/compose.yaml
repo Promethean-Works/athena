@@ -1,6 +1,9 @@
 x-athena:
   title: Deluge
   description: A lightweight BitTorrent client with a web interface.
+  tagline: "A BitTorrent client with a full web interface."
+  tags: [BitTorrent, Downloads]
+  license: "GPL-3.0"
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/deluge.svg
   homepage: https://deluge-torrent.org

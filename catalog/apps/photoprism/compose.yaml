@@ -1,6 +1,16 @@
 x-athena:
   title: PhotoPrism
   description: AI-powered photos app for the decentralized web.
+  tagline: "AI-powered photo management that runs on your own box."
+  tags: [Photos, AI, Search]
+  license: "AGPL-3.0"
+  features:
+    - Automatic indexing of photo folders
+    - Face and content recognition
+    - Search by place, camera, colour and content
+    - Albums, favourites and sharing links
+  screenshots:
+    - https://dl.photoprism.app/img/ui/2025/desktop-search.jpg
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/photoprism.svg
   homepage: https://photoprism.app

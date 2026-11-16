@@ -1,6 +1,17 @@
 x-athena:
   title: Navidrome
   description: A music server and streamer compatible with Subsonic clients.
+  tagline: "Your music collection, streamed to Subsonic apps."
+  tags: [Music, Streaming, Subsonic]
+  license: "GPL-3.0"
+  features:
+    - Streams your library to any Subsonic-compatible app
+    - Reads tags, cover art and playlists from disk
+    - Transcoding on the fly
+    - Scrobbles to Last.fm and ListenBrainz
+  screenshots:
+    - https://raw.githubusercontent.com/navidrome/navidrome/master/.github/screenshots/ss-mobile-album-view.png
+    - https://raw.githubusercontent.com/navidrome/navidrome/master/.github/screenshots/ss-mobile-player.png
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/navidrome.svg
   homepage: https://www.navidrome.org
