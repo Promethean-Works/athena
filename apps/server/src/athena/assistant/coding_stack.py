@@ -9,18 +9,21 @@ coding-assistant capabilities in `<data-dir>/assistant/code-workspace`:
   `list_directory`, `create_directory` and friends, bounded to the
   code-workspace. Writes go through an Approve/Deny card like the shell,
   via the harness `Permissions` in read-only mode; reads run free.
-- `Coder` (the harness combined capability) adds coding-specific guidance,
-  `grep`/`list_files` search tools, a persistent `shell` tool, and result
-  truncation (ClearToolResults / ToolOutputLimits). Its shell is
-  **unrestricted** — it does not go through Athena's shell allowlist or
-  approval cards — so enabling the coding stack also gives the model a way
-  to run arbitrary commands in the workspace. This is a known tension with
-  `ShellGuard` (see `assistant/workspace.py`) and is resolved by the
-  deferred-flow auto-approve follow-up.
+- `Shell` runs commands in the code-workspace, gated by `ShellGuard`'s
+  allowlist check and an `Permissions` approval card, and audited like
+  the assistant's own shell. It's only offered when the shell allowlist
+  isn't empty, so no commands are available until the admin explicitly
+  allows them.
 
 `LocalWorkspace` is POSIX-only (it raises on Windows, with or without WSL),
 so the whole stack is only offered on POSIX hosts. The workspace is created
 on first use and holds only what the admin puts there.
+
+`Coder` from pydantic-ai-harness is intentionally **not** used: its bundled
+`Shell` is unrestricted and bypasses `ShellGuard` / approval cards. The
+coding stack composes `FileSystem`, `Shell`, `RepoContext` and `Permissions`
+itself so every command goes through the same allowlist and approval as the
+assistant shell (`assistant/workspace.py`).
 """
 
 from __future__ import annotations
@@ -30,13 +33,25 @@ from pathlib import Path
 from typing import Any
 
 from pydantic_ai.capabilities import AbstractCapability, LocalWorkspace
-from pydantic_ai_harness.coder import Coder
 from pydantic_ai_harness.filesystem import FileSystem
 from pydantic_ai_harness.permissions import Permissions
 from pydantic_ai_harness.repo_context import RepoContext
+from pydantic_ai_harness.shell import Shell
+
+from athena.assistant import shell
+from athena.assistant.workspace import DEFAULT_TIMEOUT, ShellGuard
+
+CODING_INSTRUCTIONS = (
+    "Work inside the code-workspace only. Prefer reads and edits over "
+    "rewrites, run tests or linting before declaring a change done, and "
+    "never commit or push — ask the admin instead."
+)
+"""Instructions added to the agent when the coding stack is on."""
 
 
-def coding_stack_capabilities(enabled: bool, data_dir: Path) -> list[AbstractCapability[Any]]:
+def coding_stack_capabilities(
+    enabled: bool, data_dir: Path, shell_commands: tuple[str, ...] = ()
+) -> list[AbstractCapability[Any]]:
     """Coding-assistant capabilities, or none when the setting is off or no
     POSIX workspace is available.
 
@@ -47,12 +62,9 @@ def coding_stack_capabilities(enabled: bool, data_dir: Path) -> list[AbstractCap
     ask before each write, so `write_file`, `edit_file` and
     `create_directory` show an Approve/Deny card while reads run freely.
 
-    `Coder` is bound on the agent (not passed to `run()`) so its `delegate_task`
-    works with Athena's own `SubAgents`. It's added with `repo_context=False`,
-    `sub_agents=False` and `caching=False` because Athena already wires
-    `RepoContext`, `SubAgents` (via `assistant/delegation.py`) and `Caching()`
-    on the agent — Coder then contributes coding-specific guidance, search
-    tools and result truncation without duplicating them.
+    When `shell_commands` is non-empty, `Shell` runs commands in the
+    code-workspace, gated by `ShellGuard`'s allowlist check and an
+    `Permissions` approval card, and audited as `assistant.shell`.
     """
     if not enabled:
         return []
@@ -60,19 +72,31 @@ def coding_stack_capabilities(enabled: bool, data_dir: Path) -> list[AbstractCap
         return []  # LocalWorkspace is POSIX-only; Windows uses PowerShell instead
     workspace = data_dir / "assistant" / "code-workspace"
     workspace.mkdir(parents=True, exist_ok=True)
-    return [
+    caps: list[AbstractCapability[Any]] = [
         LocalWorkspace(workspace),
         RepoContext(),
-        FileSystem(root_dir=workspace),
-        Permissions(mode="read-only"),
-        Coder(
-            instructions=(
-                "Work inside the code-workspace only. Prefer reads and edits over "
-                "rewrites, run tests or linting before declaring a change done, and "
-                "never commit or push — ask the admin instead."
-            ),
-            repo_context=False,
-            sub_agents=False,
-            caching=False,
+        FileSystem(
+            root_dir=workspace,
+            tools=[
+                "read_file",
+                "write_file",
+                "edit_file",
+                "list_directory",
+                "create_directory",
+                "file_info",
+                "list_files",
+                "grep",
+            ],
         ),
+        Permissions(mode="read-only"),
     ]
+    if shell_commands:
+        caps += [
+            Shell(
+                allowed_commands=list(shell_commands),
+                default_timeout=DEFAULT_TIMEOUT,
+                max_output_chars=shell.MAX_OUTPUT,
+            ),
+            ShellGuard(commands=shell_commands),
+        ]
+    return caps
