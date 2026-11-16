@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { FlameIcon, LibraryIcon, SearchIcon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -41,10 +42,12 @@ export function storeAppHref(app: { catalog: string; id: string }) {
 }
 
 export function StoreBrowser() {
+  // Deep links such as /store/?q=git open with the search already filled in.
+  const initialQuery = useSearchParams().get("q") ?? ""
   const [apps, setApps] = React.useState<StoreApp[] | null>(null)
   const [categories, setCategories] = React.useState<Category[]>([])
   const [error, setError] = React.useState<string | null>(null)
-  const [query, setQuery] = React.useState("")
+  const [query, setQuery] = React.useState(initialQuery)
   const [category, setCategory] = React.useState<string>("all")
 
   React.useEffect(() => {

@@ -11,6 +11,7 @@ import {
   ImageOffIcon,
   InfoIcon,
   MaximizeIcon,
+  XIcon,
 } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -36,6 +37,7 @@ import {
 } from "@workspace/ui/components/collapsible"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -345,7 +347,7 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
       ) : null}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-5xl sm:max-w-5xl">
+        <DialogContent showCloseButton={false} className="max-w-5xl sm:max-w-5xl">
           <DialogTitle className="sr-only">{title} screenshot</DialogTitle>
           <DialogDescription className="sr-only">
             A screenshot of {title}.
@@ -355,6 +357,18 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
             alt={alt}
             className="max-h-[80vh] w-full rounded-lg bg-muted object-contain"
           />
+          <DialogClose
+            render={
+              <Button
+                variant="secondary"
+                size="icon-sm"
+                className="absolute top-2 right-2 z-10 shadow-sm"
+              />
+            }
+          >
+            <XIcon />
+            <span className="sr-only">Close</span>
+          </DialogClose>
         </DialogContent>
       </Dialog>
     </div>
