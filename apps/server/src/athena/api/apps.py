@@ -9,7 +9,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Path, Query, Request, status
 from pydantic import BaseModel, Field
-from sqlmodel import select
+from sqlmodel import Session, delete, select
 
 from athena import audit
 from athena.api.containers import RuntimeDep
@@ -435,8 +435,9 @@ async def delete_app(
             env=store.env(name),
         )
         store.remove(name, delete_data)
-        with database.engine.begin() as conn:
-            conn.exec_driver_sql("DELETE FROM apps WHERE name = ?", (name,))
+        with Session(database.engine) as session:
+            session.exec(delete(App).where(App.name == name))
+            session.commit()
         await job.log(
             "Removed the app and its data."
             if delete_data
