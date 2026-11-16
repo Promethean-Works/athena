@@ -120,6 +120,8 @@ def main() -> int:
             page.get_by_label("Password", exact=True).fill(PASSWORD)
             page.get_by_label("Confirm password").fill(PASSWORD)
             page.get_by_role("button", name="Create account").click()
+            # The setup wizard's AI step is optional: skip it to reach the dashboard.
+            page.get_by_role("button", name="Skip for now").click()
             page.wait_for_url(f"{base}/")
             expect(page.get_by_role("link", name="Dashboard").first).to_be_visible()
 
