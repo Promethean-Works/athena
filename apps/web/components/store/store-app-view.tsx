@@ -82,6 +82,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
                   variant="link"
                   size="sm"
                   className="h-auto px-0"
+                  nativeButton={false}
                   render={
                     <a href={app.homepage} target="_blank" rel="noreferrer" />
                   }
