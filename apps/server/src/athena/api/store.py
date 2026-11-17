@@ -70,6 +70,15 @@ class FormField(BaseModel):
     advanced: bool
 
 
+class VariantDetail(BaseModel):
+    slug: str
+    label: str
+    compose: str
+    images: list[str]
+    web_port: str | int | None = None
+    fields: list[FormField]
+
+
 class StoreAppDetail(StoreApp):
     homepage: str | None
     notes: str | None
@@ -82,11 +91,15 @@ class StoreAppDetail(StoreApp):
     suggested_name: str
     fields: list[FormField]
     compose: str
+    variants: list[VariantDetail]
+    """Every installable variant of this app, each with its own compose file."""
 
 
 class InstallIn(BaseModel):
     name: str = Field(pattern=APP_NAME, max_length=63)
     values: dict[str, str] = Field(default_factory=dict)
+    variant: str | None = None
+    """Which compose variant to install; defaults to the app's default variant."""
 
 
 def _registry(request: Request) -> CatalogRegistry:
@@ -191,8 +204,22 @@ def get_store_app(
     name, n = app.id, 2
     while name in taken:
         name, n = f"{app.id}-{n}", n + 1
-    data_dir = AppStore(request.app.state.settings.data_dir).dir(name) / "data"
-    defaults = form_defaults(app, data_dir)
+    store = AppStore(request.app.state.settings.data_dir)
+    data_dir = store.dir(name) / "data"
+    defaults = form_defaults(app.meta.env, data_dir)
+    variants = []
+    for variant in app.variants:
+        variant_defaults = form_defaults(variant.env, data_dir)
+        variants.append(
+            VariantDetail(
+                slug=variant.slug,
+                label=variant.label,
+                compose=variant.compose,
+                images=variant.images,
+                web_port=variant.web_port,
+                fields=[_field(f, variant_defaults[f.key]) for f in variant.env],
+            )
+        )
     return StoreAppDetail(
         **_summary(app, _installed(db), _catalog_names(db)).model_dump(),
         homepage=app.meta.homepage,
@@ -206,6 +233,7 @@ def get_store_app(
         suggested_name=name,
         fields=[_field(f, defaults[f.key]) for f in app.meta.env],
         compose=app.compose,
+        variants=variants,
     )
 
 
@@ -226,9 +254,15 @@ async def install(
 ) -> JobOut:
     """Write compose.yaml and .env from the install form, then deploy as a job."""
     app = _get(request, catalog, app_id)
+    slug = body.variant or "default"
+    variant = next((v for v in app.variants if v.slug == slug), None)
+    if variant is None:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, f"No variant {slug!r} for store app {catalog}/{app_id}"
+        )
     data_dir = AppStore(request.app.state.settings.data_dir).dir(body.name) / "data"
     try:
-        values = resolve_values(app, body.values, data_dir)
+        values = resolve_values(variant.env, body.values, data_dir)
     except InstallValueError as exc:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -240,7 +274,7 @@ async def install(
         user,
         db,
         name=body.name,
-        compose_text=app.compose,
+        compose_text=variant.compose,
         source="catalog",
         env_text=env_file(values),
         catalog_id=f"{app.catalog}/{app.id}",

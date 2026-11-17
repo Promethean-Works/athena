@@ -3355,6 +3355,8 @@ export interface components {
             fields: components["schemas"]["FormField"][];
             /** Compose */
             compose: string;
+            /** Variants */
+            variants: components["schemas"]["VariantDetail"][];
         };
         /** SyncIn */
         SyncIn: {
@@ -3513,6 +3515,21 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /** VariantDetail */
+        VariantDetail: {
+            /** Slug */
+            slug: string;
+            /** Label */
+            label: string;
+            /** Compose */
+            compose: string;
+            /** Images */
+            images: string[];
+            /** Web Port */
+            web_port?: string | number | null;
+            /** Fields */
+            fields: components["schemas"]["FormField"][];
+        };
         /** WebDavIn */
         WebDavIn: {
             /** Enabled */
@@ -3551,6 +3568,8 @@ export interface components {
             values?: {
                 [key: string]: string;
             };
+            /** Variant */
+            variant?: string | null;
         };
     };
     responses: never;

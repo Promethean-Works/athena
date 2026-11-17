@@ -9485,6 +9485,13 @@
           "compose": {
             "type": "string",
             "title": "Compose"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/VariantDetail"
+            },
+            "type": "array",
+            "title": "Variants"
           }
         },
         "type": "object",
@@ -9512,7 +9519,8 @@
           "license",
           "suggested_name",
           "fields",
-          "compose"
+          "compose",
+          "variants"
         ],
         "title": "StoreAppDetail"
       },
@@ -9959,6 +9967,59 @@
         ],
         "title": "ValidationError"
       },
+      "VariantDetail": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "compose": {
+            "type": "string",
+            "title": "Compose"
+          },
+          "images": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Images"
+          },
+          "web_port": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Web Port"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/FormField"
+            },
+            "type": "array",
+            "title": "Fields"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "label",
+          "compose",
+          "images",
+          "fields"
+        ],
+        "title": "VariantDetail"
+      },
       "WebDavIn": {
         "properties": {
           "enabled": {
@@ -10065,6 +10126,17 @@
             },
             "type": "object",
             "title": "Values"
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant"
           }
         },
         "type": "object",
