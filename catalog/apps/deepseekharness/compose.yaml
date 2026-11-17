@@ -1,0 +1,27 @@
+x-athena:
+  title: DeepSeek Harness
+  description: Evaluation framework for DeepSeek and other large language models.
+  tagline: LLM evaluation framework.
+  tags: [AI, LLM, Evaluation]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DeepSeekHarness/icon.svg
+  homepage: https://github.com/DeepSeek-AI/DeepSeek-Harness
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DeepSeekHarness/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DeepSeekHarness/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8180"
+
+services:
+  deepseek-harness:
+    image: ghcr.io/deepseekai/deepseek-harness:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

@@ -11,6 +11,8 @@ x-athena:
     - Live TV and DVR with a tuner
     - Subtitles, trailers and collections
     - Apps for Android, iOS, Roku and more
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Jellyfin/thumbnail.png
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/jellyfin.svg
   homepage: https://jellyfin.org

@@ -9,6 +9,8 @@ x-athena:
     - Activities, tasks and gifts per person
     - Relationships between people
     - Multiple users, each with their own contacts
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Monica/screenshot-1.png
   category: productivity
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/monica.svg
   homepage: https://www.monicahq.com

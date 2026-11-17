@@ -10,6 +10,8 @@ x-athena:
   web_port: WEB_PORT
   notes: >-
     The first admin password is printed in the container's logs on first start.
+  screenshots:
+    - https://raw.githubusercontent.com/filebrowser/filebrowser/master/branding/banner.png
   env:
     - key: WEB_PORT
       label: Web port

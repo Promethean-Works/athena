@@ -1,0 +1,56 @@
+x-athena:
+  title: Nginx Proxy Manager
+  description: Reverse proxy with a web UI for managing SSL, hosts, and redirects.
+  tagline: Reverse proxy with SSL management.
+  tags: [Proxy, SSL, Network]
+  license: "MIT"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/NginxProxyManager/icon.svg
+  homepage: https://nginxproxymanager.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/NginxProxyManager/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/NginxProxyManager/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8121"
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+    - key: DB_ROOT_PASSWORD
+      label: Database root password
+      type: password
+      generate: secret
+      advanced: true
+
+services:
+  npm:
+    image: jc21/nginx-proxy-manager:2.13.5
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:81/tcp"
+      - "443:443/tcp"
+    environment:
+      DB_MYSQL_HOST: db
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: npm
+      DB_MYSQL_PASSWORD: ${DB_PASSWORD}
+      DB_MYSQL_NAME: npm
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - db
+  db:
+    image: mariadb:10.7
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: npm
+      MYSQL_USER: npm
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/db:/var/lib/mysql

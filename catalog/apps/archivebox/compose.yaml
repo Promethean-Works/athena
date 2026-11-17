@@ -1,0 +1,28 @@
+x-athena:
+  title: ArchiveBox
+  description: Self-hosted internet archiving tool that snapshots URLs and keeps them accessible offline.
+  tagline: Archive the web pages you care about.
+  tags: [Archive, Bookmarks, Web]
+  license: "AGPL-3.0"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ArchiveBox/icon.svg
+  homepage: https://archivebox.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ArchiveBox/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ArchiveBox/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8103"
+
+services:
+  archivebox:
+    image: archivebox/archivebox:0.7.4
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+      - "18082:8082/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

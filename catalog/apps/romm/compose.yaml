@@ -1,0 +1,27 @@
+x-athena:
+  title: RomM
+  description: Game collection manager and ROM library with metadata scraping and web UI.
+  tagline: Game collection manager.
+  tags: [Gaming, ROMs, Library]
+  license: "MIT"
+  category: home
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RomM/icon.svg
+  homepage: https://romm.sh
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RomM/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RomM/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8133"
+
+services:
+  romm:
+    image: rommapp/romm:4.8.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

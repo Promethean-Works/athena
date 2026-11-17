@@ -1,0 +1,27 @@
+x-athena:
+  title: Embystat
+  description: Statistics dashboard for your Emby media server.
+  tagline: Emby statistics dashboard.
+  tags: [Emby, Statistics, Media]
+  license: "MIT"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Embystat/icon.svg
+  homepage: https://embystat.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Embystat/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Embystat/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8186"
+
+services:
+  embystat:
+    image: ghcr.io/embystat/embystat:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

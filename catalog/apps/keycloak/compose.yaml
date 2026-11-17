@@ -9,6 +9,9 @@ x-athena:
     - User federation with LDAP and Active Directory
     - Fine-grained roles and authorisation services
     - Social login and identity brokering
+  screenshots:
+    - https://raw.githubusercontent.com/keycloak/keycloak/main/docs/documentation/server_admin/images/admin-console.png
+    - https://raw.githubusercontent.com/keycloak/keycloak/main/docs/documentation/server_admin/images/login-page.png
   category: security
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/keycloak.svg
   homepage: https://www.keycloak.org

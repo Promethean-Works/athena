@@ -1,0 +1,25 @@
+x-athena:
+  title: OpenSpeedTest
+  description: Self-hosted network speed test server for measuring internet performance.
+  tagline: Self-hosted network speed test.
+  tags: [Network, Speed Test, Monitoring]
+  license: "MIT"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenSpeedTest/icon.svg
+  homepage: https://openspeedtest.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenSpeedTest/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenSpeedTest/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8211"
+
+services:
+  openspeedtest:
+    image: openspeedtest/latest:v2.0.6
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3004/tcp"

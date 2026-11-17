@@ -1,0 +1,27 @@
+x-athena:
+  title: LibreChat
+  description: Self-hosted AI chat platform supporting multiple providers and agents.
+  tagline: Self-hosted AI chat platform.
+  tags: [AI, Chat, LLM]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/LibreChat/icon.svg
+  homepage: https://librechat.ai
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/LibreChat/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/LibreChat/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8208"
+
+services:
+  librechat:
+    image: ghcr.io/danny-avila/librechat-dev:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data

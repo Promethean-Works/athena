@@ -1,0 +1,27 @@
+x-athena:
+  title: PodFetch
+  description: Self-hosted podcast downloader and aggregator with a web interface.
+  tagline: Self-hosted podcast aggregator.
+  tags: [Podcasts, Audio, Downloads]
+  license: "MIT"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PodFetch/icon.svg
+  homepage: https://podfetch.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PodFetch/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PodFetch/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8122"
+
+services:
+  podfetch:
+    image: samuel19982/podfetch:v5.2.3
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

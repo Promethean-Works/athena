@@ -1,0 +1,39 @@
+x-athena:
+  title: DuckDNS
+  description: Free dynamic DNS client for keeping your domain synced with your IP.
+  tagline: Free dynamic DNS client.
+  tags: [DDNS, DNS, Network]
+  license: "GPL-3.0"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DuckDNS/icon.svg
+  homepage: https://www.duckdns.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DuckDNS/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DuckDNS/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8184"
+    - key: DOMAINS
+      label: Domains
+      type: text
+      default: ""
+      required: false
+      advanced: true
+    - key: TOKEN
+      label: Token
+      type: password
+      required: false
+      advanced: true
+
+services:
+  duckdns:
+    image: linuxserver/duckdns:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    environment:
+      DOMAINS: ${DOMAINS}
+      TOKEN: ${TOKEN}

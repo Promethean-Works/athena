@@ -1,0 +1,27 @@
+x-athena:
+  title: Hugo
+  description: Static site generator server for building and previewing Hugo websites.
+  tagline: Static site generator server.
+  tags: [Static Site, Web, Generator]
+  license: "Apache-2.0"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hugo/icon.svg
+  homepage: https://gohugo.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hugo/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hugo/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8199"
+
+services:
+  hugo:
+    image: klakegg/hugo:0.140
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:1313/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/site:/src

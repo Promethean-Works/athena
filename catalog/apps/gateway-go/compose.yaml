@@ -1,0 +1,27 @@
+x-athena:
+  title: Gateway-go
+  description: Self-hosted API gateway and reverse proxy with a web management UI.
+  tagline: Self-hosted API gateway.
+  tags: [API Gateway, Proxy, Network]
+  license: "MIT"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/icon.svg
+  homepage: https://gateway-go.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8193"
+
+services:
+  gateway:
+    image: ghcr.io/gateway-go/gateway:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

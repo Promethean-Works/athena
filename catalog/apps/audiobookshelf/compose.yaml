@@ -9,6 +9,8 @@ x-athena:
     - Podcast subscriptions with automatic downloads
     - Official Android and iOS apps
     - Multiple users with per-user progress
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Audiobookshelf/screenshot-1.png
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/audiobookshelf.svg
   homepage: https://www.audiobookshelf.org

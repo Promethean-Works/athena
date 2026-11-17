@@ -1,0 +1,27 @@
+x-athena:
+  title: RDTClient
+  description: Remote desktop client for accessing and managing remote machines from your browser.
+  tagline: Remote desktop client.
+  tags: [Remote Desktop, Access]
+  license: "AGPL-3.0"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RDTClient/icon.svg
+  homepage: https://rdtclient.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RDTClient/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RDTClient/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8129"
+
+services:
+  rdtclient:
+    image: rogerfar/rdtclient:2.0.136
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:6500/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

@@ -1,0 +1,27 @@
+x-athena:
+  title: NZBFast
+  description: Fast NZB downloader for Usenet with a web interface.
+  tagline: Fast Usenet downloader.
+  tags: [Usenet, Downloads, NZB]
+  license: "GPL-3.0"
+  category: downloads
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/nzbfast/icon.svg
+  homepage: https://nzbfast.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/nzbfast/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/nzbfast/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8160"
+
+services:
+  nzbfast:
+    image: nzbfast/nzbfast:1.3.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:6790/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

@@ -1,0 +1,25 @@
+x-athena:
+  title: FlareSolverr
+  description: Proxy server for bypassing Cloudflare and DDoS protection scrapers.
+  tagline: Cloudflare bypass proxy.
+  tags: [Proxy, Scraping, Cloudflare]
+  license: "AGPL-3.0"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlareSolverr/icon.svg
+  homepage: https://flaresolverr.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlareSolverr/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlareSolverr/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8191"
+
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8191/tcp"

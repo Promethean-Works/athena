@@ -1,0 +1,27 @@
+x-athena:
+  title: UploadAssistant
+  description: Media upload assistant for organizing and uploading content to your media server.
+  tagline: Media upload assistant.
+  tags: [Media, Upload, Organization]
+  license: "MIT"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/UploadAssistant/icon.svg
+  homepage: https://uploadassistant.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/UploadAssistant/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/UploadAssistant/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8150"
+
+services:
+  uploadassistant:
+    image: ghcr.io/wastaken7/upload-assistant:v4.9
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

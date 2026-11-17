@@ -1,0 +1,27 @@
+x-athena:
+  title: Project NOMAD
+  description: Smart home dashboard and automation hub with a modern web interface.
+  tagline: Smart home dashboard.
+  tags: [Home Automation, Dashboard, IoT]
+  license: "MIT"
+  category: home
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ProjectNOMAD/icon.png
+  homepage: https://nomad.home
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ProjectNOMAD/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ProjectNOMAD/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8126"
+
+services:
+  nomad:
+    image: ghcr.io/crosstalk-solutions/project-nomad:1.35.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data
