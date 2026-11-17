@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Path, Query, Request, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlmodel import select
 
 from athena import audit
@@ -72,6 +72,8 @@ class FormField(BaseModel):
 
 
 class VariantOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     label: str
     description: str | None
