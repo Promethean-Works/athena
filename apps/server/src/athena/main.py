@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pgtask import Client, TaskRegistry, Worker
 
 from athena import __version__
-from athena.api import apps, auth, capabilities, containers, jobs, system
+from athena.api import apps, auth, automation, capabilities, containers, jobs, system
 from athena.api import assistant as assistant_api
 from athena.api import cloud as cloud_api
 from athena.api import files as files_api
@@ -25,6 +25,7 @@ from athena.assistant.chat import Turns
 from athena.assistant.providers import ModelCache
 from athena.auth.deps import require_user
 from athena.auth.service import LoginThrottle
+from athena.automation import service as automation_service
 from athena.catalog.registry import CatalogRegistry
 from athena.cloud.rclone import Rclone
 from athena.config import Settings
@@ -62,6 +63,8 @@ def create_app(
         # GET /api/system/capabilities waits for it if it isn't done yet.
         task = asyncio.create_task(store.get())
         app.state.monitor.start()
+        # Automation scheduler: fires enabled cron triggers on their schedule.
+        scheduler_task = asyncio.create_task(automation_service.scheduler_loop(app))
         # Durable execution: run assistant turns inside pgtask tasks against Postgres so
         # an interrupted turn resumes from its last checkpointed step. Only started when a
         # database URL is configured; hosts without Postgres run turns inline instead.
@@ -78,6 +81,7 @@ def create_app(
             worker_task = asyncio.create_task(worker.run())
         yield
         task.cancel()
+        scheduler_task.cancel()
         if worker is not None:
             worker.shutdown()
             if worker_task is not None:
@@ -115,6 +119,8 @@ def create_app(
     app.state.ai_transport = None  # tests swap in an httpx2.MockTransport
     app.state.assistant_turns = Turns()
     app.state.catalogs = catalogs or CatalogRegistry(remote_root=settings.data_dir / "catalogs")
+    # Wakes the automation scheduler when a trigger is created, enabled or edited.
+    app.state.automation_event = asyncio.Event()
     # Public: /api/health, /api/auth/* and /api/public/shares/{token} (a share link's
     # visitor). Everything else needs a signed-in session. /dav/ has its own sign-in.
     app.include_router(system.router, prefix="/api")
@@ -135,6 +141,7 @@ def create_app(
     app.include_router(webdav_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(cloud_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(assistant_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(automation.router, prefix="/api", dependencies=[require_user])
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
 

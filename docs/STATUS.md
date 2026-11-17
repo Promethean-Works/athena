@@ -2,7 +2,7 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Parts A, B and C are done, and so are part D stages 1 and 2 (#65–#73). Stage 3: web research (#75), second-model reviews (#76), Docker sandbox (#77), hosted integrations (#78) and the durable execution foundation (#80) are done; the browser is blocked by a dependency conflict (see Next).
+**Current milestone:** M8, automation (cron + trigger-based jobs, MCP server, webhooks). M7 (the AI assistant, §4.5) is complete.
 
 ## Done
 
@@ -11,6 +11,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 ## In progress
 
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
+- M8 A (automation foundation): done — durable triggers (`automation_triggers`) + job runs (`automation_job_runs`), cron scheduler loop, `GET/POST/PATCH/DELETE /api/automation/triggers` and `GET /api/automation/jobs`, audit records. Verified with API tests; API client regenerated. Next: M8 B MCP server.
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
