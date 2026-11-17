@@ -10,6 +10,8 @@ x-athena:
     - Thousands of integrations and add-ons
     - Automations, scenes and dashboards
     - Everything keeps working without the cloud
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/HomeAssistant/thumbnail.png
   category: home
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/home-assistant.svg
   homepage: https://www.home-assistant.io

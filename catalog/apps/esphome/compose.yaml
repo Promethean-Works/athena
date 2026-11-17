@@ -9,6 +9,8 @@ x-athena:
     - OTA updates with compiled firmware
     - Hundreds of sensors and components
     - Speaks natively to Home Assistant
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ESPHome/screenshot-1.png
   category: home
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/esphome.svg
   homepage: https://esphome.io

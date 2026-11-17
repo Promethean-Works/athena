@@ -4,6 +4,8 @@ x-athena:
   tagline: "One place to manage indexers for your *arr stack."
   tags: [Indexers, Automation]
   license: "GPL-3.0"
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Prowlarr/thumbnail.png
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prowlarr.svg
   homepage: https://prowlarr.com

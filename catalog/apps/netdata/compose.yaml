@@ -9,6 +9,8 @@ x-athena:
     - Per-second resolution with no history database needed
     - Containers, disks, network and services out of the box
     - Built-in alerting and a dashboard
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Netdata/screenshot-2.png
   category: monitoring
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/netdata.svg
   homepage: https://www.netdata.cloud

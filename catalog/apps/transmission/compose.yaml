@@ -4,6 +4,8 @@ x-athena:
   tagline: "A lightweight BitTorrent client with a web UI."
   tags: [BitTorrent, Downloads]
   license: "GPL-3.0"
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Transmission/thumbnail.png
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/transmission.svg
   homepage: https://transmissionbt.com

@@ -10,6 +10,8 @@ x-athena:
     - Alerting with Slack, email and webhook delivery
     - Variables, annotations and reusable panels
     - Works with the bundled Prometheus app
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Grafana/thumbnail.png
   category: monitoring
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/grafana.svg
   homepage: https://grafana.com

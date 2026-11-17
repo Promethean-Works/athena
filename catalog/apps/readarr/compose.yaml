@@ -4,6 +4,8 @@ x-athena:
   tagline: "Book collection manager for Usenet and BitTorrent."
   tags: [E-books, Automation]
   license: "GPL-3.0"
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Readarr/thumbnail.png
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/readarr.svg
   homepage: https://readarr.com

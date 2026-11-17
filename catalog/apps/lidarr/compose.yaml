@@ -4,6 +4,8 @@ x-athena:
   tagline: "Music collection manager for Usenet and BitTorrent."
   tags: [Music, Automation]
   license: "GPL-3.0"
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Lidarr/thumbnail.png
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/lidarr.svg
   homepage: https://lidarr.audio

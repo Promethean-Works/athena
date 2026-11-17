@@ -9,6 +9,9 @@ x-athena:
     - Kanban, gallery, form and calendar views
     - REST and GraphQL APIs generated for every table
     - Roles, sharing links and webhooks
+  screenshots:
+    - https://raw.githubusercontent.com/nocodb/nocodb/develop/packages/nc-gui/assets/img/views/grid.png
+    - https://raw.githubusercontent.com/nocodb/nocodb/develop/packages/nc-gui/assets/img/views/kanban.png
   category: development
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/nocodb.svg
   homepage: https://nocodb.com

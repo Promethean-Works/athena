@@ -228,8 +228,8 @@ def test_store_front_metadata(api: TestClient) -> None:
     assert detail["license"] == "MIT"
 
     # Apps without screenshots fall back to their icon on a card.
-    assert by_id["jellyfin"]["cover"] is None
-    assert by_id["jellyfin"]["tagline"]
+    assert by_id["deluge"]["cover"] is None
+    assert by_id["deluge"]["tagline"]
 
 
 def test_install_writes_env_and_deploys(api: TestClient, tmp_path: Path) -> None:

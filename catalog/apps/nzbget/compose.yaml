@@ -4,6 +4,8 @@ x-athena:
   tagline: "A fast Usenet downloader with a web UI."
   tags: [Usenet, Downloads]
   license: "GPL-2.0"
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Nzbget/thumbnail.png
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/nzbget.svg
   homepage: https://nzbget.net
