@@ -194,7 +194,7 @@ def test_store_lists_and_filters(api: TestClient) -> None:
     media = api.get("/api/store/apps", params={"category": "media"}).json()
     assert media and all(a["category"] == "media" for a in media)
     found = api.get("/api/store/apps", params={"q": "jelly"}).json()
-    assert [a["id"] for a in found] == ["jellyfin"]
+    assert "jellyfin" in [a["id"] for a in found]
     tagged = api.get("/api/store/apps", params={"q": "bittorrent"}).json()
     assert {"deluge", "qbittorrent", "transmission"} <= {a["id"] for a in tagged}
     cats = api.get("/api/store/categories").json()

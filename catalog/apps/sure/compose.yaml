@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8140"
-  services:
-    sure:
-      image: ghcr.io/we-promise/sure:0.6.5-hotfix.1
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:23000/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  sure:
+    image: ghcr.io/we-promise/sure:0.6.5-hotfix.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:23000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8144"
-  services:
-    teable:
-      image: teableio/teable:latest
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:3200/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/app/data
+
+services:
+  teable:
+    image: teableio/teable:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3200/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data

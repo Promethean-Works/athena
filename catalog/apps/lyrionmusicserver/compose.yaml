@@ -16,14 +16,15 @@ x-athena:
       label: Web port
       type: port
       default: "8116"
-  services:
-    lyrionmusicserver:
-      image: lmscommunity/lyrionmusicserver:9.1.1
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:9000/tcp"
-        - "9090:9090/tcp"
-        - "3483:3483/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/config:/config
-        - ${ATHENA_APP_DATA}/music:/music:ro
+
+services:
+  lyrionmusicserver:
+    image: lmscommunity/lyrionmusicserver:9.1.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9000/tcp"
+      - "9090:9090/tcp"
+      - "3483:3483/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${ATHENA_APP_DATA}/music:/music:ro

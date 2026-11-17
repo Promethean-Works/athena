@@ -24,14 +24,15 @@ x-athena:
       label: Group ID
       default: "@gid"
       advanced: true
-  services:
-    tautulli:
-      image: linuxserver/tautulli:2.17.1
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8181/tcp"
-      environment:
-        PUID: ${PUID}
-        PGID: ${PGID}
-      volumes:
-        - ${ATHENA_APP_DATA}/config:/config
+
+services:
+  tautulli:
+    image: linuxserver/tautulli:2.17.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8181/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

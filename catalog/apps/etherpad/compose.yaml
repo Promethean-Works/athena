@@ -26,19 +26,20 @@ x-athena:
       type: password
       generate: secret
       advanced: true
-  services:
-    etherpad:
-      image: etherpad/etherpad:3.1.0
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:9001/tcp"
-      environment:
-        TITLE: ${TITLE}
-        ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-        DB_TYPE: dirty
-        DB_FILENAME: /opt/etherpad-lite/var/dirty.db
-        TRUST_PROXY: "true"
-        REQUIRE_AUTHENTICATION: "false"
-        REQUIRE_AUTHORIZATION: "false"
-      volumes:
-        - ${ATHENA_APP_DATA}/var:/opt/etherpad-lite/var
+
+services:
+  etherpad:
+    image: etherpad/etherpad:3.1.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9001/tcp"
+    environment:
+      TITLE: ${TITLE}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      DB_TYPE: dirty
+      DB_FILENAME: /opt/etherpad-lite/var/dirty.db
+      TRUST_PROXY: "true"
+      REQUIRE_AUTHENTICATION: "false"
+      REQUIRE_AUTHORIZATION: "false"
+    volumes:
+      - ${ATHENA_APP_DATA}/var:/opt/etherpad-lite/var

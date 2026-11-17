@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8142"
-  services:
-    tailscale:
-      image: tailscale/tailscale:v1.98.3
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:80/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/var/lib/tailscale
+
+services:
+  tailscale:
+    image: tailscale/tailscale:v1.98.3
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/var/lib/tailscale

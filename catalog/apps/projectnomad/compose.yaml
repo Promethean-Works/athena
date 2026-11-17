@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8126"
-  services:
-    nomad:
-      image: ghcr.io/crosstalk-solutions/project-nomad:1.35.1
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8080/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  nomad:
+    image: ghcr.io/crosstalk-solutions/project-nomad:1.35.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

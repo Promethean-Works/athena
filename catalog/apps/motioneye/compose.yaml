@@ -16,12 +16,13 @@ x-athena:
       label: Web port
       type: port
       default: "8119"
-  services:
-    motioneye:
-      image: ccrisan/motioneye:master-amd64
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8765/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/etc:/etc/motioneye
-        - ${ATHENA_APP_DATA}/media:/var/lib/motioneye
+
+services:
+  motioneye:
+    image: ccrisan/motioneye:master-amd64
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8765/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/etc:/etc/motioneye
+      - ${ATHENA_APP_DATA}/media:/var/lib/motioneye

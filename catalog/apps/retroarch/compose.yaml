@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8132"
-  services:
-    retroarch:
-      image: inglebard/retroarch-web:latest
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8080/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/config
+
+services:
+  retroarch:
+    image: inglebard/retroarch-web:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/config

@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8153"
-  services:
-    vocechat:
-      image: privoce/vocechat-server:v0.5.17
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:3009/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  vocechat:
+    image: privoce/vocechat-server:v0.5.17
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3009/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

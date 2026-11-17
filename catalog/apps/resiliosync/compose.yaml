@@ -16,16 +16,25 @@ x-athena:
       label: Web port
       type: port
       default: "8131"
-  services:
-    resilio-sync:
-      image: linuxserver/resilio-sync:3.1.2
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8888/tcp"
-        - "55555:55555/tcp"
-      environment:
-        PUID: ${PUID}
-        PGID: ${PGID}
-      volumes:
-        - ${ATHENA_APP_DATA}/config:/config
-        - ${ATHENA_APP_DATA}/data:/data
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+
+services:
+  resilio-sync:
+    image: linuxserver/resilio-sync:3.1.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8888/tcp"
+      - "55555:55555/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${ATHENA_APP_DATA}/data:/data

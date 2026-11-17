@@ -1,0 +1,27 @@
+x-athena:
+  title: Databag
+  description: Secure, encrypted personal data manager for notes, passwords, and contacts.
+  tagline: Secure personal data manager.
+  tags: [Passwords, Notes, Contacts]
+  license: "MIT"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Databag/icon.svg
+  homepage: https://databag.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Databag/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Databag/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8178"
+
+services:
+  databag:
+    image: ghcr.io/databag/databag:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

@@ -20,14 +20,15 @@ x-athena:
       label: NextAuth secret
       type: password
       generate: secret
-  services:
-    blinko:
-      image: blinkospace/blinko:1.8.7
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:1111/tcp"
-      environment:
-        NODE_ENV: production
-        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/app/.blinko
+
+services:
+  blinko:
+    image: blinkospace/blinko:1.8.7
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:1111/tcp"
+    environment:
+      NODE_ENV: production
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/.blinko

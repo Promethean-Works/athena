@@ -24,14 +24,15 @@ x-athena:
       label: Group ID
       default: "@gid"
       advanced: true
-  services:
-    mylar3:
-      image: linuxserver/mylar3:0.9.0
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8090/tcp"
-      environment:
-        PUID: ${PUID}
-        PGID: ${PGID}
-      volumes:
-        - ${ATHENA_APP_DATA}/config:/config
+
+services:
+  mylar3:
+    image: linuxserver/mylar3:0.9.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8090/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

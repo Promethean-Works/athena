@@ -16,12 +16,13 @@ x-athena:
       label: Web port
       type: port
       default: "8139"
-  services:
-    stremio:
-      image: tsaridas/stremio-docker:v1.3.4
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:11470/tcp"
-        - "8100:8100/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/root/.config/stremio
+
+services:
+  stremio:
+    image: tsaridas/stremio-docker:v1.3.4
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:11470/tcp"
+      - "8100:8100/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/root/.config/stremio

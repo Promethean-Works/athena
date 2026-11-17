@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8150"
-  services:
-    uploadassistant:
-      image: ghcr.io/wastaken7/upload-assistant:v4.9
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:5000/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  uploadassistant:
+    image: ghcr.io/wastaken7/upload-assistant:v4.9
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

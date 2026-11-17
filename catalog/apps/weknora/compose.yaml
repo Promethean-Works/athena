@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8154"
-  services:
-    weknora:
-      image: wechatopenai/weknora-ui:v0.2.14
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:80/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  weknora:
+    image: wechatopenai/weknora-ui:v0.2.14
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

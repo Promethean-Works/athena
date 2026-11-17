@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8137"
-  services:
-    snapotter:
-      image: snapotter/snapotter:2.2.0
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:1349/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  snapotter:
+    image: snapotter/snapotter:2.2.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:1349/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8151"
-  services:
-    v2raya:
-      image: mzz2017/v2raya:v2.2.7.5
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:2017/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/etc/v2raya
+
+services:
+  v2raya:
+    image: mzz2017/v2raya:v2.2.7.5
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:2017/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/etc/v2raya

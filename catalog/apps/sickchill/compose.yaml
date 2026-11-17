@@ -24,14 +24,15 @@ x-athena:
       label: Group ID
       default: "@gid"
       advanced: true
-  services:
-    sickchill:
-      image: linuxserver/sickchill:2023.6.27
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8081/tcp"
-      environment:
-        PUID: ${PUID}
-        PGID: ${PGID}
-      volumes:
-        - ${ATHENA_APP_DATA}/config:/config
+
+services:
+  sickchill:
+    image: linuxserver/sickchill:2023.6.27
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8081/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

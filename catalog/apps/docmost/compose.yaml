@@ -1,0 +1,27 @@
+x-athena:
+  title: Docmost
+  description: Open-source collaborative wiki and documentation platform for teams.
+  tagline: Collaborative documentation platform.
+  tags: [Wiki, Documentation, Team]
+  license: "MIT"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Docmost/icon.svg
+  homepage: https://docmost.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Docmost/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Docmost/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8182"
+
+services:
+  docmost:
+    image: docmost/docmost:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data

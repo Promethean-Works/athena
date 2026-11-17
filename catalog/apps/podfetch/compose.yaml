@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8122"
-  services:
-    podfetch:
-      image: samuel19982/podfetch:v5.2.3
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8000/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  podfetch:
+    image: samuel19982/podfetch:v5.2.3
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

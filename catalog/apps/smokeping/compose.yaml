@@ -24,14 +24,15 @@ x-athena:
       label: Group ID
       default: "@gid"
       advanced: true
-  services:
-    smokeping:
-      image: linuxserver/smokeping:2.9.0
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8080/tcp"
-      environment:
-        PUID: ${PUID}
-        PGID: ${PGID}
-      volumes:
-        - ${ATHENA_APP_DATA}/config:/config
+
+services:
+  smokeping:
+    image: linuxserver/smokeping:2.9.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

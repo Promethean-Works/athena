@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8130"
-  services:
-    ragflow:
-      image: icewhaletech/ragflow:v0.21.1
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:9380/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  ragflow:
+    image: icewhaletech/ragflow:v0.21.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9380/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

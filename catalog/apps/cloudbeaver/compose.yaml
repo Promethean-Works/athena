@@ -1,0 +1,28 @@
+x-athena:
+  title: CloudBeaver
+  description: Web-based database manager supporting MySQL, PostgreSQL, SQLite, and more.
+  tagline: Web-based database manager.
+  tags: [Database, Admin, SQL]
+  license: "Apache-2.0"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CloudBeaver/icon.svg
+  homepage: https://cloudbeaver.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CloudBeaver/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CloudBeaver/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8171"
+
+services:
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/workspace:/workspace
+      - ${ATHENA_APP_DATA}/metadata:/metadata

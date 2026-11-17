@@ -16,11 +16,12 @@ x-athena:
       label: API port
       type: port
       default: "8159"
-  services:
-    llamacpp:
-      image: ghcr.io/ggml-org/llama.cpp:server
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8080/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/models:/models
+
+services:
+  llamacpp:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/models:/models

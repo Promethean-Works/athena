@@ -1,0 +1,27 @@
+x-athena:
+  title: ConvertX
+  description: File conversion tool for documents, images, audio, and video formats.
+  tagline: File conversion tool.
+  tags: [Conversion, Media, Documents]
+  license: "MIT"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ConvertX/icon.svg
+  homepage: https://convertx.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ConvertX/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ConvertX/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8174"
+
+services:
+  convertx:
+    image: ghcr.io/convertx/convertx:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

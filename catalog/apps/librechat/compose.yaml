@@ -15,12 +15,13 @@ x-athena:
     - key: WEB_PORT
       label: Web port
       type: port
-      default: "8115"
-  services:
-    librechat:
-      image: ghcr.io/danny-avila/librechat-dev:latest
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:3080/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/app/data
+      default: "8208"
+
+services:
+  librechat:
+    image: ghcr.io/danny-avila/librechat-dev:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data

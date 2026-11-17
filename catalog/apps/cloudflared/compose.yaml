@@ -1,0 +1,31 @@
+x-athena:
+  title: Cloudflared
+  description: Cloudflare Tunnel client for securely exposing services to the internet.
+  tagline: Cloudflare Tunnel client.
+  tags: [Tunnel, Cloudflare, Network]
+  license: "Apache-2.0"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Cloudflared/icon.svg
+  homepage: https://developers.cloudflare.com/cloudflare-one/tunnels
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Cloudflared/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Cloudflared/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8172"
+    - key: TUNNEL_TOKEN
+      label: Tunnel token
+      type: password
+      required: false
+      advanced: true
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    command: tunnel --no-autoupdate --token ${TUNNEL_TOKEN}

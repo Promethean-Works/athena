@@ -21,13 +21,14 @@ x-athena:
       type: password
       description: Set after first start; see container logs.
       generate: secret
-  services:
-    alist:
-      image: xhofe/alist:v3.40.0
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:5244/tcp"
-      environment:
-        ALIST_TOKEN: ${ALIST_TOKEN}
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/opt/alist/data
+
+services:
+  alist:
+    image: xhofe/alist:v3.40.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5244/tcp"
+    environment:
+      ALIST_TOKEN: ${ALIST_TOKEN}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/opt/alist/data

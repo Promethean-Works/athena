@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8133"
-  services:
-    romm:
-      image: rommapp/romm:4.8.1
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8000/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  romm:
+    image: rommapp/romm:4.8.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

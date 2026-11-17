@@ -24,17 +24,18 @@ x-athena:
       label: Group ID
       default: "@gid"
       advanced: true
-  services:
-    unifi:
-      image: lscr.io/linuxserver/unifi-network-application:latest
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:8443/tcp"
-        - "3478:3478/tcp"
-        - "10001:10001/tcp"
-        - "8080:8080/tcp"
-      environment:
-        PUID: ${PUID}
-        PGID: ${PGID}
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/config
+
+services:
+  unifi:
+    image: lscr.io/linuxserver/unifi-network-application:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8443/tcp"
+      - "3478:3478/tcp"
+      - "10001:10001/tcp"
+      - "8080:8080/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/config

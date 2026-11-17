@@ -15,13 +15,14 @@ x-athena:
     - key: WEB_PORT
       label: Web port
       type: port
-      default: "8111"
-  services:
-    kavita:
-      image: jvmilazz0/kavita:0.9.0.2
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:5150/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
-        - ${ATHENA_APP_DATA}/comics:/comics:ro
+      default: "8205"
+
+services:
+  kavita:
+    image: jvmilazz0/kavita:0.9.0.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5150/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/comics:/comics:ro

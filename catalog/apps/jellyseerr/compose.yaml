@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8108"
-  services:
-    jellyseerr:
-      image: fallenbagel/jellyseerr:2.7.3
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:5055/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/app/config
+
+services:
+  jellyseerr:
+    image: fallenbagel/jellyseerr:2.7.3
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5055/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/config

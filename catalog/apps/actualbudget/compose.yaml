@@ -16,11 +16,12 @@ x-athena:
       label: Web port
       type: port
       default: "8101"
-  services:
-    actualbudget:
-      image: actualbudget/actual-server:26.5.2
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:5006/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
+
+services:
+  actualbudget:
+    image: actualbudget/actual-server:26.5.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5006/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

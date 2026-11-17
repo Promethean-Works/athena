@@ -15,13 +15,14 @@ x-athena:
     - key: WEB_PORT
       label: Web port
       type: port
-      default: "8112"
-  services:
-    komga:
-      image: gotson/komga:1.24.4
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:25600/tcp"
-      volumes:
-        - ${ATHENA_APP_DATA}/data:/data
-        - ${ATHENA_APP_DATA}/books:/books:ro
+      default: "8206"
+
+services:
+  komga:
+    image: gotson/komga:1.24.4
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:25600/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/books:/books:ro

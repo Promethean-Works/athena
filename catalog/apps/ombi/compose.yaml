@@ -24,14 +24,15 @@ x-athena:
       label: Group ID
       default: "@gid"
       advanced: true
-  services:
-    ombi:
-      image: linuxserver/ombi:4.53.5
-      restart: unless-stopped
-      ports:
-        - "${WEB_PORT}:3579/tcp"
-      environment:
-        PUID: ${PUID}
-        PGID: ${PGID}
-      volumes:
-        - ${ATHENA_APP_DATA}/config:/config
+
+services:
+  ombi:
+    image: linuxserver/ombi:4.53.5
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3579/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
