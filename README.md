@@ -4,7 +4,7 @@
 
 Athena manages containers, apps, host packages, files and cloud storage from one web dashboard, and includes an AI assistant that can operate it all. It's in the spirit of [CasaOS](https://github.com/IceWhaleTech/CasaOS), but cross-platform: it detects what your machine has and only shows what works there.
 
-> **Status: pre-alpha.** The design is done and the first milestone is in progress. Nothing is installable yet. See [docs/STATUS.md](docs/STATUS.md).
+> **Status: pre-alpha.** Development is at milestone M7 (the AI assistant) and nothing has been released yet. See [docs/STATUS.md](docs/STATUS.md).
 
 ## Planned features (MVP)
 
