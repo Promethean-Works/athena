@@ -93,13 +93,13 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
         setApi={setApi}
         opts={opts}
         plugins={plugins}
-        className="px-4 pb-4"
+        className="px-4 pb-2"
       >
-        <CarouselContent>
+        <CarouselContent className="-ml-4">
           {popular.map((app) => (
             <CarouselItem
               key={`${app.catalog}/${app.id}`}
-              className="h-full sm:basis-[50%] lg:basis-[calc(100%/3)]"
+              className="h-full pl-4 sm:basis-[50%] lg:basis-[calc(100%/3)]"
             >
               <Link
                 href={storeAppHref(app)}
