@@ -24,6 +24,34 @@ x-athena:
       label: Timezone
       default: "@timezone"
       advanced: true
+    - key: DATABASE
+      label: Database backend
+      type: select
+      options: [sqlite, postgres]
+      default: "sqlite"
+      advanced: true
+    - key: POSTGRES_HOST
+      label: PostgreSQL host
+      default: "postgres"
+      advanced: true
+    - key: POSTGRES_PORT
+      label: PostgreSQL port
+      type: port
+      default: "5432"
+      advanced: true
+    - key: POSTGRES_USER
+      label: PostgreSQL user
+      default: "freshrss"
+      advanced: true
+    - key: POSTGRES_PASSWORD
+      label: PostgreSQL password
+      type: password
+      generate: secret
+      advanced: true
+    - key: POSTGRES_DB
+      label: PostgreSQL database
+      default: "freshrss"
+      advanced: true
 
 services:
   freshrss:
@@ -34,6 +62,20 @@ services:
     environment:
       TZ: ${TZ}
       CRON_MIN: "*/20"
+      PGHOST: ${POSTGRES_HOST}
+      PGPORT: ${POSTGRES_PORT}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
     volumes:
       - ${ATHENA_APP_DATA}/data:/var/www/FreshRSS/data
       - ${ATHENA_APP_DATA}/extensions:/var/www/FreshRSS/extensions
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${ATHENA_APP_DATA}/postgres:/var/lib/postgresql/data
