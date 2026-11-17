@@ -10,7 +10,7 @@ Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI
 |---|---|
 | Tests | `uv run pytest -q` (`-k name` to narrow) |
 | Lint and format | `uv run ruff check` and `uv run ruff format --check` (CI runs both) |
-| Real-engine tests | `ATHENA_DOCKER_TESTS=1 uv run pytest -q`. They touch your container engine, so they're opt-in (on in Linux CI) |
+| Real-engine tests | `ATHENA_DOCKER_TESTS=1 uv run pytest -q` (`-k docker` for only those). They touch your container engine, so they're opt-in (on in Linux CI) |
 | Run the server | `uv run athena serve --port 8421 --data-dir "$DATA"` (8420 may be the developer's own Athena) |
 | After any API change | `pnpm gen:api` from the repo root; CI fails if `packages/api-client` is stale |
 | Everything CI checks | `scripts/check.sh server` from the repo root |
