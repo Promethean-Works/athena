@@ -46,6 +46,10 @@ Later: per-container stats, verifying temperatures on a real Linux host, importi
 
 - None. (The first AI provider question was settled in M7: no default; Ollama is offered when detected.)
 
+## Just done
+
+- Frontend design toolkit: installed the Anthropic `frontend-design` skill in `.agents/skills/` and locked it in `skills-lock.json`; added a frontend design and quality section to AGENTS.md (intentional art direction, shadcn-first primitives, theme tokens only, one active decorative element max, reduced motion, visible keyboard focus, responsive breakpoints 1440/768/390). MCP servers (shadcn, next-devtools, playwright, context7) were already configured in `.mcp.json`. PR #100 opened with auto-merge on; docs check passes (336 names in 13 files exist).
+
 ## Blockers
 
 - None. The first release (release-please PR #3, `RELEASE_PLEASE_TOKEN` is set) is on hold: the maintainer merges it once the plan under **Next** is complete. Agents: don't merge it or turn on its auto-merge.
