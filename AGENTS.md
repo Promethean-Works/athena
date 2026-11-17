@@ -41,11 +41,9 @@ Each app has its own rules file. **Read it before working there**: some agents l
 - **Cross-platform first.** Anything that touches the host goes through a provider and a capability in the manifest. The UI and the AI assistant only show what the host supports. Follow the `athena-platform-feature` skill.
 - **Don't guess APIs.** Read the existing feature that does something similar, then the library's docs (Context7, the `shadcn` skill or MCP, Next's bundled docs). Training data is often older than the versions used here (Next 16, Base UI, xterm.js 6, Python 3.13).
 - **Open-source dependencies only.** Record licenses in `docs/mvp-design.md` §9.
-- **UI rules** (shadcn first, the app shell, theme tokens only) are in `apps/web/AGENTS.md`.
-- **Frontend design and quality.** The `frontend-design` skill is installed in `.agents/skills/frontend-design/`. Before building or reshaping UI: read the skill, ground the design in the product's subject matter and audience, define a one-paragraph visual direction, pick a compact token system (color, type, layout, principles) and review it against that direction rather than against generic AI defaults (warm-cream/terracotta palette, acid accents, all-caps labels, tracked-out eyebrows, identical rounded cards with soft shadows, `→` on buttons). Use shadcn/ui primitives first (`shadcn search` then `pnpm dlx shadcn@latest add <name> -c apps/web`), theme tokens only (`bg-card`, `text-muted-foreground`, never raw colors or `dark:` overrides), semantic design tokens over hardcoded colors, one active decorative element max, and respect reduced motion, visible keyboard focus, and responsive breakpoints (1440 / 768 / 390).
+- **UI rules** (shadcn first, the app shell, theme tokens only, and design quality with the `frontend-design` skill) are in `apps/web/AGENTS.md`.
 - **Short replies.** In chat, lead with the answer. Skip preamble, restating the question and step-by-step recaps of what you did. Code, commands, and reports of what was and wasn't verified stay complete.
 - Run pnpm commands from the repo root; Python commands with `uv run` inside `apps/server`.
-- Decisions that change the design go in `docs/mvp-design.md` (update the section and add a row to §11 Decisions log), not only in chat or an agent's private memory.
 
 ## Agent tooling
 
@@ -71,8 +69,21 @@ At the end of every session, update `docs/STATUS.md`:
 - Move finished items out of STATUS: add one short bullet to the end of `docs/HISTORY.md` (what, the PR, what was verified and what wasn't).
 - Under **In progress**, say exactly where you stopped: files touched, what works, what's broken, and the next concrete step.
 - Add new **Open questions** or **Blockers**.
+- Add anything non-obvious you learned to `docs/AGENT-NOTES.md` (see [Where things go](#where-things-go)).
 - Keep it short: every agent reads STATUS at the start of every session, so each line costs tokens many times over. `scripts/check-docs.mjs` fails if it grows past 8 KB. Detail belongs in the design doc, HISTORY, commits and code.
 
-If you learned something non-obvious, add it to `docs/AGENT-NOTES.md`. That covers a CI failure with a surprising cause, a tool quirk, a scanner false positive, or a pattern worth copying.
+## Where things go
 
-Don't rely on agent-private memory (Claude memory, Hermes MEMORY.md, OpenCode sessions) for anything another agent needs.
+| What | Where |
+|---|---|
+| Rules for every agent and task | `AGENTS.md` (this file). Every session loads it, so keep it short and link to detail |
+| Rules for one app | `apps/server/AGENTS.md`, `apps/web/AGENTS.md` |
+| A repeatable procedure | A project skill in `.agents/skills/<name>/SKILL.md` (how: `docs/AGENT-TOOLING.md` → Changing tooling) |
+| Design and decisions | `docs/mvp-design.md`: update the section and add a row to §11 Decisions log |
+| Lessons, gotchas, troubleshooting, commands | `docs/AGENT-NOTES.md`, in its area's section, one bullet per fact with the _why_ (a CI failure with a surprising cause, a tool quirk, a scanner false positive, a pattern worth copying) |
+| Agent tooling (MCP servers, generated config, token budget) | `docs/AGENT-TOOLING.md` |
+| Current work / finished work | `docs/STATUS.md` / `docs/HISTORY.md` (see Handoff) |
+| Store app format | `catalog/README.md` |
+| Workflow for human contributors | `CONTRIBUTING.md` |
+
+Never only in chat or in agent-private memory (Claude memory, Hermes MEMORY.md, OpenCode sessions): the next agent can't see either.
