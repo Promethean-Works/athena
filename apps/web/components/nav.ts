@@ -8,6 +8,7 @@ import {
   LayoutGridIcon,
   PackageIcon,
   Settings2Icon,
+  Share2Icon,
   SparklesIcon,
   SquareTerminalIcon,
   StoreIcon,
@@ -62,6 +63,15 @@ export const navMain: NavItem[] = [
     url: "/files/",
     icon: FolderIcon,
     capability: "files",
+  },
+  {
+    title: "SMB shares",
+    url: "/files/smb/",
+    icon: Share2Icon,
+    // Shown even when Samba isn't installed yet, so the page can say how to set it
+    // up. Hidden on macOS and Windows where share creation is unsupported.
+    capability: "shares.smb",
+    showWhenUnavailable: true,
   },
   {
     title: "Cloud",
