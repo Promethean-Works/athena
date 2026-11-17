@@ -209,3 +209,4 @@ CodeQL runs on every PR and its alerts can block a merge.
 - VS Code: `.vscode/launch.json` (debug the server, pytest, Next with Chrome, or both as "Full stack") and `.vscode/tasks.json` (dev, build, release serve, tests, checks, codegen). Data goes to the git-ignored `.dev-data/`.
 - Port 8420 may be the maintainer's own Athena. Use 8421 or another spare port.
 - Act only on containers, apps and images named `athena-demo-*` / `athena-test-*`. The maintainer's own containers run on the same engine. Leave pulled images unless you know you pulled them, and say which ones are left.
+- The pre-push hook runs the web checks when any file under `apps/web` changes, `apps/web/AGENTS.md` included. A docs-only push can then fail on a local web problem. Check that the diff is docs only (`git diff main --name-only`) before using `--no-verify`, and let CI decide.
