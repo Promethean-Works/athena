@@ -118,12 +118,19 @@ export function SmbSharesView() {
   }
 
   async function removeShare(id: number) {
-    if (!window.confirm("Remove this SMB share? The folder stays on the server.")) return
+    if (
+      !window.confirm("Remove this SMB share? The folder stays on the server.")
+    )
+      return
     const { error: err } = await api.DELETE("/api/shares/smb/{share_id}", {
       params: { path: { share_id: id } },
     })
     if (err) {
-      toast.add({ type: "error", title: "Couldn't remove", description: errorMessage(err) })
+      toast.add({
+        type: "error",
+        title: "Couldn't remove",
+        description: errorMessage(err),
+      })
       return
     }
     await load()
@@ -155,19 +162,22 @@ export function SmbSharesView() {
         <div className="rounded-lg border p-4">
           {capability?.status === "unsupported" ? (
             <>
-              <h3 className="font-medium">SMB shares aren't available on this computer</h3>
+              <h3 className="font-medium">
+                SMB shares aren't available on this computer
+              </h3>
               <p className="text-sm text-muted-foreground">
-                Creating SMB shares from Athena isn't wired on macOS or Windows yet. On Linux,
-                install Samba (<code className="font-mono text-xs">apt install samba</code>) and
-                Athena will offer it here.
+                Creating SMB shares from Athena isn't wired on macOS or Windows
+                yet. On Linux, install Samba (
+                <code className="font-mono text-xs">apt install samba</code>)
+                and Athena will offer it here.
               </p>
             </>
           ) : (
             <>
               <h3 className="font-medium">SMB shares aren't set up yet</h3>
               <p className="text-sm text-muted-foreground">
-                Install the Samba server on this host, then shares can be published over the
-                network as \\\\server\\share.
+                Install the Samba server on this host, then shares can be
+                published over the network as \\\\server\\share.
               </p>
             </>
           )}
@@ -176,7 +186,7 @@ export function SmbSharesView() {
 
       <div className="flex items-center justify-between">
         <Button onClick={() => setDialogOpen(true)} disabled={pending}>
-          <PlusIcon className="size-4 shrink-0 mr-2" />
+          <PlusIcon className="mr-2 size-4 shrink-0" />
           Create share
         </Button>
       </div>
@@ -200,14 +210,22 @@ export function SmbSharesView() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead className="hidden md:table-cell">Location</TableHead>
-                <TableHead className="hidden lg:table-cell">Path on server</TableHead>
-                <TableHead className="hidden sm:table-cell">Read only</TableHead>
+                <TableHead className="hidden lg:table-cell">
+                  Path on server
+                </TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  Read only
+                </TableHead>
                 <TableHead className="hidden sm:table-cell">Guest ok</TableHead>
-                <TableHead className="w-0"><span className="sr-only">Actions</span></TableHead>
+                <TableHead className="w-0">
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {shares.map((share) => renderShareRow(share, pending, removeShare))}
+              {shares.map((share) =>
+                renderShareRow(share, pending, removeShare)
+              )}
             </TableBody>
           </Table>
         </div>
@@ -218,8 +236,8 @@ export function SmbSharesView() {
           <DialogHeader>
             <DialogTitle className="truncate">Create SMB share</DialogTitle>
             <DialogDescription>
-              Publish a file location over the network so other computers can open it as a
-              network drive.
+              Publish a file location over the network so other computers can
+              open it as a network drive.
             </DialogDescription>
           </DialogHeader>
 
@@ -228,7 +246,9 @@ export function SmbSharesView() {
           <form id="new-smb-share" onSubmit={createShare}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="smb-share-location">Folder to share</FieldLabel>
+                <FieldLabel htmlFor="smb-share-location">
+                  Folder to share
+                </FieldLabel>
                 <FieldDescription>
                   Pick a file location. Its contents become the share.
                 </FieldDescription>
@@ -256,8 +276,8 @@ export function SmbSharesView() {
               <Field>
                 <FieldLabel htmlFor="smb-share-name">Share name</FieldLabel>
                 <FieldDescription>
-                  The name on the network, e.g. "Media". Letters, digits, _. - , up to 63
-                  chars and not starting with -.
+                  The name on the network, e.g. "Media". Letters, digits, _. - ,
+                  up to 63 chars and not starting with -.
                 </FieldDescription>
                 <Input
                   id="smb-share-name"
@@ -271,7 +291,9 @@ export function SmbSharesView() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field orientation="horizontal">
                   <FieldContent>
-                    <FieldLabel htmlFor="smb-share-read-only">Read only</FieldLabel>
+                    <FieldLabel htmlFor="smb-share-read-only">
+                      Read only
+                    </FieldLabel>
                     <FieldDescription>
                       Visitors can read but not add, change or delete files.
                     </FieldDescription>
@@ -285,9 +307,12 @@ export function SmbSharesView() {
                 </Field>
                 <Field orientation="horizontal">
                   <FieldContent>
-                    <FieldLabel htmlFor="smb-share-guest-ok">Guest ok</FieldLabel>
+                    <FieldLabel htmlFor="smb-share-guest-ok">
+                      Guest ok
+                    </FieldLabel>
                     <FieldDescription>
-                      Anyone on the network can connect without a username or password.
+                      Anyone on the network can connect without a username or
+                      password.
                     </FieldDescription>
                     <Switch
                       id="smb-share-guest-ok"
@@ -302,7 +327,11 @@ export function SmbSharesView() {
             </FieldGroup>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={pending}>
+              <Button
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={pending}
+              >
                 Cancel
               </Button>
               <Button type="submit" form="new-smb-share" disabled={pending}>
@@ -334,7 +363,7 @@ function renderShareRow(
         <div className="truncate">{share.location_name}</div>
       </TableCell>
       <TableCell className="hidden lg:table-cell">
-        <div className="truncate text-xs text-muted-foreground font-mono">
+        <div className="truncate font-mono text-xs text-muted-foreground">
           {share.path}
         </div>
       </TableCell>
