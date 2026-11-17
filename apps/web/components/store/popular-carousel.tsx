@@ -85,7 +85,7 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
   }
 
   return (
-    <section className="rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card">
+    <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card">
       <div className="flex flex-col gap-1 px-5 pt-5">
         <h2 className="flex items-center gap-2 font-heading text-base font-medium">
           <FlameIcon className="size-4 text-primary" />
