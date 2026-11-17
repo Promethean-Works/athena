@@ -382,6 +382,21 @@ def test_stats_require_a_session(tmp_path: Path) -> None:
     assert client.get("/api/system/stats/stream").status_code == 401
 
 
+def test_stats_stream_sends_no_cors_headers(tmp_path: Path) -> None:
+    # The session cookie is SameSite=Strict, but an installed app on another port of
+    # the same host is same-site. Echoing its Origin with credentials let it read the
+    # stream, so the UI always connects same-origin and no CORS headers are sent.
+    with (
+        signed_in(TestClient(make_app(tmp_path))) as client,
+        client.stream(
+            "GET", "/api/system/stats/stream", headers={"Origin": "http://127.0.0.1:8096"}
+        ) as res,
+    ):
+        assert res.status_code == 200
+        assert "access-control-allow-origin" not in res.headers
+        assert "access-control-allow-credentials" not in res.headers
+
+
 def test_stats_snapshot(tmp_path: Path) -> None:
     client = signed_in(TestClient(make_app(tmp_path)))
     res = client.get("/api/system/stats")
