@@ -88,6 +88,14 @@ More reading:
 
 Please report vulnerabilities privately. See [SECURITY.md](SECURITY.md).
 
+## Attribution — CasaOS
+
+Parts of Athena's app catalog were imported from the [CasaOS AppStore](https://github.com/IceWhaleTech/CasaOS-AppStore) (Apache-2.0) by IceWhaleTech. Athena's catalog importer translates CasaOS `x-casaos` compose metadata into Athena's own `x-athena` format. We credit the CasaOS team for those imported apps only — the rest of Athena, including the app you're building, has nothing to do with CasaOS.
+
+**No partnership or endorsement.** Athena is an independent project. It is not affiliated with, partnered with, sponsored by, endorsed by, or approved by CasaOS or IceWhaleTech, and nothing in this repository states or implies any such relationship. CasaOS and related names and trademarks are the property of their respective owners.
+
+This section is attribution only; it does not create any legal relationship between Athena and CasaOS.
+
 ## License
 
 [Apache-2.0](LICENSE)
