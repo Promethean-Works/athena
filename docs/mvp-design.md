@@ -545,6 +545,7 @@ GET/PUT /api/settings/{appearance|ai|system}   POST /api/auth/password
 | winget-cli, scoop, Chocolatey CLI | MIT / Unlicense / Apache-2.0 |
 | Homebrew | BSD-2 |
 | CasaOS AppStore (catalog data) | Apache-2.0 |
+| Agent skills in `.agents/skills/` (dev tooling, not shipped): `shadcn`, `pydantic`, `building-pydantic-ai-agents`, `pydantic-ai-harness` / `frontend-design` | MIT / Apache-2.0 |
 | ~~Docker Desktop, macFUSE, Umbrel apps~~ | Excluded (proprietary / non-commercial) |
 
 ---
@@ -618,6 +619,7 @@ M2–M4 can proceed in parallel once M1 lands, and so can M5 and M6. M7 depends 
 | Reminders, cache health and spend (M7 D1) | Always on, no setting: `SystemReminders` (stay on task every 8 requests; a note when the turn's limits are close) and `WarnOnCacheBusts` sent to the log. Our per-chat spend limit (`UsageLimits.cost_limit` over the saved `Conversation` usage) stays; the harness `SpendLimits` isn't used, since its counters are in memory, Redis or PostgreSQL |
 | AI in the setup wizard (M7 C) | An optional second step after the admin account: one provider (Ollama in one click when detected), a connection test and the default model. Skippable; everything else stays in Settings → AI |
 | Database (M1) | SQLite at `<data-dir>/athena.db` (WAL, foreign keys on), SQLModel models, Alembic migrations run on every start from code. A test fails if models and migrations drift |
+| Design tokens per feature (frontend-design rule) | A design's "compact token system" is picked from the existing theme tokens and fonts (preset `b0`, generated `themes.css`). A feature adds no colors or tokens of its own |
 
 ## 12. Open questions
 
