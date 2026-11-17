@@ -61,6 +61,7 @@ export function OpenLinks({ app }: { app: AppOut }) {
           key={port}
           variant="outline"
           size="sm"
+          nativeButton={false}
           render={
             <a
               href={`${window.location.protocol}//${window.location.hostname}:${port}`}
