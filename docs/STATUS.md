@@ -15,6 +15,8 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
 
+Standalone (open PR, not M7): compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). A store app folder may hold several compose files — compose.yaml is the default variant and each compose.<slug>.yaml sibling is another variant, each with its own install-form env fields. FreshRSS gains compose.postgres.yaml (PostgreSQL); defaults stay SQLite. No server/UI changes beyond the general variant support (select-free). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
+
 ## Next
 
 M7 part D stage 3 (design §4.5 Parts): extras with outside services.
