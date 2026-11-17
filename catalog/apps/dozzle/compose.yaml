@@ -8,6 +8,8 @@ x-athena:
     - Tail live logs from every container
     - Search and filter across containers
     - No database and no agent to install
+  screenshots:
+    - https://dozzle.dev/video/dozzle-tour.jpg
   category: utilities
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/dozzle.svg
   homepage: https://dozzle.dev

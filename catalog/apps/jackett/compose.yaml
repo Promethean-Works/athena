@@ -1,0 +1,38 @@
+x-athena:
+  title: Jackett
+  description: API support for torrent trackers, converting them to a standardized format.
+  tagline: Torrent tracker API proxy.
+  tags: [Torrents, Indexer, API]
+  license: "GPL-2.0"
+  category: downloads
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Jackett/icon.svg
+  homepage: https://jackett.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Jackett/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Jackett/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8201"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+
+services:
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9117/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

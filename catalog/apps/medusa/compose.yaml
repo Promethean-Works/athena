@@ -1,0 +1,27 @@
+x-athena:
+  title: Medusa
+  description: Automated media manager for TV shows, movies, and music collections.
+  tagline: Automated media manager.
+  tags: [Media, Automation, Movies, TV]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Medusa/icon.svg
+  homepage: https://medusaserver.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Medusa/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Medusa/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8117"
+
+services:
+  medusa:
+    image: pymedusa/medusa:master
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8081/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

@@ -10,6 +10,9 @@ x-athena:
     - Sends downloads to qBittorrent, Deluge or SABnzbd
     - Renames and organises files for Jellyfin or Plex
     - Calendar of upcoming episodes
+  screenshots:
+    - https://sonarr.tv/img/slider/overview.png
+    - https://sonarr.tv/img/features/calendar.png
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/sonarr.svg
   homepage: https://sonarr.tv

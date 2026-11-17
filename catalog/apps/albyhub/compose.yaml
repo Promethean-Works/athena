@@ -1,0 +1,27 @@
+x-athena:
+  title: Alby Hub
+  description: Lightning wallet hub for managing Bitcoin and Lightning Network assets.
+  tagline: Lightning wallet hub.
+  tags: [Bitcoin, Lightning, Wallet]
+  license: "MIT"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/AlbyHub/icon.svg
+  homepage: https://getalby.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/AlbyHub/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/AlbyHub/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8164"
+
+services:
+  albyhub:
+    image: getalby/alby-hub:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

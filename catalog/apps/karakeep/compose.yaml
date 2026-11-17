@@ -1,0 +1,27 @@
+x-athena:
+  title: Karakeep
+  description: Self-hosted bookmark manager focused on simplicity and privacy.
+  tagline: Self-hosted bookmark manager.
+  tags: [Bookmarks, Links, Privacy]
+  license: "MIT"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Karakeep/icon.svg
+  homepage: https://karakeep.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Karakeep/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Karakeep/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8204"
+
+services:
+  karakeep:
+    image: ghcr.io/karakeep/karakeep:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

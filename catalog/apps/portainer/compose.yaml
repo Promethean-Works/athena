@@ -10,6 +10,8 @@ x-athena:
     - Browse images, volumes and networks
     - "Stacks: edit and redeploy compose files"
     - Logs and a console into any container
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Portainer/thumbnail.png
   category: utilities
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/portainer.svg
   homepage: https://www.portainer.io

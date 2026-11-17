@@ -1,0 +1,27 @@
+x-athena:
+  title: DDNS-Updater
+  description: Dynamic DNS updater that keeps your domain pointing to your home IP.
+  tagline: Dynamic DNS updater.
+  tags: [DDNS, DNS, Network]
+  license: "GPL-3.0"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DDNS-Updater/icon.svg
+  homepage: https://ddns-updater.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DDNS-Updater/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DDNS-Updater/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8177"
+
+services:
+  ddns-updater:
+    image: ghcr.io/ddns-updater/ddns-updater:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/config

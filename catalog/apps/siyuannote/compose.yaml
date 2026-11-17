@@ -1,0 +1,27 @@
+x-athena:
+  title: Siyuan Note
+  description: Open-source knowledge base with block-level referencing and networked thinking.
+  tagline: Open-source knowledge base.
+  tags: [Notes, Knowledge, Writing]
+  license: "AGPL-3.0"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Siyuan-Note/icon.svg
+  homepage: https://siyuan-note.cn
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Siyuan-Note/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Siyuan-Note/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8135"
+
+services:
+  siyuan:
+    image: b3log/siyuan:v3.6.5
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:6806/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/siyuan/data

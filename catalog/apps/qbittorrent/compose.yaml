@@ -9,6 +9,8 @@ x-athena:
     - Sequential downloading and RSS
     - Bandwidth scheduling and limits
     - Works well behind a VPN container
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/qBittorrent/thumbnail.png
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/qbittorrent.svg
   homepage: https://www.qbittorrent.org

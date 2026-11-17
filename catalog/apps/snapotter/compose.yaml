@@ -1,0 +1,27 @@
+x-athena:
+  title: SnapOtter
+  description: Save Reddit posts and comments automatically to your own archive.
+  tagline: Reddit archiving tool.
+  tags: [Reddit, Archive, Social]
+  license: "MIT"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/SnapOtter/icon.png
+  homepage: https://snapotter.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/SnapOtter/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/SnapOtter/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8137"
+
+services:
+  snapotter:
+    image: snapotter/snapotter:2.2.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:1349/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

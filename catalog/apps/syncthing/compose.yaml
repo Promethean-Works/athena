@@ -10,6 +10,8 @@ x-athena:
     - Versioned file history
     - Selective folder sharing
     - Runs on phones, laptops, NAS and servers
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Syncthing/thumbnail.png
   category: files
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/syncthing.svg
   homepage: https://syncthing.net

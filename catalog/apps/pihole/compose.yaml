@@ -1,0 +1,41 @@
+x-athena:
+  title: Pi-hole
+  description: Network-wide ad and tracker blocking DNS server with a web dashboard.
+  tagline: Network-wide ad blocking DNS server.
+  tags: [DNS, Ad Blocking, Network]
+  license: "EUPL-1.2"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Pihole/icon.svg
+  homepage: https://pi-hole.net
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Pihole/icon.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Pihole/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8214"
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+    - key: WEBPASSWORD
+      label: Web admin password
+      type: password
+      generate: secret
+
+services:
+  pihole:
+    image: pihole/pihole:2026.05.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80/tcp"
+      - "53:53/tcp"
+      - "53:53/udp"
+    environment:
+      TZ: ${TZ}
+      WEBPASSWORD: ${WEBPASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/etc-pihole:/etc/pihole
+      - ${ATHENA_APP_DATA}/etc-dnsmasq.d:/etc/dnsmasq.d

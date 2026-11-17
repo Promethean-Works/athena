@@ -1,0 +1,27 @@
+x-athena:
+  title: SwingMusic
+  description: Self-hosted music streaming server with a modern web interface and mobile apps.
+  tagline: Self-hosted music streaming.
+  tags: [Music, Streaming, Server]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/SwingMusic/icon.svg
+  homepage: https://swingmusic.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/SwingMusic/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/SwingMusic/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8141"
+
+services:
+  swingmusic:
+    image: ghcr.io/swingmx/swingmusic:v2.1.4
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

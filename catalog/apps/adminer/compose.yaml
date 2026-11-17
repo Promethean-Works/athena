@@ -1,0 +1,25 @@
+x-athena:
+  title: Adminer
+  description: Full-featured database management tool in a single PHP file.
+  tagline: Database management tool.
+  tags: [Database, Admin, SQL]
+  license: "Apache-2.0"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Adminer/icon.svg
+  homepage: https://www.adminer.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Adminer/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Adminer/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8163"
+
+services:
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"

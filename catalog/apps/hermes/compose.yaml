@@ -1,0 +1,27 @@
+x-athena:
+  title: Hermes
+  description: Self-hosted SMS gateway and messaging hub for sending and receiving texts.
+  tagline: SMS gateway and messaging hub.
+  tags: [SMS, Messaging, Gateway]
+  license: "AGPL-3.0"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hermes/icon.svg
+  homepage: https://hermes.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hermes/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hermes/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8197"
+
+services:
+  hermes:
+    image: ghcr.io/hermes/hermes:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

@@ -5,6 +5,9 @@ x-athena:
   tags: [Bookmarks, Reading]
   license: "MIT"
   category: productivity
+  screenshots:
+    - https://raw.githubusercontent.com/go-shiori/shiori/master/docs/assets/screenshots/01-login.png
+    - https://raw.githubusercontent.com/go-shiori/shiori/master/docs/assets/screenshots/02-home.png
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/shiori.svg
   homepage: https://go-shiori.shiori.docs
   web_port: WEB_PORT

@@ -10,6 +10,9 @@ x-athena:
     - Sends downloads to qBittorrent, Deluge or SABnzbd
     - Renames and organises files for Jellyfin or Plex
     - Upgrades to better releases automatically
+  screenshots:
+    - https://radarr.video/img/slider/overview.png
+    - https://radarr.video/img/slider/moviedetails.png
   category: media
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/radarr.svg
   homepage: https://radarr.video

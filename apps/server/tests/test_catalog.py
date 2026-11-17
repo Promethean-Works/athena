@@ -221,7 +221,7 @@ def test_store_lists_and_filters(api: TestClient) -> None:
     media = api.get("/api/store/apps", params={"category": "media"}).json()
     assert media and all(a["category"] == "media" for a in media)
     found = api.get("/api/store/apps", params={"q": "jelly"}).json()
-    assert [a["id"] for a in found] == ["jellyfin"]
+    assert "jellyfin" in [a["id"] for a in found]
     tagged = api.get("/api/store/apps", params={"q": "bittorrent"}).json()
     assert {"deluge", "qbittorrent", "transmission"} <= {a["id"] for a in tagged}
     cats = api.get("/api/store/categories").json()
@@ -255,8 +255,8 @@ def test_store_front_metadata(api: TestClient) -> None:
     assert detail["license"] == "MIT"
 
     # Apps without screenshots fall back to their icon on a card.
-    assert by_id["jellyfin"]["cover"] is None
-    assert by_id["jellyfin"]["tagline"]
+    assert by_id["deluge"]["cover"] is None
+    assert by_id["deluge"]["tagline"]
 
 
 def test_install_writes_env_and_deploys(api: TestClient, tmp_path: Path) -> None:

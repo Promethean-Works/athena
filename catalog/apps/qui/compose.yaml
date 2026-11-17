@@ -1,0 +1,27 @@
+x-athena:
+  title: Qui
+  description: Web interface for managing and monitoring your torrents and downloads.
+  tagline: Torrent download manager.
+  tags: [Downloads, Torrents, Management]
+  license: "MIT"
+  category: downloads
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Qui/icon.svg
+  homepage: https://github.com/autobrr/qui
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Qui/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Qui/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8217"
+
+services:
+  qui:
+    image: ghcr.io/autobrr/qui:v1.28.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

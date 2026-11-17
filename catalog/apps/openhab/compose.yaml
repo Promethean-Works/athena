@@ -1,0 +1,29 @@
+x-athena:
+  title: OpenHAB
+  description: Open-source home automation platform for connecting and automating smart home devices.
+  tagline: Open-source home automation platform.
+  tags: [Home Automation, IoT, Smart Home]
+  license: "EPL-2.0"
+  category: home
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenHAB/icon.svg
+  homepage: https://www.openhab.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenHAB/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenHAB/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8209"
+
+services:
+  openhab:
+    image: openhab/openhab:5.1.4
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+      - "8443:8443/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/conf:/openhab/conf
+      - ${ATHENA_APP_DATA}/userdata:/openhab/userdata
