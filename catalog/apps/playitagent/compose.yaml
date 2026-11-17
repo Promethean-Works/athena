@@ -1,0 +1,26 @@
+x-athena:
+  title: playit-agent
+  description: Tunneling service for exposing local services to the internet securely.
+  tagline: Secure tunneling service.
+  tags: [Tunneling, Network, Access]
+  license: "MIT"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/playit-agent/icon.svg
+  homepage: https://playit.gg
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/playit-agent/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/playit-agent/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8162"
+  services:
+    playit:
+      image: ghcr.io/mafen/playit-docker:latest
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:80/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

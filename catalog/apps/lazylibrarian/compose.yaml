@@ -1,0 +1,37 @@
+x-athena:
+  title: Lazylibrarian
+  description: Automated e-book and audiobook manager for Usenet and BitTorrent users.
+  tagline: Automated book and audiobook manager.
+  tags: [E-books, Audiobooks, Automation]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Lazylibrarian/icon.svg
+  homepage: https://lazylibrarian.gitlab.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Lazylibrarian/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Lazylibrarian/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8114"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+  services:
+    lazylibrarian:
+      image: linuxserver/lazylibrarian:version-169e669f
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:5299/tcp"
+      environment:
+        PUID: ${PUID}
+        PGID: ${PGID}
+      volumes:
+        - ${ATHENA_APP_DATA}/config:/config

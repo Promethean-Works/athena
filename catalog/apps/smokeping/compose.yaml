@@ -1,0 +1,37 @@
+x-athena:
+  title: Smokeping
+  description: Latency measurement and graphing tool for network monitoring.
+  tagline: Network latency monitoring.
+  tags: [Monitoring, Network, Latency]
+  license: "GPL-2.0"
+  category: monitoring
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Smokeping/icon.svg
+  homepage: https://smokeping.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Smokeping/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Smokeping/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8136"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+  services:
+    smokeping:
+      image: linuxserver/smokeping:2.9.0
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8080/tcp"
+      environment:
+        PUID: ${PUID}
+        PGID: ${PGID}
+      volumes:
+        - ${ATHENA_APP_DATA}/config:/config

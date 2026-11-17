@@ -1,0 +1,26 @@
+x-athena:
+  title: Actual Budget
+  description: Fast, privacy-focused finance app with envelope budgeting and multi-device sync.
+  tagline: Privacy-first finance app with envelope budgeting.
+  tags: [Finance, Budgeting, Personal]
+  license: "MIT"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ActualBudget/icon.svg
+  homepage: https://actualbudget.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ActualBudget/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ActualBudget/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8101"
+  services:
+    actualbudget:
+      image: actualbudget/actual-server:26.5.2
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:5006/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

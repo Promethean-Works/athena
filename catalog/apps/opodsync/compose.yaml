@@ -1,0 +1,26 @@
+x-athena:
+  title: oPodSync
+  description: Podcast sync and download manager for organizing your audio subscriptions.
+  tagline: Podcast sync manager.
+  tags: [Podcasts, Audio, Sync]
+  license: "MIT"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/oPodSync/icon.svg
+  homepage: https://opodsync.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/oPodSync/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/oPodSync/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8161"
+  services:
+    opodsync:
+      image: ganeshlab/opodsync:latest
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8080/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

@@ -1,0 +1,40 @@
+x-athena:
+  title: UniFi Network Application
+  description: UniFi controller for managing UniFi network devices and access points.
+  tagline: UniFi network controller.
+  tags: [UniFi, Network, Controller]
+  license: "Proprietary"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Unifi-Network-Application/icon.svg
+  homepage: https://ui.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Unifi-Network-Application/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Unifi-Network-Application/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8148"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+  services:
+    unifi:
+      image: lscr.io/linuxserver/unifi-network-application:latest
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8443/tcp"
+        - "3478:3478/tcp"
+        - "10001:10001/tcp"
+        - "8080:8080/tcp"
+      environment:
+        PUID: ${PUID}
+        PGID: ${PGID}
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/config

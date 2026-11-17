@@ -1,0 +1,26 @@
+x-athena:
+  title: Virtual Machine Manager
+  description: Web-based virtual machine manager for running VMs on your server.
+  tagline: Web-based virtual machine manager.
+  tags: [Virtualization, VM, Server]
+  license: "AGPL-3.0"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VirtualMachineManager/icon.svg
+  homepage: https://virt-manager.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VirtualMachineManager/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VirtualMachineManager/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8152"
+  services:
+    virtmanager:
+      image: mber5/virt-manager:latest
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8185/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

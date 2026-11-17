@@ -1,0 +1,26 @@
+x-athena:
+  title: RetroArch
+  description: Emulator frontend supporting a wide range of classic game consoles and computers.
+  tagline: Classic game emulator frontend.
+  tags: [Gaming, Emulator, Retro]
+  license: "GPL-3.0"
+  category: home
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RetroArch/icon.svg
+  homepage: https://www.retroarch.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RetroArch/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RetroArch/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8132"
+  services:
+    retroarch:
+      image: inglebard/retroarch-web:latest
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8080/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/config

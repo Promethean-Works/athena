@@ -1,0 +1,44 @@
+x-athena:
+  title: Duplicati
+  description: Encrypted, incremental, compressed backup client for cloud storage and remote file servers.
+  tagline: Store securely encrypted backups in the cloud.
+  tags: [Backup, Cloud, Encryption]
+  license: "LGPL-2.1"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Duplicati/icon.svg
+  homepage: https://duplicati.com/
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Duplicati/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Duplicati/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8105"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+  services:
+    duplicati:
+      image: linuxserver/duplicati:2.1.0
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8200/tcp"
+      environment:
+        PUID: ${PUID}
+        PGID: ${PGID}
+        TZ: ${TZ}
+      volumes:
+        - ${ATHENA_APP_DATA}/config:/config
+        - ${ATHENA_APP_DATA}/backups:/backups
+        - ${ATHENA_APP_DATA}/source:/source

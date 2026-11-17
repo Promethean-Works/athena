@@ -1,0 +1,26 @@
+x-athena:
+  title: WeKnora
+  description: AI-powered knowledge management platform for teams and organizations.
+  tagline: AI-powered knowledge management.
+  tags: [AI, Knowledge, Team]
+  license: "AGPL-3.0"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WeKnora/icon.svg
+  homepage: https://weknora.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WeKnora/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WeKnora/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8154"
+  services:
+    weknora:
+      image: wechatopenai/weknora-ui:v0.2.14
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:80/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

@@ -1,0 +1,26 @@
+x-athena:
+  title: Threadfin
+  description: IPTV proxy server for managing and streaming TV channels.
+  tagline: IPTV proxy server.
+  tags: [IPTV, TV, Streaming]
+  license: "MIT"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Threadfin/icon.svg
+  homepage: https://threadfin.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Threadfin/icon.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Threadfin/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8145"
+  services:
+    threadfin:
+      image: fyb3roptik/threadfin:1.2.37
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:34400/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/config:/config

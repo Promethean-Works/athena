@@ -1,0 +1,26 @@
+x-athena:
+  title: llama.cpp server
+  description: Local LLM inference server using llama.cpp with an OpenAI-compatible API.
+  tagline: Local LLM inference server.
+  tags: [LLM, AI, Local]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/llama.cpp/icon.svg
+  homepage: https://github.com/ggerganov/llama.cpp
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/llama.cpp/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/llama.cpp/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: API port
+      type: port
+      default: "8159"
+  services:
+    llamacpp:
+      image: ghcr.io/ggml-org/llama.cpp:server
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8080/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/models:/models

@@ -1,0 +1,26 @@
+x-athena:
+  title: PocketBase
+  description: Open-source backend in one file: database, authentication, and file storage.
+  tagline: Open-source backend in one file.
+  tags: [Backend, Database, Auth]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PocketBase/icon.svg
+  homepage: https://pocketbase.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PocketBase/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PocketBase/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8125"
+  services:
+    pocketbase:
+      image: argonptg/pocketbase:0.26.6
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8090/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/pb_data

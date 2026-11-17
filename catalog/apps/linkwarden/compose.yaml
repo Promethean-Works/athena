@@ -1,0 +1,45 @@
+x-athena:
+  title: Linkwarden
+  description: Open-source, self-hosted collaborative bookmark manager for teams and individuals.
+  tagline: Collaborative bookmark manager.
+  tags: [Bookmarks, Links, Productivity]
+  license: "AGPL-3.0"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Linkwarden/icon.svg
+  homepage: https://linkwarden.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Linkwarden/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Linkwarden/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8113"
+    - key: DATABASE_URL
+      label: Database URL
+      type: text
+      default: "postgresql://postgres:postgres@linkwarden-db:5432/linkwarden"
+      advanced: true
+    - key: NEXTAUTH_SECRET
+      label: NextAuth secret
+      type: password
+      generate: secret
+      advanced: true
+    - key: ENCRYPTION_PASSWORD
+      label: Encryption password
+      type: password
+      generate: secret
+      advanced: true
+  services:
+    linkwarden:
+      image: ghcr.io/linkwarden/linkwarden:v2.14.1
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:3428/tcp"
+      environment:
+        DATABASE_URL: ${DATABASE_URL}
+        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+        ENCRYPTION_PASSWORD: ${ENCRYPTION_PASSWORD}
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/app/data

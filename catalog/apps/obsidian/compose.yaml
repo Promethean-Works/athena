@@ -1,0 +1,37 @@
+x-athena:
+  title: Obsidian
+  description: Self-hosted notes server with web access to your Obsidian vaults.
+  tagline: Self-hosted notes server.
+  tags: [Notes, Knowledge, Sync]
+  license: "MIT"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Obsidian/icon.svg
+  homepage: https://obsidian.md
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Obsidian/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Obsidian/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8123"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+  services:
+    obsidian:
+      image: lscr.io/linuxserver/obsidian:1.12.7
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8080/tcp"
+      environment:
+        PUID: ${PUID}
+        PGID: ${PGID}
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/config

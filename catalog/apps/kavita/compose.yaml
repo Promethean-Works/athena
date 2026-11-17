@@ -1,0 +1,27 @@
+x-athena:
+  title: Kavita
+  description: Self-hosted digital comics and manga server with web and mobile reading apps.
+  tagline: Self-hosted comics and manga server.
+  tags: [Comics, Manga, Reading]
+  license: "AGPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Kavita/icon.svg
+  homepage: https://kavita.readmy.li
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Kavita/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Kavita/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8111"
+  services:
+    kavita:
+      image: jvmilazz0/kavita:0.9.0.2
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:5150/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data
+        - ${ATHENA_APP_DATA}/comics:/comics:ro

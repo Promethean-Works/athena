@@ -1,0 +1,33 @@
+x-athena:
+  title: Blinko
+  description: AI-powered card note-taking app for quickly capturing and organizing fleeting thoughts.
+  tagline: AI-powered card note-taking app.
+  tags: [Notes, AI, Knowledge]
+  license: "AGPL-3.0"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Blinko/icon.svg
+  homepage: https://blinko.space/
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Blinko/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Blinko/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8104"
+    - key: NEXTAUTH_SECRET
+      label: NextAuth secret
+      type: password
+      generate: secret
+  services:
+    blinko:
+      image: blinkospace/blinko:1.8.7
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:1111/tcp"
+      environment:
+        NODE_ENV: production
+        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/app/.blinko

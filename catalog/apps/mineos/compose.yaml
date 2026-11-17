@@ -1,0 +1,26 @@
+x-athena:
+  title: MineOS
+  description: Web-based Minecraft server manager with console, backups, and one-click modpack installs.
+  tagline: Minecraft server manager.
+  tags: [Minecraft, Gaming, Server]
+  license: "GPL-3.0"
+  category: home
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/MineOS/icon.svg
+  homepage: https://mineos.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/MineOS/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/MineOS/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8118"
+  services:
+    mineos:
+      image: hexparrot/mineos:latest
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8080/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/var/games

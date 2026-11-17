@@ -1,0 +1,27 @@
+x-athena:
+  title: Komga
+  description: Self-hosted e-book and comic library server with web interface and OPDS support.
+  tagline: E-book and comic library server.
+  tags: [E-books, Comics, Library]
+  license: "MIT"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Komga/icon.svg
+  homepage: https://komga.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Komga/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Komga/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8112"
+  services:
+    komga:
+      image: gotson/komga:1.24.4
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:25600/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data
+        - ${ATHENA_APP_DATA}/books:/books:ro

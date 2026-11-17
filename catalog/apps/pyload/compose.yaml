@@ -1,0 +1,39 @@
+x-athena:
+  title: PyLoad
+  description: Free and open-source download manager with a web interface.
+  tagline: Free download manager.
+  tags: [Downloads, Download Manager]
+  license: "GPL-3.0"
+  category: downloads
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PyLoad/icon.svg
+  homepage: https://pyload.net
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PyLoad/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PyLoad/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8128"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+  services:
+    pyload:
+      image: linuxserver/pyload-ng:0.5.0
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8000/tcp"
+        - "9666:9666/tcp"
+      environment:
+        PUID: ${PUID}
+        PGID: ${PGID}
+      volumes:
+        - ${ATHENA_APP_DATA}/config:/config
+        - ${ATHENA_APP_DATA}/downloads:/downloads

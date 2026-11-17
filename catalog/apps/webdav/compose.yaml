@@ -1,0 +1,25 @@
+x-athena:
+  title: WebDAV
+  description: Simple WebDAV file server for sharing and accessing files over HTTP.
+  tagline: Simple WebDAV file server.
+  tags: [WebDAV, Files, Sharing]
+  license: "MIT"
+  category: files
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WebDav/icon.svg
+  homepage: https://ugeek.github.io/webdav
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WebDav/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8155"
+  services:
+    webdav:
+      image: ugeek/webdav:amd64
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:80/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

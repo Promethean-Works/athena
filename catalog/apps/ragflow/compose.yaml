@@ -1,0 +1,26 @@
+x-athena:
+  title: RagFlow
+  description: Open-source RAG (Retrieval-Augmented Generation) engine for document understanding.
+  tagline: Open-source RAG engine.
+  tags: [AI, RAG, Documents]
+  license: "AGPL-3.0"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RagFlow/icon.svg
+  homepage: https://ragflow.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RagFlow/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RagFlow/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8130"
+  services:
+    ragflow:
+      image: icewhaletech/ragflow:v0.21.1
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:9380/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

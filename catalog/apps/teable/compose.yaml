@@ -1,0 +1,26 @@
+x-athena:
+  title: Teable
+  description: No-code database and spreadsheet interface for building custom applications.
+  tagline: No-code database interface.
+  tags: [No-code, Database, Tables]
+  license: "MIT"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Teable/icon.svg
+  homepage: https://teable.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Teable/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Teable/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8144"
+  services:
+    teable:
+      image: teableio/teable:latest
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:3200/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/app/data

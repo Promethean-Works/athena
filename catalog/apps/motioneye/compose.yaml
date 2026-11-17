@@ -1,0 +1,27 @@
+x-athena:
+  title: Motioneye
+  description: Web-based surveillance system for cameras, with motion detection and recording.
+  tagline: Surveillance system for cameras.
+  tags: [Security, Cameras, Surveillance]
+  license: "GPL-3.0"
+  category: security
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Motioneye/icon.svg
+  homepage: https://motioneye.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Motioneye/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Motioneye/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8119"
+  services:
+    motioneye:
+      image: ccrisan/motioneye:master-amd64
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8765/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/etc:/etc/motioneye
+        - ${ATHENA_APP_DATA}/media:/var/lib/motioneye

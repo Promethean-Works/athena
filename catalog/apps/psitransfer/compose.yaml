@@ -1,0 +1,26 @@
+x-athena:
+  title: PsiTransfer
+  description: Simple, self-hosted file sharing application with end-to-end encryption.
+  tagline: Simple encrypted file sharing.
+  tags: [File Sharing, Transfer, Privacy]
+  license: "MIT"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PsiTransfer/icon.svg
+  homepage: https://psitransfer.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PsiTransfer/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PsiTransfer/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8127"
+  services:
+    psitransfer:
+      image: psitrax/psitransfer:v2.4.1
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:13001/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

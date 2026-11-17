@@ -1,0 +1,26 @@
+x-athena:
+  title: Trilium
+  description: Hierarchical note-taking application with knowledge base and organization features.
+  tagline: Hierarchical note-taking application.
+  tags: [Notes, Knowledge Base, Organization]
+  license: "AGPL-3.0"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Trilium/icon.svg
+  homepage: https://trilium.next
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Trilium/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Trilium/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8146"
+  services:
+    trilium:
+      image: triliumnext/trilium:v0.103.0
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8080/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/root/.trilium-data

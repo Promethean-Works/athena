@@ -1,0 +1,37 @@
+x-athena:
+  title: Sickchill
+  description: Automated TV show manager for Usenet and BitTorrent users.
+  tagline: Automated TV show manager.
+  tags: [TV, Automation, Shows]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Sickchill/icon.svg
+  homepage: https://sickchill.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Sickchill/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Sickchill/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8134"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+  services:
+    sickchill:
+      image: linuxserver/sickchill:2023.6.27
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:8081/tcp"
+      environment:
+        PUID: ${PUID}
+        PGID: ${PGID}
+      volumes:
+        - ${ATHENA_APP_DATA}/config:/config

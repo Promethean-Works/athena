@@ -1,0 +1,25 @@
+x-athena:
+  title: Snapdrop
+  description: Local file sharing between devices on the same network, no upload required.
+  tagline: Local file sharing between devices.
+  tags: [File Sharing, Local, Transfer]
+  license: "GPL-3.0"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Snapdrop/icon.svg
+  homepage: https://snapdrop.net
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Snapdrop/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8138"
+  services:
+    snapdrop:
+      image: linuxserver/snapdrop:version-eac78009
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:80/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

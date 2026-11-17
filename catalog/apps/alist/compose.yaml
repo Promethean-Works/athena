@@ -1,0 +1,33 @@
+x-athena:
+  title: Alist
+  description: File list program that supports multiple storage backends, driven by web UI.
+  tagline: File list program for multiple storage backends.
+  tags: [Files, Storage, Cloud]
+  license: "AGPL-3.0"
+  category: files
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Alist/icon.svg
+  homepage: https://alist.nn.ci
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Alist/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Alist/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8102"
+    - key: ALIST_TOKEN
+      label: Alist token
+      type: password
+      description: Set after first start; see container logs.
+      generate: secret
+  services:
+    alist:
+      image: xhofe/alist:v3.40.0
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:5244/tcp"
+      environment:
+        ALIST_TOKEN: ${ALIST_TOKEN}
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/opt/alist/data

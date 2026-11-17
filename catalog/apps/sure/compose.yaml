@@ -1,0 +1,26 @@
+x-athena:
+  title: Sure
+  description: Open-source URL shortener and link management with analytics.
+  tagline: Open-source URL shortener.
+  tags: [URL Shortener, Links, Analytics]
+  license: "MIT"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Sure/icon.svg
+  homepage: https://sure.sh
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Sure/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Sure/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8140"
+  services:
+    sure:
+      image: ghcr.io/we-promise/sure:0.6.5-hotfix.1
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:23000/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

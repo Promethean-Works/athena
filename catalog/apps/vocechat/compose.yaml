@@ -1,0 +1,26 @@
+x-athena:
+  title: VoceChat
+  description: Open-source community chat server with real-time messaging and rooms.
+  tagline: Open-source community chat.
+  tags: [Chat, Community, Messaging]
+  license: "Apache-2.0"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VoceChat/icon.svg
+  homepage: https://voce.chat
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VoceChat/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VoceChat/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8153"
+  services:
+    vocechat:
+      image: privoce/vocechat-server:v0.5.17
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:3009/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/data

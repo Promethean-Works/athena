@@ -1,0 +1,27 @@
+x-athena:
+  title: Stremio
+  description: Media center for organizing and streaming video content from multiple sources.
+  tagline: Media center for video streaming.
+  tags: [Media, Streaming, Video]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Stremio/icon.svg
+  homepage: https://stremio.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Stremio/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Stremio/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8139"
+  services:
+    stremio:
+      image: tsaridas/stremio-docker:v1.3.4
+      restart: unless-stopped
+      ports:
+        - "${WEB_PORT}:11470/tcp"
+        - "8100:8100/tcp"
+      volumes:
+        - ${ATHENA_APP_DATA}/data:/root/.config/stremio
