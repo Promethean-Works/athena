@@ -11,7 +11,7 @@ import asyncio
 from typing import Annotated, Any, Literal
 
 from pydantic import Field
-from pydantic_ai import ToolFailed
+from pydantic_ai import ApprovalRequired, ToolFailed
 from sqlmodel import Session
 
 from athena import audit
@@ -255,8 +255,8 @@ async def run_command(
     problem = shell.check(command, d.shell_commands)
     if problem:  # before the card: the admin is only asked about commands that can run
         raise ToolFailed(problem)
-    # Approval is handled by `requires_approval=True` on registration (toolset_for), so by
-    # here the admin has already approved; no manual `tool_call_approved` check is needed.
+    if not ctx.tool_call_approved:
+        raise ApprovalRequired()
     result = await shell.run(command, timeout_seconds)
     outcome = "timed out" if result.timed_out else f"exit {result.exit_code}"
     audit.record(d.db, d.username, "assistant.shell", command[:500], outcome)
