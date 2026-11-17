@@ -99,15 +99,18 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
           {popular.map((app) => (
             <CarouselItem
               key={`${app.catalog}/${app.id}`}
-              className="sm:basis-[50%] lg:basis-[calc(100%/3)]"
+              className="h-full sm:basis-[50%] lg:basis-[calc(100%/3)]"
             >
-              <Link href={storeAppHref(app)} className="group block">
+              <Link
+                href={storeAppHref(app)}
+                className="group block flex h-full flex-col"
+              >
                 <StoreCover
                   title={app.title}
                   icon={app.icon}
                   screenshot={app.cover}
                 />
-                <div className="flex flex-col gap-1 p-4">
+                <div className="flex flex-1 flex-col gap-1 p-4">
                   <span className="flex items-center gap-2">
                     <span className="truncate text-sm font-medium">
                       {app.title}
