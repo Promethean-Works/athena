@@ -33,7 +33,7 @@ export function StoreCover({
   return (
     <div
       className={cn(
-        "relative aspect-video w-full overflow-hidden bg-muted",
+        "relative aspect-video w-full overflow-hidden rounded-xl bg-muted",
         className
       )}
     >

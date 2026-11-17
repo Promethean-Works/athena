@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { FlameIcon, LibraryIcon, SearchIcon } from "lucide-react"
+import { LibraryIcon, SearchIcon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
+import { PopularCarousel } from "@/components/store/popular-carousel"
 import {
   Empty,
   EmptyDescription,
@@ -130,45 +131,7 @@ export function StoreBrowser() {
       {!apps ? (
         <Skeleton className="h-52 w-full rounded-2xl" />
       ) : popular.length && !browsing ? (
-        <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card">
-          <div className="flex flex-col gap-1 px-5 pt-5">
-            <h2 className="flex items-center gap-2 font-heading text-base font-medium">
-              <FlameIcon className="size-4 text-primary" />
-              Popular right now
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              The apps most home servers start with.
-            </p>
-          </div>
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {popular.map((app) => (
-              <Link
-                key={`${app.catalog}/${app.id}`}
-                href={storeAppHref(app)}
-                className="group w-64 shrink-0 snap-start overflow-hidden rounded-xl border bg-card transition-colors hover:border-primary/40"
-              >
-                <StoreCover
-                  title={app.title}
-                  icon={app.icon}
-                  screenshot={app.cover}
-                />
-                <div className="flex flex-col gap-1 p-3">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate text-sm font-medium">
-                      {app.title}
-                    </span>
-                    {app.installed.length ? (
-                      <Badge variant="secondary">Installed</Badge>
-                    ) : null}
-                  </span>
-                  <span className="line-clamp-2 text-xs text-muted-foreground">
-                    {app.tagline ?? app.description}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <PopularCarousel popular={popular} />
       ) : null}
 
       <ToggleGroup
