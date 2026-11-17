@@ -507,6 +507,11 @@ class HostMonitor:
             started = time.monotonic()
             try:
                 await self.sample_once()
+            except RuntimeError:
+                # The event loop's default thread executor is shut down (interpreter
+                # exit): to_thread can no longer schedule work, so stop sampling
+                # instead of logging a spurious error.
+                return
             except Exception:
                 log.exception("host stats sample failed")
             await asyncio.sleep(max(0.1, self.interval - (time.monotonic() - started)))
