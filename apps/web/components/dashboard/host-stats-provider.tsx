@@ -19,15 +19,6 @@ type State = {
 
 const HostStatsContext = React.createContext<State | null>(null)
 
-/** The Athena server origin. When set (e.g. `next dev` on port 3000 with Athena
- * on 8420), the EventSource connects directly to it, bypassing the Next.js dev
- * proxy which buffers SSE streams. In production the UI is served same-origin by
- * FastAPI, so this is undefined and a relative URL is used. */
-const API_ORIGIN =
-  typeof process !== "undefined" && process.env.NEXT_PUBLIC_ATHENA_API_ORIGIN
-    ? process.env.NEXT_PUBLIC_ATHENA_API_ORIGIN
-    : undefined
-
 /**
  * Loads `/api/system/stats` (current stats plus about an hour of samples), then
  * follows `/api/system/stats/stream` and appends each new sample. After the stream
@@ -61,16 +52,9 @@ export function HostStatsProvider({ children }: { children: React.ReactNode }) {
     }
 
     loadSnapshot()
-    // In `next dev`, the /api proxy buffers SSE streams, so connect directly to
-    // the Athena server (same-site, so the session cookie travels with
-    // withCredentials). CORS headers are added on the server.
-    const streamUrl =
-      API_ORIGIN && API_ORIGIN !== window.location.origin
-        ? `${API_ORIGIN}/api/system/stats/stream`
-        : "/api/system/stats/stream"
-    const source = new EventSource(streamUrl, {
-      withCredentials: !!API_ORIGIN,
-    })
+    // Same origin in production and through the `next dev` proxy. Never connect
+    // cross-origin: the server sends no CORS headers on purpose.
+    const source = new EventSource("/api/system/stats/stream")
     let dropped = false
     source.onopen = () => {
       setState((s) => ({ ...s, live: true }))

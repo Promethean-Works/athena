@@ -19,11 +19,9 @@ export default function config(phase: string): NextConfig {
       ...shared,
       // Otherwise trailingSlash would 308 every /api call before proxying it.
       skipTrailingSlashRedirect: true,
-      // Exposed to client code so HostStatsProvider can connect EventSource
-      // directly to the Athena server, bypassing the dev proxy's SSE buffering.
-      env: {
-        NEXT_PUBLIC_ATHENA_API_ORIGIN: process.env.ATHENA_API_ORIGIN ?? "http://localhost:8420",
-      },
+      // gzip buffers proxied Server-Sent Events (live stats, job logs) until the
+      // stream ends. The production build is a static export, so this is dev-only.
+      compress: false,
       async rewrites() {
         return [
           {
