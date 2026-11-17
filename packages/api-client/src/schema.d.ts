@@ -3355,11 +3355,8 @@ export interface components {
             fields: components["schemas"]["FormField"][];
             /** Compose */
             compose: string;
-            /**
-             * Variants
-             * @default []
-             */
-            variants: components["schemas"]["VariantOut"][];
+            /** Variants */
+            variants: components["schemas"]["VariantDetail"][];
         };
         /** SyncIn */
         SyncIn: {
@@ -3518,18 +3515,20 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
-        /** VariantOut */
-        VariantOut: {
-            /** Id */
-            id: string;
+        /** VariantDetail */
+        VariantDetail: {
+            /** Slug */
+            slug: string;
             /** Label */
             label: string;
-            /** Description */
-            description: string | null;
-            /** Services */
-            services: string[];
-            /** Env */
-            env: string[] | null;
+            /** Compose */
+            compose: string;
+            /** Images */
+            images: string[];
+            /** Web Port */
+            web_port?: string | number | null;
+            /** Fields */
+            fields: components["schemas"]["FormField"][];
         };
         /** WebDavIn */
         WebDavIn: {

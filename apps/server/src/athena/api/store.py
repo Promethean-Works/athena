@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Path, Query, Request, status
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 from sqlmodel import select
 
 from athena import audit
@@ -19,7 +19,6 @@ from athena.catalog import remote
 from athena.catalog.loader import (
     InstallValueError,
     env_file,
-    filter_compose_for_variant,
     form_defaults,
     resolve_values,
 )
@@ -71,15 +70,13 @@ class FormField(BaseModel):
     advanced: bool
 
 
-class VariantOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: str
+class VariantDetail(BaseModel):
+    slug: str
     label: str
-    description: str | None
-    services: list[str]
-    env: list[str] | None
-    """Env field keys to show for this variant (None = show all of them)."""
+    compose: str
+    images: list[str]
+    web_port: str | int | None = None
+    fields: list[FormField]
 
 
 class StoreAppDetail(StoreApp):
@@ -94,16 +91,15 @@ class StoreAppDetail(StoreApp):
     suggested_name: str
     fields: list[FormField]
     compose: str
-    variants: list[VariantOut] = []
-    """Install-time flavours, each selecting which compose services and env
-    fields to deploy. Empty list means the app has a single fixed flavour."""
+    variants: list[VariantDetail]
+    """Every installable variant of this app, each with its own compose file."""
 
 
 class InstallIn(BaseModel):
     name: str = Field(pattern=APP_NAME, max_length=63)
     values: dict[str, str] = Field(default_factory=dict)
     variant: str | None = None
-    """Id of the variant to install (when the app offers several flavours)."""
+    """Which compose variant to install; defaults to the app's default variant."""
 
 
 def _registry(request: Request) -> CatalogRegistry:
@@ -208,8 +204,22 @@ def get_store_app(
     name, n = app.id, 2
     while name in taken:
         name, n = f"{app.id}-{n}", n + 1
-    data_dir = AppStore(request.app.state.settings.data_dir).dir(name) / "data"
-    defaults = form_defaults(app, data_dir)
+    store = AppStore(request.app.state.settings.data_dir)
+    data_dir = store.dir(name) / "data"
+    defaults = form_defaults(app.meta.env, data_dir)
+    variants = []
+    for variant in app.variants:
+        variant_defaults = form_defaults(variant.env, data_dir)
+        variants.append(
+            VariantDetail(
+                slug=variant.slug,
+                label=variant.label,
+                compose=variant.compose,
+                images=variant.images,
+                web_port=variant.web_port,
+                fields=[_field(f, variant_defaults[f.key]) for f in variant.env],
+            )
+        )
     return StoreAppDetail(
         **_summary(app, _installed(db), _catalog_names(db)).model_dump(),
         homepage=app.meta.homepage,
@@ -223,7 +233,7 @@ def get_store_app(
         suggested_name=name,
         fields=[_field(f, defaults[f.key]) for f in app.meta.env],
         compose=app.compose,
-        variants=[VariantOut.model_validate(v) for v in app.meta.variants],
+        variants=variants,
     )
 
 
@@ -244,35 +254,27 @@ async def install(
 ) -> JobOut:
     """Write compose.yaml and .env from the install form, then deploy as a job."""
     app = _get(request, catalog, app_id)
+    slug = body.variant or "default"
+    variant = next((v for v in app.variants if v.slug == slug), None)
+    if variant is None:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, f"No variant {slug!r} for store app {catalog}/{app_id}"
+        )
     data_dir = AppStore(request.app.state.settings.data_dir).dir(body.name) / "data"
     try:
-        values = resolve_values(app, body.values, data_dir, body.variant)
+        values = resolve_values(variant.env, body.values, data_dir)
     except InstallValueError as exc:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             {"message": "Some values need fixing", "errors": exc.errors},
         ) from exc
-    compose_text = app.compose
-    if body.variant:
-        variant = next((v for v in app.meta.variants if v.id == body.variant), None)
-        if variant is None:
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_CONTENT,
-                {
-                    "message": "Invalid variant",
-                    "errors": {"variant": f"unknown variant {body.variant!r}"},
-                },
-            )
-        compose_text = filter_compose_for_variant(compose_text, variant.services)
-        kept = set(variant.env or [])
-        values = {k: val for k, val in values.items() if k in kept}
     return deploy_new_app(
         request,
         runtime,
         user,
         db,
         name=body.name,
-        compose_text=compose_text,
+        compose_text=variant.compose,
         source="catalog",
         env_text=env_file(values),
         catalog_id=f"{app.catalog}/{app.id}",

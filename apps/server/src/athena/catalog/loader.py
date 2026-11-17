@@ -5,6 +5,7 @@ import os
 import secrets
 import time
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -27,16 +28,36 @@ def builtin_catalog_dir() -> Path | None:
 
 
 def load_catalog(root: Path, catalog_id: str) -> tuple[list[CatalogApp], list[str]]:
-    """All valid apps in `root/apps/*/compose.yaml`, plus error messages for invalid ones."""
+    """All valid apps in `root/apps/*/compose*.yaml`, plus error messages for invalid ones.
+
+    Each app folder holds one or more compose files: ``compose.yaml`` is the default
+    variant and each ``compose.<slug>.yaml`` sibling is another variant of the same app.
+    """
     apps: list[CatalogApp] = []
     errors: list[str] = []
-    for compose_file in sorted((root / "apps").glob("*/compose.yaml")):
-        app_id = compose_file.parent.name
+    by_app: dict[Path, list[Path]] = {}
+    for compose_file in sorted((root / "apps").glob("*/compose*.yaml")):
+        by_app.setdefault(compose_file.parent, []).append(compose_file)
+    for folder, files in by_app.items():
+        app_id = folder.name
+        # compose.yaml is the default variant; sort it first.
+        files.sort(key=lambda path: (path.name != "compose.yaml", path.name))
+        docs: list[tuple[str, str, dict[str, Any]]] = []
+        skipped = False
+        for compose_file in files:
+            try:
+                text = compose_file.read_text(encoding="utf-8")
+                doc = parse_compose(text)
+            except (OSError, InvalidComposeError, yaml.YAMLError) as exc:
+                errors.append(f"{app_id}: {exc}")
+                skipped = True
+                break
+            docs.append((compose_file.name, text, doc))
+        if skipped:
+            continue
         try:
-            text = compose_file.read_text(encoding="utf-8")
-            doc = parse_compose(text)
-            apps.append(parse_app(app_id, catalog_id, text, doc))
-        except (OSError, InvalidComposeError, InvalidCatalogAppError, yaml.YAMLError) as exc:
+            apps.append(parse_app(app_id, catalog_id, docs))
+        except InvalidCatalogAppError as exc:
             errors.append(f"{app_id}: {exc}")
     for message in errors:
         log.warning("catalog %s: skipped %s", catalog_id, message)
@@ -83,34 +104,17 @@ def resolve_default(field: EnvField, app_data: Path) -> str:
     return default
 
 
-def form_defaults(app: CatalogApp, app_data: Path, variant: str | None = None) -> dict[str, str]:
-    """Resolved defaults for an app's env fields, optionally scoped to a variant."""
-    return {f.key: resolve_default(f, app_data) for f in _fields_for_variant(app, variant)}
-
-
-def _fields_for_variant(app: CatalogApp, variant: str | None = None) -> list[EnvField]:
-    """The env fields to show for a variant (all fields when there's no variant)."""
-    fields = app.meta.env
-    if variant:
-        v = next((v for v in app.meta.variants if v.id == variant), None)
-        if v is None:
-            raise InstallValueError({"variant": f"unknown variant {variant!r}"})
-        if v.env is not None:
-            wanted = set(v.env)
-            fields = [f for f in fields if f.key in wanted]
-    return fields
+def form_defaults(env_fields: list[EnvField], app_data: Path) -> dict[str, str]:
+    return {f.key: resolve_default(f, app_data) for f in env_fields}
 
 
 def resolve_values(
-    app: CatalogApp,
-    submitted: dict[str, str],
-    app_data: Path,
-    variant: str | None = None,
+    env_fields: list[EnvField], submitted: dict[str, str], app_data: Path
 ) -> dict[str, str]:
     """Validate submitted install values, fill defaults and secrets. Raises InstallValueError."""
     values: dict[str, str] = {}
     errors: dict[str, str] = {}
-    for field in _fields_for_variant(app, variant):
+    for field in env_fields:
         raw = submitted.get(field.key)
         value = (raw if raw is not None else resolve_default(field, app_data)).strip()
         if not value and field.generate == "secret":
@@ -162,12 +166,3 @@ def env_file(values: dict[str, str]) -> str:
             escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("$", "$$")
             lines.append(f'{key}="{escaped}"')
     return "\n".join(lines) + "\n"
-
-
-def filter_compose_for_variant(compose_text: str, service_names: list[str]) -> str:
-    """Return compose text with only the given services kept under `services`."""
-    doc = yaml.safe_load(compose_text)
-    services = doc.get("services") or {}
-    kept = {name: services[name] for name in service_names if name in services}
-    doc["services"] = kept
-    return yaml.safe_dump(doc, sort_keys=False)

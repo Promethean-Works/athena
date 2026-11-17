@@ -34,6 +34,7 @@ import { useAppJobs } from "@/components/apps/use-app-jobs"
 
 type Detail = Schemas["StoreAppDetail"]
 type FormField = Schemas["FormField"]
+type Variant = Schemas["VariantDetail"]
 
 const NAME_RE = /^[a-z0-9][a-z0-9_-]{0,62}$/
 
@@ -102,29 +103,19 @@ function FieldControl({
   )
 }
 
-export function InstallForm({ app }: { app: Detail }) {
+export function InstallForm({ app, variant }: { app: Detail; variant: Variant }) {
   const router = useRouter()
   const [name, setName] = React.useState(app.suggested_name)
   const [values, setValues] = React.useState<Record<string, string>>(() =>
-    Object.fromEntries(app.fields.map((f) => [f.key, f.default]))
+    Object.fromEntries(variant.fields.map((f) => [f.key, f.default]))
   )
+  // Reset the form values when the variant (and thus its fields) changes.
+  React.useEffect(() => {
+    setValues(Object.fromEntries(variant.fields.map((f) => [f.key, f.default])))
+  }, [variant.slug])
   const [errors, setErrors] = React.useState<Record<string, string>>({})
   const [installing, setInstalling] = React.useState(false)
   const installedName = React.useRef(name)
-
-  const variants = app.variants ?? []
-  const [variantId, setVariantId] = React.useState<string | undefined>(
-    variants.length > 0 ? variants[0]?.id : undefined
-  )
-  const selectedVariant = variants.find((v) => v.id === variantId)
-
-  // Fields visible for the selected variant. When a variant lists `env`, only
-  // those fields are shown; otherwise all fields are shown.
-  const visibleFields = React.useMemo(() => {
-    if (!selectedVariant || selectedVariant.env == null) return app.fields
-    const wanted = new Set(selectedVariant.env)
-    return app.fields.filter((f) => wanted.has(f.key))
-  }, [app.fields, selectedVariant])
 
   const jobs = useAppJobs((ok) => {
     if (ok)
@@ -143,15 +134,11 @@ export function InstallForm({ app }: { app: Detail }) {
     setInstalling(true)
     setErrors({})
     installedName.current = name
-    const visibleKeys = new Set(visibleFields.map((f) => f.key))
-    const filteredValues = Object.fromEntries(
-      Object.entries(values).filter(([k]) => visibleKeys.has(k))
-    )
     const result = await api.POST(
       "/api/store/apps/{catalog}/{app_id}/install",
       {
         params: { path: { catalog: app.catalog, app_id: app.id } },
-        body: { name, values: filteredValues, variant: variants.length ? variantId : undefined },
+        body: { name, values, variant: variant.slug },
       }
     )
     setInstalling(false)
@@ -167,8 +154,8 @@ export function InstallForm({ app }: { app: Detail }) {
     jobs.show(result, `install ${app.title}`)
   }
 
-  const basic = visibleFields.filter((f) => !f.advanced)
-  const advanced = visibleFields.filter((f) => f.advanced)
+  const basic = variant.fields.filter((f) => !f.advanced)
+  const advanced = variant.fields.filter((f) => f.advanced)
 
   const renderField = (f: FormField) => (
     <Field
@@ -211,32 +198,6 @@ export function InstallForm({ app }: { app: Detail }) {
             </FieldDescription>
           )}
         </Field>
-        {variants.length > 0 && (
-          <Field>
-            <FieldLabel htmlFor="install-variant">Variant</FieldLabel>
-            <Select
-              id="install-variant"
-              value={variantId ?? ""}
-              onValueChange={(v) => setVariantId(v ?? undefined)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {variants.map((v) => (
-                    <SelectItem key={v.id} value={v.id}>
-                      {v.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            {selectedVariant?.description && (
-              <FieldDescription>{selectedVariant.description}</FieldDescription>
-            )}
-          </Field>
-        )}
         {basic.map(renderField)}
       </FieldGroup>
 

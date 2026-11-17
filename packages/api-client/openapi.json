@@ -9488,11 +9488,10 @@
           },
           "variants": {
             "items": {
-              "$ref": "#/components/schemas/VariantOut"
+              "$ref": "#/components/schemas/VariantDetail"
             },
             "type": "array",
-            "title": "Variants",
-            "default": []
+            "title": "Variants"
           }
         },
         "type": "object",
@@ -9520,7 +9519,8 @@
           "license",
           "suggested_name",
           "fields",
-          "compose"
+          "compose",
+          "variants"
         ],
         "title": "StoreAppDetail"
       },
@@ -9967,58 +9967,58 @@
         ],
         "title": "ValidationError"
       },
-      "VariantOut": {
+      "VariantDetail": {
         "properties": {
-          "id": {
+          "slug": {
             "type": "string",
-            "title": "Id"
+            "title": "Slug"
           },
           "label": {
             "type": "string",
             "title": "Label"
           },
-          "description": {
+          "compose": {
+            "type": "string",
+            "title": "Compose"
+          },
+          "images": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Images"
+          },
+          "web_port": {
             "anyOf": [
               {
                 "type": "string"
               },
               {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          },
-          "services": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Services"
-          },
-          "env": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Env"
+            "title": "Web Port"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/FormField"
+            },
+            "type": "array",
+            "title": "Fields"
           }
         },
         "type": "object",
         "required": [
-          "id",
+          "slug",
           "label",
-          "description",
-          "services",
-          "env"
+          "compose",
+          "images",
+          "fields"
         ],
-        "title": "VariantOut"
+        "title": "VariantDetail"
       },
       "WebDavIn": {
         "properties": {

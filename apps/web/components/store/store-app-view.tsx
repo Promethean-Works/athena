@@ -24,6 +24,14 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import {
   Card,
   CardContent,
   CardDescription,
@@ -35,6 +43,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@workspace/ui/components/collapsible"
+import {
+  Field,
+  FieldLabel,
+} from "@workspace/ui/components/field"
 import {
   Dialog,
   DialogClose,
@@ -57,6 +69,7 @@ import { storeAppHref } from "@/components/store/store-browser"
 
 type Detail = Schemas["StoreAppDetail"]
 type StoreApp = Schemas["StoreApp"]
+type Variant = Schemas["VariantDetail"]
 
 export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
   const [app, setApp] = React.useState<Detail | null>(null)
@@ -84,6 +97,12 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
     )
   }
   if (!app) return <Skeleton className="h-96 w-full" />
+
+  const [selectedVariantSlug, setSelectedVariantSlug] = React.useState(
+    app.variants[0]?.slug ?? ""
+  )
+  const selectedVariant =
+    app.variants.find((v) => v.slug === selectedVariantSlug) ?? app.variants[0]!
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
@@ -225,7 +244,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-3">
             <CodeEditor
-              value={app.compose}
+              value={selectedVariant.compose}
               readOnly
               aria-label={`${app.title} compose.yaml`}
               minHeight="10rem"
@@ -245,7 +264,30 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <InstallForm app={app} />
+          {app.variants.length > 1 && (
+            <Field className="pb-2">
+              <FieldLabel>Variant</FieldLabel>
+              <Select
+                value={selectedVariantSlug}
+                onValueChange={(value) =>
+                  setSelectedVariantSlug(String(value ?? ""))
+                }
+              >
+                <SelectTrigger />
+                <SelectValue />
+                <SelectContent>
+                  <SelectGroup>
+                    {app.variants.map((variant) => (
+                      <SelectItem key={variant.slug} value={variant.slug}>
+                        {variant.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+          )}
+          <InstallForm app={app} variant={selectedVariant} />
         </CardContent>
       </Card>
     </div>

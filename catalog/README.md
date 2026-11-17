@@ -55,6 +55,15 @@ services:
       - ${MEDIA_PATH}:/media:ro
 ```
 
+### Variants
+
+An app folder may hold several compose files: `compose.yaml` is the default variant and
+each `compose.<slug>.yaml` sibling is another installable variant of the same app
+(e.g. `compose.postgres.yaml`). Every variant file is a complete x-athena compose doc
+with its own `env` form fields; the store lists them as a variant picker on the app's
+install page, and the chosen variant's compose file is deployed. App-level metadata
+(title, category, icon, …) comes from `compose.yaml`.
+
 ## Rules
 
 - **Standard interpolation only.** Reference form values as `${KEY}`. Every `${…}` must be a declared `env` key or `ATHENA_APP_DATA`, which is the app's own data folder on the server. Athena writes the answers to `.env` next to `compose.yaml`, so the file works with plain `docker compose` too.
