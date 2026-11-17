@@ -93,7 +93,7 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
         setApi={setApi}
         opts={opts}
         plugins={plugins}
-        className="px-5 pb-5"
+        className="px-6 pb-6"
       >
         <CarouselContent>
           {popular.map((app) => (
@@ -107,7 +107,7 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
                   icon={app.icon}
                   screenshot={app.cover}
                 />
-                <div className="flex flex-col gap-1 p-3">
+                <div className="flex flex-col gap-1 p-4">
                   <span className="flex items-center gap-2">
                     <span className="truncate text-sm font-medium">
                       {app.title}
