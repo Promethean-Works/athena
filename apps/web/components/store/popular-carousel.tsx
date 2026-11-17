@@ -62,9 +62,6 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
             <FlameIcon className="size-4 text-primary" />
             Popular right now
           </h2>
-          <p className="text-sm text-muted-foreground">
-            The apps most home servers start with.
-          </p>
         </div>
         <div className="flex gap-3 overflow-x-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {[0, 1, 2].map((i) => (
@@ -91,9 +88,6 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
           <FlameIcon className="size-4 text-primary" />
           Popular right now
         </h2>
-        <p className="text-sm text-muted-foreground">
-          The apps most home servers start with.
-        </p>
       </div>
       <Carousel
         setApi={setApi}
