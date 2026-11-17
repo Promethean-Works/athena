@@ -56,8 +56,8 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
 
   if (!popular) {
     return (
-      <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card">
-        <div className="flex flex-col gap-1 px-5 pt-5">
+      <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card px-4">
+        <div className="flex flex-col gap-1 px-4 pt-4">
           <h2 className="flex items-center gap-2 font-heading text-base font-medium">
             <FlameIcon className="size-4 text-primary" />
             Popular right now
@@ -82,8 +82,8 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
   }
 
   return (
-    <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card">
-      <div className="flex flex-col gap-1 px-5 pt-5">
+    <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card px-4">
+      <div className="flex flex-col gap-1 px-4 pt-4">
         <h2 className="flex items-center gap-2 font-heading text-base font-medium">
           <FlameIcon className="size-4 text-primary" />
           Popular right now
@@ -93,7 +93,7 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
         setApi={setApi}
         opts={opts}
         plugins={plugins}
-        className="px-6 pb-6"
+        className="px-4 pb-6"
       >
         <CarouselContent>
           {popular.map((app) => (
