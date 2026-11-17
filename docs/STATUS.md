@@ -17,8 +17,6 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## Next
 
-Security: `stream_system_stats` (`api/system.py`) echoes any `Origin` with credentials in every build, so a page on the same site as Athena (an installed app on another port of the same host) can read the live stats. Fix before the first release: no CORS in production, an exact opt-in dev origin, `Vary: Origin`, and a test. Waiting for the maintainer's go-ahead.
-
 M7 part D stage 3 (design §4.5 Parts): extras with outside services.
 - Browser (#89): **blocked**. `pydantic-ai-harness[browser-use]==0.68.0` pins `browser-use` → `google-genai==1.65.0`, which conflicts with `pydantic-ai-slim[google]>=2.68.0` (`google-genai>=2.30.0`). Needs a harness release whose `browser-use` extra allows `google-genai>=2.30.0`; then unpin `pydantic-ai-harness` in `apps/server/pyproject.toml`. The toggle does nothing until then.
 - Durable execution (D.6): turns run inside pgtask tasks against Postgres when `durable_execution_enabled` is on and `ATHENA_DURABLE_EXECUTION_DATABASE_URL` is set, checkpointing each model request and tool call; without them turns run inline as before. A real Postgres connection is tested; a crash/kill/resume flow isn't yet.
