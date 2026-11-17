@@ -3,7 +3,10 @@
 import asyncio
 import contextlib
 import json
+import os
+import signal
 import subprocess
+import sys
 from collections.abc import AsyncIterator
 from typing import Annotated
 
@@ -144,6 +147,9 @@ async def stream_logs(
             stderr=asyncio.subprocess.STDOUT,
             stdin=asyncio.subprocess.DEVNULL,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            # POSIX: give `docker logs -f` its own process group so killing it doesn't
+            # leave orphaned child processes behind (and won't affect the server).
+            start_new_session=sys.platform != "win32",
         )
         try:
             assert proc.stdout is not None
@@ -152,10 +158,15 @@ async def stream_logs(
                 yield f"event: log\ndata: {json.dumps(line)}\n\n"
             yield "event: end\ndata: {}\n\n"
         finally:
-            # The client went away (or the container stopped): don't leave `logs -f` running.
+            # The client went away (or the container stopped): kill the whole process group
+            # so `docker logs -f` leaves no orphaned children behind.
             if proc.returncode is None:
-                with contextlib.suppress(ProcessLookupError):
-                    proc.kill()
+                if sys.platform == "win32":
+                    with contextlib.suppress(ProcessLookupError):
+                        proc.kill()
+                else:
+                    with contextlib.suppress(ProcessLookupError):
+                        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
                 await proc.wait()
 
     return StreamingResponse(events(), media_type="text/event-stream", headers=SSE_HEADERS)

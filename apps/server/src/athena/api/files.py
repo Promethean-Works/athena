@@ -460,12 +460,12 @@ async def receive_chunk(
             ops.clear_stale_uploads(folder)
             if target.exists(follow_symlinks=False) and on_conflict == "fail":
                 raise Conflict(f"{name} already exists")
-            if shutil.disk_usage(folder).free < total:
-                raise FileError("There isn't enough free space for this file")
             part.unlink(missing_ok=True)
         size = part.stat().st_size if part.exists() else 0
         if size != offset:
             raise Conflict(f"Expected the piece at byte {size}")
+        if shutil.disk_usage(folder).free < total - size:
+            raise FileError("There isn't enough free space for this file")
         return part, target
 
     part, target = await _run(prepare)
