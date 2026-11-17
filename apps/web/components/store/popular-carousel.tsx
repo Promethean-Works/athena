@@ -93,7 +93,7 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
         setApi={setApi}
         opts={opts}
         plugins={plugins}
-        className="px-4 pb-6"
+        className="px-4 pb-4"
       >
         <CarouselContent>
           {popular.map((app) => (
