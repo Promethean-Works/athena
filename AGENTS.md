@@ -42,13 +42,14 @@ Each app has its own rules file. **Read it before working there**: some agents l
 - **Don't guess APIs.** Read the existing feature that does something similar, then the library's docs (Context7, the `shadcn` skill or MCP, Next's bundled docs). Training data is often older than the versions used here (Next 16, Base UI, xterm.js 6, Python 3.13).
 - **Open-source dependencies only.** Record licenses in `docs/mvp-design.md` §9.
 - **UI rules** (shadcn first, the app shell, theme tokens only) are in `apps/web/AGENTS.md`.
+- **Frontend design and quality.** The `frontend-design` skill is installed in `.agents/skills/frontend-design/`. Before building or reshaping UI: read the skill, ground the design in the product's subject matter and audience, define a one-paragraph visual direction, pick a compact token system (color, type, layout, principles) and review it against that direction rather than against generic AI defaults (warm-cream/terracotta palette, acid accents, all-caps labels, tracked-out eyebrows, identical rounded cards with soft shadows, `→` on buttons). Use shadcn/ui primitives first (`shadcn search` then `pnpm dlx shadcn@latest add <name> -c apps/web`), theme tokens only (`bg-card`, `text-muted-foreground`, never raw colors or `dark:` overrides), semantic design tokens over hardcoded colors, one active decorative element max, and respect reduced motion, visible keyboard focus, and responsive breakpoints (1440 / 768 / 390).
 - **Short replies.** In chat, lead with the answer. Skip preamble, restating the question and step-by-step recaps of what you did. Code, commands, and reports of what was and wasn't verified stay complete.
 - Run pnpm commands from the repo root; Python commands with `uv run` inside `apps/server`.
 - Decisions that change the design go in `docs/mvp-design.md` (update the section and add a row to §11 Decisions log), not only in chat or an agent's private memory.
 
 ## Agent tooling
 
-- **Project skills** (`.agents/skills/<name>/SKILL.md`; read it directly if your agent doesn't load skills): `athena-recipes` (common changes and the "before you say done" checklist; **start here if you're unsure how something is done**), `athena-platform-feature`, `athena-ui-verify`, `athena-ship`, `athena-host-test`, `athena-catalog-app`. Third-party: `shadcn`, `building-pydantic-ai-agents`, `pydantic-ai-harness`, `pydantic`.
+- **Project skills** (`.agents/skills/<name>/SKILL.md`; read it directly if your agent doesn't load skills): `athena-recipes` (common changes and the "before you say done" checklist; **start here if you're unsure how something is done**), `athena-platform-feature`, `athena-ui-verify`, `athena-ship`, `athena-host-test`, `athena-catalog-app`. Third-party: `shadcn`, `frontend-design`, `building-pydantic-ai-agents`, `pydantic-ai-harness`, `pydantic`.
 - **MCP servers** (`.mcp.json`): `shadcn`, `next-devtools`, `playwright` (actions don't return the page; call `browser_snapshot` when you need it), `context7`.
 - To change any of it (MCP servers, skills, generated agent config) or set up an agent on a new machine, read `docs/AGENT-TOOLING.md` first.
 
