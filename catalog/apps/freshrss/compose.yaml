@@ -15,6 +15,17 @@ x-athena:
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/freshrss.svg
   homepage: https://freshrss.org
   web_port: WEB_PORT
+  variants:
+    - id: sqlite
+      label: SQLite
+      description: "Single-container setup with a local SQLite database."
+      services: [freshrss]
+      env: [WEB_PORT, TZ, DATABASE]
+    - id: postgres
+      label: PostgreSQL
+      description: "Two-container setup with a separate PostgreSQL database."
+      services: [freshrss, postgres]
+      env: [WEB_PORT, TZ, DATABASE, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB]
   env:
     - key: WEB_PORT
       label: Web port

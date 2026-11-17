@@ -19,6 +19,7 @@ from athena.catalog import remote
 from athena.catalog.loader import (
     InstallValueError,
     env_file,
+    filter_compose_for_variant,
     form_defaults,
     resolve_values,
 )
@@ -70,6 +71,15 @@ class FormField(BaseModel):
     advanced: bool
 
 
+class VariantOut(BaseModel):
+    id: str
+    label: str
+    description: str | None
+    services: list[str]
+    env: list[str] | None
+    """Env field keys to show for this variant (None = show all of them)."""
+
+
 class StoreAppDetail(StoreApp):
     homepage: str | None
     notes: str | None
@@ -82,11 +92,16 @@ class StoreAppDetail(StoreApp):
     suggested_name: str
     fields: list[FormField]
     compose: str
+    variants: list[VariantOut] = []
+    """Install-time flavours, each selecting which compose services and env
+    fields to deploy. Empty list means the app has a single fixed flavour."""
 
 
 class InstallIn(BaseModel):
     name: str = Field(pattern=APP_NAME, max_length=63)
     values: dict[str, str] = Field(default_factory=dict)
+    variant: str | None = None
+    """Id of the variant to install (when the app offers several flavours)."""
 
 
 def _registry(request: Request) -> CatalogRegistry:
@@ -206,6 +221,7 @@ def get_store_app(
         suggested_name=name,
         fields=[_field(f, defaults[f.key]) for f in app.meta.env],
         compose=app.compose,
+        variants=[VariantOut.model_validate(v) for v in app.meta.variants],
     )
 
 
@@ -228,19 +244,33 @@ async def install(
     app = _get(request, catalog, app_id)
     data_dir = AppStore(request.app.state.settings.data_dir).dir(body.name) / "data"
     try:
-        values = resolve_values(app, body.values, data_dir)
+        values = resolve_values(app, body.values, data_dir, body.variant)
     except InstallValueError as exc:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             {"message": "Some values need fixing", "errors": exc.errors},
         ) from exc
+    compose_text = app.compose
+    if body.variant:
+        variant = next((v for v in app.meta.variants if v.id == body.variant), None)
+        if variant is None:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                {
+                    "message": "Invalid variant",
+                    "errors": {"variant": f"unknown variant {body.variant!r}"},
+                },
+            )
+        compose_text = filter_compose_for_variant(compose_text, variant.services)
+        kept = set(variant.env or [])
+        values = {k: val for k, val in values.items() if k in kept}
     return deploy_new_app(
         request,
         runtime,
         user,
         db,
         name=body.name,
-        compose_text=app.compose,
+        compose_text=compose_text,
         source="catalog",
         env_text=env_file(values),
         catalog_id=f"{app.catalog}/{app.id}",
