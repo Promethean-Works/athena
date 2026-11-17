@@ -1,0 +1,45 @@
+x-athena:
+  title: PostgreSQL
+  description: Open-source relational database server for production workloads.
+  tagline: Open-source relational database.
+  tags: [Database, SQL, PostgreSQL]
+  license: "PostgreSQL"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PostgreSQL/icon.svg
+  homepage: https://www.postgresql.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PostgreSQL/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PostgreSQL/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8216"
+    - key: POSTGRES_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+    - key: POSTGRES_USER
+      label: Database user
+      type: text
+      default: "postgres"
+      advanced: true
+    - key: POSTGRES_DB
+      label: Database name
+      type: text
+      default: "postgres"
+      advanced: true
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5432/tcp"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/var/lib/postgresql/data

@@ -1,0 +1,27 @@
+x-athena:
+  title: Index-TTS
+  description: High-quality text-to-speech synthesis using Index-TTS models.
+  tagline: Text-to-speech synthesis.
+  tags: [TTS, AI, Audio]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/icon.svg
+  homepage: https://index-tts.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8200"
+
+services:
+  indextts:
+    image: ghcr.io/index-tts/index-tts:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:7860/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

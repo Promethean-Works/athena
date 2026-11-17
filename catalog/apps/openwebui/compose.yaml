@@ -1,0 +1,27 @@
+x-athena:
+  title: Open WebUI
+  description: Self-hosted web interface for LLMs with RAG, document support, and multiple model providers.
+  tagline: Self-hosted LLM web interface.
+  tags: [AI, LLM, Chat]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenWebUI/icon.svg
+  homepage: https://openwebui.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenWebUI/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenWebUI/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8212"
+
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:ollama
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/backend/data

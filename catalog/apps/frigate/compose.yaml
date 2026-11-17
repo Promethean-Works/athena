@@ -1,0 +1,30 @@
+x-athena:
+  title: Frigate
+  description: AI-powered NVR for security cameras with object detection and real-time alerts.
+  tagline: AI NVR for security cameras.
+  tags: [Security, Cameras, NVR, AI]
+  license: "AGPL-3.0"
+  category: security
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Frigate/icon.png
+  homepage: https://frigate.video
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Frigate/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Frigate/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8110"
+
+services:
+  frigate:
+    image: ghcr.io/blakeblackshear/frigate:0.17.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8971/tcp"
+      - "8554:8554/tcp"
+      - "8555:8555/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${ATHENA_APP_DATA}/media:/media/media

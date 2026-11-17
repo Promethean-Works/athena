@@ -1,0 +1,27 @@
+x-athena:
+  title: Chatbot UI
+  description: Open-source ChatGPT-style UI for conversing with AI models.
+  tagline: ChatGPT-style AI UI.
+  tags: [AI, Chat, UI]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ChatbotUI/icon.svg
+  homepage: https://chatbot-ui.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ChatbotUI/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ChatbotUI/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8170"
+
+services:
+  chatbotui:
+    image: mckaywrigley/chatbot-ui:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data

@@ -1,0 +1,40 @@
+x-athena:
+  title: FlowiseAI
+  description: Low-code visual builder for AI agent flows and LLM orchestration.
+  tagline: Low-code AI agent builder.
+  tags: [AI, Low-code, Workflow]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlowiseAi/icon.svg
+  homepage: https://flowiseai.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlowiseAi/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlowiseAi/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8192"
+    - key: FLOWISE_USERNAME
+      label: Admin username
+      type: text
+      default: "admin"
+      advanced: true
+    - key: FLOWISE_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+      advanced: true
+
+services:
+  flowise:
+    image: flowiseai/flowise:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3000/tcp"
+    environment:
+      FLOWISE_USERNAME: ${FLOWISE_USERNAME}
+      FLOWISE_PASSWORD: ${FLOWISE_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/root/.flowise

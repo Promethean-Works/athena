@@ -1,0 +1,27 @@
+x-athena:
+  title: Dify
+  description: Open-source LLM application development platform for building AI agents.
+  tagline: LLM application development platform.
+  tags: [AI, LLM, Development]
+  license: "Apache-2.0"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Dify/icon.svg
+  homepage: https://dify.ai
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Dify/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Dify/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8181"
+
+services:
+  dify:
+    image: langgenius/dify-server:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

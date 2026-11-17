@@ -9,6 +9,9 @@ x-athena:
     - Extensions, terminals and Git built in
     - Works from a laptop, tablet or phone
     - Keeps your projects on the server, not the client
+  screenshots:
+    - https://raw.githubusercontent.com/coder/code-server/main/docs/assets/screenshot-1.png
+    - https://raw.githubusercontent.com/coder/code-server/main/docs/assets/screenshot-2.png
   category: development
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/visual-studio-code.svg
   homepage: https://github.com/coder/code-server

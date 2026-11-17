@@ -1,0 +1,27 @@
+x-athena:
+  title: Beaver Habit Tracker
+  description: Habit tracking app with a clean, simple interface for building good habits.
+  tagline: Habit tracking app.
+  tags: [Habits, Productivity, Tracking]
+  license: "MIT"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/BeaverHabitTracker/icon.svg
+  homepage: https://beavertracker.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/BeaverHabitTracker/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/BeaverHabitTracker/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8167"
+
+services:
+  beaver:
+    image: jordanmorgan23/beaver-tracker:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

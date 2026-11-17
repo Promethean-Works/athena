@@ -1,0 +1,27 @@
+x-athena:
+  title: Crafty
+  description: Minecraft server manager with web interface, modpack support, and console.
+  tagline: Minecraft server manager.
+  tags: [Minecraft, Gaming, Server]
+  license: "MIT"
+  category: home
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Crafty/icon.svg
+  homepage: https://crafty-controller.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Crafty/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Crafty/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8176"
+
+services:
+  crafty:
+    image: craftycontroller/crafty:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8581/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/crafty

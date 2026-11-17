@@ -83,15 +83,34 @@ def resolve_default(field: EnvField, app_data: Path) -> str:
     return default
 
 
-def form_defaults(app: CatalogApp, app_data: Path) -> dict[str, str]:
-    return {f.key: resolve_default(f, app_data) for f in app.meta.env}
+def form_defaults(app: CatalogApp, app_data: Path, variant: str | None = None) -> dict[str, str]:
+    """Resolved defaults for an app's env fields, optionally scoped to a variant."""
+    return {f.key: resolve_default(f, app_data) for f in _fields_for_variant(app, variant)}
 
 
-def resolve_values(app: CatalogApp, submitted: dict[str, str], app_data: Path) -> dict[str, str]:
+def _fields_for_variant(app: CatalogApp, variant: str | None = None) -> list[EnvField]:
+    """The env fields to show for a variant (all fields when there's no variant)."""
+    fields = app.meta.env
+    if variant:
+        v = next((v for v in app.meta.variants if v.id == variant), None)
+        if v is None:
+            raise InstallValueError({"variant": f"unknown variant {variant!r}"})
+        if v.env is not None:
+            wanted = set(v.env)
+            fields = [f for f in fields if f.key in wanted]
+    return fields
+
+
+def resolve_values(
+    app: CatalogApp,
+    submitted: dict[str, str],
+    app_data: Path,
+    variant: str | None = None,
+) -> dict[str, str]:
     """Validate submitted install values, fill defaults and secrets. Raises InstallValueError."""
     values: dict[str, str] = {}
     errors: dict[str, str] = {}
-    for field in app.meta.env:
+    for field in _fields_for_variant(app, variant):
         raw = submitted.get(field.key)
         value = (raw if raw is not None else resolve_default(field, app_data)).strip()
         if not value and field.generate == "secret":
@@ -143,3 +162,12 @@ def env_file(values: dict[str, str]) -> str:
             escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("$", "$$")
             lines.append(f'{key}="{escaped}"')
     return "\n".join(lines) + "\n"
+
+
+def filter_compose_for_variant(compose_text: str, service_names: list[str]) -> str:
+    """Return compose text with only the given services kept under `services`."""
+    doc = yaml.safe_load(compose_text)
+    services = doc.get("services") or {}
+    kept = {name: services[name] for name in service_names if name in services}
+    doc["services"] = kept
+    return yaml.safe_dump(doc, sort_keys=False)

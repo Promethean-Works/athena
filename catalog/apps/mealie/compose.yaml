@@ -9,6 +9,8 @@ x-athena:
     - Weekly meal planner
     - Shared shopping lists
     - Households with multiple users
+  screenshots:
+    - https://raw.githubusercontent.com/mealie-recipes/mealie/mealie-next/docs/docs/assets/img/home_screenshot.png
   category: productivity
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/mealie.svg
   homepage: https://mealie.io

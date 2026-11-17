@@ -1,0 +1,27 @@
+x-athena:
+  title: Overseerr
+  description: Free and open source application for managing requests for your media library.
+  tagline: Manage media requests for your media stack.
+  tags: [Media, Requests, Movies, TV]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Overseerr/icon.svg
+  homepage: https://overseerr.dev
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Overseerr/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Overseerr/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8213"
+
+services:
+  overseerr:
+    image: linuxserver/overseerr:1.35.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5055/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/config

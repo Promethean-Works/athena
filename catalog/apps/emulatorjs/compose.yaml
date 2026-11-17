@@ -1,0 +1,27 @@
+x-athena:
+  title: EmulatorJS
+  description: In-browser emulator for classic game consoles and computers.
+  tagline: In-browser game emulator.
+  tags: [Gaming, Emulator, Retro]
+  license: "MIT"
+  category: home
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/EmulatorJS/icon.svg
+  homepage: https://emulatorjs.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/EmulatorJS/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/EmulatorJS/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8187"
+
+services:
+  emulatorjs:
+    image: ghcr.io/emulatorjs/emulatorjs:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

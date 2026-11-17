@@ -1,0 +1,27 @@
+x-athena:
+  title: Homebridge
+  description: NodeJS server that emulates the iOS HomeKit API, bridging smart home devices to HomeKit.
+  tagline: HomeKit support for your smart home devices.
+  tags: [HomeKit, Home Automation, IoT]
+  license: "Apache-2.0"
+  category: home
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Homebridge/icon.svg
+  homepage: https://homebridge.io/
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Homebridge/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Homebridge/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8109"
+
+services:
+  homebridge:
+    image: homebridge/homebridge:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8581/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/homebridge

@@ -1,0 +1,25 @@
+x-athena:
+  title: Excalidraw
+  description: Virtual hand-drawn style whiteboard platform for infinite canvas collaboration and diagramming.
+  tagline: Virtual whiteboard for hand-drawn diagrams.
+  tags: [Whiteboard, Diagrams, Collaboration]
+  license: "MIT"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Excalidraw/icon.svg
+  homepage: https://excalidraw.com/
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Excalidraw/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Excalidraw/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8107"
+
+services:
+  excalidraw:
+    image: excalidraw/excalidraw:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80/tcp"

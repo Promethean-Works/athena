@@ -9485,6 +9485,14 @@
           "compose": {
             "type": "string",
             "title": "Compose"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/VariantOut"
+            },
+            "type": "array",
+            "title": "Variants",
+            "default": []
           }
         },
         "type": "object",
@@ -9959,6 +9967,59 @@
         ],
         "title": "ValidationError"
       },
+      "VariantOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "services": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Services"
+          },
+          "env": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Env"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "description",
+          "services",
+          "env"
+        ],
+        "title": "VariantOut"
+      },
       "WebDavIn": {
         "properties": {
           "enabled": {
@@ -10065,6 +10126,17 @@
             },
             "type": "object",
             "title": "Values"
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant"
           }
         },
         "type": "object",

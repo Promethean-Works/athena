@@ -1,0 +1,33 @@
+x-athena:
+  title: OpenList
+  description: File list program supporting multiple storage backends, driven by web UI.
+  tagline: File list for multiple storage backends.
+  tags: [Files, Storage, Cloud]
+  license: "AGPL-3.0"
+  category: files
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenList/icon.svg
+  homepage: https://github.com/OpenListTeam/OpenList
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenList/thumbnail.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenList/screenshot-1.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8210"
+    - key: PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+
+services:
+  openlist:
+    image: openlistteam/openlist:v4.2.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5244/tcp"
+    environment:
+      PASSWORD: ${PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

@@ -15,6 +15,17 @@ x-athena:
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/freshrss.svg
   homepage: https://freshrss.org
   web_port: WEB_PORT
+  variants:
+    - id: sqlite
+      label: SQLite
+      description: "Single-container setup with a local SQLite database."
+      services: [freshrss]
+      env: [WEB_PORT, TZ, DATABASE]
+    - id: postgres
+      label: PostgreSQL
+      description: "Two-container setup with a separate PostgreSQL database."
+      services: [freshrss, postgres]
+      env: [WEB_PORT, TZ, DATABASE, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB]
   env:
     - key: WEB_PORT
       label: Web port
@@ -23,6 +34,34 @@ x-athena:
     - key: TZ
       label: Timezone
       default: "@timezone"
+      advanced: true
+    - key: DATABASE
+      label: Database backend
+      type: select
+      options: [sqlite, postgres]
+      default: "sqlite"
+      advanced: true
+    - key: POSTGRES_HOST
+      label: PostgreSQL host
+      default: "postgres"
+      advanced: true
+    - key: POSTGRES_PORT
+      label: PostgreSQL port
+      type: port
+      default: "5432"
+      advanced: true
+    - key: POSTGRES_USER
+      label: PostgreSQL user
+      default: "freshrss"
+      advanced: true
+    - key: POSTGRES_PASSWORD
+      label: PostgreSQL password
+      type: password
+      generate: secret
+      advanced: true
+    - key: POSTGRES_DB
+      label: PostgreSQL database
+      default: "freshrss"
       advanced: true
 
 services:
@@ -34,6 +73,20 @@ services:
     environment:
       TZ: ${TZ}
       CRON_MIN: "*/20"
+      PGHOST: ${POSTGRES_HOST}
+      PGPORT: ${POSTGRES_PORT}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
     volumes:
       - ${ATHENA_APP_DATA}/data:/var/www/FreshRSS/data
       - ${ATHENA_APP_DATA}/extensions:/var/www/FreshRSS/extensions
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${ATHENA_APP_DATA}/postgres:/var/lib/postgresql/data

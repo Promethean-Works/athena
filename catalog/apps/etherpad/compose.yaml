@@ -1,0 +1,45 @@
+x-athena:
+  title: Etherpad
+  description: Real-time collaborative document editor with per-author colour coding and a plugin ecosystem.
+  tagline: Real-time collaborative document editor.
+  tags: [Collaboration, Documents, Editor]
+  license: "Apache-2.0"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Etherpad/icon.svg
+  homepage: https://etherpad.org/
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Etherpad/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Etherpad/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8106"
+    - key: TITLE
+      label: Title
+      type: text
+      default: "Etherpad"
+      advanced: true
+    - key: ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+      advanced: true
+
+services:
+  etherpad:
+    image: etherpad/etherpad:3.1.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9001/tcp"
+    environment:
+      TITLE: ${TITLE}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      DB_TYPE: dirty
+      DB_FILENAME: /opt/etherpad-lite/var/dirty.db
+      TRUST_PROXY: "true"
+      REQUIRE_AUTHENTICATION: "false"
+      REQUIRE_AUTHORIZATION: "false"
+    volumes:
+      - ${ATHENA_APP_DATA}/var:/opt/etherpad-lite/var

@@ -10,6 +10,8 @@ x-athena:
     - End-to-end encrypted vaults
     - TOTP, attachments and organisations
     - Needs a fraction of Bitwarden's memory
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Vaultwarden/thumbnail.png
   category: security
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/vaultwarden.svg
   homepage: https://github.com/dani-garcia/vaultwarden

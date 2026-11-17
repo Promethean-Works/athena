@@ -1,0 +1,30 @@
+x-athena:
+  title: Lyrion Music Server
+  description: Self-hosted music server for streaming your personal music collection to players.
+  tagline: Stream your personal music collection.
+  tags: [Music, Streaming, Server]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/LyrionMusicServer/icon.svg
+  homepage: https://lyrionmusicserver.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/LyrionMusicServer/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/LyrionMusicServer/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8116"
+
+services:
+  lyrionmusicserver:
+    image: lmscommunity/lyrionmusicserver:9.1.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9000/tcp"
+      - "9090:9090/tcp"
+      - "3483:3483/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${ATHENA_APP_DATA}/music:/music:ro
