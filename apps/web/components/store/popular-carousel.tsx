@@ -83,7 +83,7 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
 
   return (
     <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card px-4">
-      <div className="flex flex-col gap-1 px-4 pt-4">
+      <div className="flex flex-col gap-1 px-4 pt-4 pb-4">
         <h2 className="flex items-center gap-2 font-heading text-base font-medium">
           <FlameIcon className="size-4 text-primary" />
           Popular right now
