@@ -1,0 +1,9 @@
+#!/bin/sh
+# Git pre-commit hook: forbids committing directly to main/master.
+# Commits must go through a feature branch + PR (see AGENTS.md git workflow).
+#
+# Enable once per clone (works for every agent and for people):
+#   git config core.hooksPath .githooks
+# Skip once:   git commit --no-verify      (or ATHENA_ALLOW_MAIN_COMMIT=1 git commit ...)
+# Disable:     git config --unset core.hooksPath
+exec bash "$(git rev-parse --show-toplevel)/scripts/pre-commit.sh" "$@"
