@@ -16,12 +16,12 @@ This file is the single source of instructions for every coding agent working he
 
 The repo is public at `github.com/tiagozaccaro/athena`. `main` is protected: no direct pushes, no force pushes.
 
-1. Start every task on a new branch from an up-to-date `main`: `git switch main && git pull && git switch -c <type>/<short-description>`. Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`.
-2. Create a new git worktree for that branch and do all work there, never in the base checkout: `git worktree add <worktree-dir> <branch>`. Keep the base repository always on `main`; each agent works in its own worktree like on its own machine, so one agent's uncommitted work never clobbers another's. When the branch is merged or deleted, remove the worktree: `git worktree remove <worktree-dir>`.
+1. **Never edit, branch or commit in the base checkout** (`~/Projects/athena` or wherever the repo was cloned). It stays on `main`, clean. Don't run `git switch`/`git checkout -b` there.
+2. Start every task, however small, in a new worktree on a new branch from `origin/main`, before touching any file: `git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main`, then do all work (edits, checks, commits, pushes) in `../athena-<topic>`. Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. Each agent works in its own worktree like on its own machine, so one agent's uncommitted work never clobbers another's. The pre-commit hook rejects commits made in the base checkout or on `main`. After the merge: `git worktree remove ../athena-<topic>`.
 3. Commit on the branch. Never commit to or push `main`.
-3. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`). CI checks the title, because it becomes the squash commit and the changelog entry.
-4. Turn on auto-merge right after opening the PR, without asking: `gh pr merge <n> --squash --auto --delete-branch`. This is the maintainer's standing instruction for every PR. CI (`ci-ok`) and `pr-title` must pass. PRs are squash-merged and the branch is deleted. Exceptions: release-please PRs (the maintainer merges those) and PRs whose base isn't `main` (turn it on once they're retargeted to `main`).
-5. Don't edit `CHANGELOG.md` or `version.txt` by hand. release-please manages them.
+4. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`). CI checks the title, because it becomes the squash commit and the changelog entry.
+5. Turn on auto-merge right after opening the PR, without asking: `gh pr merge <n> --squash --auto --delete-branch`. This is the maintainer's standing instruction for every PR. CI (`ci-ok`) and `pr-title` must pass. PRs are squash-merged and the branch is deleted. Exceptions: release-please PRs (the maintainer merges those) and PRs whose base isn't `main` (turn it on once they're retargeted to `main`).
+6. Don't edit `CHANGELOG.md` or `version.txt` by hand. release-please manages them.
 
 Full details are in `CONTRIBUTING.md`.
 

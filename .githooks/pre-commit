@@ -1,5 +1,5 @@
 #!/bin/sh
-# Git pre-commit hook: forbids committing directly to main/master.
+# Git pre-commit hook: forbids committing to main/master or from the base checkout.
 # Commits must go through a feature branch + PR (see AGENTS.md git workflow).
 #
 # Enable once per clone (works for every agent and for people):

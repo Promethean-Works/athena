@@ -6,10 +6,11 @@ Thanks for helping out! This guide covers how changes get into Athena. Read [doc
 
 `main` is protected. Nobody pushes to it directly, maintainers included. Every change goes through a branch and a pull request.
 
-1. **Branch from an up-to-date `main`:**
+1. **Branch from an up-to-date `main`, in its own worktree** (agents must; humans are encouraged to):
    ```bash
-   git switch main && git pull
-   git switch -c feat/app-store-install-form
+   git fetch origin
+   git worktree add ../athena-install-form -b feat/app-store-install-form origin/main
+   cd ../athena-install-form
    ```
    Branch names are `<type>/<short-description>`, using the same types as commits (below).
 2. **Commit** in small, focused steps. Individual commit messages are free-form, because the PR is squashed.
