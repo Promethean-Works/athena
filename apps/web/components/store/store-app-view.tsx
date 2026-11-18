@@ -74,6 +74,7 @@ type Variant = Schemas["VariantDetail"]
 export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
   const [app, setApp] = React.useState<Detail | null>(null)
   const [error, setError] = React.useState<string | null>(null)
+  const [selectedVariantSlug, setSelectedVariantSlug] = React.useState("")
 
   React.useEffect(() => {
     api
@@ -85,6 +86,12 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
         else setError(errorMessage(err, "Couldn't load this app"))
       })
   }, [catalog, id])
+
+  React.useEffect(() => {
+    if (app) {
+      setSelectedVariantSlug(app.variants[0]?.slug ?? "")
+    }
+  }, [app])
 
   if (error) {
     return (
@@ -98,9 +105,6 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
   }
   if (!app) return <Skeleton className="h-96 w-full" />
 
-  const [selectedVariantSlug, setSelectedVariantSlug] = React.useState(
-    app.variants[0]?.slug ?? ""
-  )
   const selectedVariant =
     app.variants.find((v) => v.slug === selectedVariantSlug) ?? app.variants[0]!
 
