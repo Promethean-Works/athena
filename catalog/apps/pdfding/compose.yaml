@@ -1,0 +1,50 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/PdfDing
+x-athena:
+  title: PdfDing
+  description: Selfhosted PDF manager, viewer and editor
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/PdfDing/icon.svg
+  homepage: https://www.pdfding.com
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: 'After installation, you can access PdfDing at http://your-server-ip:8000. Create your first
+    admin account during the initial setup.
+
+
+    Note: If you encounter access issues, you may need to manually edit the docker-compose.yml file and
+    replace the HOST_NAME environment variable with your actual server IP address.'
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8001'
+services:
+  pdfding:
+    image: mrmn/pdfding:v1.7.2
+    deploy:
+      resources:
+        reservations:
+          memory: 128M
+    network_mode: bridge
+    ports:
+    - target: 8000
+      published: ${WEB_PORT}
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/db
+      target: /home/nonroot/pdfding/db
+    - type: bind
+      source: ${ATHENA_APP_DATA}/media
+      target: /home/nonroot/pdfding/media
+    environment:
+    - HOST_NAME=*
+    - SECRET_KEY=your_secret_key_here
+    - CSRF_COOKIE_SECURE=FALSE
+    - SESSION_COOKIE_SECURE=FALSE
+    - DEBUG=FALSE
+    container_name: pdfding

@@ -1,0 +1,40 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/LLaMA-Factory_Nvidia
+x-athena:
+  title: LLaMA Factory(Nvidia GPU)
+  description: Unified LLM Fine-Tuning with 100+ Models
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/LLaMA-Factory_Nvidia/icon.svg
+  homepage: https://llamafactory.readthedocs.io/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '18877'
+services:
+  llama-factory-nvidia:
+    image: hiyouga/llamafactory:0.9.4
+    container_name: llama-factory-nvidia
+    ports:
+    - target: 7860
+      published: ${WEB_PORT}
+      protocol: tcp
+    tty: true
+    stdin_open: true
+    command:
+    - llamafactory-cli
+    - webui
+    deploy:
+      resources:
+        reservations:
+          memory: 6G
+          devices:
+          - driver: nvidia
+            count: all
+            capabilities:
+            - gpu
+    restart: unless-stopped

@@ -1,0 +1,45 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Siyuan-Note
+x-athena:
+  title: SiYuan Note
+  description: Private personal knowledge management
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Siyuan-Note/icon.svg
+  homepage: https://b3log.org/siyuan/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  - linux/arm
+  notes: '| accessAuthCode |
+
+    | -------- |
+
+    | `casaos`    |'
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '6806'
+services:
+  siyuan-note:
+    command: --accessAuthCode=casaos --workspace=/siyuan/workspace/
+    environment:
+      PUID: '1000'
+      PGID: '1000'
+    image: b3log/siyuan:v3.6.5
+    deploy:
+      resources:
+        reservations:
+          memory: 512M
+    network_mode: bridge
+    ports:
+    - target: 6806
+      published: ${WEB_PORT}
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/workspace
+      target: /siyuan/workspace
+    container_name: siyuan-note

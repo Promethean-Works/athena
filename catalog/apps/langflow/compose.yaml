@@ -1,0 +1,51 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/LangFlow
+x-athena:
+  title: Langflow
+  description: Open-source UI for building and debugging multi-agent and RAG applications
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/LangFlow/icon.svg
+  homepage: https://www.langflow.org
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '17860'
+services:
+  langflow:
+    container_name: langflow
+    image: langflowai/langflow:1.9.3
+    user: 0:0
+    ports:
+    - target: 7860
+      published: ${WEB_PORT}
+      protocol: tcp
+    depends_on:
+    - langflow-postgres
+    networks:
+    - langflow-net
+    environment:
+    - LANGFLOW_DATABASE_URL=postgresql://langflow:langflow@langflow-postgres:5432/langflow
+    - LANGFLOW_CONFIG_DIR=/app/langflow
+    volumes:
+    - ${ATHENA_APP_DATA}/backend:/app/langflow
+  langflow-postgres:
+    container_name: langflow-postgress
+    image: postgres:16
+    environment:
+    - POSTGRES_USER=langflow
+    - POSTGRES_PASSWORD=langflow
+    - POSTGRES_DB=langflow
+    networks:
+    - langflow-net
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/postgres
+      target: /var/lib/postgresql/data
+networks:
+  langflow-net:
+    driver: bridge
