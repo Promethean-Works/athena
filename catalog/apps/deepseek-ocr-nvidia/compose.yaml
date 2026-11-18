@@ -14,7 +14,7 @@ x-athena:
   - key: WEB_PORT
     label: Web port
     type: port
-    default: '23000'
+    default: '23001'
 services:
   deepseek-ocr-backend:
     image: icewhaletech/deepseek-ocr-backend:v2.2.0

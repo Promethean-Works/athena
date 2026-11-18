@@ -15,7 +15,7 @@ x-athena:
   - key: WEB_PORT
     label: Web port
     type: port
-    default: '3000'
+    default: '3004'
   - key: PGID
     label: Group ID
     default: '@gid'

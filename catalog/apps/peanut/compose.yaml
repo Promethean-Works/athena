@@ -21,7 +21,7 @@ x-athena:
   - key: WEB_PORT
     label: Web port
     type: port
-    default: '8084'
+    default: '8049'
 services:
   peanut:
     image: brandawg93/peanut:6.0.0

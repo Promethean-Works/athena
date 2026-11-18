@@ -36,7 +36,7 @@ x-athena:
   - key: WEB_PORT
     label: Web port
     type: port
-    default: '8082'
+    default: '8094'
 services:
   hfs:
     image: rejetto/hfs:v3.3.4

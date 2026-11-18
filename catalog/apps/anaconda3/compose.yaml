@@ -15,7 +15,7 @@ x-athena:
   - key: WEB_PORT
     label: Web port
     type: port
-    default: '8888'
+    default: '8889'
 services:
   anaconda3:
     container_name: anaconda3

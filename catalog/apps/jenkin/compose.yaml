@@ -15,7 +15,7 @@ x-athena:
   - key: WEB_PORT
     label: Web port
     type: port
-    default: '8080'
+    default: '8089'
 services:
   jenkins:
     image: jenkins/jenkins:lts-jdk17

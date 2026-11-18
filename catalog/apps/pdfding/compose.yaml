@@ -20,7 +20,7 @@ x-athena:
   - key: WEB_PORT
     label: Web port
     type: port
-    default: '8000'
+    default: '8001'
 services:
   pdfding:
     image: mrmn/pdfding:v1.7.2
