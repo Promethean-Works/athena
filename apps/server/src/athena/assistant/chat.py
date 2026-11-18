@@ -473,7 +473,6 @@ async def _run(
         results = _results(previous, resume)
         # Title generation moved to after the turn completes (sequential), to avoid
         # concurrent requests to the same local provider (e.g., Ollama).
-        titling = None
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
         ai = ai_settings.load(db)
