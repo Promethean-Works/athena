@@ -1,0 +1,39 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Pingvin-Share
+x-athena:
+  title: Pingvin-Share
+  description: Self-hosted file sharing with a modern web interface
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Pingvin-Share/icon.svg
+  homepage: https://stonith404.github.io/pingvin-share/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '3410'
+services:
+  pingvin-share:
+    image: stonith404/pingvin-share
+    restart: unless-stopped
+    ports:
+    - target: 3000
+      published: ${WEB_PORT}
+      protocol: tcp
+    environment:
+      TRUST_PROXY: false
+    deploy:
+      resources:
+        reservations:
+          memory: 256M
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /opt/app/backend/data
+    - type: bind
+      source: ${ATHENA_APP_DATA}/images
+      target: /opt/app/frontend/public/img

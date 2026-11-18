@@ -1,0 +1,58 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/HFS
+x-athena:
+  title: HFS
+  description: Share files through your browser
+  category: productivity
+  icon: https://raw.githubusercontent.com/rejetto/hfs/main/admin/public/hfs-logo-icon.svg
+  homepage: https://rejetto.com/hfs/
+  web_port: WEB_PORT
+  web_path: /~/admin/
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: '**First login**
+
+
+    | Username | Password |
+
+    |----------|----------|
+
+    | `admin` | `please-change` |
+
+
+    After logging in, open **Accounts**, select **admin**, and change the password.
+
+
+    To choose your own password before installation, use Custom Installation
+
+    instead of Install. Under Environment Variables, replace the value of
+
+    HFS_INITIAL_ADMIN_PASSWORD with your password (not username:password).
+
+    This variable is only used when no configuration file exists.
+
+    After installation, change passwords in HFS Admin, not in app settings.'
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8094'
+services:
+  hfs:
+    image: rejetto/hfs:v3.3.4
+    restart: unless-stopped
+    network_mode: bridge
+    ports:
+    - target: 80
+      published: ${WEB_PORT}
+      protocol: tcp
+    environment:
+      HFS_PORT: '80'
+      HFS_INITIAL_ADMIN_PASSWORD: please-change
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/config
+      target: /data
+    - type: bind
+      source: ${ATHENA_APP_DATA}/shares
+      target: /shares

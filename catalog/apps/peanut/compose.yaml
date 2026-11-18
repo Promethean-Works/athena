@@ -1,0 +1,43 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Peanut
+x-athena:
+  title: PeaNUT
+  description: UPS monitoring and power outage notification system
+  category: home
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Peanut/icon.svg
+  homepage: https://github.com/brandawg93/peanut
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: 'The UPS service parameters for ZimaOS are as follows:
+
+    | Server Address | Port | Username | Password |
+
+    |----------------|------|----------|----------|
+
+    | ZimaOS IP      | `3493` | `monuser` | `secret` |'
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8049'
+services:
+  peanut:
+    image: brandawg93/peanut:6.0.0
+    container_name: PeaNUT
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/config
+      target: /config
+    ports:
+    - target: 8080
+      published: ${WEB_PORT}
+      protocol: tcp
+    environment:
+      WEB_PORT: 8080
+    deploy:
+      resources:
+        reservations:
+          memory: 256M

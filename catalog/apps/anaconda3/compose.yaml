@@ -1,0 +1,43 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Anaconda3
+x-athena:
+  title: Anaconda3
+  description: Your machine learning Env work with Jupyter Lab
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Anaconda3/icon.svg
+  homepage: https://www.anaconda.com
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  notes: After installation, please check the token in the container log (Settings - TopRight - Terminal
+    and Logs - Logs).
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8889'
+services:
+  anaconda3:
+    container_name: anaconda3
+    image: continuumio/anaconda3:2024.10-1
+    network_mode: bridge
+    restart: unless-stopped
+    environment:
+    - LANG=C.UTF-8
+    - LC_ALL=C.UTF-8
+    - PATH=/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    ports:
+    - target: 8888
+      published: ${WEB_PORT}
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/notebooks
+      target: /opt/notebooks
+    command:
+    - /bin/bash
+    - -c
+    - conda install -c conda-forge jupyterlab -y --quiet && jupyter lab --notebook-dir=/opt/notebooks
+      --ip='*' --port=8888 --no-browser --allow-root
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/LisonEvf/CasaOS-AppStore@main/Apps/Anaconda3/icon.svg
