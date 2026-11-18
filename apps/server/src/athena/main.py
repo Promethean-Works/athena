@@ -35,6 +35,8 @@ from athena.files.locations import seed_defaults
 from athena.files.webdav import WebDavMiddleware
 from athena.jobs import JobManager
 from athena.logging_setup import setup_logging
+from athena.mcp.auth import MCPAuthMiddleware
+from athena.mcp.server import build_mcp_server
 from athena.monitor import HostMonitor
 from athena.packages.base import run_command
 from athena.platform.store import CapabilityStore
@@ -65,6 +67,13 @@ def create_app(
         app.state.monitor.start()
         # Automation scheduler: fires enabled cron triggers on their schedule.
         scheduler_task = asyncio.create_task(automation_service.scheduler_loop(app))
+        # MCP server: streamable-HTTP endpoint for external agents (n8n, Claude
+        # Desktop, …). Auth is a session cookie or the ATHENA_MCP_TOKEN bearer
+        # token. Mounted inside the lifespan so its task group initializes.
+        mcp_server = build_mcp_server(app)
+        # path="/" so the MCP endpoint is reached at /api/mcp (not /api/mcp/mcp).
+        mcp_app = mcp_server.http_app(transport="streamable-http", path="/")
+        app.mount("/api/mcp", MCPAuthMiddleware(mcp_app))
         # Durable execution: run assistant turns inside pgtask tasks against Postgres so
         # an interrupted turn resumes from its last checkpointed step. Only started when a
         # database URL is configured; hosts without Postgres run turns inline instead.
@@ -79,7 +88,8 @@ def create_app(
             app.state.assistant_turns.register_pgtask_handlers()
             worker = Worker(settings.durable_execution_database_url, registry, poll_interval=1.0)
             worker_task = asyncio.create_task(worker.run())
-        yield
+        async with mcp_app.lifespan(app):
+            yield
         task.cancel()
         scheduler_task.cancel()
         if worker is not None:
