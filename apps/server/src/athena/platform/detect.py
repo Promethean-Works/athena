@@ -341,6 +341,7 @@ def detect_ollama(probe: Probe) -> Capability:
 def detect_builtin(probe: Probe) -> list[Capability]:
     return [
         Capability(id="files", label="Files", status="ready", provider="builtin"),
+        Capability(id="automation", label="Automation", status="ready", provider="builtin"),
         Capability(id="shares.webdav", label="WebDAV shares", status="ready", provider="wsgidav"),
     ]
 

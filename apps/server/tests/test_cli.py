@@ -127,19 +127,21 @@ def test_start_writes_pid_and_starts_server(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     data_dir = tmp_path / "data"
-    started: dict = {}
+    started: list[list[str]] = []
     monkeypatch.setattr(
         subprocess,
         "Popen",
-        lambda cmd, **kw: started.update(cmd=cmd) or FakePopen(1234),
+        lambda cmd, **kw: (started.append(cmd), FakePopen(1234))[1],
     )
     monkeypatch.setattr("psutil.pid_exists", lambda pid: False)
     assert main(["start", "--data-dir", str(data_dir)]) == 0
     pid_file = data_dir / "athena.pid"
     assert pid_file.read_text() == "1234"
-    assert started["cmd"][1:4] == ["-m", "athena", "serve"]
-    assert "--data-dir" in started["cmd"]
-    assert str(data_dir) in started["cmd"]
+    # Find the call that starts "athena serve" (other calls like nvidia-smi may happen first)
+    serve_cmd = next(cmd for cmd in started if "athena" in cmd and "serve" in cmd)
+    assert serve_cmd[1:4] == ["-m", "athena", "serve"]
+    assert "--data-dir" in serve_cmd
+    assert str(data_dir) in serve_cmd
 
 
 def test_start_refuses_when_already_running(
@@ -236,3 +238,9 @@ def test_doctor_prints_report(tmp_path: Path, capsys: pytest.CaptureFixture[str]
 class FakePopen:
     def __init__(self, pid: int) -> None:
         self.pid = pid
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return False

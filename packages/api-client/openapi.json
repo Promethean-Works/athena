@@ -5127,6 +5127,384 @@
           }
         }
       }
+    },
+    "/api/automation/triggers": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "List Triggers",
+        "operationId": "listAutomationTriggers",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TriggerOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listautomationtriggers"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Create Trigger",
+        "operationId": "createAutomationTrigger",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TriggerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/triggers/{trigger_id}": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Get Trigger",
+        "operationId": "getAutomationTrigger",
+        "parameters": [
+          {
+            "name": "trigger_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Trigger Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TriggerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Update Trigger",
+        "operationId": "updateAutomationTrigger",
+        "parameters": [
+          {
+            "name": "trigger_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Trigger Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TriggerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Delete Trigger",
+        "operationId": "deleteAutomationTrigger",
+        "parameters": [
+          {
+            "name": "trigger_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Trigger Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/jobs": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "List Job Runs",
+        "operationId": "listAutomationJobRuns",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobRunOut"
+                  },
+                  "title": "Response Listautomationjobruns"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/jobs/{run_id}": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Get Job Run",
+        "operationId": "getAutomationJobRun",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobRunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/triggers/validate-action": {
+      "post": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Validate Trigger Action",
+        "description": "Checks that an action's shape is valid without storing a trigger.",
+        "operationId": "validateAutomationTriggerAction",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Validateautomationtriggeraction"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/webhook/{webhook_token}": {
+      "post": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Fire Webhook",
+        "description": "Fire the HTTP trigger with this secret token. No session required; the\ntoken itself is the credential (an n8n HTTP Request node, for example).",
+        "operationId": "fireAutomationWebhook",
+        "parameters": [
+          {
+            "name": "webhook_token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Webhook Token"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5307,6 +5685,38 @@
           "answer"
         ],
         "title": "AnswerIn"
+      },
+      "AppAction": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "app",
+            "title": "Kind",
+            "default": "app"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 63,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "verb": {
+            "type": "string",
+            "enum": [
+              "start",
+              "stop",
+              "restart",
+              "update"
+            ],
+            "title": "Verb"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "verb"
+        ],
+        "title": "AppAction"
       },
       "AppDetail": {
         "properties": {
@@ -7365,6 +7775,79 @@
         "type": "object",
         "title": "JobProgress"
       },
+      "JobRunOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "trigger_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "output": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "trigger_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "output",
+          "error"
+        ],
+        "title": "JobRunOut"
+      },
       "KindField": {
         "properties": {
           "key": {
@@ -7931,6 +8414,56 @@
           "value"
         ],
         "title": "OptionExample"
+      },
+      "PackageAction": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "package",
+            "title": "Kind",
+            "default": "package"
+          },
+          "manager": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Manager"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "verb": {
+            "type": "string",
+            "enum": [
+              "install",
+              "uninstall",
+              "upgrade",
+              "refresh"
+            ],
+            "title": "Verb"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "type": "object",
+        "required": [
+          "manager",
+          "name",
+          "verb"
+        ],
+        "title": "PackageAction"
       },
       "PackageRef": {
         "properties": {
@@ -9793,6 +10326,201 @@
         ],
         "title": "TransferIn"
       },
+      "TriggerActionIn": {
+        "properties": {
+          "action": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AppAction"
+              },
+              {
+                "$ref": "#/components/schemas/PackageAction"
+              }
+            ],
+            "title": "Action",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "app": "#/components/schemas/AppAction",
+                "package": "#/components/schemas/PackageAction"
+              }
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "TriggerActionIn"
+      },
+      "TriggerIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "cron",
+              "http"
+            ],
+            "title": "Kind",
+            "default": "cron"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "cron_expression": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cron Expression"
+          },
+          "action": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AppAction"
+              },
+              {
+                "$ref": "#/components/schemas/PackageAction"
+              }
+            ],
+            "title": "Action",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "app": "#/components/schemas/AppAction",
+                "package": "#/components/schemas/PackageAction"
+              }
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "action"
+        ],
+        "title": "TriggerIn"
+      },
+      "TriggerOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "cron_expression": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cron Expression"
+          },
+          "action": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AppAction"
+              },
+              {
+                "$ref": "#/components/schemas/PackageAction"
+              }
+            ],
+            "title": "Action",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "app": "#/components/schemas/AppAction",
+                "package": "#/components/schemas/PackageAction"
+              }
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "webhook_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Token"
+          },
+          "next_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Run At"
+          },
+          "last_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "cron_expression",
+          "action",
+          "enabled",
+          "webhook_token",
+          "next_run_at",
+          "last_run_at",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "TriggerOut"
+      },
       "UnlockIn": {
         "properties": {
           "password": {
@@ -10085,6 +10813,24 @@
           "password"
         ],
         "title": "WebDavPassword"
+      },
+      "WebhookOut": {
+        "properties": {
+          "job_run_id": {
+            "type": "string",
+            "title": "Job Run Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_run_id",
+          "status"
+        ],
+        "title": "WebhookOut"
       },
       "athena__api__packages__InstallIn": {
         "properties": {
