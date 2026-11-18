@@ -236,3 +236,9 @@ def test_doctor_prints_report(tmp_path: Path, capsys: pytest.CaptureFixture[str]
 class FakePopen:
     def __init__(self, pid: int) -> None:
         self.pid = pid
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return False
