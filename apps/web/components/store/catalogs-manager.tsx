@@ -54,20 +54,12 @@ import { JobDialog } from "@/components/job-dialog"
 
 type CatalogOut = Schemas["CatalogOut"]
 type Job = Schemas["JobOut"]
-type Kind = "auto" | "athena" | "casaos"
+type Kind = "auto" | "athena"
 
 const KINDS: { label: string; value: Kind }[] = [
   { label: "Detect automatically", value: "auto" },
   { label: "Athena catalog", value: "athena" },
-  { label: "CasaOS AppStore", value: "casaos" },
 ]
-
-/** The official CasaOS AppStore release archive (Apache-2.0, ~1.5 MB, 180+ apps). */
-const CASAOS = {
-  name: "CasaOS AppStore",
-  url: "https://github.com/IceWhaleTech/CasaOS-AppStore/releases/latest/download/main.zip",
-  kind: "casaos" as Kind,
-}
 
 function when(iso: string | null | undefined) {
   return iso ? new Date(iso).toLocaleString() : "never"
@@ -132,8 +124,6 @@ export function CatalogsManager() {
     void load()
   }
 
-  const hasCasaOS = catalogs?.some((c) => c.url === CASAOS.url)
-
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_minmax(0,26rem)]">
       <div className="flex flex-col gap-4">
@@ -197,24 +187,6 @@ export function CatalogsManager() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {!hasCasaOS ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>CasaOS AppStore</CardTitle>
-              <CardDescription>
-                Over 180 community apps, converted to Athena&apos;s format.
-                Apache-2.0.
-              </CardDescription>
-            </CardHeader>
-            <CardFooter>
-              <Button onClick={() => add(CASAOS)}>
-                <PlusIcon data-icon="inline-start" />
-                Add CasaOS AppStore
-              </Button>
-            </CardFooter>
-          </Card>
-        ) : null}
-
         <Card>
           <CardHeader>
             <CardTitle>Add a catalog</CardTitle>
