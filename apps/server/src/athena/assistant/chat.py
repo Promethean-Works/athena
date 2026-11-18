@@ -471,12 +471,9 @@ async def _run(
         assert row is not None and user is not None
         previous = load_history(row)
         results = _results(previous, resume)
-        # A new chat's title is written alongside the reply, so it rarely adds a wait.
-        titling = (
-            asyncio.create_task(generate_title(title_model, text))
-            if text and title_model is not None and row.title == NEW_CHAT
-            else None
-        )
+        # Title generation moved to after the turn completes (sequential), to avoid
+        # concurrent requests to the same local provider (e.g., Ollama).
+        titling = None
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
         ai = ai_settings.load(db)
@@ -556,15 +553,21 @@ async def _run(
             if compacted_ok:
                 row.transcript = new_transcript(row, previous, recorder, list(saved.messages))
             row.history = ConversationTypeAdapter.dump_json(saved).decode()
-            if text and row.title == NEW_CHAT:
-                row.title = await _await_title(titling) or _title(text)
+            if text and row.title == NEW_CHAT and title_model is not None:
+                # Generate title sequentially after the main turn completes.
+                # This avoids concurrent requests to the same provider (especially local ones).
+                # Errors are caught and logged; fall back to the message text.
+                try:
+                    generated = await generate_title(title_model, text)
+                except Exception as exc:
+                    log.info("couldn't generate a chat title: %s", _readable(exc))
+                    generated = None
+                row.title = generated or _title(text)
                 turn.emit("title", {"title": row.title})
             row.updated_at = datetime.now(UTC)
             db.add(row)
             db.commit()
             turn.emit("usage", usage_of(saved.usage).model_dump())
-        if titling is not None and not titling.done():
-            titling.cancel()
         turn.emit("done", {})
 
 
@@ -714,16 +717,6 @@ def _limit_message(exc: UsageLimitExceeded, spend_limit: float | None) -> str:
             "Try a narrower question."
         )
     return "Stopped: " + text.split(". Consider raising the limit")[0]
-
-
-async def _await_title(task: asyncio.Task[str | None] | None) -> str | None:
-    if task is None:
-        return None
-    try:
-        return await asyncio.wait_for(task, TITLE_WAIT)
-    except Exception as exc:  # a missing title isn't worth failing the turn over
-        log.info("couldn't generate a chat title: %s", _readable(exc))
-        return None
 
 
 def _results(previous: Conversation | None, resume: Resume | None) -> DeferredToolResults | None:
