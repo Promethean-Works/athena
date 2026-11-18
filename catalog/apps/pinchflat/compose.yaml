@@ -1,0 +1,68 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Pinchflat
+x-athena:
+  title: Pinchflat
+  description: Your next YouTube media manager
+  category: media
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Pinchflat/icon.svg
+  homepage: https://github.com/kieraneglin/pinchflat
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  notes: 'Pinchflat will automatically create the necessary directories and start downloading content
+    based on your configured sources.
+
+
+    Make sure you have enough storage space for your downloads. The app uses /downloads as the default
+    download directory.
+
+
+    After installation, access the web interface to configure your YouTube channels and playlists for
+    automatic downloading.'
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8945'
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+  - key: PUID
+    label: User ID
+    default: '@uid'
+    advanced: true
+  - key: PGID
+    label: Group ID
+    default: '@gid'
+    advanced: true
+  - key: MEDIA_PATH
+    label: Media folder
+    type: path
+    default: '@app_data/media'
+    description: The CasaOS Media folder.
+services:
+  pinchflat:
+    image: ghcr.io/kieraneglin/pinchflat:latest
+    deploy:
+      resources:
+        reservations:
+          memory: 256M
+    network_mode: bridge
+    ports:
+    - target: 8945
+      published: ${WEB_PORT}
+      protocol: tcp
+    restart: unless-stopped
+    environment:
+    - TZ=${TZ}
+    - PUID=${PUID}
+    - PGID=${PGID}
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/config
+      target: /config
+    - type: bind
+      source: ${MEDIA_PATH}/Downloads
+      target: /downloads
+    container_name: pinchflat

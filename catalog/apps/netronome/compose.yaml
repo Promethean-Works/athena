@@ -1,0 +1,49 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Netronome
+x-athena:
+  title: Netronome
+  description: Monitor, analyze, and alert on network performance.
+  category: network
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Netronome/icon.png
+  homepage: https://netrono.me
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '7575'
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+services:
+  netronome:
+    image: ghcr.io/autobrr/netronome:v0.13.0
+    container_name: netronome
+    restart: unless-stopped
+    entrypoint:
+    - /sbin/tini
+    - --
+    - /bin/sh
+    - -c
+    command:
+    - "config=/data/.config/netronome/config.toml\nif [ ! -f \"$$config\" ]; then\n  netronome generate-config\n\
+      fi\nexec netronome serve"
+    ports:
+    - target: 7575
+      published: ${WEB_PORT}
+      protocol: tcp
+    environment:
+      TZ: ${TZ}
+      NETRONOME__HOST: 0.0.0.0
+      NETRONOME__PORT: 7575
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /data
+    cap_add:
+    - NET_RAW

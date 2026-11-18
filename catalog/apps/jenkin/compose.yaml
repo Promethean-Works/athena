@@ -1,0 +1,39 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Jenkin
+x-athena:
+  title: Jenkins CI/CD
+  description: Jenkins Continuous Integration and Delivery server.
+  category: development
+  icon: https://icon.casaos.io/main/all/jenkins.png
+  homepage: https://www.jenkins.io/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8089'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    privileged: false
+    user: root
+    restart: always
+    network_mode: bridge
+    cpu_shares: 50
+    ports:
+    - target: 8080
+      published: ${WEB_PORT}
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: /DATA/AppData/Jenkins/data
+      target: /data
+    - type: bind
+      source: /var/lib/docker/volumes/b098c98b2c5dec792246dc33375853c05958ace7c144f4aa157326a6f6c0de4c/_data
+      target: /var/jenkins_home
+    container_name: Jenkins
+    hostname: Jenkins

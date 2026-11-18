@@ -1,0 +1,32 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Alist-Sync
+x-athena:
+  title: Alist-Sync
+  description: An Alist storage synchronization tool based on the Web interface.
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Alist-Sync/icon.svg
+  homepage: https://github.com/xjxjin/alist-sync
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm
+  - linux/arm64
+  notes: The default login password is admin/admin.
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '52441'
+services:
+  alist-sync:
+    image: xjxjin/alist-sync:1.1.5
+    container_name: alist-sync
+    restart: unless-stopped
+    ports:
+    - ${WEB_PORT}:52441
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /app/data
+    environment:
+    - TZ=Asia/Shanghai

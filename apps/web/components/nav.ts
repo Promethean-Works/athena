@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react"
 import {
   BoxIcon,
   CircleHelpIcon,
+  ClockIcon,
   CloudIcon,
   FolderIcon,
   LayoutDashboardIcon,
@@ -57,6 +58,12 @@ export const navMain: NavItem[] = [
     // page can say why it can't be used.
     capability: "packages.*",
     showWhenUnavailable: true,
+  },
+  {
+    title: "Automation",
+    url: "/automation/",
+    icon: ClockIcon,
+    capability: "automation",
   },
   {
     title: "Files",

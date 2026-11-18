@@ -2,11 +2,16 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Parts A, B and C are done, and so are part D stages 1 and 2 (#65–#73). Stage 3: web research (#75), second-model reviews (#76), Docker sandbox (#77), hosted integrations (#78) and the durable execution foundation (#80) are done; the browser is blocked by a dependency conflict (see Next).
+**Current milestone:** M8, automation (cron + trigger-based jobs, MCP server, webhooks). M7 (the AI assistant, §4.5) is complete.
 
 ## Done
 
 Finished work is in `docs/HISTORY.md` (read it only when you need a feature's background). When you finish something, add a short bullet there with the PR number and take it out of In progress below.
+
+- M8 A (automation foundation): done — durable triggers + job runs, cron scheduler, triggers/job routers, audit.
+- M8 B (MCP server): done — streamable-HTTP MCP server at /api/mcp with session or bearer-token auth, tools for apps/capabilities/stats/automation. Verified with MCP handshake + tool-call tests.
+- M8 C (webhooks): done — public POST /api/automation/webhook/{token} fires HTTP triggers (n8n path), no session needed. Verified with API tests.
+- M8 D (Automation UI): done — /automation page with trigger create/edit/delete, job-run table, webhook+MCP endpoints card. gated by `automation` capability. Verified lint/typecheck/build; not yet browser-verified.
 
 ## In progress
 
@@ -15,7 +20,9 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
 
-Standalone (open PR, not M7): compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). A store app folder may hold several compose files — compose.yaml is the default variant and each compose.<slug>.yaml sibling is another variant, each with its own install-form env fields. FreshRSS gains compose.postgres.yaml (PostgreSQL); defaults stay SQLite. No server/UI changes beyond the general variant support (select-free). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
+Standalone (open PR, not M7):
+- compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
+- CasaOS AppStore catalog port is PR #120 (open, auto-merge squash, CI pending). Ported ~180 CasaOS AppStore apps via the existing `casaos` converter, growing the built-in catalog from 166 to 200 apps. Removed CasaOS entries duplicating curated store apps and fixed web port clashes so the catalog validates. Verified: `tests/test_catalog.py` (incl. `docker compose config` on all 200 apps), `tests/test_remote_catalogs.py`, `tests/test_apps.py`, ruff, format, check-docs. Not verified: installing the newly ported apps for real against Docker.
 
 ## Next
 
