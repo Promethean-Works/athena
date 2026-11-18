@@ -133,6 +133,57 @@ def test_http_trigger_gets_webhook_token(tmp_path):
     assert len(r.json()["webhook_token"]) == 32
 
 
+def test_webhook_fires_http_trigger(tmp_path):
+    client, app = _client(tmp_path)
+    r = client.post(
+        "/api/automation/triggers",
+        json={
+            "kind": "http",
+            "name": "webhook job",
+            "action": {"kind": "app", "name": "x", "verb": "start"},
+            "enabled": True,
+        },
+    )
+    assert r.status_code == 201, r.text
+    token = r.json()["webhook_token"]
+
+    # No session needed: the token is the credential. Same app so the trigger
+    # exists in the same in-memory DB and job manager.
+    public = TestClient(app)
+    r = public.post(f"/api/automation/webhook/{token}")
+    assert r.status_code == 202, r.text
+    assert r.json()["status"] == "started"
+    assert r.json()["job_run_id"]
+
+
+def test_webhook_unknown_token(tmp_path):
+    client, app = _client(tmp_path)
+    public = TestClient(app)
+    r = public.post("/api/automation/webhook/doesnotexist")
+    assert r.status_code == 404, r.text
+
+
+def test_webhook_disabled_or_wrong_kind(tmp_path):
+    client, app = _client(tmp_path)
+    public = TestClient(app)
+
+    # Disabled http trigger.
+    r = client.post(
+        "/api/automation/triggers",
+        json={
+            "kind": "http",
+            "name": "disabled webhook",
+            "action": {"kind": "app", "name": "x", "verb": "start"},
+            "enabled": False,
+        },
+    )
+    assert r.status_code == 201, r.text
+    disabled_token = r.json()["webhook_token"]
+
+    r = public.post(f"/api/automation/webhook/{disabled_token}")
+    assert r.status_code == 403, r.text
+
+
 def test_compute_next_run_preserves_timezone():
     from datetime import UTC, datetime
 

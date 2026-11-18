@@ -177,11 +177,11 @@ async def scheduler_loop(app: FastAPI) -> None:
 # ---------------------------------------------------------------- running a trigger
 
 
-async def fire_trigger(app: FastAPI, trigger_id: str) -> None:
+async def fire_trigger(app: FastAPI, trigger_id: str) -> str:
     """Start one execution of `trigger`, recording a durable job run.
 
-    Re-fetches the trigger inside its own session so detached objects from the
-    scheduler's closed session never cause problems.
+    Returns the job-run id. Re-fetches the trigger inside its own session so
+    detached objects from the scheduler's closed session never cause problems.
     """
     run_id = secrets.token_hex(8)
     started_at = _now_naive()
@@ -226,6 +226,7 @@ async def fire_trigger(app: FastAPI, trigger_id: str) -> None:
                     session.commit()
 
     app.state.jobs.start(f"Automation: {name}", body)
+    return run_id
 
 
 async def run_trigger_action(app: FastAPI, action: dict, job: Job) -> None:

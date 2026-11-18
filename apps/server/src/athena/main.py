@@ -152,6 +152,9 @@ def create_app(
     app.include_router(cloud_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(assistant_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(automation.router, prefix="/api", dependencies=[require_user])
+    # The webhook is public: the trigger's secret token is the credential, so no
+    # session is required (n8n, external agents).
+    app.include_router(automation.public_router, prefix="/api")
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
 

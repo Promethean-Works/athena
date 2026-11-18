@@ -5461,6 +5461,50 @@
           }
         }
       }
+    },
+    "/api/automation/webhook/{webhook_token}": {
+      "post": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Fire Webhook",
+        "description": "Fire the HTTP trigger with this secret token. No session required; the\ntoken itself is the credential (an n8n HTTP Request node, for example).",
+        "operationId": "fireAutomationWebhook",
+        "parameters": [
+          {
+            "name": "webhook_token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Webhook Token"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -10769,6 +10813,24 @@
           "password"
         ],
         "title": "WebDavPassword"
+      },
+      "WebhookOut": {
+        "properties": {
+          "job_run_id": {
+            "type": "string",
+            "title": "Job Run Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_run_id",
+          "status"
+        ],
+        "title": "WebhookOut"
       },
       "athena__api__packages__InstallIn": {
         "properties": {

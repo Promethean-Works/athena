@@ -1902,6 +1902,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/automation/webhook/{webhook_token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fire Webhook
+         * @description Fire the HTTP trigger with this secret token. No session required; the
+         *     token itself is the credential (an n8n HTTP Request node, for example).
+         */
+        post: operations["fireAutomationWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3753,6 +3774,13 @@ export interface components {
             username: string;
             /** Password */
             password: string;
+        };
+        /** WebhookOut */
+        WebhookOut: {
+            /** Job Run Id */
+            job_run_id: string;
+            /** Status */
+            status: string;
         };
         /** InstallIn */
         athena__api__packages__InstallIn: {
@@ -7630,6 +7658,37 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fireAutomationWebhook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                webhook_token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebhookOut"];
                 };
             };
             /** @description Validation Error */

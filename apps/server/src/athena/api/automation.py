@@ -1,9 +1,10 @@
 """Automation triggers and job runs.
 
-Durable triggers (cron, HTTP webhook) that start background jobs. Every route
-needs a signed-in session; the webhook that fires an HTTP trigger is added in a
-later part so external automation (n8n, MCP clients) can call it with a secret
-token instead of a browser session.
+Durable triggers (cron, HTTP webhook) that start background jobs. Trigger
+management (`/triggers`, `/jobs`) needs a signed-in session. The webhook that
+fires an HTTP trigger (`/webhook/{token}`) is public but protected by the
+trigger's secret token, so external automation (n8n, MCP clients) can call it
+without a browser session.
 """
 
 import secrets
@@ -20,6 +21,8 @@ from athena.automation import service as automation
 from athena.db.models import AutomationJobRun, AutomationTrigger
 
 router = APIRouter(prefix="/automation", tags=["automation"])
+public_router = APIRouter(prefix="/automation", tags=["automation"])
+"""Public routes: no session required. Protected by the trigger's webhook token."""
 
 TriggerId = Annotated[str, Path(pattern=r"^[a-z0-9][a-z0-9-]{0,62}$", max_length=64)]
 """A trigger or job-run id: `secrets.token_hex(8)` is 16 lowercase hex chars."""
@@ -190,3 +193,34 @@ class TriggerActionIn(BaseModel):
 def validate_trigger_action(body: TriggerActionIn) -> dict[str, str]:
     """Checks that an action's shape is valid without storing a trigger."""
     return {"ok": "action is valid"}
+
+
+# ---------------------------------------------------------------- webhook (public)
+
+
+class WebhookOut(BaseModel):
+    job_run_id: str
+    status: str
+
+
+@public_router.post(
+    "/webhook/{webhook_token}",
+    operation_id="fireAutomationWebhook",
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def fire_webhook(
+    webhook_token: Annotated[str, Path(max_length=64)],
+    request: Request,
+    db: DbSession,
+) -> WebhookOut:
+    """Fire the HTTP trigger with this secret token. No session required; the
+    token itself is the credential (an n8n HTTP Request node, for example)."""
+    trigger = db.exec(
+        select(AutomationTrigger).where(AutomationTrigger.webhook_token == webhook_token)
+    ).first()
+    if trigger is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such webhook")
+    if trigger.kind != "http" or not trigger.enabled:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "This webhook is not enabled")
+    run_id = await automation.fire_trigger(request.app, str(trigger.id))
+    return WebhookOut(job_run_id=run_id, status="started")
