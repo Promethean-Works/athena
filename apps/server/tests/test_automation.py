@@ -157,7 +157,7 @@ def test_webhook_fires_http_trigger(tmp_path):
 
 
 def test_webhook_unknown_token(tmp_path):
-    client, app = _client(tmp_path)
+    _, app = _client(tmp_path)
     public = TestClient(app)
     r = public.post("/api/automation/webhook/doesnotexist")
     assert r.status_code == 404, r.text
