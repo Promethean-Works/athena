@@ -203,7 +203,7 @@ CodeQL runs on every PR and its alerts can block a merge.
 - Agent tooling quirks (token budget, MCP tool costs, Hermes's skill scanner, agent files shipped by dependencies) are in `docs/AGENT-TOOLING.md`.
 - The maintainer's shell is zsh. `echo =====` fails there (`=word` expands to a command path), and unquoted `$VAR` lists don't word-split. Quote or use arrays.
 - Claude Code's safety check refuses `rm` with unguarded variables or globs (`rm -rf $S/*`). Use literal paths.
-- Another agent session may be working in the main checkout at the same time (uncommitted changes on its feature branch). For unrelated work, use `git worktree add ../athena-<topic> -b <branch> origin/main` instead of switching branches under it.
+- Several agent sessions run at once, so every task gets its own worktree (`git worktree add ../athena-<topic> -b <branch> origin/main`) and the base checkout stays on `main`. Agents used to follow `git switch -c` in the base checkout from older docs; `scripts/pre-commit.sh` now rejects commits from the base checkout (git-dir equals git-common-dir) to enforce it.
 - The machine can be offline (no DNS, even outside the sandbox). `uv run --offline --with <pkg>==<version>` uses uv's cache when the package was installed before.
 - `pkill` and `ps` may fail in the sandbox ("Cannot get process list"). Find a server by its port with `lsof -nP -t -iTCP:<port> -sTCP:LISTEN` and `kill` that pid.
 - VS Code: `.vscode/launch.json` (debug the server, pytest, Next with Chrome, or both as "Full stack") and `.vscode/tasks.json` (dev, build, release serve, tests, checks, codegen). Data goes to the git-ignored `.dev-data/`.

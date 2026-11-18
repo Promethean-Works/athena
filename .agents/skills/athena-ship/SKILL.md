@@ -13,10 +13,9 @@ Follow these steps in order. Each step says what "done" looks like. Don't skip o
 git status -sb          # where am I, is anything uncommitted?
 ```
 
-- On `main`, or on a branch for a different task: start a new branch from an up-to-date `main`:
-  `git switch main && git pull && git switch -c <type>/<short-description>`
-- **The checkout has someone else's uncommitted work** (another agent session may be using it): don't switch branches under it. Use a worktree:
+- **Always work in your own worktree, never in the base checkout** (it stays on `main`; the pre-commit hook rejects commits there). If you're in the base checkout, or in a worktree for a different task, create one:
   `git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main`, then work in `../athena-<topic>`. Remove it after the merge: `git worktree remove ../athena-<topic>`.
+- If you already edited files in the base checkout by mistake: `git stash`, create the worktree, then `git -C ../athena-<topic> stash pop`.
 - Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`.
 
 ## 2. Run the local checks
