@@ -1,0 +1,34 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/OpenHands
+x-athena:
+  title: OpenHands
+  description: Open-source AI-powered coding assistant
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/OpenHands/icon.svg
+  homepage: https://www.openhands.dev/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '13333'
+services:
+  openhands:
+    image: ghcr.io/all-hands-ai/openhands:0.59
+    container_name: openhands
+    environment:
+    - SANDBOX_RUNTIME_CONTAINER_IMAGE=ghcr.io/all-hands-ai/runtime:main-nikolaik
+    - WORKSPACE_MOUNT_PATH=${ATHENA_APP_DATA}/workspace
+    ports:
+    - ${WEB_PORT}:3000
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ${ATHENA_APP_DATA}/openhands:/.openhands
+    - ${ATHENA_APP_DATA}/workspace:/opt/workspace_base
+    stdin_open: true
+    tty: true

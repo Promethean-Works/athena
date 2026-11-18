@@ -5,12 +5,24 @@ import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 
 import { applyAppearance, storedAppearance } from "@/lib/appearance"
 
+// next-themes@0.4.6 types omit `children` from ThemeProviderProps even though it
+// extends React.PropsWithChildren; the component renders children at runtime.
+type NextThemesProviderProps = React.ComponentProps<
+  typeof NextThemesProvider
+> & {
+  children?: React.ReactNode
+}
+
+const NextThemesProviderWithChildren = NextThemesProvider as React.ComponentType<
+  NextThemesProviderProps
+>
+
 function ThemeProvider({
   children,
   ...props
-}: React.ComponentProps<typeof NextThemesProvider>) {
+}: NextThemesProviderProps) {
   return (
-    <NextThemesProvider
+    <NextThemesProviderWithChildren
       attribute="class"
       defaultTheme="system"
       enableSystem
@@ -20,7 +32,7 @@ function ThemeProvider({
       <ThemeHotkey />
       <RestoreAppearance />
       {children}
-    </NextThemesProvider>
+    </NextThemesProviderWithChildren>
   )
 }
 

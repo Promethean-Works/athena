@@ -1,0 +1,47 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/MongoDB4
+x-athena:
+  title: MongoDB 4
+  description: A free and open-source cross-platform document-oriented database program. Classified as
+    a NoSQL database program, MongoDB uses JSON-like documents with schemata.
+  category: development
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/MongoDB4/icon.svg
+  homepage: https://www.mongodb.com/
+  web_port: null
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: PUID
+    label: User ID
+    default: '@uid'
+    advanced: true
+  - key: PGID
+    label: Group ID
+    default: '@gid'
+    advanced: true
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+services:
+  mongodb4:
+    image: mongo:4.4.22
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    ports:
+    - target: 27017
+      published: '27017'
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: /DATA/AppData/mongodb4/data/configdb
+      target: /data/configdb
+    - type: bind
+      source: /DATA/AppData/mongodb4/data/db
+      target: /data/db
+    container_name: mongodb4

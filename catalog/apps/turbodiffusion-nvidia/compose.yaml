@@ -1,0 +1,91 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/TurboDiffusion_Nvidia
+x-athena:
+  title: TurboDiffusion(Nvidia GPU)
+  description: An accelerated video generation framework that speeds up end-to-end diffusion while preserving
+    video quality
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/TurboDiffusion_Nvidia/icon.png
+  homepage: https://github.com/thu-ml/TurboDiffusion
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  notes: 'Built-in model: TurboWan2.1-T2V-1.3B-480P
+
+
+    1. Officially supported model list (TurboDiffusion official HF org)
+
+    Text-to-Video (T2V)
+
+    - [TurboDiffusion/TurboWan2.1-T2V-1.3B-480P](https://huggingface.co/TurboDiffusion/TurboWan2.1-T2V-1.3B-480P)
+
+    - [TurboDiffusion/TurboWan2.1-T2V-14B-480P](https://huggingface.co/TurboDiffusion/TurboWan2.1-T2V-14B-480P)
+
+    - [TurboDiffusion/TurboWan2.1-T2V-14B-720P](https://huggingface.co/TurboDiffusion/TurboWan2.1-T2V-14B-720P)
+
+    Image-to-Video (I2V)
+
+    - [TurboDiffusion/TurboWan2.2-I2V-A14B-720P](https://huggingface.co/TurboDiffusion/TurboWan2.2-I2V-A14B-720P)
+
+
+    2. Install hf download (Hugging Face CLI) (Run in terminal)
+
+
+    - Method A (Recommended): Official one-click installation script
+
+    `curl -LsSf https://hf.co/cli/install.sh | bash`
+
+
+    - Method B: pip install (suitable for existing Python environments)
+
+    `pip install -U huggingface_hub`
+
+
+    - Verify after installation:
+
+    `hf --help`
+
+
+    3.  Download specific model weights to a fixed directory (Recommended command template)
+
+    Tem'
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '27860'
+services:
+  turbodiffusion:
+    image: icewhaletech/turbodiffusion:20260312
+    container_name: turbodiffusion
+    deploy:
+      resources:
+        reservations:
+          memory: 40G
+          devices:
+          - driver: nvidia
+            count: all
+            capabilities:
+            - gpu
+    environment:
+      MODEL_PATHS: /workspace/TurboDiffusion/checkpoints_host,/workspace/TurboDiffusion/checkpoints
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility,video
+      CUDA_HOME: /usr/local/cuda
+      PYTHONPATH: /workspace/TurboDiffusion/turbodiffusion
+    ports:
+    - target: 7860
+      published: ${WEB_PORT}
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/models
+      target: /workspace/TurboDiffusion/checkpoints_host
+    - type: bind
+      source: ${ATHENA_APP_DATA}/outputs
+      target: /workspace/TurboDiffusion/outputs
+    working_dir: /workspace/TurboDiffusion
+    command:
+    - python
+    - turbodiffusion/app_gradio.py
+    restart: unless-stopped

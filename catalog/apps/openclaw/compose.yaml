@@ -1,0 +1,100 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/OpenClaw
+x-athena:
+  title: OpenClaw
+  description: OpenClaw is a personal AI assistant you run on your own devices
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/OpenClaw/icon.svg
+  homepage: https://openclaw.ai
+  web_port: WEB_PORT
+  web_path: /#token=casaos
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: 'The first launch requires a one-time browser approval:
+
+    1. Open OpenClaw from its ZimaOS app icon and keep the "Approve this browser" page open.
+
+    2. Return to the ZimaOS home screen, click `...` at the top-right of the OpenClaw app card, choose
+    `Terminal`, and open the `openclaw` service terminal (not `openclaw-init`).
+
+    3. Copy the complete command shown under "Run on the Gateway host" on the approval page and run it
+    in the terminal. It has the form `openclaw devices approve <request-id>`; the request ID is different
+    for every installation.
+
+    4. The page connects automatically after approval. Then choose a model provider in the web setup,
+    sign in or enter its API key, and select the default model.
+
+
+    The launch link supplies the Gateway secret automatically. There is no need to run `onboard` or restart
+    the container. The same browser needs approval again only if its site data is cleared. See the [Configuration
+    Guide](https://www.zimaspace.com/docs/zimaos/How-to-Deploy-OpenClaw) for details.'
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '24190'
+services:
+  openclaw-init:
+    image: ghcr.io/openclaw/openclaw:2026.9.6
+    user: 0:0
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}
+      target: /home/node/.openclaw
+    - type: bind
+      source: ${ATHENA_APP_DATA}/auth-profile-secrets
+      target: /home/node/.config/openclaw
+    entrypoint:
+    - /bin/sh
+    - -c
+    command:
+    - chown -R 1000:1000 /home/node/.openclaw /home/node/.config/openclaw
+    restart: 'no'
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:2026.9.6
+    environment:
+      HOME: /home/node
+      OPENCLAW_HOME: /home/node
+      OPENCLAW_STATE_DIR: /home/node/.openclaw
+      OPENCLAW_CONFIG_PATH: /home/node/.openclaw/openclaw.json
+      OPENCLAW_CONFIG_DIR: /home/node/.openclaw
+      OPENCLAW_WORKSPACE_DIR: /home/node/.openclaw/workspace
+      OPENCLAW_GATEWAY_PORT: '18789'
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: casaos
+    depends_on:
+      openclaw-init:
+        condition: service_completed_successfully
+    network_mode: bridge
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}
+      target: /home/node/.openclaw
+    - type: bind
+      source: ${ATHENA_APP_DATA}/auth-profile-secrets
+      target: /home/node/.config/openclaw
+    ports:
+    - target: 18789
+      published: ${WEB_PORT}
+      protocol: tcp
+    - target: 18790
+      published: '18790'
+      protocol: tcp
+    init: true
+    restart: unless-stopped
+    cap_drop:
+    - NET_RAW
+    - NET_ADMIN
+    security_opt:
+    - no-new-privileges:true
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    command:
+    - node
+    - dist/index.js
+    - gateway
+    - --bind
+    - lan
+    - --allow-unconfigured
+    - --port
+    - '18789'

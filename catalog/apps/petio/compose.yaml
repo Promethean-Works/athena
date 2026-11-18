@@ -1,0 +1,69 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Petio
+x-athena:
+  title: Petio
+  description: A third party companion app available to Plex server owners to allow their users to request,
+    review and discover content.
+  category: media
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Petio/icon.svg
+  homepage: https://petio.tv
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '7777'
+  - key: PUID
+    label: User ID
+    default: '@uid'
+    advanced: true
+  - key: PGID
+    label: Group ID
+    default: '@gid'
+    advanced: true
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+services:
+  petio:
+    image: ghcr.io/petio-team/petio@sha256:1c5a9276a844f4284601cbe332905864950545ebdeaad74bacb9097ea4f4b333
+    restart: unless-stopped
+    networks:
+    - petio-network
+    depends_on:
+    - mongo
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    ports:
+    - target: 7777
+      published: ${WEB_PORT}
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: /DATA/AppData/petio/config
+      target: /app/api/config
+    - type: bind
+      source: /DATA/AppData/petio/logs
+      target: /app/logs
+    container_name: petio-petio
+  mongo:
+    image: mongo:4.4.22
+    restart: unless-stopped
+    hostname: mongo
+    networks:
+    - petio-network
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+    container_name: petio-mongo
+networks:
+  petio-network:
+    driver: bridge

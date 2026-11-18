@@ -1,0 +1,63 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Resilio-sync
+x-athena:
+  title: resilio-sync
+  description: Unleash the power of seamless file synchronization.
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Resilio-sync/icon.svg
+  homepage: https://www.resilio.com/sync/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8888'
+  - key: PGID
+    label: Group ID
+    default: '@gid'
+    advanced: true
+  - key: PUID
+    label: User ID
+    default: '@uid'
+    advanced: true
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+  - key: DOWNLOADS_PATH
+    label: Downloads folder
+    type: path
+    default: '@app_data/downloads'
+    description: The CasaOS Downloads folder.
+services:
+  resilio-sync:
+    environment:
+    - PGID=${PGID}
+    - PUID=${PUID}
+    - TZ=${TZ}
+    image: linuxserver/resilio-sync:3.1.2
+    network_mode: bridge
+    ports:
+    - target: 55555
+      published: '55555'
+      protocol: tcp
+    - target: 8888
+      published: ${WEB_PORT}
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /sync
+    - type: bind
+      source: ${ATHENA_APP_DATA}/config
+      target: /config
+    - type: bind
+      source: ${DOWNLOADS_PATH}
+      target: /downloads
+    privileged: false
+    container_name: resilio-sync

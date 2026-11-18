@@ -20,7 +20,9 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
 
-Standalone (open PR, not M7): compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). A store app folder may hold several compose files — compose.yaml is the default variant and each compose.<slug>.yaml sibling is another variant, each with its own install-form env fields. FreshRSS gains compose.postgres.yaml (PostgreSQL); defaults stay SQLite. No server/UI changes beyond the general variant support (select-free). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
+Standalone (open PR, not M7):
+- compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
+- CasaOS AppStore catalog port is PR #120 (open, auto-merge squash, CI pending). Ported ~180 CasaOS AppStore apps via the existing `casaos` converter, growing the built-in catalog from 166 to 200 apps. Removed CasaOS entries duplicating curated store apps and fixed web port clashes so the catalog validates. Verified: `tests/test_catalog.py` (incl. `docker compose config` on all 200 apps), `tests/test_remote_catalogs.py`, `tests/test_apps.py`, ruff, format, check-docs. Not verified: installing the newly ported apps for real against Docker.
 
 ## Next
 
