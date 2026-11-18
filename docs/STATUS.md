@@ -8,13 +8,14 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 Finished work is in `docs/HISTORY.md` (read it only when you need a feature's background). When you finish something, add a short bullet there with the PR number and take it out of In progress below.
 
-## In progress
-
-- M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - M8 A (automation foundation): done — durable triggers + job runs, cron scheduler, triggers/job routers, audit.
 - M8 B (MCP server): done — streamable-HTTP MCP server at /api/mcp with session or bearer-token auth, tools for apps/capabilities/stats/automation. Verified with MCP handshake + tool-call tests.
 - M8 C (webhooks): done — public POST /api/automation/webhook/{token} fires HTTP triggers (n8n path), no session needed. Verified with API tests.
-- Next: M8 D Automation UI.
+- M8 D (Automation UI): done — /automation page with trigger create/edit/delete, job-run table, webhook+MCP endpoints card. gated by `automation` capability. Verified lint/typecheck/build; not yet browser-verified.
+
+## In progress
+
+- M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
