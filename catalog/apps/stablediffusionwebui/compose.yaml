@@ -1,0 +1,47 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/StableDiffusionWebUI
+x-athena:
+  title: Stable Diffusion
+  description: An AI model used to generate images conditioned on text descriptions.
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/StableDiffusionWebUI/icon.svg
+  homepage: https://github.com/AUTOMATIC1111/stable-diffusion-webui
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '7860'
+services:
+  icewhale-stable-diffusion-webui:
+    image: johnguan/stable-diffusion-webui:latest
+    runtime: nvidia
+    ipc: host
+    environment:
+    - NVIDIA_VISIBLE_DEVICES=all
+    - CPU_FALLBACK=true
+    deploy:
+      resources:
+        reservations:
+          memory: 512M
+    network_mode: bridge
+    ports:
+    - target: 7860
+      published: ${WEB_PORT}
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: /DATA/AppData/Stable-Diffusion-WebUI/models
+      target: /data/models
+    - type: bind
+      source: /DATA/AppData/Stable-Diffusion-WebUI/outputs
+      target: /data/outputs
+    - type: bind
+      source: /DATA/AppData/Stable-Diffusion-WebUI/config
+      target: /data/config
+    privileged: false
+    container_name: icewhale-stable-diffusion-webui

@@ -1,0 +1,146 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Nametag
+x-athena:
+  title: Nametag
+  description: A personal CRM for the people in your life
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Nametag/icon.png
+  homepage: https://nametag.one
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: 'Before installing, set NEXTAUTH_URL to the address you will open Nametag at, for example http://192.168.1.10:10300
+    (use your ZimaOS IP or domain). The default, http://localhost:10300, only works from the ZimaOS device
+    itself, and sign-in and email links will point to the wrong place.
+
+
+    After installing, open Nametag and create your account. Anyone who can reach this port can also register,
+    so once your account exists you can add DISABLE_REGISTRATION=true to close sign-ups.
+
+
+    Email is optional. To send reminder and password-reset emails, add the SMTP_* variables described
+    at https://docs.nametag.one/self-hosting/email/'
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '10300'
+services:
+  nametag:
+    image: ghcr.io/mattogodoy/nametag:0.64.0
+    container_name: nametag
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          memory: 256M
+    ports:
+    - target: 3000
+      published: ${WEB_PORT}
+      protocol: tcp
+    environment:
+      DB_HOST: nametag-db
+      DB_PORT: '5432'
+      DB_NAME: nametag
+      DB_USER: nametag
+      NEXTAUTH_URL: http://localhost:10300
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /app/data
+    entrypoint:
+    - /bin/sh
+    - -c
+    command:
+    - 'set -a
+
+      . /app/data/secrets.env
+
+      set +a
+
+      exec docker-entrypoint.sh node server.js
+
+      '
+    depends_on:
+      nametag-init:
+        condition: service_completed_successfully
+      nametag-db:
+        condition: service_healthy
+    networks:
+    - nametag
+  nametag-init:
+    image: alpine:3.20
+    container_name: nametag-init
+    restart: 'no'
+    command:
+    - /bin/sh
+    - -c
+    - "set -e\ncd /data\nif [ ! -f secrets.env ]; then\n  umask 077\n  {\n    printf 'NEXTAUTH_SECRET='\n\
+      \    head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \\n'\n    printf '\\nCRON_SECRET='\n    head\
+      \ -c 24 /dev/urandom | od -An -tx1 | tr -d ' \\n'\n    printf '\\nDB_PASSWORD='\n    # Keep the\
+      \ database password if Postgres already has one.\n    if [ -s /db-secret/password ]; then\n    \
+      \  tr -d '\\n' < /db-secret/password\n    else\n      head -c 24 /dev/urandom | od -An -tx1 | tr\
+      \ -d ' \\n'\n    fi\n    printf '\\n'\n  } > secrets.env.tmp\n  mv secrets.env.tmp secrets.env\n\
+      fi\numask 077\nsed -n 's/^DB_PASSWORD=//p' secrets.env | tr -d '\\n' > /db-secret/password\nchown\
+      \ 70:70 /db-secret/password\nchown -R 1001:1001 /data\n"
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /data
+    - type: bind
+      source: ${ATHENA_APP_DATA}/db-secret
+      target: /db-secret
+  nametag-db:
+    image: postgres:16-alpine
+    container_name: nametag-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nametag
+      POSTGRES_PASSWORD_FILE: /run/nametag/password
+      POSTGRES_DB: nametag
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/postgres
+      target: /var/lib/postgresql/data
+    - type: bind
+      source: ${ATHENA_APP_DATA}/db-secret
+      target: /run/nametag
+      read_only: true
+    depends_on:
+      nametag-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U nametag -d nametag
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+    - nametag
+  nametag-cron:
+    image: alpine:3.20
+    container_name: nametag-cron
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /data
+      read_only: true
+    command:
+    - /bin/sh
+    - -c
+    - "while [ ! -f /data/secrets.env ]; do sleep 2; done\nprintf '%s\\n' \\\n  '0 8 * * * send-reminders'\
+      \ \\\n  '0 3 * * * purge-deleted' \\\n  '0 2,10,18 * * * carddav-sync' \\\n  '*/5 * * * * geocode'\
+      \ > /tmp/jobs\nsed -n 's/^CRON_SECRET=//p' /data/secrets.env > /tmp/secret\nsed 's|^\\(.* \\)\\\
+      ([a-z-]*\\)|\\1wget -q -O - --header=\"Authorization: Bearer SECRET\" http://nametag:3000/api/cron/\\\
+      2 > /proc/1/fd/1 2>\\&1|' /tmp/jobs > /tmp/crontab\nsed \"s|SECRET|`cat /tmp/secret`|\" /tmp/crontab\
+      \ > /etc/crontabs/root\nrm -f /tmp/jobs /tmp/secret /tmp/crontab\nexec crond -f -l 2\n"
+    depends_on:
+    - nametag
+    networks:
+    - nametag
+networks:
+  nametag:
+    name: nametag

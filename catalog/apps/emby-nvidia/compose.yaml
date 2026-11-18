@@ -1,0 +1,72 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Emby_Nvidia
+x-athena:
+  title: Emby(Nvidia GPU)
+  description: TAKE YOUR MEDIA ANYWHERE WITH EMBY
+  category: media
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Emby/icon.svg
+  homepage: https://emby.media/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8096'
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+  - key: MEDIA_PATH
+    label: Media folder
+    type: path
+    default: '@app_data/media'
+    description: The CasaOS Media folder.
+services:
+  emby:
+    devices:
+    - /dev/dri:/dev/dri
+    - /dev/vchiq:/dev/vchiq
+    - /dev/video10:/dev/video10
+    - /dev/video11:/dev/video11
+    - /dev/video12:/dev/video12
+    environment:
+      UID: '1000'
+      GID: '100'
+      GIDLIST: '100'
+      TZ: ${TZ}
+      NVIDIA_VISIBLE_DEVICES: all
+    image: emby/embyserver:4.10.2.0
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          memory: 512M
+          devices:
+          - driver: nvidia
+            count: all
+            capabilities:
+            - gpu
+    network_mode: host
+    ports:
+    - target: 8096
+      published: ${WEB_PORT}
+      protocol: tcp
+    - target: 8920
+      published: '8920'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/config
+      target: /config
+    - type: bind
+      source: ${MEDIA_PATH}/TV Shows
+      target: /data/tvshows
+    - type: bind
+      source: ${MEDIA_PATH}/Movies
+      target: /data/movies
+    container_name: emby

@@ -1,0 +1,63 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/NetBird
+x-athena:
+  title: NetBird
+  description: Connect your devices into a secure WireGuard®-based overlay network with SSO, MFA and granular
+    access controls.
+  category: network
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/NetBird/icon.svg
+  homepage: https://netbird.io
+  web_port: null
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: '### Getting Started
+
+
+    1. Visit your NetBird dashboard ([app.netbird.io](https://app.netbird.io) or your self-hosted instance)
+    and log in or create a new account
+
+    2. Navigate to the **Setup Keys** page
+
+    3. Click **Create Setup Key** to create a new key
+
+    4. Give your key a name (e.g., "Zima Server") and copy the generated setup key
+
+    5. In ZimaOS, click the settings icon in the top-right corner of the app tile
+
+    6. Paste the setup key in the **NB_SETUP_KEY** field
+
+    7. (Optional) If using a self-hosted NetBird dashboard, enter the URL in **NB_MANAGEMENT_URL**
+
+    8. (Optional) Customize the hostname in **NB_HOSTNAME** (default: Zima)
+
+    9. Save and restart the app
+
+
+    Your device will now appear in your NetBird dashboard and can connect to other devices in your mesh
+    network.'
+  env: []
+services:
+  netbird:
+    image: netbirdio/netbird:0.62.3
+    container_name: netbird
+    network_mode: host
+    restart: unless-stopped
+    cap_add:
+    - NET_ADMIN
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    deploy:
+      resources:
+        reservations:
+          memory: 128M
+    environment:
+      NB_SETUP_KEY: ''
+      NB_MANAGEMENT_URL: ''
+      NB_HOSTNAME: Zima
+      NB_ENABLE_SSH_ROOT: 'true'
+      NB_ALLOW_SERVER_SSH: 'true'
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}
+      target: /var/lib/netbird

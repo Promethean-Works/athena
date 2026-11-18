@@ -1,0 +1,36 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Lucky
+x-athena:
+  title: Lucky
+  description: Powerful networking tool
+  category: network
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Lucky/icon.svg
+  homepage: https://lucky666.cn/
+  web_port: 16601
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm
+  - linux/arm64
+  notes: Default login account `666`, Default login password `666`,tips:`Before each update, remember
+    to back up the configuration`.
+  env:
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+services:
+  lucky:
+    deploy:
+      resources:
+        reservations:
+          memory: 64M
+    image: gdy666/lucky:2.27.2
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: /DATA/AppData/lucky
+      target: /goodluck
+    environment:
+      TZ: ${TZ}
+    network_mode: host
+    privileged: false

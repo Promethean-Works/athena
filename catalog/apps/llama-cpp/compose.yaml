@@ -1,0 +1,38 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/llama.cpp
+x-athena:
+  title: llama.cpp
+  description: Run GGUF LLMs locally with GPU acceleration
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/llama.cpp/icon.svg
+  homepage: https://github.com/ggml-org/llama.cpp
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '18080'
+services:
+  llamacpp:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: llamacpp
+    ports:
+    - target: 8080
+      published: ${WEB_PORT}
+      protocol: tcp
+    environment:
+    - LLAMA_ARG_N_GPU_LAYERS=999
+    - LLAMA_ARG_CONTEXT_SIZE=8192
+    devices:
+    - /dev/dri:/dev/dri
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/models
+      target: /models
+      bind:
+        create_host_path: true
+    restart: unless-stopped

@@ -1,0 +1,48 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Mongo
+x-athena:
+  title: MongoDB
+  description: A free and open-source cross-platform document-oriented database program. Classified as
+    a NoSQL database program, MongoDB uses JSON-like documents with schemata.
+  category: development
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Mongo/icon.svg
+  homepage: https://www.mongodb.com/
+  web_port: null
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: This version of MongoDB requires a CPU with AVX support. This version of MongoDB will not work
+    with ZimaBoard.
+  env:
+  - key: PUID
+    label: User ID
+    default: '@uid'
+    advanced: true
+  - key: PGID
+    label: Group ID
+    default: '@gid'
+    advanced: true
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+services:
+  mongo:
+    image: mongo:8.2.2
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+    ports:
+    - target: 27017
+      published: 27017
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: /DATA/AppData/mongo/data/configdb
+      target: /data/configdb
+    - type: bind
+      source: /DATA/AppData/mongo/data/db
+      target: /data/db
+    container_name: mongo
