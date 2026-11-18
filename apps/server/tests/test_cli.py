@@ -1,6 +1,7 @@
 import io
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import psutil
@@ -212,7 +213,11 @@ def test_config_set_prints_export_command(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     assert main(["config", "set", "port", "9999"]) == 0
-    assert 'export ATHENA_PORT="9999"' in capsys.readouterr().out
+    out = capsys.readouterr().out
+    if sys.platform == "win32":
+        assert 'setx ATHENA_PORT "9999"' in out
+    else:
+        assert 'export ATHENA_PORT="9999"' in out
 
 
 # ---------------------------------------------------------------- doctor
