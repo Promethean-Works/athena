@@ -3,7 +3,7 @@ tests/test_db.py fails if the models and migrations drift apart."""
 
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime
+from sqlalchemy import JSON, DateTime
 from sqlmodel import Field, SQLModel
 
 
@@ -205,3 +205,47 @@ class AiConversation(SQLModel, table=True):
     updated_at: datetime = Field(
         default_factory=utcnow, sa_type=DateTime(timezone=True), index=True
     )
+
+
+class AutomationTrigger(SQLModel, table=True):
+    """A durable trigger that starts an automation job (docs/mvp-design.md §8).
+
+    kind "cron" fires on a cron expression; kind "http" fires when its webhook
+    URL is called. `action` is the job to run, stored as JSON.
+    """
+
+    __tablename__ = "automation_triggers"
+
+    id: str = Field(primary_key=True, max_length=64)
+    kind: str = Field(max_length=16)
+    """cron or http."""
+    name: str = Field(max_length=64)
+    cron_expression: str | None = Field(default=None, max_length=200)
+    """Set for kind "cron"; e.g. "*/5 * * * *"."""
+    action: dict = Field(sa_type=JSON)
+    """The job to run, e.g. {"kind": "app", "name": "…", "verb": "start"}."""
+    enabled: bool = Field(default=True)
+    webhook_token: str | None = Field(default=None, max_length=64, unique=True, index=True)
+    """Secret for kind "http"; POST /api/automation/webhook/{token} fires it."""
+    next_run_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True), index=True)
+    last_run_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+    updated_at: datetime = Field(
+        default_factory=utcnow, sa_type=DateTime(timezone=True), index=True
+    )
+
+
+class AutomationJobRun(SQLModel, table=True):
+    """One execution of an automation trigger. Append-only history of what ran."""
+
+    __tablename__ = "automation_job_runs"
+
+    id: str = Field(primary_key=True, max_length=64)
+    trigger_id: str | None = Field(default=None, max_length=64)
+    status: str = Field(max_length=16)
+    """running, succeeded or failed."""
+    started_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+    finished_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    output: str | None = None
+    """Joined job log lines."""
+    error: str | None = None
