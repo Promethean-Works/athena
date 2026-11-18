@@ -210,9 +210,10 @@ def test_a_short_chat_keeps_no_separate_transcript(tmp_path, monkeypatch):
 def test_results_cleared_mid_turn_stay_whole_in_the_transcript(tmp_path, monkeypatch):
     """A long tool loop: old results are blanked for the model within the same turn, and
     the admin still sees every one."""
-    small_window(monkeypatch, 4800)  # each result is ~230 tokens; tool schemas count too
+    small_window(monkeypatch, 5200)  # each result is ~230 tokens; tool schemas count too
     # (a narrow band: about 4,550 to 4,750 with stage 2's tools; the `shares.smb`
-    # capability added to get_capabilities shifts it up; retune after prompt changes)
+    # and `automation` capabilities added to get_capabilities shift it up; retune
+    # after prompt changes)
     calls = 10
     cleared_seen = []
 
