@@ -10,19 +10,15 @@ The model writes the questions, so a prompt injection could have it ask for a pa
 card says the question comes from the assistant and never looks like a sign-in.
 """
 
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
-from pydantic_ai import DeferredToolRequests
-from pydantic_ai.capabilities import AbstractCapability
-from pydantic_ai_harness import AskUser
-from pydantic_ai_harness.ask_user import (
-    TOOL_NAME,
-    AskUserAnswer,
-    AskUserRequest,
-    AskUserResponse,
-    ask_user_result,
-)
+
+if TYPE_CHECKING:
+    from pydantic_ai import DeferredToolRequests
+    from pydantic_ai.capabilities import AbstractCapability
 
 MAX_CUSTOM = 500
 """A typed answer is cut to this many characters."""
@@ -53,6 +49,8 @@ class Answer(BaseModel):
 
 def question_ids(requests: DeferredToolRequests | None) -> frozenset[str]:
     """The `ask_user_question` calls a paused chat is waiting on."""
+    from pydantic_ai_harness.ask_user import TOOL_NAME
+
     if requests is None:
         return frozenset()
     return frozenset(
@@ -65,6 +63,13 @@ def question_ids(requests: DeferredToolRequests | None) -> frozenset[str]:
 def result_for(requests: DeferredToolRequests, answer: Answer) -> Any:
     """What the model gets for the admin's answer. Raises ValueError when the answer doesn't
     fit the questions (an unknown header or label, two picks on a single choice)."""
+    from pydantic_ai_harness.ask_user import (
+        AskUserAnswer,
+        AskUserRequest,
+        AskUserResponse,
+        ask_user_result,
+    )
+
     call = next(c for c in requests.calls if c.tool_call_id == answer.id)
     request = AskUserRequest.from_tool_call(call)
     if answer.declined:
@@ -81,4 +86,6 @@ def result_for(requests: DeferredToolRequests, answer: Answer) -> Any:
 
 
 def question_capabilities() -> list[AbstractCapability[Any]]:
+    from pydantic_ai_harness import AskUser
+
     return [AskUser(answerer=None)]

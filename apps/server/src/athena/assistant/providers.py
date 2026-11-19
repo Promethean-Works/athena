@@ -1,6 +1,8 @@
 """Saved AI providers: their settings, the pydantic-ai model for a model id, and the live
 model list (docs/design/assistant.md)."""
 
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import ipaddress
@@ -8,19 +10,20 @@ import json
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlsplit
 
 import httpx2
 from pydantic import BaseModel
-from pydantic_ai import ConcurrencyLimiter
-from pydantic_ai.models import Model
-from pydantic_ai.models.concurrency import ConcurrencyLimitedModel
 
 from athena.assistant.kinds import BY_ID, ProviderKind, get_native_kind_ids, secret_keys
 from athena.assistant.models_dev import get_models_dev_service
 from athena.crypto import SecretBox
 from athena.db.models import AiProvider
+
+if TYPE_CHECKING:
+    from pydantic_ai import ConcurrencyLimiter
+    from pydantic_ai.models import Model
 
 LIST_TIMEOUT = 15.0
 CACHE_SECONDS = 600
@@ -127,6 +130,8 @@ def is_local(kind: str, base_url: str | None) -> bool:
 def queue_for(base_url: str) -> ConcurrencyLimiter:
     """One queue per local server, shared by every model on it: chat turns, titles,
     delegates, the advisor and reviews wait their turn instead of hitting it at once."""
+    from pydantic_ai import ConcurrencyLimiter
+
     key = _strip(base_url)
     if key not in _queues:
         _queues[key] = ConcurrencyLimiter(max_running=1, name=f"ai:{key}")
@@ -136,6 +141,8 @@ def queue_for(base_url: str) -> ConcurrencyLimiter:
 def build_model(cfg: ProviderConfig, model_id: str) -> Model:
     """The pydantic-ai model for `model_id` on this provider. Models on a local server
     share a queue, so it gets one request at a time."""
+    from pydantic_ai.models.concurrency import ConcurrencyLimitedModel
+
     model = _build_model(cfg, model_id)
     if is_local(cfg.kind.id, model.base_url):
         return ConcurrencyLimitedModel(model, queue_for(model.base_url or cfg.kind.id))

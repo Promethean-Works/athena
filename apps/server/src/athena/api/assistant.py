@@ -3,23 +3,22 @@
 Everything here is admin only: the assistant reads the host, and providers hold keys.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import secrets
 from datetime import datetime
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from pydantic_ai import ToolDenied
-from pydantic_ai.exceptions import UserError
-from pydantic_ai.models import Model
 from sqlmodel import Session, col, select
 
 from athena import audit
 from athena.api.jobs import SSE_HEADERS
-from athena.assistant import chat, questions
+from athena.assistant import chat_models, questions
 from athena.assistant import settings as ai_settings
 from athena.assistant.context import window_for
 from athena.assistant.integrations import (
@@ -60,9 +59,15 @@ from athena.assistant.providers import (
     split_values,
 )
 from athena.assistant.settings import ModelRef
+from athena.assistant.turns import Turns
 from athena.auth.deps import Authed, CurrentUser, DbSession, current_user
 from athena.crypto import SecretBox, SecretError
 from athena.db.models import AiConversation, AiIntegration, AiProvider
+
+if TYPE_CHECKING:
+    from pydantic_ai.models import Model
+
+    from athena.assistant.chat import Window
 
 log = logging.getLogger(__name__)
 
@@ -497,11 +502,11 @@ class ConversationOut(BaseModel):
 
 
 class ConversationDetail(ConversationOut):
-    messages: list[chat.ChatMessage]
+    messages: list[chat_models.ChatMessage]
     running: bool
     naming: bool = False
     """A title model is still naming the chat; the title changes when it's done."""
-    usage: chat.ChatUsage
+    usage: chat_models.ChatUsage
     """What the whole chat has used so far."""
     spend_limit_usd: float | None
     """Settings → AI's limit per chat, if any."""
@@ -561,7 +566,7 @@ def _get_conv(db: Session, user: CurrentUser, conversation_id: str) -> AiConvers
     return row
 
 
-def _turns(request: Request) -> chat.Turns:
+def _turns(request: Request) -> Turns:
     return request.app.state.assistant_turns
 
 
@@ -597,6 +602,8 @@ def create_conversation(body: ConversationIn, user: Authed, db: DbSession) -> Co
 async def get_conversation(
     conversation_id: ConversationId, request: Request, user: Authed, db: DbSession
 ) -> ConversationDetail:
+    from athena.assistant import chat
+
     row = _get_conv(db, user, conversation_id)
     conv = chat.load_history(row)
     messages = chat.transcript_messages(row, conv)
@@ -680,7 +687,9 @@ async def send_message(
         window=_window_of(request, db, row, model),
         durable=settings.durable_execution_enabled,
         title_model=(
-            _title_model(request, db, settings, model) if row.title == chat.NEW_CHAT else None
+            _title_model(request, db, settings, model)
+            if row.title == chat_models.NEW_CHAT
+            else None
         ),
         advisor_model=_advisor_model(request, db, settings),
         review_model=_review_model(request, db, settings),
@@ -704,6 +713,10 @@ async def answer_approvals(
     """Answer everything a paused chat is waiting on, and continue it: Approve or Deny each
     action (approved actions run as you, and each decision is audited) and answer or decline
     each question. Streams the same events as sendMessage."""
+    from pydantic_ai import ToolDenied
+
+    from athena.assistant import chat
+
     row = _get_conv(db, user, conversation_id)
     turns = _turns(request)
     if turns.get(row.id) is not None:
@@ -761,6 +774,8 @@ async def answer_approvals(
 def _audit_skipped(db: Session, user: CurrentUser, row: AiConversation) -> None:
     """A new message denies the actions still waiting (see `chat._results`); record
     those denials like the ones answered on their card."""
+    from athena.assistant import chat
+
     conv = chat.load_history(row)
     pending = conv.deferred_tool_requests if conv else None
     for call in pending.approvals if pending else []:
@@ -789,7 +804,7 @@ def _model_for(
     return model
 
 
-def _window_of(request: Request, db: Session, row: AiConversation, model: Model) -> chat.Window:
+def _window_of(request: Request, db: Session, row: AiConversation, model: Model) -> Window:
     """Looks up the chat model's context window when the turn starts (after `_model_for`
     saved the choice on the chat)."""
     provider = db.get(AiProvider, row.provider_id)
@@ -839,6 +854,8 @@ def _review_model(request: Request, db: Session, settings: ai_settings.AiSetting
 
 
 def _build(request: Request, db: Session, ref: ModelRef) -> Model:
+    from pydantic_ai.exceptions import UserError
+
     provider = db.get(AiProvider, ref.provider_id)
     if provider is None or provider.kind not in BY_ID:
         raise HTTPException(

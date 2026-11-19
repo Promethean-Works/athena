@@ -4,11 +4,11 @@ import asyncio
 import contextlib
 import logging
 from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pgtask import Client, TaskRegistry, Worker
 
 from athena import __version__
 from athena.api import apps, auth, automation, capabilities, containers, jobs, system
@@ -23,9 +23,9 @@ from athena.api import store as store_api
 from athena.api import terminal as terminal_api
 from athena.api import tunnel as tunnel_api
 from athena.api import webdav as webdav_api
-from athena.assistant.chat import Turns
 from athena.assistant.models_dev import init_models_dev_service
 from athena.assistant.providers import ModelCache
+from athena.assistant.turns import Turns
 from athena.auth.deps import require_user
 from athena.auth.service import LoginThrottle
 from athena.automation import service as automation_service
@@ -39,11 +39,14 @@ from athena.files.webdav import WebDavMiddleware
 from athena.jobs import JobManager
 from athena.logging_setup import setup_logging
 from athena.mcp.auth import MCPAuthMiddleware
-from athena.mcp.server import build_mcp_server
+from athena.mcp.lazy import MCP_PATH, LazyMCPApp, MCPPathMiddleware
 from athena.monitor import HostMonitor
 from athena.packages.base import run_command
 from athena.platform.store import CapabilityStore
 from athena.terminal import shells
+
+if TYPE_CHECKING:
+    from pgtask import Worker
 
 log = logging.getLogger(__name__)
 
@@ -86,29 +89,24 @@ def create_app(
         app.state.monitor.start()
         # Automation scheduler: fires enabled cron triggers on their schedule.
         scheduler_task = asyncio.create_task(automation_service.scheduler_loop(app))
-        # MCP server: streamable-HTTP endpoint for external agents (n8n, Claude
-        # Desktop, …). Auth is a session cookie or the ATHENA_MCP_TOKEN bearer
-        # token. Mounted inside the lifespan so its task group initializes.
-        mcp_server = build_mcp_server(app)
-        # path="/" so the MCP endpoint is reached at /api/mcp (not /api/mcp/mcp).
-        mcp_app = mcp_server.http_app(transport="streamable-http", path="/")
-        app.mount("/api/mcp", MCPAuthMiddleware(mcp_app))
         # Durable execution: run assistant turns inside pgtask tasks against Postgres so
         # an interrupted turn resumes from its last checkpointed step. Only started when a
         # database URL is configured; hosts without Postgres run turns inline instead.
         worker: Worker | None = None
         worker_task: asyncio.Task[None] | None = None
         if settings.durable_execution_database_url:
+            from pgtask import Client, TaskRegistry
+            from pgtask import Worker as PgWorker
+
             pgtask_client = await Client.connect(settings.durable_execution_database_url)
             await pgtask_client.migrate()
             registry = TaskRegistry(queue_name="athena-assistant")
             app.state.assistant_turns.pgtask_client = pgtask_client
             app.state.assistant_turns.pgtask_registry = registry
             app.state.assistant_turns.register_pgtask_handlers()
-            worker = Worker(settings.durable_execution_database_url, registry, poll_interval=1.0)
+            worker = PgWorker(settings.durable_execution_database_url, registry, poll_interval=1.0)
             worker_task = asyncio.create_task(worker.run())
-        async with mcp_app.lifespan(app):
-            yield
+        yield
         task.cancel()
         scheduler_task.cancel()
         refresh_task.cancel()
@@ -118,6 +116,7 @@ def create_app(
                 with contextlib.suppress(Exception):
                     await worker_task
         await app.state.assistant_turns.stop_all()
+        await mcp.aclose()
         await app.state.monitor.stop()
         await asyncio.to_thread(app.state.rclone.stop)
 
@@ -180,6 +179,11 @@ def create_app(
     app.include_router(tunnel_api.router, prefix="/api", dependencies=[require_user])
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
+    # MCP server: streamable-HTTP endpoint for external agents (n8n, Claude Desktop, …).
+    # Auth is a session cookie or the ATHENA_MCP_TOKEN bearer token. Built on its first
+    # request (see athena.mcp.lazy), and mounted before the web UI's "/".
+    mcp = LazyMCPApp(app)
+    app.mount(MCP_PATH, MCPAuthMiddleware(mcp))
 
     # A share link opens the UI's /s/ page, which reads the token from the address.
     share_page = settings.web_dir / "s" / "index.html"
@@ -193,6 +197,7 @@ def create_app(
         return FileResponse(share_page, headers={"Referrer-Policy": "no-referrer"})
 
     app.add_middleware(WebDavMiddleware, db=db)
+    app.add_middleware(MCPPathMiddleware)
 
     # Mounted last so /api routes win. In development the UI is served by `next dev`
     # instead, and this directory doesn't exist.
