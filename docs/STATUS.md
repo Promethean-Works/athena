@@ -18,6 +18,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
   - ngrok `install`/`configure_service` call `job.log` without `await`.
   - Tunnel fields save on every keystroke and are disabled while each save runs.
+  - `tunnel_auto_start` is saved but nothing reads it at startup, so the tunnel doesn't start on boot.
   - The tunnel UI isn't verified in a browser yet, and no real tunnel has been tested with any provider.
 
 ## Next
@@ -43,6 +44,7 @@ Later: per-container stats, verifying temperatures on a real Linux host, importi
 
 ## Open questions
 
+- There's no generic OpenAI-compatible provider kind any more, and models.dev's `lmstudio` is skipped, so LM Studio or vLLM can't be added as a provider. Bring back an OpenAI-compatible kind (base URL + optional key)?
 - `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
 
 ## Blockers
