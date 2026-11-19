@@ -2,7 +2,7 @@
 
 Self-hosted home server control panel (CasaOS-style) for **Linux, macOS and Windows**. Public repo: `github.com/tiagozaccaro/athena`.
 
-This file is the single source of instructions for every coding agent (Claude Code, OpenCode, Hermes Agent, Codex, Gemini CLI, Copilot). Other agents' files only point here. Every session loads this file, so it stays short: **read the rest only when the task needs it** (see [Read when](#read-when)).
+This file is the single source of instructions for every coding agent (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot). Other agents' files only point here. Every session loads this file, so it stays short: **read the rest only when the task needs it** (see [Read when](#read-when)).
 
 Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 16 static export, shadcn on Base UI, served by the server), `packages/ui` (shadcn components; Athena-made ones in `packages/ui/src/components/athena/`), `packages/api-client` (generated), `catalog/` (store apps), `scripts/` (installers, `check.sh`, git hooks, agent sync), `docs/`, `.agents/skills/`.
 
@@ -10,7 +10,8 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 
 1. Read `docs/STATUS.md` (current milestone, in progress, next, open questions).
 2. Pick the rows of [Read when](#read-when) that match the task and read only those files.
-3. Before ending, do the [Handoff](#handoff). The next agent may be a different tool with no memory of yours.
+3. First session on a machine (or when Claude Code's start-up message says so): run `node scripts/agents-setup.mjs --check`. If it reports missing items, tell the maintainer and offer to run it with `--yes`; it installs tools and edits the home folder, so ask first.
+4. Before ending, do the [Handoff](#handoff). The next agent may be a different tool with no memory of yours.
 
 ## Working with the maintainer
 
@@ -55,7 +56,7 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 | Need the design of a feature, or a past decision | `docs/design/README.md` (index), then one section |
 | Need a feature's history | `docs/HISTORY.md` (search it; don't read it whole) |
 | Hit a shell, sandbox or agent quirk | `docs/agents/gotchas/environment.md` |
-| Change agent tooling (MCP, skills, settings) or set up a machine | `docs/agents/tooling.md` |
+| Change agent tooling (MCP, skills, rules, hooks, machine settings) or set up a machine | `docs/agents/tooling.md` |
 
 Skills live in `.agents/skills/<name>/SKILL.md`; if your agent doesn't load skills, read the file. MCP servers (`.mcp.json`): `shadcn`, `next-devtools`, `playwright` (call `browser_snapshot` when you need the page), `context7`.
 

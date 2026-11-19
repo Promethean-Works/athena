@@ -46,7 +46,21 @@
       "Bash(opencode mcp list)",
       "Bash(npm view *)",
       "Bash(gh run watch *)",
-      "Bash(hermes mcp list)"
+      "Bash(hermes mcp list)",
+      "Bash(node scripts/agents-setup.mjs --check*)",
+      "Bash(node scripts/agents-setup.mjs --dry-run*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agents-setup.mjs\" --check --quiet"
+          }
+        ]
+      }
     ]
   }
 }

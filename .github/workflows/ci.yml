@@ -26,8 +26,11 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Agent MCP config is in sync (.mcp.json -> opencode.json)
+      - name: Generated agent config is in sync (scripts/agents-sync.mjs)
         run: node scripts/agents-sync.mjs --check
+
+      - name: Agent setup script parses and runs (scripts/agents-setup.mjs)
+        run: node scripts/agents-setup.mjs --check --quiet
 
       - name: Agent docs point at real files and names
         run: node scripts/check-docs.mjs
