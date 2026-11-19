@@ -9,3 +9,9 @@ paths = [
   '''^catalog/apps/taskingai/compose\.yaml$''',
   '''^catalog/apps/maybe/compose\.yaml$''',
 ]
+
+[[allowlists]]
+description = "Bytecode caches: pytest compiles test files (with their fake tokens) into ignored __pycache__ folders, which `gitleaks dir` still scans"
+paths = [
+  '''(^|/)__pycache__/''',
+]
