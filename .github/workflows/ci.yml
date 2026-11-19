@@ -26,11 +26,24 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Agent MCP config is in sync (.mcp.json -> opencode.json)
+      - name: Generated agent config is in sync (scripts/agents-sync.mjs)
         run: node scripts/agents-sync.mjs --check
+
+      - name: Agent setup script parses and runs (scripts/agents-setup.mjs)
+        run: node scripts/agents-setup.mjs --check --quiet
 
       - name: Agent docs point at real files and names
         run: node scripts/check-docs.mjs
+
+      - name: No secrets in the tree (gitleaks)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          curl -sSfL -o /tmp/gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tgz" | sha256sum -c -
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          /tmp/gitleaks dir . --redact --no-banner
 
       - name: Claude skills link points at the shared skills
         run: test "$(readlink .claude/skills)" = "../.agents/skills"

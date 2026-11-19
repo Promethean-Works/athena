@@ -1,5 +1,5 @@
 """Cloud remotes: rclone's backends, the remotes in Athena's rclone config, and the
-non-interactive config flow that creates and edits them (docs/mvp-design.md §4.4).
+non-interactive config flow that creates and edits them (docs/design/cloud.md).
 
 rclone asks follow-up questions while it configures some backends (OAuth sign-in,
 picking a drive, ...). Each answer is sent back with the `state` rclone gave, until it

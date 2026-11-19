@@ -1,4 +1,4 @@
-"""The AI assistant: providers, model lists and chats (docs/mvp-design.md §4.5).
+"""The AI assistant: providers, model lists and chats (docs/design/assistant.md).
 
 Everything here is admin only: the assistant reads the host, and providers hold keys.
 """

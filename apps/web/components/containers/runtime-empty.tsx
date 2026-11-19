@@ -24,7 +24,7 @@ import { JobDialog } from "@/components/job-dialog"
 
 type Job = Schemas["JobOut"]
 
-/** How to install a runtime on each OS (Windows is detect-only: docs/mvp-design.md §3). */
+/** How to install a runtime on each OS (Windows is detect-only: docs/design/platform.md). */
 const SETUP: Record<string, { title: string; steps: string[] }> = {
   darwin: {
     title: "Install Colima",

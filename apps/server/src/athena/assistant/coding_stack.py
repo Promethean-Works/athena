@@ -1,4 +1,4 @@
-"""Coding stack (docs/mvp-design.md §4.5, part D stage 3, item 7).
+"""Coding stack (docs/design/assistant.md, part D stage 3, item 7).
 
 When "Coding stack" is on in Settings → AI, the assistant gets
 coding-assistant capabilities in `<data-dir>/assistant/code-workspace`:

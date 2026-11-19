@@ -1,4 +1,4 @@
-"""Double-checked answers (docs/mvp-design.md §4.5, part D stage 2).
+"""Double-checked answers (docs/design/assistant.md, part D stage 2).
 
 When "Double-check answers" is on in Settings → AI, the harness `RefineOutput` sends the
 model back once per run to review its answer and write it again, revised. It costs at least

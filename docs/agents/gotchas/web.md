@@ -1,0 +1,20 @@
+# Gotchas: Web (Next.js 16, shadcn on Base UI)
+
+- Base UI, not Radix: component APIs differ (`render` prop instead of `asChild`, different `Select` and `ToggleGroup` APIs). Check the `shadcn` skill or `shadcn docs <component>` before using one.
+- The shadcn CLI may drop files in `apps/web` that belong in `packages/ui`. It put `use-mobile` in `apps/web/hooks` while the sidebar imported it from `packages/ui`, which broke typecheck. Check where added files land.
+- `trailingSlash: true` (needed so FastAPI's `StaticFiles` serves `<route>/index.html`) made `next dev` 308-redirect every `/api` call before proxying it. The dev config sets `skipTrailingSlashRedirect: true`; keep it when touching `next.config.ts`.
+- `next-env.d.ts` is gitignored, and CI typechecks before building. Don't rely on it existing.
+- next/font: each loader call must be its own module-level `const` with literal options. Spreads or calls inside an object literal fail the build (`apps/web/lib/fonts.ts`).
+- Appearance is applied before paint by `APPEARANCE_SCRIPT` in `<head>`, and re-applied in `useLayoutEffect` after the dev Strict Mode remount. next-themes changes `setTheme`'s identity on mode change; an effect depending on it re-ran the initial load and undid the user's change. Use refs and a load-once effect.
+- Theme generation (`scripts/gen-theme-css.mjs`): themes depend on the base color, `chartColor` must be omitted for neutral, `rose` changes the dark sidebar (so keys are tracked per mode), and the registry refuses `gray`, so it's skipped.
+- A Sheet's width and max width come from `data-[side=right]:w-3/4` and `data-[side=right]:sm:max-w-sm`, which beat a plain `w-full` or `sm:max-w-xl`. Override them with the same prefix (`data-[side=right]:w-full data-[side=right]:sm:max-w-xl`, as `AssistantSheet` does). A trigger whose label is hidden at phone width (`hidden sm:inline`) needs an `aria-label`.
+- Toasts must sit above sheets and dialogs. Both were `z-50`, which hid every error toast behind side panels. The toast viewport is raised in `packages/ui/src/components/toast.tsx`; don't lower it.
+- Generated types sometimes lack a shape you need (e.g. `HostStats`). Derive it (`Omit<StatsSnapshot, "history">`) rather than hand-writing request types.
+- Byte formatting: values just under a unit boundary must switch unit (no "1024 B/s").
+- After any action that changes a list (apps, files), reload the list. A stale tile after a failed action was a real bug.
+- Links rendered from untrusted text (terminal output) must allow only `http(s)` and open in a new tab. A `javascript:` link was clickable once.
+- Next 16 proxying of the terminal WebSocket in `next dev` is unchecked. Use the release build for terminal work.
+- `next dev` gzips responses when the browser accepts it, which buffers proxied Server-Sent Events until the stream ends (no stats event arrived in 9 s). The dev config sets `compress: false`; keep it. Every stream (stats, job logs) then goes through the `/api` proxy same-origin. Never connect the UI to the server cross-origin: the stats stream used to echo `Origin` with credentials for that, which let an installed app on another port of the same host read it.
+- `InputGroup` has `has-disabled:opacity-50`: one disabled button inside (a Send button with no text) fades the whole prompt box. Use `aria-disabled` plus a guard in the submit handler.
+- `shadcn add code-block` also drops shiki helpers (`lib/highlighter.tsx`, `hooks/use-highlighted-code.ts`) into `apps/web` and adds `shiki`. `CodeBlock` doesn't need them; they were deleted. shadcn's Typeset is a CSS file from its online builder, not a registry item. <!-- docs-check: ignore -->
+- The chat UI reads the assistant's SSE with `fetch` and a stream reader (POST with the CSRF header), not `EventSource`, which can only GET. `TextDecoderStream` fails typecheck with this TS lib setup; use `TextDecoder` with `stream: true`. <!-- docs-check: ignore -->

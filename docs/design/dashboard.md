@@ -1,0 +1,10 @@
+# 4.6 Dashboard
+
+- `athena/monitor.py`: `psutil` for CPU, memory, swap, disks, network, disk I/O, load and temperatures, sampled every 2 s by a background task started in the app lifespan. A ring buffer keeps 1 h of samples (1800) for sparklines.
+  - `GET /api/system/stats` returns the current stats plus the history; `GET /api/system/stats/stream` (SSE) sends a `stats` event after each sample. After a dropped stream the UI reloads the snapshot to fill the gap.
+  - No capability: psutil covers all three OSes. Metrics a host can't report are `null` and hidden (temperatures exist only on Linux; disk I/O counters can be missing on Windows and in containers).
+  - Memory "used" is total − available. Network totals skip loopback and container bridges (`veth*`, `docker*`, `br-*`, `vEthernet*`), which would double count.
+  - Disks: physical partitions only, minus pseudo/snap/image filesystems, macOS `dontbrowse` volumes and read-only mounts other than `/`; partitions with identical total and free space (APFS volumes in one container, bind mounts) collapse to the shortest mount point; used = total − free. Refreshed every 30 s.
+  - GPUs (#93): use, VRAM and temperature from `nvidia-smi`, Linux sysfs (AMD, Intel) and macOS `powermetrics` (`read_gpus`); `gpus` is empty when nothing reports.
+- Cards: system stats (CPU, memory, network, disk activity, GPU when reported, each with a 5 min / 1 h sparkline), apps, storage, temperatures (when reported), server info with uptime, capabilities.
+- Apps card: a CasaOS-style icon grid (#146), one tile per app with its store icon and title (`AppOut.title`/`icon`, looked up from the catalog; plain compose apps fall back to initials), a status dot, and a menu with start/stop/restart, update, open and remove. When the runtime isn't ready it shows the same Start/setup panel as the Apps page; it's hidden where containers are unsupported, like the Apps nav item.

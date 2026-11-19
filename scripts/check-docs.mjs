@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Checks that the agent docs point at things that exist.
 //
-// Agents (weaker models especially) follow AGENTS.md, docs/AGENT-NOTES.md and the
-// project skills literally, so a renamed file or function there sends them the wrong
+// Agents (weaker models especially) follow every AGENTS.md/CLAUDE.md, docs/agents/ and
+// the project skills literally, so a renamed file or function there sends them the wrong
 // way. This script reads every `inline code` span in those docs and checks:
 //   - paths (apps/server/..., scripts/check.sh, @workspace/ui/..., @/hooks/...) exist;
 //   - code names (calls like run_or_fail(...), decorators like @pytest.mark.skipif,
@@ -43,15 +43,10 @@ const EXTERNAL = new Set([
 const EXTERNAL_PREFIXES = ["browser_", "mcp__"]
 
 const DOCS = [
-  "AGENTS.md",
-  "CLAUDE.md",
-  "docs/AGENT-NOTES.md",
-  "docs/AGENT-TOOLING.md",
-  "apps/web/AGENTS.md",
-  "apps/server/AGENTS.md",
+  ...git(["ls-files", "--cached", "--others", "--exclude-standard", "AGENTS.md", "CLAUDE.md", "GEMINI.md", "**/AGENTS.md", "**/CLAUDE.md", "**/GEMINI.md", "docs/agents/**.md"]),
   "catalog/README.md",
   ...projectSkills(),
-].filter((f) => existsSync(f))
+].filter((f, i, all) => existsSync(f) && all.indexOf(f) === i && !f.includes("node_modules/"))
 
 const CODE_EXT = /\.(py|ts|tsx|mts|mjs|js|json|ya?ml|toml|sh|ps1|css|ini|cfg)$/
 const FILE_EXT = /\.(py|tsx?|mjs|js|json|ya?ml|toml|sh|ps1|md|css|txt|lock|ini)$/
@@ -109,15 +104,21 @@ for (const doc of DOCS) {
   })
 }
 
-// Every agent reads these at the start of every session, so their size is paid for
-// again and again. Finished work belongs in docs/HISTORY.md, detail in the design doc.
-const SIZE_LIMITS = { "docs/STATUS.md": 8 * 1024 }
+// Every agent reads these at the start of every session (or of every task in that app),
+// so their size is paid for again and again. Finished work belongs in docs/HISTORY.md,
+// the backlog in docs/design/milestones.md, detail in docs/design/ and docs/agents/.
+const SIZE_LIMITS = {
+  "AGENTS.md": 9 * 1024,
+  "docs/STATUS.md": 6 * 1024,
+  "apps/server/AGENTS.md": 11 * 1024,
+  "apps/web/AGENTS.md": 9 * 1024,
+}
 const tooBig = Object.entries(SIZE_LIMITS)
   .map(([file, limit]) => [file, limit, existsSync(file) ? statSync(file).size : 0])
   .filter(([, limit, size]) => size > limit)
 for (const [file, limit, size] of tooBig) {
   console.error(
-    `${file} is ${size} bytes (limit ${limit}). Move finished items to docs/HISTORY.md and shorten the rest.`
+    `${file} is ${size} bytes (limit ${limit}). Move detail out (see the comment above SIZE_LIMITS) and shorten the rest.`
   )
 }
 
@@ -234,7 +235,7 @@ function checkName(span, where) {
 function projectSkills() {
   const lock = existsSync("skills-lock.json") ? JSON.parse(readFileSync("skills-lock.json", "utf8")) : {}
   const thirdParty = new Set(Object.keys(lock.skills ?? {}))
-  return git(["ls-files", ".agents/skills/*/SKILL.md"]).filter((f) => !thirdParty.has(f.split("/")[2]))
+  return git(["ls-files", "--cached", "--others", "--exclude-standard", ".agents/skills/*/SKILL.md"]).filter((f) => !thirdParty.has(f.split("/")[2]))
 }
 
 function ignored(p) {

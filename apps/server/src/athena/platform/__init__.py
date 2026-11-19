@@ -1,1 +1,1 @@
-"""Host detection and the capability manifest (docs/mvp-design.md §3)."""
+"""Host detection and the capability manifest (docs/design/platform.md)."""

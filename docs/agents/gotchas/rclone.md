@@ -1,0 +1,12 @@
+# Gotchas: rclone (cloud storage)
+
+- rclone accepts `name:..` and leaves an alias remote's folder (`operations/list` on `loc:..` listed its parent). The API's own `remotes.check_path` is the only guard; never pass a user path into an fs string without it.
+- Every rc call is a job in rclone, so job ids climb on every request (`core/version` too). Use the `jobid` an `_async` call returns; don't guess it.
+- `_config: {"BwLimit": …}` has no effect: the bandwidth limit is global (`core/bwlimit`). To make a transfer slow enough to test progress or cancel, run the test WebDAV server with `rclone serve webdav <dir> --addr 127.0.0.1:<port> --user u --pass p --bwlimit 3M` and add it as a `webdav` remote. It's a real remote with no cloud account needed.
+- Progress can reach 100% while the job still runs: rclone counts bytes once it has read them, and a slow remote may still be taking them. The job dialog then says "finishing…". A cancel at that point can still leave the whole file on the remote.
+- `rclone serve webdav` caches folder listings for about 5 minutes, so files written straight to its folder don't show up in listings or sync previews until then. Create test files through the API.
+- In the non-interactive config flow, a refused answer (a bad OAuth token) comes back with the same `State`, an `Error` and no `Option`: ask the same question again. Athena returns it as `ConfigStep.error` with `question: null`.
+- rclone marks more than passwords as `Sensitive` (WebDAV `user`, S3 keys, OAuth client secrets). Treat both flags as secrets; the edit form shows them as "Unchanged".
+- `config/create` writes the section immediately, before its follow-up questions are answered, so a remote abandoned halfway stays in the config unless it's deleted (the dialog's Cancel does that).
+- Ubuntu's apt rclone is old (1.60 on the CI runner) and behaves differently. `operations/check` returns no file lists there, so a preview built on it said "nothing will be deleted" when sync would delete files: the preview lists both folders instead. 1.60 also doesn't mark WebDAV `user` as sensitive and words errors differently ("didn't find section in config file"). CI installs it on purpose; write tests that pass on both.
+- Newer rclone (1.76) asks about Google's retiring shared client id before the OAuth step; older ones don't. Tests loop over questions until `config_token` instead of hard-coding the order.

@@ -13,7 +13,7 @@ platform/detect → Capability in the manifest → provider (per OS) → service
                                          UI reads GET /api/system/capabilities and hides what's missing
 ```
 
-The design is in `docs/mvp-design.md` (§3 Platform layer, §4 Features). Read the relevant section first.
+The design is in `docs/design/`: `docs/design/platform.md` (platform layer and capability manifest) and one file per feature (index in `docs/design/README.md`). Read the ones you touch first.
 
 ## Checklist
 
@@ -36,7 +36,7 @@ The design is in `docs/mvp-design.md` (§3 Platform layer, §4 Features). Read t
 
 ## Rules
 
-- Open-source dependencies only. Not allowed: Docker Desktop, macFUSE, non-commercial licensed catalogs. Add any new dependency to the license table in `docs/mvp-design.md` §9.
+- Open-source dependencies only. Not allowed: Docker Desktop, macFUSE, non-commercial licensed catalogs. Add any new dependency to the license table in `docs/design/licenses.md`.
 - Container engines are reached through the Docker API socket (Docker Engine, Colima, Podman, WSL dockerd). Compose goes through `python-on-whales`.
 - Windows: detect only. Athena never installs a container runtime there. Show setup instructions instead.
 - Linux runs as root. macOS and Windows run as the logged-in user. Report `needs_privilege` instead of escalating silently.

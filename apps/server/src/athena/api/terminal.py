@@ -1,4 +1,4 @@
-"""The web terminal over a WebSocket (docs/mvp-design.md §4.2, §7).
+"""The web terminal over a WebSocket (docs/design/terminal.md, §7).
 
     WS /api/terminal/ws?target=host | container:<id or name>
 

@@ -1,4 +1,4 @@
-"""Durable execution (docs/mvp-design.md §4.5, part D stage 3, item 6).
+"""Durable execution (docs/design/assistant.md, part D stage 3, item 6).
 
 When "Durable execution" is on in Settings → AI, the assistant gets a `PGTaskDurability`
 capability: every model request and tool call is checkpointed as a pgtask step, so a

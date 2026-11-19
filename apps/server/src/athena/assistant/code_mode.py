@@ -1,4 +1,4 @@
-"""Code Mode (docs/mvp-design.md §4.5, part D stage 3, item 7).
+"""Code Mode (docs/design/assistant.md, part D stage 3, item 7).
 
 When "Code mode" is on in Settings → AI, the assistant gets the harness `CodeMode`
 capability: read-only tools are wrapped behind a single `run_code` tool so the model

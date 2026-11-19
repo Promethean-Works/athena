@@ -27,7 +27,7 @@ export default function RootLayout({
     >
       <head>
         {/* Applies the saved base color, theme, fonts and radius before first paint
-            (docs/mvp-design.md §5.4). next-themes injects its own script for dark mode. */}
+            (docs/design/frontend.md §5.4). next-themes injects its own script for dark mode. */}
         <script dangerouslySetInnerHTML={{ __html: APPEARANCE_SCRIPT }} />
       </head>
       <body>

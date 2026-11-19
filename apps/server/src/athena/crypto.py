@@ -1,4 +1,4 @@
-"""Encryption of secrets stored in the database (AI provider keys, docs/mvp-design.md §7).
+"""Encryption of secrets stored in the database (AI provider keys, docs/design/security.md).
 
 The key is a Fernet key in `<data-dir>/secret.key` (mode 0600), created on first use.
 This keeps keys out of database copies and backups; it doesn't protect against someone

@@ -1,4 +1,4 @@
-"""The AI provider kinds Athena knows (docs/mvp-design.md §4.5).
+"""The AI provider kinds Athena knows (docs/design/assistant.md).
 
 Each kind is a small form description: the UI renders the fields, the server checks
 them, and `providers.py` turns a saved provider into a pydantic-ai model.

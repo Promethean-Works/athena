@@ -94,11 +94,17 @@ The client adds the CSRF header and handles 401 (redirect to `/login/`) by itsel
 
 Stop and use the `athena-platform-feature` skill: capability id, detection, provider, registry, gated UI and fixtures.
 
-## H. Before you say "done"
+## H. A big feature (spec first)
+
+1. Copy `docs/specs/_template.md` to `docs/specs/<feature>.md`; fill in goal, non-goals, platforms, design, parts, acceptance checks and open questions (each with a recommendation).
+2. Get the maintainer's yes (a `docs:` PR or in chat) before writing code.
+3. One PR per part; each PR body names the spec part. Afterwards fold what stays true into `docs/design/` and mark the spec Done (see `docs/specs/README.md`).
+
+## I. Before you say "done"
 
 - [ ] `scripts/check.sh` passes, and `packages/api-client` is regenerated and committed if the API changed.
 - [ ] New code has tests, including a failure case.
 - [ ] UI changes are verified in a browser (`athena-ui-verify`).
-- [ ] New dependency → license row in `docs/mvp-design.md` §9. Design change → §11 row.
+- [ ] New dependency → license row in `docs/design/licenses.md`. Design change → its section in `docs/design/` plus a row in `docs/design/decisions.md`.
 - [ ] PR opened with auto-merge, and CI plus CodeQL are green (`athena-ship`).
-- [ ] `docs/STATUS.md` updated; new lessons added to `docs/AGENT-NOTES.md`.
+- [ ] `docs/STATUS.md` updated; new lessons added to the right file in `docs/agents/gotchas/`.

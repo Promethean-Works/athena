@@ -1,4 +1,4 @@
-"""WebDAV at /dav/ through wsgidav (docs/mvp-design.md §4.3).
+"""WebDAV at /dav/ through wsgidav (docs/design/files.md).
 
 The root of the share lists the file manager's locations as folders; nothing outside
 them is reachable. Paths go through athena.files.paths like the files API:

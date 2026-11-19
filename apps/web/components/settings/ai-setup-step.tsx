@@ -42,7 +42,7 @@ import { AddMenu } from "@/components/settings/ai-settings"
 type Test = { ok: boolean; message: string } | "testing" | null
 
 /**
- * The setup wizard's optional AI step (docs/mvp-design.md §4.5): add a first
+ * The setup wizard's optional AI step (docs/design/assistant.md): add a first
  * provider (one click for a detected Ollama), check it connects, and pick the
  * default model. Everything here is also in Settings → AI.
  * Needs a `CapabilitiesProvider` and a signed-in admin.

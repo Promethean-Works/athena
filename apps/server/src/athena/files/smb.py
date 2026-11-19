@@ -5,7 +5,7 @@ Linux (Athena runs as a root systemd service there): Athena adds a share section
 \\\\server\\share on the LAN. macOS and Windows have SMB sharing built in, but
 creating a share from Athena isn't wired on those operating systems yet.
 
-See docs/mvp-design.md §4.3 ("SMB/NFS where the OS supports it").
+See docs/design/files.md ("SMB/NFS where the OS supports it").
 """
 
 from __future__ import annotations

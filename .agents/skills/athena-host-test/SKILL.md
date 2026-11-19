@@ -90,5 +90,5 @@ Limits: hosted runners can't run Colima (macOS) or WSL2 (Windows), so containers
 ## 3. Record the result
 
 - Put what you verified, and on which OS and version, in `docs/STATUS.md`, and take the item off "Not yet verified".
-- A real-host bug that unit tests missed usually deserves a test plus an AGENT-NOTES bullet. One example: Windows `schtasks /End` left the real interpreter running.
+- A real-host bug that unit tests missed usually deserves a test plus a bullet in `docs/agents/gotchas/`. One example: Windows `schtasks /End` left the real interpreter running.
 - Delete `e2e-out/` and `e2e-artifacts/`; don't commit screenshots.
