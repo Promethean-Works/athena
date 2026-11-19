@@ -22,36 +22,47 @@ Hard rules that shape every decision below:
 | Package managers | Search, install, uninstall, list installed, upgrade, for each detected manager | Scheduled upgrades |
 | Terminal | Web terminal to the host shell (bash/zsh/PowerShell) and `exec` into containers | Session sharing, recordings |
 | Files | Browse, upload, download, rename, move, delete, preview text and images | Thumbnails, search index |
-| File sharing | Public/expiring share links, WebDAV share of chosen folders | SMB/NFS where the OS supports it |
+| File sharing | Public/expiring share links, WebDAV share of chosen folders, SMB shares on Linux | SMB on macOS and Windows, NFS |
 | Cloud storage | Add remotes via rclone (Google Drive, OneDrive, Dropbox, S3, WebDAV…), browse, copy/sync jobs | Mounts as local drives, scheduled sync |
-| AI assistant | Chat that can query state and do actions through Athena's own services, with approval for destructive actions | Proactive alerts, runbooks, MCP servers |
+| AI assistant | Chat that can query state and do actions through Athena's own services, with approval for destructive actions | Proactive alerts, runbooks |
 | Settings | Appearance (style, base color, theme, chart color, heading font, body font, radius), users, AI provider, catalogs | RBAC, SSO |
 | Auth | Single admin account, created in a first-run wizard | Multiple users with roles |
+| Automation (M8) | Cron and webhook triggers that run app and package actions, and an MCP server for outside agents (§4.7) | Event triggers |
+| Remote access | Cloudflare Tunnel, Tailscale Funnel or ngrok, set up from Settings → System (§4.8) | Athena starting the tunnel itself at boot |
 
 ---
 
 ## 2. Architecture
 
 ```
-┌──────────────────────────── Browser ────────────────────────────┐
-│  Next.js (static export) + shadcn/ui   ·   xterm.js   ·  AI chat │
-└───────────────▲──────────── REST / SSE / WebSocket ─────────────┘
-                │
-┌───────────────┴─────────── athena-server (Python, uv) ───────────┐
-│ FastAPI routers  →  services  →  providers (per-OS adapters)     │
-│                                                                 │
-│  platform/detect ─► CapabilityManifest                          │
-│  providers/containers   docker-engine · colima · podman · wsl    │
-│  providers/packages     apt dnf pacman zypper apk brew           │
-│                         winget scoop choco flatpak snap          │
-│  terminal               stdlib pty (POSIX) · pywinpty (Windows)  │
-│  providers/storage      rclone rcd (sidecar process)             │
-│  assistant/             pydantic-ai Agent + Athena tools         │
-│  SQLite (settings, users, installed apps, jobs, shares)          │
-└─────────────────────────────────────────────────────────────────┘
-        │ Docker API socket       │ CLI subprocess       │ HTTP
+┌──────────────────────────── Browser ───────────────────────────┐
+│  Next.js (static export) + shadcn/ui  ·  xterm.js  ·  AI chat  │
+└───────────────▲──────────── REST / SSE / WebSocket ────────────┘
+                │                 MCP clients, webhooks, tunnels
+┌───────────────┴─────────── athena-server (Python, uv) ─────────┐
+│ api/ (thin FastAPI routers) → the area packages below          │
+│                                                                │
+│ platform/    probe · detect ─► CapabilityManifest              │
+│ containers/  Docker-compatible CLI: Docker Engine, Colima,     │
+│              Podman, Docker in WSL                             │
+│ apps/ catalog/   compose apps, built-in and remote catalogs    │
+│ packages/    apt dnf pacman zypper apk brew flatpak snap       │
+│              winget scoop choco                                │
+│ terminal/    stdlib pty (POSIX) · pywinpty (Windows)           │
+│ files/       locations · share links · WebDAV · SMB            │
+│ cloud/       rclone rcd (sidecar process)                      │
+│ assistant/   pydantic-ai Agent + harness + Athena tools        │
+│ automation/  cron and webhook triggers                         │
+│ mcp/         Athena's MCP server at /api/mcp                   │
+│ tunnel/      cloudflared · tailscale · ngrok                   │
+│ service/     athena service install (systemd, launchd, Task)   │
+│ auth/ db/ jobs.py (in memory) audit.py monitor.py crypto.py    │
+│ SQLite: users, sessions, apps, settings, file locations,       │
+│         shares, AI chats, audit log, automation triggers/runs  │
+└────────────────────────────────────────────────────────────────┘
+        │ Docker-compatible CLI   │ CLI subprocess       │ HTTP
    Docker Engine / Colima /   package managers       rclone rcd
-   Podman (docker-compat)
+   Podman / Docker in WSL
 ```
 
 ### Decisions
@@ -59,7 +70,7 @@ Hard rules that shape every decision below:
 - **One backend process serves everything.** Next.js is built with `output: "export"` and the static files are served by FastAPI. Users don't need Node.js on their server and packaging stays simple. The trade-off is no SSR or server actions; every page is a client component that calls the API. That's acceptable for a LAN dashboard.
 - **Typed contract.** FastAPI generates OpenAPI. `openapi-typescript` and `openapi-fetch` generate the TS client in `packages/api-client`, so the frontend never hand-writes request types.
 - **Realtime.** Server-Sent Events carry stats, logs, job progress and the AI chat stream. WebSockets are used only where input is two-way, which means the terminal.
-- **Long operations are jobs.** Image pulls, package installs and rclone syncs return a `job_id` right away and stream progress over SSE. A small in-process job runner backed by SQLite is enough. No Celery or Redis.
+- **Long operations are jobs.** Image pulls, package installs and rclone syncs return a `job_id` right away and stream progress over SSE. A small in-memory job runner (`athena/jobs.py`, keeping the last 100 finished jobs) is enough; no Celery or Redis. Jobs don't survive a restart: the durable records are the audit log and, for automation, `automation_job_runs`.
 - **Talk to container engines through a Docker-compatible CLI** (`docker --host <endpoint>`, `podman --url <endpoint>`, or `wsl.exe -e docker`), using `python-on-whales` for structured reads and direct subprocesses for streamed operations (logs, compose up, pulls). Revised in M2 from "Docker API via the docker SDK": Docker inside WSL2 has no socket reachable from Windows, and the CLI is the one path that covers it, Docker Engine, Colima, Podman and Rancher Desktop alike. Detection still pings the Docker API socket directly (no CLI needed for that).
 
 ---
@@ -156,39 +167,39 @@ The manifest reports `needs_privilege` when an operation can't be done as the cu
 
 ### 4.1 Apps and the app store
 
-**App definition format.** A standard `compose.yaml` plus an `x-athena` extension, so any compose file works as a custom app with zero metadata:
+**App definition format.** A standard `compose.yaml` plus an `x-athena` extension, so any compose file works as a custom app with zero metadata. The full format (every field, rules, checks) is in `catalog/README.md`; in short:
 
 ```yaml
-name: jellyfin
 x-athena:
   title: Jellyfin
-  icon: https://…/jellyfin.svg
+  description: Stream your movies, shows and music to any device.
   category: media
-  description: Free software media system
-  port_web: 8096          # what "Open" links to
-  platforms: [linux/amd64, linux/arm64]
-  env_schema:             # renders the install form
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/jellyfin.svg
+  web_port: WEB_PORT          # env key (or a number) that "Open" links to
+  env:                        # the install form; answers go to .env
+    - key: WEB_PORT
+      label: Web port
+      type: port              # text, password, port, path, number, boolean, select (needs options)
+      default: "8096"
     - key: TZ
       label: Timezone
-      default: "{{ host.timezone }}"
-  volumes_hint:
-    - target: /media
-      label: Media library
+      default: "@timezone"    # tokens: @timezone @uid @gid @app_data[/sub]
+      advanced: true
 services:
   jellyfin:
     image: jellyfin/jellyfin:10.10
-    ports: ["8096:8096"]
+    ports: ["${WEB_PORT}:8096"]
     volumes:
-      - "{{ athena.data }}/jellyfin/config:/config"
+      - ${ATHENA_APP_DATA}/config:/config
 ```
 
-- **Catalogs** are Git repos or HTTP URLs that contain `apps/<id>/compose.yaml`. Athena ships one built-in catalog, `catalog/` in this repo, with about 20 curated apps, and users can add more.
-- **CasaOS compatibility.** An importer maps CasaOS `x-casaos` metadata to `x-athena`, so the CasaOS AppStore (Apache-2.0) can be added as a catalog. Umbrel's store is **not** included because its license is non-commercial.
-- **Install flow:** render the form from `env_schema`, resolve templates, then write the result to `<data>/apps/<id>/compose.yaml`. After that, `compose up -d` runs as a job, and the app is recorded in SQLite.
+- **Catalogs** are Git repos or HTTP URLs that contain `apps/<id>/compose.yaml`. Athena ships one built-in catalog, `catalog/` in this repo, with about 200 apps, and users can add more. An app folder can also hold variants (`compose.<slug>.yaml`, e.g. FreshRSS with PostgreSQL), offered as a picker on the install page.
+- **CasaOS compatibility.** An importer maps CasaOS `x-casaos` metadata to `x-athena`, so a CasaOS-style store archive can be added as a catalog. The CasaOS AppStore (Apache-2.0) apps are now part of the built-in catalog (#120), so the one-click CasaOS catalog was removed (#121). Umbrel's store is **not** included because its license is non-commercial.
+- **Install flow:** render the form from `env`, resolve the default tokens and generated secrets, write `.env` (0600) next to `<data>/apps/<id>/compose.yaml`, then run `compose up -d` as a job and record the app in SQLite.
 - **Custom apps:**
   - *Paste or upload compose* → validated, then edited in a CodeMirror editor before deploy.
   - *Import `docker run …`* → a Python parser (shlex plus a flag map, the same idea as `composerize`) turns it into compose that the user reviews.
-- **Path portability.** `{{ athena.data }}` resolves per OS: `/var/lib/athena` on Linux, `~/Library/Application Support/Athena` on macOS (inside Colima's shared mount) and `%LOCALAPPDATA%\Athena` on Windows (translated for WSL).
+- **Path portability.** `${ATHENA_APP_DATA}` is the app's own folder under the data dir, which resolves per OS: `/var/lib/athena` on Linux, `~/Library/Application Support/Athena` on macOS (inside Colima's shared mount) and `%LOCALAPPDATA%\Athena` on Windows.
 
 ### 4.2 Terminal
 
@@ -238,7 +249,7 @@ services:
 - **Share links (M6):** a token, an optional password, expiry and read-only or upload-only modes. Served by `/s/<token>`.
   - `shares` table (migration 0009, cascades with its location). The token (24 random bytes, URL-safe) is the link and is stored as is, so the admin can copy it again later. Passwords are argon2 hashes.
   - `/api/shares` (admin, signed in): list (all, or by location and path), create, `PUT` (mode, expiry, new or removed password), delete. All audited as `share.create|edit|remove`.
-  - `/api/public/shares/{token}` is the only public API besides health and `/api/auth`: info, `unlock`, `list`, `download` and, for upload links, `upload` (the same 8 MB pieces as the file manager). Every path resolves against the **shared item itself**, not its location, so a symlink inside a shared folder pointing elsewhere in the location is refused too. Expired links are 410, removed ones 404; a wrong password is 403 (not 401, which the UI treats as "signed out") and is throttled to 10 per client and link per 5 minutes.
+  - `/api/public/shares/{token}` is public (the other public routes are listed in §7): info, `unlock`, `list`, `download` and, for upload links, `upload` (the same 8 MB pieces as the file manager). Every path resolves against the **shared item itself**, not its location, so a symlink inside a shared folder pointing elsewhere in the location is refused too. Expired links are 410, removed ones 404; a wrong password is 403 (not 401, which the UI treats as "signed out") and is throttled to 10 per client and link per 5 minutes.
   - Unlocking sets an HttpOnly, SameSite=Strict cookie scoped to `/api/public/shares/<token>`, valid 7 days, whose value is HMAC-SHA256(key = the password hash, token). No server state; changing or removing the password invalidates it.
   - Read links show the item: a file (with media preview) or a folder (browse, preview media, download files or a streamed zip). Downloads count in `downloads` (previews don't). Upload links are drop boxes: visitors can't list or download, a taken name gets " (1)" and nothing is ever replaced; each upload is counted and audited as `share.upload` by `link #<id>` with the client address.
   - The page is the static `/s/` export, served by FastAPI for any `/s/<token>` with `Referrer-Policy: no-referrer` (the page also sets the referrer meta). It reads the token from the address.
@@ -262,14 +273,14 @@ services:
 
 ### 4.5 AI assistant
 
-- `pydantic-ai` (slim, with the OpenAI, Anthropic, Google, Groq, Mistral and Bedrock clients) plus `pydantic-ai-harness` (from part C), which pins the exact same pydantic-ai version, so the two are upgraded together. Harness capabilities are added in stages (see Parts below). The model is picked **per run**, so one agent serves every provider and a conversation can switch model halfway; the stored history doesn't depend on the provider.
-- **Providers**, OpenCode/Hermes style: set up once, then pick any model from any of them. Built-in kinds, each a form with an API key and, where it applies, a base URL:
-  - Cloud: Anthropic, OpenAI, Google Gemini, OpenRouter, Groq, Mistral, DeepSeek, xAI, Azure OpenAI, Amazon Bedrock.
-  - Local: Ollama, plus "OpenAI-compatible" for LM Studio, vLLM, llama.cpp or any other endpoint.
+- `pydantic-ai` (slim, with the OpenAI, Anthropic, Google, Groq, Mistral, Bedrock and Cohere clients) plus `pydantic-ai-harness` (from part C), which pins the exact same pydantic-ai version, so the two are upgraded together. Harness capabilities are added in stages (see Parts below). The model is picked **per run**, so one agent serves every provider and a conversation can switch model halfway; the stored history doesn't depend on the provider.
+- **Providers**, OpenCode/Hermes style: set up once, then pick any model from any of them. Each kind is a form with an API key and, where it applies, a base URL:
+  - Native kinds (`NATIVE_KINDS` in `assistant/kinds.py`, 12): Anthropic, OpenAI, Google Gemini, OpenRouter, Groq, Mistral, DeepSeek, xAI, Azure OpenAI, Amazon Bedrock and Cohere in the cloud, and Ollama locally.
+  - Every other OpenAI-compatible provider listed on models.dev (`assistant/models_dev.py`), minus routers, gateways and token plans (`SKIP_PATTERNS`). They're fetched from `https://models.dev/api.json` at startup and cached for 24 h in the `models_dev_cache` table; `GET /api/assistant/kinds` returns native plus cached kinds, and `POST /api/assistant/kinds/refresh` forces a refetch (automatic refreshes run at most every 5 minutes). The old generic "OpenAI-compatible" kind was replaced by these.
   - A kind can be added more than once (two Ollama hosts, a work key and a home key). Providers belong to the whole server and only the admin manages them; per-user keys can come later. API keys only: subscription sign-ins (Claude Pro/Max, GitHub Copilot) are left for later (pydantic-ai has a `github-copilot` provider).
   - xAI, DeepSeek, OpenRouter and Ollama go through the OpenAI client (xAI's own SDK pulls in gRPC). Azure takes an endpoint and API version; Bedrock takes an access key id, secret key and region.
 - **Keys at rest:** encrypted with Fernet (`cryptography`) using a key file `<data-dir>/secret.key` (0600, created on first use). That protects keys in database copies and backups, not against someone who can read the data folder. The API never returns a key; editing works like cloud remote passwords (an empty field keeps the stored value, shown as "Unchanged").
-- **Model list:** live from each provider (Anthropic's models API, OpenAI-style `/v1/models`, Gemini's model list, Ollama's `/api/tags` + `/api/show`, Bedrock's foundation models), cached for 10 minutes, and a model id can always be typed by hand (Azure deployments are only typed). Not models.dev: it needs internet and is an outside service.
+- **Model list:** native kinds list live from the provider (Anthropic's models API, OpenAI-style `/v1/models`, Gemini's model list, Ollama's `/api/tags` + `/api/show`, Cohere's, Bedrock's foundation models); models.dev kinds use the cached models.dev list (tool support and context window included), falling back to `/v1/models` at the base URL. Lists are cached for 10 minutes, and a model id can always be typed by hand (Azure deployments are only typed).
 - **Tool support:** the assistant only works with models that can call tools. Where the provider reports it (Ollama's `capabilities`, OpenRouter's `supported_parameters`, Mistral's `function_calling`), models without it are marked "can't use tools" and can't be picked; elsewhere it's unknown and allowed.
 - **Ollama detection:** an `ai.ollama` capability on every OS, found like the container engine: `GET /api/version` on `$OLLAMA_HOST` or `http://127.0.0.1:11434`. `stopped` when the `ollama` binary exists but doesn't answer. When it's ready, an empty Settings → AI offers "Use Ollama on this server" (one click adds it); otherwise "Add a cloud provider". Neither is suggested by default (closes the old §12 question).
 - **Setup wizard step (part C):** after the admin account, `/setup` shows an optional "Set up the AI assistant" step (`AiSetupStep`) with the same choices as the empty Settings → AI: "Use Ollama on this server" when `ai.ollama` is ready, any other provider, or "Skip for now". A saved provider is tested at once (connected, or the error with "Edit provider"), then a default model can be picked from that provider's models. No server changes: it uses the providers and `/api/settings/ai` endpoints.
@@ -319,8 +330,30 @@ services:
   - No capability: psutil covers all three OSes. Metrics a host can't report are `null` and hidden (temperatures exist only on Linux; disk I/O counters can be missing on Windows and in containers).
   - Memory "used" is total − available. Network totals skip loopback and container bridges (`veth*`, `docker*`, `br-*`, `vEthernet*`), which would double count.
   - Disks: physical partitions only, minus pseudo/snap/image filesystems, macOS `dontbrowse` volumes and read-only mounts other than `/`; partitions with identical total and free space (APFS volumes in one container, bind mounts) collapse to the shortest mount point; used = total − free. Refreshed every 30 s.
-- Cards: system stats (CPU, memory, network, disk activity, each with a 5 min / 1 h sparkline), apps, storage, temperatures (when reported), server info with uptime, capabilities.
-- Apps card: one tile per app with its store icon and title (`AppOut.title`/`icon`, looked up from the catalog; plain compose apps fall back to initials), status, Open links and a one-click start/stop. When the runtime isn't ready it shows the same Start/setup panel as the Apps page; it's hidden where containers are unsupported, like the Apps nav item.
+  - GPUs (#93): use, VRAM and temperature from `nvidia-smi`, Linux sysfs (AMD, Intel) and macOS `powermetrics` (`read_gpus`); `gpus` is empty when nothing reports.
+- Cards: system stats (CPU, memory, network, disk activity, GPU when reported, each with a 5 min / 1 h sparkline), apps, storage, temperatures (when reported), server info with uptime, capabilities.
+- Apps card: a CasaOS-style icon grid (#146), one tile per app with its store icon and title (`AppOut.title`/`icon`, looked up from the catalog; plain compose apps fall back to initials), a status dot, and a menu with start/stop/restart, update, open and remove. When the runtime isn't ready it shows the same Start/setup panel as the Apps page; it's hidden where containers are unsupported, like the Apps nav item.
+
+
+### 4.7 Automation and the MCP server (M8)
+
+- **Triggers** (`athena/automation/service.py`, `automation_triggers`): a cron expression (`croniter`) or an HTTP webhook fires an action, which is an app verb (start, stop, restart, update) or a package verb (install, uninstall, upgrade, refresh). A scheduler loop started in the lifespan fires due cron triggers; actions run as ordinary Athena jobs, and each execution is a row in `automation_job_runs` (the one durable job history; other jobs live in memory). `/api/automation/triggers` (CRUD, `validate-action`) and `/api/automation/jobs`, audited as `automation.trigger.*`.
+- **Webhook:** `POST /api/automation/webhook/{token}` is public; the trigger's random token is the credential (n8n and other tools).
+- **MCP server** (`athena/mcp/`, fastmcp, streamable HTTP at `/api/mcp`, mounted in the lifespan): tools to list apps, package managers, capabilities and host stats, run app actions, and list or create automation triggers and their runs. `MCPAuthMiddleware` accepts the session cookie or `Authorization: Bearer $ATHENA_MCP_TOKEN` (an environment variable; when unset, only sessions work); a bearer request acts as the admin user. Tools that change something are audited (app actions through the same route helper as the UI, trigger creation directly); read-only tools aren't.
+- **UI:** `/automation` (gated by the built-in `automation` capability): triggers with create, enable/disable, webhook URL copy and delete, a job-run table refreshed every 5 s, and a card with the webhook and MCP addresses.
+
+### 4.8 Remote access (tunnels)
+
+Expose Athena outside the LAN without opening ports, through one of three providers. Planned in `TUNNEL_IMPLEMENTATION_PLAN.md` (folded in here and deleted), built in #128 with fixes in #133 and #144.
+
+- **Capabilities** (`platform/detect.py`): `tunnel.cloudflare` (`cloudflared`), `tunnel.tailscale` (`tailscale`; reports whether it's logged in) and `tunnel.ngrok` (`ngrok`), each `ready`, `stopped` or `missing` with `start`/`setup` actions. Providers live in `athena/tunnel/` (`TunnelProvider` in `base.py`: `start`, `stop`, `status`, `get_config_schema`, `install`, `configure_service`), registered by capability id in `TUNNEL_PROVIDERS`.
+- **Providers:**
+  - *Cloudflare Tunnel:* a quick tunnel (`cloudflared tunnel --url`, an ephemeral `trycloudflare.com` address, no account) or a named tunnel with an API token, tunnel name and optional domain.
+  - *Tailscale Funnel:* uses the host's tailnet (`tailscale funnel <port>`, `tailscale funnel off`, `tailscale funnel status`); the host must be logged in (`tailscale up`) with Funnel allowed in the admin console.
+  - *ngrok:* an auth token, optional domain or subdomain (paid plans); `ngrok http <port>`. The UI warns about the free tier's limits.
+- **Settings:** `tunnel_enabled` (off by default), `tunnel_provider`, `tunnel_config` (provider fields), `tunnel_auto_start` and `tunnel_port` (default 8420, the port every provider exposes) in the `system_settings` row. `tunnel_auto_start` is stored but Athena doesn't act on it at startup yet; `PUT service` is what makes a tunnel survive a reboot. Secrets in `tunnel_config` (API and auth tokens) are encrypted with `SecretBox` and never returned by the API; an empty secret on edit keeps the stored one.
+- **API** (`/api/tunnel/*`, admin only for everything that changes state): `GET status` (running, public URL, capability status), `POST start` and `POST stop` (jobs), `PUT config`, `POST install` (downloads the provider's binary or runs its installer, as a job) and `PUT service` (registers the provider as a systemd unit, launchd agent or scheduled task so it survives a reboot).
+- **UI:** `TunnelCard` in Settings → System: provider picker, the provider's form, status with the public URL, Start/Stop (job dialog), Install when the binary is missing, and the auto-start switch.
 
 ---
 
@@ -351,7 +384,7 @@ The CLI rewrites the block's Tabler icons to whatever icon library the preset us
 | Block file | What Athena does with it |
 |---|---|
 | `components/app-sidebar.tsx` | **Keep.** Replace the demo `data` object with nav built from the capability manifest. Missing features don't render. Put the Athena logo and name in the header |
-| `components/nav-main.tsx` | **Keep.** Primary nav: Dashboard, Apps, Store, Packages, Files, Cloud, Terminal, Assistant. Swap the "Quick Create" button for "Add app" (store / custom) |
+| `components/nav-main.tsx` | **Keep.** Primary nav from `components/nav.ts`: Dashboard, Apps, Store, Packages, Automation, Files, SMB shares, Cloud, Containers, Terminal, Assistant, each gated by its capability. Swap the "Quick Create" button for "Add app" (store / custom) |
 | `components/nav-secondary.tsx` | **Keep.** Settings, plus a link to help/docs |
 | `components/nav-user.tsx` | **Keep.** Bind it to the logged-in user, with Account and Log out |
 | `components/site-header.tsx` | **Keep.** Breadcrumb/page title, ⌘K command palette trigger, runtime status badge, assistant toggle |
@@ -410,25 +443,29 @@ shadcn presets are applied at *init/build time* by the CLI. Athena needs them sw
 ### 5.5 Routes
 
 ```
-/setup                    first-run wizard (admin, runtime, data dir)
+/setup                    first-run wizard (admin account, then optional AI provider)
 /login
 /                         dashboard
 /apps                     installed apps
-/apps/[id]                details · logs · terminal · compose · settings
-/store                    catalog browse/search
-/store/[catalog]/[app]    app page + install
+/apps/view?name=…         details · logs · shell · compose · settings
 /apps/new                 custom app (compose / docker run import)
+/store                    catalog browse/search
+/store/view?catalog=…&id=…    app page + install (with variant picker)
+/store/catalogs           remote catalogs
 /packages                 tabs per detected manager
+/automation               triggers, job runs, webhook and MCP addresses
 /files                    file manager (locations + cloud remotes)
 /files/shares             share links (WebDAV is in Settings → System)
+/files/smb                SMB shares (Linux with Samba)
 /s/<token>                a share link's public page (the /s/ export, served for any token)
 /cloud                    rclone remotes + sync jobs
+/containers               every container on the runtime
 /terminal                 host terminal
 /assistant                full-page chat (also available as a sheet everywhere)
-/settings/{appearance,account,ai,catalogs,system}
+/settings/{appearance,account,ai,system}
 ```
 
-Static export doesn't allow dynamic segments without `generateStaticParams`. The workaround is query params (`/apps/view?id=…`) or a catch-all with client routing. **Decision: use query params for detail pages.**
+Static export doesn't allow dynamic segments without `generateStaticParams`. The workaround is query params (`/apps/view?name=…`) or a catch-all with client routing. **Decision: use query params for detail pages.**
 
 ---
 
@@ -438,46 +475,71 @@ Static export doesn't allow dynamic segments without `generateStaticParams`. The
 apps/server/
   pyproject.toml            # uv project; entry point `athena`
   src/athena/
-    main.py                 # FastAPI app, static mount, lifespan (detect, rclone, jobs)
-    config.py               # pydantic-settings; per-OS data dirs (platformdirs)
-    db.py                   # SQLModel + SQLite, Alembic migrations
-    auth/                   # argon2 hashing, session cookie, CSRF
-    platform/               # detect.py, capabilities.py, paths.py
-    providers/
-      containers/           # base.py, docker_api.py, colima.py, podman.py, wsl.py
-      packages/             # base.py, apt.py, dnf.py, pacman.py, zypper.py, apk.py,
-                            # brew.py, winget.py, scoop.py, choco.py, flatpak.py, snap.py
-      terminal/             # posix.py, windows.py
-      storage/              # rclone.py (built as athena/cloud/: rclone.py, remotes.py, transfers.py)
-    services/               # apps.py, catalog.py, compose_import.py, files.py,
-                            # shares.py, monitor.py, jobs.py
-    assistant/              # kinds.py, providers.py, settings.py, tools.py, chat.py
-    crypto.py               # Fernet SecretBox for stored keys
-    api/                    # routers, one per service
-  tests/                    # pytest; provider tests use recorded CLI fixtures
+    main.py                 # create_app(): routers, app.state, static mount, lifespan
+                            # (detection, monitor, scheduler, MCP, models.dev refresh)
+    cli.py, config.py       # the CLI; settings (platformdirs data dir, ATHENA_* env)
+    jobs.py                 # in-memory job runner, SSE events, cancel
+    audit.py, monitor.py, system_settings.py, crypto.py, logging_setup.py
+    api/                    # one thin router per area
+    auth/                   # argon2 passwords, sessions, CSRF (deps.py)
+    db/                     # models.py (SQLModel), engine.py, migrations/ (Alembic)
+    platform/               # probe.py, detect.py, capabilities.py, store.py
+    containers/             # runtime.py (Docker-compatible CLI per runtime), service.py
+    apps/                   # store.py (compose apps on disk), docker_run.py (converter)
+    catalog/                # model.py (x-athena), loader.py, registry.py, remote.py, casaos.py
+    packages/               # base.py, linux.py, apps.py (brew, flatpak, snap), windows.py
+    terminal/               # pty.py (POSIX pty and ConPTY), shells.py
+    files/                  # paths.py, locations.py, ops.py, shares.py, smb.py, webdav.py
+    cloud/                  # rclone.py (sidecar), remotes.py, transfers.py
+    assistant/              # kinds.py, models_dev.py, providers.py, chat.py, tools.py,
+                            # actions.py, and the harness capabilities (§4.5)
+    automation/             # service.py: triggers, job runs, scheduler
+    mcp/                    # server.py (tools), auth.py (session or bearer)
+    tunnel/                 # base.py, cloudflare.py, tailscale.py, ngrok.py
+    service/                # athena service install per OS (platforms.py, plan.py)
+  tests/                    # pytest; parsers pinned by recorded CLI fixtures
 catalog/                    # built-in app catalog
 ```
 
-API surface:
+API surface (from the routers; the generated `packages/api-client/openapi.json` is the exact list):
 
 ```
-GET  /api/system/capabilities        POST /api/system/capabilities/refresh
-GET  /api/system/stats   GET /api/system/stats/stream (SSE)   POST /api/runtime/{start|stop|setup}
-GET  /api/apps                       POST /api/apps            (compose or catalog ref)
-POST /api/apps/{id}/{start|stop|restart|update}   DELETE /api/apps/{id}
-GET  /api/apps/{id}/logs (SSE)       POST /api/apps/import/docker-run
-GET  /api/catalogs   POST /api/catalogs   GET /api/catalogs/{id}/apps
-GET  /api/packages                   GET /api/packages/{mgr}/{installed|upgradable}
-GET  /api/packages/{mgr}/search?q=   POST /api/packages/{mgr}/{install|uninstall|upgrade|refresh} (jobs)
-WS   /api/terminal/ws?target=host|container:{id}
-GET  /api/files?path=  POST /api/files/upload  …           (file ops)
-GET/POST/DELETE /api/shares          /dav/…  (WebDAV)       /s/{token}
-GET/POST/DELETE /api/cloud/remotes   POST /api/cloud/jobs
-GET/POST /api/assistant/providers   PUT/DELETE /api/assistant/providers/{id}   POST …/{id}/test   GET …/{id}/models
-GET/POST /api/assistant/conversations   GET/PATCH/DELETE …/{id}   POST …/{id}/messages (SSE)
-GET /api/assistant/models (all providers)   GET/PUT /api/settings/ai
-GET  /api/jobs/{id}  GET /api/jobs/{id}/events (SSE)
-GET/PUT /api/settings/{appearance|ai|system}   POST /api/auth/password
+GET  /api/health
+GET  /api/auth/status   POST /api/auth/{setup|login|logout|password}
+GET  /api/system/info   GET /api/system/stats   GET /api/system/stats/stream (SSE)
+GET  /api/system/capabilities   POST /api/system/capabilities/refresh
+GET  /api/jobs/{id}   GET /api/jobs/{id}/events (SSE)   POST /api/jobs/{id}/cancel
+POST /api/containers/runtime/start
+GET  /api/containers   GET/DELETE /api/containers/{ref}   POST …/{ref}/{start|stop|restart}
+GET  /api/containers/{ref}/logs   GET …/{ref}/logs/stream (SSE)
+GET/POST /api/apps   GET/PUT/DELETE /api/apps/{name}   PUT …/{name}/env   POST …/{name}/{action}
+POST /api/apps/convert (docker run → compose)   POST /api/apps/validate
+GET  /api/store/categories   GET /api/store/apps   GET …/apps/{catalog}/{app_id}   POST …/install
+GET/POST /api/store/catalogs   POST …/{id}/refresh   DELETE …/{id}
+GET/PUT /api/settings/{appearance|system|ai}
+GET  /api/packages   GET …/{manager}/{search|installed|upgradable}
+POST /api/packages/{manager}/{install|uninstall|upgrade|refresh} (jobs)
+WS   /api/terminal/ws?target=host|container:{ref}
+GET/POST /api/files/locations   PUT/DELETE …/{id}
+GET  /api/files/{list|download}   GET/PUT /api/files/text
+POST /api/files/{folder|rename|delete|transfer}   POST/DELETE /api/files/upload
+GET/POST /api/shares   PUT/DELETE /api/shares/{id}   GET/POST /api/shares/smb   DELETE …/smb/{id}
+GET  /api/public/shares/{token}[/list|/download]   POST …/unlock   POST/DELETE …/upload
+GET/PUT /api/webdav   POST /api/webdav/password   /dav/… (WebDAV)   /s/{token} (share page)
+GET  /api/cloud/providers   GET/POST /api/cloud/remotes   GET/PUT/DELETE …/{name}   POST …/{name}/answer
+GET  /api/cloud/files/{list|download}   POST …/files/{folder|rename|delete}   POST/DELETE …/files/upload
+POST /api/cloud/transfer   POST /api/cloud/sync/preview   POST /api/cloud/sync
+GET  /api/assistant/kinds   POST /api/assistant/kinds/refresh
+GET/POST /api/assistant/providers   PUT/DELETE …/{id}   POST …/{id}/test   GET …/{id}/models
+GET  /api/assistant/models   GET /api/assistant/integrations/kinds
+GET/POST /api/assistant/integrations   PUT/DELETE …/{id}
+GET/POST /api/assistant/conversations   GET/PATCH/DELETE …/{id}
+POST …/conversations/{id}/messages (SSE)   POST …/{id}/approvals (SSE)   POST …/{id}/stop
+GET/POST /api/automation/triggers   GET/PATCH/DELETE …/{id}   POST …/triggers/validate-action
+GET  /api/automation/jobs   GET /api/automation/jobs/{run_id}
+POST /api/automation/webhook/{token} (public)
+GET  /api/tunnel/status   POST /api/tunnel/{start|stop|install}   PUT /api/tunnel/{config|service}
+     /api/mcp (MCP streamable HTTP)
 ```
 
 ---
@@ -485,10 +547,12 @@ GET/PUT /api/settings/{appearance|ai|system}   POST /api/auth/password
 ## 7. Security baseline
 
 - Binds to LAN by default. First run forces the admin account to be created before anything else is reachable.
+- Public routes (no session): `/api/health`, `/api/auth/*`, share links (`/api/public/shares/{token}`, `/s/{token}`), the automation webhook `POST /api/automation/webhook/{token}` (the trigger's random token is the credential) and `/api/mcp` with the `ATHENA_MCP_TOKEN` bearer (acts as the admin; a session cookie works too). `/dav/` has its own sign-in. Everything else needs a session.
 - Session cookies are `HttpOnly` and `SameSite=Strict`, with CSRF tokens on mutating requests and login rate limiting.
-- The terminal, package installs and the assistant's shell are the most powerful features. They're admin-only, each can be toggled off, and every use is written to an audit log table.
+- The terminal, package installs and the assistant's shell are the most powerful features. They're admin-only and every use is written to the audit log. The terminal (Settings → System) and the assistant's shell (Settings → AI, off by default) can be turned off; package installs have no off switch yet.
+- Remote access tunnels (§4.8) put the UI on the internet: off by default, admin-only, with their tokens encrypted at rest.
 - The rclone rcd and container sockets are never exposed beyond localhost.
-- Secrets: AI provider keys are encrypted at rest (Fernet) with a key file `<data-dir>/secret.key` (0600), not the OS keyring, which headless Linux hosts usually lack (M7, see §4.5). The rclone config is a 0600 file in a 0700 folder, with passwords obscured by rclone (reversible, not encryption). See §11.
+- Secrets: AI provider keys, integration tokens and tunnel tokens are encrypted at rest (Fernet) with a key file `<data-dir>/secret.key` (0600), not the OS keyring, which headless Linux hosts usually lack (M7, see §4.5). The rclone config is a 0600 file in a 0700 folder, with passwords obscured by rclone (reversible, not encryption). See §11.
 
 ---
 
@@ -518,7 +582,7 @@ GET/PUT /api/settings/{appearance|ai|system}   POST /api/auth/password
 | shadcn chat components and AI Elements patterns (copied in) | MIT |
 | cryptography (Fernet for AI keys) | Apache-2.0 / BSD-3-Clause |
 | react-markdown, remark-gfm (assistant replies), @shadcn/react (Message Scroller) | MIT |
-| Provider SDKs pulled in by pydantic-ai-slim: openai, anthropic, google-genai, groq, mistralai | Apache-2.0 / MIT |
+| Provider SDKs pulled in by pydantic-ai-slim: openai, anthropic, google-genai, groq, mistralai, cohere | Apache-2.0 / MIT |
 | boto3 (Bedrock, via pydantic-ai-slim) | Apache-2.0 |
 | xterm.js, CodeMirror 6, next-themes, openapi-typescript | MIT |
 | shadcn CLI package (`shadcn/preset` used at runtime) | MIT |
@@ -528,9 +592,16 @@ GET/PUT /api/settings/{appearance|ai|system}   POST /api/auth/password
 | SQLModel, SQLAlchemy, Alembic, argon2-cffi | MIT |
 | python-on-whales, PyYAML | MIT |
 | croniter | MIT |
+| mcp (MCP client and server SDK) | MIT |
+| fastmcp (Athena's MCP server, §4.7) | Apache-2.0 |
+| exa-py (web research) | MIT |
+| pgtask (durable execution) | MIT |
+| psycopg (pgtask's Postgres driver; used only when durable execution is configured) | LGPL-3.0-only |
 | CodeMirror 6, @uiw/react-codemirror | MIT |
+| js-yaml (compose form ↔ YAML), embla-carousel-react, embla-carousel-autoplay (store carousel), tw-animate-css | MIT |
+| class-variance-authority | Apache-2.0 |
 | dashboard-icons (catalog icons, loaded by URL) | Apache-2.0 |
-| httpx2 (test client) | BSD-3-Clause |
+| httpx2 (provider HTTP at runtime, and the test client) | BSD-3-Clause |
 | Playwright for Python (e2e smoke test only, not shipped) | Apache-2.0 |
 | pytest-cov, coverage.py (test coverage only, not shipped) | MIT / Apache-2.0 |
 | FastAPI, SQLModel, Pydantic, pydantic-ai, pydantic-ai-harness, uvicorn | MIT / BSD |
@@ -564,8 +635,9 @@ GET/PUT /api/settings/{appearance|ai|system}   POST /api/auth/password
 | M5 | Packages + terminal | All detected managers with jobs. Host terminal and container exec on all OSes |
 | M6 | Files, shares, cloud | File manager, share links, WebDAV, rclone remotes and copy/sync |
 | M7 | AI assistant | Agent with service tools, approval flow, provider settings, streaming chat UI |
+| M8 | Automation | Cron and webhook triggers with job-run history, Athena's MCP server, the Automation page |
 
-M2–M4 can proceed in parallel once M1 lands, and so can M5 and M6. M7 depends on the service layers it wraps.
+M2–M4 can proceed in parallel once M1 lands, and so can M5 and M6. M7 depends on the service layers it wraps, and M8 on the app and package services its actions call.
 
 ---
 
@@ -590,13 +662,13 @@ M2–M4 can proceed in parallel once M1 lands, and so can M5 and M6. M7 depends 
 | Python (M0) | 3.13 for the server and the installers (`requires-python >= 3.12`) |
 | Versioning (M0) | release-please `simple` type with `extra-files` that bump `pyproject.toml` and both `package.json` files; first release is 0.1.0 |
 | Capability detection (M1) | All host access goes through `athena.platform.probe.Probe` (never raises); the Docker-compatible API is pinged directly over a unix socket or Windows named pipe, with no Docker SDK; the manifest lists only capabilities relevant to the host's OS |
-| Auth (M1) | One admin, created on first run at `/setup`. Passwords use argon2id. The session cookie `athena_session` is a random token (only its SHA-256 is stored), HttpOnly, SameSite=Strict, Secure on HTTPS, with a 30-day TTL. A per-session CSRF token goes in the `X-CSRF-Token` header on writes. Failed logins are limited to 5 per client per 5 minutes. Public routes: `/api/health`, `/api/auth/*`, and the static UI |
+| Auth (M1) | One admin, created on first run at `/setup`. Passwords use argon2id. The session cookie `athena_session` is a random token (only its SHA-256 is stored), HttpOnly, SameSite=Strict, Secure on HTTPS, with a 30-day TTL. A per-session CSRF token goes in the `X-CSRF-Token` header on writes. Failed logins are limited to 5 per client per 5 minutes. Public routes: `/api/health`, `/api/auth/*`, and the static UI (later also share links, the automation webhook and `/api/mcp` with its bearer token; see §7) |
 | Container access (M2) | One CLI-based path for every runtime via `python-on-whales` (see §2 Decisions). The `containers` capability carries the engine `endpoint`. Container refs are validated against `^[A-Za-z0-9][A-Za-z0-9_.-]*$` before reaching the CLI |
 | Apps (M2) | An app is a compose project in `<data-dir>/apps/<name>/compose.yaml` (previous version kept as `compose.prev.yaml`) plus an `apps` row. Compose runs with `ATHENA_APP_DATA=<data-dir>/apps/<name>/data`, so files can use `${ATHENA_APP_DATA}`. Validation is a structural check plus `docker compose config --quiet`. Lifecycle (deploy, edit, start, stop, restart, update = pull + up, remove with optional `--volumes` and data folder) runs as jobs, one per app at a time. `docker run` import is a shlex + flag-map converter with warnings for unsupported flags. On macOS, Colima only mounts `$HOME`, which the default data dir is under |
-| App store format (M3) | Catalog apps are plain compose files with `x-athena` metadata (`title`, `description`, `category`, `icon`, `homepage`, `web_port`, `notes`, `tagline`, `tags`, `features`, `screenshots`, `license`, `popular`, `env` fields). Install values use standard `${KEY}` interpolation and are written to `.env` (mode 600) next to `compose.yaml`; no custom template syntax. Default tokens: `@timezone`, `@uid`/`@gid`, `@app_data[/sub]`; `generate: secret` fills passwords. Every `${…}` must be declared or `ATHENA_APP_DATA`. The built-in catalog is `catalog/` at the repo root (49 apps, see `catalog/README.md`), bundled into the wheel as `athena/catalog_builtin`. Icons come from dashboard-icons (Apache-2.0) via jsDelivr |
-| Store presentation | Cards show the first screenshot as a cover (falling back to a tinted panel with the icon when it's missing or fails to load), the tagline and up to two tags; `popular: true` apps get a horizontally scrolling banner at the top of `/store`. The app page adds a screenshot gallery with a lightbox, "What you get" features, license and a "More in <category>" row. Screenshots are hotlinked from the project's own repository or docs, so no images live in the repo or the wheel |
+| App store format (M3) | Catalog apps are plain compose files with `x-athena` metadata (`title`, `description`, `category`, `icon`, `homepage`, `web_port`, `notes`, `tagline`, `tags`, `features`, `screenshots`, `license`, `popular`, `env` fields). Install values use standard `${KEY}` interpolation and are written to `.env` (mode 600) next to `compose.yaml`; no custom template syntax. Default tokens: `@timezone`, `@uid`/`@gid`, `@app_data[/sub]`; `generate: secret` fills passwords. Every `${…}` must be declared or `ATHENA_APP_DATA`. The built-in catalog is `catalog/` at the repo root (49 apps then, about 200 now; see `catalog/README.md`), bundled into the wheel as `athena/catalog_builtin`. Icons come from dashboard-icons (Apache-2.0) via jsDelivr |
+| Store presentation | Cards show the first screenshot as a cover (falling back to a tinted panel with the icon when it's missing or fails to load), the tagline and up to two tags; `popular: true` apps get an autoplay carousel at the top of `/store` (#103; it was a scrolling strip before). The app page adds a screenshot gallery with a lightbox, "What you get" features, license and a "More in <category>" row. Screenshots are hotlinked from the project's own repository or docs, so no images live in the repo or the wheel |
 | Remote catalogs (M3) | Downloaded as an archive over HTTPS (no git): GitHub/Codeberg/GitLab repo URLs are turned into archive URLs; direct .tar.gz/.zip links work. Safe extraction (no traversal or links, 200 MB download, 50k files, 1 GB extracted). The folder holding `apps/` (Athena) or `Apps/` (CasaOS) is found up to 8 levels deep, normalized into `<data-dir>/catalogs/<id>/apps/*/compose.yaml`, and swapped in atomically; a failed refresh keeps the previous copy and records the error. Refresh runs as a job |
-| CasaOS import (M3) | `x-casaos` converted to `x-athena`: `/DATA/AppData/$AppID` becomes `${ATHENA_APP_DATA}`, `/DATA/<X>` becomes a path field, `port_map` becomes `WEB_PORT`, `$PUID/$PGID/$TZ` become default-token fields, and other variables become fields (secrets generated). Parsed with YAML 1.2 booleans like compose. The one-click source is the official CasaOS-AppStore release `main.zip` (182 apps, all pass `compose config`); the full repo is too large and the pruned `_appstore` mirror is unlicensed. Imported files keep upstream specifics (e.g. Raspberry Pi device mappings) |
+| CasaOS import (M3) | `x-casaos` converted to `x-athena`: `/DATA/AppData/$AppID` becomes `${ATHENA_APP_DATA}`, `/DATA/<X>` becomes a path field, `port_map` becomes `WEB_PORT`, `$PUID/$PGID/$TZ` become default-token fields, and other variables become fields (secrets generated). Parsed with YAML 1.2 booleans like compose. The one-click source was the official CasaOS-AppStore release `main.zip` (182 apps, all pass `compose config`); the full repo is too large and the pruned `_appstore` mirror is unlicensed. Imported files keep upstream specifics (e.g. Raspberry Pi device mappings). Since #120 those apps are in the built-in catalog, so #121 removed the one-click source; the importer still reads any CasaOS-style archive added as a remote catalog |
 | Host stats (M4) | psutil sampled every 2 s into a 1 h ring buffer; JSON snapshot with history plus an SSE stream of `stats` events. No capability (psutil runs on all OSes); unavailable metrics are `null`. Disks are filtered and de-duplicated by (total, free) so APFS volumes show once |
 | Package managers (M5) | One class per manager over a shared async runner and pure parsers pinned by fixtures (real recordings where a container could produce them). Machine-readable output where it exists (brew JSON, zypper XML, scoop export, choco `-r`), otherwise stable formats (`dpkg-query`, `rpm --qf`, `apt-get -s`). One job per manager at a time; installs, uninstalls, upgrades and refreshes are audited as `package.<action>` with `<manager>:<name>`. The Packages nav item shows when any `packages.*` capability is present (`capability: "packages.*"`) |
 | Runtime appearance (M4) | Theme CSS generated from the shadcn registry's `/init` endpoint by `scripts/gen-theme-css.mjs` into committed `themes.css`/`themes.json`, verified against the registry when generated; data attributes on `<html>`, applied before paint by an inline script; saved per user in `users.appearance`; preset codes via `shadcn/preset` in the browser. Style, icons and menus stay b0's |
@@ -605,7 +677,7 @@ M2–M4 can proceed in parallel once M1 lands, and so can M5 and M6. M7 depends 
 | Jobs (M2) | In-memory job runner (`athena.jobs`) with output lines streamed over SSE (`/api/jobs/{id}/events`); the last 100 finished jobs are kept. The durable record of privileged actions is the `audit_log` table |
 | Terminal pty (M5) | Stdlib pty with `subprocess.Popen(start_new_session=True)` and a `TIOCSCTTY` exec shim on POSIX, instead of ptyprocess. `pty.fork()` in the multi-threaded server runs Python in the child (Python 3.12+ warns that this can deadlock). pywinpty (ConPTY) on Windows |
 | Terminal auth (M5) | The WebSocket checks the cookie itself (`require_user` can't apply to WebSockets), then requires the CSRF token in the first message. Admin only. Signing out closes open terminals within 60 s, and turning the terminal off closes them at once. Container shells use `docker exec -it` through the runtime CLI, not the Docker API, matching the M2 CLI decision |
-| System settings (M5) | One JSON row in the `system_settings` table (migration 0007), behind `GET/PUT /api/settings/system`. Only admins can change it. It holds `terminal_enabled` for now; the package-install and assistant-shell switches from §7 will join it |
+| System settings (M5) | One JSON row in the `system_settings` table (migration 0007), behind `GET/PUT /api/settings/system`. Only admins can change it. It holds `terminal_enabled` and the tunnel settings (`tunnel_*`, §4.8). The assistant-shell switch lives with the AI settings instead; a package-install switch (§7) doesn't exist yet |
 | End-to-end install check | A separate `E2E` workflow, not part of `ci-ok`: it's slow and changes the runner's service manager. It runs on pushes to main, on PRs that touch the installers or the service code, and on demand. It installs a wheel built from the commit (`--wheel`), because waiting for a release would only test code that has already shipped. Hosted runners can't run Colima's VM (macOS) or WSL2 (Windows), so containers are only checked on Linux there. Docker in WSL still needs a real Windows machine |
 | Share links (M6) | `shares` table, token stored as is (it's the link). Public API `/api/public/shares/{token}` limited to the shared item. Passwords unlock with a path-scoped cookie holding HMAC(password hash, token), so there's no server state and a new password signs everyone out. Upload links never replace files. The page is the static `/s/` export served for any `/s/<token>` |
 | WebDAV (M6) | wsgidav at `/dav/` through a2wsgi, off by default. Root = the file manager's locations; same path rules as the files API; location folders can't be deleted, moved or replaced. HTTP Basic with a generated WebDAV password, not the account password. Sandbox CSP on every response |
@@ -613,8 +685,8 @@ M2–M4 can proceed in parallel once M1 lands, and so can M5 and M6. M7 depends 
 | Cloud storage (M6) | rclone rcd as a sidecar started on first use, localhost only, random credentials, Athena's own config file. Remotes appear as sources in the existing file manager instead of a second browser. OAuth via `rclone authorize` and a pasted token, because the redirect to the server's 127.0.0.1 only works with a browser on the server itself. Sync always offers a preview of what it deletes first. Config encryption with the OS keyring is postponed: headless Linux hosts usually have no keyring, and rclone's own config password would have to live next to the config anyway |
 | Job progress and cancel (M6) | `JobOut` gained optional `progress` (fraction and text, also sent as SSE `progress` events) and `cancellable`; `POST /api/jobs/{id}/cancel` stops jobs started with `cancellable=True`. The job dialog shows a bar and a Cancel button when they're there |
 | Automation triggers and job runs (M8 A) | Durable triggers (`automation_triggers`) fire background jobs on a cron expression or an HTTP webhook; each execution is recorded in `automation_job_runs` for audit and history. A scheduler loop started in the server lifespan fires due cron triggers; trigger actions run as normal Athena jobs over SSE. Triggers and job runs are managed through `GET/POST/PATCH/DELETE /api/automation/triggers` and `GET /api/automation/jobs`. HTTP triggers are fired externally through the public `POST /api/automation/webhook/{token}` (the token is the credential, no session needed — for n8n and other automation). |
-| MCP server (M8 B) | Athena exposes its capabilities as MCP tools over streamable HTTP at `/api/mcp` (built on fastmcp): list apps, run app lifecycle actions, list package managers and capabilities, host stats, and create/list automation triggers and job runs. Auth is a session cookie (browser-based MCP clients) or the `ATHENA_MCP_TOKEN` bearer token (n8n MCP client node, external agents). Every tool is audited and runs as the authenticated user. |
-| AI providers (M7) | OpenCode/Hermes-style: any number of providers (10 cloud kinds, Ollama, OpenAI-compatible), the model picked per run and per conversation. Server-wide, admin-managed, API keys only. Keys encrypted with Fernet and a 0600 key file in the data dir (not the OS keyring). Model lists come live from each provider (cached), not models.dev; ids can be typed by hand |
+| MCP server (M8 B) | Athena exposes its capabilities as MCP tools over streamable HTTP at `/api/mcp` (built on fastmcp): list apps, run app lifecycle actions, list package managers and capabilities, host stats, and create/list automation triggers and job runs. Auth is a session cookie (browser-based MCP clients) or the `ATHENA_MCP_TOKEN` bearer token (n8n MCP client node, external agents). Tools run as the authenticated user, and a bearer-token request acts as the admin user. Tools that change something are audited (app actions through the UI's route helper, trigger creation directly); read-only tools aren't |
+| AI providers (M7) | OpenCode/Hermes-style: any number of providers (10 cloud kinds, Ollama, OpenAI-compatible), the model picked per run and per conversation. Server-wide, admin-managed, API keys only. Keys encrypted with Fernet and a 0600 key file in the data dir (not the OS keyring). Model lists come live from each provider (cached); ids can be typed by hand. Later extended with models.dev (see "Provider kinds from models.dev") |
 | Assistant shell (M7 C) | The harness `Shell` with `Permissions` (read-only mode: every command asks), in a `LocalWorkspace` on Linux and macOS and in our `WSLWorkspace` on Windows with a WSL distro; Athena's own PowerShell `run_command` only on Windows without WSL. Our `ShellGuard` capability checks every program in a pipe or chain against an editable allowlist before `Permissions` asks (the harness checks only the first word, and only after approval) and writes the audit row. First shipped as our own tool for every OS (#46), then moved onto the harness at the maintainer's request, with WSL for Windows. The rest of the harness follows in seven stages (§4.5 Parts, D), including sandboxes, hosted integrations, durable execution and the coding stack at the maintainer's request |
 | AI actions (M7 B) | Mutating assistant tools are pydantic-ai deferred tools with an Approve/Deny card per call, answered all at once through `/approvals`; a new message denies what's waiting. Tools call the existing route helpers (same checks and audit), and job-starting tools wait for their job. No auto-approve or per-tool allowlist yet |
 | AI chat transport (M7) | Own typed SSE events from `run_stream_events()`, read by a small hook. Not the Vercel AI SDK adapter / `useChat`: the UI uses shadcn's chat components and AI Elements patterns without the `ai` packages |
@@ -624,6 +696,8 @@ M2–M4 can proceed in parallel once M1 lands, and so can M5 and M6. M7 depends 
 | AI in the setup wizard (M7 C) | An optional second step after the admin account: one provider (Ollama in one click when detected), a connection test and the default model. Skippable; everything else stays in Settings → AI |
 | Database (M1) | SQLite at `<data-dir>/athena.db` (WAL, foreign keys on), SQLModel models, Alembic migrations run on every start from code. A test fails if models and migrations drift |
 | Design tokens per feature (frontend-design rule) | A design's "compact token system" is picked from the existing theme tokens and fonts (preset `b0`, generated `themes.css`). A feature adds no colors or tokens of its own |
+| Provider kinds from models.dev (#126) | 12 native kinds stay in `assistant/kinds.py` (now including Cohere); every other OpenAI-compatible provider comes from models.dev, fetched at startup and cached 24 h in `models_dev_cache` so the server works offline after one fetch, refreshable from Settings → AI (`POST /api/assistant/kinds/refresh`). Replaces the hand-kept list and the generic "OpenAI-compatible" kind; reverses the earlier "not models.dev" choice in exchange for one outside request per day |
+| Remote access (§4.8) | Three providers behind capabilities (`tunnel.cloudflare`, `tunnel.tailscale`, `tunnel.ngrok`), driven through their CLIs. Settings in the `system_settings` row, not a new table; tokens encrypted with `SecretBox` and never returned; every state-changing route admin-only. Cloudflare offers a no-account quick tunnel, so there's always one free option |
 | Queue for local AI servers (§4.5) | Models on a local server (Ollama, LAN/loopback base URLs) share one `ConcurrencyLimitedModel` queue per server, one request at a time; cloud providers aren't queued. Chat titles are generated after the turn, outside it, so they never hold the chat |
 
 ## 12. Open questions
