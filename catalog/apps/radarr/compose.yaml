@@ -37,7 +37,7 @@ x-athena:
 
 services:
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: lscr.io/linuxserver/radarr:v7.0.3.10918
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:7878"

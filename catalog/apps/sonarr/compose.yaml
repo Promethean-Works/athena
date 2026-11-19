@@ -37,7 +37,7 @@ x-athena:
 
 services:
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: lscr.io/linuxserver/sonarr:v5.0.0.2997
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8989"

@@ -19,9 +19,9 @@ x-athena:
 
 services:
   embystat:
-    image: ghcr.io/embystat/embystat:latest
+    image: lscr.io/linuxserver/embystat:0.2.0
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:6555/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/data:/config

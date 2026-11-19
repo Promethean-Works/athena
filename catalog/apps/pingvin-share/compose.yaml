@@ -18,7 +18,7 @@ x-athena:
     default: '3410'
 services:
   pingvin-share:
-    image: stonith404/pingvin-share
+    image: stonith404/pingvin-share:v1.13.0
     restart: unless-stopped
     ports:
     - target: 3000

@@ -30,7 +30,7 @@ x-athena:
 
 services:
   duckdns:
-    image: linuxserver/duckdns:latest
+    image: linuxserver/duckdns:version-ddf6a18c
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

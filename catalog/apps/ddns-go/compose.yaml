@@ -19,7 +19,7 @@ x-athena:
 
 services:
   ddns-go:
-    image: jeessy/ddns-go:latest
+    image: jeessy/ddns-go:v6.17.9
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:9876/tcp"

@@ -19,9 +19,14 @@ x-athena:
 
 services:
   virtmanager:
-    image: mber5/virt-manager:latest
+    image: mbentley/virt-manager:latest
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8185/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock
+      - /var/lib/libvirt/images:/var/lib/libvirt/images
+    devices:
+      - /dev/kvm:/dev/kvm
+    environment:
+      HOSTS: "['qemu:///system']"

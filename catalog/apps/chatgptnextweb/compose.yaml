@@ -30,7 +30,7 @@ x-athena:
 
 services:
   chatgpt-next-web:
-    image: yidadaa/chatgpt-next-web:latest
+    image: yidadaa/chatgpt-next-web:v2.16.1
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3000/tcp"

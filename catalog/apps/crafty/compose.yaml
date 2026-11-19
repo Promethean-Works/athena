@@ -19,9 +19,13 @@ x-athena:
 
 services:
   crafty:
-    image: craftycontroller/crafty:latest
+    image: arcadiatechnology/crafty-4:v4.11.1
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8581/tcp"
+      - "${WEB_PORT}:8000/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/crafty
+      - ${ATHENA_APP_DATA}/config:/crafty/app/config
+      - ${ATHENA_APP_DATA}/servers:/crafty/servers
+      - ${ATHENA_APP_DATA}/backups:/crafty/backups
+      - ${ATHENA_APP_DATA}/logs:/crafty/logs
+      - ${ATHENA_APP_DATA}/import:/crafty/import

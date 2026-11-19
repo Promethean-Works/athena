@@ -30,7 +30,7 @@ x-athena:
 
 services:
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
+    image: lscr.io/linuxserver/prowlarr:v3.0.2.5780
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:9696"

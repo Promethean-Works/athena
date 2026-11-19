@@ -19,7 +19,7 @@ x-athena:
 
 services:
   librechat:
-    image: ghcr.io/danny-avila/librechat-dev:latest
+    image: ghcr.io/danny-avila/librechat-dev:v0.8.9
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3080/tcp"

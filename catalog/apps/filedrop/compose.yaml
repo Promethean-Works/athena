@@ -19,9 +19,9 @@ x-athena:
 
 services:
   filedrop:
-    image: ghcr.io/filedrop/filedrop:latest
+    image: noecl/filedrop:1.0.1
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/data:/var/file_drop_files

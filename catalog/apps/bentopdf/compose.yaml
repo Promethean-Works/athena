@@ -19,7 +19,7 @@ x-athena:
 
 services:
   bentopdf:
-    image: ghcr.io/bentopdf/bentopdf:latest
+    image: ghcr.io/alam00000/bentopdf-simple:v2.8.11
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

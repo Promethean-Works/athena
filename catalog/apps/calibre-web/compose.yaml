@@ -35,7 +35,7 @@ x-athena:
 
 services:
   calibre-web:
-    image: lscr.io/linuxserver/calibre-web:latest
+    image: lscr.io/linuxserver/calibre-web:0.6.27-ls410
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8083"

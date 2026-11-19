@@ -19,7 +19,7 @@ x-athena:
 
 services:
   ddns-updater:
-    image: ghcr.io/ddns-updater/ddns-updater:latest
+    image: ghcr.io/qdm12/ddns-updater:v2.10.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

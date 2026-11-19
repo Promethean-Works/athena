@@ -28,7 +28,7 @@ x-athena:
 
 services:
   firefly:
-    image: fireflyiii/core:latest
+    image: fireflyiii/core:version-6.7.9
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

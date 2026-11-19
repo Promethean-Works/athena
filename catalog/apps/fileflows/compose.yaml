@@ -19,7 +19,7 @@ x-athena:
 
 services:
   fileflows:
-    image: fileflows/fileflows:latest
+    image: revenz/fileflows:26.10
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:5000/tcp"

@@ -5,7 +5,7 @@ x-athena:
   tags: [File Sharing, Transfer, Privacy]
   license: "MIT"
   category: utilities
-  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PsiTransfer/icon.svg
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/send.svg
   homepage: https://psitransfer.com
   web_port: WEB_PORT
   screenshots:

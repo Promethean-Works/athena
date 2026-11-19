@@ -24,7 +24,7 @@ x-athena:
 
 services:
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2026.11.1
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

@@ -20,15 +20,54 @@ x-athena:
       label: NextAuth secret
       type: password
       generate: secret
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
+    - key: NEXTAUTH_URL
+      label: NextAuth URL
+      type: text
+      description: Your public Blinko URL (required for SSO/OAuth). Leave empty for local use.
+      required: false
+      advanced: true
+    - key: NEXT_PUBLIC_BASE_URL
+      label: Public base URL
+      type: text
+      description: Public base URL for the app. Leave empty for local use.
+      required: false
+      advanced: true
 
 services:
   blinko:
-    image: blinkospace/blinko:1.8.7
+    image: blinkospace/blinko:1.8.9
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "${WEB_PORT}:1111/tcp"
     environment:
       NODE_ENV: production
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD}@postgres:5432/postgres
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
     volumes:
       - ${ATHENA_APP_DATA}/data:/app/.blinko
+
+  postgres:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s

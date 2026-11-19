@@ -19,9 +19,7 @@ x-athena:
 
 services:
   playit:
-    image: ghcr.io/mafen/playit-docker:latest
+    image: ghcr.io/playit-cloud/playit-agent:v2.0.2
     restart: unless-stopped
-    ports:
-      - "${WEB_PORT}:80/tcp"
-    volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+    network_mode: host
+    container_name: playit-agent

@@ -19,7 +19,7 @@ x-athena:
 
 services:
   pingvin-share:
-    image: stonith404/pingvin-share
+    image: stonith404/pingvin-share:v1.13.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3000/tcp"

@@ -30,7 +30,7 @@ x-athena:
 
 services:
   lidarr:
-    image: lscr.io/linuxserver/lidarr:latest
+    image: lscr.io/linuxserver/lidarr:nightly-4.0.0.5227-ls227
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8686"

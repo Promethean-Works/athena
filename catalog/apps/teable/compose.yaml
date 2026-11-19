@@ -19,7 +19,7 @@ x-athena:
 
 services:
   teable:
-    image: teableio/teable:latest
+    image: teableio/teable:release.2026-11-19T10-43-10Z.3988
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3200/tcp"

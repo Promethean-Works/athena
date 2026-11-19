@@ -17,7 +17,7 @@ x-athena:
     default: '7860'
 services:
   icewhale-stable-diffusion-webui:
-    image: johnguan/stable-diffusion-webui:latest
+    image: johnguan/stable-diffusion-webui:v1.7.0
     runtime: nvidia
     ipc: host
     environment:

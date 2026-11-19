@@ -27,7 +27,7 @@ x-athena:
 
 services:
   jdownloader2:
-    image: lscr.io/linuxserver/jdownloader2:latest
+    image: jlesage/jdownloader-2:v26.09.1
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:5800/tcp"

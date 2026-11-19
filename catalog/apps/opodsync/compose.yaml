@@ -19,7 +19,7 @@ x-athena:
 
 services:
   opodsync:
-    image: ganeshlab/opodsync:latest
+    image: ganeshlab/opodsync:0.6.1
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

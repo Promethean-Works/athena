@@ -19,7 +19,7 @@ x-athena:
 
 services:
   adminer:
-    image: adminer:latest
+    image: adminer:6.3.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

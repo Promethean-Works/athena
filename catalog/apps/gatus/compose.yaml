@@ -23,7 +23,7 @@ x-athena:
 
 services:
   gatus:
-    image: twinproduction/gatus:latest
+    image: twinproduction/gatus:v5.38.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080"
