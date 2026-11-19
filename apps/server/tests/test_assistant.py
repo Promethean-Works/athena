@@ -80,7 +80,7 @@ def test_ollama_installed_but_stopped_or_missing():
 # ---------------------------------------------------------------- models per kind
 
 
-@pytest.mark.parametrize("kind", [k.id for k in KINDS if k.id != "cohere"])
+@pytest.mark.parametrize("kind", [k.id for k in KINDS])
 def test_every_kind_builds_a_model(kind, monkeypatch):
     for var in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "AWS_PROFILE"):
         monkeypatch.delenv(var, raising=False)
