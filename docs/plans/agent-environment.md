@@ -23,7 +23,7 @@ Scope decisions (maintainer, 2026-11-19): capture only Athena-relevant machine s
 - `docs/agents/tooling.md` → "New machine".
 - Area gotchas that load by themselves when a matching file is touched: Claude Code `.claude/rules/<area>.md` with `paths:`, Copilot `.github/instructions/<area>.instructions.md` with `applyTo`, both generated from one map in `scripts/agents-sync.mjs`.
 
-## PR 3 — `feat`: shared workflows (done)
+## PR 3 — `feat`: shared workflows (done, #155)
 
 As built: skills `athena-next`, `athena-check-prs`, `athena-handoff`, `athena-review` with commands `/next`, `/check-prs`, `/handoff`, `/review-diff` (not `/review`: Claude Code's built-in), `/ship`; a `reviewer` subagent; no custom explorer (Claude Code and OpenCode have built-in ones); `scripts/session-start.mjs` prints STATUS and the setup check.
 
@@ -33,7 +33,7 @@ As built: skills `athena-next`, `athena-check-prs`, `athena-handoff`, `athena-re
 - `SessionStart` hook printing STATUS → In progress; gitleaks secret scan in pre-commit and CI; deny reading `.env*`, credentials and the data dir.
 - Spec-first: `docs/specs/_template.md` and a recipe in `athena-recipes`; big features get a spec approved before code.
 
-## Last — developer guide
+## Last — developer guide (done)
 
 - `docs/DEVELOPMENT.md`, linked from `README.md` and `CONTRIBUTING.md`: setting up a machine from scratch (clone, `agents-setup.mjs`, keys), what each agent gets, RTK and TokenEconomizer, the daily loop (worktrees, shared commands, checks, spec-first, handoff), and troubleshooting. Asked for by the maintainer on 2026-11-19.
 
