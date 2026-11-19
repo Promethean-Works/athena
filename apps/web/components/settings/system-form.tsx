@@ -31,6 +31,12 @@ export function SystemForm() {
   const [settings, setSettings] = React.useState<SystemSettings | null>(null)
   const [saving, setSaving] = React.useState(false)
 
+  // Call hooks at the top level to respect Rules of Hooks
+  const hasCloudflareTunnel = useCapability("tunnel.cloudflare")
+  const hasTailscaleTunnel = useCapability("tunnel.tailscale")
+  const hasNgrokTunnel = useCapability("tunnel.ngrok")
+  const hasTunnelCapability = hasCloudflareTunnel || hasTailscaleTunnel || hasNgrokTunnel
+
   React.useEffect(() => {
     api
       .GET("/api/settings/system")
@@ -95,7 +101,7 @@ export function SystemForm() {
                 }
               />
             </Field>
-            {useCapability("tunnel.cloudflare") || useCapability("tunnel.tailscale") || useCapability("tunnel.ngrok") ? (
+            {hasTunnelCapability ? (
               <Field orientation="horizontal">
                 <FieldContent>
                   <FieldLabel htmlFor="tunnel-enabled">Remote access tunnel</FieldLabel>
