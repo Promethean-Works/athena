@@ -12,9 +12,10 @@ Thanks for helping out! This guide covers how changes get into Athena. Read [doc
    git worktree add ../athena-install-form -b feat/app-store-install-form origin/main
    cd ../athena-install-form
    ```
-   Branch names are `<type>/<short-description>`, using the same types as commits (below).
+   `scripts/new-worktree.sh <type>/<topic>` does the same (creates `../athena-<topic>` from `origin/main`). Branch names are `<type>/<short-description>`, using the same types as commits (below).
 2. **Commit** in small, focused steps. Individual commit messages are free-form, because the PR is squashed.
-3. **Check before pushing.** Run `scripts/check.sh` (the same checks as CI), or turn on the pre-push hook once per clone with `git config core.hooksPath .githooks`.
+3. **Check before pushing.** Run `scripts/check.sh` (the same checks as CI). Turn on the git hooks once per clone with `git config core.hooksPath .githooks` (required for agents): pre-commit refuses commits on `main` or in the base checkout, and pre-push runs the parts of `scripts/check.sh` the push touches.
+   - Skip once: `git commit --no-verify` or `ATHENA_ALLOW_MAIN_COMMIT=1 git commit …` (emergencies only), and `git push --no-verify` or `ATHENA_SKIP_CHECKS=1 git push`.
 4. **Open a pull request** against `main`. Use the template and fill in the testing section.
 5. **CI must pass**, and all review conversations must be resolved.
 6. **Squash-merge.** The PR title becomes the commit on `main`, and the branch is deleted automatically.

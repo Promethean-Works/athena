@@ -4,7 +4,7 @@
 
 Athena manages containers, apps, host packages, files and cloud storage from one web dashboard, and includes an AI assistant that can operate it all. It's in the spirit of [CasaOS](https://github.com/IceWhaleTech/CasaOS), but cross-platform: it detects what your machine has and only shows what works there.
 
-> **Status: pre-alpha.** Development is at milestone M7 (the AI assistant) and nothing has been released yet. See [docs/STATUS.md](docs/STATUS.md).
+> **Status: pre-alpha.** Nothing has been released yet. The current milestone is in [docs/STATUS.md](docs/STATUS.md).
 
 ## Planned features (MVP)
 
@@ -76,7 +76,7 @@ Open http://localhost:3000. `next dev` proxies `/api` to the server on port 8420
 | `apps/web` | Next.js app (static export), app shell from the shadcn `dashboard-01` block |
 | `packages/ui` | shadcn/ui components shared by the app |
 | `packages/api-client` | Typed API client generated from the server's OpenAPI schema |
-| `apps/server` | FastAPI server and the `athena` CLI (`serve`, `openapi`, `service install`) |
+| `apps/server` | FastAPI server and the `athena` CLI (`serve`, `start`, `stop`, `openapi`, `service install\|uninstall\|status`, `doctor`, `config show\|get\|set`, `admin reset-password`) |
 
 More reading:
 
