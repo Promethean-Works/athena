@@ -1,6 +1,6 @@
 # Contributing to Athena
 
-Thanks for helping out! This guide covers how changes get into Athena. Read [docs/design/README.md](docs/design/README.md) for the architecture and [docs/STATUS.md](docs/STATUS.md) for what's being worked on.
+Thanks for helping out! This guide covers how changes get into Athena. Set up your machine with [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), read [docs/design/README.md](docs/design/README.md) for the architecture and [docs/STATUS.md](docs/STATUS.md) for what's being worked on.
 
 ## Workflow
 
