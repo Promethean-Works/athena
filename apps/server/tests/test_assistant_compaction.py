@@ -64,9 +64,9 @@ def test_an_unloaded_ollama_model_gets_ollamas_default():
 def test_model_lists_carry_windows():
     groq = {"/openai/v1/models": {"data": [{"id": "llama-x", "context_window": 131072}]}}
     assert window(cfg("groq"), "llama-x", groq) == ContextWindow(131072, "provider")
-    vllm = {"/v1/models": {"data": [{"id": "qwen", "max_model_len": 40960}]}}
-    local = cfg("openai-compatible", base_url="http://127.0.0.1:8000/v1")
-    assert window(local, "qwen", vllm).tokens == 40960
+    # Ollama uses its own default when not loaded
+    local = cfg("ollama", base_url="http://127.0.0.1:8000/v1")
+    assert window(local, "qwen").tokens == context.OLLAMA_UNLOADED
 
 
 def test_well_known_models_use_their_profile():
@@ -75,8 +75,8 @@ def test_well_known_models_use_their_profile():
 
 
 def test_unknown_models_get_a_cautious_guess():
-    local = cfg("openai-compatible", base_url="http://127.0.0.1:1234/v1")
-    assert window(local, "mystery") == ContextWindow(context.UNKNOWN_LOCAL, "guess")
+    local = cfg("ollama", base_url="http://127.0.0.1:1234/v1")
+    assert window(local, "mystery") == ContextWindow(context.OLLAMA_UNLOADED, "guess")
     assert window(cfg("mistral"), "mystery") == ContextWindow(context.UNKNOWN_CLOUD, "guess")
 
 

@@ -14,7 +14,8 @@ import httpx2
 from pydantic import BaseModel
 from pydantic_ai.models import Model
 
-from athena.assistant.kinds import BY_ID, ProviderKind, secret_keys
+from athena.assistant.kinds import BY_ID, ProviderKind, get_native_kind_ids, secret_keys
+from athena.assistant.models_dev import get_models_dev_service
 from athena.crypto import SecretBox
 from athena.db.models import AiProvider
 
@@ -95,9 +96,6 @@ def check_values(kind: ProviderKind, values: dict[str, str]) -> None:
             raise ValueError(f"{f.label} must be a number of tokens, at least 1024")
 
 
-# ---------------------------------------------------------------- models
-
-
 def _strip(url: str) -> str:
     return url.rstrip("/")
 
@@ -106,6 +104,7 @@ def build_model(cfg: ProviderConfig, model_id: str) -> Model:
     """The pydantic-ai model for `model_id` on this provider."""
     kind = cfg.kind.id
     key = cfg.get("api_key")
+
     if kind == "anthropic":
         from pydantic_ai.models.anthropic import AnthropicModel
         from pydantic_ai.providers.anthropic import AnthropicProvider
@@ -147,8 +146,13 @@ def build_model(cfg: ProviderConfig, model_id: str) -> Model:
         from pydantic_ai.providers.deepseek import DeepSeekProvider
 
         return OpenAIChatModel(model_id, provider=DeepSeekProvider(api_key=key))
+    if kind == "cohere":
+        from pydantic_ai.models.cohere import CohereModel
+        from pydantic_ai.providers.cohere import CohereProvider
+
+        return CohereModel(model_id, provider=CohereProvider(api_key=key))
     if kind == "xai":
-        # xAI's own provider needs its gRPC SDK; its OpenAI-style API works the same here.
+        # xAI's OpenAI-compatible API
         from pydantic_ai.models.openai import OpenAIChatModel
         from pydantic_ai.providers.openai import OpenAIProvider
 
@@ -187,16 +191,26 @@ def build_model(cfg: ProviderConfig, model_id: str) -> Model:
         return OllamaModel(
             model_id, provider=OllamaProvider(base_url=f"{base}/v1", api_key=key or "ollama")
         )
-    if kind == "openai-compatible":
-        from pydantic_ai.models.openai import OpenAIChatModel
-        from pydantic_ai.providers.openai import OpenAIProvider
 
-        # The client insists on a key; local servers ignore it.
-        return OpenAIChatModel(
-            model_id,
-            provider=OpenAIProvider(base_url=cfg.get("base_url"), api_key=key or "not-needed"),
-        )
-    raise ProviderError(f"Unknown provider kind {kind!r}")
+    # All other providers (including dynamically loaded from models.dev) use OpenAI-compatible API
+    from pydantic_ai.models.openai import OpenAIChatModel
+    from pydantic_ai.providers.openai import OpenAIProvider
+
+    # Get base URL from models.dev cache
+    service = get_models_dev_service()
+    base_url = None
+    if service:
+        entry = service.get_provider(kind)
+        if entry and entry.api_url:
+            base_url = entry.api_url
+
+    # Fall back to configured base_url
+    base_url = base_url or cfg.get("base_url") or ""
+
+    return OpenAIChatModel(
+        model_id,
+        provider=OpenAIProvider(base_url=base_url, api_key=key or "not-needed"),
+    )
 
 
 # ---------------------------------------------------------------- model lists
@@ -247,14 +261,13 @@ async def _ollama(client: httpx2.AsyncClient, base: str, key: str | None) -> lis
     def info_of(name: str, caps: object) -> ModelInfo:
         if not isinstance(caps, list):
             return ModelInfo(id=name)
-        # Embedding-only models can't chat at all; they're left out below.
         if "completion" not in caps and "embedding" in caps:
             return ModelInfo(id=name, tools=False, name="embedding")
         return ModelInfo(id=name, tools="tools" in caps)
 
     async def show(model: dict[str, Any]) -> ModelInfo:
         name = model["name"]
-        if "capabilities" in model:  # newer Ollama lists them in /api/tags
+        if "capabilities" in model:
             return info_of(name, model["capabilities"])
         try:
             info = await _json(
@@ -350,6 +363,18 @@ async def _azure(client: httpx2.AsyncClient, cfg: ProviderConfig) -> list[ModelI
     return []
 
 
+async def _cohere(client: httpx2.AsyncClient, cfg: ProviderConfig) -> list[ModelInfo]:
+    data = await _json(
+        client, "GET", "https://api.cohere.com/v2/models", headers=_bearer(cfg.get("api_key"))
+    )
+    out = []
+    for m in data.get("models", []):
+        if "chat" not in m.get("endpoints", []):
+            continue
+        out.append(ModelInfo(id=m["name"], name=m.get("name")))
+    return out
+
+
 def _bedrock(cfg: ProviderConfig) -> list[ModelInfo]:
     import boto3
     from botocore.exceptions import BotoCoreError, ClientError
@@ -371,13 +396,27 @@ def _bedrock(cfg: ProviderConfig) -> list[ModelInfo]:
     ]
 
 
-OPENAI_STYLE_BASES = {
-    "openai": None,  # from the form
-    "groq": "https://api.groq.com/openai/v1",
-    "deepseek": "https://api.deepseek.com",
-    "xai": "https://api.x.ai/v1",
-    "openai-compatible": None,
-}
+async def _fetch_models_from_cache(kind: str) -> list[ModelInfo] | None:
+    """Try to get models from models.dev database cache."""
+    service = get_models_dev_service()
+    if not service:
+        return None
+
+    models = service.get_models(kind)
+    if not models:
+        return None
+
+    out = []
+    for m in models:
+        out.append(
+            ModelInfo(
+                id=m.get("id"),
+                name=m.get("name"),
+                tools=m.get("tool_call"),
+                context_window=m.get("limit", {}).get("context"),
+            )
+        )
+    return sorted(out, key=lambda m: m.id)
 
 
 async def fetch_models(
@@ -385,28 +424,64 @@ async def fetch_models(
 ) -> list[ModelInfo]:
     """The provider's own model list. Raises ProviderError with a readable message."""
     kind = cfg.kind.id
+
+    # Native providers with special model listing
     if kind == "bedrock":
         return await asyncio.to_thread(_bedrock, cfg)
+
+    # Try provider's own API first for native providers
     try:
         async with httpx2.AsyncClient(timeout=LIST_TIMEOUT, transport=transport) as client:
             if kind == "anthropic":
-                models = await _anthropic(client, cfg)
+                return await _anthropic(client, cfg)
             elif kind == "google":
-                models = await _google(client, cfg)
+                return await _google(client, cfg)
             elif kind == "openrouter":
-                models = await _openrouter(client, cfg)
+                return await _openrouter(client, cfg)
             elif kind == "mistral":
-                models = await _mistral(client, cfg)
+                return await _mistral(client, cfg)
+            elif kind == "groq":
+                # Groq uses its own API
+                data = await _json(
+                    client,
+                    "GET",
+                    "https://api.groq.com/openai/v1/models",
+                    headers=_bearer(cfg.get("api_key")),
+                )
+                return [
+                    ModelInfo(id=m["id"], context_window=listed_window(m))
+                    for m in data.get("data", [])
+                    if m.get("id")
+                ]
             elif kind == "azure":
-                models = await _azure(client, cfg)
+                return await _azure(client, cfg)
             elif kind == "ollama":
-                models = await _ollama(client, cfg.get("base_url") or "", cfg.get("api_key"))
-            else:
-                base = OPENAI_STYLE_BASES.get(kind) or cfg.get("base_url") or ""
-                models = await _openai_style(client, base, cfg.get("api_key"))
+                return await _ollama(client, cfg.get("base_url") or "", cfg.get("api_key"))
+            elif kind == "cohere":
+                return await _cohere(client, cfg)
+            elif kind in get_native_kind_ids():
+                # Other native providers use OpenAI-compatible listing
+                base = cfg.get("base_url") or ""
+                return await _openai_style(client, base, cfg.get("api_key"))
     except (httpx2.HTTPError, ValueError, KeyError, TypeError, AttributeError) as exc:
-        raise ProviderError(_describe(exc, cfg)) from exc
-    return sorted(models, key=lambda m: m.id)
+        # For native providers, propagate the error
+        if kind in get_native_kind_ids():
+            raise ProviderError(_describe(exc, cfg)) from exc
+
+    # For all other providers (dynamically loaded from models.dev), use database cache
+    cached = await _fetch_models_from_cache(kind)
+    if cached:
+        return cached
+
+    # Fallback: try OpenAI-compatible API if base_url is configured
+    if cfg.get("base_url"):
+        try:
+            async with httpx2.AsyncClient(timeout=LIST_TIMEOUT, transport=transport) as client:
+                return await _openai_style(client, cfg.get("base_url") or "", cfg.get("api_key"))
+        except (httpx2.HTTPError, ValueError, KeyError, TypeError, AttributeError):
+            pass
+
+    raise ProviderError(f"No model list available for provider {kind!r}")
 
 
 class ModelCache:

@@ -164,6 +164,35 @@ class AiProvider(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
 
 
+class ModelsDevCache(SQLModel, table=True):
+    """Cached provider and model data from models.dev (docs/mvp-design.md §4.5)."""
+
+    __tablename__ = "models_dev_cache"
+
+    provider_id: str = Field(primary_key=True, max_length=64)
+    """Provider ID from models.dev."""
+    name: str = Field(max_length=128)
+    """Provider display name."""
+    api_url: str | None = Field(default=None, max_length=512)
+    """Provider's API endpoint if OpenAI-compatible."""
+    npm_package: str | None = Field(default=None, max_length=128)
+    """NPM package for AI SDK."""
+    doc_url: str | None = Field(default=None, max_length=512)
+    """Documentation URL."""
+    env_vars: list = Field(default=[], sa_type=JSON)
+    """Required environment variables as JSON array."""
+    models: dict = Field(default={}, sa_type=JSON)
+    """Model data as JSON object (id -> model info)."""
+    model_count: int = 0
+    """Number of models."""
+    is_openai_compatible: bool = False
+    """Whether provider uses OpenAI-compatible API."""
+    fetched_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+    """When this data was fetched from models.dev."""
+    expires_at: datetime = Field(sa_type=DateTime(timezone=True), index=True)
+    """When this cache entry expires."""
+
+
 class AiIntegration(SQLModel, table=True):
     """A hosted integration the assistant can use (docs/mvp-design.md §4.5, part D.5).
 

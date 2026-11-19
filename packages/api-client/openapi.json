@@ -4330,6 +4330,7 @@
           "assistant"
         ],
         "summary": "List Kinds",
+        "description": "Return all provider kinds: native + dynamic from models.dev cache.",
         "operationId": "listAiProviderKinds",
         "responses": {
           "200": {
@@ -4342,6 +4343,30 @@
                   },
                   "type": "array",
                   "title": "Response Listaiproviderkinds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/kinds/refresh": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Refresh Kinds",
+        "description": "Manually refresh the models.dev cache and return the updated kinds.",
+        "operationId": "refreshAiProviderKinds",
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Refreshaiproviderkinds"
                 }
               }
             }
@@ -8649,20 +8674,6 @@
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "anthropic",
-              "openai",
-              "google",
-              "openrouter",
-              "groq",
-              "mistral",
-              "deepseek",
-              "xai",
-              "azure",
-              "bedrock",
-              "ollama",
-              "openai-compatible"
-            ],
             "title": "Kind"
           },
           "name": {
@@ -8694,20 +8705,27 @@
       "ProviderKind": {
         "properties": {
           "id": {
-            "type": "string",
-            "enum": [
-              "anthropic",
-              "openai",
-              "google",
-              "openrouter",
-              "groq",
-              "mistral",
-              "deepseek",
-              "xai",
-              "azure",
-              "bedrock",
-              "ollama",
-              "openai-compatible"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "anthropic",
+                  "openai",
+                  "google",
+                  "openrouter",
+                  "groq",
+                  "mistral",
+                  "deepseek",
+                  "xai",
+                  "azure",
+                  "bedrock",
+                  "ollama",
+                  "cohere"
+                ]
+              },
+              {
+                "type": "string"
+              }
             ],
             "title": "Id"
           },
@@ -8787,7 +8805,7 @@
               "azure",
               "bedrock",
               "ollama",
-              "openai-compatible"
+              "cohere"
             ],
             "title": "Kind"
           },
@@ -8886,20 +8904,6 @@
           },
           "kind": {
             "type": "string",
-            "enum": [
-              "anthropic",
-              "openai",
-              "google",
-              "openrouter",
-              "groq",
-              "mistral",
-              "deepseek",
-              "xai",
-              "azure",
-              "bedrock",
-              "ollama",
-              "openai-compatible"
-            ],
             "title": "Kind"
           },
           "name": {

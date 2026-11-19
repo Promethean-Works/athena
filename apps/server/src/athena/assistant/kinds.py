@@ -2,13 +2,17 @@
 
 Each kind is a small form description: the UI renders the fields, the server checks
 them, and `providers.py` turns a saved provider into a pydantic-ai model.
+
+Only providers with native pydantic-ai support or special handling are defined here.
+Additional OpenAI-compatible providers are loaded dynamically from models.dev at runtime.
 """
 
 from typing import Literal
 
 from pydantic import BaseModel
 
-KindId = Literal[
+# Native provider IDs - these have dedicated pydantic-ai models or special handling
+NativeKindId = Literal[
     "anthropic",
     "openai",
     "google",
@@ -20,8 +24,11 @@ KindId = Literal[
     "azure",
     "bedrock",
     "ollama",
-    "openai-compatible",
+    "cohere",
 ]
+
+# Backward compatibility for API
+KindId = NativeKindId
 
 
 class KindField(BaseModel):
@@ -36,7 +43,7 @@ class KindField(BaseModel):
 
 
 class ProviderKind(BaseModel):
-    id: KindId
+    id: NativeKindId | str  # Allow string for dynamic kinds from models.dev
     label: str
     group: Literal["cloud", "local"]
     fields: list[KindField]
@@ -68,7 +75,8 @@ def _url(default: str | None, *, required: bool = False, help: str | None = None
     )
 
 
-KINDS: list[ProviderKind] = [
+# Native provider kinds - these have special pydantic-ai support
+NATIVE_KINDS: list[ProviderKind] = [
     ProviderKind(
         id="anthropic",
         label="Anthropic",
@@ -127,24 +135,21 @@ KINDS: list[ProviderKind] = [
         ],
     ),
     ProviderKind(
-        id="openai-compatible",
-        label="OpenAI-compatible",
-        group="local",
-        fields=[
-            _url(
-                None,
-                required=True,
-                help="LM Studio, vLLM, llama.cpp or any server with an OpenAI-style /v1 API, "
-                "e.g. http://127.0.0.1:1234/v1",
-            ),
-            _key(required=False),
-            _window("Tokens the server runs the model with."),
-        ],
+        id="cohere",
+        label="Cohere",
+        group="cloud",
+        fields=[_key()],
     ),
 ]
 
-BY_ID: dict[str, ProviderKind] = {k.id: k for k in KINDS}
+# Backward compatibility - BY_ID includes native kinds
+BY_ID: dict[str, ProviderKind] = {k.id: k for k in NATIVE_KINDS}
 
 
 def secret_keys(kind: ProviderKind) -> set[str]:
     return {f.key for f in kind.fields if f.secret}
+
+
+def get_native_kind_ids() -> set[str]:
+    """Return the set of native provider kind IDs."""
+    return {k.id for k in NATIVE_KINDS}

@@ -22,6 +22,7 @@ import httpx2
 from pydantic_ai.models import Model
 from pydantic_ai_harness.compaction import resolve_context_window
 
+from athena.assistant.models_dev import get_models_dev_service
 from athena.assistant.providers import (
     ModelCache,
     ProviderConfig,
@@ -38,8 +39,8 @@ OLLAMA_UNLOADED = 4_096
 says. Its OpenAI-style API (which pydantic-ai uses) ignores a per-request `num_ctx`; the
 admin raises it with `OLLAMA_CONTEXT_LENGTH` on the Ollama server."""
 
-LISTS_WINDOWS = {"openrouter", "groq", "mistral", "openai-compatible"}
-"""Kinds whose model list can carry each model's window."""
+LISTS_WINDOWS = {"openrouter", "groq", "mistral"}
+"""Native kinds whose model list can carry each model's window."""
 
 PROBE_TIMEOUT = 5.0
 
@@ -93,6 +94,18 @@ async def _reported(
                 models = await fetch_models(cfg, transport)
                 cache.put(cfg.id, models)
             return next((m.context_window for m in models if m.id == model_id), None)
+
+        # For dynamic providers from models.dev, check if they're OpenAI-compatible
+        # and if their model list has the window
+        service = get_models_dev_service()
+        if service:
+            entry = service.get_provider(cfg.kind.id)
+            if entry and entry.is_openai_compatible:
+                models = cache.get(cfg.id)
+                if models is None:
+                    models = await fetch_models(cfg, transport)
+                    cache.put(cfg.id, models)
+                return next((m.context_window for m in models if m.id == model_id), None)
     except (ProviderError, httpx2.HTTPError, ValueError, TypeError, AttributeError) as exc:
         log.info("couldn't read %s's context window: %s", cfg.name, exc)
     return None
