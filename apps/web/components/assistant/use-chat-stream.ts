@@ -165,6 +165,7 @@ export function useChatStream(
   const [error, setError] = React.useState<string | null>(null)
   const [spend, setSpend] = React.useState<ChatSpend | null>(null)
   const [plan, setPlan] = React.useState<PlanStep[]>([])
+  const [naming, setNaming] = React.useState(false)
   const sending = React.useRef(false)
   const handlersRef = React.useRef(handlers)
   handlersRef.current = handlers
@@ -187,6 +188,7 @@ export function useChatStream(
       setMessages(data.messages)
       setSpend({ usage: data.usage, limit: data.spend_limit_usd })
       setPlan(data.plan)
+      setNaming(data.naming ?? false)
       setStatus(data.running ? "streaming" : "ready")
     } else {
       setStatus("ready")
@@ -207,6 +209,22 @@ export function useChatStream(
     const timer = window.setInterval(load, 2000)
     return () => window.clearInterval(timer)
   }, [status, load])
+
+  // A title model names a new chat after its first reply, without blocking the chat:
+  // check back until it's done.
+  React.useEffect(() => {
+    if (!naming || !conversationId) return
+    const timer = window.setInterval(async () => {
+      const { data } = await api.GET(
+        "/api/assistant/conversations/{conversation_id}",
+        { params: { path: { conversation_id: conversationId } } }
+      )
+      if (data?.naming) return
+      setNaming(false)
+      if (data) handlersRef.current.onTitle?.(data.title)
+    }, 1500)
+    return () => window.clearInterval(timer)
+  }, [naming, conversationId])
 
   /** POSTs to a streaming endpoint and applies its events to the last reply. */
   const run = React.useCallback(
@@ -269,6 +287,7 @@ export function useChatStream(
         setMessages(data.messages)
         setSpend({ usage: data.usage, limit: data.spend_limit_usd })
         setPlan(data.plan)
+        setNaming(data.naming ?? false)
       }
       setStatus("ready")
       handlersRef.current.onDone?.()

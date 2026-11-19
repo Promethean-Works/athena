@@ -1,8 +1,11 @@
 """The AI assistant: secrets, Ollama detection, providers, model lists and chats."""
 
+import asyncio
 import json
 import os
 import sys
+import threading
+import time
 from collections.abc import AsyncIterator
 
 import httpx2
@@ -11,12 +14,13 @@ from conftest import make_app, signed_in
 from fake_probe import FakeProbe
 from fastapi.testclient import TestClient
 from pydantic_ai.messages import ModelMessage, ModelResponse, TextPart
+from pydantic_ai.models.concurrency import ConcurrencyLimitedModel
 from pydantic_ai.models.function import AgentInfo, DeltaToolCall, FunctionModel
 from pydantic_ai.models.test import TestModel
 from sqlmodel import select
 
 from athena.api import assistant as assistant_api
-from athena.assistant import chat
+from athena.assistant import chat, providers
 from athena.assistant.kinds import NATIVE_KINDS as KINDS
 from athena.assistant.providers import ProviderConfig, build_model
 from athena.crypto import SecretBox, SecretError
@@ -87,6 +91,53 @@ def test_every_kind_builds_a_model(kind, monkeypatch):
     model_id = "openai/m1" if kind == "openrouter" else "m1"
     model = build_model(ProviderConfig(id="p", kind=spec, name=spec.label, values=values), model_id)
     assert model.model_name == model_id
+
+
+@pytest.mark.parametrize(
+    ("kind", "base_url", "local"),
+    [
+        ("ollama", "https://ollama.example.com", True),
+        ("openai", "http://127.0.0.1:1234/v1", True),
+        ("openai", "http://localhost:8080/v1", True),
+        ("openai", "http://192.168.1.20:1234/v1", True),
+        ("openai", "http://nas.local:1234/v1", True),
+        ("openai", "https://api.openai.com/v1", False),
+        ("anthropic", None, False),
+    ],
+)
+def test_local_servers_are_detected(kind, base_url, local):
+    assert providers.is_local(kind, base_url) is local
+
+
+def test_models_on_a_local_server_share_one_queue():
+    ollama = next(k for k in KINDS if k.id == "ollama")
+    cfg = ProviderConfig(id="p", kind=ollama, name="Ollama", values={"base_url": "http://h:11434"})
+    a, b = build_model(cfg, "llama3"), build_model(cfg, "qwen3")
+    assert isinstance(a, ConcurrencyLimitedModel) and isinstance(b, ConcurrencyLimitedModel)
+    assert a._limiter is b._limiter and a._limiter.max_running == 1
+    claude = next(k for k in KINDS if k.id == "anthropic")
+    cloud = ProviderConfig(id="c", kind=claude, name="Claude", values={"api_key": KEY})
+    assert not isinstance(build_model(cloud, "claude-x"), ConcurrencyLimitedModel)
+
+
+def test_the_queue_runs_one_request_at_a_time():
+    running, most = 0, 0
+
+    async def answer(messages, info) -> ModelResponse:
+        nonlocal running, most
+        running += 1
+        most = max(most, running)
+        await asyncio.sleep(0.02)
+        running -= 1
+        return ModelResponse(parts=[TextPart("ok")])
+
+    async def three_titles() -> list[str | None]:
+        queue = providers.queue_for("http://test-queue:1")
+        models = [ConcurrencyLimitedModel(FunctionModel(answer), queue) for _ in range(3)]
+        return await asyncio.gather(*(chat.generate_title(m, "hi") for m in models))
+
+    titles = asyncio.run(three_titles())
+    assert titles == ["ok"] * 3 and most == 1
 
 
 # ---------------------------------------------------------------- API helpers
@@ -264,6 +315,16 @@ def read_events(res) -> list[tuple[str, dict]]:
     return events
 
 
+def named(client, conv_id: str) -> str:
+    """The chat's title once the title model is done with it (it runs after the turn)."""
+    for _ in range(200):
+        detail = client.get(f"/api/assistant/conversations/{conv_id}").json()
+        if not detail["naming"]:
+            return detail["title"]
+        time.sleep(0.02)
+    raise AssertionError("the chat is still being named")
+
+
 def chat_app(tmp_path, monkeypatch, model):
     app = make_app(tmp_path)
     monkeypatch.setattr(assistant_api, "build_model", lambda cfg, model_id: model)
@@ -303,7 +364,9 @@ def test_chat_streams_a_reply_with_tools_and_saves_it(tmp_path, monkeypatch):
         result = next(d for e, d in events if e == "tool-result")
         assert '"os": "darwin"' in result["result"] and result["error"] is None
         assert "".join(d["delta"] for e, d in events if e == "text") == "This is a Mac."
-        assert ("title", {"title": "Server OS check"}) in events
+        # The first line names the chat at once; the title model renames it after `done`.
+        assert ("title", {"title": "What OS is this server running?"}) in events
+        assert named(client, conv["id"]) == "Server OS check"
 
         detail = client.get(f"/api/assistant/conversations/{conv['id']}").json()
         assert detail["running"] is False
@@ -351,10 +414,45 @@ def test_titles_use_the_title_model_and_fall_back_to_the_message(tmp_path, monke
             with client.stream("POST", url, json={"text": "How full is   my\ndisk?"}) as res:
                 events = read_events(res)
             assert "".join(d["delta"] for e, d in events if e == "text") == "Sure."
-            return next(d["title"] for e, d in events if e == "title")
+            assert next(d["title"] for e, d in events if e == "title") == "How full is my disk?"
+            return named(client, conv["id"])
 
         assert first_title("small") == "Disk space on the NAS"
         assert first_title("broken") == "How full is my disk?"
+
+
+def test_the_chat_takes_messages_while_the_title_is_generated(tmp_path, monkeypatch):
+    release = threading.Event()
+
+    async def chat_reply(messages, info) -> AsyncIterator[str]:
+        yield "Sure."
+
+    async def slow_title(messages, info) -> ModelResponse:
+        while not release.is_set():
+            await asyncio.sleep(0.01)
+        return ModelResponse(parts=[TextPart("Disk check")])
+
+    models = {"chat": FunctionModel(stream_function=chat_reply), "small": FunctionModel(slow_title)}
+    app = make_app(tmp_path)
+    monkeypatch.setattr(assistant_api, "build_model", lambda cfg, model_id: models[model_id])
+    with TestClient(app) as client:
+        signed_in(client)
+        pid = add_provider(client)["id"]
+        ref = {"provider_id": pid, "model": "small"}
+        client.put("/api/settings/ai", json={"title_model": ref}).raise_for_status()
+        body = {"model": {"provider_id": pid, "model": "chat"}}
+        conv = client.post("/api/assistant/conversations", json=body).json()
+        url = f"/api/assistant/conversations/{conv['id']}/messages"
+        with client.stream("POST", url, json={"text": "Is my disk full?"}) as res:
+            assert read_events(res)[-1][0] == "done"
+        detail = client.get(f"/api/assistant/conversations/{conv['id']}").json()
+        assert detail["running"] is False and detail["naming"] is True
+        # Not "This chat is still answering": the title doesn't hold the chat.
+        with client.stream("POST", url, json={"text": "Thanks"}) as res:
+            assert res.status_code == 200
+            read_events(res)
+        release.set()
+        assert named(client, conv["id"]) == "Disk check"
 
 
 @pytest.mark.parametrize(

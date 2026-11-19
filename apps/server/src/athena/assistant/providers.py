@@ -3,6 +3,7 @@ model list (docs/mvp-design.md §4.5)."""
 
 import asyncio
 import contextlib
+import ipaddress
 import json
 import time
 from collections.abc import Callable
@@ -12,7 +13,9 @@ from urllib.parse import urlsplit
 
 import httpx2
 from pydantic import BaseModel
+from pydantic_ai import ConcurrencyLimiter
 from pydantic_ai.models import Model
+from pydantic_ai.models.concurrency import ConcurrencyLimitedModel
 
 from athena.assistant.kinds import BY_ID, ProviderKind, get_native_kind_ids, secret_keys
 from athena.assistant.models_dev import get_models_dev_service
@@ -100,8 +103,46 @@ def _strip(url: str) -> str:
     return url.rstrip("/")
 
 
+LOCAL_HOSTS = {"localhost", "host.docker.internal", "host.containers.internal"}
+_queues: dict[str, ConcurrencyLimiter] = {}
+
+
+def is_local(kind: str, base_url: str | None) -> bool:
+    """Whether the model runs on hardware the admin owns (Ollama, LM Studio, llama.cpp on
+    this machine or the LAN): those answer one request at a time."""
+    if kind == "ollama":
+        return True
+    host = urlsplit(base_url or "").hostname
+    if not host:
+        return False
+    if host in LOCAL_HOSTS or host.endswith((".local", ".lan", ".home.arpa")):
+        return True
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return ip.is_loopback or ip.is_private or ip.is_link_local
+
+
+def queue_for(base_url: str) -> ConcurrencyLimiter:
+    """One queue per local server, shared by every model on it: chat turns, titles,
+    delegates, the advisor and reviews wait their turn instead of hitting it at once."""
+    key = _strip(base_url)
+    if key not in _queues:
+        _queues[key] = ConcurrencyLimiter(max_running=1, name=f"ai:{key}")
+    return _queues[key]
+
+
 def build_model(cfg: ProviderConfig, model_id: str) -> Model:
-    """The pydantic-ai model for `model_id` on this provider."""
+    """The pydantic-ai model for `model_id` on this provider. Models on a local server
+    share a queue, so it gets one request at a time."""
+    model = _build_model(cfg, model_id)
+    if is_local(cfg.kind.id, model.base_url):
+        return ConcurrencyLimitedModel(model, queue_for(model.base_url or cfg.kind.id))
+    return model
+
+
+def _build_model(cfg: ProviderConfig, model_id: str) -> Model:
     kind = cfg.kind.id
     key = cfg.get("api_key")
 

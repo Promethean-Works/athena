@@ -1785,7 +1785,8 @@ export interface paths {
          *     `name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`
          *     calls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant
          *     changed it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action
-         *     started), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`. While
+         *     started), `title` (the first message's line; a title model renames the chat after
+         *     `done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While
          *     actions or questions wait, a new message denies and declines them.
          */
         post: operations["sendMessage"];
@@ -2547,6 +2548,11 @@ export interface components {
             messages: components["schemas"]["ChatMessage"][];
             /** Running */
             running: boolean;
+            /**
+             * Naming
+             * @default false
+             */
+            naming: boolean;
             usage: components["schemas"]["ChatUsage"];
             /** Spend Limit Usd */
             spend_limit_usd: number | null;
