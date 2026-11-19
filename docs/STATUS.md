@@ -13,6 +13,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - M8 C (webhooks): done — public POST /api/automation/webhook/{token} fires HTTP triggers (n8n path), no session needed. Verified with API tests.
 - M8 D (Automation UI): done — /automation page with trigger create/edit/delete, job-run table, webhook+MCP endpoints card. gated by `automation` capability. Verified lint/typecheck/build; not yet browser-verified.
 - M7: models.dev cache for dynamic AI providers — PR #126. 12 native providers kept, dynamic OpenAI-compatible providers loaded from models.dev with 24h database cache. New `/kinds/refresh` endpoint. Verified: all CI (Linux/macOS/Windows), lint, typecheck, build, pytest (544 passed).
+- Fix nested button in DialogTrigger — PR #136. Used `render` prop on `DialogTrigger` instead of wrapping `Button` to avoid nested `<button>` elements causing hydration errors. Verified: lint, typecheck, build, CI passed.
 
 ## In progress
 
