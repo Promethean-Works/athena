@@ -420,10 +420,8 @@ function NewTriggerDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-          <PlusIcon className="size-3" /> New trigger
-        </Button>
+      <DialogTrigger render={<Button variant="outline" size="sm" />}>
+        <PlusIcon className="size-3" /> New trigger
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
