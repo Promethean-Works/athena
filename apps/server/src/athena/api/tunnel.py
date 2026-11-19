@@ -114,10 +114,11 @@ async def start_tunnel(
     async def start_job(job: Job) -> None:
         try:
             url = await provider.start(job, config)
-            job.log(f"Tunnel started: {url}")
-            job.set_result({"public_url": url})
+            await job.log(f"Tunnel started: {url}")
+            # Store result in job lines for retrieval
+            await job.log(f"RESULT: {url}")
         except Exception as e:
-            job.log(f"Tunnel start failed: {e}")
+            await job.log(f"Tunnel start failed: {e}")
             raise
 
     job = jobs.start(
@@ -151,9 +152,9 @@ async def stop_tunnel(
     async def stop_job(job: Job) -> None:
         try:
             await provider.stop(job)
-            job.log("Tunnel stopped")
+            await job.log("Tunnel stopped")
         except Exception as e:
-            job.log(f"Tunnel stop failed: {e}")
+            await job.log(f"Tunnel stop failed: {e}")
             raise
 
     job = jobs.start(
@@ -204,9 +205,9 @@ async def install_tunnel_binary(
     async def install_job(job: Job) -> None:
         try:
             await provider.install(job)
-            job.log(f"{provider.label} installed successfully")
+            await job.log(f"{provider.label} installed successfully")
         except Exception as e:
-            job.log(f"Install failed: {e}")
+            await job.log(f"Install failed: {e}")
             raise
 
     job = jobs.start(
@@ -241,9 +242,9 @@ async def configure_tunnel_service(
     async def service_job(job: Job) -> None:
         try:
             await provider.configure_service(job, enabled)
-            job.log(f"Auto-start service {'enabled' if enabled else 'disabled'}")
+            await job.log(f"Auto-start service {'enabled' if enabled else 'disabled'}")
         except Exception as e:
-            job.log(f"Service config failed: {e}")
+            await job.log(f"Service config failed: {e}")
             raise
 
     job = jobs.start(
