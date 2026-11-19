@@ -88,7 +88,8 @@ has() { command -v "$1" >/dev/null 2>&1; }
 for part in "${PARTS[@]}"; do
   case "$part" in
     repo)
-      step "agent config in sync (.mcp.json -> opencode.json)" node scripts/agents-sync.mjs --check
+      step "generated agent config in sync (agents-sync)" node scripts/agents-sync.mjs --check
+      step "agent setup script runs (agents-setup --quiet)" node scripts/agents-setup.mjs --check --quiet
       step "docs point at real files and names" node scripts/check-docs.mjs
       step ".claude/skills points at .agents/skills" test "$(readlink .claude/skills)" = "../.agents/skills"
       if has shellcheck; then step "shellcheck" shellcheck scripts/*.sh; else skip "shellcheck" "not installed"; fi

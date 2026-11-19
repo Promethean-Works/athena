@@ -1,0 +1,7 @@
+{
+  "$comment": "Opt-in (agents-setup.mjs --with-models): applied with `hermes config set <key> <value>`. Sign in to the provider with Hermes itself; no keys here.",
+  "model.provider": "kilo",
+  "model.default": "kilo-auto/free",
+  "model.base_url": "https://api.kilo.ai/api/gateway",
+  "model.api_mode": "chat_completions"
+}
