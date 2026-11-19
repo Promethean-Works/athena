@@ -99,6 +99,12 @@ CodeQL runs on every PR and its alerts can block a merge.
 
 ### Server (Python)
 
+- **Pre-existing test failures (as of 2026-11-18)** — these fail on main and are unrelated to typical changes:
+  - `test_models_match_migrations` — needs a migration for the new `models_dev_cache` table <!-- docs-check: ignore -->
+  - `test_mcp_call_tool_with_bearer_token` — alembic revision '0015' missing
+  - Automation tests — require Colima/Docker (`RuntimeUnavailableError: Colima not found`)
+  - Run focused tests instead: `uv run pytest -q -k "test_name" --tb=short`
+
 - `athena openapi` must not create the real data dir. It builds the app against a temp dir, and a test enforces this.
 - SQLite runs in WAL mode. A test that reads `athena.db` directly misses rows still in `athena.db-wal`, so query through SQLAlchemy.
 - `ruff --fix` can delete an import it thinks is unused when the name is shadowed. Use an aliased import.
