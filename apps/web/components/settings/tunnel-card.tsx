@@ -32,6 +32,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
 import {
   InputGroup,
   InputGroupAddon,
@@ -478,6 +479,7 @@ export function TunnelCard() {
   const isRunning = status?.running ?? false
   const capabilityStatus = status?.capability_status ?? "missing"
   const isMissing = capabilityStatus === "missing"
+  const isNotInstalled = capabilityStatus === "not_installed"
   const isStopped = capabilityStatus === "stopped"
 
   return (
@@ -557,18 +559,16 @@ export function TunnelCard() {
                       The local port Athena runs on.
                     </FieldDescription>
                   </FieldContent>
-                  <InputGroup>
-                    <InputGroupInput
-                      id="tunnel-port"
-                      type="number"
-                      value={port}
-                      onChange={(e) => handlePortChange(parseInt(e.target.value) || 8420)}
-                      disabled={saving || !user.is_admin}
-                      min="1"
-                      max="65535"
-                      className="w-24"
-                    />
-                  </InputGroup>
+                  <Input
+                    id="tunnel-port"
+                    type="number"
+                    value={port}
+                    onChange={(e) => handlePortChange(parseInt(e.target.value) || 8420)}
+                    disabled={saving || !user.is_admin}
+                    min="1"
+                    max="65535"
+                    className="w-24"
+                  />
                 </Field>
 
                 <Field orientation="horizontal">
@@ -595,6 +595,8 @@ export function TunnelCard() {
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : isStopped
                           ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : isNotInstalled
+                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                           : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                       }`}
                     >
@@ -607,6 +609,11 @@ export function TunnelCard() {
                         <>
                           <SquareIcon className="h-3 w-3" />
                           Stopped
+                        </>
+                      ) : isNotInstalled ? (
+                        <>
+                          <AlertTriangleIcon className="h-3 w-3" />
+                          Not installed
                         </>
                       ) : (
                         <>
@@ -626,7 +633,7 @@ export function TunnelCard() {
                   )}
 
                   <div className="flex flex-wrap gap-2">
-                    {isMissing ? (
+                    {isMissing || isNotInstalled ? (
                       <>
                         <Button
                           variant="outline"
