@@ -1039,12 +1039,15 @@ function NetworksTab({ form, onChange }: { form: ComposeFormData; onChange: (for
     })),
   )
 
+  const formRef = React.useRef(form)
+  formRef.current = form
+
   React.useEffect(() => {
     onChange({
-      ...form,
+      ...formRef.current,
       networks: Object.fromEntries(networks.map((n) => [n.name, { driver: n.driver, external: n.external }])),
     })
-  }, [networks, form, onChange])
+  }, [networks, onChange])
 
   return (
     <TabsContent value="networks" className="pt-4">
@@ -1096,12 +1099,15 @@ function VolumesTab({ form, onChange }: { form: ComposeFormData; onChange: (form
     })),
   )
 
+  const formRef = React.useRef(form)
+  formRef.current = form
+
   React.useEffect(() => {
     onChange({
-      ...form,
+      ...formRef.current,
       volumes: Object.fromEntries(volumes.map((v) => [v.name, { driver: v.driver, external: v.external }])),
     })
-  }, [volumes, form, onChange])
+  }, [volumes, onChange])
 
   return (
     <TabsContent value="volumes" className="pt-4">
@@ -1180,9 +1186,9 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
     }
   }, [value, activeTab])
 
-  const handleFormChange = (newForm: ComposeFormData) => {
+  const handleFormChange = React.useCallback((newForm: ComposeFormData) => {
     setForm(newForm)
-  }
+  }, [])
 
   const addService = () => {
     const newName = `service${serviceNames.length + 1}`
