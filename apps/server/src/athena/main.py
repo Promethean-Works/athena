@@ -2,6 +2,7 @@
 
 import asyncio
 import contextlib
+import logging
 from collections.abc import AsyncIterator
 
 from fastapi import FastAPI, HTTPException, status
@@ -22,6 +23,7 @@ from athena.api import store as store_api
 from athena.api import terminal as terminal_api
 from athena.api import webdav as webdav_api
 from athena.assistant.chat import Turns
+from athena.assistant.models_dev import init_models_dev_service
 from athena.assistant.providers import ModelCache
 from athena.auth.deps import require_user
 from athena.auth.service import LoginThrottle
@@ -42,6 +44,18 @@ from athena.packages.base import run_command
 from athena.platform.store import CapabilityStore
 from athena.terminal import shells
 
+log = logging.getLogger(__name__)
+
+
+async def _refresh_models_dev_cache(app: FastAPI) -> None:
+    """Background task to refresh models.dev cache."""
+    try:
+        from athena.assistant.models_dev import refresh_models_dev_cache
+
+        await refresh_models_dev_cache(app.state.db.session)
+    except Exception as e:
+        log.warning(f"Failed to refresh models.dev cache: {e}")
+
 
 def create_app(
     settings: Settings | None = None,
@@ -61,6 +75,10 @@ def create_app(
 
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        # Initialize models.dev service for dynamic provider loading
+        init_models_dev_service(db.session)
+        # Refresh models.dev cache in background (non-blocking)
+        refresh_task = asyncio.create_task(_refresh_models_dev_cache(app))
         # Detect in the background so the server answers immediately; the first
         # GET /api/system/capabilities waits for it if it isn't done yet.
         task = asyncio.create_task(store.get())
@@ -92,6 +110,7 @@ def create_app(
             yield
         task.cancel()
         scheduler_task.cancel()
+        refresh_task.cancel()
         if worker is not None:
             worker.shutdown()
             if worker_task is not None:

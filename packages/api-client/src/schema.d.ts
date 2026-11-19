@@ -1548,10 +1548,33 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Kinds */
+        /**
+         * List Kinds
+         * @description Return all provider kinds: native + dynamic from models.dev cache.
+         */
         get: operations["listAiProviderKinds"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistant/kinds/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh Kinds
+         * @description Manually refresh the models.dev cache and return the updated kinds.
+         */
+        post: operations["refreshAiProviderKinds"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3034,11 +3057,8 @@ export interface components {
         };
         /** ProviderIn */
         ProviderIn: {
-            /**
-             * Kind
-             * @enum {string}
-             */
-            kind: "anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "openai-compatible";
+            /** Kind */
+            kind: string;
             /** Name */
             name: string;
             /**
@@ -3051,11 +3071,8 @@ export interface components {
         };
         /** ProviderKind */
         ProviderKind: {
-            /**
-             * Id
-             * @enum {string}
-             */
-            id: "anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "openai-compatible";
+            /** Id */
+            id: ("anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "cohere") | string;
             /** Label */
             label: string;
             /**
@@ -3085,7 +3102,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "openai-compatible";
+            kind: "anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "cohere";
             /** Lists Models */
             lists_models: boolean;
         };
@@ -3145,11 +3162,8 @@ export interface components {
         ProviderOut: {
             /** Id */
             id: string;
-            /**
-             * Kind
-             * @enum {string}
-             */
-            kind: "anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "openai-compatible";
+            /** Kind */
+            kind: string;
             /** Name */
             name: string;
             /** Values */
@@ -6837,6 +6851,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProviderKind"][];
+                };
+            };
+        };
+    };
+    refreshAiProviderKinds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
