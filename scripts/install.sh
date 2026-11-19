@@ -73,6 +73,19 @@ parse_args() {
   done
 }
 
+# Prints 32 or 64 for the userland's word size (empty when unknown).
+userland_bits() {
+  if command -v dpkg >/dev/null 2>&1; then
+    case "$(dpkg --print-architecture 2>/dev/null)" in
+      armhf|armel|i386) echo 32; return ;;
+      amd64|arm64) echo 64; return ;;
+    esac
+  fi
+  if command -v getconf >/dev/null 2>&1; then
+    getconf LONG_BIT 2>/dev/null || true
+  fi
+}
+
 detect_platform() {
   OS="$(uname -s)"
   ARCH="$(uname -m)"
@@ -102,6 +115,11 @@ detect_platform() {
     aarch64|arm64) ARCH=arm64 ;;
     *) die "unsupported architecture: $ARCH (amd64 and arm64 are supported)" ;;
   esac
+  # 32-bit Raspberry Pi OS on a Pi 4/5 boots a 64-bit kernel, so uname says
+  # aarch64 while the userland (Python, wheels, Docker) is 32-bit armhf.
+  if [ "$OS" = linux ] && [ "$(userland_bits)" = 32 ]; then
+    die "this system's userland is 32-bit; Athena needs a 64-bit OS (on a Raspberry Pi, install 64-bit Raspberry Pi OS)"
+  fi
   say "Platform: $OS/$ARCH ($DISTRO)"
 }
 
