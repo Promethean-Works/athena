@@ -5530,6 +5530,201 @@
           }
         }
       }
+    },
+    "/api/tunnel/status": {
+      "get": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Get Tunnel Status",
+        "description": "Get current tunnel status.",
+        "operationId": "get_tunnel_status_api_tunnel_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/start": {
+      "post": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Start Tunnel",
+        "description": "Start the tunnel.",
+        "operationId": "start_tunnel_api_tunnel_start_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/stop": {
+      "post": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Stop Tunnel",
+        "description": "Stop the tunnel.",
+        "operationId": "stop_tunnel_api_tunnel_stop_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/config": {
+      "put": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Update Tunnel Config",
+        "description": "Update tunnel configuration (admin only).",
+        "operationId": "update_tunnel_config_api_tunnel_config_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TunnelConfigRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Update Tunnel Config Api Tunnel Config Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/install": {
+      "post": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Install Tunnel Binary",
+        "description": "Download and install tunnel binary (admin only).",
+        "operationId": "install_tunnel_binary_api_tunnel_install_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TunnelInstallRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/service": {
+      "put": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Configure Tunnel Service",
+        "description": "Enable/disable auto-start service (admin only).",
+        "operationId": "configure_tunnel_service_api_tunnel_service_put",
+        "parameters": [
+          {
+            "name": "enabled",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean",
+              "title": "Enabled"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -10152,6 +10347,38 @@
             "type": "boolean",
             "title": "Terminal Enabled",
             "default": true
+          },
+          "tunnel_enabled": {
+            "type": "boolean",
+            "title": "Tunnel Enabled",
+            "default": false
+          },
+          "tunnel_provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tunnel Provider"
+          },
+          "tunnel_config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Tunnel Config",
+            "default": {}
+          },
+          "tunnel_auto_start": {
+            "type": "boolean",
+            "title": "Tunnel Auto Start",
+            "default": true
+          },
+          "tunnel_port": {
+            "type": "integer",
+            "title": "Tunnel Port",
+            "default": 8420
           }
         },
         "type": "object",
@@ -10524,6 +10751,146 @@
           "updated_at"
         ],
         "title": "TriggerOut"
+      },
+      "TunnelConfigRequest": {
+        "properties": {
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config",
+            "default": {}
+          },
+          "auto_start": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Start"
+          },
+          "port": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port"
+          }
+        },
+        "type": "object",
+        "title": "TunnelConfigRequest"
+      },
+      "TunnelInstallRequest": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider"
+        ],
+        "title": "TunnelInstallRequest"
+      },
+      "TunnelStartResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id"
+        ],
+        "title": "TunnelStartResponse"
+      },
+      "TunnelStatusResponse": {
+        "properties": {
+          "running": {
+            "type": "boolean",
+            "title": "Running"
+          },
+          "public_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public Url"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config"
+          },
+          "capability_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capability Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "running"
+        ],
+        "title": "TunnelStatusResponse"
       },
       "UnlockIn": {
         "properties": {

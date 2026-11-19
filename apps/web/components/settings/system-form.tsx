@@ -21,6 +21,7 @@ import { Switch } from "@workspace/ui/components/switch"
 import { toast } from "@workspace/ui/components/toast"
 
 import { useAuth } from "@/components/auth-provider"
+import { useCapability } from "@/components/capabilities-provider"
 
 type SystemSettings = Schemas["SystemSettings"]
 
@@ -75,24 +76,45 @@ export function SystemForm() {
         {settings === null ? (
           <Skeleton className="h-12 w-full" />
         ) : (
-          <Field orientation="horizontal">
-            <FieldContent>
-              <FieldLabel htmlFor="terminal-enabled">Web terminal</FieldLabel>
-              <FieldDescription>
-                A shell on this server and in containers, from the browser.
-                Turning it off also closes open sessions.
-                {!user.is_admin && " Only admins can change this."}
-              </FieldDescription>
-            </FieldContent>
-            <Switch
-              id="terminal-enabled"
-              checked={settings.terminal_enabled}
-              disabled={saving || !user.is_admin}
-              onCheckedChange={(checked) =>
-                update({ ...settings, terminal_enabled: checked })
-              }
-            />
-          </Field>
+          <>
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor="terminal-enabled">Web terminal</FieldLabel>
+                <FieldDescription>
+                  A shell on this server and in containers, from the browser.
+                  Turning it off also closes open sessions.
+                  {!user.is_admin && " Only admins can change this."}
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id="terminal-enabled"
+                checked={settings.terminal_enabled}
+                disabled={saving || !user.is_admin}
+                onCheckedChange={(checked) =>
+                  update({ ...settings, terminal_enabled: checked })
+                }
+              />
+            </Field>
+            {useCapability("tunnel.cloudflare") || useCapability("tunnel.tailscale") || useCapability("tunnel.ngrok") ? (
+              <Field orientation="horizontal">
+                <FieldContent>
+                  <FieldLabel htmlFor="tunnel-enabled">Remote access tunnel</FieldLabel>
+                  <FieldDescription>
+                    Expose Athena to the internet via Cloudflare, Tailscale, or Ngrok.
+                    {!user.is_admin && " Only admins can change this."}
+                  </FieldDescription>
+                </FieldContent>
+                <Switch
+                  id="tunnel-enabled"
+                  checked={settings.tunnel_enabled ?? false}
+                  disabled={saving || !user.is_admin}
+                  onCheckedChange={(checked) =>
+                    update({ ...settings, tunnel_enabled: checked })
+                  }
+                />
+              </Field>
+            ) : null}
+          </>
         )}
       </CardContent>
     </Card>

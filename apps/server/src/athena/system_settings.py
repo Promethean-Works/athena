@@ -19,6 +19,21 @@ class SystemSettings(BaseModel):
     terminal_enabled: bool = True
     """The web terminal (host shell and container shells). Admins can turn it off."""
 
+    tunnel_enabled: bool = False
+    """Master toggle for tunnel feature."""
+
+    tunnel_provider: str | None = None
+    """Active tunnel provider: 'cloudflare' | 'tailscale' | 'ngrok'."""
+
+    tunnel_config: dict = {}
+    """Provider-specific configuration (encrypted secrets stored separately)."""
+
+    tunnel_auto_start: bool = True
+    """Auto-start tunnel on boot when enabled."""
+
+    tunnel_port: int = 8420
+    """Local port to expose via tunnel."""
+
 
 def load(db: Session) -> SystemSettings:
     row = db.get(SystemSetting, KEY)

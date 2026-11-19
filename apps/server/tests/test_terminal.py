@@ -239,7 +239,8 @@ def test_admins_only(client_for) -> None:
 
 def test_can_be_turned_off(client_for) -> None:
     client = client_for()
-    assert client.get("/api/settings/system").json() == {"terminal_enabled": True}
+    settings = client.get("/api/settings/system").json()
+    assert settings["terminal_enabled"] is True
     res = client.put("/api/settings/system", json={"terminal_enabled": False})
     assert res.status_code == 200
     with client.websocket_connect("/api/terminal/ws") as ws:

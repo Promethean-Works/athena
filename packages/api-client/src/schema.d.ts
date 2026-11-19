@@ -1946,6 +1946,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tunnel/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Tunnel Status
+         * @description Get current tunnel status.
+         */
+        get: operations["get_tunnel_status_api_tunnel_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tunnel/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Tunnel
+         * @description Start the tunnel.
+         */
+        post: operations["start_tunnel_api_tunnel_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tunnel/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stop Tunnel
+         * @description Stop the tunnel.
+         */
+        post: operations["stop_tunnel_api_tunnel_stop_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tunnel/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Tunnel Config
+         * @description Update tunnel configuration (admin only).
+         */
+        put: operations["update_tunnel_config_api_tunnel_config_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tunnel/install": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Install Tunnel Binary
+         * @description Download and install tunnel binary (admin only).
+         */
+        post: operations["install_tunnel_binary_api_tunnel_install_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tunnel/service": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Configure Tunnel Service
+         * @description Enable/disable auto-start service (admin only).
+         */
+        put: operations["configure_tunnel_service_api_tunnel_service_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3577,6 +3697,30 @@ export interface components {
              * @default true
              */
             terminal_enabled: boolean;
+            /**
+             * Tunnel Enabled
+             * @default false
+             */
+            tunnel_enabled: boolean;
+            /** Tunnel Provider */
+            tunnel_provider?: string | null;
+            /**
+             * Tunnel Config
+             * @default {}
+             */
+            tunnel_config: {
+                [key: string]: unknown;
+            };
+            /**
+             * Tunnel Auto Start
+             * @default true
+             */
+            tunnel_auto_start: boolean;
+            /**
+             * Tunnel Port
+             * @default 8420
+             */
+            tunnel_port: number;
         };
         /** Temperature */
         Temperature: {
@@ -3696,6 +3840,49 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** TunnelConfigRequest */
+        TunnelConfigRequest: {
+            /** Provider */
+            provider?: string | null;
+            /**
+             * Config
+             * @default {}
+             */
+            config: {
+                [key: string]: unknown;
+            };
+            /** Auto Start */
+            auto_start?: boolean | null;
+            /** Port */
+            port?: number | null;
+        };
+        /** TunnelInstallRequest */
+        TunnelInstallRequest: {
+            /** Provider */
+            provider: string;
+        };
+        /** TunnelStartResponse */
+        TunnelStartResponse: {
+            /** Job Id */
+            job_id: string;
+        };
+        /** TunnelStatusResponse */
+        TunnelStatusResponse: {
+            /** Running */
+            running: boolean;
+            /** Public Url */
+            public_url?: string | null;
+            /** Provider */
+            provider?: string | null;
+            /** Detail */
+            detail?: string | null;
+            /** Config */
+            config?: {
+                [key: string]: unknown;
+            } | null;
+            /** Capability Status */
+            capability_status?: string | null;
         };
         /** UnlockIn */
         UnlockIn: {
@@ -7725,6 +7912,165 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WebhookOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tunnel_status_api_tunnel_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TunnelStatusResponse"];
+                };
+            };
+        };
+    };
+    start_tunnel_api_tunnel_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TunnelStartResponse"];
+                };
+            };
+        };
+    };
+    stop_tunnel_api_tunnel_stop_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TunnelStartResponse"];
+                };
+            };
+        };
+    };
+    update_tunnel_config_api_tunnel_config_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TunnelConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    install_tunnel_binary_api_tunnel_install_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TunnelInstallRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TunnelStartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    configure_tunnel_service_api_tunnel_service_put: {
+        parameters: {
+            query: {
+                enabled: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TunnelStartResponse"];
                 };
             };
             /** @description Validation Error */
