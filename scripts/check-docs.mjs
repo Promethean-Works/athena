@@ -45,6 +45,7 @@ const EXTERNAL_PREFIXES = ["browser_", "mcp__"]
 const DOCS = [
   ...git(["ls-files", "--cached", "--others", "--exclude-standard", "AGENTS.md", "CLAUDE.md", "GEMINI.md", "**/AGENTS.md", "**/CLAUDE.md", "**/GEMINI.md", "docs/agents/**.md"]),
   "catalog/README.md",
+  "docs/DEVELOPMENT.md",
   ...projectSkills(),
 ].filter((f, i, all) => existsSync(f) && all.indexOf(f) === i && !f.includes("node_modules/"))
 
