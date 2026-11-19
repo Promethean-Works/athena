@@ -234,7 +234,7 @@ class CloudflareTunnelProvider(TunnelProvider):
 
             job.log(f"Installed cloudflared to {dest}")
 
-    async def configure_service(self, job: Any, enabled: bool) -> None:
+    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
         """Configure systemd/launchd service for auto-start."""
         import platform
 

@@ -209,31 +209,31 @@ class NgrokTunnelProvider(TunnelProvider):
 
             job.log(f"Installed ngrok to {dest}")
 
-    async def configure_service(self, job: Any, enabled: bool) -> None:
+    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
         """Configure systemd/launchd/Task Scheduler for auto-start."""
 
         system = platform.system().lower()
 
         if system == "linux":
-            await self._configure_systemd(job, enabled)
+            await self._configure_systemd(job, enabled, port)
         elif system == "darwin":
-            await self._configure_launchd(job, enabled)
+            await self._configure_launchd(job, enabled, port)
         elif system == "windows":
-            await self._configure_windows_task(job, enabled)
+            await self._configure_windows_task(job, enabled, port)
 
-    async def _configure_systemd(self, job: Any, enabled: bool) -> None:
+    async def _configure_systemd(self, job: Any, enabled: bool, port: int) -> None:
         """Configure systemd service."""
         # Need auth token from config - this would come from settings
-        service_content = """[Unit]
+        service_content = f"""[Unit]
 Description=Ngrok Tunnel
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/ngrok http 8420 --authtoken=${NGROK_AUTHTOKEN}
+ExecStart=/usr/local/bin/ngrok http {port} --authtoken=${{NGROK_AUTHTOKEN}}
 Restart=on-failure
 RestartSec=5
-Environment=NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+Environment=NGROK_AUTHTOKEN=${{NGROK_AUTHTOKEN}}
 
 [Install]
 WantedBy=multi-user.target
@@ -254,9 +254,9 @@ WantedBy=multi-user.target
             subprocess.run(["systemctl", "daemon-reload"], check=False)
             job.log("Disabled ngrok systemd service")
 
-    async def _configure_launchd(self, job: Any, enabled: bool) -> None:
+    async def _configure_launchd(self, job: Any, enabled: bool, port: int) -> None:
         """Configure launchd agent."""
-        plist_content = """<?xml version="1.0" encoding="UTF-8"?>
+        plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -266,9 +266,9 @@ WantedBy=multi-user.target
     <array>
         <string>/usr/local/bin/ngrok</string>
         <string>http</string>
-        <string>8420</string>
+        <string>{port}</string>
         <string>--authtoken</string>
-        <string>${NGROK_AUTHTOKEN}</string>
+        <string>${{NGROK_AUTHTOKEN}}</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -277,7 +277,7 @@ WantedBy=multi-user.target
     <key>EnvironmentVariables</key>
     <dict>
         <key>NGROK_AUTHTOKEN</key>
-        <string>${NGROK_AUTHTOKEN}</string>
+        <string>${{NGROK_AUTHTOKEN}}</string>
     </dict>
     <key>StandardOutPath</key>
     <string>/var/log/ngrok.log</string>
@@ -298,7 +298,7 @@ WantedBy=multi-user.target
                 plist_path.unlink()
             job.log("Disabled ngrok launchd agent")
 
-    async def _configure_windows_task(self, job: Any, enabled: bool) -> None:
+    async def _configure_windows_task(self, job: Any, enabled: bool, port: int) -> None:
         """Configure Windows Task Scheduler."""
         if enabled:
             cmd = [
@@ -309,7 +309,7 @@ WantedBy=multi-user.target
                 "/TR",
                 (
                     "C:\\Users\\%USERNAME%\\scoop\\shims\\ngrok.exe "
-                    "http 8420 --authtoken=${NGROK_AUTHTOKEN}"
+                    f"http {port} --authtoken=${{NGROK_AUTHTOKEN}}"
                 ),
                 "/SC",
                 "ONLOGON",
