@@ -3,10 +3,11 @@
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
 
 from athena.auth.deps import Authed, DbSession, require_user
+from athena.jobs import Job, JobManager
 from athena.system_settings import load, save
 from athena.tunnel import get_provider
 from athena.tunnel.base import TunnelConfig
@@ -14,6 +15,10 @@ from athena.tunnel.base import TunnelConfig
 log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tunnel", tags=["tunnel"], dependencies=[require_user])
+
+
+def _jobs(request: Request) -> JobManager:
+    return request.app.state.jobs
 
 
 class TunnelStatusResponse(BaseModel):
@@ -79,12 +84,11 @@ async def get_tunnel_status(db: DbSession) -> TunnelStatusResponse:
 
 @router.post("/start", response_model=TunnelStartResponse)
 async def start_tunnel(
+    request: Request,
     db: DbSession,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Start the tunnel."""
-    from athena.jobs import Job, enqueue_job
-
     settings = load(db)
 
     if not settings.tunnel_enabled:
@@ -104,6 +108,8 @@ async def start_tunnel(
         provider_config=settings.tunnel_config,
     )
 
+    jobs = _jobs(request)
+
     # Create a job to start the tunnel
     async def start_job(job: Job) -> None:
         try:
@@ -114,11 +120,9 @@ async def start_tunnel(
             job.log(f"Tunnel start failed: {e}")
             raise
 
-    job = await enqueue_job(
-        f"tunnel-start-{settings.tunnel_provider}",
+    job = jobs.start(
+        f"Start {provider.label} tunnel",
         start_job,
-        user_id=current_user.id,
-        description=f"Start {provider.label} tunnel",
     )
 
     return TunnelStartResponse(job_id=job.id)
@@ -126,12 +130,11 @@ async def start_tunnel(
 
 @router.post("/stop", response_model=TunnelStartResponse)
 async def stop_tunnel(
+    request: Request,
     db: DbSession,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Stop the tunnel."""
-    from athena.jobs import Job, enqueue_job
-
     settings = load(db)
 
     if not settings.tunnel_provider:
@@ -143,6 +146,8 @@ async def stop_tunnel(
     if not provider:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown provider")
 
+    jobs = _jobs(request)
+
     async def stop_job(job: Job) -> None:
         try:
             await provider.stop(job)
@@ -151,11 +156,9 @@ async def stop_tunnel(
             job.log(f"Tunnel stop failed: {e}")
             raise
 
-    job = await enqueue_job(
-        f"tunnel-stop-{settings.tunnel_provider}",
+    job = jobs.start(
+        f"Stop {provider.label} tunnel",
         stop_job,
-        user_id=current_user.id,
-        description=f"Stop {provider.label} tunnel",
     )
 
     return TunnelStartResponse(job_id=job.id)
@@ -186,16 +189,17 @@ async def update_tunnel_config(
 
 @router.post("/install")
 async def install_tunnel_binary(
-    request: TunnelInstallRequest,
+    request: Request,
+    body: TunnelInstallRequest,
     db: DbSession,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Download and install tunnel binary (admin only)."""
-    from athena.jobs import Job, enqueue_job
-
-    provider = get_provider(f"tunnel.{request.provider}")
+    provider = get_provider(f"tunnel.{body.provider}")
     if not provider:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown provider")
+
+    jobs = _jobs(request)
 
     async def install_job(job: Job) -> None:
         try:
@@ -205,11 +209,9 @@ async def install_tunnel_binary(
             job.log(f"Install failed: {e}")
             raise
 
-    job = await enqueue_job(
-        f"tunnel-install-{request.provider}",
+    job = jobs.start(
+        f"Install {provider.label}",
         install_job,
-        user_id=current_user.id,
-        description=f"Install {provider.label}",
     )
 
     return TunnelStartResponse(job_id=job.id)
@@ -217,13 +219,12 @@ async def install_tunnel_binary(
 
 @router.put("/service")
 async def configure_tunnel_service(
+    request: Request,
     enabled: bool,
     db: DbSession,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Enable/disable auto-start service (admin only)."""
-    from athena.jobs import Job, enqueue_job
-
     settings = load(db)
 
     if not settings.tunnel_provider:
@@ -235,6 +236,8 @@ async def configure_tunnel_service(
     if not provider:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown provider")
 
+    jobs = _jobs(request)
+
     async def service_job(job: Job) -> None:
         try:
             await provider.configure_service(job, enabled)
@@ -243,11 +246,9 @@ async def configure_tunnel_service(
             job.log(f"Service config failed: {e}")
             raise
 
-    job = await enqueue_job(
-        f"tunnel-service-{settings.tunnel_provider}",
+    job = jobs.start(
+        f"{'Enable' if enabled else 'Disable'} auto-start for {provider.label}",
         service_job,
-        user_id=current_user.id,
-        description=f"{'Enable' if enabled else 'Disable'} auto-start for {provider.label}",
     )
 
     return TunnelStartResponse(job_id=job.id)
