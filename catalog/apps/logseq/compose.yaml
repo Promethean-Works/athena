@@ -1,0 +1,51 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Logseq
+x-athena:
+  title: Logseq
+  description: A privacy-first, open-source platform for knowledge management and collaboration.
+  category: productivity
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Logseq/icon.svg
+  homepage: https://logseq.com/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '3325'
+  - key: DOCUMENTS_PATH
+    label: Documents folder
+    type: path
+    default: '@app_data/documents'
+    description: The CasaOS Documents folder.
+services:
+  logseq:
+    environment:
+      PGID: '0'
+      PUID: '0'
+    image: correctroad/logseq:v0.10.10
+    deploy:
+      resources:
+        reservations:
+          memory: 64M
+    network_mode: bridge
+    ports:
+    - target: 3000
+      published: ${WEB_PORT}
+      protocol: tcp
+    - target: 12315
+      published: '12315'
+      protocol: tcp
+    privileged: true
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: /DATA/AppData/logseq/config
+      target: /config
+    - type: bind
+      source: ${DOCUMENTS_PATH}/Notes
+      target: /notes
+    container_name: logseq

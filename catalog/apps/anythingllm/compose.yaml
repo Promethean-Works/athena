@@ -1,0 +1,27 @@
+x-athena:
+  title: AnythingLLM
+  description: AI chat platform for interacting with your documents and data using LLMs.
+  tagline: AI chat platform for your documents.
+  tags: [AI, LLM, Documents]
+  license: "MIT"
+  category: development
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/AnythingLLM/icon.svg
+  homepage: https://useanything.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/AnythingLLM/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/AnythingLLM/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8165"
+
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3001/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/server/storage

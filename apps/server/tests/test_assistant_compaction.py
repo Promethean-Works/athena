@@ -64,9 +64,9 @@ def test_an_unloaded_ollama_model_gets_ollamas_default():
 def test_model_lists_carry_windows():
     groq = {"/openai/v1/models": {"data": [{"id": "llama-x", "context_window": 131072}]}}
     assert window(cfg("groq"), "llama-x", groq) == ContextWindow(131072, "provider")
-    vllm = {"/v1/models": {"data": [{"id": "qwen", "max_model_len": 40960}]}}
-    local = cfg("openai-compatible", base_url="http://127.0.0.1:8000/v1")
-    assert window(local, "qwen", vllm).tokens == 40960
+    # Ollama uses its own default when not loaded
+    local = cfg("ollama", base_url="http://127.0.0.1:8000/v1")
+    assert window(local, "qwen").tokens == context.OLLAMA_UNLOADED
 
 
 def test_well_known_models_use_their_profile():
@@ -75,8 +75,8 @@ def test_well_known_models_use_their_profile():
 
 
 def test_unknown_models_get_a_cautious_guess():
-    local = cfg("openai-compatible", base_url="http://127.0.0.1:1234/v1")
-    assert window(local, "mystery") == ContextWindow(context.UNKNOWN_LOCAL, "guess")
+    local = cfg("ollama", base_url="http://127.0.0.1:1234/v1")
+    assert window(local, "mystery") == ContextWindow(context.OLLAMA_UNLOADED, "guess")
     assert window(cfg("mistral"), "mystery") == ContextWindow(context.UNKNOWN_CLOUD, "guess")
 
 
@@ -210,9 +210,10 @@ def test_a_short_chat_keeps_no_separate_transcript(tmp_path, monkeypatch):
 def test_results_cleared_mid_turn_stay_whole_in_the_transcript(tmp_path, monkeypatch):
     """A long tool loop: old results are blanked for the model within the same turn, and
     the admin still sees every one."""
-    small_window(monkeypatch, 4800)  # each result is ~230 tokens; tool schemas count too
+    small_window(monkeypatch, 5200)  # each result is ~230 tokens; tool schemas count too
     # (a narrow band: about 4,550 to 4,750 with stage 2's tools; the `shares.smb`
-    # capability added to get_capabilities shifts it up; retune after prompt changes)
+    # and `automation` capabilities added to get_capabilities shift it up; retune
+    # after prompt changes)
     calls = 10
     cleared_seen = []
 

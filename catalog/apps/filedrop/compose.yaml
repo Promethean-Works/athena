@@ -1,0 +1,27 @@
+x-athena:
+  title: Filedrop
+  description: Simple file drop page for receiving files from anyone without an account.
+  tagline: Simple file drop page.
+  tags: [File Sharing, Drop, Transfer]
+  license: "MIT"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Filedrop/icon.svg
+  homepage: https://filedrop.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Filedrop/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Filedrop/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8189"
+
+services:
+  filedrop:
+    image: ghcr.io/filedrop/filedrop:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

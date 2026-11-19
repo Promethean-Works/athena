@@ -4330,6 +4330,7 @@
           "assistant"
         ],
         "summary": "List Kinds",
+        "description": "Return all provider kinds: native + dynamic from models.dev cache.",
         "operationId": "listAiProviderKinds",
         "responses": {
           "200": {
@@ -4342,6 +4343,30 @@
                   },
                   "type": "array",
                   "title": "Response Listaiproviderkinds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/kinds/refresh": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Refresh Kinds",
+        "description": "Manually refresh the models.dev cache and return the updated kinds.",
+        "operationId": "refreshAiProviderKinds",
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Refreshaiproviderkinds"
                 }
               }
             }
@@ -5127,6 +5152,579 @@
           }
         }
       }
+    },
+    "/api/automation/triggers": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "List Triggers",
+        "operationId": "listAutomationTriggers",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TriggerOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listautomationtriggers"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Create Trigger",
+        "operationId": "createAutomationTrigger",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TriggerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/triggers/{trigger_id}": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Get Trigger",
+        "operationId": "getAutomationTrigger",
+        "parameters": [
+          {
+            "name": "trigger_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Trigger Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TriggerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Update Trigger",
+        "operationId": "updateAutomationTrigger",
+        "parameters": [
+          {
+            "name": "trigger_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Trigger Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TriggerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Delete Trigger",
+        "operationId": "deleteAutomationTrigger",
+        "parameters": [
+          {
+            "name": "trigger_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Trigger Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/jobs": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "List Job Runs",
+        "operationId": "listAutomationJobRuns",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobRunOut"
+                  },
+                  "title": "Response Listautomationjobruns"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/jobs/{run_id}": {
+      "get": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Get Job Run",
+        "operationId": "getAutomationJobRun",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobRunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/triggers/validate-action": {
+      "post": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Validate Trigger Action",
+        "description": "Checks that an action's shape is valid without storing a trigger.",
+        "operationId": "validateAutomationTriggerAction",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriggerActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Validateautomationtriggeraction"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automation/webhook/{webhook_token}": {
+      "post": {
+        "tags": [
+          "automation"
+        ],
+        "summary": "Fire Webhook",
+        "description": "Fire the HTTP trigger with this secret token. No session required; the\ntoken itself is the credential (an n8n HTTP Request node, for example).",
+        "operationId": "fireAutomationWebhook",
+        "parameters": [
+          {
+            "name": "webhook_token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Webhook Token"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/status": {
+      "get": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Get Tunnel Status",
+        "description": "Get current tunnel status.",
+        "operationId": "get_tunnel_status_api_tunnel_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/start": {
+      "post": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Start Tunnel",
+        "description": "Start the tunnel.",
+        "operationId": "start_tunnel_api_tunnel_start_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/stop": {
+      "post": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Stop Tunnel",
+        "description": "Stop the tunnel.",
+        "operationId": "stop_tunnel_api_tunnel_stop_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/config": {
+      "put": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Update Tunnel Config",
+        "description": "Update tunnel configuration (admin only).",
+        "operationId": "update_tunnel_config_api_tunnel_config_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TunnelConfigRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Update Tunnel Config Api Tunnel Config Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/install": {
+      "post": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Install Tunnel Binary",
+        "description": "Download and install tunnel binary (admin only).",
+        "operationId": "install_tunnel_binary_api_tunnel_install_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TunnelInstallRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tunnel/service": {
+      "put": {
+        "tags": [
+          "tunnel"
+        ],
+        "summary": "Configure Tunnel Service",
+        "description": "Enable/disable auto-start service (admin only).",
+        "operationId": "configure_tunnel_service_api_tunnel_service_put",
+        "parameters": [
+          {
+            "name": "enabled",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean",
+              "title": "Enabled"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TunnelStartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5307,6 +5905,38 @@
           "answer"
         ],
         "title": "AnswerIn"
+      },
+      "AppAction": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "app",
+            "title": "Kind",
+            "default": "app"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 63,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "verb": {
+            "type": "string",
+            "enum": [
+              "start",
+              "stop",
+              "restart",
+              "update"
+            ],
+            "title": "Verb"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "verb"
+        ],
+        "title": "AppAction"
       },
       "AppDetail": {
         "properties": {
@@ -7365,6 +7995,79 @@
         "type": "object",
         "title": "JobProgress"
       },
+      "JobRunOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "trigger_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "output": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "trigger_id",
+          "status",
+          "started_at",
+          "finished_at",
+          "output",
+          "error"
+        ],
+        "title": "JobRunOut"
+      },
       "KindField": {
         "properties": {
           "key": {
@@ -7932,6 +8635,56 @@
         ],
         "title": "OptionExample"
       },
+      "PackageAction": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "package",
+            "title": "Kind",
+            "default": "package"
+          },
+          "manager": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Manager"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "verb": {
+            "type": "string",
+            "enum": [
+              "install",
+              "uninstall",
+              "upgrade",
+              "refresh"
+            ],
+            "title": "Verb"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "type": "object",
+        "required": [
+          "manager",
+          "name",
+          "verb"
+        ],
+        "title": "PackageAction"
+      },
       "PackageRef": {
         "properties": {
           "name": {
@@ -8116,20 +8869,6 @@
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "anthropic",
-              "openai",
-              "google",
-              "openrouter",
-              "groq",
-              "mistral",
-              "deepseek",
-              "xai",
-              "azure",
-              "bedrock",
-              "ollama",
-              "openai-compatible"
-            ],
             "title": "Kind"
           },
           "name": {
@@ -8161,20 +8900,27 @@
       "ProviderKind": {
         "properties": {
           "id": {
-            "type": "string",
-            "enum": [
-              "anthropic",
-              "openai",
-              "google",
-              "openrouter",
-              "groq",
-              "mistral",
-              "deepseek",
-              "xai",
-              "azure",
-              "bedrock",
-              "ollama",
-              "openai-compatible"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "anthropic",
+                  "openai",
+                  "google",
+                  "openrouter",
+                  "groq",
+                  "mistral",
+                  "deepseek",
+                  "xai",
+                  "azure",
+                  "bedrock",
+                  "ollama",
+                  "cohere"
+                ]
+              },
+              {
+                "type": "string"
+              }
             ],
             "title": "Id"
           },
@@ -8254,7 +9000,7 @@
               "azure",
               "bedrock",
               "ollama",
-              "openai-compatible"
+              "cohere"
             ],
             "title": "Kind"
           },
@@ -8353,20 +9099,6 @@
           },
           "kind": {
             "type": "string",
-            "enum": [
-              "anthropic",
-              "openai",
-              "google",
-              "openrouter",
-              "groq",
-              "mistral",
-              "deepseek",
-              "xai",
-              "azure",
-              "bedrock",
-              "ollama",
-              "openai-compatible"
-            ],
             "title": "Kind"
           },
           "name": {
@@ -9485,6 +10217,13 @@
           "compose": {
             "type": "string",
             "title": "Compose"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/VariantDetail"
+            },
+            "type": "array",
+            "title": "Variants"
           }
         },
         "type": "object",
@@ -9512,7 +10251,8 @@
           "license",
           "suggested_name",
           "fields",
-          "compose"
+          "compose",
+          "variants"
         ],
         "title": "StoreAppDetail"
       },
@@ -9607,6 +10347,38 @@
             "type": "boolean",
             "title": "Terminal Enabled",
             "default": true
+          },
+          "tunnel_enabled": {
+            "type": "boolean",
+            "title": "Tunnel Enabled",
+            "default": false
+          },
+          "tunnel_provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tunnel Provider"
+          },
+          "tunnel_config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Tunnel Config",
+            "default": {}
+          },
+          "tunnel_auto_start": {
+            "type": "boolean",
+            "title": "Tunnel Auto Start",
+            "default": true
+          },
+          "tunnel_port": {
+            "type": "integer",
+            "title": "Tunnel Port",
+            "default": 8420
           }
         },
         "type": "object",
@@ -9785,6 +10557,341 @@
         ],
         "title": "TransferIn"
       },
+      "TriggerActionIn": {
+        "properties": {
+          "action": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AppAction"
+              },
+              {
+                "$ref": "#/components/schemas/PackageAction"
+              }
+            ],
+            "title": "Action",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "app": "#/components/schemas/AppAction",
+                "package": "#/components/schemas/PackageAction"
+              }
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "TriggerActionIn"
+      },
+      "TriggerIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "cron",
+              "http"
+            ],
+            "title": "Kind",
+            "default": "cron"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "cron_expression": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cron Expression"
+          },
+          "action": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AppAction"
+              },
+              {
+                "$ref": "#/components/schemas/PackageAction"
+              }
+            ],
+            "title": "Action",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "app": "#/components/schemas/AppAction",
+                "package": "#/components/schemas/PackageAction"
+              }
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "action"
+        ],
+        "title": "TriggerIn"
+      },
+      "TriggerOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "cron_expression": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cron Expression"
+          },
+          "action": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AppAction"
+              },
+              {
+                "$ref": "#/components/schemas/PackageAction"
+              }
+            ],
+            "title": "Action",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "app": "#/components/schemas/AppAction",
+                "package": "#/components/schemas/PackageAction"
+              }
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "webhook_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Token"
+          },
+          "next_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Run At"
+          },
+          "last_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "cron_expression",
+          "action",
+          "enabled",
+          "webhook_token",
+          "next_run_at",
+          "last_run_at",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "TriggerOut"
+      },
+      "TunnelConfigRequest": {
+        "properties": {
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config",
+            "default": {}
+          },
+          "auto_start": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Start"
+          },
+          "port": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port"
+          }
+        },
+        "type": "object",
+        "title": "TunnelConfigRequest"
+      },
+      "TunnelInstallRequest": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider"
+        ],
+        "title": "TunnelInstallRequest"
+      },
+      "TunnelStartResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id"
+        ],
+        "title": "TunnelStartResponse"
+      },
+      "TunnelStatusResponse": {
+        "properties": {
+          "running": {
+            "type": "boolean",
+            "title": "Running"
+          },
+          "public_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public Url"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config"
+          },
+          "capability_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capability Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "running"
+        ],
+        "title": "TunnelStatusResponse"
+      },
       "UnlockIn": {
         "properties": {
           "password": {
@@ -9959,6 +11066,59 @@
         ],
         "title": "ValidationError"
       },
+      "VariantDetail": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "compose": {
+            "type": "string",
+            "title": "Compose"
+          },
+          "images": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Images"
+          },
+          "web_port": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Web Port"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/FormField"
+            },
+            "type": "array",
+            "title": "Fields"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "label",
+          "compose",
+          "images",
+          "fields"
+        ],
+        "title": "VariantDetail"
+      },
       "WebDavIn": {
         "properties": {
           "enabled": {
@@ -10025,6 +11185,24 @@
         ],
         "title": "WebDavPassword"
       },
+      "WebhookOut": {
+        "properties": {
+          "job_run_id": {
+            "type": "string",
+            "title": "Job Run Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_run_id",
+          "status"
+        ],
+        "title": "WebhookOut"
+      },
       "athena__api__packages__InstallIn": {
         "properties": {
           "name": {
@@ -10065,6 +11243,17 @@
             },
             "type": "object",
             "title": "Values"
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant"
           }
         },
         "type": "object",

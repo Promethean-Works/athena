@@ -10,6 +10,9 @@ x-athena:
     - Proxy outposts protect apps that lack SSO
     - User and group management with flows
     - One login for every self-hosted app
+  screenshots:
+    - https://docs.goauthentik.io/img/screen_apps_light.jpg
+    - https://docs.goauthentik.io/img/screen_apps_dark.jpg
   category: security
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authentik.svg
   homepage: https://goauthentik.io

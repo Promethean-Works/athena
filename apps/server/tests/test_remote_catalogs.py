@@ -45,7 +45,7 @@ def test_jellyfin_conventions_are_mapped(tmp_path: Path) -> None:
     assert "/DATA/" not in app.compose and "$AppID" not in app.compose
     assert "${ATHENA_APP_DATA}/config" in app.compose
     assert "x-casaos" not in app.compose
-    values = resolve_values(app, {}, tmp_path)
+    values = resolve_values(app.meta.env, {}, tmp_path)
     assert values["MEDIA_PATH"] == str(tmp_path / "media")
 
 

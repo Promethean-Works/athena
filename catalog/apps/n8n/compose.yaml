@@ -2,6 +2,8 @@ x-athena:
   title: n8n
   description: Workflow automation tool that connects apps and services.
   category: development
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/N8n/thumbnail.png
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/n8n.svg
   homepage: https://n8n.io
   web_port: WEB_PORT

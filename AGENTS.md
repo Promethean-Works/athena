@@ -16,11 +16,12 @@ This file is the single source of instructions for every coding agent working he
 
 The repo is public at `github.com/tiagozaccaro/athena`. `main` is protected: no direct pushes, no force pushes.
 
-1. Start every task on a new branch from an up-to-date `main`: `git switch main && git pull && git switch -c <type>/<short-description>`. Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`.
-2. Commit on the branch. Never commit to or push `main`.
-3. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`). CI checks the title, because it becomes the squash commit and the changelog entry.
-4. Turn on auto-merge right after opening the PR, without asking: `gh pr merge <n> --squash --auto --delete-branch`. This is the maintainer's standing instruction for every PR. CI (`ci-ok`) and `pr-title` must pass. PRs are squash-merged and the branch is deleted. Exceptions: release-please PRs (the maintainer merges those) and PRs whose base isn't `main` (turn it on once they're retargeted to `main`).
-5. Don't edit `CHANGELOG.md` or `version.txt` by hand. release-please manages them.
+1. **Never edit, branch or commit in the base checkout** (`~/Projects/athena` or wherever the repo was cloned). It stays on `main`, clean. Don't run `git switch`/`git checkout -b` there.
+2. Start every task, however small, in a new worktree on a new branch from `origin/main`, before touching any file: `git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main`, then do all work (edits, checks, commits, pushes) in `../athena-<topic>`. Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. Each agent works in its own worktree like on its own machine, so one agent's uncommitted work never clobbers another's. The pre-commit hook rejects commits made in the base checkout or on `main`. After the merge: `git worktree remove ../athena-<topic>`.
+3. Commit on the branch. Never commit to or push `main`.
+4. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`). CI checks the title, because it becomes the squash commit and the changelog entry.
+5. Turn on auto-merge right after opening the PR, without asking: `gh pr merge <n> --squash --auto --delete-branch`. This is the maintainer's standing instruction for every PR. CI (`ci-ok`) and `pr-title` must pass. PRs are squash-merged and the branch is deleted. Exceptions: release-please PRs (the maintainer merges those) and PRs whose base isn't `main` (turn it on once they're retargeted to `main`).
+6. Don't edit `CHANGELOG.md` or `version.txt` by hand. release-please manages them.
 
 Full details are in `CONTRIBUTING.md`.
 
@@ -62,6 +63,21 @@ Turn on the pre-push hook once per clone so this happens even when you forget: `
 ### UI work
 
 Any change to `apps/web`, or to an API the UI uses, is verified in a real browser with the `athena-ui-verify` skill (release build on port 8421, fresh data dir, happy path plus a failure, console and network checks, phone width and dark mode when layout changed, cleanup) before it's reported as done.
+
+## Fast development loop (validated 2026-11-18)
+
+During active development, **don't run the full `scripts/check.sh` on every iteration**. Use these targeted commands instead — they're what the pre-push hook and CI will run anyway:
+
+| Area | Fast command (~3-10s) | When to run full check |
+|------|----------------------|------------------------|
+| **Web** (lint + typecheck) | `pnpm lint && pnpm typecheck` | Before PR: `scripts/check.sh --quick` |
+| **Server** (lint + format) | `cd apps/server && uv run ruff check && uv run ruff format --check` | Before PR: `scripts/check.sh --quick` |
+| **Tests you're writing** | `cd apps/server && uv run pytest -q -k "test_name" --tb=short` | Before PR: full `scripts/check.sh` (or let CI run it) |
+| **API change** | `pnpm gen:api` (from repo root) | After any route change |
+
+The pre-push hook (enabled via `git config core.hooksPath .githooks`) runs the relevant subset automatically on push. Skip once with `git push --no-verify`.
+
+**Why this works:** `scripts/check.sh --quick` passes all lint/format/typecheck steps. The full pytest suite has pre-existing failures unrelated to typical changes (migration needed for `models_dev_cache` <!-- docs-check: ignore -->, MCP alembic revision, Docker not installed on dev machine). Run focused tests instead.
 
 ## Handoff
 

@@ -1,0 +1,27 @@
+x-athena:
+  title: Dispatcharr
+  description: Media automation dispatcher for routing downloads and managing your media stack.
+  tagline: Media automation dispatcher.
+  tags: [Media, Automation, Downloads]
+  license: "GPL-3.0"
+  category: downloads
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/dispatcharr/icon.svg
+  homepage: https://dispatcharr.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/dispatcharr/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/dispatcharr/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8158"
+
+services:
+  dispatcharr:
+    image: ghcr.io/dispatcharr/dispatcharr:0.29.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9191/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

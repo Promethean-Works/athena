@@ -1,0 +1,53 @@
+x-athena:
+  title: Firefly
+  description: Personal finance manager with budget tracking, accounts, and reporting.
+  tagline: Personal finance manager.
+  tags: [Finance, Budgeting, Personal]
+  license: "GPL-3.0"
+  category: productivity
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Firefly/icon.svg
+  homepage: https://firefly-iii.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Firefly/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Firefly/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8190"
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+    - key: DB_ROOT_PASSWORD
+      label: Database root password
+      type: password
+      generate: secret
+      advanced: true
+
+services:
+  firefly:
+    image: fireflyiii/core:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: firefly
+      DB_USERNAME: firefly
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - db
+  db:
+    image: mariadb:10.7
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: firefly
+      MYSQL_USER: firefly
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/db:/var/lib/mysql

@@ -1,0 +1,38 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/MySpeed
+x-athena:
+  title: MySpeed
+  description: Analysis software that shows your internet speed for up to 30 days.
+  category: network
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/MySpeed/icon.svg
+  homepage: https://myspeed.dev
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  - linux/arm
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '5216'
+services:
+  myspeed:
+    container_name: myspeed
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    image: germannewsmaker/myspeed:1.0.9
+    ports:
+    - target: 5216
+      published: ${WEB_PORT}
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /myspeed/data
+    network_mode: bridge
+    privileged: false

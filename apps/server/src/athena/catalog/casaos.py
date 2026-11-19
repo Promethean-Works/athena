@@ -214,7 +214,7 @@ def convert(folder_name: str, compose_text: str, catalog: str) -> CatalogApp:
         + yaml.safe_dump(out, sort_keys=False, allow_unicode=True, width=100)
     )
     parsed = yaml.safe_load(text)
-    return parse_app(app_id, catalog, text, parsed)
+    return parse_app(app_id, catalog, [("compose.yaml", text, parsed)])
 
 
 def import_casaos_tree(source: Path, dest: Path, catalog: str) -> tuple[int, list[str]]:

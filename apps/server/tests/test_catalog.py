@@ -38,7 +38,7 @@ def test_builtin_catalog_loads_without_errors() -> None:
 def test_every_builtin_app_installs_with_defaults(tmp_path: Path) -> None:
     apps, _ = builtin()
     for app in apps:
-        values = resolve_values(app, {}, tmp_path / app.id / "data")
+        values = resolve_values(app.meta.env, {}, tmp_path / app.id / "data")
         assert set(values) == {f.key for f in app.meta.env}, app.id
         for f in app.meta.env:
             if f.generate == "secret":
@@ -77,7 +77,7 @@ def test_every_builtin_app_passes_compose_config(tmp_path: Path) -> None:
         folder = tmp_path / app.id
         folder.mkdir()
         (folder / "compose.yaml").write_text(app.compose)
-        (folder / ".env").write_text(env_file(resolve_values(app, {}, folder / "data")))
+        (folder / ".env").write_text(env_file(resolve_values(app.meta.env, {}, folder / "data")))
         result = subprocess.run(
             [*cli, "compose", "--file", str(folder / "compose.yaml"), "config", "--quiet"],
             capture_output=True,
@@ -113,18 +113,44 @@ PORT = {"key": "WEB_PORT", "label": "Port", "type": "port", "default": "8080"}
 def test_undeclared_variables_are_rejected() -> None:
     text, d = doc([PORT], "${WEB_PORT}:${OTHER}")
     with pytest.raises(InvalidCatalogAppError, match="undeclared variables OTHER"):
-        parse_app("a", "builtin", text, d)
+        parse_app("a", "builtin", [("compose.yaml", text, d)])
 
 
 def test_web_port_must_be_a_field() -> None:
     text, d = doc([{**PORT, "key": "PORT"}], "${PORT}")
     with pytest.raises(InvalidCatalogAppError, match="web_port"):
-        parse_app("a", "builtin", text, d)
+        parse_app("a", "builtin", [("compose.yaml", text, d)])
 
 
 def test_missing_metadata() -> None:
     with pytest.raises(InvalidCatalogAppError, match="x-athena"):
-        parse_app("a", "builtin", "services: {}", {"services": {}})
+        parse_app("a", "builtin", [("compose.yaml", "services: {}", {"services": {}})])
+
+
+def test_multiple_compose_files_expose_installable_variants() -> None:
+    default_text, default_d = doc([PORT], "${WEB_PORT}:80")
+    variant_text, variant_d = doc(
+        [PORT, {"key": "EXTRA", "label": "Extra", "default": "x"}],
+        "${WEB_PORT}:81",
+    )
+    app = parse_app(
+        "a",
+        "builtin",
+        [
+            ("compose.yaml", default_text, default_d),
+            ("compose.extra.yaml", variant_text, variant_d),
+        ],
+    )
+    assert len(app.variants) == 2
+    assert app.variants[0].slug == "default"
+    assert app.variants[1].slug == "extra"
+    assert app.variants[1].label == "Extra"
+    assert [f.key for f in app.variants[1].env] == ["WEB_PORT", "EXTRA"]
+    assert app.variants[1].web_port == "WEB_PORT"
+    assert app.images == ["x:1"]
+    assert app.variants[1].images == ["x:1"]
+    # The app-level compose/images come from the default variant.
+    assert app.compose == default_text
 
 
 @pytest.mark.parametrize(
@@ -142,9 +168,9 @@ def test_missing_metadata() -> None:
 def test_value_validation(field: dict, value: str, message: str, tmp_path: Path) -> None:
     env = [PORT] if field is PORT else [PORT, field]
     text, d = doc(env)
-    app = parse_app("a", "builtin", text, d)
+    app = parse_app("a", "builtin", [("compose.yaml", text, d)])
     with pytest.raises(InstallValueError) as exc:
-        resolve_values(app, {field["key"]: value}, tmp_path)
+        resolve_values(app.meta.env, {field["key"]: value}, tmp_path)
     assert message in exc.value.errors[field["key"]]
 
 
@@ -157,7 +183,8 @@ def test_default_tokens(tmp_path: Path) -> None:
             {"key": "UID", "label": "U", "default": "@uid"},
         ]
     )
-    values = resolve_values(parse_app("a", "builtin", text, d), {}, tmp_path)
+    app = parse_app("a", "builtin", [("compose.yaml", text, d)])
+    values = resolve_values(app.meta.env, {}, tmp_path)
     assert values["TZ"]
     assert values["DATA"] == str(tmp_path / "media")
     assert values["UID"].isdigit() and values["UID"] != "0"
@@ -194,7 +221,7 @@ def test_store_lists_and_filters(api: TestClient) -> None:
     media = api.get("/api/store/apps", params={"category": "media"}).json()
     assert media and all(a["category"] == "media" for a in media)
     found = api.get("/api/store/apps", params={"q": "jelly"}).json()
-    assert [a["id"] for a in found] == ["jellyfin"]
+    assert "jellyfin" in [a["id"] for a in found]
     tagged = api.get("/api/store/apps", params={"q": "bittorrent"}).json()
     assert {"deluge", "qbittorrent", "transmission"} <= {a["id"] for a in tagged}
     cats = api.get("/api/store/categories").json()
@@ -228,8 +255,8 @@ def test_store_front_metadata(api: TestClient) -> None:
     assert detail["license"] == "MIT"
 
     # Apps without screenshots fall back to their icon on a card.
-    assert by_id["jellyfin"]["cover"] is None
-    assert by_id["jellyfin"]["tagline"]
+    assert by_id["deluge"]["cover"] is None
+    assert by_id["deluge"]["tagline"]
 
 
 def test_install_writes_env_and_deploys(api: TestClient, tmp_path: Path) -> None:
@@ -257,6 +284,33 @@ def test_install_writes_env_and_deploys(api: TestClient, tmp_path: Path) -> None
     assert store["installed"] == ["cloud"]
     # The suggested name skips taken names.
     assert api.get("/api/store/apps/builtin/nextcloud").json()["suggested_name"] == "nextcloud"
+
+
+def test_install_selects_variant_compose(api: TestClient, tmp_path: Path) -> None:
+    detail = api.get("/api/store/apps/builtin/freshrss").json()
+    assert {v["slug"] for v in detail["variants"]} == {"default", "postgres"}
+    assert {v["label"] for v in detail["variants"]} == {"Default", "PostgreSQL"}
+    # Default variant has no DB_PASSWORD; the postgres variant does.
+    default_fields = {f["key"]: f for f in detail["fields"]}
+    assert "DB_PASSWORD" not in default_fields
+    postgres = next(v for v in detail["variants"] if v["slug"] == "postgres")
+    assert "DB_PASSWORD" in {f["key"] for f in postgres["fields"]}
+
+    from test_apps import wait
+
+    res = api.post(
+        "/api/store/apps/builtin/freshrss/install",
+        json={"name": "freshrss-db", "values": {"WEB_PORT": "9999"}, "variant": "postgres"},
+    )
+    assert res.status_code == 202, res.text
+    assert wait(api, res.json()["id"])["status"] == "succeeded"
+    app_dir = tmp_path / "data" / "apps" / "freshrss-db"
+    compose = (app_dir / "compose.yaml").read_text()
+    assert "postgres:" in compose
+    assert "FRESHRSS_INSTALL" in compose
+    assert "--db-type pgsql" in compose
+    env = (app_dir / ".env").read_text()
+    assert "DB_PASSWORD='" in env and "DB_PASSWORD=''" not in env
 
 
 def test_install_rejects_bad_values(api: TestClient) -> None:

@@ -1,0 +1,27 @@
+x-athena:
+  title: Ddns-go
+  description: Simple dynamic DNS client supporting multiple DNS providers.
+  tagline: Simple dynamic DNS client.
+  tags: [DDNS, DNS, Network]
+  license: "MIT"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ddns-go/icon.svg
+  homepage: https://ddns-go.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ddns-go/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ddns-go/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8179"
+
+services:
+  ddns-go:
+    image: jeessy/ddns-go:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9876/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/root/ddns-go

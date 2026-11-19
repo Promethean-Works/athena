@@ -1,0 +1,27 @@
+x-athena:
+  title: CopyParty
+  description: Resumable file upload server with a web interface and CLI client.
+  tagline: Resumable file upload server.
+  tags: [File Upload, Sharing, Transfer]
+  license: "Unlicense"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CopyParty/icon.svg
+  homepage: https://copyparty.readthedocs.io
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CopyParty/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CopyParty/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8175"
+
+services:
+  copyparty:
+    image: ghcr.io/copyparty/copyparty:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/data

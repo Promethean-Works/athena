@@ -9,6 +9,8 @@ x-athena:
     - Read EPUB, PDF and CBX files in the browser
     - Send books to a Kindle or e-reader by email
     - Shelves, ratings and reading progress
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Calibre-web/thumbnail.png
   category: files
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/calibre-web.svg
   homepage: https://www.calibre-ebook.com

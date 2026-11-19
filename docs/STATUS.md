@@ -2,11 +2,17 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M7, the AI assistant (§4.5). Parts A, B and C are done, and so are part D stages 1 and 2 (#65–#73). Stage 3: web research (#75), second-model reviews (#76), Docker sandbox (#77), hosted integrations (#78) and the durable execution foundation (#80) are done; the browser is blocked by a dependency conflict (see Next).
+**Current milestone:** M8, automation (cron + trigger-based jobs, MCP server, webhooks). M7 (the AI assistant, §4.5) is complete.
 
 ## Done
 
 Finished work is in `docs/HISTORY.md` (read it only when you need a feature's background). When you finish something, add a short bullet there with the PR number and take it out of In progress below.
+
+- M8 A (automation foundation): done — durable triggers + job runs, cron scheduler, triggers/job routers, audit.
+- M8 B (MCP server): done — streamable-HTTP MCP server at /api/mcp with session or bearer-token auth, tools for apps/capabilities/stats/automation. Verified with MCP handshake + tool-call tests.
+- M8 C (webhooks): done — public POST /api/automation/webhook/{token} fires HTTP triggers (n8n path), no session needed. Verified with API tests.
+- M8 D (Automation UI): done — /automation page with trigger create/edit/delete, job-run table, webhook+MCP endpoints card. gated by `automation` capability. Verified lint/typecheck/build; not yet browser-verified.
+- M7: models.dev cache for dynamic AI providers — PR #126. 12 native providers kept, dynamic OpenAI-compatible providers loaded from models.dev with 24h database cache. New `/kinds/refresh` endpoint. Verified: all CI (Linux/macOS/Windows), lint, typecheck, build, pytest (544 passed).
 
 ## In progress
 
@@ -14,6 +20,11 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
+- Tunnel feature (feat/tunnel PR #128): backend detection, provider implementations (Cloudflare, Tailscale, Ngrok), API endpoints, SystemSettings extension, and frontend UI (TunnelCard, updated SystemForm). All lint/typecheck/ruff pass. Browser verification pending.
+
+Standalone (open PR, not M7):
+- compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
+- CasaOS AppStore catalog port is PR #120 (open, auto-merge squash, CI pending). Ported ~180 CasaOS AppStore apps via the existing `casaos` converter, growing the built-in catalog from 166 to 200 apps. Removed CasaOS entries duplicating curated store apps and fixed web port clashes so the catalog validates. Verified: `tests/test_catalog.py` (incl. `docker compose config` on all 200 apps), `tests/test_remote_catalogs.py`, `tests/test_apps.py`, ruff, format, check-docs. Not verified: installing the newly ported apps for real against Docker.
 
 Standalone (done, not M7): FreshRSS database-backend select is PR #108 (open, auto-merge squash, CI pending). `DATABASE_BACKEND` select (`sqlite`/`pgsql`) plus a bundled `postgres:15` container in `catalog/apps/freshrss/compose.yaml`; `select` needed no server/UI changes. Browser pass not yet done.
 

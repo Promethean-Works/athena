@@ -59,6 +59,7 @@ export function AssistantSheet() {
             size="icon-sm"
             aria-label="Open the full page"
             title="Open the full page"
+            nativeButton={false}
             render={
               <Link
                 href={

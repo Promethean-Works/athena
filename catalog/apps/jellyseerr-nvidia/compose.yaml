@@ -1,0 +1,27 @@
+x-athena:
+  title: Jellyseerr_Nvidia
+  description: GPU-accelerated media request manager for Jellyfin and Plex.
+  tagline: GPU-accelerated media request manager.
+  tags: [Media, Requests, GPU]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Jellyseerr/icon.svg
+  homepage: https://jellyseerr.dev
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Jellyseerr/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Jellyseerr/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8203"
+
+services:
+  jellyseerr:
+    image: fallenbagel/jellyseerr:2.7.3
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5055/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/config

@@ -1,0 +1,27 @@
+x-athena:
+  title: V2rayA
+  description: Web GUI client for Project V, supporting various proxy protocols and routing rules.
+  tagline: Web GUI for Project V proxy.
+  tags: [Proxy, VPN, Network]
+  license: "GPL-3.0"
+  category: network
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/V2rayA/icon.svg
+  homepage: https://v2raya.org
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/V2rayA/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/V2rayA/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8151"
+
+services:
+  v2raya:
+    image: mzz2017/v2raya:v2.2.7.5
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:2017/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/etc/v2raya

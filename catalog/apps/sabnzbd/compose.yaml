@@ -4,6 +4,8 @@ x-athena:
   tagline: "Usenet downloading made simple."
   tags: [Usenet, Downloads]
   license: "GPL-2.0"
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Sabnzbd/thumbnail.png
   category: downloads
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/sabnzbd.svg
   homepage: https://sabnzbd.org

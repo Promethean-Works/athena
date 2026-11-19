@@ -7,7 +7,7 @@ import json
 import logging
 import secrets
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
 from fastapi.responses import StreamingResponse
@@ -36,7 +36,17 @@ from athena.assistant.integrations import (
 from athena.assistant.integrations import (
     _out as integration_out,
 )
-from athena.assistant.kinds import BY_ID, KINDS, KindId, ProviderKind, secret_keys
+from athena.assistant.kinds import (
+    BY_ID,
+    KindField,
+    KindId,
+    ProviderKind,
+    secret_keys,
+)
+from athena.assistant.kinds import (
+    NATIVE_KINDS as KINDS,
+)
+from athena.assistant.models_dev import get_models_dev_service, refresh_models_dev_cache
 from athena.assistant.plans import PlanStep, delete_plan, plan_of
 from athena.assistant.providers import (
     ModelCache,
@@ -82,7 +92,7 @@ def _cache(request: Request) -> ModelCache:
 
 
 class ProviderIn(BaseModel):
-    kind: KindId
+    kind: str  # Can be native or dynamic from models.dev
     name: str = Field(min_length=1, max_length=64)
     values: Values = {}
 
@@ -95,7 +105,7 @@ class ProviderUpdate(BaseModel):
 
 class ProviderOut(BaseModel):
     id: str
-    kind: KindId
+    kind: str  # Can be native or dynamic from models.dev
     name: str
     values: dict[str, str]
     """Non-secret settings only."""
@@ -164,8 +174,29 @@ def _store(row: AiProvider, kind: ProviderKind, values: dict[str, str], box: Sec
 
 
 @router.get("/kinds", operation_id="listAiProviderKinds")
-def list_kinds() -> list[ProviderKind]:
-    return KINDS
+def list_kinds(request: Request) -> list[ProviderKind]:
+    """Return all provider kinds: native + dynamic from models.dev cache."""
+    kinds = list(KINDS)  # Native kinds
+    # Add dynamic kinds from models.dev cache
+    service = get_models_dev_service()
+    if service:
+        kinds.extend(service.get_dynamic_kinds())
+    return kinds
+
+
+@router.post(
+    "/kinds/refresh", operation_id="refreshAiProviderKinds", status_code=status.HTTP_202_ACCEPTED
+)
+async def refresh_kinds(request: Request, user: Authed, db: DbSession) -> dict[str, Any]:
+    """Manually refresh the models.dev cache and return the updated kinds."""
+    # Force refresh the cache
+    count = await refresh_models_dev_cache(db.session, force=True)
+    # Return updated kinds
+    kinds = list(KINDS)
+    service = get_models_dev_service()
+    if service:
+        kinds.extend(service.get_dynamic_kinds())
+    return {"refreshed": count, "kinds": [k.model_dump() for k in kinds]}
 
 
 @router.get("/providers", operation_id="listAiProviders")
@@ -176,7 +207,54 @@ def list_providers(request: Request, db: DbSession) -> list[ProviderOut]:
 
 @router.post("/providers", operation_id="createAiProvider", status_code=status.HTTP_201_CREATED)
 def create_provider(body: ProviderIn, request: Request, user: Authed, db: DbSession) -> ProviderOut:
-    kind = BY_ID[body.kind]
+    # Validate kind exists (native or dynamic)
+    kind = BY_ID.get(body.kind)
+    if kind is None:
+        service = get_models_dev_service()
+        if service:
+            # Check if it's a dynamic kind from models.dev
+            entry = service.get_provider(body.kind)
+            if entry and entry.is_openai_compatible:
+                # Create a dynamic kind for this provider
+                kind = ProviderKind(
+                    id=entry.provider_id,
+                    label=entry.name,
+                    group="cloud" if entry.api_url else "local",
+                    fields=[
+                        KindField(
+                            key="api_key",
+                            label="API key",
+                            secret=True,
+                            required=True,
+                            help=(
+                                f"Set {entry.provider_id.upper().replace('-', '_')}_API_KEY "
+                                "in your environment or enter it here"
+                            ),
+                        ),
+                        KindField(
+                            key="base_url",
+                            label="Base URL",
+                            required=False,
+                            default=entry.api_url,
+                            placeholder=entry.api_url,
+                            help=entry.doc_url or "Provider's API endpoint",
+                        ),
+                        KindField(
+                            key="context_window",
+                            label="Context window",
+                            placeholder="e.g. 32768",
+                            help="Tokens the model accepts. Leave empty to detect automatically.",
+                        ),
+                    ],
+                    lists_models=True,
+                )
+                BY_ID[body.kind] = kind  # Cache it for future use
+        # If still None, it's an unknown kind
+        if kind is None:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT, f"Unknown provider kind: {body.kind}"
+            )
+
     row = AiProvider(id=secrets.token_hex(8), kind=kind.id, name=body.name.strip())
     _store(row, kind, body.values, _box(request))
     db.add(row)

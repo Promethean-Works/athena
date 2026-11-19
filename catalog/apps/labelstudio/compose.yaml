@@ -1,0 +1,54 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/LabelStudio
+x-athena:
+  title: Label Studio
+  description: Label Studio is an open source data labeling tool. It lets you label data types like audio,
+    text, images, videos, and time series with a simple and straightforward UI and export to various model
+    formats. It can be used to prepare raw data or improve existing training data to get more accurate
+    ML mod
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/LabelStudio/icon.svg
+  homepage: https://labelstud.io/
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: null
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '3080'
+  - key: PGID
+    label: Group ID
+    default: '@gid'
+    advanced: true
+  - key: PUID
+    label: User ID
+    default: '@uid'
+    advanced: true
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+services:
+  label-studio:
+    environment:
+      PGID: ${PGID}
+      PUID: ${PUID}
+      TZ: ${TZ}
+    image: heartexlabs/label-studio:1.23.0
+    deploy:
+      resources:
+        reservations:
+          memory: 256M
+    network_mode: bridge
+    ports:
+    - target: 8080
+      published: ${WEB_PORT}
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /label-studio/data

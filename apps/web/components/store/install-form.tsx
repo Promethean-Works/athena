@@ -34,6 +34,7 @@ import { useAppJobs } from "@/components/apps/use-app-jobs"
 
 type Detail = Schemas["StoreAppDetail"]
 type FormField = Schemas["FormField"]
+type Variant = Schemas["VariantDetail"]
 
 const NAME_RE = /^[a-z0-9][a-z0-9_-]{0,62}$/
 
@@ -102,12 +103,16 @@ function FieldControl({
   )
 }
 
-export function InstallForm({ app }: { app: Detail }) {
+export function InstallForm({ app, variant }: { app: Detail; variant: Variant }) {
   const router = useRouter()
   const [name, setName] = React.useState(app.suggested_name)
   const [values, setValues] = React.useState<Record<string, string>>(() =>
-    Object.fromEntries(app.fields.map((f) => [f.key, f.default]))
+    Object.fromEntries(variant.fields.map((f) => [f.key, f.default]))
   )
+  // Reset the form values when the variant (and thus its fields) changes.
+  React.useEffect(() => {
+    setValues(Object.fromEntries(variant.fields.map((f) => [f.key, f.default])))
+  }, [variant.slug])
   const [errors, setErrors] = React.useState<Record<string, string>>({})
   const [installing, setInstalling] = React.useState(false)
   const installedName = React.useRef(name)
@@ -133,7 +138,7 @@ export function InstallForm({ app }: { app: Detail }) {
       "/api/store/apps/{catalog}/{app_id}/install",
       {
         params: { path: { catalog: app.catalog, app_id: app.id } },
-        body: { name, values },
+        body: { name, values, variant: variant.slug },
       }
     )
     setInstalling(false)
@@ -149,8 +154,8 @@ export function InstallForm({ app }: { app: Detail }) {
     jobs.show(result, `install ${app.title}`)
   }
 
-  const basic = app.fields.filter((f) => !f.advanced)
-  const advanced = app.fields.filter((f) => f.advanced)
+  const basic = variant.fields.filter((f) => !f.advanced)
+  const advanced = variant.fields.filter((f) => f.advanced)
 
   const renderField = (f: FormField) => (
     <Field

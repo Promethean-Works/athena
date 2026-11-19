@@ -1,0 +1,28 @@
+x-athena:
+  title: FileFlows
+  description: File processing automation tool for converting and organizing media files.
+  tagline: File processing automation.
+  tags: [File Processing, Automation, Media]
+  license: "MIT"
+  category: utilities
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FileFlows/icon.svg
+  homepage: https://fileflows.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FileFlows/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FileFlows/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8188"
+
+services:
+  fileflows:
+    image: fileflows/fileflows:latest
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5000/tcp"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${ATHENA_APP_DATA}/files:/files

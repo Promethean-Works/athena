@@ -1,0 +1,56 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/MariaDB
+x-athena:
+  title: MariaDB
+  description: MariaDB Server is one of the most popular database servers in the world. It's made by the
+    original developers of MySQL and guaranteed to stay open source.
+  category: development
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/MariaDB/icon.svg
+  homepage: https://mariadb.org/
+  web_port: null
+  web_path: /
+  platforms:
+  - linux/amd64
+  - linux/arm64
+  notes: 'Default user: `casaos`
+
+    Default password: `casaos`
+
+    Default database: `casaos`
+
+
+    Default root password: `casaos`'
+  env:
+  - key: PUID
+    label: User ID
+    default: '@uid'
+    advanced: true
+  - key: PGID
+    label: Group ID
+    default: '@gid'
+    advanced: true
+  - key: TZ
+    label: Timezone
+    default: '@timezone'
+    advanced: true
+services:
+  mariadb:
+    image: linuxserver/mariadb:11.4.8
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      MYSQL_ROOT_PASSWORD: casaos
+      MYSQL_DATABASE: casaos
+      MYSQL_USER: casaos
+      MYSQL_PASSWORD: casaos
+      REMOTE_SQL: ''
+    ports:
+    - target: 3306
+      published: '3306'
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: /DATA/AppData/mariadb/config
+      target: /config
+    container_name: mariadb

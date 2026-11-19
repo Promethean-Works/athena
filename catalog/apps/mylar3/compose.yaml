@@ -1,0 +1,38 @@
+x-athena:
+  title: Mylar3
+  description: Automated comic book manager for Usenet and BitTorrent users.
+  tagline: Automated comic book manager.
+  tags: [Comics, Automation]
+  license: "GPL-3.0"
+  category: media
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Mylar3/icon.svg
+  homepage: https://mylar3.com
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Mylar3/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Mylar3/screenshot-2.png
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8120"
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+
+services:
+  mylar3:
+    image: linuxserver/mylar3:0.9.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8090/tcp"
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config

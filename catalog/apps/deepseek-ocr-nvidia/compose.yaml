@@ -1,0 +1,67 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/DeepSeek-OCR_Nvidia
+x-athena:
+  title: DeepSeek OCR(Nvidia GPU)
+  description: Powerful OCR powered by DeepSeek AI
+  category: utilities
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/DeepSeek-OCR_Nvidia/icon.svg
+  homepage: https://github.com/rdumasia303/deepseek_ocr_app
+  web_port: WEB_PORT
+  web_path: /
+  platforms:
+  - linux/amd64
+  notes: The first run will download the model (~5-10GB), which may take some time.
+  env:
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '23001'
+services:
+  deepseek-ocr-backend:
+    image: icewhaletech/deepseek-ocr-backend:v2.2.0
+    container_name: deepseek-ocr-backend
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: '8000'
+      FRONTEND_PORT: '3000'
+      MODEL_NAME: deepseek-ai/DeepSeek-OCR
+      HF_HOME: /models
+      MAX_UPLOAD_SIZE_MB: '100'
+      BASE_SIZE: '1024'
+      IMAGE_SIZE: '640'
+      CROP_MODE: 'true'
+    volumes:
+    - ${ATHENA_APP_DATA}/models:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: all
+            capabilities:
+            - gpu
+          memory: 8G
+    shm_size: 4g
+    ports:
+    - target: 8000
+      published: '22523'
+      protocol: tcp
+    networks:
+    - deepseek-ocr-network
+  deepseek-ocr-frontend:
+    image: icewhaletech/deepseek-ocr-frontend:v2.2.0
+    container_name: deepseek-ocr-frontend
+    ports:
+    - target: 80
+      published: ${WEB_PORT}
+      protocol: tcp
+    deploy:
+      resources:
+        reservations:
+          memory: 512M
+    depends_on:
+    - deepseek-ocr-backend
+    networks:
+    - deepseek-ocr-network
+networks:
+  deepseek-ocr-network:
+    driver: bridge

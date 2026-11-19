@@ -10,6 +10,9 @@ x-athena:
     - Full-text search across the instance
     - Roles and per-book permissions
     - Exports to HTML, PDF and plain text
+  screenshots:
+    - https://www.bookstackapp.com/images/screenshots/page-view.png
+    - https://www.bookstackapp.com/images/screenshots/page-edit.png
   category: productivity
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/bookstack.svg
   homepage: https://www.bookstackapp.com

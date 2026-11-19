@@ -3,7 +3,7 @@ tests/test_db.py fails if the models and migrations drift apart."""
 
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime
+from sqlalchemy import JSON, DateTime
 from sqlmodel import Field, SQLModel
 
 
@@ -164,6 +164,35 @@ class AiProvider(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
 
 
+class ModelsDevCache(SQLModel, table=True):
+    """Cached provider and model data from models.dev (docs/mvp-design.md §4.5)."""
+
+    __tablename__ = "models_dev_cache"
+
+    provider_id: str = Field(primary_key=True, max_length=64)
+    """Provider ID from models.dev."""
+    name: str = Field(max_length=128)
+    """Provider display name."""
+    api_url: str | None = Field(default=None, max_length=512)
+    """Provider's API endpoint if OpenAI-compatible."""
+    npm_package: str | None = Field(default=None, max_length=128)
+    """NPM package for AI SDK."""
+    doc_url: str | None = Field(default=None, max_length=512)
+    """Documentation URL."""
+    env_vars: list = Field(default=[], sa_type=JSON)
+    """Required environment variables as JSON array."""
+    models: dict = Field(default={}, sa_type=JSON)
+    """Model data as JSON object (id -> model info)."""
+    model_count: int = 0
+    """Number of models."""
+    is_openai_compatible: bool = False
+    """Whether provider uses OpenAI-compatible API."""
+    fetched_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+    """When this data was fetched from models.dev."""
+    expires_at: datetime = Field(sa_type=DateTime(timezone=True), index=True)
+    """When this cache entry expires."""
+
+
 class AiIntegration(SQLModel, table=True):
     """A hosted integration the assistant can use (docs/mvp-design.md §4.5, part D.5).
 
@@ -205,3 +234,47 @@ class AiConversation(SQLModel, table=True):
     updated_at: datetime = Field(
         default_factory=utcnow, sa_type=DateTime(timezone=True), index=True
     )
+
+
+class AutomationTrigger(SQLModel, table=True):
+    """A durable trigger that starts an automation job (docs/mvp-design.md §8).
+
+    kind "cron" fires on a cron expression; kind "http" fires when its webhook
+    URL is called. `action` is the job to run, stored as JSON.
+    """
+
+    __tablename__ = "automation_triggers"
+
+    id: str = Field(primary_key=True, max_length=64)
+    kind: str = Field(max_length=16)
+    """cron or http."""
+    name: str = Field(max_length=64)
+    cron_expression: str | None = Field(default=None, max_length=200)
+    """Set for kind "cron"; e.g. "*/5 * * * *"."""
+    action: dict = Field(sa_type=JSON)
+    """The job to run, e.g. {"kind": "app", "name": "…", "verb": "start"}."""
+    enabled: bool = Field(default=True)
+    webhook_token: str | None = Field(default=None, max_length=64, unique=True, index=True)
+    """Secret for kind "http"; POST /api/automation/webhook/{token} fires it."""
+    next_run_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True), index=True)
+    last_run_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+    updated_at: datetime = Field(
+        default_factory=utcnow, sa_type=DateTime(timezone=True), index=True
+    )
+
+
+class AutomationJobRun(SQLModel, table=True):
+    """One execution of an automation trigger. Append-only history of what ran."""
+
+    __tablename__ = "automation_job_runs"
+
+    id: str = Field(primary_key=True, max_length=64)
+    trigger_id: str | None = Field(default=None, max_length=64)
+    status: str = Field(max_length=16)
+    """running, succeeded or failed."""
+    started_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+    finished_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    output: str | None = None
+    """Joined job log lines."""
+    error: str | None = None
