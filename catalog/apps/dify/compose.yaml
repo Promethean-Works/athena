@@ -19,7 +19,7 @@ x-athena:
 
 services:
   dify:
-    image: langgenius/dify-server:latest
+    image: langgenius/dify-server:1.20.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:80/tcp"

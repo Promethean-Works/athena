@@ -24,7 +24,7 @@ x-athena:
 
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.40.17
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:11434"

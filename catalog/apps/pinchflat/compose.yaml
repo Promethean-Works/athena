@@ -43,7 +43,7 @@ x-athena:
     description: The CasaOS Media folder.
 services:
   pinchflat:
-    image: ghcr.io/kieraneglin/pinchflat:latest
+    image: ghcr.io/kieraneglin/pinchflat:v2025.9.26
     deploy:
       resources:
         reservations:

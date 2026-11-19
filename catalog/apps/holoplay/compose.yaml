@@ -19,9 +19,9 @@ x-athena:
 
 services:
   holoplay:
-    image: ghcr.io/holoplay/holoplay:latest
+    image: spout8301/holoplay:1.12.3
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:3000/tcp"
     volumes:
       - ${ATHENA_APP_DATA}/data:/data

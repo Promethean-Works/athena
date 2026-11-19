@@ -19,7 +19,7 @@ x-athena:
 
 services:
   excalidraw:
-    image: excalidraw/excalidraw:latest
+    image: excalidraw/excalidraw:v0.18.1
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:80/tcp"

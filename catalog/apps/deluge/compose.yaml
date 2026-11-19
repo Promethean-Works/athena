@@ -33,7 +33,7 @@ x-athena:
 
 services:
   deluge:
-    image: lscr.io/linuxserver/deluge:latest
+    image: lscr.io/linuxserver/deluge:2.2.0-ls387
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8112"

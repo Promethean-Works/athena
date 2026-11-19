@@ -5,7 +5,7 @@ x-athena:
   tags: [Media, Automation, Downloads]
   license: "GPL-3.0"
   category: downloads
-  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/dispatcharr/icon.svg
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/dispatcharr.svg
   homepage: https://dispatcharr.com
   web_port: WEB_PORT
   screenshots:

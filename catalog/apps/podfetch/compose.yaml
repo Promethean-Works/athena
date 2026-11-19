@@ -5,7 +5,7 @@ x-athena:
   tags: [Podcasts, Audio, Downloads]
   license: "MIT"
   category: media
-  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PodFetch/icon.svg
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/podfetch.svg
   homepage: https://podfetch.com
   web_port: WEB_PORT
   screenshots:

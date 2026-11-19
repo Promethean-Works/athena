@@ -19,7 +19,7 @@ x-athena:
 
 services:
   emulatorjs:
-    image: ghcr.io/emulatorjs/emulatorjs:latest
+    image: lscr.io/linuxserver/emulatorjs:1.9.2-ls173
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:80/tcp"

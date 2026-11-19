@@ -19,7 +19,7 @@ x-athena:
 
 services:
   beaver:
-    image: jordanmorgan23/beaver-tracker:latest
+    image: daya0576/beaverhabits:0.10.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

@@ -5,7 +5,7 @@ x-athena:
   tags: [Media, Upload, Organization]
   license: "MIT"
   category: media
-  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/UploadAssistant/icon.svg
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/video.svg
   homepage: https://uploadassistant.app
   web_port: WEB_PORT
   screenshots:

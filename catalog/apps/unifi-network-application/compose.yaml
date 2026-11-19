@@ -27,7 +27,7 @@ x-athena:
 
 services:
   unifi:
-    image: lscr.io/linuxserver/unifi-network-application:latest
+    image: lscr.io/linuxserver/unifi-network-application:10.6.109-ls155
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8443/tcp"

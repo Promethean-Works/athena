@@ -24,6 +24,6 @@ x-athena:
 services:
   playit-agent:
     restart: unless-stopped
-    image: ghcr.io/mafen/playit-docker:latest
-    network_mode: bridge
+    image: ghcr.io/playit-cloud/playit-agent:v2.0.2
+    network_mode: host
     container_name: playit-agent

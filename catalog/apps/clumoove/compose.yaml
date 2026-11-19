@@ -19,7 +19,7 @@ x-athena:
 
 services:
   clumoove:
-    image: ghcr.io/clumoove/clumoove:latest
+    image: ghcr.io/xXRoxXeRXx/clumoove:v0.15.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

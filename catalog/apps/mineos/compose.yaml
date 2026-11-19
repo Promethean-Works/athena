@@ -19,7 +19,7 @@ x-athena:
 
 services:
   mineos:
-    image: hexparrot/mineos:latest
+    image: hexparrot/mineos:v0.6.9
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

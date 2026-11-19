@@ -32,7 +32,7 @@ x-athena:
 
 services:
   directus:
-    image: directus/directus:latest
+    image: directus/directus:12.7.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8055"

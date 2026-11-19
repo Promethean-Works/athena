@@ -12,6 +12,7 @@ import {
 
 import { api, errorMessage } from "@workspace/api-client"
 import { CodeEditor } from "@workspace/ui/components/athena/code-editor"
+import { ComposeForm } from "@/components/apps/compose-form"
 import {
   Alert,
   AlertDescription,
@@ -211,14 +212,13 @@ export function NewAppForm() {
                 onChange={upload}
               />
             </div>
-            <CodeEditor
+            <ComposeForm
               value={compose}
               onChange={(value) => {
                 setCompose(value)
                 setValidation(null)
               }}
-              aria-label="compose.yaml"
-              aria-invalid={validation && !validation.ok ? true : undefined}
+              ariaLabel="compose.yaml"
               minHeight="18rem"
             />
             <FieldDescription>

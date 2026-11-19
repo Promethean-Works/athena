@@ -27,7 +27,7 @@ x-athena:
 
 services:
   handbrake:
-    image: ghcr.io/linuxserver/handbrake:latest
+    image: ghcr.io/linuxserver/handbrake:1.11.2-ls52
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

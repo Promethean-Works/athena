@@ -19,7 +19,7 @@ x-athena:
 
 services:
   chatbotui:
-    image: mckaywrigley/chatbot-ui:latest
+    image: ghcr.io/mckaywrigley/chatbot-ui:main
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3000/tcp"

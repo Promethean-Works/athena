@@ -54,12 +54,17 @@ x-athena:
 
 services:
   broker:
-    image: redis:8
+    image: redis:8-alpine
     restart: unless-stopped
     volumes:
       - ${ATHENA_APP_DATA}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   db:
-    image: postgres:17
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: paperless
@@ -67,10 +72,20 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ${ATHENA_APP_DATA}/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperless -d paperless"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   webserver:
     image: ghcr.io/paperless-ngx/paperless-ngx:3.4
     restart: unless-stopped
-    depends_on: [db, broker]
+    depends_on:
+      db:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
     ports:
       - "${WEB_PORT}:8000"
     environment:

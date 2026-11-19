@@ -15,6 +15,7 @@ import {
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { CodeEditor } from "@workspace/ui/components/athena/code-editor"
+import { ComposeForm } from "@/components/apps/compose-form"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -247,10 +248,10 @@ export function AppDetail({ name }: { name: string }) {
         </TabsContent>
 
         <TabsContent value="compose" className="flex flex-col gap-3 pt-2">
-          <CodeEditor
+          <ComposeForm
             value={draft ?? app.compose}
             onChange={setDraft}
-            aria-label={`${app.name} compose.yaml`}
+            ariaLabel={`${app.name} compose.yaml`}
             minHeight="20rem"
           />
           <FieldDescription>

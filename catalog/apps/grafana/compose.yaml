@@ -28,7 +28,7 @@ x-athena:
 
 services:
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.2
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3000"

@@ -16,7 +16,7 @@ x-athena:
 
 services:
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.16.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:9090"

@@ -31,7 +31,7 @@ x-athena:
 
 services:
   photoprism:
-    image: photoprism/photoprism:latest
+    image: photoprism/photoprism:261029-963b58c50
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:2342"

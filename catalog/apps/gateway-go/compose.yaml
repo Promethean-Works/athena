@@ -19,7 +19,7 @@ x-athena:
 
 services:
   gateway:
-    image: ghcr.io/gateway-go/gateway:latest
+    image: ghcr.io/gateway-go/gateway:v2.0.12
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

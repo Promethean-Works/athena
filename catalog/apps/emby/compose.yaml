@@ -27,7 +27,7 @@ x-athena:
 
 services:
   emby:
-    image: emby/embyserver:latest
+    image: emby/embyserver:4.11.0.13
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8096/tcp"

@@ -24,7 +24,7 @@ x-athena:
 
 services:
   gitea:
-    image: docker.gitea.com/gitea:latest
+    image: docker.gitea.com/gitea:28.4.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3000"

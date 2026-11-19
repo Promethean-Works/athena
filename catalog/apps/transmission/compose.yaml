@@ -35,7 +35,7 @@ x-athena:
 
 services:
   transmission:
-    image: lscr.io/linuxserver/transmission:latest
+    image: lscr.io/linuxserver/transmission:4.1.4-r0-ls370
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:9091"

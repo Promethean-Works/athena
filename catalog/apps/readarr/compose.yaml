@@ -30,7 +30,7 @@ x-athena:
 
 services:
   readarr:
-    image: lscr.io/linuxserver/readarr:latest
+    image: lscr.io/linuxserver/readarr:v0.4.18.2805
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8787"

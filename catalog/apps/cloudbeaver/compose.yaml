@@ -19,7 +19,7 @@ x-athena:
 
 services:
   cloudbeaver:
-    image: dbeaver/cloudbeaver:latest
+    image: dbeaver/cloudbeaver:26.2.5
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

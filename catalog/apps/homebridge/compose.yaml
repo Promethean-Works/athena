@@ -19,7 +19,7 @@ x-athena:
 
 services:
   homebridge:
-    image: homebridge/homebridge:latest
+    image: homebridge/homebridge:v2.5.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8581/tcp"

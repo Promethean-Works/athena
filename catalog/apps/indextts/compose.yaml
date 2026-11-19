@@ -19,7 +19,7 @@ x-athena:
 
 services:
   indextts:
-    image: ghcr.io/index-tts/index-tts:latest
+    image: ghcr.io/index-tts/index-tts:v2.5.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:7860/tcp"

@@ -23,7 +23,7 @@ x-athena:
 
 services:
   shiori:
-    image: ghcr.io/go-shiori/shiori:latest
+    image: ghcr.io/go-shiori/shiori:v1.8.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080"

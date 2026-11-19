@@ -19,7 +19,7 @@ x-athena:
 
 services:
   convertx:
-    image: ghcr.io/convertx/convertx:latest
+    image: ghcr.io/c4illin/convertx:v0.20.0
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

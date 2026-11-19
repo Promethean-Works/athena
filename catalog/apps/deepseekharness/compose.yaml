@@ -5,7 +5,7 @@ x-athena:
   tags: [AI, LLM, Evaluation]
   license: "MIT"
   category: development
-  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DeepSeekHarness/icon.svg
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/deepseek.svg
   homepage: https://github.com/DeepSeek-AI/DeepSeek-Harness
   web_port: WEB_PORT
   screenshots:
@@ -19,7 +19,7 @@ x-athena:
 
 services:
   deepseek-harness:
-    image: ghcr.io/deepseekai/deepseek-harness:latest
+    image: ghcr.io/deepseekai/deepseek-harness:dsh-v0.2.2-rc.5
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

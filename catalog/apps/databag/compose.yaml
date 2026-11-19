@@ -19,7 +19,7 @@ x-athena:
 
 services:
   databag:
-    image: ghcr.io/databag/databag:latest
+    image: balzack/databag:0.1.18
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"
