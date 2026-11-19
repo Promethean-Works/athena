@@ -1175,7 +1175,6 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
   }, [serialize])
 
   React.useEffect(() => {
-    if (activeTab !== "form") return
     try {
       const parsed = parseComposeToForm(value)
       if (Object.keys(parsed.services).length > 0 || Object.keys(parsed.networks).length > 0 || Object.keys(parsed.volumes).length > 0) {
@@ -1184,7 +1183,7 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
     } catch {
       // Ignore parse errors, keep current form
     }
-  }, [value, activeTab])
+  }, [value])
 
   const handleFormChange = React.useCallback((newForm: ComposeFormData) => {
     setForm(newForm)
@@ -1202,7 +1201,7 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
     <div className="flex flex-col h-full min-h-[20rem]">
       <Tabs value={activeTab} onValueChange={setActiveTab as any} className="flex flex-col h-full">
         <TabsList>
-          <TabsTrigger value="form">Form</TabsTrigger>
+          <TabsTrigger value="form">Settings</TabsTrigger>
           <TabsTrigger value="networks">Networks</TabsTrigger>
           <TabsTrigger value="volumes">Volumes</TabsTrigger>
           {showRawTab && <TabsTrigger value="raw">Raw YAML</TabsTrigger>}
