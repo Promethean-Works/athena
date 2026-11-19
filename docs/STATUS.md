@@ -20,7 +20,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
-- Tunnel feature (feat/tunnel): backend detection, provider implementations (Cloudflare, Tailscale, Ngrok), API endpoints, SystemSettings extension, and frontend UI (TunnelCard, updated SystemForm). All lint/typecheck/ruff pass. Browser verification pending.
+- Tunnel feature (feat/tunnel PR #128): backend detection, provider implementations (Cloudflare, Tailscale, Ngrok), API endpoints, SystemSettings extension, and frontend UI (TunnelCard, updated SystemForm). All lint/typecheck/ruff pass. Browser verification pending.
 
 Standalone (open PR, not M7):
 - compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
