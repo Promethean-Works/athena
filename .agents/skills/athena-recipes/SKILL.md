@@ -16,7 +16,7 @@ Paths below are relative to `apps/server/src/athena/` (server) or `apps/web/` (w
    - Request and response bodies are Pydantic models in the same file. Return the model; don't return dicts.
    - Session dependencies come from `athena.auth.deps`: `user: Authed`, `db: DbSession`. For admin-only, check `user.user.is_admin` and raise 403 (see `set_system` in `api/settings.py`).
    - Errors: `raise HTTPException(status.HTTP_409_CONFLICT, "Readable message")`. The UI shows the message as is, so write it for a person.
-2. **Register:** a new router goes in `main.py`: `app.include_router(<area>.router, prefix="/api", dependencies=[require_user])`. Never leave a router public; only health, `/api/auth/*` and the public share route are.
+2. **Register:** a new router goes in `main.py`: `app.include_router(<area>.router, prefix="/api", dependencies=[require_user])`. Never leave a router public; only health, `/api/auth/*`, the public share route, `POST /api/automation/webhook/{token}` (token auth) and `/api/mcp` (session or `ATHENA_MCP_TOKEN` bearer) are.
 3. **Privileged action?** Call `audit.record(db, user.user.username, "<area>.<action>", target)`.
 4. **Test:** in `apps/server/tests/test_<area>.py`:
    ```python

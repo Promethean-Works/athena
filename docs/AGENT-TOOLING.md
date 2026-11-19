@@ -36,7 +36,7 @@ Third-party ones are pinned in `skills-lock.json`: `shadcn`, `building-pydantic-
 
 ## One-time setup per agent
 
-- **Every agent and person:** `git config core.hooksPath .githooks` turns on the pre-push check.
+- **Every agent and person:** `git config core.hooksPath .githooks` (required for agents). It turns on both hooks: pre-commit refuses commits on `main` or in the base checkout, pre-push runs the checks the push touches.
 - **Claude Code:** nothing else to do. On Windows, enable symlinks in git (`git config core.symlinks true` with Developer Mode on) so `.claude/skills` works.
 - **OpenCode:** nothing to do. `opencode.json` is committed. To save tokens, the main agent doesn't get the Playwright tools: browser checks go to the `ui-verify` subagent, which follows the `athena-ui-verify` skill.
 - **Hermes Agent:** run `node scripts/agents-sync.mjs --hermes`. It trusts this repo's skills (`hermes skills trust`) and adds any missing MCP servers to `~/.hermes/config.yaml` through `hermes mcp add`. For servers already there, it re-applies their `args` and tool filters (unused tools are left out to save tokens) through `hermes config set`, a no-op when unchanged, so flag changes in `.mcp.json` reach Hermes; it leaves everything else alone. Then restart Hermes or run `/reload-mcp`. `--hermes-print` only prints the YAML block.

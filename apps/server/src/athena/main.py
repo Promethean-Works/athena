@@ -151,8 +151,10 @@ def create_app(
     app.state.catalogs = catalogs or CatalogRegistry(remote_root=settings.data_dir / "catalogs")
     # Wakes the automation scheduler when a trigger is created, enabled or edited.
     app.state.automation_event = asyncio.Event()
-    # Public: /api/health, /api/auth/* and /api/public/shares/{token} (a share link's
-    # visitor). Everything else needs a signed-in session. /dav/ has its own sign-in.
+    # Public: /api/health, /api/auth/*, /api/public/shares/{token} (a share link's
+    # visitor), POST /api/automation/webhook/{token} (the token is the credential) and
+    # /api/mcp (session or ATHENA_MCP_TOKEN bearer, mounted in the lifespan). Everything
+    # else needs a signed-in session. /dav/ has its own sign-in.
     app.include_router(system.router, prefix="/api")
     app.include_router(auth.router, prefix="/api")
     app.include_router(capabilities.router, prefix="/api", dependencies=[require_user])
