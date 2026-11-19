@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from athena.auth.deps import Authed, DbSession, require_user
 from athena.jobs import Job, JobManager
+from athena.platform.store import CapabilityStore
 from athena.system_settings import load, save
 from athena.tunnel import get_provider
 from athena.tunnel.base import TunnelConfig
@@ -46,7 +47,7 @@ class TunnelInstallRequest(BaseModel):
 
 
 @router.get("/status", response_model=TunnelStatusResponse)
-async def get_tunnel_status(db: DbSession) -> TunnelStatusResponse:
+async def get_tunnel_status(request: Request, db: DbSession) -> TunnelStatusResponse:
     """Get current tunnel status."""
     settings = load(db)
 
@@ -67,10 +68,22 @@ async def get_tunnel_status(db: DbSession) -> TunnelStatusResponse:
             capability_status="missing",
         )
 
-    # Get capability status from detection
-    # This would come from the capability manifest
-    # For now, we'll check the provider status
+    # Check capability manifest for binary installation status
+    store: CapabilityStore = request.app.state.capabilities
+    caps = {c.id: c for c in (await store.get()).capabilities}
+    capability_id = f"tunnel.{settings.tunnel_provider}"
+    cap = caps.get(capability_id)
+
+    # Get provider status
     status = provider.status()
+
+    # Determine capability_status based on binary availability and tunnel running state
+    if cap and cap.status == "missing":
+        capability_status = "not_installed"
+    elif status.running:
+        capability_status = "ready"
+    else:
+        capability_status = "stopped"
 
     return TunnelStatusResponse(
         running=status.running,
@@ -78,7 +91,7 @@ async def get_tunnel_status(db: DbSession) -> TunnelStatusResponse:
         provider=status.provider,
         detail=status.detail,
         config=status.config,
-        capability_status="ready" if status.running else "stopped",
+        capability_status=capability_status,
     )
 
 
