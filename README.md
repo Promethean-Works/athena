@@ -17,7 +17,7 @@ Athena manages containers, apps, host packages, files and cloud storage from one
 - **AI assistant**: built on [Pydantic AI](https://ai.pydantic.dev). It works with cloud models or local Ollama, and asks for your approval before changing anything.
 - **Appearance**: switch base color, theme, chart colors, fonts and radius live.
 
-Athena uses open-source dependencies only. See the full design in [docs/mvp-design.md](docs/mvp-design.md).
+Athena uses open-source dependencies only. See the full design in [docs/design/README.md](docs/design/README.md).
 
 ## Install (once the first release is out)
 
@@ -80,7 +80,7 @@ Open http://localhost:3000. `next dev` proxies `/api` to the server on port 8420
 
 More reading:
 
-- [docs/mvp-design.md](docs/mvp-design.md): architecture and decisions
+- [docs/design/README.md](docs/design/README.md): architecture and decisions
 - [CONTRIBUTING.md](CONTRIBUTING.md): branches, commits and pull requests
 - [AGENTS.md](AGENTS.md): instructions for AI coding agents (Claude Code, OpenCode, Hermes Agent)
 

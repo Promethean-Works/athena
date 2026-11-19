@@ -11,7 +11,7 @@
 #
 # What CI runs that this can't: the other two operating systems. Windows-only failures
 # (paths, CRLF, PowerShell lint without pwsh) still show up only in CI. See
-# docs/AGENT-NOTES.md -> Windows portability.
+# docs/agents/gotchas/windows.md.
 set -uo pipefail
 
 cd "$(git rev-parse --show-toplevel)" || exit 1

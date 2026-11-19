@@ -1,5 +1,5 @@
 """How many tokens a chat's model accepts, so compaction knows when to shorten the history
-(docs/mvp-design.md §4.5, part D stage 1).
+(docs/design/assistant.md, part D stage 1).
 
 The window is looked up once per turn, in this order:
 

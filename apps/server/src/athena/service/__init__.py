@@ -1,6 +1,6 @@
 """Registers Athena to start automatically, per OS.
 
-- Linux: a systemd system unit, run as root (see docs/mvp-design.md §3 Privilege model).
+- Linux: a systemd system unit, run as root (see docs/design/platform.md Privilege model).
 - macOS: a launchd agent for the logged-in user.
 - Windows: a Scheduled Task that starts at logon for the current user.
 

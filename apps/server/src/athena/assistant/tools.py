@@ -1,5 +1,5 @@
 """The assistant's tools: Athena's own service layer, filtered by the capability manifest
-(docs/mvp-design.md §4.5). Everything here only reads; the tools that change things are in
+(docs/design/assistant.md). Everything here only reads; the tools that change things are in
 `actions.py` and need the admin's approval.
 """
 

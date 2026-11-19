@@ -1,4 +1,4 @@
-"""Second-model review of action approvals (docs/mvp-design.md §4.5, part D stage 3).
+"""Second-model review of action approvals (docs/design/assistant.md, part D stage 3).
 
 When "Review tool calls" is on in Settings → AI, an `ApprovalReviewer` asks a second model
 about each action awaiting the admin's Approve/Deny card. Low-risk calls are auto-approved

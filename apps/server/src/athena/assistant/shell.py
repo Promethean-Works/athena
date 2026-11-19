@@ -1,4 +1,4 @@
-"""The assistant's opt-in shell (docs/mvp-design.md §4.5, part C).
+"""The assistant's opt-in shell (docs/design/assistant.md, part C).
 
 Off by default (Settings → AI). Every command needs the admin's approval, and before it
 even gets a card, each command in it (the first word of every part of a pipe or chain)

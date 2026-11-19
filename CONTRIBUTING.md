@@ -1,6 +1,6 @@
 # Contributing to Athena
 
-Thanks for helping out! This guide covers how changes get into Athena. Read [docs/mvp-design.md](docs/mvp-design.md) for the architecture and [docs/STATUS.md](docs/STATUS.md) for what's being worked on.
+Thanks for helping out! This guide covers how changes get into Athena. Read [docs/design/README.md](docs/design/README.md) for the architecture and [docs/STATUS.md](docs/STATUS.md) for what's being worked on.
 
 ## Workflow
 
@@ -55,7 +55,7 @@ Athena runs on Linux, macOS and Windows. Any change that touches the host (conta
 
 - go through a platform provider and capability (see the `athena-platform-feature` skill in `.agents/skills/`);
 - be tested on every OS it claims to support, either in CI or manually. List the OSes in the PR;
-- use open-source dependencies only, recorded in [docs/mvp-design.md §9](docs/mvp-design.md#9-dependency--license-inventory).
+- use open-source dependencies only, recorded in [docs/design/licenses.md](docs/design/licenses.md).
 
 ### Testing a real install on another OS
 

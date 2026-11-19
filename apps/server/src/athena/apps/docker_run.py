@@ -1,4 +1,4 @@
-"""Convert a `docker run …` command into a compose file (docs/mvp-design.md §4.1).
+"""Convert a `docker run …` command into a compose file (docs/design/apps.md).
 
 The same idea as composerize: tokenize with shlex, map known flags to compose keys,
 and report anything that couldn't be converted so the user can review it.

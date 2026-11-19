@@ -1,4 +1,4 @@
-"""Multiple-choice questions from the assistant (docs/mvp-design.md §4.5, part D stage 2).
+"""Multiple-choice questions from the assistant (docs/design/assistant.md, part D stage 2).
 
 The harness `AskUser` gives the model `ask_user_question`. With no answerer, a question pauses
 the run like an approval does: the run ends with `DeferredToolRequests` (the question is in

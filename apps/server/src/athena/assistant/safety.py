@@ -1,4 +1,4 @@
-"""Harness capabilities that treat tool results as untrusted (docs/mvp-design.md §4.5, part D
+"""Harness capabilities that treat tool results as untrusted (docs/design/assistant.md, part D
 stage 1). Always on, no settings: they need no key, service or host tool.
 
 - `PromptInjectionDefender` (StackOne `defender`, pattern detection only): app logs, files,

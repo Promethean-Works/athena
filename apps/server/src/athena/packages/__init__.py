@@ -1,4 +1,4 @@
-"""Package managers by capability id (`packages.<id>`), see docs/mvp-design.md §3."""
+"""Package managers by capability id (`packages.<id>`), see docs/design/platform.md."""
 
 from athena.packages.apps import Brew, Flatpak, Snap
 from athena.packages.base import PackageManager

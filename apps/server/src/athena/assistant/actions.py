@@ -1,4 +1,4 @@
-"""The assistant's tools that change things (docs/mvp-design.md §4.5, part B).
+"""The assistant's tools that change things (docs/design/assistant.md, part B).
 
 Each one is registered with `requires_approval=True`, so the model can only *ask*: the run
 pauses, the admin sees an Approve/Deny card with `summarize()`'s sentence and the exact

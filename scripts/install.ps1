@@ -100,7 +100,7 @@ function Resolve-AthenaVersion {
     }
 }
 
-# Windows: detect only (see docs/mvp-design.md, decisions log).
+# Windows: detect only (see docs/design/decisions.md).
 function Find-ContainerRuntime {
     $found = @()
     if (Test-Command 'wsl') {

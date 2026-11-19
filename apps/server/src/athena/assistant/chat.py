@@ -1,5 +1,5 @@
 """Chat turns: run the agent for one user message, stream typed events, save the history
-(docs/mvp-design.md §4.5).
+(docs/design/assistant.md).
 
 A turn runs in its own task and keeps going if the browser goes away, so the answer is
 saved either way. Stopping uses pydantic-ai's CancellationToken, which keeps what the

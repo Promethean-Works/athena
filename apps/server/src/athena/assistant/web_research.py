@@ -1,4 +1,4 @@
-"""Web research (docs/mvp-design.md §4.5, part D stage 3).
+"""Web research (docs/design/assistant.md, part D stage 3).
 
 When "Web research" is on in Settings → AI, the assistant can search the web
 with Exa (`web_search`) and read pages (`get_page`). The Exa API key is read

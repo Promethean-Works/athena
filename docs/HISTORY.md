@@ -1,10 +1,10 @@
 # Athena history
 
-_Finished work, oldest first. Moved here from `docs/STATUS.md` so the file every agent reads at the start of a session stays short. Read this only when you need the background of a feature; the PR, the code and `docs/mvp-design.md` have the detail._
+_Finished work, oldest first. Moved here from `docs/STATUS.md` so the file every agent reads at the start of a session stays short. Read this only when you need the background of a feature; the PR, the code and `docs/design/README.md` have the detail._
 
 When you finish something, add one short bullet to the end of this file (what, the PR number, what was verified and what wasn't), and remove it from STATUS → In progress.
 
-- MVP design written: `docs/mvp-design.md` (architecture, capability manifest, features, frontend plan, API, licenses, milestones, decisions log).
+- MVP design written: `docs/design/README.md` (architecture, capability manifest, features, frontend plan, API, licenses, milestones, decisions log).
 - Agent tooling shared across Claude Code, OpenCode and Hermes Agent:
   - `AGENTS.md` holds the instructions.
   - `.agents/skills/` holds the skills.
@@ -132,11 +132,11 @@ When you finish something, add one short bullet to the end of this file (what, t
     - Dark mode, no console errors, audit rows. Fixed during verification: a session closed by the setting had no `terminal.close` row.
 
 - **M6 part A, file manager** (#25):
-  - `athena/files/` (`paths.py` containment and portable names, `locations.py` with default Home and App data seeded once, `ops.py` list, text read/write, rename, delete via send2trash, copy/move, uploads, streamed folder zips) and `athena/api/files.py` (`/api/files/*`, see `docs/mvp-design.md` §4.3). `file_locations` table (migration 0008). New dependency: send2trash (BSD-3).
+  - `athena/files/` (`paths.py` containment and portable names, `locations.py` with default Home and App data seeded once, `ops.py` list, text read/write, rename, delete via send2trash, copy/move, uploads, streamed folder zips) and `athena/api/files.py` (`/api/files/*`, see `docs/design/files.md`). `file_locations` table (migration 0008). New dependency: send2trash (BSD-3).
   - Web: `/files` (nav gated by `files`), `components/files/` (view, chunked upload queue and panel, preview and text editor sheet, copy/move folder picker, locations dialog). Shared fixes: toasts now sit above sheets and dialogs (`z-[100]`; a save error was hidden behind the preview sheet), and `Checkbox` shows a minus when indeterminate.
   - 276 server tests (19 new). Verified in the browser on macOS (release build, fresh data dir, `HOME` pointed at a scratch folder): browse and breadcrumbs, text edit and save (checked on disk) and the 409 when the file changed underneath, a 20 MB upload in three 8 MB pieces (byte-identical) plus a second upload with the same name (error, then Replace sends `overwrite=true`), image preview, New folder with a taken name (inline error), multi-select move (job), copy to another location (byte-identical), rename (selects the name without its extension), delete to trash (macOS trash works), add location with a bad path (inline error) and a good one, a location whose folder vanished (Missing badge and a clear error), remove location, hidden files toggle, folder zip download, audit rows, phone width, dark mode, no console errors besides the deliberate 409s.
 
-- **M6 part B, share links and WebDAV** (#31). Design in `docs/mvp-design.md` §4.3.
+- **M6 part B, share links and WebDAV** (#31). Design in `docs/design/files.md`.
   - Share links: `shares` table (migration 0009), `athena/files/shares.py`, `athena/api/shares.py` (`/api/shares` for the admin, public `/api/public/shares/{token}`), `/s/<token>` served from the static `/s/` page. Read links (file or folder, previews, zip) and upload-only drop boxes; optional password (path-scoped HMAC cookie, throttled), expiry. `receive_chunk` and `file_response` in `api/files.py` are now shared by both APIs.
   - WebDAV: `athena/files/webdav.py` (wsgidav via a2wsgi at `/dav/`, locations as the root, off by default, a generated WebDAV password), `athena/api/webdav.py`. New dependencies: wsgidav (MIT), a2wsgi (Apache-2.0).
   - Web: Share… in the Files row menu, a Links button and `/files/shares/`, the visitor page `/s/`, Settings → System → Network share. `useUploads` takes a transport, so the drop box reuses the upload queue.
@@ -144,7 +144,7 @@ When you finish something, add one short bullet to the end of this file (what, t
   - Verified in the browser (release build, fresh data dir, `HOME` pointed at a scratch folder): a password link with 7-day expiry created from Pictures' menu (copied, badges right), opened in a separate browser context with no session: wrong password (inline error), right password, image preview, a text download and the folder zip byte-checked, `../` refused (400), referrer meta `no-referrer`; an upload-only link from Inbox: two 20 MB uploads of the same name arrived byte-identical as `report.bin` and `report (1).bin`, counters and `share.upload` audit rows right; Links page and visitor page at phone width in dark mode; removing a link (the visitor then sees "This link doesn't work"); WebDAV switch and Make password in Settings. WebDAV was driven with curl through Finder's sequence (OPTIONS shows Class 1,2; PROPFIND; LOCK, a PUT refused without the lock token and accepted with it; PROPPATCH; UNLOCK; MOVE across locations; sandbox headers on GET; DELETE of a location 403 with nothing removed; 401 without credentials).
   - Not verified: a real Finder or Windows Explorer mount (`mount_webdav` fails in the agent's sandbox). Mount by hand to check (Windows over plain HTTP needs `BasicAuthLevel` 2).
 
-- **M6 part C, cloud storage with rclone** (#35). Design in `docs/mvp-design.md` §4.4.
+- **M6 part C, cloud storage with rclone** (#35). Design in `docs/design/cloud.md`.
   - Server: `athena/cloud/` (`rclone.py` sidecar: `rclone rcd --rc-serve` on 127.0.0.1, random port and password, Athena's own 0600 config, started on first use, restarted if it dies, stopped on shutdown; `remotes.py`; `transfers.py`) and `athena/api/cloud.py` (`/api/cloud/*`, gated by `cloud.rclone`). Jobs gained `progress`, `cancellable` and `POST /api/jobs/{id}/cancel`. No new dependencies (stdlib HTTP).
   - Web: `/cloud` (remotes, Add/Edit with rclone's questions, Sync folders with a preview of deletions, install steps without rclone), remotes in Files' picker and in Copy/Move, `FolderPicker`, the job dialog's progress bar and Cancel. shadcn `combobox` added.
   - 314 server tests (16 new in `tests/test_cloud.py`, most against a real rclone); CI installs rclone on all three OSes. Ubuntu's apt rclone 1.60 found a real bug: its `operations/check` returns no file lists, so the sync preview would have said nothing gets deleted. The preview now compares listings itself.

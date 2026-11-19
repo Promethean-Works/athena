@@ -1,4 +1,4 @@
-"""Keeping long chats inside the model's context window (docs/mvp-design.md §4.5, part D
+"""Keeping long chats inside the model's context window (docs/design/assistant.md, part D
 stage 1).
 
 Before each model request, once the history passes `TRIGGER` of the window:

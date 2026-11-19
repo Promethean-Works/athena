@@ -19,7 +19,7 @@ const CapabilitiesContext = React.createContext<CapabilitiesState | null>(null)
 
 /**
  * Loads the host's capability manifest once for the whole app shell.
- * Everything host-specific in the UI is gated on it (docs/mvp-design.md §3).
+ * Everything host-specific in the UI is gated on it (docs/design/platform.md).
  */
 export function CapabilitiesProvider({
   children,
