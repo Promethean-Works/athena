@@ -46,7 +46,7 @@ services:
     image: postgres:15
     restart: unless-stopped
     healthcheck:
-      test: ["pg_isready", "-U", "freshrss", "-d", "freshrss"]
+      test: ["CMD", "pg_isready", "-U", "freshrss", "-d", "freshrss"]
       interval: 5s
       timeout: 3s
       retries: 10

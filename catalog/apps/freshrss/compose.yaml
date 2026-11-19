@@ -24,63 +24,22 @@ x-athena:
       label: Timezone
       default: "@timezone"
       advanced: true
-    - key: DATABASE_BACKEND
-      label: Database backend
-      type: select
-      options:
-        - sqlite
-        - pgsql
-      default: sqlite
-      description: >
-        SQLite is built into FreshRSS and needs no extra container.
-        PostgreSQL runs as a bundled database container; FreshRSS is
-        configured to use the selected backend on first start.
-    - key: DB_PASSWORD
-      label: PostgreSQL password
-      type: password
-      generate: secret
-      advanced: true
-      description: Password for the bundled PostgreSQL database.
 
 services:
   freshrss:
     image: freshrss/freshrss:1
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     ports:
       - "${WEB_PORT}:80"
     environment:
       TZ: ${TZ}
       CRON_MIN: "*/20"
-      # Auto-install FreshRSS with the chosen database backend on first start.
-      # SQLite is the built-in default; PostgreSQL connects to the bundled
-      # `postgres` service. `--default-user` is required by the installer.
+      # Auto-install FreshRSS with SQLite on first start.
+      # SQLite is the built-in default; `--default-user` is required by the installer.
       FRESHRSS_INSTALL: |
-        --db-type ${DATABASE_BACKEND}
-        --db-host postgres
-        --db-user freshrss
-        --db-password ${DB_PASSWORD}
-        --db-base freshrss
+        --db-type sqlite
         --default-user admin
         --api-enabled
     volumes:
       - ${ATHENA_APP_DATA}/data:/var/www/FreshRSS/data
       - ${ATHENA_APP_DATA}/extensions:/var/www/FreshRSS/extensions
-
-  postgres:
-    image: postgres:15
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "freshrss", "-d", "freshrss"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
-    environment:
-      POSTGRES_DB: freshrss
-      POSTGRES_USER: freshrss
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - ${ATHENA_APP_DATA}/postgres:/var/lib/postgresql/data
