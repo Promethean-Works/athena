@@ -8,9 +8,9 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 
 ## Every session
 
-1. Read `docs/STATUS.md` (current milestone, in progress, next, open questions).
+1. Read `docs/STATUS.md` (current milestone, in progress, next, open questions). Claude Code gets it at start-up from `scripts/session-start.mjs`.
 2. Pick the rows of [Read when](#read-when) that match the task and read only those files.
-3. First session on a machine (or when Claude Code's start-up message says so): run `node scripts/agents-setup.mjs --check`. If it reports missing items, tell the maintainer and offer to run it with `--yes`; it installs tools and edits the home folder, so ask first.
+3. First session on a machine (or when the start-up message says setup is missing): run `node scripts/agents-setup.mjs --check`. If it reports missing items, tell the maintainer and offer to run it with `--yes`; it installs tools and edits the home folder, so ask first.
 4. Before ending, do the [Handoff](#handoff). The next agent may be a different tool with no memory of yours.
 
 ## Working with the maintainer
@@ -47,11 +47,13 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 | Touch the AI assistant | `docs/agents/gotchas/assistant.md`, `docs/design/assistant.md`, skills `pydantic-ai-harness` / `building-pydantic-ai-agents` |
 | Touch cloud storage (rclone) | `docs/agents/gotchas/rclone.md`, `docs/design/cloud.md` |
 | Touch the host OS (runtimes, package managers, terminal, shares) | skill `athena-platform-feature`, `docs/design/platform.md` |
+| Start a big feature (new part, area, or more than one PR) | `docs/specs/README.md`: write a spec and get a yes before code |
 | Add an endpoint, migration, page, job or setting | skill `athena-recipes` (start here when unsure how something is done) |
 | Add or update a store app | skill `athena-catalog-app`, `catalog/README.md` |
 | Finish UI work (any `apps/web` change or API the UI uses) | skill `athena-ui-verify` and `docs/agents/gotchas/browser.md` |
 | Change installers, `athena service` or platform detection | skill `athena-host-test`, `docs/agents/gotchas/installers.md` |
 | Commit, push, open a PR or fix CI | skill `athena-ship`, `docs/agents/gotchas/git-ci.md` |
+| Hear "next", "check", "review" or "wrap up" | skills `athena-next`, `athena-check-prs`, `athena-review` (the `reviewer` subagent), `athena-handoff`; Claude Code and OpenCode also have them as `/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship` |
 | Need a command | `docs/agents/commands.md` |
 | Need the design of a feature, or a past decision | `docs/design/README.md` (index), then one section |
 | Need a feature's history | `docs/HISTORY.md` (search it; don't read it whole) |

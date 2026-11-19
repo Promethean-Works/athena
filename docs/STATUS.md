@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
-- Agent environment plan (`docs/plans/agent-environment.md`): PR 1 (#152) and PR 2 (`scripts/agents-setup.mjs`, Codex/Antigravity/Copilot config, area rules) done; next is PR 3 (shared commands, reviewer/explorer subagents, gitleaks, spec template), then `docs/DEVELOPMENT.md`.
+- Agent environment plan (`docs/plans/agent-environment.md`): PR 1 (#152), PR 2 (#154) and PR 3 (workflow skills and commands, reviewer subagent, gitleaks, secret read-denies, spec template) done; last step: `docs/DEVELOPMENT.md`.
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - Not yet verified in a browser: `/automation` (#114), the store carousel (#103), `/files/smb` (#104), the compose variant picker (#109) and the dashboard app grid (#146).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
@@ -35,6 +35,8 @@ Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 
 - There's no generic OpenAI-compatible provider kind any more, and models.dev's `lmstudio` is skipped, so LM Studio or vLLM can't be added as a provider. Bring back an OpenAI-compatible kind (base URL + optional key)?
 - `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
+
+- The catalog apps `taskingai` and `maybe` ship fixed upstream keys (`AES_ENCRYPTION_KEY`, `JWT_SECRET_KEY`, …) in their compose files, so every install shares them (allowlisted in `.gitleaks.toml`). Generate them per install (an install-form secret type)? Recommendation: yes.
 
 ## Blockers
 

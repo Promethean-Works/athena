@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Git pre-commit hook: forbids committing directly to main/master, and
-# committing from the base checkout at all. Every task gets its own worktree
+# Git pre-commit hook: scans staged changes for secrets (gitleaks, when installed),
+# forbids committing directly to main/master, and committing from the base checkout at all. Every task gets its own worktree
 # on a feature branch (see AGENTS.md git workflow), so the base checkout stays
 # on a clean main and parallel agent sessions never clobber each other.
 set -uo pipefail
@@ -11,6 +11,17 @@ if [ "${ATHENA_ALLOW_MAIN_COMMIT:-0}" = 1 ]; then
 fi
 
 cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# Secrets: block a commit that adds one. CI scans the tree too (repo checks).
+if command -v gitleaks >/dev/null 2>&1; then
+  if ! gitleaks git --pre-commit --staged --redact --no-banner --log-level warn .; then
+    echo "pre-commit: ERROR: gitleaks found a secret in the staged changes (above)."
+    echo "Remove it (use an environment variable or the data dir). False positive: add an allowlist to .gitleaks.toml."
+    exit 1
+  fi
+else
+  echo "pre-commit: gitleaks not installed, secret scan skipped (node scripts/agents-setup.mjs installs it)"
+fi
 
 branch=$(git symbolic-ref --short HEAD 2>/dev/null || true)
 git_dir=$(cd "$(git rev-parse --git-dir)" && pwd -P)
