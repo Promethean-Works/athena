@@ -155,6 +155,7 @@ CodeQL runs on every PR and its alerts can block a merge.
 
 ### Assistant (pydantic-ai)
 
+- Never run model work inside a turn after its reply is saved (titles were): `Turns.get` keeps the chat busy until the turn's task ends, so the next message gets 409 "This chat is still answering". Do it in a task the `Turns` tracks separately, like `Turns._name`. Local servers are serialized by `providers.queue_for`, so a background call there just waits its turn.
 - A delegated sub-agent (`delegation.investigator`) runs with plain `agent.run()`, not streaming, so a test `FunctionModel` serving both needs `function=` too. Tell the two apart by `info.instructions` (see `tests/test_assistant_delegation.py`).
 - `BackgroundTools` cancels every background task still running when the run pauses for deferred calls (an approval or a question), and drops its result. That's why only `delegate_task` may run in the background. Its "started" notice is a normal tool result; the real one arrives later as a `UserPromptPart` tagged with the harness's background origin. Anything that walks history for the admin's prompts must skip it (`delegation.is_background_result`), like the memory snapshot.
 - `test_results_cleared_mid_turn_stay_whole_in_the_transcript` only passes in a narrow context window band (about 4,550 to 4,750 tokens since PR 3 of stage 2): below it compaction summarizes, above it nothing is cleared. When new tools or instructions break it, retune `small_window` there.

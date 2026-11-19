@@ -499,6 +499,8 @@ class ConversationOut(BaseModel):
 class ConversationDetail(ConversationOut):
     messages: list[chat.ChatMessage]
     running: bool
+    naming: bool = False
+    """A title model is still naming the chat; the title changes when it's done."""
     usage: chat.ChatUsage
     """What the whole chat has used so far."""
     spend_limit_usd: float | None
@@ -604,6 +606,7 @@ async def get_conversation(
             messages, chat.pending_ids(conv), chat.summarizer(db), chat.waiting_questions(conv)
         ),
         running=_turns(request).get(row.id) is not None,
+        naming=_turns(request).naming(row.id),
         usage=chat.usage_of(conv.usage if conv else None),
         spend_limit_usd=ai_settings.load(db).spend_limit_usd,
         plan=await plan_of(request.app.state.settings.data_dir, row.id),
@@ -656,7 +659,8 @@ async def send_message(
     `name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`
     calls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant
     changed it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action
-    started), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`. While
+    started), `title` (the first message's line; a title model renames the chat after
+    `done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While
     actions or questions wait, a new message denies and declines them."""
     row = _get_conv(db, user, conversation_id)
     turns = _turns(request)

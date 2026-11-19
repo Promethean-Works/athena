@@ -105,8 +105,8 @@ from athena.platform.capabilities import CapabilityManifest
 log = logging.getLogger(__name__)
 
 TITLE_LENGTH = 60
-TITLE_WAIT = 10
-"""Seconds to wait for a generated title after the reply ends before using the first line."""
+TITLE_TIMEOUT = 120
+"""Seconds a title may take, queue included, before the chat keeps its first line."""
 RESULT_CHARS = 4000
 """Tool results shown in the UI are cut to this; the model still gets all of it."""
 
@@ -422,6 +422,8 @@ class Turn:
     token: CancellationToken = field(default_factory=CancellationToken)
     queue: asyncio.Queue[str | None] = field(default_factory=asyncio.Queue)
     task: asyncio.Task[None] | None = None
+    name_with: "tuple[Model, str, str] | None" = None
+    """Set when the turn saved: the title model, the first message and the stand-in title."""
 
     def emit(self, event: str, data: Any) -> None:
         self.queue.put_nowait(sse(event, data))
@@ -471,8 +473,6 @@ async def _run(
         assert row is not None and user is not None
         previous = load_history(row)
         results = _results(previous, resume)
-        # Title generation moved to after the turn completes (sequential), to avoid
-        # concurrent requests to the same local provider (e.g., Ollama).
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
         ai = ai_settings.load(db)
@@ -552,17 +552,13 @@ async def _run(
             if compacted_ok:
                 row.transcript = new_transcript(row, previous, recorder, list(saved.messages))
             row.history = ConversationTypeAdapter.dump_json(saved).decode()
-            if text and row.title == NEW_CHAT and title_model is not None:
-                # Generate title sequentially after the main turn completes.
-                # This avoids concurrent requests to the same provider (especially local ones).
-                # Errors are caught and logged; fall back to the message text.
-                try:
-                    generated = await generate_title(title_model, text)
-                except Exception as exc:
-                    log.info("couldn't generate a chat title: %s", _readable(exc))
-                    generated = None
-                row.title = generated or _title(text)
+            if text and row.title == NEW_CHAT:
+                # The first line names the chat now; a title model renames it afterwards,
+                # outside the turn, so the chat is free for the next message meanwhile.
+                row.title = _title(text)
                 turn.emit("title", {"title": row.title})
+                if title_model is not None:
+                    turn.name_with = (title_model, text, row.title)
             row.updated_at = datetime.now(UTC)
             db.add(row)
             db.commit()
@@ -809,6 +805,16 @@ def _title(text: str) -> str:
     return line if len(line) <= TITLE_LENGTH else line[: TITLE_LENGTH - 1].rstrip() + "…"
 
 
+def _rename(app: FastAPI, conversation_id: str, stand_in: str, title: str) -> None:
+    for db in app.state.db.session():
+        row = db.get(AiConversation, conversation_id)
+        # Renamed (or deleted) meanwhile: the admin's choice wins.
+        if row is not None and row.title == stand_in:
+            row.title = title
+            db.add(row)
+            db.commit()
+
+
 class Turns:
     """Running turns by conversation id: one at a time per chat."""
 
@@ -819,6 +825,28 @@ class Turns:
         self.pgtask_client: Client | None = None
         self.pgtask_registry: TaskRegistry | None = None
         self._pgtask_executors: dict[str, Callable[[Task], Awaitable[None]]] = {}
+        self._titles: dict[str, asyncio.Task[None]] = {}
+        """Titles being generated, by conversation id: they run after their turn ends."""
+
+    def naming(self, conversation_id: str) -> bool:
+        """Whether a title model is still naming this chat."""
+        task = self._titles.get(conversation_id)
+        return task is not None and not task.done()
+
+    def _name(self, app: FastAPI, conversation_id: str, job: "tuple[Model, str, str]") -> None:
+        model, text, stand_in = job
+
+        async def run() -> None:
+            try:
+                generated = await asyncio.wait_for(generate_title(model, text), TITLE_TIMEOUT)
+                if generated:
+                    _rename(app, conversation_id, stand_in, generated)
+            except Exception as exc:  # the first line stays the title
+                log.info("couldn't generate a chat title: %s", _readable(exc))
+            finally:
+                self._titles.pop(conversation_id, None)
+
+        self._titles[conversation_id] = asyncio.create_task(run())
 
     def get(self, conversation_id: str) -> Turn | None:
         turn = self._turns.get(conversation_id)
@@ -909,6 +937,8 @@ class Turns:
             finally:
                 turn.queue.put_nowait(None)
                 self._turns.pop(conversation_id, None)
+                if turn.name_with is not None:
+                    self._name(app, conversation_id, turn.name_with)
 
         self._turns[conversation_id] = turn
         if durable and self.pgtask_client is not None and self.pgtask_registry is not None:
@@ -919,6 +949,8 @@ class Turns:
         return turn
 
     async def stop_all(self) -> None:
+        for title in list(self._titles.values()):
+            title.cancel()
         for turn in list(self._turns.values()):
             turn.token.cancel()
             if turn.task:

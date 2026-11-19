@@ -5023,7 +5023,7 @@
           "assistant"
         ],
         "summary": "Send Message",
-        "description": "Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a\nnew block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,\n`error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,\n`name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`\ncalls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant\nchanged it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action\nstarted), `title`, `usage`, `stopped`, `error` (`message`) and finally `done`. While\nactions or questions wait, a new message denies and declines them.",
+        "description": "Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a\nnew block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,\n`error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,\n`name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`\ncalls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant\nchanged it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action\nstarted), `title` (the first message's line; a title model renames the chat after\n`done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While\nactions or questions wait, a new message denies and declines them.",
         "operationId": "sendMessage",
         "parameters": [
           {
@@ -6997,6 +6997,11 @@
           "running": {
             "type": "boolean",
             "title": "Running"
+          },
+          "naming": {
+            "type": "boolean",
+            "title": "Naming",
+            "default": false
           },
           "usage": {
             "$ref": "#/components/schemas/ChatUsage"
