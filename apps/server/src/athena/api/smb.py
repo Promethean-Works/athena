@@ -1,4 +1,4 @@
-"""SMB shares (docs/mvp-design.md §4.3): publish a file location over the network
+"""SMB shares (docs/design/files.md): publish a file location over the network
 via the host's Samba server.
 
 `router` (/api/shares/smb) is for the signed-in admin: list, create and remove SMB

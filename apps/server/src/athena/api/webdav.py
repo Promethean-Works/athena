@@ -1,4 +1,4 @@
-"""WebDAV settings (docs/mvp-design.md §4.3): turn the /dav/ share on or off and
+"""WebDAV settings (docs/design/files.md): turn the /dav/ share on or off and
 generate its password. Only admins change them; see athena.files.webdav."""
 
 from fastapi import APIRouter, HTTPException, status

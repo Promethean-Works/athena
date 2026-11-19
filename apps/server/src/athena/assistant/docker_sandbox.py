@@ -1,4 +1,4 @@
-"""Local Docker sandbox (docs/mvp-design.md §4.5, part D stage 3).
+"""Local Docker sandbox (docs/design/assistant.md, part D stage 3).
 
 When "Docker sandbox" is on in Settings → AI, the assistant gets a `DockerSandbox`
 capability: a local Docker (or Podman) container it can use as an isolated workspace

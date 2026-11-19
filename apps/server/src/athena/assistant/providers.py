@@ -1,5 +1,5 @@
 """Saved AI providers: their settings, the pydantic-ai model for a model id, and the live
-model list (docs/mvp-design.md §4.5)."""
+model list (docs/design/assistant.md)."""
 
 import asyncio
 import contextlib

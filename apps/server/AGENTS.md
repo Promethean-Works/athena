@@ -1,6 +1,6 @@
 # Athena server (`apps/server`)
 
-Rules for working on the Python server. The repo-wide rules, Git workflow and handoff are in the root `AGENTS.md`; read that first. Lessons and gotchas are in `docs/AGENT-NOTES.md`. For step-by-step changes (endpoint, migration, job, setting), use the `athena-recipes` skill. For anything that touches the host OS, use `athena-platform-feature`.
+Rules for working on the Python server. The repo-wide rules, Git workflow and handoff are in the root `AGENTS.md`; read that first. Gotchas: `docs/agents/gotchas/server.md` (read before changing server code), `docs/agents/gotchas/windows.md` and `docs/agents/gotchas/codeql.md` (before pushing); the assistant and rclone have their own files there. For step-by-step changes (endpoint, migration, job, setting), use the `athena-recipes` skill. For anything that touches the host OS, use `athena-platform-feature`.
 
 ## Stack and commands
 
@@ -68,4 +68,4 @@ Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI
   - Compare `Path` objects, not strings with `/`.
   - Paths written into Linux or macOS files stay forward-slash.
 
-  More in `docs/AGENT-NOTES.md` → Windows portability.
+  More in `docs/agents/gotchas/windows.md`.

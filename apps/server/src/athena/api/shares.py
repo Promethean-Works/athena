@@ -1,4 +1,4 @@
-"""Share links (docs/mvp-design.md §4.3).
+"""Share links (docs/design/files.md).
 
 `router` (/api/shares) is for the signed-in admin: list, create, change and remove links.
 

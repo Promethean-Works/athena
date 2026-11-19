@@ -1,4 +1,4 @@
-"""The assistant's plan for a chat (docs/mvp-design.md §4.5, part D stage 2).
+"""The assistant's plan for a chat (docs/design/assistant.md, part D stage 2).
 
 The harness `Planning` with only its `write_plan` tool: the model restates the whole plan to
 add a step or change a status, so there are no step ids to track (or guess) and the tool

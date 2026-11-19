@@ -1,4 +1,4 @@
-"""Host-wide settings that only admins change (docs/mvp-design.md §7).
+"""Host-wide settings that only admins change (docs/design/security.md).
 
 Stored as one JSON row in `system_settings`. Unknown or invalid stored values fall back
 to the defaults, so an older or newer server never fails on them.

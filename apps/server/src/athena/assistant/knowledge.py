@@ -1,4 +1,4 @@
-"""What the assistant keeps between chats (docs/mvp-design.md §4.5, part D stage 2).
+"""What the assistant keeps between chats (docs/design/assistant.md, part D stage 2).
 
 - `Memory`: a notebook the model writes with `write_memory` and reads back with
   `read_memory` and `search_memory`, in `<data-dir>/assistant/memory.db` (`SqliteMemoryStore`,

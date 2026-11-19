@@ -1,5 +1,5 @@
 """Hosted integrations: curated MCP servers Athena runs for the assistant
-(docs/mvp-design.md §4.5, part D.5).
+(docs/design/assistant.md, part D.5).
 
 Each integration is an MCP server (a stdio command or a streamable-HTTP endpoint) with a
 per-server encrypted token. Integrations are administered in Settings → AI and, once

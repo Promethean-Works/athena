@@ -99,6 +99,6 @@ Stop and use the `athena-platform-feature` skill: capability id, detection, prov
 - [ ] `scripts/check.sh` passes, and `packages/api-client` is regenerated and committed if the API changed.
 - [ ] New code has tests, including a failure case.
 - [ ] UI changes are verified in a browser (`athena-ui-verify`).
-- [ ] New dependency → license row in `docs/mvp-design.md` §9. Design change → §11 row.
+- [ ] New dependency → license row in `docs/design/licenses.md`. Design change → its section in `docs/design/` plus a row in `docs/design/decisions.md`.
 - [ ] PR opened with auto-merge, and CI plus CodeQL are green (`athena-ship`).
-- [ ] `docs/STATUS.md` updated; new lessons added to `docs/AGENT-NOTES.md`.
+- [ ] `docs/STATUS.md` updated; new lessons added to the right file in `docs/agents/gotchas/`.

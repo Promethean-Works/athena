@@ -566,7 +566,7 @@ function PageChat() {
   )
 }
 
-/** /assistant: chats with the AI assistant (docs/mvp-design.md §4.5). */
+/** /assistant: chats with the AI assistant (docs/design/assistant.md). */
 export function AssistantView() {
   return (
     <React.Suspense fallback={<Skeleton className="h-64 w-full" />}>

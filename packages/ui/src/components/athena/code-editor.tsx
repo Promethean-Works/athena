@@ -9,7 +9,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 /**
  * CodeMirror 6 editor themed from the app's CSS variables, so it follows the active
- * base color, theme, radius and light/dark mode (docs/mvp-design.md §5.3).
+ * base color, theme, radius and light/dark mode (docs/design/frontend.md §5.3).
  */
 const tokens = EditorView.theme({
   "&": {

@@ -1,4 +1,4 @@
-"""Where the assistant's shell runs, built on pydantic-ai-harness (docs/mvp-design.md §4.5).
+"""Where the assistant's shell runs, built on pydantic-ai-harness (docs/design/assistant.md).
 
 - Linux and macOS: the harness `Shell` in a `LocalWorkspace` (the service user's home).
 - Windows with a WSL distro: the same `Shell` in `WSLWorkspace`, which runs every command in

@@ -5,7 +5,7 @@ import { AppearanceProvider } from "@/components/settings/appearance-provider"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
 
-// App shell from the shadcn dashboard-01 block (docs/mvp-design.md §5.2). Every
+// App shell from the shadcn dashboard-01 block (docs/design/frontend.md §5.2). Every
 // signed-in page lives under this layout; /setup and /login are in app/(auth).
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

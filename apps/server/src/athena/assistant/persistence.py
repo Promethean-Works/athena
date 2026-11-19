@@ -1,4 +1,4 @@
-"""Step persistence, conversation search and media externalization (docs/mvp-design.md §4.5,
+"""Step persistence, conversation search and media externalization (docs/design/assistant.md,
 part D stage 2).
 
 - `StepPersistence` saves each turn's full history to `<data-dir>/assistant/steps.db`

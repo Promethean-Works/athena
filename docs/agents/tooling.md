@@ -13,7 +13,20 @@ Everything agent-related has one source of truth in the repo. Each agent reads i
 | MCP servers | `.mcp.json` | reads it | `opencode.json` (generated) | `~/.hermes/config.yaml` (snippet generated) |
 | Browser-check subagent | `scripts/agents-sync.mjs` | `.claude/agents/ui-verify.md` (generated) | `ui-verify` in `opencode.json` (generated) | none |
 | Project state | `docs/STATUS.md` (finished work: `docs/HISTORY.md`) | ← | ← | ← |
-| Lessons, gotchas, commands | `docs/AGENT-NOTES.md` | ← | ← | ← |
+| Lessons, gotchas, commands | `docs/agents/gotchas/`, `docs/agents/commands.md` | ← | ← | ← |
+
+## How each agent loads instructions
+
+Checked against each tool's docs (Hermes: its source) on 2026-11-19. This is why `AGENTS.md` is a router and the app folders have both files.
+
+| Agent | Reads | Subfolders |
+|---|---|---|
+| Claude Code | `CLAUDE.md` only, once a root one exists (so the root and each app `CLAUDE.md` import `@AGENTS.md`) | A subfolder `CLAUDE.md` loads the first time a file there is read or edited <!-- docs-check: ignore --> |
+| OpenCode | `AGENTS.md` (`CLAUDE.md` only where a folder has no `AGENTS.md`) | Loaded when a file below is read or listed |
+| Hermes Agent | `AGENTS.md` chain from the git root to the cwd; `CLAUDE.md` is ignored when `AGENTS.md` exists | Added to the tool result the first time a path there is touched |
+| Codex | `AGENTS.md` from the repo root down to the cwd, 32 KiB in total | Never below the cwd: it follows the router |
+| Antigravity (ex Gemini CLI) | `AGENTS.md` and `GEMINI.md` | When a tool touches a file there <!-- docs-check: ignore --> |
+| Copilot | `AGENTS.md` (nearest wins), `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md` | Along the paths it works with <!-- docs-check: ignore --> |
 
 ## MCP servers (`.mcp.json`)
 
@@ -46,7 +59,7 @@ Third-party ones are pinned in `skills-lock.json`: `shadcn`, `building-pydantic-
 
 In the repo:
 
-- **What every session pays for is kept small:** STATUS is capped at 8 KB by `scripts/check-docs.mjs` (finished work goes to `docs/HISTORY.md`); `scripts/check.sh` is quiet without a terminal; Playwright runs with `--snapshot-mode none` (snapshot only when you need to read the page); `.ignore` keeps lockfiles, CHANGELOG and the generated theme files out of ripgrep searches; Claude Code caps Bash and MCP output at 20k (`.claude/settings.json` → `env`) and OpenCode caps tool output at 20 KB (`opencode.json` → `tool_output`, the rest is saved to disk). Pipe long commands through `tail` or `grep` yourself too. This file is separate from AGENTS.md because only tooling changes need it.
+- **What every session pays for is kept small:** `AGENTS.md`, STATUS and the app rule files are size-capped by `scripts/check-docs.mjs` (`SIZE_LIMITS`) (finished work goes to `docs/HISTORY.md`); `scripts/check.sh` is quiet without a terminal; Playwright runs with `--snapshot-mode none` (snapshot only when you need to read the page); `.ignore` keeps lockfiles, CHANGELOG and the generated theme files out of ripgrep searches; Claude Code caps Bash and MCP output at 20k (`.claude/settings.json` → `env`) and OpenCode caps tool output at 20 KB (`opencode.json` → `tool_output`, the rest is saved to disk). Pipe long commands through `tail` or `grep` yourself too. This file is separate from AGENTS.md because only tooling changes need it.
 - **Dependencies ship their own agent files.** pydantic-ai has `CLAUDE.md`/`AGENTS.md` files in `.venv/…/pydantic_ai/` (about 40 KB, written for pydantic-ai's own contributors), and Next and recharts ship `AGENTS.md` in `node_modules`. Claude Code loads a subfolder's `CLAUDE.md` as soon as it reads a file there, which happens when you read pydantic-ai's source. `.claude/settings.json` → `claudeMdExcludes` skips them. <!-- docs-check: ignore -->
 - **MCP tool definitions cost tokens on every request in OpenCode and Hermes** (Claude Code loads them on demand). Measured: Playwright 25 tools ≈ 21k characters, next-devtools ≈ 5.7k, context7 ≈ 5.2k, shadcn ≈ 4.3k. So `scripts/agents-sync.mjs` gives Playwright only to OpenCode's `ui-verify` subagent (a `playwright_*` deny rule globally, allow in the agent; agent rules come after global ones and the last match wins), and writes Hermes `tools.exclude` filters for unused tools. OpenCode 2.x already routes MCP tools through Code Mode by default (`codemode: true`). Hermes' `lazy: true` only delays connecting; the tools are still registered, so it saves memory, not tokens.
 

@@ -29,13 +29,13 @@ Done when it prints "All checks passed". If it regenerated `packages/api-client`
 
 If `git config core.hooksPath` doesn't print `.githooks`, run `git config core.hooksPath .githooks` (required for agents): it turns on both the pre-commit guard (no commits on `main` or in the base checkout) and the pre-push checks.
 
-If the docs check fails, you renamed or removed something that AGENTS.md, AGENT-NOTES or a skill still names. Fix the doc in the same commit; don't silence it.
+If the docs check fails, you renamed or removed something that an `AGENTS.md`, a file in `docs/agents/` or a skill still names. Fix the doc in the same commit; don't silence it.
 
 Also, depending on what changed:
 - **Anything in `apps/web`, or an API the UI uses:** browser verification with the `athena-ui-verify` skill. This is required before saying "done".
 - **A database model:** a new migration (see the `athena-recipes` skill). `tests/test_db.py` fails without one.
-- **A new dependency:** add its license to `docs/mvp-design.md` §9. Open-source only.
-- **A design change:** update the `docs/mvp-design.md` section and add a row to §11.
+- **A new dependency:** add its license to `docs/design/licenses.md`. Open-source only.
+- **A design change:** update its section in `docs/design/` and add a row to `docs/design/decisions.md`.
 
 ## 3. Commit
 
@@ -70,12 +70,12 @@ Triage table:
 
 | Symptom | Likely cause | Action |
 |---|---|---|
-| Only `server (windows-latest)` fails | Paths, encoding, CRLF, trailing dots | See AGENT-NOTES "Windows portability"; fix and push |
+| Only `server (windows-latest)` fails | Paths, encoding, CRLF, trailing dots | See `docs/agents/gotchas/windows.md`; fix and push |
 | Only `server (macos-latest)` fails | A CLI missing on the runner (e.g. no `docker`) | Make the test really hide or stub the tool |
 | A job was **cancelled**, not failed | macOS runner capacity | `gh run rerun <run-id> --failed` |
 | `web` fails at "API client is up to date" | You changed the API without regenerating | `pnpm gen:api`, commit |
 | `install script (windows-latest)` lint | PSScriptAnalyzer | You can't run it locally without pwsh; read the log and fix exactly what it names |
-| CodeQL fails | A code scanning alert | Fix it in code (AGENT-NOTES "CodeQL" lists the known false-positive shapes). Don't dismiss alerts; that's the maintainer's call |
+| CodeQL fails | A code scanning alert | Fix it in code (`docs/agents/gotchas/codeql.md` lists the known false-positive shapes). Don't dismiss alerts; that's the maintainer's call |
 | `pr-title` fails | Title isn't `type(scope): summary` | `gh pr edit <n> --title "..."` |
 | Merge state `BEHIND` / `DIRTY` | `main` moved (often STATUS.md) | `git merge origin/main`, resolve, push |
 
@@ -84,6 +84,6 @@ Done when `gh pr view` says `MERGED`. Auto-merge waits only for the required che
 ## 6. Hand off
 
 Before ending the session, on the branch (or in a follow-up docs PR):
-- `docs/STATUS.md`: take finished items out and add one short bullet each to the end of `docs/HISTORY.md` with the PR number. Under In progress, say exactly where you stopped and the next concrete step. Keep STATUS under 8 KB (the docs check enforces it).
-- `docs/AGENT-NOTES.md`: add anything non-obvious you learned (a surprising failure, a tool quirk, a pattern).
+- `docs/STATUS.md`: take finished items out and add one short bullet each to the end of `docs/HISTORY.md` with the PR number. Under In progress, say exactly where you stopped and the next concrete step. Keep STATUS under 6 KB (the docs check enforces it; ideas go to `docs/design/milestones.md` → Backlog).
+- `docs/agents/gotchas/<area>.md`: add anything non-obvious you learned (a surprising failure, a tool quirk, a pattern).
 - Report to the maintainer: what merged (with links), what's still running, what was verified and what wasn't, and the bugs fixed along the way.

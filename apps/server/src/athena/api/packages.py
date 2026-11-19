@@ -1,7 +1,7 @@
 """Package managers: search, installed, upgradable, and install/uninstall/upgrade jobs.
 
 Only managers in the capability manifest (`packages.<id>`) are offered, and changes need
-the capability to be `ready` (docs/mvp-design.md §3). Each manager runs one job at a
+the capability to be `ready` (docs/design/platform.md). Each manager runs one job at a
 time, so two operations never fight over apt's or dnf's lock.
 """
 

@@ -1,90 +1,89 @@
 # Athena
 
-Self-hosted home server control panel (CasaOS-style) for **Linux, macOS and Windows**.
+Self-hosted home server control panel (CasaOS-style) for **Linux, macOS and Windows**. Public repo: `github.com/tiagozaccaro/athena`.
 
-This file is the single source of instructions for every coding agent working here (Claude Code, OpenCode, Hermes Agent and others). `CLAUDE.md` only imports this file. Don't put agent-specific rules anywhere else.
+This file is the single source of instructions for every coding agent (Claude Code, OpenCode, Hermes Agent, Codex, Gemini CLI, Copilot). Other agents' files only point here. Every session loads this file, so it stays short: **read the rest only when the task needs it** (see [Read when](#read-when)).
 
-## Start here (every session, every agent)
+Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 16 static export, shadcn on Base UI, served by the server), `packages/ui` (shadcn components; Athena-made ones in `packages/ui/src/components/athena/`), `packages/api-client` (generated), `catalog/` (store apps), `scripts/` (installers, `check.sh`, git hooks, agent sync), `docs/`, `.agents/skills/`.
 
-1. Read `docs/STATUS.md`: the current milestone, what's in progress, and what's next. Finished work is in `docs/HISTORY.md`; read it only when you need a feature's background.
-2. Read the rules file of the app you'll touch: `apps/server/AGENTS.md` or `apps/web/AGENTS.md`.
-3. Read `docs/AGENT-NOTES.md` down to **Gotchas** (how the maintainer works, the command cheat sheet, patterns to copy). Under Gotchas, read only the sections for the area you touch (Windows CI, CodeQL, Server, Web, Assistant, …), plus "Git, GitHub and CI" before you push.
-4. Read the parts of `docs/mvp-design.md` that the task touches. It holds the design and the decisions log (§11).
-5. Before ending a session, update `docs/STATUS.md` (see [Handoff](#handoff)). The next agent may be a different tool with no memory of yours.
+## Every session
+
+1. Read `docs/STATUS.md` (current milestone, in progress, next, open questions).
+2. Pick the rows of [Read when](#read-when) that match the task and read only those files.
+3. Before ending, do the [Handoff](#handoff). The next agent may be a different tool with no memory of yours.
+
+## Working with the maintainer
+
+- They move through the milestones in `docs/design/milestones.md` with short prompts. "Next": read STATUS, propose the next concrete step with a recommendation, and wait for a yes before starting a new milestone or part. "Discuss questions first": list the open questions with a recommendation each before writing code. Big milestones are split into parts, one branch and PR per part.
+- "Check" / "keep observing the PRs": read the checks (`gh pr checks <n>`, `gh run view <id> --log-failed`), fix failures on the PR branch, report what merged and what didn't. Never claim a merge without checking.
+- **Short replies.** Lead with the answer; skip preamble and recaps. Reports of what was and wasn't verified stay complete: final reports list "Fixed along the way" and "Not tested yet".
+- They can't see your private memory (Claude memory, Hermes memory, OpenCode sessions). Anything the next agent needs goes in the repo ([Where things go](#where-things-go)).
 
 ## Git workflow (mandatory)
 
-The repo is public at `github.com/tiagozaccaro/athena`. `main` is protected: no direct pushes, no force pushes.
+`main` is protected: no direct or force pushes. Details in `CONTRIBUTING.md`.
 
-1. **Never edit, branch or commit in the base checkout** (`~/Projects/athena` or wherever the repo was cloned). It stays on `main`, clean. Don't run `git switch`/`git checkout -b` there.
-2. Start every task, however small, in a new worktree on a new branch from `origin/main`, before touching any file: `git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main` (`scripts/new-worktree.sh <type>/<topic>` does the same), then do all work (edits, checks, commits, pushes) in `../athena-<topic>`. Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. Each agent works in its own worktree like on its own machine, so one agent's uncommitted work never clobbers another's. The pre-commit hook rejects commits made in the base checkout or on `main`. After the merge: `git worktree remove ../athena-<topic>`.
-3. Commit on the branch. Never commit to or push `main`.
-4. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`). CI checks the title, because it becomes the squash commit and the changelog entry.
-5. Turn on auto-merge right after opening the PR, without asking: `gh pr merge <n> --squash --auto --delete-branch`. This is the maintainer's standing instruction for every PR. CI (`ci-ok`) and `pr-title` must pass. PRs are squash-merged and the branch is deleted. Exceptions: release-please PRs (the maintainer merges those) and PRs whose base isn't `main` (turn it on once they're retargeted to `main`).
-6. Don't edit `CHANGELOG.md` or `version.txt` by hand. release-please manages them.
-
-Full details are in `CONTRIBUTING.md`.
-
-## Layout
-
-Each app has its own rules file. **Read it before working there**: some agents load it automatically, others won't.
-
-- `apps/server`: Python 3.13 (uv), FastAPI, package and CLI `athena`. Rules, module map and test conventions are in **`apps/server/AGENTS.md`**.
-- `apps/web`: Next.js 16 static export, shadcn/ui on Base UI (preset `b0`), served by the Python server in production. Rules, layout and UI conventions are in **`apps/web/AGENTS.md`**.
-- `packages/ui`: shadcn components (`pnpm dlx shadcn@latest add <name> -c apps/web`). Athena-made components go in `packages/ui/src/components/athena/`.
-- `packages/api-client`: generated from the server's OpenAPI schema with `pnpm gen:api`. Never hand-write request types; CI fails if the client is out of date.
-- `catalog/`: built-in app store (compose + `x-athena` metadata, see `catalog/README.md`).
-- `scripts/`: `install.sh` and `install.ps1` (the one-line installers, attached to every GitHub release; keep them in sync with the server's `athena service` CLI), `check.sh` (CI's checks locally), `new-worktree.sh`, `pre-commit.sh` and `pre-push.sh` (the git hooks' bodies, run from `.githooks/`), `check-docs.mjs`, `build-wheel.sh`, `agents-sync.mjs`, `gen-theme-css.mjs`, and `scripts/e2e/` (the browser smoke test).
-- `.github/`: CI (`ci.yml`), E2E (`e2e.yml`), PR title check, release-please (`release.yml`), Dependabot, templates.
+1. **Never edit, branch or commit in the base checkout** (where the repo was cloned). It stays on `main`, clean.
+2. Every task, however small, starts in its own worktree before any file is touched: `scripts/new-worktree.sh <type>/<topic>` (or `git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main`). Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. Several agents work at once; worktrees keep them apart. After the merge: `git worktree remove ../athena-<topic>`.
+3. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`); it becomes the squash commit and changelog entry.
+4. Turn on auto-merge right away, without asking: `gh pr merge <n> --squash --auto --delete-branch`. Not for release-please PRs (the maintainer merges those) or PRs whose base isn't `main`. Also check CodeQL is green before calling a PR done.
+5. Never edit `CHANGELOG.md` or `version.txt`; release-please does.
 
 ## Rules
 
-- **Cross-platform first.** Anything that touches the host goes through a provider and a capability in the manifest. The UI and the AI assistant only show what the host supports. Follow the `athena-platform-feature` skill.
-- **Don't guess APIs.** Read the existing feature that does something similar, then the library's docs (Context7, the `shadcn` skill or MCP, Next's bundled docs). Training data is often older than the versions used here (Next 16, Base UI, xterm.js 6, Python 3.13).
-- **Open-source dependencies only.** Record licenses in `docs/mvp-design.md` §9.
-- **UI rules** (shadcn first, the app shell, theme tokens only, and design quality with the `frontend-design` skill) are in `apps/web/AGENTS.md`.
-- **Short replies.** In chat, lead with the answer. Skip preamble, restating the question and step-by-step recaps of what you did. Code, commands, and reports of what was and wasn't verified stay complete.
-- Run pnpm commands from the repo root; Python commands with `uv run` inside `apps/server`.
+- **Cross-platform first.** Anything that touches the host goes through a provider and a capability in the manifest; the UI and the assistant show only what the host supports (`athena-platform-feature` skill).
+- **Don't guess APIs.** Copy the closest existing feature, then check current docs (Context7, the `shadcn` skill or MCP, `node_modules/next/dist/docs/`). Versions here are newer than most training data (Next 16, Base UI, xterm.js 6, Python 3.13, pydantic-ai 2.x).
+- **Open-source dependencies only**, each recorded in `docs/design/licenses.md`.
+- **Leave the maintainer's things alone.** Port 8420 may be their own Athena (use 8421+). Act only on containers, apps and images named `athena-demo-*` / `athena-test-*`. Fake anything that would change the host in browser checks.
+- Run pnpm from the repo root and Python with `uv run` inside `apps/server`. Never hand-write API request types: `pnpm gen:api` regenerates `packages/api-client` after any route change.
 
-## Agent tooling
+## Read when
 
-- **Project skills** (`.agents/skills/<name>/SKILL.md`; read it directly if your agent doesn't load skills): `athena-recipes` (common changes and the "before you say done" checklist; **start here if you're unsure how something is done**), `athena-platform-feature`, `athena-ui-verify`, `athena-ship`, `athena-host-test`, `athena-catalog-app`. Third-party: `shadcn`, `frontend-design`, `building-pydantic-ai-agents`, `pydantic-ai-harness`, `pydantic`.
-- **MCP servers** (`.mcp.json`): `shadcn`, `next-devtools`, `playwright` (actions don't return the page; call `browser_snapshot` when you need it), `context7`.
-- To change any of it (MCP servers, skills, generated agent config) or set up an agent on a new machine, read `docs/AGENT-TOOLING.md` first.
+| When you… | Read |
+|---|---|
+| Work in `apps/server` | `apps/server/AGENTS.md`; before pushing Python, `docs/agents/gotchas/windows.md` and `docs/agents/gotchas/codeql.md` |
+| Work in `apps/web` | `apps/web/AGENTS.md` and `docs/agents/gotchas/web.md` |
+| Touch the AI assistant | `docs/agents/gotchas/assistant.md`, `docs/design/assistant.md`, skills `pydantic-ai-harness` / `building-pydantic-ai-agents` |
+| Touch cloud storage (rclone) | `docs/agents/gotchas/rclone.md`, `docs/design/cloud.md` |
+| Touch the host OS (runtimes, package managers, terminal, shares) | skill `athena-platform-feature`, `docs/design/platform.md` |
+| Add an endpoint, migration, page, job or setting | skill `athena-recipes` (start here when unsure how something is done) |
+| Add or update a store app | skill `athena-catalog-app`, `catalog/README.md` |
+| Finish UI work (any `apps/web` change or API the UI uses) | skill `athena-ui-verify` and `docs/agents/gotchas/browser.md` |
+| Change installers, `athena service` or platform detection | skill `athena-host-test`, `docs/agents/gotchas/installers.md` |
+| Commit, push, open a PR or fix CI | skill `athena-ship`, `docs/agents/gotchas/git-ci.md` |
+| Need a command | `docs/agents/commands.md` |
+| Need the design of a feature, or a past decision | `docs/design/README.md` (index), then one section |
+| Need a feature's history | `docs/HISTORY.md` (search it; don't read it whole) |
+| Hit a shell, sandbox or agent quirk | `docs/agents/gotchas/environment.md` |
+| Change agent tooling (MCP, skills, settings) or set up a machine | `docs/agents/tooling.md` |
+
+Skills live in `.agents/skills/<name>/SKILL.md`; if your agent doesn't load skills, read the file. MCP servers (`.mcp.json`): `shadcn`, `next-devtools`, `playwright` (call `browser_snapshot` when you need the page), `context7`.
 
 ## Definition of done
 
-While iterating, run focused checks (`cd apps/server && uv run pytest -q -k <name>`, `pnpm lint && pnpm typecheck`). Before pushing, run `scripts/check.sh` (the same checks as CI; `--quick` skips the web build). Windows-only failures still show up only in CI.
-
-Turn on the git hooks once per clone (required for agents): `git config core.hooksPath .githooks`. pre-commit refuses commits on `main` or in the base checkout; pre-push runs only the parts of `scripts/check.sh` the push touches (about 2 s for docs, under a minute with server changes). Skip once with `--no-verify` (see `CONTRIBUTING.md`).
-
-**Docs are checked too.** `node scripts/check-docs.mjs` (in CI and in `scripts/check.sh`) fails when the agent docs (every `AGENTS.md`, `CLAUDE.md`, `docs/AGENT-NOTES.md`, `docs/AGENT-TOOLING.md`, `catalog/README.md`) or a project skill names a file, function, component or constant that doesn't exist. When you rename something, fix the docs in the same PR. To mention something on purpose that doesn't exist (an old name, an external API), end the line with `<!-- docs-check: ignore -->`.
-
-### UI work
-
-Any change to `apps/web`, or to an API the UI uses, is verified in a real browser with the `athena-ui-verify` skill (release build on port 8421, fresh data dir, happy path plus a failure, console and network checks, phone width and dark mode when layout changed, cleanup) before it's reported as done.
+- While iterating, run focused checks: `cd apps/server && uv run pytest -q -k <name>`, `uv run ruff check`, `pnpm lint && pnpm typecheck`.
+- Before pushing: `scripts/check.sh` (what CI runs; `--quick` skips the web build). Windows-only failures show up only in CI.
+- Turn on the git hooks once per clone: `git config core.hooksPath .githooks` (pre-commit refuses `main` and the base checkout; pre-push runs the parts of `scripts/check.sh` the push touches).
+- UI changes are verified in a real browser with `athena-ui-verify` before they're reported done.
+- `node scripts/check-docs.mjs` fails when an agent doc (every `AGENTS.md`/`CLAUDE.md`, `docs/agents/`, skills, `catalog/README.md`) names a file, function or constant that doesn't exist, or a file read every session grows past its size limit. Fix docs in the same PR as a rename; end a line with `<!-- docs-check: ignore -->` to mention something absent on purpose.
 
 ## Handoff
 
-At the end of every session, update `docs/STATUS.md`:
-- Move finished items out of STATUS: add one short bullet to the end of `docs/HISTORY.md` (what, the PR, what was verified and what wasn't).
-- Under **In progress**, say exactly where you stopped: files touched, what works, what's broken, and the next concrete step.
-- Add new **Open questions** or **Blockers**.
-- Add anything non-obvious you learned to `docs/AGENT-NOTES.md` (see [Where things go](#where-things-go)).
-- Keep it short: every agent reads STATUS at the start of every session, so each line costs tokens many times over. `scripts/check-docs.mjs` fails if it grows past 8 KB. Detail belongs in the design doc, HISTORY, commits and code.
+At the end of every session, in your branch or a docs PR:
+
+- `docs/STATUS.md`: move finished items to one short bullet at the end of `docs/HISTORY.md` (what, PR, what was and wasn't verified). Under **In progress**, say where you stopped and the next concrete step. Add **Open questions** and **Blockers**. Keep it short (size-checked).
+- Add anything non-obvious you learned to [the right place](#where-things-go).
 
 ## Where things go
 
 | What | Where |
 |---|---|
-| Rules for every agent and task | `AGENTS.md` (this file). Every session loads it, so keep it short and link to detail |
+| Rules for every task | This file. Keep it short; link to detail |
 | Rules for one app | `apps/server/AGENTS.md`, `apps/web/AGENTS.md` |
-| A repeatable procedure | A project skill in `.agents/skills/<name>/SKILL.md` (how: `docs/AGENT-TOOLING.md` → Changing tooling) |
-| Design and decisions | `docs/mvp-design.md`: update the section and add a row to §11 Decisions log |
-| Lessons, gotchas, troubleshooting, commands | `docs/AGENT-NOTES.md`, in its area's section, one bullet per fact with the _why_ (a CI failure with a surprising cause, a tool quirk, a scanner false positive, a pattern worth copying) |
-| Agent tooling (MCP servers, generated config, token budget) | `docs/AGENT-TOOLING.md` |
-| Current work / finished work | `docs/STATUS.md` / `docs/HISTORY.md` (see Handoff) |
+| A repeatable procedure | A project skill (`.agents/skills/<name>/SKILL.md`, see `docs/agents/tooling.md`) |
+| Design and decisions | The section in `docs/design/`, plus a row in `docs/design/decisions.md` |
+| Lessons and gotchas (one bullet per fact, with the _why_) | `docs/agents/gotchas/<area>.md` |
+| Commands and patterns to copy | `docs/agents/commands.md` |
+| Agent tooling | `docs/agents/tooling.md` |
+| Current / finished work | `docs/STATUS.md` / `docs/HISTORY.md` |
 | Store app format | `catalog/README.md` |
-| Workflow for human contributors | `CONTRIBUTING.md` |
-
-Never only in chat or in agent-private memory (Claude memory, Hermes MEMORY.md, OpenCode sessions): the next agent can't see either.

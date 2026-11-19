@@ -19,7 +19,7 @@ import { AssistantChat } from "@/components/assistant/assistant-view"
 import { useAuth } from "@/components/auth-provider"
 
 /**
- * The assistant in a side sheet from any page (docs/mvp-design.md §4.5, part C).
+ * The assistant in a side sheet from any page (docs/design/assistant.md, part C).
  * Admins only, like the API, and hidden on /assistant itself. The open chat lives
  * here, in the layout, so it survives closing the sheet and moving between pages; a
  * reply keeps running on the server while the sheet is closed.

@@ -1,6 +1,6 @@
 """Windows package managers: WinGet, Scoop and Chocolatey.
 
-Athena runs as the logged-in user on Windows (docs/mvp-design.md §3, privilege model):
+Athena runs as the logged-in user on Windows (docs/design/platform.md, privilege model):
 winget and Scoop install per user; Chocolatey installs machine-wide and needs an
 elevated Athena. The fixtures for these are hand-written from the documented formats
 (see tests/fixtures/packages/README.md).

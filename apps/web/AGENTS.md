@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Athena web app (`apps/web`)
 
-Rules for working on the UI. The repo-wide rules, Git workflow and handoff are in the root `AGENTS.md`; read that first. Lessons and gotchas are in `docs/AGENT-NOTES.md`. For step-by-step changes (page, sidebar entry, API calls), use the `athena-recipes` skill. Before calling UI work done, use `athena-ui-verify`.
+Rules for working on the UI. The repo-wide rules, Git workflow and handoff are in the root `AGENTS.md`; read that first. Gotchas: `docs/agents/gotchas/web.md` (read before changing UI code) and `docs/agents/gotchas/browser.md` (for browser checks). For step-by-step changes (page, sidebar entry, API calls), use the `athena-recipes` skill. Before calling UI work done, use `athena-ui-verify`.
 
 ## Stack and commands
 
