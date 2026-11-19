@@ -1,6 +1,6 @@
 ---
 name: athena-platform-feature
-description: Adds or changes an Athena feature that touches the host OS (container runtimes, package managers, terminal, file shares, cloud storage, system stats) so it works on Linux, macOS and Windows and is gated by the capability manifest. Use when adding a provider under apps/server/src/athena/providers, a new capability id, a new package manager or container runtime, an AI assistant tool that acts on the host, or any UI that should only appear when the host supports it.
+description: Adds or changes an Athena feature that touches the host OS (container runtimes, package managers, terminal, file shares, cloud storage, system stats) so it works on Linux, macOS and Windows and is gated by the capability manifest. Use when adding a provider package under apps/server/src/athena/<area>/, a new capability id, a new package manager or container runtime, an AI assistant tool that acts on the host, or any UI that should only appear when the host supports it.
 ---
 
 # Athena platform feature
