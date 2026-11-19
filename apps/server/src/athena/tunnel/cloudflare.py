@@ -1,5 +1,6 @@
 """Cloudflare Tunnel provider implementation."""
 
+import asyncio
 import json
 import logging
 import os
@@ -11,6 +12,36 @@ from typing import Any
 from athena.tunnel.base import TunnelConfig, TunnelProvider, TunnelStatus
 
 log = logging.getLogger(__name__)
+
+_ARCH_ALIASES = {
+    "x86_64": "amd64",
+    "amd64": "amd64",
+    "aarch64": "arm64",
+    "arm64": "arm64",
+    "armv7l": "arm",
+    "armv6l": "arm",
+    "i386": "386",
+    "i686": "386",
+    "x86": "386",
+}
+
+
+def release_asset(system: str, machine: str) -> str:
+    """Name of the cloudflared release asset for this OS and CPU.
+
+    Linux and Windows releases are bare binaries; only macOS ships a .tgz.
+    Windows has no arm64 build, so Windows on ARM runs the amd64 one
+    under emulation.
+    """
+    arch = _ARCH_ALIASES.get(machine.lower())
+    system = system.lower()
+    if system == "linux" and arch in ("amd64", "arm64", "arm", "386"):
+        return f"cloudflared-linux-{arch}"
+    if system == "darwin" and arch in ("amd64", "arm64"):
+        return f"cloudflared-darwin-{arch}.tgz"
+    if system == "windows" and arch in ("amd64", "arm64", "386"):
+        return f"cloudflared-windows-{'amd64' if arch == 'arm64' else arch}.exe"
+    raise ValueError(f"cloudflared has no release for {system} on {machine}")
 
 
 class CloudflareTunnelProvider(TunnelProvider):
@@ -164,55 +195,29 @@ class CloudflareTunnelProvider(TunnelProvider):
     async def install(self, job: Any) -> None:
         """Download and install cloudflared."""
         import platform
+        import tempfile
         import urllib.request
 
         system = platform.system().lower()
-        arch = platform.machine().lower()
-
-        # Map architecture
-        if arch in ("x86_64", "amd64"):
-            arch = "amd64"
-        elif arch in ("aarch64", "arm64"):
-            arch = "arm64"
-        else:
-            raise ValueError(f"Unsupported architecture: {arch}")
-
-        # Download URL pattern
-        if system == "darwin":
-            filename = f"cloudflared-darwin-{arch}.tgz"
-        elif system == "linux":
-            filename = f"cloudflared-linux-{arch}.tgz"
-        elif system == "windows":
-            filename = f"cloudflared-windows-{arch}.zip"
-        else:
-            raise ValueError(f"Unsupported OS: {system}")
-
+        filename = release_asset(system, platform.machine())
         url = f"https://github.com/cloudflare/cloudflared/releases/latest/download/{filename}"
-
-        # Download to temp
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
-            archive_path = tmpdir_path / filename
+            download_path = tmpdir_path / filename
 
-            # Download
-            job.log(f"Downloading cloudflared from {url}")
-            urllib.request.urlretrieve(url, archive_path)
+            await job.log(f"Downloading cloudflared from {url}")
+            await asyncio.to_thread(urllib.request.urlretrieve, url, download_path)
 
-            # Extract
             if filename.endswith(".tgz"):
                 import tarfile
 
-                with tarfile.open(archive_path, "r:gz") as tar:
-                    tar.extractall(tmpdir_path)
+                with tarfile.open(download_path, "r:gz") as tar:
+                    tar.extract("cloudflared", tmpdir_path, filter="data")
                 binary_path = tmpdir_path / "cloudflared"
             else:
-                import zipfile
-
-                with zipfile.ZipFile(archive_path, "r") as zipf:
-                    zipf.extractall(tmpdir_path)
-                binary_path = tmpdir_path / "cloudflared.exe"
+                # Linux and Windows releases are the bare binary.
+                binary_path = download_path
 
             # Install to PATH
             if system == "windows":
@@ -232,7 +237,7 @@ class CloudflareTunnelProvider(TunnelProvider):
             if system != "windows":
                 dest.chmod(0o755)
 
-            job.log(f"Installed cloudflared to {dest}")
+            await job.log(f"Installed cloudflared to {dest}")
 
     async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
         """Configure systemd/launchd service for auto-start."""
@@ -268,14 +273,14 @@ WantedBy=multi-user.target
             subprocess.run(["systemctl", "daemon-reload"], check=False)
             subprocess.run(["systemctl", "enable", "cloudflared"], check=False)
             subprocess.run(["systemctl", "start", "cloudflared"], check=False)
-            job.log("Enabled cloudflared systemd service")
+            await job.log("Enabled cloudflared systemd service")
         else:
             subprocess.run(["systemctl", "stop", "cloudflared"], check=False)
             subprocess.run(["systemctl", "disable", "cloudflared"], check=False)
             if service_path.exists():
                 service_path.unlink()
             subprocess.run(["systemctl", "daemon-reload"], check=False)
-            job.log("Disabled cloudflared systemd service")
+            await job.log("Disabled cloudflared systemd service")
 
     async def _configure_launchd(self, job: Any, enabled: bool) -> None:
         """Configure launchd agent."""
@@ -309,12 +314,12 @@ WantedBy=multi-user.target
             plist_path.parent.mkdir(parents=True, exist_ok=True)
             plist_path.write_text(plist_content)
             subprocess.run(["launchctl", "load", str(plist_path)], check=False)
-            job.log("Enabled cloudflared launchd agent")
+            await job.log("Enabled cloudflared launchd agent")
         else:
             subprocess.run(["launchctl", "unload", str(plist_path)], check=False)
             if plist_path.exists():
                 plist_path.unlink()
-            job.log("Disabled cloudflared launchd agent")
+            await job.log("Disabled cloudflared launchd agent")
 
     async def _configure_windows_task(self, job: Any, enabled: bool) -> None:
         """Configure Windows Task Scheduler."""
@@ -336,10 +341,10 @@ WantedBy=multi-user.target
                 "/F",
             ]
             subprocess.run(cmd, check=False)
-            job.log("Enabled cloudflared Windows scheduled task")
+            await job.log("Enabled cloudflared Windows scheduled task")
         else:
             subprocess.run(
                 ["schtasks", "/Delete", "/TN", "Athena Cloudflare Tunnel", "/F"],
                 check=False,
             )
-            job.log("Disabled cloudflared Windows scheduled task")
+            await job.log("Disabled cloudflared Windows scheduled task")
