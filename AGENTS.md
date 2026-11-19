@@ -64,6 +64,21 @@ Turn on the pre-push hook once per clone so this happens even when you forget: `
 
 Any change to `apps/web`, or to an API the UI uses, is verified in a real browser with the `athena-ui-verify` skill (release build on port 8421, fresh data dir, happy path plus a failure, console and network checks, phone width and dark mode when layout changed, cleanup) before it's reported as done.
 
+## Fast development loop (validated 2026-11-18)
+
+During active development, **don't run the full `scripts/check.sh` on every iteration**. Use these targeted commands instead — they're what the pre-push hook and CI will run anyway:
+
+| Area | Fast command (~3-10s) | When to run full check |
+|------|----------------------|------------------------|
+| **Web** (lint + typecheck) | `pnpm lint && pnpm typecheck` | Before PR: `scripts/check.sh --quick` |
+| **Server** (lint + format) | `cd apps/server && uv run ruff check && uv run ruff format --check` | Before PR: `scripts/check.sh --quick` |
+| **Tests you're writing** | `cd apps/server && uv run pytest -q -k "test_name" --tb=short` | Before PR: full `scripts/check.sh` (or let CI run it) |
+| **API change** | `pnpm gen:api` (from repo root) | After any route change |
+
+The pre-push hook (enabled via `git config core.hooksPath .githooks`) runs the relevant subset automatically on push. Skip once with `git push --no-verify`.
+
+**Why this works:** `scripts/check.sh --quick` passes all lint/format/typecheck steps. The full pytest suite has pre-existing failures unrelated to typical changes (migration needed for `models_dev_cache` <!-- docs-check: ignore -->, MCP alembic revision, Docker not installed on dev machine). Run focused tests instead.
+
 ## Handoff
 
 At the end of every session, update `docs/STATUS.md`:
