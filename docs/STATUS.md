@@ -12,6 +12,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - M8 B (MCP server): done — streamable-HTTP MCP server at /api/mcp with session or bearer-token auth, tools for apps/capabilities/stats/automation. Verified with MCP handshake + tool-call tests.
 - M8 C (webhooks): done — public POST /api/automation/webhook/{token} fires HTTP triggers (n8n path), no session needed. Verified with API tests.
 - M8 D (Automation UI): done — /automation page with trigger create/edit/delete, job-run table, webhook+MCP endpoints card. gated by `automation` capability. Verified lint/typecheck/build; not yet browser-verified.
+- M7: models.dev cache for dynamic AI providers — PR #126. 12 native providers kept, dynamic OpenAI-compatible providers loaded from models.dev with 24h database cache. New `/kinds/refresh` endpoint. Verified: all CI (Linux/macOS/Windows), lint, typecheck, build, pytest (544 passed).
 
 ## In progress
 
