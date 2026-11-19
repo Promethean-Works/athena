@@ -49,6 +49,16 @@
       "Bash(hermes mcp list)",
       "Bash(node scripts/agents-setup.mjs --check*)",
       "Bash(node scripts/agents-setup.mjs --dry-run*)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/secret.key)",
+      "Read(**/.credentials*)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Read(**/id_ed25519*)",
+      "Read(./.dev-data/**)"
     ]
   },
   "hooks": {
@@ -57,7 +67,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agents-setup.mjs\" --check --quiet"
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/session-start.mjs\""
           }
         ]
       }

@@ -15,7 +15,7 @@ Scope decisions (maintainer, 2026-11-19): capture only Athena-relevant machine s
 - [x] `scripts/check-docs.mjs`: checks every `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` and `docs/agents/`; size limits for files read every session.
 - [x] `apps/server/CLAUDE.md` and `apps/web/CLAUDE.md` import their `AGENTS.md`: Claude Code reads only CLAUDE.md files once a root one exists, so it never loaded the app rules before. The other agents read nested `AGENTS.md` lazily or follow the router (see `docs/agents/tooling.md` → How each agent loads instructions).
 
-## PR 2 — `build`: one-command machine setup (done)
+## PR 2 — `build`: one-command machine setup (done, #154)
 
 - `agents/user/`: templates for machine-level settings (no secrets; `{env:VAR}` references): the RTK hook and TokenEconomizer for each agent, OpenCode plugin links, Hermes trust/MCP/plugins, opt-in model/provider templates.
 - `scripts/agents-setup.mjs` (`--check`, `--dry-run`): git hooks, skills restore, RTK and TokenEconomizer install (or the command to run), merging into user configs without overwriting, required env vars. A Claude Code `SessionStart` hook runs `--check`; other agents are told to by `AGENTS.md`. Installs and home-folder changes are confirmed with the maintainer first.
@@ -23,7 +23,10 @@ Scope decisions (maintainer, 2026-11-19): capture only Athena-relevant machine s
 - `docs/agents/tooling.md` → "New machine".
 - Area gotchas that load by themselves when a matching file is touched: Claude Code `.claude/rules/<area>.md` with `paths:`, Copilot `.github/instructions/<area>.instructions.md` with `applyTo`, both generated from one map in `scripts/agents-sync.mjs`.
 
-## PR 3 — `feat`: shared workflows
+## PR 3 — `feat`: shared workflows (done)
+
+As built: skills `athena-next`, `athena-check-prs`, `athena-handoff`, `athena-review` with commands `/next`, `/check-prs`, `/handoff`, `/review-diff` (not `/review`: Claude Code's built-in), `/ship`; a `reviewer` subagent; no custom explorer (Claude Code and OpenCode have built-in ones); `scripts/session-start.mjs` prints STATUS and the setup check.
+
 
 - Commands `/next`, `/check-prs`, `/ship`, `/handoff`, `/review`, defined once and generated per agent.
 - Subagents `reviewer` (read-only, checks a diff against the rules) and `explorer` (cheap model), generated like `ui-verify`.

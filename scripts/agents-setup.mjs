@@ -190,6 +190,13 @@ const steps = [
   },
   {
     group: "tools",
+    title: "gitleaks on PATH (secret scan in the pre-commit hook)",
+    ok: () => !!which("gitleaks"),
+    fix: which("brew") ? { show: "brew install gitleaks", run: () => run("brew", ["install", "gitleaks"], { stdio: "inherit" }) } : null,
+    manual: "Install gitleaks: https://github.com/gitleaks/gitleaks#installing",
+  },
+  {
+    group: "tools",
     title: "Python 3.10+ for TokenEconomizer",
     ok: () => !!pythonOnce(),
     fix: which("uv") ? { show: "uv python install 3.12", run: () => { run("uv", ["python", "install", "3.12"], { stdio: "inherit" }); python = null } } : null,

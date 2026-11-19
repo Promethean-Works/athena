@@ -48,6 +48,21 @@ const OPENCODE_SUBAGENT_ONLY = {
       "Follow the athena-ui-verify skill (.agents/skills/athena-ui-verify/SKILL.md) exactly. Report what you verified, what you couldn't and why, and any bugs you found.",
   },
 };
+// Files no agent may read: keys and the dev data dir (which holds secret.key and the
+// encrypted provider keys). Claude Code: `Read(...)` deny rules merged into
+// .claude/settings.json; OpenCode: `read` deny rules (its `*` also matches `/`).
+const SECRET_GLOBS = [".env", ".env.*", "secret.key", ".credentials*", "*.pem", "id_rsa*", "id_ed25519*"];
+const SECRET_DIRS = [".dev-data"];
+const claudeSecretDenies = [
+  ...SECRET_GLOBS.map((g) => `Read(**/${g})`),
+  ...SECRET_DIRS.map((d) => `Read(./${d}/**)`),
+];
+const openCodeSecretRules = [
+  ...SECRET_GLOBS.map((g) => ({ action: "read", resource: `*${g.startsWith("*") ? g.slice(1) : `/${g}`}`, effect: "deny" })),
+  ...SECRET_GLOBS.map((g) => ({ action: "read", resource: g, effect: "deny" })),
+  ...SECRET_DIRS.map((d) => ({ action: "read", resource: `${d}/*`, effect: "deny" })),
+].filter((r, i, all) => all.findIndex((x) => x.resource === r.resource) === i);
+
 // OpenCode names MCP tools <server>_<tool>, with unsupported characters turned into _.
 const openCodeToolGlob = (server) => `${server.replace(/[^A-Za-z0-9_]/g, "_")}_*`;
 
@@ -158,18 +173,70 @@ const existing = existsSync(opencodePath)
 // kept, in order) and the subagents themselves.
 const subagentOnly = Object.entries(OPENCODE_SUBAGENT_ONLY).filter(([n]) => servers[n]);
 const generatedActions = new Set(Object.keys(OPENCODE_SUBAGENT_ONLY).map(openCodeToolGlob));
+const isGeneratedRead = (r) => r.action === "read" && r.effect === "deny" && openCodeSecretRules.some((g) => g.resource === r.resource);
 const permissions = [
-  ...(existing.permissions ?? []).filter((r) => !generatedActions.has(r.action)),
+  ...(existing.permissions ?? []).filter((r) => !generatedActions.has(r.action) && !isGeneratedRead(r)),
   ...subagentOnly.map(([n]) => ({ action: openCodeToolGlob(n), resource: "*", effect: "deny" })),
+  ...openCodeSecretRules, // last, so a broad allow earlier can't override them
 ];
+// Subagents: the MCP-scoped ones above plus SUBAGENTS, written for Claude Code
+// (.claude/agents/), OpenCode (opencode.json agents) and Codex (.codex/agents/).
+// Claude Code and OpenCode also have a built-in explorer (Explore / explore) for
+// read-only searches, so there's no custom one; give it a cheap model per machine.
+const SUBAGENTS = {
+  reviewer: {
+    description:
+      "Reviews a diff against Athena's rules (AGENTS.md, the app rules, gotchas) and reports bugs and rule breaks without editing. Use before opening a PR, or when asked to review.",
+    claudeModel: "inherit", // a review needs the strongest model in use
+    claudeTools: "Read, Grep, Glob, Bash",
+    readOnly: true,
+    system:
+      "Follow the athena-review skill (.agents/skills/athena-review/SKILL.md) exactly. Never edit files. Report findings ordered by severity, each with file:line, why it's wrong and a suggested fix.",
+  },
+};
+const allSubagents = [
+  ...subagentOnly.map(([n, a]) => ({
+    name: a.agent, ...a, source: "OPENCODE_SUBAGENT_ONLY",
+    // Agent rules are appended after the global ones, and the last match wins.
+    openCodePermissions: [{ action: openCodeToolGlob(n), resource: "*", effect: "allow" }],
+  })),
+  ...Object.entries(SUBAGENTS).map(([name, a]) => ({
+    name, ...a, source: "SUBAGENTS",
+    openCodePermissions: a.readOnly ? [{ action: "edit", resource: "*", effect: "deny" }] : [],
+  })),
+];
+
+// Shared slash commands: thin aliases for project skills, so the procedure lives in one
+// place. Claude Code gets .claude/commands/<name>.md, OpenCode a `commands` entry; Hermes,
+// Codex, Antigravity and Copilot run the skills themselves (/athena-next, $athena-next…).
+const COMMANDS = {
+  next: { skill: "athena-next", description: "Read STATUS and propose the next concrete step" },
+  "check-prs": { skill: "athena-check-prs", description: "Check open PRs: CI, CodeQL, merges; fix failures" },
+  ship: { skill: "athena-ship", description: "Commit, open the PR with auto-merge, watch CI" },
+  handoff: { skill: "athena-handoff", description: "Update STATUS, HISTORY and gotchas before ending the session" },
+  "review-diff": { skill: "athena-review", description: "Review the current diff against the project rules", agent: "reviewer" },
+};
+for (const c of Object.values(COMMANDS)) {
+  if (!existsSync(join(root, ".agents", "skills", c.skill, "SKILL.md"))) throw new Error(`COMMANDS: skill ${c.skill} doesn't exist`);
+}
+const commandPrompt = (c) =>
+  `Use the ${c.skill} skill (.agents/skills/${c.skill}/SKILL.md) and follow it.`;
+
 const agents = { ...existing.agents };
-for (const [n, a] of subagentOnly) {
-  agents[a.agent] = {
+for (const a of allSubagents) {
+  agents[a.name] = {
     description: a.description,
     mode: "subagent",
     system: a.system,
-    // Agent rules are appended after the global ones, and the last match wins.
-    permissions: [{ action: openCodeToolGlob(n), resource: "*", effect: "allow" }],
+    ...(a.openCodePermissions.length && { permissions: a.openCodePermissions }),
+  };
+}
+const commands = { ...existing.commands };
+for (const [name, c] of Object.entries(COMMANDS)) {
+  commands[name] = {
+    description: c.description,
+    template: `${commandPrompt(c)} $ARGUMENTS`,
+    ...(c.agent && { agent: c.agent, subagent: true }),
   };
 }
 
@@ -181,23 +248,54 @@ const next = {
   },
   ...(permissions.length && { permissions }),
   ...(Object.keys(agents).length && { agents }),
+  commands,
 };
 const out = JSON.stringify(next, null, 2) + "\n";
 
-// Claude Code subagents: one Markdown file per subagent-only server.
+const generatedNote = (source) => `<!-- Generated by scripts/agents-sync.mjs from ${source}. Don't edit by hand. -->`;
 const claudeAgents = Object.fromEntries(
-  subagentOnly.map(([, a]) => [
-    join(".claude", "agents", `${a.agent}.md`),
+  allSubagents.map((a) => [
+    join(".claude", "agents", `${a.name}.md`),
     [
       "---",
-      `name: ${a.agent}`,
+      `name: ${a.name}`,
       `description: ${JSON.stringify(a.description)}`,
       `model: ${a.claudeModel}`,
+      ...(a.claudeTools ? [`tools: ${a.claudeTools}`] : []),
       "---",
       "",
-      "<!-- Generated by scripts/agents-sync.mjs from OPENCODE_SUBAGENT_ONLY. Don't edit by hand. -->",
+      generatedNote(a.source),
       "",
       a.system,
+      "",
+    ].join("\n"),
+  ]),
+);
+const claudeCommands = Object.fromEntries(
+  Object.entries(COMMANDS).map(([name, c]) => [
+    join(".claude", "commands", `${name}.md`),
+    [
+      "---",
+      `description: ${JSON.stringify(c.description)}`,
+      "---",
+      "",
+      generatedNote("COMMANDS"),
+      "",
+      c.agent ? `Run this in the ${c.agent} subagent. ${commandPrompt(c)}` : commandPrompt(c),
+      "",
+      "$ARGUMENTS",
+      "",
+    ].join("\n"),
+  ]),
+);
+const codexAgents = Object.fromEntries(
+  allSubagents.map((a) => [
+    join(".codex", "agents", `${a.name}.toml`),
+    [
+      "# Generated by scripts/agents-sync.mjs. Don't edit by hand.",
+      `name = ${JSON.stringify(a.name)}`,
+      `description = ${JSON.stringify(a.description)}`,
+      `developer_instructions = ${JSON.stringify(a.system)}`,
       "",
     ].join("\n"),
   ]),
@@ -249,10 +347,20 @@ for (const [area, globs] of Object.entries(AREA_RULES)) {
   areaRules[join(".github", "instructions", `${area}.instructions.md`)] = body(["---", `applyTo: ${JSON.stringify(globs.join(","))}`, "---"].join("\n"));
 }
 
-// GENERATED: every file this script owns.
+// Claude Code project settings: only the secret Read denies are managed here.
+const claudeSettingsPath = join(root, ".claude", "settings.json");
+const claudeSettings = JSON.parse(readFileSync(claudeSettingsPath, "utf8"));
+const otherDenies = (claudeSettings.permissions?.deny ?? []).filter((d) => !claudeSecretDenies.includes(d));
+claudeSettings.permissions = { ...claudeSettings.permissions, deny: [...otherDenies, ...claudeSecretDenies] };
+const claudeSettingsOut = JSON.stringify(claudeSettings, null, 2) + "\n";
+
+// GENERATED: every file this script owns (fully, or the parts described above).
 const outputs = {
+  [join(".claude", "settings.json")]: claudeSettingsOut,
   "opencode.json": out,
   ...claudeAgents,
+  ...claudeCommands,
+  ...codexAgents,
   [join(".codex", "config.toml")]: codexToml,
   [join(".agents", "mcp_config.json")]: antigravity,
   ...areaRules,

@@ -12,7 +12,11 @@ Everything agent-related has one source of truth in the repo; each agent reads i
 | Area gotchas | `docs/agents/gotchas/<area>.md` | Claude Code `.claude/rules/<area>.md` and Copilot `.github/instructions/<area>.instructions.md` (generated from `AREA_RULES`) point at them when a matching file is touched; everyone else follows the router |
 | Skills | `.agents/skills/` (third-party ones pinned in `skills-lock.json`) | Claude Code through the `.claude/skills` symlink; OpenCode, Codex, Antigravity and Copilot read it; Hermes after `hermes skills trust` |
 | MCP servers | `.mcp.json` | Claude Code and Copilot read it; generated `opencode.json`, `.codex/config.toml`, `.agents/mcp_config.json` (Antigravity); Hermes through `agents-sync.mjs --hermes` |
-| Subagents | `OPENCODE_SUBAGENT_ONLY` in `scripts/agents-sync.mjs` | Generated `.claude/agents/*.md` and agents in `opencode.json` |
+| Subagents (`ui-verify`, `reviewer`) | `OPENCODE_SUBAGENT_ONLY` and `SUBAGENTS` in `scripts/agents-sync.mjs` | Generated `.claude/agents/`, `.codex/agents/` and agents in `opencode.json`. Exploring uses each tool's built-in explorer |
+| Slash commands (`/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship`) | The `athena-*` skills; `COMMANDS` in `scripts/agents-sync.mjs` | Generated `.claude/commands/` and `commands` in `opencode.json`; Hermes, Codex, Antigravity and Copilot run the skills directly |
+| Secret files agents may not read | `SECRET_GLOBS`, `SECRET_DIRS` in `scripts/agents-sync.mjs` | `Read(...)` denies in `.claude/settings.json`, `read` denies in `opencode.json` |
+| Secret scanning | `.gitleaks.toml` | `scripts/pre-commit.sh` (staged changes) and CI's repo checks (the tree) |
+| Session start | `scripts/session-start.mjs` | Claude Code `SessionStart` hook: STATUS plus the setup check |
 | Machine settings (RTK, TokenEconomizer, Hermes trust, opt-in models) | `scripts/agents-setup.mjs` + templates in `.agents/user/` | Applied to the home folder by `node scripts/agents-setup.mjs` (see [New machine](#new-machine)) |
 | Project state | `docs/STATUS.md` (finished work: `docs/HISTORY.md`) | Read at the start of every session |
 
@@ -46,6 +50,7 @@ Third-party ones are pinned in `skills-lock.json`: `shadcn`, `building-pydantic-
 - *Add a third-party skill:* `npx skills add <owner/repo> --skill <name> -a claude-code -y`. It lands in `.agents/skills/` through the symlink and is recorded in `skills-lock.json`.
 - *Add a project skill:* create `.agents/skills/<name>/SKILL.md` with `name` and `description` frontmatter (the description is what agents see before loading the skill: say what it does and when to use it), and add it to the list in `AGENTS.md`. `scripts/check-docs.mjs` checks every name the skill mentions.
   - Hermes's scanner also hides **our own** skills when they contain `curl … | python3` (rated critical "supply chain"), even when Python only parses JSON. In skills, use `jq` or save to a file first. `sudo`, `uv run` and systemd mentions are only medium and don't hide a skill. To check a skill before committing: `PYTHONPATH=~/.hermes/hermes-agent ~/.hermes/tools/python-3.14*/bin/python3 -c "from pathlib import Path; from tools.skills_guard import scan_skill; print(scan_skill(Path('.agents/skills/<name>'), source='project').verdict)"` should print `safe`.
+- *Add a subagent or a shared command:* a subagent goes in `SUBAGENTS` (its procedure in a skill), a command in `COMMANDS` as an alias for a skill; run `node scripts/agents-sync.mjs`. Don't name a command like a built-in (`/review` is Claude Code's).
 - *Add a gotchas area that loads by itself:* add the file under `docs/agents/gotchas/`, then its globs to `AREA_RULES` in `scripts/agents-sync.mjs`, and run the script.
 - *Change a machine-level setting* (a hook, plugin or user config every agent install needs): add a step to `scripts/agents-setup.mjs` (with a check, a fix that merges rather than overwrites, and a manual fallback), keeping its data in `.agents/user/` without secrets.
 
@@ -53,7 +58,7 @@ Third-party ones are pinned in `skills-lock.json`: `shadcn`, `building-pydantic-
 
 1. Install the agents you use and sign in to each (and `gh auth login`). Put API keys in your environment or the agent's own login; none are in the repo.
 2. Clone the repo and run `node scripts/agents-setup.mjs` from it. It lists what's missing for the agents found on `PATH` and, after you confirm, fixes it:
-   - git hooks (`core.hooksPath`);
+   - git hooks (`core.hooksPath`) and gitleaks for the pre-commit secret scan;
    - RTK (installed with brew or cargo) and its hook in Claude Code, OpenCode and Hermes;
    - TokenEconomizer (cloned to `~/.local/share/TokenEconomizer` or `$TOKENECONOMIZER_DIR`, plugin installed in Claude Code, linked into OpenCode and Hermes, `TE_PYTHON` set to a Python 3.10+);
    - Hermes: trusts the repo's skills and registers the MCP servers;
@@ -61,7 +66,7 @@ Third-party ones are pinned in `skills-lock.json`: `shadcn`, `building-pydantic-
    `--check` only reports, `--dry-run` prints the commands, `--yes` skips the question, `--only <groups>` limits it. Re-running is safe: it merges into existing configs.
 3. Restart each agent (Hermes: also `/reload-mcp`).
 
-Claude Code runs `agents-setup.mjs --check --quiet` at every session start (`SessionStart` hook in `.claude/settings.json`) and says what's missing; other agents are told to by `AGENTS.md`. An agent must ask before running the fixes, since they install tools and edit the home folder.
+Claude Code runs `agents-setup.mjs --check --quiet` at every session start (through `scripts/session-start.mjs`, the `SessionStart` hook in `.claude/settings.json`) and says what's missing; other agents are told to by `AGENTS.md`. An agent must ask before running the fixes, since they install tools and edit the home folder.
 
 Per agent, what the script doesn't do:
 
