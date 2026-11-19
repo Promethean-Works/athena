@@ -150,17 +150,22 @@ function SecretInput({
 function ProviderConfigForm({
   provider,
   config,
+  secretsSet,
   onChange,
   disabled,
 }: {
   provider: TunnelProvider
   config: Record<string, unknown>
+  /** Secret keys with a stored value. The server never sends secrets back. */
+  secretsSet: string[]
   onChange: (config: Record<string, unknown>) => void
   disabled: boolean
 }) {
   const handleChange = (key: string, value: unknown) => {
     onChange({ ...config, [key]: value })
   }
+  const secretPlaceholder = (key: string, empty: string) =>
+    secretsSet.includes(key) ? "Saved. Enter a new value to replace it" : empty
 
   if (provider === "cloudflare") {
     const quickTunnel = (config.quick_tunnel as boolean) ?? true
@@ -187,7 +192,10 @@ function ProviderConfigForm({
               value={(config.api_token as string) ?? ""}
               onChange={(v) => handleChange("api_token", v)}
               disabled={disabled}
-              placeholder="Cloudflare API Token with Tunnel permissions"
+              placeholder={secretPlaceholder(
+                "api_token",
+                "Cloudflare API Token with Tunnel permissions"
+              )}
             />
             <Field>
               <FieldLabel htmlFor="cf-tunnel-name">Tunnel Name</FieldLabel>
@@ -254,7 +262,10 @@ function ProviderConfigForm({
           value={(config.auth_token as string) ?? ""}
           onChange={(v) => handleChange("auth_token", v)}
           disabled={disabled}
-          placeholder="Your ngrok auth token (required)"
+          placeholder={secretPlaceholder(
+            "auth_token",
+            "Your ngrok auth token (required)"
+          )}
         />
         <Field>
           <FieldLabel htmlFor="ngrok-domain">Custom Domain (optional)</FieldLabel>
@@ -548,6 +559,7 @@ export function TunnelCard() {
                 <ProviderConfigForm
                   provider={provider}
                   config={config}
+                  secretsSet={systemSettings?.tunnel_secrets_set ?? []}
                   onChange={updateConfig}
                   disabled={saving || !user.is_admin}
                 />

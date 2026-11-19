@@ -1624,6 +1624,7 @@
           "settings"
         ],
         "summary": "Get System",
+        "description": "Tunnel secrets are never returned; `tunnel_secrets_set` lists the stored ones.",
         "operationId": "getSystemSettings",
         "responses": {
           "200": {
@@ -1643,7 +1644,7 @@
           "settings"
         ],
         "summary": "Set System",
-        "description": "Turning the terminal off also closes the terminals that are open.",
+        "description": "Turning the terminal off also closes the terminals that are open.\n\nTunnel secrets left empty or out of `tunnel_config` keep their stored value.",
         "operationId": "setSystemSettings",
         "requestBody": {
           "content": {
@@ -5559,7 +5560,7 @@
           "tunnel"
         ],
         "summary": "Start Tunnel",
-        "description": "Start the tunnel.",
+        "description": "Start the tunnel (admin only).",
         "operationId": "start_tunnel_api_tunnel_start_post",
         "responses": {
           "200": {
@@ -5581,7 +5582,7 @@
           "tunnel"
         ],
         "summary": "Stop Tunnel",
-        "description": "Stop the tunnel.",
+        "description": "Stop the tunnel (admin only).",
         "operationId": "stop_tunnel_api_tunnel_stop_post",
         "responses": {
           "200": {
@@ -5603,7 +5604,7 @@
           "tunnel"
         ],
         "summary": "Update Tunnel Config",
-        "description": "Update tunnel configuration (admin only).",
+        "description": "Update tunnel configuration (admin only).\n\nSecrets left empty or out of `config` keep their stored value; `null` clears one.",
         "operationId": "update_tunnel_config_api_tunnel_config_put",
         "requestBody": {
           "content": {
@@ -5621,9 +5622,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object",
-                  "title": "Response Update Tunnel Config Api Tunnel Config Put"
+                  "$ref": "#/components/schemas/TunnelConfigResponse"
                 }
               }
             }
@@ -10384,6 +10383,14 @@
             "type": "integer",
             "title": "Tunnel Port",
             "default": 8420
+          },
+          "tunnel_secrets_set": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tunnel Secrets Set",
+            "default": []
           }
         },
         "type": "object",
@@ -10801,6 +10808,23 @@
         },
         "type": "object",
         "title": "TunnelConfigRequest"
+      },
+      "TunnelConfigResponse": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/SystemSettings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "settings"
+        ],
+        "title": "TunnelConfigResponse"
       },
       "TunnelInstallRequest": {
         "properties": {

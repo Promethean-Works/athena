@@ -692,11 +692,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get System */
+        /**
+         * Get System
+         * @description Tunnel secrets are never returned; `tunnel_secrets_set` lists the stored ones.
+         */
         get: operations["getSystemSettings"];
         /**
          * Set System
          * @description Turning the terminal off also closes the terminals that are open.
+         *
+         *     Tunnel secrets left empty or out of `tunnel_config` keep their stored value.
          */
         put: operations["setSystemSettings"];
         post?: never;
@@ -1978,7 +1983,7 @@ export interface paths {
         put?: never;
         /**
          * Start Tunnel
-         * @description Start the tunnel.
+         * @description Start the tunnel (admin only).
          */
         post: operations["start_tunnel_api_tunnel_start_post"];
         delete?: never;
@@ -1998,7 +2003,7 @@ export interface paths {
         put?: never;
         /**
          * Stop Tunnel
-         * @description Stop the tunnel.
+         * @description Stop the tunnel (admin only).
          */
         post: operations["stop_tunnel_api_tunnel_stop_post"];
         delete?: never;
@@ -2018,6 +2023,8 @@ export interface paths {
         /**
          * Update Tunnel Config
          * @description Update tunnel configuration (admin only).
+         *
+         *     Secrets left empty or out of `config` keep their stored value; `null` clears one.
          */
         put: operations["update_tunnel_config_api_tunnel_config_put"];
         post?: never;
@@ -3727,6 +3734,11 @@ export interface components {
              * @default 8420
              */
             tunnel_port: number;
+            /**
+             * Tunnel Secrets Set
+             * @default []
+             */
+            tunnel_secrets_set: string[];
         };
         /** Temperature */
         Temperature: {
@@ -3862,6 +3874,12 @@ export interface components {
             auto_start?: boolean | null;
             /** Port */
             port?: number | null;
+        };
+        /** TunnelConfigResponse */
+        TunnelConfigResponse: {
+            /** Ok */
+            ok: boolean;
+            settings: components["schemas"]["SystemSettings"];
         };
         /** TunnelInstallRequest */
         TunnelInstallRequest: {
@@ -8010,9 +8028,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["TunnelConfigResponse"];
                 };
             };
             /** @description Validation Error */

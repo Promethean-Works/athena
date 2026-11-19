@@ -59,24 +59,30 @@ def set_appearance(body: Appearance, user: Authed, db: DbSession) -> Appearance:
 
 @router.get("/system", operation_id="getSystemSettings")
 def get_system(db: DbSession) -> SystemSettings:
-    return system_settings.load(db)
+    """Tunnel secrets are never returned; `tunnel_secrets_set` lists the stored ones."""
+    return system_settings.public(system_settings.load(db))
 
 
 @router.put("/system", operation_id="setSystemSettings")
 def set_system(
     body: SystemSettings, request: Request, user: Authed, db: DbSession
 ) -> SystemSettings:
-    """Turning the terminal off also closes the terminals that are open."""
+    """Turning the terminal off also closes the terminals that are open.
+
+    Tunnel secrets left empty or out of `tunnel_config` keep their stored value."""
     if not user.user.is_admin:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change system settings")
     before = system_settings.load(db)
+    body.tunnel_config = system_settings.merge_tunnel_config(
+        before.tunnel_config, body.tunnel_config, request.app.state.secret_box
+    )
     system_settings.save(db, body)
     if before.terminal_enabled != body.terminal_enabled:
         state = "on" if body.terminal_enabled else "off"
         audit.record(db, user.user.username, "settings.terminal", state)
         if not body.terminal_enabled:
             close_terminals(request.app)
-    return body
+    return system_settings.public(body)
 
 
 @router.get("/ai", operation_id="getAiSettings")
