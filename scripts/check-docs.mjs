@@ -235,7 +235,7 @@ function checkName(span, where) {
 function projectSkills() {
   const lock = existsSync("skills-lock.json") ? JSON.parse(readFileSync("skills-lock.json", "utf8")) : {}
   const thirdParty = new Set(Object.keys(lock.skills ?? {}))
-  return git(["ls-files", ".agents/skills/*/SKILL.md"]).filter((f) => !thirdParty.has(f.split("/")[2]))
+  return git(["ls-files", "--cached", "--others", "--exclude-standard", ".agents/skills/*/SKILL.md"]).filter((f) => !thirdParty.has(f.split("/")[2]))
 }
 
 function ignored(p) {

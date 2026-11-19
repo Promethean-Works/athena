@@ -1,0 +1,11 @@
+# Secret scanning (gitleaks, MIT): pre-commit runs it on staged changes, CI on the tree.
+# Run locally: gitleaks dir . --redact
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Upstream default keys in ported catalog apps: public, not ours (see docs/STATUS.md open question about per-install secrets)"
+paths = [
+  '''^catalog/apps/taskingai/compose\.yaml$''',
+  '''^catalog/apps/maybe/compose\.yaml$''',
+]
