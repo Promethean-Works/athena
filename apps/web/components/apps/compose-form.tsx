@@ -380,8 +380,9 @@ function serializeFormToCompose(form: ComposeFormData): string {
 type PortMappingWithId = PortMapping & { id: string }
 type VolumeMappingWithId = VolumeMapping & { id: string }
 type EnvVarWithId = EnvVar & { id: string }
-type NetworkWithId = { name: string; driver: string; external: boolean; id: string }
-type VolumeWithId = { name: string; driver: string; external: boolean; id: string }
+type EntryRow = { name: string; driver: string; external: boolean; id: string }
+type NetworkWithId = EntryRow
+type VolumeWithId = EntryRow
 
 function EditableTable<T extends { id: string }>({
   items,
@@ -1029,25 +1030,43 @@ function ServiceFormComponent({
   )
 }
 
-function NetworksTab({ form, onChange }: { form: ComposeFormData; onChange: (form: ComposeFormData) => void }) {
-  const [networks, setNetworks] = React.useState<NetworkWithId[]>(
-    Object.entries(form.networks).map(([name, config]) => ({
+type TopLevelEntries = ComposeFormData["networks"]
+
+// Rows for the Networks/Volumes tables. The rows are local state (they keep
+// stable ids and half-typed rows with no name yet), but they follow the form:
+// when the form's map changes from outside (Raw YAML edits, an upload) the rows
+// are rebuilt. Edits are pushed up straight from the handler, not from an
+// effect, so mounting a tab never writes to the form.
+function useEntryRows(
+  entries: TopLevelEntries,
+  defaultDriver: string,
+  idPrefix: string,
+  commit: (entries: TopLevelEntries) => void,
+) {
+  const toRows = (map: TopLevelEntries) =>
+    Object.entries(map).map(([name, config]) => ({
       name,
-      driver: config.driver || "bridge",
+      driver: config.driver || defaultDriver,
       external: config.external || false,
-      id: `net-${name}`,
-    })),
-  )
+      id: `${idPrefix}-${name}`,
+    }))
+  const [rows, setRows] = React.useState<EntryRow[]>(() => toRows(entries))
+  const [synced, setSynced] = React.useState(entries)
+  if (entries !== synced) {
+    setSynced(entries)
+    setRows(toRows(entries))
+  }
+  const update = (next: EntryRow[]) => {
+    const map: TopLevelEntries = Object.fromEntries(next.map((r) => [r.name, { driver: r.driver, external: r.external }]))
+    setRows(next)
+    setSynced(map)
+    commit(map)
+  }
+  return [rows, update] as const
+}
 
-  const formRef = React.useRef(form)
-  formRef.current = form
-
-  React.useEffect(() => {
-    onChange({
-      ...formRef.current,
-      networks: Object.fromEntries(networks.map((n) => [n.name, { driver: n.driver, external: n.external }])),
-    })
-  }, [networks, onChange])
+function NetworksTab({ form, onChange }: { form: ComposeFormData; onChange: (form: ComposeFormData) => void }) {
+  const [networks, setNetworks] = useEntryRows(form.networks, "bridge", "net", (map) => onChange({ ...form, networks: map }))
 
   return (
     <TabsContent value="networks" className="pt-4">
@@ -1090,24 +1109,7 @@ function NetworksTab({ form, onChange }: { form: ComposeFormData; onChange: (for
 }
 
 function VolumesTab({ form, onChange }: { form: ComposeFormData; onChange: (form: ComposeFormData) => void }) {
-  const [volumes, setVolumes] = React.useState<VolumeWithId[]>(
-    Object.entries(form.volumes).map(([name, config]) => ({
-      name,
-      driver: config.driver || "local",
-      external: config.external || false,
-      id: `vol-${name}`,
-    })),
-  )
-
-  const formRef = React.useRef(form)
-  formRef.current = form
-
-  React.useEffect(() => {
-    onChange({
-      ...formRef.current,
-      volumes: Object.fromEntries(volumes.map((v) => [v.name, { driver: v.driver, external: v.external }])),
-    })
-  }, [volumes, onChange])
+  const [volumes, setVolumes] = useEntryRows(form.volumes, "local", "vol", (map) => onChange({ ...form, volumes: map }))
 
   return (
     <TabsContent value="volumes" className="pt-4">
@@ -1158,26 +1160,40 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
   const serviceNames = React.useMemo(() => Object.keys(form.services), [form.services])
   const allServiceNames = serviceNames
 
-  const serialize = React.useCallback(() => {
+  // Two-way sync without a feedback loop. Callers usually pass an inline
+  // onChange (new identity every render), so it lives in a ref. We remember
+  // the YAML last exchanged with the parent: our own echo coming back through
+  // `value` isn't re-parsed, and a form rebuilt from the Raw YAML tab isn't
+  // serialized back (that would reformat the text while the user types).
+  const onChangeRef = React.useRef(onChange)
+  onChangeRef.current = onChange
+  const lastValueRef = React.useRef(value)
+  const formFromValueRef = React.useRef(true)
+
+  React.useEffect(() => {
+    if (formFromValueRef.current) {
+      formFromValueRef.current = false
+      return
+    }
     try {
       const yaml = serializeFormToCompose(form)
       setValidationError(null)
-      onChange(yaml)
-      return yaml
+      if (yaml !== lastValueRef.current) {
+        lastValueRef.current = yaml
+        onChangeRef.current(yaml)
+      }
     } catch (e) {
       setValidationError(e instanceof Error ? e.message : "Serialization failed")
-      return value
     }
-  }, [form, onChange, value])
+  }, [form])
 
   React.useEffect(() => {
-    serialize()
-  }, [serialize])
-
-  React.useEffect(() => {
+    if (value === lastValueRef.current) return
+    lastValueRef.current = value
     try {
       const parsed = parseComposeToForm(value)
       if (Object.keys(parsed.services).length > 0 || Object.keys(parsed.networks).length > 0 || Object.keys(parsed.volumes).length > 0) {
+        formFromValueRef.current = true
         setForm(parsed)
       }
     } catch {
