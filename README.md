@@ -43,7 +43,7 @@ athena admin reset-password
 
 ## Development
 
-The project is a monorepo: a Next.js + shadcn/ui frontend (pnpm + Turborepo) and a Python backend (uv).
+The project is a monorepo: a Next.js + shadcn/ui frontend (pnpm + Turborepo) and a Python backend (uv). **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** is the full guide: setting up a machine (including AI coding agents, with one command), the daily workflow, and troubleshooting.
 
 **Requirements:** Node.js 20.9+, [pnpm](https://pnpm.io), and [uv](https://docs.astral.sh/uv/).
 
@@ -82,7 +82,8 @@ More reading:
 
 - [docs/design/README.md](docs/design/README.md): architecture and decisions
 - [CONTRIBUTING.md](CONTRIBUTING.md): branches, commits and pull requests
-- [AGENTS.md](AGENTS.md): instructions for AI coding agents (Claude Code, OpenCode, Hermes Agent)
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): machine setup, agents, daily workflow, troubleshooting
+- [AGENTS.md](AGENTS.md): instructions for AI coding agents (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot)
 
 ## Security
 

@@ -58,7 +58,7 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 | Need the design of a feature, or a past decision | `docs/design/README.md` (index), then one section |
 | Need a feature's history | `docs/HISTORY.md` (search it; don't read it whole) |
 | Hit a shell, sandbox or agent quirk | `docs/agents/gotchas/environment.md` |
-| Change agent tooling (MCP, skills, rules, hooks, machine settings) or set up a machine | `docs/agents/tooling.md` |
+| Change agent tooling (MCP, skills, rules, hooks, machine settings) or set up a machine | `docs/agents/tooling.md` (people: `docs/DEVELOPMENT.md`; update it when setup changes) |
 
 Skills live in `.agents/skills/<name>/SKILL.md`; if your agent doesn't load skills, read the file. MCP servers (`.mcp.json`): `shadcn`, `next-devtools`, `playwright` (call `browser_snapshot` when you need the page), `context7`.
 
