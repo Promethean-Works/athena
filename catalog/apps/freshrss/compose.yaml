@@ -34,6 +34,12 @@ services:
     environment:
       TZ: ${TZ}
       CRON_MIN: "*/20"
+      # Auto-install FreshRSS with SQLite on first start.
+      # SQLite is the built-in default; `--default-user` is required by the installer.
+      FRESHRSS_INSTALL: |
+        --db-type sqlite
+        --default-user admin
+        --api-enabled
     volumes:
       - ${ATHENA_APP_DATA}/data:/var/www/FreshRSS/data
       - ${ATHENA_APP_DATA}/extensions:/var/www/FreshRSS/extensions

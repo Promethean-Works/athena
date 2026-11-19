@@ -26,6 +26,8 @@ Standalone (open PR, not M7):
 - compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
 - CasaOS AppStore catalog port is PR #120 (open, auto-merge squash, CI pending). Ported ~180 CasaOS AppStore apps via the existing `casaos` converter, growing the built-in catalog from 166 to 200 apps. Removed CasaOS entries duplicating curated store apps and fixed web port clashes so the catalog validates. Verified: `tests/test_catalog.py` (incl. `docker compose config` on all 200 apps), `tests/test_remote_catalogs.py`, `tests/test_apps.py`, ruff, format, check-docs. Not verified: installing the newly ported apps for real against Docker.
 
+Standalone (done, not M7): FreshRSS database-backend select is PR #108 (open, auto-merge squash, CI pending). `DATABASE_BACKEND` select (`sqlite`/`pgsql`) plus a bundled `postgres:15` container in `catalog/apps/freshrss/compose.yaml`; `select` needed no server/UI changes. Browser pass not yet done.
+
 ## Next
 
 M7 part D stage 3 (design §4.5 Parts): extras with outside services.
