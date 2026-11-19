@@ -21,6 +21,7 @@ from athena.api import shares as shares_api
 from athena.api import smb as smb_api
 from athena.api import store as store_api
 from athena.api import terminal as terminal_api
+from athena.api import tunnel as tunnel_api
 from athena.api import webdav as webdav_api
 from athena.assistant.chat import Turns
 from athena.assistant.models_dev import init_models_dev_service
@@ -174,6 +175,7 @@ def create_app(
     # The webhook is public: the trigger's secret token is the credential, so no
     # session is required (n8n, external agents).
     app.include_router(automation.public_router, prefix="/api")
+    app.include_router(tunnel_api.router, prefix="/api", dependencies=[require_user])
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
 

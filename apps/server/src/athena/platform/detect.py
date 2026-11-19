@@ -338,6 +338,90 @@ def detect_ollama(probe: Probe) -> Capability:
     )
 
 
+def detect_tunnel_cloudflare(probe: Probe) -> Capability:
+    path = probe.which("cloudflared")
+    if not path:
+        return Capability(
+            id="tunnel.cloudflare",
+            label="Cloudflare Tunnel",
+            status="missing",
+            provider="cloudflare",
+            detail="cloudflared not found",
+            actions=["setup"],
+        )
+    version = probe.run([path, "version"]).first_line or None
+    return Capability(
+        id="tunnel.cloudflare",
+        label="Cloudflare Tunnel",
+        status="ready",
+        provider="cloudflare",
+        detail=version,
+        actions=["start", "configure"],
+    )
+
+
+def detect_tunnel_tailscale(probe: Probe) -> Capability:
+    path = probe.which("tailscale")
+    if not path:
+        return Capability(
+            id="tunnel.tailscale",
+            label="Tailscale Funnel",
+            status="missing",
+            provider="tailscale",
+            detail="tailscale not found",
+            actions=["setup"],
+        )
+    # Check if logged in and funnel is available
+    result = probe.run([path, "status", "--json"])
+    if result.ok:
+        try:
+            import json
+
+            status = json.loads(result.stdout)
+            if status.get("BackendState") == "Running":
+                tailnet = status.get("CurrentTailnet", {}).get("MagicDNSSuffix", "tailnet")
+                return Capability(
+                    id="tunnel.tailscale",
+                    label="Tailscale Funnel",
+                    status="ready",
+                    provider="tailscale",
+                    detail=f"Logged in to {tailnet}",
+                    actions=["start", "configure"],
+                )
+        except Exception:
+            pass
+    return Capability(
+        id="tunnel.tailscale",
+        label="Tailscale Funnel",
+        status="stopped",
+        provider="tailscale",
+        detail="Tailscale installed but not logged in (run: tailscale up)",
+        actions=["start", "configure"],
+    )
+
+
+def detect_tunnel_ngrok(probe: Probe) -> Capability:
+    path = probe.which("ngrok")
+    if not path:
+        return Capability(
+            id="tunnel.ngrok",
+            label="Ngrok",
+            status="missing",
+            provider="ngrok",
+            detail="ngrok not found",
+            actions=["setup"],
+        )
+    version = probe.run([path, "version"]).first_line or None
+    return Capability(
+        id="tunnel.ngrok",
+        label="Ngrok",
+        status="ready",
+        provider="ngrok",
+        detail=version,
+        actions=["start", "configure"],
+    )
+
+
 def detect_builtin(probe: Probe) -> list[Capability]:
     return [
         Capability(id="files", label="Files", status="ready", provider="builtin"),
@@ -371,6 +455,9 @@ def detectors_for(probe: Probe) -> list[Detector]:
         detect_rclone,
         detect_smb,
         detect_ollama,
+        detect_tunnel_cloudflare,
+        detect_tunnel_tailscale,
+        detect_tunnel_ngrok,
     ]
 
 
