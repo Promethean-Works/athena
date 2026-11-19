@@ -21,7 +21,7 @@ from athena.auth.deps import CurrentUser
 from athena.automation import service as automation_service
 from athena.containers.runtime import RuntimeUnavailableError, runtime_from
 from athena.db.models import App, AutomationJobRun, AutomationTrigger, User
-from athena.mcp.auth import require_mcp_user
+from athena.mcp.auth import MCPPrincipal, require_mcp_user
 from athena.platform.store import CapabilityStore
 
 # Shapes returned to MCP clients. Kept small and explicit so external agents
@@ -72,20 +72,41 @@ def _request(app: FastAPI) -> Request:
     return Request({"type": "http", "app": app, "headers": []})
 
 
-def _current_user(db: Session, username: str) -> CurrentUser:
-    user = db.exec(select(User).where(User.username == username)).first()
-    if user is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such user")
+TOKEN_AUDIT_DETAIL = "via MCP token"
+"""Audit detail on rows written for `ATHENA_MCP_TOKEN` clients (they act as the admin)."""
+
+
+def _current_user(db: Session, principal: MCPPrincipal) -> CurrentUser:
+    """The user a tool acts as. Token clients act as the oldest admin account."""
+    if principal.via_token:
+        user = db.exec(select(User).where(User.is_admin).order_by(User.created_at, User.id)).first()
+        if user is None:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT,
+                "ATHENA_MCP_TOKEN clients act as the admin user, but no admin account "
+                "exists yet. Finish Athena's setup first.",
+            )
+    else:
+        user = db.exec(select(User).where(User.username == principal.username)).first()
+        if user is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "No such user")
     return CurrentUser(user=user, session=None)
+
+
+def _audit_detail(principal: MCPPrincipal, detail: str | None = None) -> str | None:
+    """Mark audit rows written for token clients, so they aren't mistaken for the admin."""
+    if not principal.via_token:
+        return detail
+    return f"{detail} ({TOKEN_AUDIT_DETAIL})" if detail else TOKEN_AUDIT_DETAIL
 
 
 def _db(app: FastAPI) -> Session:
     return Session(app.state.db.engine)
 
 
-def _runtime(app: FastAPI):
-    manifest: CapabilityStore = app.state.capabilities
-    cap = manifest.get().get("containers")
+async def _runtime(app: FastAPI):
+    store: CapabilityStore = app.state.capabilities
+    cap = (await store.get()).get("containers")
     try:
         return runtime_from(cap)
     except RuntimeUnavailableError as exc:
@@ -108,9 +129,9 @@ def build_mcp_server(app: FastAPI) -> FastMCP:
     @mcp.tool
     async def list_apps() -> list[AppSummary]:
         """List Athena-managed apps (compose projects) with their status."""
-        username = require_mcp_user()
+        principal = require_mcp_user()
         with _db(app) as db:
-            _current_user(db, username)
+            _current_user(db, principal)
             rows = db.exec(select(App).order_by(App.name)).all()
         return [
             AppSummary(
@@ -129,9 +150,9 @@ def build_mcp_server(app: FastAPI) -> FastMCP:
     @mcp.tool
     async def list_package_managers() -> list[PackageManagerOut]:
         """List the package managers detected on this host."""
-        username = require_mcp_user()
+        principal = require_mcp_user()
         with _db(app) as db:
-            _current_user(db, username)
+            _current_user(db, principal)
             caps = (await app.state.capabilities.get()).capabilities
         from athena.packages import MANAGERS
 
@@ -197,7 +218,7 @@ def build_mcp_server(app: FastAPI) -> FastMCP:
         action: AutomationActionIn,
         cron_expression: str | None = None,
         enabled: bool = True,
-    ) -> dict[str, str]:
+    ) -> dict[str, str | None]:
         """Create a durable automation trigger.
 
         kind "cron" fires on `cron_expression` (e.g. "0 2 * * *"). kind "http"
@@ -205,7 +226,7 @@ def build_mcp_server(app: FastAPI) -> FastMCP:
         describes the job: {"kind": "app", "name": "…", "verb": "start"} or
         {"kind": "package", "name": "…", "verb": "install", "manager": "apt"}.
         """
-        username = require_mcp_user()
+        principal = require_mcp_user()
         if kind == "cron" and not cron_expression:
             raise HTTPException(
                 status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -222,7 +243,7 @@ def build_mcp_server(app: FastAPI) -> FastMCP:
             next_run = None
 
         with _db(app) as db:
-            user = _current_user(db, username)
+            user = _current_user(db, principal)
             trigger = AutomationTrigger(
                 id=secrets.token_hex(8),
                 kind=kind,
@@ -240,7 +261,7 @@ def build_mcp_server(app: FastAPI) -> FastMCP:
                 user.user.username,
                 "automation.trigger.create",
                 trigger.name,
-                detail=f"{trigger.kind}:{trigger.name}",
+                detail=_audit_detail(principal, f"{trigger.kind}:{trigger.name}"),
             )
             app.state.automation_event.set()
             return {"id": trigger.id, "webhook_token": trigger.webhook_token}
@@ -271,12 +292,19 @@ def build_mcp_server(app: FastAPI) -> FastMCP:
         name: str, verb: Literal["start", "stop", "restart", "update"]
     ) -> AppActionOut:
         """Start, stop, restart or update an Athena-managed app."""
-        username = require_mcp_user()
+        principal = require_mcp_user()
+        runtime = await _runtime(app)
         with _db(app) as db:
-            user = _current_user(db, username)
-            request = _request(app)
-            runtime = _runtime(app)
-            started = apps_api.app_action(name, verb, request, runtime, user, db)
+            user = _current_user(db, principal)
+            started = apps_api.start_app_action(
+                name,
+                verb,
+                _request(app),
+                runtime,
+                user.user.username,
+                db,
+                detail=_audit_detail(principal),
+            )
         return AppActionOut(job_id=started.id, status=started.status, title=started.title)
 
     return mcp

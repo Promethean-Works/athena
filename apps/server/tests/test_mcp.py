@@ -134,3 +134,128 @@ def test_mcp_call_tool_with_bearer_token(tmp_path):
             assert len(result["result"]["tools"]) > 0
     finally:
         del os.environ["ATHENA_MCP_TOKEN"]
+
+
+# ---------------------------------------------------------------- token clients act as the admin
+
+TOKEN = "test-secret-token-456"
+TOKEN_HEADERS = {"Authorization": f"Bearer {TOKEN}"}
+
+
+@contextlib.contextmanager
+def _token_client(tmp_path, monkeypatch, *, with_admin: bool, store=None):
+    """A client that talks MCP with only the bearer token (no session cookie)."""
+    from conftest import ADMIN, make_app
+
+    monkeypatch.setenv("ATHENA_MCP_TOKEN", TOKEN)
+    with TestClient(make_app(tmp_path, store=store)) as client:
+        if with_admin:
+            assert client.post("/api/auth/setup", json=ADMIN).status_code == 201
+            client.cookies.clear()
+        yield client
+
+
+def _token_init(client: TestClient) -> str:
+    resp = client.post("/api/mcp", json=MCP_INIT, headers={**ACCEPT, **TOKEN_HEADERS})
+    assert resp.status_code == 200, resp.text
+    return resp.headers["Mcp-Session-Id"]
+
+
+def _token_tool(client: TestClient, sid: str, name: str, arguments: dict) -> dict:
+    return _mcp_call(
+        client,
+        sid,
+        "tools/call",
+        {"name": name, "arguments": arguments},
+        extra_headers=TOKEN_HEADERS,
+    )["result"]
+
+
+def _audit_rows(client: TestClient) -> list[tuple]:
+    with client.app.state.db.engine.connect() as conn:
+        return list(
+            conn.exec_driver_sql(
+                "SELECT username, action, target, detail FROM audit_log ORDER BY id"
+            )
+        )
+
+
+def test_mcp_token_creates_trigger_as_admin(tmp_path, monkeypatch):
+    with _token_client(tmp_path, monkeypatch, with_admin=True) as client:
+        sid = _token_init(client)
+        result = _token_tool(
+            client,
+            sid,
+            "create_automation_trigger",
+            {
+                "kind": "cron",
+                "name": "nightly",
+                "cron_expression": "0 2 * * *",
+                "action": {"kind": "app", "name": "site", "verb": "restart"},
+            },
+        )
+        assert not result.get("isError"), result
+        assert result["structuredContent"]["id"]
+        assert (
+            "admin",
+            "automation.trigger.create",
+            "nightly",
+            "cron:nightly (via MCP token)",
+        ) in (_audit_rows(client))
+
+        # list_apps also resolves the user; it must not 404 for token clients.
+        assert not _token_tool(client, sid, "list_apps", {}).get("isError")
+
+
+def test_mcp_token_without_admin_fails_clearly(tmp_path, monkeypatch):
+    with _token_client(tmp_path, monkeypatch, with_admin=False) as client:
+        sid = _token_init(client)
+        result = _token_tool(
+            client,
+            sid,
+            "create_automation_trigger",
+            {
+                "kind": "http",
+                "name": "hook",
+                "action": {"kind": "app", "name": "site", "verb": "start"},
+            },
+        )
+        assert result.get("isError"), result
+        assert "no admin account" in result["content"][0]["text"]
+        assert _audit_rows(client) == []
+
+
+def test_mcp_token_app_action_runs_as_admin(tmp_path, monkeypatch):
+    import sys
+
+    from conftest import ADMIN
+    from test_apps import COMPOSE, wait
+    from test_containers import SAMPLE, ready_store
+
+    import athena.api.apps as apps_api
+    from athena.containers import service as containers_service
+
+    monkeypatch.setattr("athena.containers.runtime.shutil.which", lambda b: f"/usr/bin/{b}")
+    monkeypatch.setattr(containers_service, "list_containers", lambda rt: [SAMPLE])
+    monkeypatch.setattr(
+        apps_api,
+        "compose",
+        lambda runtime, name, path, *args: [sys.executable, "-c", f"print('compose {args[0]}')"],
+    )
+    with _token_client(tmp_path, monkeypatch, with_admin=False, store=ready_store()) as client:
+        signed_in(client)
+        wait(
+            client, client.post("/api/apps", json={"name": "site", "compose": COMPOSE}).json()["id"]
+        )
+        client.cookies.clear()
+
+        sid = _token_init(client)
+        result = _token_tool(client, sid, "app_action", {"name": "site", "verb": "restart"})
+        assert not result.get("isError"), result
+        job_id = result["structuredContent"]["job_id"]
+
+        # Sign back in only to read the job's result.
+        res = client.post("/api/auth/login", json=ADMIN)
+        assert res.status_code == 200, res.text
+        assert wait(client, job_id)["status"] == "succeeded"
+        assert ("admin", "app.restart", "site", "via MCP token") in _audit_rows(client)
