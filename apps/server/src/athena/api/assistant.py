@@ -5,9 +5,12 @@ Everything here is admin only: the assistant reads the host, and providers hold 
 
 from __future__ import annotations
 
+import asyncio
+import importlib
 import json
 import logging
 import secrets
+import sys
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Any
 
@@ -566,6 +569,13 @@ def _get_conv(db: Session, user: CurrentUser, conversation_id: str) -> AiConvers
     return row
 
 
+async def _load_chat() -> None:
+    """Import the agent stack (`assistant.chat`) off the event loop the first time: it takes
+    a second or more, longer on a Pi, and would stall every other request meanwhile."""
+    if "athena.assistant.chat" not in sys.modules:
+        await asyncio.to_thread(importlib.import_module, "athena.assistant.chat")
+
+
 def _turns(request: Request) -> Turns:
     return request.app.state.assistant_turns
 
@@ -602,6 +612,7 @@ def create_conversation(body: ConversationIn, user: Authed, db: DbSession) -> Co
 async def get_conversation(
     conversation_id: ConversationId, request: Request, user: Authed, db: DbSession
 ) -> ConversationDetail:
+    await _load_chat()
     from athena.assistant import chat
 
     row = _get_conv(db, user, conversation_id)
@@ -669,6 +680,7 @@ async def send_message(
     started), `title` (the first message's line; a title model renames the chat after
     `done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While
     actions or questions wait, a new message denies and declines them."""
+    await _load_chat()
     row = _get_conv(db, user, conversation_id)
     turns = _turns(request)
     if turns.get(row.id) is not None:
@@ -713,6 +725,7 @@ async def answer_approvals(
     """Answer everything a paused chat is waiting on, and continue it: Approve or Deny each
     action (approved actions run as you, and each decision is audited) and answer or decline
     each question. Streams the same events as sendMessage."""
+    await _load_chat()
     from pydantic_ai import ToolDenied
 
     from athena.assistant import chat
