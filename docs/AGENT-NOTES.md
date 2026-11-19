@@ -53,7 +53,7 @@ When adding something, start from the closest existing feature instead of invent
 
 CI jobs (`.github/workflows/ci.yml`):
 
-- `repo checks`: agent config sync, the `.claude/skills` symlink, actionlint, shellcheck.
+- `repo checks`: agent config sync, the docs check (`check-docs.mjs`), the `.claude/skills` symlink, actionlint, shellcheck.
 - `install script` on 3 OSes: dry runs plus PSScriptAnalyzer.
 - `web`: API client drift, lint, typecheck, build.
 - `server` on 3 OSes: ruff, pytest, service dry run.
@@ -98,12 +98,6 @@ CodeQL runs on every PR and its alerts can block a merge.
 - Path-injection alerts on file APIs are usually real. See the Windows trailing-dot bug above.
 
 ### Server (Python)
-
-- **Pre-existing test failures (as of 2026-11-18)** — these fail on main and are unrelated to typical changes:
-  - `test_models_match_migrations` — needs a migration for the new `models_dev_cache` table <!-- docs-check: ignore -->
-  - `test_mcp_call_tool_with_bearer_token` — alembic revision '0015' missing
-  - Automation tests — require Colima/Docker (`RuntimeUnavailableError: Colima not found`)
-  - Run focused tests instead: `uv run pytest -q -k "test_name" --tb=short`
 
 - `athena openapi` must not create the real data dir. It builds the app against a temp dir, and a test enforces this.
 - SQLite runs in WAL mode. A test that reads `athena.db` directly misses rows still in `athena.db-wal`, so query through SQLAlchemy.
@@ -184,7 +178,7 @@ CodeQL runs on every PR and its alerts can block a merge.
 - The harness `WarnOnCacheBusts` reports through `warnings.warn`, which shows once per code location and never reaches our logs. `robustness.CacheBustLog` catches them around its `after_model_request` and logs each one; that's safe with concurrent chats only because the harness judges and warns without an `await` in between. Recheck that on harness upgrades. Its marks live on the instance, so keep the single `CACHE_BUSTS`.
 - `RefineOutput` and `DynamicWorkflow` (stage 2 PR 4): the review instruction is a `SystemPromptPart` tagged with the harness origin, but a `FunctionModel` sees it merged into the last request's text (see the next bullet), so tests match `REVIEW_INSTRUCTIONS` in the text while `review.starts_review` reads the part. `pydantic_ai.capabilities.AgentNode` is a string type alias at runtime, so a module that subscripts it in a signature needs `from __future__ import annotations`. A test whose `FunctionModel` serves workflow helpers through `function=` also serves the title agent; tell them apart by `info.instructions`. `run_workflow` costs ~3,600 characters of schema per request, which is why it needs a 32K context. <!-- docs-check: ignore -->
 - `FunctionModel` has no system role for request-scoped prompts: a `SystemReminders` note arrives merged into the last request as `<system>…</system>` user text (a real provider gets a system message). Match on the text, not the part type, in tests.
-- **Models.dev cache for dynamic AI providers (#126):** Native providers (12 with dedicated pydantic-ai models) are in `kinds.py` as `NATIVE_KINDS`. Dynamic providers come from models.dev API, cached in `models_dev_cache` table (24h TTL). The `ModelsDevService` fetches from `https://models.dev/api.json`, filters out routers/gateways/token plans via `SKIP_PATTERNS`, and stores only OpenAI-compatible providers. `GET /api/assistant/kinds` merges `NATIVE_KINDS` + dynamic kinds from cache. `POST /api/assistant/kinds/refresh` forces a refresh (rate limited to 5 min). Dynamic kinds are auto-generated at runtime from cache; `build_model` uses cache for base URLs. Context window detection (`context.py`) also checks dynamic provider cache for OpenAI-compatible model lists. Tests: `cfg("openai-compatible")` → use `"ollama"` instead (dynamic kinds don't exist in `BY_ID` at test time).
+- **Models.dev cache for dynamic AI providers (#126):** Native providers (12 with dedicated pydantic-ai models) are in `kinds.py` as `NATIVE_KINDS`. Dynamic providers come from models.dev API, cached in `models_dev_cache` table (24h TTL). The `ModelsDevService` fetches from `https://models.dev/api.json`, filters out routers/gateways/token plans via `SKIP_PATTERNS`, and stores only OpenAI-compatible providers. `GET /api/assistant/kinds` merges `NATIVE_KINDS` + dynamic kinds from cache. `POST /api/assistant/kinds/refresh` forces a refresh (`force=True`, so it isn't throttled; only the automatic refreshes are, at most one fetch per 5 min). Dynamic kinds are auto-generated at runtime from cache; `build_model` uses cache for base URLs. Context window detection (`context.py`) also checks dynamic provider cache for OpenAI-compatible model lists. Tests: `cfg("openai-compatible")` → use `"ollama"` instead (dynamic kinds don't exist in `BY_ID` at test time).
 
 ### Browser verification (`athena-ui-verify`)
 

@@ -30,7 +30,7 @@ Next.js 16 with a static export (`output: "export"`, `trailingSlash: true`), Rea
 |---|---|
 | `app/(app)/` | Signed-in pages, inside `AuthProvider` then `CapabilitiesProvider` (`layout.tsx`). Each `page.tsx` is a few lines that render a view from `components/` |
 | `app/(auth)/` | `/setup` and `/login` |
-| `components/<area>/` | Views and pieces per area: `apps`, `assistant`, `cloud`, `containers`, `dashboard`, `files`, `packages`, `settings`, `share` (the public `/s/` page), `store`, `terminal` |
+| `components/<area>/` | Views and pieces per area: `apps`, `assistant`, `automation`, `cloud`, `containers`, `dashboard`, `files`, `packages`, `settings`, `share` (the public `/s/` page), `store`, `terminal` |
 | `components/nav.ts` | Sidebar entries; add one only when its page exists |
 | `components/job-dialog.tsx`, `log-view.tsx` | Job progress and live logs |
 | `hooks/` | `use-api.ts` (load on mount), `use-event-stream.ts` (SSE) |

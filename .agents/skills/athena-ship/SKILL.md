@@ -14,7 +14,7 @@ git status -sb          # where am I, is anything uncommitted?
 ```
 
 - **Always work in your own worktree, never in the base checkout** (it stays on `main`; the pre-commit hook rejects commits there). If you're in the base checkout, or in a worktree for a different task, create one:
-  `git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main`, then work in `../athena-<topic>`. Remove it after the merge: `git worktree remove ../athena-<topic>`.
+  `git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main` (or `scripts/new-worktree.sh <type>/<topic>`, which does the same), then work in `../athena-<topic>`. Remove it after the merge: `git worktree remove ../athena-<topic>`.
 - If you already edited files in the base checkout by mistake: `git stash`, create the worktree, then `git -C ../athena-<topic> stash pop`.
 - Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`.
 
@@ -27,7 +27,7 @@ scripts/check.sh --quick    # same without the web build, while iterating
 
 Done when it prints "All checks passed". If it regenerated `packages/api-client`, commit those files.
 
-If `git config core.hooksPath` doesn't print `.githooks`, run `git config core.hooksPath .githooks` so the pre-push hook runs these checks on every push.
+If `git config core.hooksPath` doesn't print `.githooks`, run `git config core.hooksPath .githooks` (required for agents): it turns on both the pre-commit guard (no commits on `main` or in the base checkout) and the pre-push checks.
 
 If the docs check fails, you renamed or removed something that AGENTS.md, AGENT-NOTES or a skill still names. Fix the doc in the same commit; don't silence it.
 

@@ -2,32 +2,24 @@
 
 _Shared handoff log for every coding agent. Update it at the end of each session (see AGENTS.md → Handoff)._
 
-**Current milestone:** M8, automation (cron + trigger-based jobs, MCP server, webhooks). M7 (the AI assistant, §4.5) is complete.
-
-## Done
+**Current milestone:** M8, automation (cron and webhook triggers, MCP server, Automation UI): parts A–D shipped in #114. M7 (the AI assistant, §4.5) is done except part D stage 3 (see **Next**).
 
 Finished work is in `docs/HISTORY.md` (read it only when you need a feature's background). When you finish something, add a short bullet there with the PR number and take it out of In progress below.
-
-- M8 A (automation foundation): done — durable triggers + job runs, cron scheduler, triggers/job routers, audit.
-- M8 B (MCP server): done — streamable-HTTP MCP server at /api/mcp with session or bearer-token auth, tools for apps/capabilities/stats/automation. Verified with MCP handshake + tool-call tests.
-- M8 C (webhooks): done — public POST /api/automation/webhook/{token} fires HTTP triggers (n8n path), no session needed. Verified with API tests.
-- M8 D (Automation UI): done — /automation page with trigger create/edit/delete, job-run table, webhook+MCP endpoints card. gated by `automation` capability. Verified lint/typecheck/build; not yet browser-verified.
-- M7: models.dev cache for dynamic AI providers — PR #126. 12 native providers kept, dynamic OpenAI-compatible providers loaded from models.dev with 24h database cache. New `/kinds/refresh` endpoint. Verified: all CI (Linux/macOS/Windows), lint, typecheck, build, pytest (544 passed).
-- Fix nested button in DialogTrigger — PR #136. Used `render` prop on `DialogTrigger` instead of wrapping `Button` to avoid nested `<button>` elements causing hydration errors. Verified: lint, typecheck, build, CI passed.
 
 ## In progress
 
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see AGENT-NOTES → Assistant); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
+- Not yet verified in a browser: `/automation` (#114), the store carousel (#103), `/files/smb` (#104), the compose variant picker (#109) and the dashboard app grid (#146).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
-- Tunnel feature (feat/tunnel PR #128): backend detection, provider implementations (Cloudflare, Tailscale, Ngrok), API endpoints, SystemSettings extension, and frontend UI (TunnelCard, updated SystemForm). All lint/typecheck/ruff pass. Browser verification pending.
-
-Standalone (open PR, not M7):
-- compose variants per catalog app is PR #109 (open, auto-merge squash, CI pending). Browser pass not yet done — the web release build fails on a pre-existing theme-provider typecheck error that also fails on untouched main.
-- CasaOS AppStore catalog port is PR #120 (open, auto-merge squash, CI pending). Ported ~180 CasaOS AppStore apps via the existing `casaos` converter, growing the built-in catalog from 166 to 200 apps. Removed CasaOS entries duplicating curated store apps and fixed web port clashes so the catalog validates. Verified: `tests/test_catalog.py` (incl. `docker compose config` on all 200 apps), `tests/test_remote_catalogs.py`, `tests/test_apps.py`, ruff, format, check-docs. Not verified: installing the newly ported apps for real against Docker.
-
-Standalone (done, not M7): FreshRSS database-backend select is PR #108 (open, auto-merge squash, CI pending). `DATABASE_BACKEND` select (`sqlite`/`pgsql`) plus a bundled `postgres:15` container in `catalog/apps/freshrss/compose.yaml`; `select` needed no server/UI changes. Browser pass not yet done.
+- Not yet verified: installing the CasaOS-ported catalog apps (#120) for real against Docker.
+- Tunnel follow-ups (#150):
+  - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
+  - ngrok `install`/`configure_service` call `job.log` without `await`.
+  - Tunnel fields save on every keystroke and are disabled while each save runs.
+  - `tunnel_auto_start` is saved but nothing reads it at startup, so the tunnel doesn't start on boot.
+  - The tunnel UI isn't verified in a browser yet, and no real tunnel has been tested with any provider.
 
 ## Next
 
@@ -38,11 +30,11 @@ M7 part D stage 3 (design §4.5 Parts): extras with outside services.
 
 Later (cloud): mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 
-Later (shares): a size limit for upload links, per-file audit of WebDAV changes, locks that survive a restart, WebDAV for more than one account, a web UI for SMB shares (server side is #95, Linux only), and NFS shares.
+Later (shares): a size limit for upload links, per-file audit of WebDAV changes, locks that survive a restart, WebDAV for more than one account, and NFS shares.
 
 Later (files): folder uploads (drag a folder), resumable uploads across page reloads, and search.
 
-Later: switches for package installs and the assistant's shell in system settings (§7), next to the terminal's. Proxying the terminal WebSocket in `next dev` hasn't been checked; use the release build to work on it.
+Later: a switch for package installs in Settings → System (§7), next to the terminal's (the assistant's shell already has one in Settings → AI). Proxying the terminal WebSocket in `next dev` hasn't been checked; use the release build to work on it.
 
 Later: a CI check that `themes.css` matches the registry (needs network; run `pnpm gen:theme` after shadcn upgrades for now), and switching shadcn styles at runtime (§5.4).
 
@@ -52,7 +44,8 @@ Later: per-container stats, verifying temperatures on a real Linux host, importi
 
 ## Open questions
 
-- None.
+- There's no generic OpenAI-compatible provider kind any more, and models.dev's `lmstudio` is skipped, so LM Studio or vLLM can't be added as a provider. Bring back an OpenAI-compatible kind (base URL + optional key)?
+- `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
 
 ## Blockers
 
