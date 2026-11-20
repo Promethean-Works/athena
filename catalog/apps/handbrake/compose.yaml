@@ -29,9 +29,10 @@ x-athena:
 services:
   handbrake:
     image: ghcr.io/linuxserver/handbrake:1.11.2-ls52
+    platform: linux/amd64
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:3000/tcp"
     environment:
       PUID: ${PUID}
       PGID: ${PGID}

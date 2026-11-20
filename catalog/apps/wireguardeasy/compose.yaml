@@ -7,7 +7,7 @@ x-athena:
   category: network
   platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WireGuardEasy/icon.svg
-  homepage: https://we-gitea.com
+  homepage: https://github.com/wg-easy/wg-easy
   web_port: WEB_PORT
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WireGuardEasy/screenshot-1.png
@@ -17,6 +17,15 @@ x-athena:
       label: Web port
       type: port
       default: "8156"
+    - key: WG_HOST
+      label: Public address
+      default: "localhost"
+      description: The public IP address or domain name VPN clients connect to. Change it before adding clients.
+    - key: WG_PORT
+      label: WireGuard port (UDP)
+      type: port
+      default: "51820"
+      description: Forward this UDP port on your router to reach the VPN from outside.
     - key: WEBUI_PASSWORD
       label: Web UI password
       type: password
@@ -27,10 +36,17 @@ services:
     image: ghcr.io/wg-easy/wg-easy:13
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:51820/tcp"
-      - "51821:51821/udp"
+      - "${WEB_PORT}:51821/tcp"
+      - "${WG_PORT}:51820/udp"
     environment:
-      WG_HOST: localhost
+      WG_HOST: ${WG_HOST}
+      WG_PORT: ${WG_PORT}
       PASSWORD: ${WEBUI_PASSWORD}
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      net.ipv4.ip_forward: "1"
+      net.ipv4.conf.all.src_valid_mark: "1"
     volumes:
       - ${ATHENA_APP_DATA}/data:/etc/wireguard

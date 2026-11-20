@@ -6,6 +6,8 @@ x-athena:
   license: "AGPL-3.0"
   category: utilities
   platforms: [linux/amd64, linux/arm64]
+  smoke: skip
+  smoke_note: needs KVM and libvirt on the host
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VirtualMachineManager/icon.svg
   homepage: https://virt-manager.org
   web_port: WEB_PORT

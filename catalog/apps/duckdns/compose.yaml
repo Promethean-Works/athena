@@ -8,33 +8,42 @@ x-athena:
   platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DuckDNS/icon.svg
   homepage: https://www.duckdns.org
-  web_port: WEB_PORT
+  web_port: null
+  smoke: skip
+  smoke_note: needs a DuckDNS account token
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DuckDNS/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DuckDNS/screenshot-2.png
   env:
-    - key: WEB_PORT
-      label: Web port
-      type: port
-      default: "8184"
-    - key: DOMAINS
-      label: Domains
-      type: text
-      default: ""
-      required: false
-      advanced: true
+    - key: SUBDOMAINS
+      label: Subdomains
+      description: Your DuckDNS subdomains, comma separated, without .duckdns.org.
     - key: TOKEN
       label: Token
       type: password
-      required: false
+      description: Shown at the top of duckdns.org after you sign in.
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
       advanced: true
 
 services:
   duckdns:
     image: linuxserver/duckdns:version-ddf6a18c
     restart: unless-stopped
-    ports:
-      - "${WEB_PORT}:8080/tcp"
     environment:
-      DOMAINS: ${DOMAINS}
+      SUBDOMAINS: ${SUBDOMAINS}
       TOKEN: ${TOKEN}
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
