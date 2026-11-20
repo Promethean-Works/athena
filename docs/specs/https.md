@@ -44,7 +44,7 @@ Pure Python (`cryptography` is already a dependency, uvicorn serves TLS), so it 
 - Server certificate: EC P-256, 365 days (under Apple's 825-day limit for user-trusted CAs), signed by the CA. SANs: `localhost`, the hostname, `<hostname>.local`, `127.0.0.1`, `::1`, every non-loopback address of the host's interfaces (psutil), plus `https_extra_names` (validated as hostnames or IPs).
 - A daily check (and startup) reissues the server certificate when it has under 30 days left or the address list changed. The CA never changes unless the admin clicks "Make a new CA".
 
-### Let's Encrypt (`athena/https/acme.py`)
+### Let's Encrypt (`athena/https/letsencrypt.py`)
 
 - Runs [lego](https://github.com/go-acme/lego) (MIT) as a subprocess. Athena downloads a pinned lego release for the host's OS and architecture into `<data-dir>/bin/`, checks it against the release's published SHA-256 checksums, and refuses to run a file that doesn't match. The download helper is shared, so the cloudflared download can move to it later.
 - Challenges: **HTTP-01** (lego answers on a temporary port-80 listener during validation; the domain must point at this host and port 80 must be reachable from the internet) and **DNS-01** (lego creates and removes the `_acme-challenge` TXT record through the DNS provider's API; works with no open ports, and for wildcards). The first DNS provider is **Cloudflare**; each provider is one entry in a table in `athena/https/dns_providers.py` (lego provider code plus the fields and environment variable names it needs), so more are a small change.
