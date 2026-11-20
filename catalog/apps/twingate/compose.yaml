@@ -8,21 +8,33 @@ x-athena:
   platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Twingate/icon.svg
   homepage: https://twingate.com
-  web_port: WEB_PORT
+  web_port: null
+  smoke: skip
+  smoke_note: needs a Twingate network and connector tokens
+  notes: >-
+    In the Twingate admin console, add a connector, choose Docker and copy the network
+    name and the two tokens it shows into the form.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Twingate/thumbnail.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Twingate/icon.png
   env:
-    - key: WEB_PORT
-      label: Web port
-      type: port
-      default: "8147"
+    - key: TWINGATE_NETWORK
+      label: Network name
+      description: The part before .twingate.com in your admin console address.
+    - key: TWINGATE_ACCESS_TOKEN
+      label: Access token
+      type: password
+    - key: TWINGATE_REFRESH_TOKEN
+      label: Refresh token
+      type: password
 
 services:
   twingate:
     image: twingate/connector:1
     restart: unless-stopped
-    ports:
-      - "${WEB_PORT}:80/tcp"
-    volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+    environment:
+      TWINGATE_NETWORK: ${TWINGATE_NETWORK}
+      TWINGATE_ACCESS_TOKEN: ${TWINGATE_ACCESS_TOKEN}
+      TWINGATE_REFRESH_TOKEN: ${TWINGATE_REFRESH_TOKEN}
+    sysctls:
+      net.ipv4.ping_group_range: "0 2147483647"

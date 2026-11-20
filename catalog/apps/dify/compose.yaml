@@ -44,6 +44,7 @@ services:
     container_name: dify-config
     restart: unless-stopped
     image: ns2kracy/dify-config:latest@sha256:668eb78b044b4382b6b49f667a27b312941890218005807818cfecc4ecbf27a9
+    platform: linux/amd64
     volumes:
     - type: bind
       source: ${ATHENA_APP_DATA}/data/nginx
