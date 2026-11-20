@@ -229,7 +229,9 @@ function PopularCarouselLoaded({
         {popular.map((app) => (
           <CarouselItem
             key={`${app.catalog}/${app.id}`}
-            className="sm:basis-1/2 lg:basis-1/3"
+            // Cards draw their outline just outside their box; the
+            // viewport's overflow-hidden clipped it at the edges.
+            className="py-px pr-px sm:basis-1/2 lg:basis-1/3"
           >
             <PopularSlide app={app} />
           </CarouselItem>
