@@ -74,6 +74,9 @@ jobs:
           # Docker Engine is preinstalled, so the root service should find it.
           - os: ubuntu-latest
             expect: containers terminal.host files
+          # Linux arm64, as on a Raspberry Pi 4/5 with 64-bit Pi OS.
+          - os: ubuntu-24.04-arm
+            expect: containers terminal.host files
           # Hosted macOS runners can't run Colima's VM: install without a runtime.
           - os: macos-latest
             expect: terminal.host files

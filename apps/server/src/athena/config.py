@@ -32,3 +32,6 @@ class Settings(BaseSettings):
     # inside pgtask tasks so every model request and tool call is checkpointed; an
     # interrupted run resumes from its last completed step instead of repeating paid work.
     durable_execution_database_url: str | None = None
+    # Where "Send feedback" opens issues (docs/specs/feedback.md). Forks point it at their
+    # own repository; GitHub gets the issue forms, Codeberg and GitLab a plain issue.
+    feedback_repo: str = "https://github.com/tiagozaccaro/athena"
