@@ -17,7 +17,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified: installing the CasaOS-ported catalog apps (#120) for real against Docker, especially the stacks re-imported in #167 (dify, librechat, clumoove) and their generated secrets.
 - Tunnel follow-ups (#150):
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
-  - Tunnel fields save on every keystroke and are disabled while each save runs.
+  - `/api/tunnel/status` still says "Tunnel disabled" right after Remote access is switched on, and reports `missing` while cloudflared is installed (likely the detector bug below).
   - `tunnel_auto_start` is saved but nothing reads it at startup, so the tunnel doesn't start on boot.
   - The tunnel UI isn't verified in a browser yet, and no real tunnel has been tested with any provider.
   - Every tunnel detector (`platform/detect.py`) returns the action `"configure"`, which `Capability.actions` doesn't allow, so detection fails (logged as an error) on any host where cloudflared, ngrok or tailscale is installed. Add `configure` to `Action` (and regenerate the API client) or drop it.
