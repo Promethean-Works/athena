@@ -4,12 +4,13 @@
 useDefault = true
 
 [[allowlists]]
-description = "Build output, never committed: `gitleaks dir` doesn't read .gitignore, and pytest's .pyc of the secret-guard tests holds their fake tokens"
+description = "Build output, never committed: `gitleaks dir` doesn't read .gitignore, pytest's .pyc of the secret-guard tests holds their fake tokens, and the catalog smoke test's report folder holds the throwaway .env files it generates"
 paths = [
   '''(^|/)__pycache__/''',
   '''(^|/)\.next/''',
   '''(^|/)node_modules/''',
   '''(^|/)\.venv/''',
+  '''(^|/)catalog-smoke-report/''',
 ]
 
 [[allowlists]]
