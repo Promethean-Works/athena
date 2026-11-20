@@ -37,7 +37,6 @@ Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 
 ## Open questions
 
-- Other apps marked `license: Proprietary`: unifi-controller, resiliosync, twingate (and tailscale, whose client is actually BSD-3-Clause). Remove the first three and fix tailscale's license?
 - There's no generic OpenAI-compatible provider kind any more, and models.dev's `lmstudio` is skipped, so LM Studio or vLLM can't be added as a provider. Bring back an OpenAI-compatible kind (base URL + optional key)?
 - `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
 
