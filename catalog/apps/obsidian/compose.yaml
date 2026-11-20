@@ -31,7 +31,7 @@ services:
     image: lscr.io/linuxserver/obsidian:1.12.7
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:3000/tcp"
     environment:
       PUID: ${PUID}
       PGID: ${PGID}

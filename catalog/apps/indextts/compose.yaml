@@ -13,6 +13,8 @@ x-athena:
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/icon.svg
   homepage: https://index-tts.com
   web_port: WEB_PORT
+  smoke: skip
+  smoke_note: needs about 12 GB of free RAM for its models (killed for lack of memory on a 2 GB test VM)
   screenshots:
   - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/screenshot-1.png
   - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/screenshot-2.png

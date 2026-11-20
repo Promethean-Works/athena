@@ -1,14 +1,15 @@
 x-athena:
-  title: Hermes
-  description: Self-hosted SMS gateway and messaging hub for sending and receiving texts.
-  tagline: SMS gateway and messaging hub.
-  tags: [SMS, Messaging, Gateway]
-  license: "AGPL-3.0"
-  category: network
+  title: Hermes Agent
+  description: Self-improving AI agent by Nous Research, with a web dashboard and an OpenAI-compatible API.
+  tagline: AI agent that grows with you.
+  tags: [AI, Agent, LLM]
+  license: "MIT"
+  category: productivity
   platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hermes/icon.svg
-  homepage: https://hermes.app
+  homepage: https://hermes-agent.nousresearch.com
   web_port: WEB_PORT
+  notes: Sign in to the dashboard with the username and password from the install form, then add a model provider. The OpenAI-compatible API listens on the API port and needs the API key.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hermes/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hermes/screenshot-2.png
@@ -17,12 +18,38 @@ x-athena:
       label: Web port
       type: port
       default: "8197"
+    - key: API_PORT
+      label: API port
+      type: port
+      default: "8642"
+      advanced: true
+    - key: DASHBOARD_USER
+      label: Dashboard username
+      default: admin
+    - key: DASHBOARD_PASSWORD
+      label: Dashboard password
+      type: password
+      generate: secret
+    - key: API_KEY
+      label: API key
+      type: password
+      generate: secret
+      advanced: true
 
 services:
   hermes:
     image: nousresearch/hermes-agent:v2026.9.7
     restart: unless-stopped
+    command: [gateway, run]
     ports:
-      - "${WEB_PORT}:8642/tcp"
+      - "${WEB_PORT}:9119/tcp"
+      - "${API_PORT}:8642/tcp"
+    environment:
+      HERMES_DASHBOARD: "1"
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME: ${DASHBOARD_USER}
+      HERMES_DASHBOARD_BASIC_AUTH_PASSWORD: ${DASHBOARD_PASSWORD}
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: 0.0.0.0
+      API_SERVER_KEY: ${API_KEY}
     volumes:
       - ${ATHENA_APP_DATA}/data:/opt/data

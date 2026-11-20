@@ -33,5 +33,6 @@ services:
     ports:
       - "${WEB_PORT}:61208/tcp"
     environment:
+      GLANCES_OPT: "-w"
       PUID: ${PUID}
       PGID: ${PGID}
