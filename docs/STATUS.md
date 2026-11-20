@@ -10,16 +10,18 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - The models.dev refresh at startup never runs: `main.py` passes `app.state.db.session` (a generator function) to `refresh_models_dev_cache`, which uses it as a context manager, so every start logs "Failed to refresh models.dev cache: 'generator' object does not support the context manager protocol".
-- Not yet verified in a browser: `/automation` (#114), the store carousel (#103), `/files/smb` (#104), the compose variant picker (#109) and the dashboard app grid (#146).
+- Dashboard part 3 PR (`feat/dashboard-new-cards`): once merged, mark `docs/specs/dashboard-cards.md` Done. Open: phone touch drag; app update badge (no API field).
+- A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
+- Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
-- Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
+- Not yet verified in a browser: `/files/smb` (#104), the compose variant picker (#109), and the cloud wizard (#97) and remote cards (#92) with a real rclone remote.
 - Catalog smoke test (#169, #172, fixes #173–#176): every store app was installed for real on macOS arm64 (Colima); 135/199 passed at first, the rest were fixed or honestly marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run the `Catalog smoke` workflow by hand for `--all` on amd64 and arm64 and fix what fails there. Not verified: logins and real use of each app, only that it starts and serves its page.
 - Tunnel follow-ups (#150):
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
-  - `/api/tunnel/status` still says "Tunnel disabled" right after Remote access is switched on, and reports `missing` while cloudflared is installed (likely the detector bug below).
+  - Tunnel status says `missing` with cloudflared installed (likely the detector bug below).
   - `tunnel_auto_start` is saved but nothing reads it at startup, so the tunnel doesn't start on boot.
-  - The tunnel UI isn't verified in a browser yet, and no real tunnel has been tested with any provider.
+  - No real tunnel has been tested with any provider (the UI was checked in #180).
   - Every tunnel detector (`platform/detect.py`) returns the action `"configure"`, which `Capability.actions` doesn't allow, so detection fails (logged as an error) on any host where cloudflared, ngrok or tailscale is installed. Add `configure` to `Action` (and regenerate the API client) or drop it.
 
 ## Next

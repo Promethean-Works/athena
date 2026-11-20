@@ -310,12 +310,18 @@ export function DashboardGrid() {
     )
   }
 
-  const placed = cards.filter((c) => CARDS_BY_ID.has(c.id))
   const canShow = (def: DashboardCardDef) =>
     (!def.adminOnly || user.is_admin) &&
     (!def.capability ||
       !manifest ||
       isAllowed(manifest, def.capability, true))
+  // The same rules as the picker: a non-admin never sees Recent activity, and
+  // a card for something this host can't do doesn't render, even when it's in
+  // the (default or saved) layout.
+  const placed = cards.filter((c) => {
+    const def = CARDS_BY_ID.get(c.id)
+    return def !== undefined && canShow(def)
+  })
   const available = DASHBOARD_CARDS.filter(
     (def) => !placed.some((c) => c.id === def.id) && canShow(def)
   )
