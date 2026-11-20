@@ -15,7 +15,7 @@ from sqlmodel import select
 from test_assistant import add_provider, read_events
 
 from athena.api import assistant as assistant_api
-from athena.assistant import actions
+from athena.assistant import actions, chat
 from athena.assistant.tools import toolset_for
 from athena.db.models import AuditEntry
 from athena.platform.capabilities import Capability, CapabilityManifest
@@ -162,7 +162,7 @@ def test_a_new_message_denies_waiting_actions(tmp_path, monkeypatch):
         send(client, conv, "Make folder a")
         events = send(client, conv, "Actually, never mind")
         assert not (share / "a").exists()
-        assert seen[0] == f"denied: {assistant_api.chat.DENIED_BY_NEW_MESSAGE}"
+        assert seen[0] == f"denied: {chat.DENIED_BY_NEW_MESSAGE}"
         assert ("assistant.deny", "Create the folder a in Share") in audit_rows(client)
         assert events[-1][0] == "done"
         roles = [m["role"] for m in detail(client, conv)["messages"]]
