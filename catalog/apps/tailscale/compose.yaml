@@ -3,7 +3,7 @@ x-athena:
   description: Mesh VPN for securely connecting your devices and services anywhere.
   tagline: Mesh VPN for your devices.
   tags: [VPN, Network, Security]
-  license: "Proprietary"
+  license: "BSD-3-Clause"
   category: network
   platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Tailscale/icon.svg
