@@ -732,7 +732,7 @@ def _forward(turn: Turn, event: Any) -> None:
             )
 
 
-def _readable(exc: Exception) -> str:
+def readable(exc: Exception) -> str:
     # pydantic-ai runs the turn in a task group, so an error can arrive wrapped in an
     # ExceptionGroup ("unhandled errors in a TaskGroup"); show the error inside it.
     while isinstance(exc, BaseExceptionGroup) and len(exc.exceptions) == 1:
