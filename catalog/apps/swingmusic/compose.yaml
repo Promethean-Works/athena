@@ -17,12 +17,18 @@ x-athena:
       label: Web port
       type: port
       default: "8141"
+    - key: MUSIC_PATH
+      label: Music folder
+      type: path
+      description: The folder with your music library.
+      default: "@app_data/music"
 
 services:
   swingmusic:
     image: ghcr.io/swingmx/swingmusic:v2.1.4
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:1970/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${MUSIC_PATH}:/music
