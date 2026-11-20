@@ -1,11 +1,11 @@
-"""Settings: per-user appearance, and host-wide system settings (admins only)."""
+"""Settings: per-user appearance and dashboard, and host-wide system settings (admins only)."""
 
 import json
 import logging
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Request, status
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from athena import audit, system_settings
 from athena.api.terminal import close_all as close_terminals
@@ -52,6 +52,51 @@ def get_appearance(user: Authed) -> Appearance:
 @router.put("/appearance", operation_id="setAppearance")
 def set_appearance(body: Appearance, user: Authed, db: DbSession) -> Appearance:
     user.user.appearance = json.dumps(body.model_dump(), separators=(",", ":"))
+    db.add(user.user)
+    db.commit()
+    return body
+
+
+# Card ids belong to the UI (apps/web/components/dashboard/cards.tsx). The server only
+# checks their shape, so adding a card needs no server change; the UI skips ids it
+# doesn't know.
+CardId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9-]{0,39}$")]
+MAX_DASHBOARD_CARDS = 40
+
+
+class DashboardCard(BaseModel):
+    id: CardId
+    size: Literal["half", "full"] = "half"
+
+
+class DashboardLayout(BaseModel):
+    cards: list[DashboardCard] | None = Field(default=None, max_length=MAX_DASHBOARD_CARDS)
+    """The cards in order. None means the user never saved one: show the default."""
+
+    @field_validator("cards")
+    @classmethod
+    def _unique(cls, cards: list[DashboardCard] | None) -> list[DashboardCard] | None:
+        if cards is not None and len({c.id for c in cards}) != len(cards):
+            raise ValueError("each card can appear only once")
+        return cards
+
+
+@router.get("/dashboard", operation_id="getDashboardLayout")
+def get_dashboard(user: Authed) -> DashboardLayout:
+    stored = user.user.dashboard
+    if not stored:
+        return DashboardLayout()
+    try:
+        return DashboardLayout.model_validate_json(stored)
+    except ValidationError:
+        log.warning("ignoring invalid dashboard layout for %s", user.user.username)
+        return DashboardLayout()
+
+
+@router.put("/dashboard", operation_id="setDashboardLayout")
+def set_dashboard(body: DashboardLayout, user: Authed, db: DbSession) -> DashboardLayout:
+    """Each user has their own layout. Saving `{"cards": null}` goes back to the default."""
+    user.user.dashboard = None if body.cards is None else body.model_dump_json(exclude_none=True)
     db.add(user.user)
     db.commit()
     return body

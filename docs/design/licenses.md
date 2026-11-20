@@ -24,6 +24,7 @@
 | psycopg (pgtask's Postgres driver; used only when durable execution is configured) | LGPL-3.0-only |
 | CodeMirror 6, @uiw/react-codemirror | MIT |
 | js-yaml (compose form ↔ YAML), embla-carousel-react, embla-carousel-autoplay (store carousel), tw-animate-css | MIT |
+| @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities (dashboard card drag and drop) | MIT |
 | class-variance-authority | Apache-2.0 |
 | dashboard-icons (catalog icons, loaded by URL) | Apache-2.0 |
 | httpx2 (provider HTTP at runtime, and the test client) | BSD-3-Clause |
