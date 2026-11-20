@@ -209,8 +209,9 @@ def install_values(target: Target, folder: Path, engine: Engine) -> dict[str, st
     return resolve_values(fields, submitted, folder / "data")
 
 
-def _containers(engine: Engine, compose: list[str]) -> list[dict]:
-    res = engine.run(*compose, "ps", "--all", "--format", "json")
+def _containers(engine: Engine, compose: list[str], env: dict[str, str]) -> list[dict]:
+    # ``env`` matters: compose re-reads the file, and an unset ATHENA_APP_DATA can make it invalid.
+    res = engine.run(*compose, "ps", "--all", "--format", "json", env=env)
     text = res.stdout.strip()
     if not text:
         return []
@@ -242,6 +243,7 @@ def _wait(
     check: str,
     port: int | None,
     timeout: float,
+    env: dict[str, str],
 ) -> tuple[Status, str, str, str]:
     """Wait for the app to come up: (status, stage, detail, url)."""
     deadline = time.monotonic() + timeout
@@ -251,7 +253,7 @@ def _wait(
     path = target.app.meta.web_path or "/"
     with httpx2.Client(verify=False, timeout=5.0, follow_redirects=False) as client:
         while time.monotonic() < deadline:
-            containers = _containers(engine, compose)
+            containers = _containers(engine, compose, env)
             running = [c for c in containers if c.get("State") == "running"]
             restarting = [_name(c) for c in containers if c.get("State") == "restarting"]
             unhealthy = [_name(c) for c in containers if c.get("Health") == "unhealthy"]
@@ -358,7 +360,7 @@ def run_one(
             log.append("== up ==\n" + up.stderr)
             return finish("failed", "up", _tail(up.stderr, 3))
         timeout = opts.timeout * (2 if result.emulated else 1)
-        status, stage, detail, url = _wait(engine, target, compose, check, port, timeout)
+        status, stage, detail, url = _wait(engine, target, compose, check, port, timeout, env)
         result.url = url
         return finish(status, stage, detail)
     finally:

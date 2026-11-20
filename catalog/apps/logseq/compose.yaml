@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
     volumes:
     - type: bind
-      source: /DATA/AppData/logseq/config
+      source: ${ATHENA_APP_DATA}/config
       target: /config
     - type: bind
       source: ${DOCUMENTS_PATH}/Notes
