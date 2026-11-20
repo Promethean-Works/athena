@@ -9,6 +9,10 @@ x-athena:
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Unifi-Network-Application/icon.svg
   homepage: https://ui.com
   web_port: WEB_PORT
+  notes: >-
+    The web UI is served over HTTPS with a self-signed certificate; open https://<server>:<web port> and
+    accept the warning. Devices adopt through the inform port (8080 by default); if you change it, set
+    the inform URL on the devices to match.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Unifi-Network-Application/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Unifi-Network-Application/screenshot-2.png
@@ -17,6 +21,28 @@ x-athena:
       label: Web port
       type: port
       default: "8148"
+    - key: INFORM_PORT
+      label: Device inform port
+      type: port
+      default: "8080"
+      description: TCP port UniFi devices use to talk to the controller.
+    - key: STUN_PORT
+      label: STUN port (UDP)
+      type: port
+      default: "3478"
+    - key: DISCOVERY_PORT
+      label: Device discovery port (UDP)
+      type: port
+      default: "10001"
+    - key: MONGO_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
     - key: PUID
       label: User ID
       default: "@uid"
@@ -32,11 +58,38 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8443/tcp"
-      - "3478:3478/tcp"
-      - "10001:10001/tcp"
-      - "8080:8080/tcp"
+      - "${INFORM_PORT}:8080/tcp"
+      - "${STUN_PORT}:3478/udp"
+      - "${DISCOVERY_PORT}:10001/udp"
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
+      TZ: ${TZ}
+      MONGO_HOST: unifi-db
+      MONGO_PORT: "27017"
+      MONGO_USER: unifi
+      MONGO_PASS: ${MONGO_PASSWORD}
+      MONGO_DBNAME: unifi
+      MONGO_AUTHSOURCE: admin
     volumes:
       - ${ATHENA_APP_DATA}/data:/config
+    depends_on:
+      unifi-db:
+        condition: service_healthy
+
+  unifi-db:
+    # 4.4 runs on every 64-bit CPU (newer MongoDB needs AVX on x86 and ARMv8.2 on arm64, which a Raspberry Pi 4 lacks).
+    image: mongo:4.4.22
+    restart: unless-stopped
+    environment:
+      # The app connects as the root user, so no init script has to create a database user.
+      MONGO_INITDB_ROOT_USERNAME: unifi
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/db:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s

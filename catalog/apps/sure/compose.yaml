@@ -3,7 +3,7 @@ x-athena:
   description: Open-source URL shortener and link management with analytics.
   tagline: Open-source URL shortener.
   tags: [URL Shortener, Links, Analytics]
-  license: "MIT"
+  license: "AGPL-3.0"
   category: utilities
   platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Sure/icon.svg
@@ -17,12 +17,78 @@ x-athena:
       label: Web port
       type: port
       default: "8140"
+    - key: SECRET_KEY_BASE
+      label: Secret key
+      type: password
+      generate: hex32
+      description: Signs sessions and derives the encryption keys. Keep it when you reinstall.
+      advanced: true
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
 
 services:
   sure:
     image: ghcr.io/we-promise/sure:0.6.5-hotfix.1
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:23000/tcp"
+      - "${WEB_PORT}:3000/tcp"
+    environment: &env
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      SELF_HOSTED: "true"
+      RAILS_FORCE_SSL: "false"
+      RAILS_ASSUME_SSL: "false"
+      DB_HOST: db
+      DB_PORT: "5432"
+      POSTGRES_USER: sure_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: sure_production
+      REDIS_URL: redis://redis:6379/1
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/storage:/rails/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    image: ghcr.io/we-promise/sure:0.6.5-hotfix.1
+    restart: unless-stopped
+    command: bundle exec sidekiq
+    environment: *env
+    volumes:
+      - ${ATHENA_APP_DATA}/storage:/rails/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sure_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: sure_production
+    volumes:
+      - ${ATHENA_APP_DATA}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sure_user -d sure_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    volumes:
+      - ${ATHENA_APP_DATA}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

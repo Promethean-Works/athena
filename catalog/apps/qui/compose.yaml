@@ -23,6 +23,6 @@ services:
     image: ghcr.io/autobrr/qui:v1.28.0
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:7476/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/config:/config
