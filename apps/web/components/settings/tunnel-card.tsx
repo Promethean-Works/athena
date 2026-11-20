@@ -2,13 +2,14 @@
 
 import * as React from "react"
 import {
+  AlertTriangleIcon,
   CopyIcon,
   DownloadIcon,
+  EyeIcon,
+  EyeOffIcon,
   PlayIcon,
   RotateCcwIcon,
   SquareIcon,
-  WifiIcon,
-  AlertTriangleIcon,
 } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -17,11 +18,13 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@workspace/ui/components/alert"
+import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
@@ -31,6 +34,7 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldSeparator,
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -48,26 +52,24 @@ import {
 } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Switch } from "@workspace/ui/components/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { toast } from "@workspace/ui/components/toast"
-import { JobDialog } from "@/components/job-dialog"
 
 import { useAuth } from "@/components/auth-provider"
 import { useCapability } from "@/components/capabilities-provider"
+import { JobDialog } from "@/components/job-dialog"
+import { patchSystemSettings } from "@/components/settings/system-settings"
 import { copyText } from "@/lib/clipboard"
 
 type TunnelProvider = "cloudflare" | "tailscale" | "ngrok"
 type SystemSettings = Schemas["SystemSettings"]
 type TunnelStatus = Schemas["TunnelStatusResponse"]
+type Job = Schemas["JobOut"]
+type Config = Record<string, unknown>
 
 const PROVIDER_LABELS: Record<TunnelProvider, string> = {
   cloudflare: "Cloudflare Tunnel",
   tailscale: "Tailscale Funnel",
-  ngrok: "Ngrok",
-}
-
-function ProviderIcon({ provider }: { provider: TunnelProvider }) {
-  return <WifiIcon className="h-4 w-4" />
+  ngrok: "ngrok",
 }
 
 function CopyField({
@@ -128,6 +130,7 @@ function SecretInput({
         <InputGroupInput
           id={id}
           type={show ? "text" : "password"}
+          autoComplete="off"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
@@ -136,13 +139,45 @@ function SecretInput({
         <InputGroupAddon align="inline-end">
           <InputGroupButton
             size="icon-xs"
-            aria-label={show ? "Hide" : "Show"}
+            aria-label={show ? `Hide ${label}` : `Show ${label}`}
             onClick={() => setShow(!show)}
           >
-            {show ? <RotateCcwIcon className="h-4 w-4" /> : <RotateCcwIcon className="h-4 w-4" />}
+            {show ? <EyeOffIcon /> : <EyeIcon />}
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
+    </Field>
+  )
+}
+
+function TextField({
+  id,
+  label,
+  value,
+  onChange,
+  disabled,
+  placeholder,
+  description,
+}: {
+  id: string
+  label: string
+  value: string
+  onChange: (v: string) => void
+  disabled?: boolean
+  placeholder?: string
+  description: string
+}) {
+  return (
+    <Field>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Input
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        placeholder={placeholder}
+      />
+      <FieldDescription>{description}</FieldDescription>
     </Field>
   )
 }
@@ -155,403 +190,334 @@ function ProviderConfigForm({
   disabled,
 }: {
   provider: TunnelProvider
-  config: Record<string, unknown>
+  config: Config
   /** Secret keys with a stored value. The server never sends secrets back. */
   secretsSet: string[]
-  onChange: (config: Record<string, unknown>) => void
+  onChange: (config: Config) => void
   disabled: boolean
 }) {
-  const handleChange = (key: string, value: unknown) => {
+  const set = (key: string) => (value: unknown) =>
     onChange({ ...config, [key]: value })
-  }
+  const str = (key: string) => (config[key] as string | undefined) ?? ""
   const secretPlaceholder = (key: string, empty: string) =>
-    secretsSet.includes(key) ? "Saved. Enter a new value to replace it" : empty
+    secretsSet.includes(key) ? "Saved. Type a new value to replace it" : empty
 
   if (provider === "cloudflare") {
-    const quickTunnel = (config.quick_tunnel as boolean) ?? true
+    const quickTunnel = (config.quick_tunnel as boolean | undefined) ?? true
     return (
-      <FieldGroup>
+      <>
         <Field orientation="horizontal">
           <FieldContent>
-            <FieldLabel>Quick Tunnel</FieldLabel>
+            <FieldLabel htmlFor="cf-quick">Quick tunnel</FieldLabel>
             <FieldDescription>
-              Use an ephemeral trycloudflare.com URL (no auth needed).
+              A random trycloudflare.com address that needs no account. It
+              changes every time the tunnel starts.
             </FieldDescription>
           </FieldContent>
           <Switch
+            id="cf-quick"
             checked={quickTunnel}
             disabled={disabled}
-            onCheckedChange={(checked) => handleChange("quick_tunnel", checked)}
+            onCheckedChange={set("quick_tunnel")}
           />
         </Field>
         {!quickTunnel && (
           <>
             <SecretInput
               id="cf-api-token"
-              label="API Token"
-              value={(config.api_token as string) ?? ""}
-              onChange={(v) => handleChange("api_token", v)}
+              label="API token"
+              value={str("api_token")}
+              onChange={set("api_token")}
               disabled={disabled}
               placeholder={secretPlaceholder(
                 "api_token",
-                "Cloudflare API Token with Tunnel permissions"
+                "A Cloudflare API token with Tunnel permissions"
               )}
             />
-            <Field>
-              <FieldLabel htmlFor="cf-tunnel-name">Tunnel Name</FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  id="cf-tunnel-name"
-                  value={(config.tunnel_name as string) ?? ""}
-                  onChange={(e) => handleChange("tunnel_name", e.target.value)}
-                  disabled={disabled}
-                  placeholder="my-tunnel"
-                />
-              </InputGroup>
-              <FieldDescription>
-                Name of the named tunnel in Cloudflare.
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="cf-domain">Custom Domain (optional)</FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  id="cf-domain"
-                  value={(config.domain as string) ?? ""}
-                  onChange={(e) => handleChange("domain", e.target.value)}
-                  disabled={disabled}
-                  placeholder="tunnel.example.com"
-                />
-              </InputGroup>
-              <FieldDescription>
-                Custom domain for the tunnel (requires DNS setup).
-              </FieldDescription>
-            </Field>
+            <TextField
+              id="cf-tunnel-name"
+              label="Tunnel name"
+              value={str("tunnel_name")}
+              onChange={set("tunnel_name")}
+              disabled={disabled}
+              placeholder="my-tunnel"
+              description="The named tunnel in your Cloudflare account."
+            />
+            <TextField
+              id="cf-domain"
+              label="Custom domain (optional)"
+              value={str("domain")}
+              onChange={set("domain")}
+              disabled={disabled}
+              placeholder="athena.example.com"
+              description="Needs a DNS record pointing at the tunnel."
+            />
           </>
         )}
-      </FieldGroup>
+      </>
     )
   }
 
   if (provider === "tailscale") {
     return (
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="ts-tailnet">Tailnet</FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id="ts-tailnet"
-              readOnly
-              value={(config.tailnet_name as string) ?? "Detected automatically"}
-            />
-          </InputGroup>
-          <FieldDescription>
-            Your Tailscale tailnet. Configured via <code>tailscale up</code>.
-          </FieldDescription>
-        </Field>
-      </FieldGroup>
-    )
-  }
-
-  if (provider === "ngrok") {
-    return (
-      <FieldGroup>
-        <SecretInput
-          id="ngrok-auth-token"
-          label="Auth Token"
-          value={(config.auth_token as string) ?? ""}
-          onChange={(v) => handleChange("auth_token", v)}
-          disabled={disabled}
-          placeholder={secretPlaceholder(
-            "auth_token",
-            "Your ngrok auth token (required)"
-          )}
+      <Field>
+        <FieldLabel htmlFor="ts-tailnet">Tailnet</FieldLabel>
+        <Input
+          id="ts-tailnet"
+          readOnly
+          value={str("tailnet_name") || "Detected automatically"}
         />
-        <Field>
-          <FieldLabel htmlFor="ngrok-domain">Custom Domain (optional)</FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id="ngrok-domain"
-              value={(config.domain as string) ?? ""}
-              onChange={(e) => handleChange("domain", e.target.value)}
-              disabled={disabled}
-              placeholder="tunnel.example.com"
-            />
-          </InputGroup>
-          <FieldDescription>
-            Custom domain (requires paid ngrok plan).
-          </FieldDescription>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="ngrok-subdomain">Subdomain (optional)</FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id="ngrok-subdomain"
-              value={(config.subdomain as string) ?? ""}
-              onChange={(e) => handleChange("subdomain", e.target.value)}
-              disabled={disabled}
-              placeholder="my-subdomain"
-            />
-          </InputGroup>
-          <FieldDescription>
-            Custom subdomain (requires paid ngrok plan).
-          </FieldDescription>
-        </Field>
-        <Alert variant="default">
-          <AlertTitle>
-            <AlertTriangleIcon className="h-4 w-4" />
-            Free tier limits
-          </AlertTitle>
-          <AlertDescription>
-            Ngrok free tier: 1 tunnel, 40 connections/min, random URL each session.
-            Custom domains and subdomains require a paid plan.
-          </AlertDescription>
-        </Alert>
-      </FieldGroup>
+        <FieldDescription>
+          Set with <code>tailscale up</code> on this server.
+        </FieldDescription>
+      </Field>
     )
   }
 
-  return null
+  return (
+    <>
+      <SecretInput
+        id="ngrok-auth-token"
+        label="Auth token"
+        value={str("auth_token")}
+        onChange={set("auth_token")}
+        disabled={disabled}
+        placeholder={secretPlaceholder("auth_token", "Your ngrok auth token")}
+      />
+      <TextField
+        id="ngrok-domain"
+        label="Custom domain (optional)"
+        value={str("domain")}
+        onChange={set("domain")}
+        disabled={disabled}
+        placeholder="athena.example.com"
+        description="Needs a paid ngrok plan."
+      />
+      <TextField
+        id="ngrok-subdomain"
+        label="Subdomain (optional)"
+        value={str("subdomain")}
+        onChange={set("subdomain")}
+        disabled={disabled}
+        placeholder="my-athena"
+        description="Needs a paid ngrok plan."
+      />
+      <Alert>
+        <AlertTriangleIcon />
+        <AlertTitle>Free plan limits</AlertTitle>
+        <AlertDescription>
+          One tunnel, 40 connections a minute, and a new random address each
+          session.
+        </AlertDescription>
+      </Alert>
+    </>
+  )
 }
+
+function StatusBadge({ status }: { status: TunnelStatus | null }) {
+  if (!status) return <Skeleton className="h-5 w-20" />
+  if (status.running) return <Badge>Running</Badge>
+  switch (status.capability_status) {
+    case "stopped":
+      return <Badge variant="secondary">Stopped</Badge>
+    case "not_installed":
+      return <Badge variant="destructive">Not installed</Badge>
+    default:
+      return <Badge variant="outline">Not set up</Badge>
+  }
+}
+
+const sameJson = (a: unknown, b: unknown) =>
+  JSON.stringify(a) === JSON.stringify(b)
 
 export function TunnelCard() {
   const { user } = useAuth()
-  const hasTunnelCapability =
-    useCapability("tunnel.cloudflare") ||
-    useCapability("tunnel.tailscale") ||
-    useCapability("tunnel.ngrok")
+  // Call each hook on every render: `a || b || c` skipped calls and broke
+  // React's rules of hooks.
+  const cloudflare = useCapability("tunnel.cloudflare")
+  const tailscale = useCapability("tunnel.tailscale")
+  const ngrok = useCapability("tunnel.ngrok")
+  const hasTunnelCapability = Boolean(cloudflare || tailscale || ngrok)
+
   const [status, setStatus] = React.useState<TunnelStatus | null>(null)
-  const [systemSettings, setSystemSettings] = React.useState<SystemSettings | null>(null)
+  const [settings, setSettings] = React.useState<SystemSettings | null>(null)
   const [saving, setSaving] = React.useState(false)
-  const [jobDialog, setJobDialog] = React.useState<{ job: Schemas["JobOut"]; title: string } | null>(null)
-  const [config, setConfig] = React.useState<Record<string, unknown>>({})
-  const [provider, setProvider] = React.useState<TunnelProvider>("cloudflare")
-  const [autoStart, setAutoStart] = React.useState(true)
-  const [port, setPort] = React.useState(8420)
+  const [job, setJob] = React.useState<Job | null>(null)
+  // Typed fields stay a draft until Save: typing used to send a request per
+  // keystroke and lock the field while each one ran.
+  const [config, setConfig] = React.useState<Config>({})
+  const [port, setPort] = React.useState("8420")
 
-  // Fetch system settings to get tunnel config
-  React.useEffect(() => {
-    api.GET("/api/settings/system").then(({ data }) => {
-      if (data) {
-        setSystemSettings(data)
-        setConfig(data.tunnel_config ?? {})
-        setProvider((data.tunnel_provider as TunnelProvider) ?? "cloudflare")
-        setAutoStart(data.tunnel_auto_start ?? true)
-        setPort(data.tunnel_port ?? 8420)
-      }
-    })
-  }, [])
-
-  // Fetch tunnel status
-  React.useEffect(() => {
-    let cancelled = false
-    api.GET("/api/tunnel/status").then(({ data }) => {
-      if (!cancelled && data) setStatus(data)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  const refreshStatus = async () => {
+  const refreshStatus = React.useCallback(async () => {
     const { data } = await api.GET("/api/tunnel/status")
     if (data) setStatus(data)
+  }, [])
+
+  const loadDraft = (data: SystemSettings) => {
+    setConfig(data.tunnel_config ?? {})
+    setPort(String(data.tunnel_port ?? 8420))
   }
+
+  React.useEffect(() => {
+    void api.GET("/api/settings/system").then(({ data }) => {
+      if (!data) return
+      setSettings(data)
+      loadDraft(data)
+    })
+    void refreshStatus()
+  }, [refreshStatus])
 
   if (!hasTunnelCapability) return null
 
-  async function updateTunnelSettings(next: Partial<SystemSettings>) {
-    if (!systemSettings) return
-    const previous = systemSettings
-    const merged = { ...systemSettings, ...next }
-    setSystemSettings(merged)
+  const canEdit = user.is_admin && !saving
+  const provider = (settings?.tunnel_provider as TunnelProvider) ?? "cloudflare"
+  const portNumber = Number(port)
+  const portValid =
+    Number.isInteger(portNumber) && portNumber >= 1 && portNumber <= 65535
+  const dirty =
+    settings !== null &&
+    (!sameJson(config, settings.tunnel_config ?? {}) ||
+      portNumber !== (settings.tunnel_port ?? 8420))
+
+  async function save(
+    next: Partial<SystemSettings>,
+    message: string
+  ): Promise<SystemSettings | null> {
+    if (!settings) return null
     setSaving(true)
-    const { data, error } = await api.PUT("/api/settings/system", {
-      body: merged,
-    })
+    const { data, error } = await patchSystemSettings(next)
     setSaving(false)
-    if (data) {
-      setSystemSettings(data)
-      toast.add({
-        type: "success",
-        title: data.tunnel_enabled ? "Tunnel enabled" : "Tunnel disabled",
-      })
-    } else {
-      setSystemSettings(previous)
+    if (!data) {
       toast.add({
         type: "error",
         title: "Couldn't save",
         description: errorMessage(error),
       })
+      return null
     }
+    setSettings(data)
+    toast.add({ type: "success", title: message })
+    void refreshStatus()
+    return data
   }
 
-  async function updateConfig(nextConfig: Record<string, unknown>) {
-    setConfig(nextConfig)
-    await updateTunnelSettings({ tunnel_config: nextConfig })
+  async function saveDraft() {
+    if (!portValid) return
+    const data = await save(
+      { tunnel_config: config, tunnel_port: portNumber },
+      "Remote access settings saved"
+    )
+    // The server never returns secrets, so this also clears typed tokens and
+    // shows their "Saved" placeholder instead.
+    if (data) loadDraft(data)
   }
 
-  async function handleProviderChange(newProvider: TunnelProvider | null) {
-    if (newProvider) {
-      setProvider(newProvider)
-      await updateTunnelSettings({ tunnel_provider: newProvider })
-    }
-  }
-
-  async function handleAutoStartChange(enabled: boolean) {
-    setAutoStart(enabled)
-    await updateTunnelSettings({ tunnel_auto_start: enabled })
-  }
-
-  async function handlePortChange(newPort: number) {
-    setPort(newPort)
-    await updateTunnelSettings({ tunnel_port: newPort })
-  }
-
-  async function startTunnel() {
-    const { data, error } = await api.POST("/api/tunnel/start")
-    if (data && data.job_id) {
-      // Poll for job to get full job object
-      const { data: jobData } = await api.GET("/api/jobs/{job_id}", {
-        params: { path: { job_id: data.job_id } },
-      })
-      if (jobData) {
-        setJobDialog({ job: jobData, title: "Starting tunnel" })
-      }
-      setTimeout(refreshStatus, 2000)
-    } else {
+  async function runJob(
+    request: Promise<{
+      data?: { job_id?: string | null } | null
+      error?: unknown
+    }>,
+    failure: string
+  ) {
+    const { data, error } = await request
+    if (!data?.job_id) {
       toast.add({
         type: "error",
-        title: "Couldn't start tunnel",
+        title: failure,
         description: errorMessage(error),
       })
+      return
     }
-  }
-
-  async function stopTunnel() {
-    const { data, error } = await api.POST("/api/tunnel/stop")
-    if (data && data.job_id) {
-      const { data: jobData } = await api.GET("/api/jobs/{job_id}", {
-        params: { path: { job_id: data.job_id } },
-      })
-      if (jobData) {
-        setJobDialog({ job: jobData, title: "Stopping tunnel" })
-      }
-      setTimeout(refreshStatus, 2000)
-    } else {
-      toast.add({
-        type: "error",
-        title: "Couldn't stop tunnel",
-        description: errorMessage(error),
-      })
-    }
-  }
-
-  async function installBinary() {
-    const { data, error } = await api.POST("/api/tunnel/install", {
-      body: { provider },
+    const { data: jobData } = await api.GET("/api/jobs/{job_id}", {
+      params: { path: { job_id: data.job_id } },
     })
-    if (data && data.job_id) {
-      const { data: jobData } = await api.GET("/api/jobs/{job_id}", {
-        params: { path: { job_id: data.job_id } },
-      })
-      if (jobData) {
-        setJobDialog({ job: jobData, title: `Installing ${PROVIDER_LABELS[provider]}` })
-      }
-    } else {
-      toast.add({
-        type: "error",
-        title: "Couldn't install",
-        description: errorMessage(error),
-      })
-    }
+    if (jobData) setJob(jobData)
   }
 
-  async function configureService(enabled: boolean) {
-    const { data, error } = await api.PUT("/api/tunnel/service", {
-      params: { query: { enabled } },
-    })
-    if (data && data.job_id) {
-      const { data: jobData } = await api.GET("/api/jobs/{job_id}", {
-        params: { path: { job_id: data.job_id } },
-      })
-      if (jobData) {
-        setJobDialog({ job: jobData, title: `${enabled ? "Enabling" : "Disabling"} auto-start` })
-      }
-    } else {
-      toast.add({
-        type: "error",
-        title: "Couldn't update service",
-        description: errorMessage(error),
-      })
-    }
+  async function changeAutoStart(enabled: boolean) {
+    const saved = await save(
+      { tunnel_auto_start: enabled },
+      enabled ? "Remote access starts on boot" : "Remote access no longer starts on boot"
+    )
+    if (!saved) return
+    await runJob(
+      api.PUT("/api/tunnel/service", { params: { query: { enabled } } }),
+      "Couldn't update the service"
+    )
   }
 
-  const isRunning = status?.running ?? false
+  const running = status?.running ?? false
   const capabilityStatus = status?.capability_status ?? "missing"
-  const isMissing = capabilityStatus === "missing"
-  const isNotInstalled = capabilityStatus === "not_installed"
-  const isStopped = capabilityStatus === "stopped"
+  const needsInstall =
+    capabilityStatus === "missing" || capabilityStatus === "not_installed"
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Remote Access Tunnel</CardTitle>
+        <CardTitle>Remote access</CardTitle>
         <CardDescription>
-          Expose Athena to the internet securely via Cloudflare, Tailscale, or Ngrok.
+          Reach Athena from anywhere through Cloudflare, Tailscale or ngrok,
+          without opening ports on your router.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {systemSettings === null ? (
+        {settings === null ? (
           <Skeleton className="h-12 w-full" />
         ) : (
           <FieldGroup>
             <Field orientation="horizontal">
               <FieldContent>
-                <FieldLabel htmlFor="tunnel-enabled">Tunnel</FieldLabel>
+                <FieldLabel htmlFor="tunnel-enabled">Remote access</FieldLabel>
                 <FieldDescription>
-                  Master toggle for remote access tunnel.
+                  Anyone with the address reaches your sign-in page, so use a
+                  strong password.
                   {!user.is_admin && " Only admins can change this."}
                 </FieldDescription>
               </FieldContent>
               <Switch
                 id="tunnel-enabled"
-                checked={systemSettings.tunnel_enabled}
-                disabled={saving || !user.is_admin}
-                onCheckedChange={(checked) => void updateTunnelSettings({ tunnel_enabled: checked })}
+                checked={settings.tunnel_enabled}
+                disabled={!canEdit}
+                onCheckedChange={(checked) =>
+                  void save(
+                    { tunnel_enabled: checked },
+                    checked ? "Remote access turned on" : "Remote access turned off"
+                  )
+                }
               />
             </Field>
 
-            {systemSettings.tunnel_enabled && (
+            {settings.tunnel_enabled && (
               <>
+                <FieldSeparator />
                 <Field orientation="horizontal">
                   <FieldContent>
                     <FieldLabel htmlFor="tunnel-provider">Provider</FieldLabel>
-                    <FieldDescription>
-                      Choose your tunnel provider.
-                    </FieldDescription>
                   </FieldContent>
                   <Select
                     value={provider}
-                    onValueChange={handleProviderChange}
-                    disabled={saving || !user.is_admin}
+                    onValueChange={(value) =>
+                      value &&
+                      void save(
+                        { tunnel_provider: value },
+                        `Using ${PROVIDER_LABELS[value as TunnelProvider]}`
+                      )
+                    }
+                    disabled={!canEdit}
                   >
-                    <SelectTrigger id="tunnel-provider">
-                      <SelectValue />
+                    <SelectTrigger id="tunnel-provider" className="w-48">
+                      <SelectValue>
+                        {(value: TunnelProvider) => PROVIDER_LABELS[value]}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="cloudflare">
-                        <ProviderIcon provider="cloudflare" />
-                        Cloudflare Tunnel
-                      </SelectItem>
-                      <SelectItem value="tailscale">
-                        <ProviderIcon provider="tailscale" />
-                        Tailscale Funnel
-                      </SelectItem>
-                      <SelectItem value="ngrok">
-                        <ProviderIcon provider="ngrok" />
-                        Ngrok
-                      </SelectItem>
+                      {(Object.keys(PROVIDER_LABELS) as TunnelProvider[]).map(
+                        (p) => (
+                          <SelectItem key={p} value={p}>
+                            {PROVIDER_LABELS[p]}
+                          </SelectItem>
+                        )
+                      )}
                     </SelectContent>
                   </Select>
                 </Field>
@@ -559,141 +525,84 @@ export function TunnelCard() {
                 <ProviderConfigForm
                   provider={provider}
                   config={config}
-                  secretsSet={systemSettings?.tunnel_secrets_set ?? []}
-                  onChange={updateConfig}
-                  disabled={saving || !user.is_admin}
+                  secretsSet={settings.tunnel_secrets_set ?? []}
+                  onChange={setConfig}
+                  disabled={!user.is_admin}
                 />
 
                 <Field orientation="horizontal">
                   <FieldContent>
-                    <FieldLabel htmlFor="tunnel-port">Local Port</FieldLabel>
+                    <FieldLabel htmlFor="tunnel-port">Local port</FieldLabel>
                     <FieldDescription>
-                      The local port Athena runs on.
+                      The port Athena listens on, which the tunnel forwards to.
                     </FieldDescription>
                   </FieldContent>
                   <Input
                     id="tunnel-port"
-                    type="number"
+                    inputMode="numeric"
                     value={port}
-                    onChange={(e) => handlePortChange(parseInt(e.target.value) || 8420)}
-                    disabled={saving || !user.is_admin}
-                    min="1"
-                    max="65535"
+                    onChange={(e) => setPort(e.target.value)}
+                    disabled={!user.is_admin}
+                    aria-invalid={!portValid || undefined}
                     className="w-24"
                   />
                 </Field>
 
+                {dirty && (
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => loadDraft(settings)}
+                    >
+                      Discard
+                    </Button>
+                    <Button
+                      onClick={() => void saveDraft()}
+                      disabled={!canEdit || !portValid}
+                    >
+                      Save changes
+                    </Button>
+                  </div>
+                )}
+
                 <Field orientation="horizontal">
                   <FieldContent>
-                    <FieldLabel htmlFor="tunnel-auto-start">Auto-start on boot</FieldLabel>
+                    <FieldLabel htmlFor="tunnel-auto-start">
+                      Start on boot
+                    </FieldLabel>
                     <FieldDescription>
-                      Start the tunnel automatically when the server boots.
+                      {needsInstall
+                        ? `Install ${PROVIDER_LABELS[provider]} first.`
+                        : "Installs a system service that starts the tunnel with the server."}
                     </FieldDescription>
                   </FieldContent>
                   <Switch
                     id="tunnel-auto-start"
-                    checked={autoStart}
-                    disabled={saving || !user.is_admin}
-                    onCheckedChange={handleAutoStartChange}
+                    // Nothing can start on boot before the tool is installed.
+                    checked={!needsInstall && (settings.tunnel_auto_start ?? false)}
+                    disabled={!canEdit || needsInstall}
+                    onCheckedChange={(checked) => void changeAutoStart(checked)}
                   />
                 </Field>
 
-                <div className="flex flex-col gap-2 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Status:</span>
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
-                        isRunning
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : isStopped
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : isNotInstalled
-                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                      }`}
-                    >
-                      {isRunning ? (
-                        <>
-                          <PlayIcon className="h-3 w-3" />
-                          Running
-                        </>
-                      ) : isStopped ? (
-                        <>
-                          <SquareIcon className="h-3 w-3" />
-                          Stopped
-                        </>
-                      ) : isNotInstalled ? (
-                        <>
-                          <AlertTriangleIcon className="h-3 w-3" />
-                          Not installed
-                        </>
-                      ) : (
-                        <>
-                          <WifiIcon className="h-3 w-3" />
-                          Not configured
-                        </>
-                      )}
-                    </span>
-                  </div>
+                <FieldSeparator />
 
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Status</span>
+                    <StatusBadge status={status} />
+                  </div>
                   {status?.public_url && (
                     <CopyField
                       id="tunnel-url"
-                      label="Public URL"
+                      label="Public address"
                       value={status.public_url}
                     />
                   )}
-
-                  <div className="flex flex-wrap gap-2">
-                    {isMissing || isNotInstalled ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          onClick={installBinary}
-                          disabled={saving || !user.is_admin}
-                        >
-                          <DownloadIcon className="h-4 w-4 mr-1" />
-                          Install {PROVIDER_LABELS[provider]}
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        {isRunning ? (
-                          <Button
-                            variant="destructive"
-                            onClick={stopTunnel}
-                            disabled={saving || !user.is_admin}
-                          >
-                            <SquareIcon className="h-4 w-4 mr-1" />
-                            Stop
-                          </Button>
-                        ) : (
-                          <Button onClick={startTunnel} disabled={saving || !user.is_admin}>
-                            <PlayIcon className="h-4 w-4 mr-1" />
-                            Start
-                          </Button>
-                        )}
-                        <Button
-                          variant="outline"
-                          onClick={() => configureService(!autoStart)}
-                          disabled={saving || !user.is_admin}
-                        >
-                          {autoStart ? "Disable auto-start" : "Enable auto-start"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={refreshStatus}
-                          disabled={saving}
-                        >
-                          <RotateCcwIcon className="h-4 w-4 mr-1" />
-                          Refresh
-                        </Button>
-                      </>
-                    )}
-                  </div>
-
                   {status?.detail && (
-                    <p className="text-sm text-muted-foreground">{status.detail}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {status.detail}
+                    </p>
                   )}
                 </div>
               </>
@@ -701,6 +610,56 @@ export function TunnelCard() {
           </FieldGroup>
         )}
       </CardContent>
+      {settings?.tunnel_enabled && (
+        <CardFooter className="flex flex-wrap gap-2">
+          {needsInstall ? (
+            <Button
+              variant="outline"
+              disabled={!canEdit}
+              onClick={() =>
+                void runJob(
+                  api.POST("/api/tunnel/install", { body: { provider } }),
+                  "Couldn't install"
+                )
+              }
+            >
+              <DownloadIcon data-icon="inline-start" />
+              Install {PROVIDER_LABELS[provider]}
+            </Button>
+          ) : running ? (
+            <Button
+              variant="destructive"
+              disabled={!canEdit}
+              onClick={() =>
+                void runJob(api.POST("/api/tunnel/stop"), "Couldn't stop the tunnel")
+              }
+            >
+              <SquareIcon data-icon="inline-start" />
+              Stop
+            </Button>
+          ) : (
+            <Button
+              disabled={!canEdit || dirty}
+              title={dirty ? "Save your changes first" : undefined}
+              onClick={() =>
+                void runJob(api.POST("/api/tunnel/start"), "Couldn't start the tunnel")
+              }
+            >
+              <PlayIcon data-icon="inline-start" />
+              Start
+            </Button>
+          )}
+          <Button variant="ghost" onClick={() => void refreshStatus()}>
+            <RotateCcwIcon data-icon="inline-start" />
+            Refresh status
+          </Button>
+        </CardFooter>
+      )}
+      <JobDialog
+        job={job}
+        onClose={() => setJob(null)}
+        onFinished={() => void refreshStatus()}
+      />
     </Card>
   )
 }

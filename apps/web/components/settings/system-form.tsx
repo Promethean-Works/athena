@@ -21,7 +21,7 @@ import { Switch } from "@workspace/ui/components/switch"
 import { toast } from "@workspace/ui/components/toast"
 
 import { useAuth } from "@/components/auth-provider"
-import { useCapability } from "@/components/capabilities-provider"
+import { patchSystemSettings } from "@/components/settings/system-settings"
 
 type SystemSettings = Schemas["SystemSettings"]
 
@@ -31,24 +31,20 @@ export function SystemForm() {
   const [settings, setSettings] = React.useState<SystemSettings | null>(null)
   const [saving, setSaving] = React.useState(false)
 
-  // Call hooks at the top level to respect Rules of Hooks
-  const hasCloudflareTunnel = useCapability("tunnel.cloudflare")
-  const hasTailscaleTunnel = useCapability("tunnel.tailscale")
-  const hasNgrokTunnel = useCapability("tunnel.ngrok")
-  const hasTunnelCapability = hasCloudflareTunnel || hasTailscaleTunnel || hasNgrokTunnel
-
   React.useEffect(() => {
     api
       .GET("/api/settings/system")
       .then(({ data }) => data && setSettings(data))
   }, [])
 
+  // The remote access switch lives in its own card (TunnelCard); this card
+  // only holds the terminal switch.
   async function update(next: SystemSettings) {
     const previous = settings
     setSettings(next)
     setSaving(true)
-    const { data, error } = await api.PUT("/api/settings/system", {
-      body: next,
+    const { data, error } = await patchSystemSettings({
+      terminal_enabled: next.terminal_enabled,
     })
     setSaving(false)
     if (data) {
@@ -82,7 +78,6 @@ export function SystemForm() {
         {settings === null ? (
           <Skeleton className="h-12 w-full" />
         ) : (
-          <>
             <Field orientation="horizontal">
               <FieldContent>
                 <FieldLabel htmlFor="terminal-enabled">Web terminal</FieldLabel>
@@ -101,26 +96,6 @@ export function SystemForm() {
                 }
               />
             </Field>
-            {hasTunnelCapability ? (
-              <Field orientation="horizontal">
-                <FieldContent>
-                  <FieldLabel htmlFor="tunnel-enabled">Remote access tunnel</FieldLabel>
-                  <FieldDescription>
-                    Expose Athena to the internet via Cloudflare, Tailscale, or Ngrok.
-                    {!user.is_admin && " Only admins can change this."}
-                  </FieldDescription>
-                </FieldContent>
-                <Switch
-                  id="tunnel-enabled"
-                  checked={settings.tunnel_enabled ?? false}
-                  disabled={saving || !user.is_admin}
-                  onCheckedChange={(checked) =>
-                    update({ ...settings, tunnel_enabled: checked })
-                  }
-                />
-              </Field>
-            ) : null}
-          </>
         )}
       </CardContent>
     </Card>
