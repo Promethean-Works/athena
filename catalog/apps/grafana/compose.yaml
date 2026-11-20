@@ -13,6 +13,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Grafana/thumbnail.png
   category: monitoring
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/grafana.svg
   homepage: https://grafana.com
   web_port: WEB_PORT

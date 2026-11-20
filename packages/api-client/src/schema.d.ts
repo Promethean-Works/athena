@@ -3617,6 +3617,11 @@ export interface components {
             icon: string | null;
             /** Installed */
             installed: string[];
+            /**
+             * Support
+             * @enum {string}
+             */
+            support: "native" | "emulated" | "unsupported";
         };
         /** StoreAppDetail */
         StoreAppDetail: {
@@ -3646,12 +3651,19 @@ export interface components {
             icon: string | null;
             /** Installed */
             installed: string[];
+            /**
+             * Support
+             * @enum {string}
+             */
+            support: "native" | "emulated" | "unsupported";
             /** Homepage */
             homepage: string | null;
             /** Notes */
             notes: string | null;
             /** Platforms */
             platforms: string[];
+            /** Host Platform */
+            host_platform: string | null;
             /** Images */
             images: string[];
             /** Web Port */
@@ -5038,6 +5050,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["JobOut"];
                 };
+            };
+            /** @description The app's images don't run on this host's CPU */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Invalid values: detail.errors maps field keys to messages */
             422: {

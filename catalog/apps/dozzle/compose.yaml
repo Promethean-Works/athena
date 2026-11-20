@@ -11,6 +11,7 @@ x-athena:
   screenshots:
     - https://dozzle.dev/video/dozzle-tour.jpg
   category: utilities
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/dozzle.svg
   homepage: https://dozzle.dev
   web_port: WEB_PORT

@@ -5,6 +5,7 @@ x-athena:
   tags: [DDNS, DNS, Network]
   license: "GPL-3.0"
   category: network
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DuckDNS/icon.svg
   homepage: https://www.duckdns.org
   web_port: WEB_PORT

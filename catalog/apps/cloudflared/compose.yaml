@@ -5,6 +5,7 @@ x-athena:
   tags: [Tunnel, Cloudflare, Network]
   license: "Apache-2.0"
   category: network
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Cloudflared/icon.svg
   homepage: https://developers.cloudflare.com/cloudflare-one/tunnels
   web_port: WEB_PORT

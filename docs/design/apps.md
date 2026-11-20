@@ -28,6 +28,7 @@ services:
 
 - **Catalogs** are Git repos or HTTP URLs that contain `apps/<id>/compose.yaml`. Athena ships one built-in catalog, `catalog/` in this repo, with about 200 apps, and users can add more. An app folder can also hold variants (`compose.<slug>.yaml`, e.g. FreshRSS with PostgreSQL), offered as a picker on the install page.
 - **CasaOS compatibility.** An importer maps CasaOS `x-casaos` metadata to `x-athena`, so a CasaOS-style store archive can be added as a catalog. The CasaOS AppStore (Apache-2.0) apps are now part of the built-in catalog (#120), so the one-click CasaOS catalog was removed (#121). Umbrel's store is **not** included because its license is non-commercial.
+- **CPU architecture.** Each app's `platforms` (filled from the registry manifests by `athena.catalog.image_platforms`) is compared with the host's CPU (`manifest.arch`): `native`, `emulated` (amd64-only on Docker Desktop for an arm64 Mac or Windows PC, which runs it under emulation) or `unsupported`. The store hides unsupported apps behind "Show them", and install answers 409 for them, including from the assistant.
 - **Install flow:** render the form from `env`, resolve the default tokens and generated secrets, write `.env` (0600) next to `<data>/apps/<id>/compose.yaml`, then run `compose up -d` as a job and record the app in SQLite.
 - **Custom apps:**
   - *Paste or upload compose* → validated, then edited in a CodeMirror editor before deploy.

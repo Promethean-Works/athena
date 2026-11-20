@@ -5,6 +5,7 @@ x-athena:
   tags: [Backend, Database, Auth]
   license: "MIT"
   category: development
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PocketBase/icon.svg
   homepage: https://pocketbase.io
   web_port: WEB_PORT

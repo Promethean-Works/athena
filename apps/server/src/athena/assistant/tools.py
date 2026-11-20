@@ -194,15 +194,17 @@ async def read_text_file(ctx: Ctx, location_id: int, path: str) -> dict[str, Any
 
 async def search_store(ctx: Ctx, query: str = "", category: str | None = None) -> dict[str, Any]:
     """Apps in the app store matching `query` (title, description or id; "" for all),
-    optionally in one category. At most 50. `installed` lists Athena apps made from it."""
+    optionally in one category. At most 50. `installed` lists Athena apps made from it.
+    `support` says whether it runs on this host's CPU: "native", "emulated" (slower) or
+    "unsupported" (it can't be installed here; don't offer it)."""
     from athena.api import store
 
-    found = _call(store.list_store_apps, ctx.deps.request(), ctx.deps.db, query[:100], category)
+    found = await _http(
+        store.list_store_apps(ctx.deps.request(), ctx.deps.db, query[:100], category)
+    )
+    fields = {"catalog", "id", "title", "description", "category", "installed", "support"}
     return {
-        "apps": [
-            a.model_dump(include={"catalog", "id", "title", "description", "category", "installed"})
-            for a in found[:MAX_STORE_APPS]
-        ],
+        "apps": [a.model_dump(include=fields) for a in found[:MAX_STORE_APPS]],
         "truncated": len(found) > MAX_STORE_APPS,
     }
 
@@ -214,7 +216,7 @@ async def get_store_app(ctx: Ctx, catalog: str, app_id: str) -> dict[str, Any]:
 
     _check(catalog, CATALOG_NAME, "catalog")
     _check(app_id, APP_ID, "app id")
-    app = _call(store.get_store_app, catalog, app_id, ctx.deps.request(), ctx.deps.db)
+    app = await _http(store.get_store_app(catalog, app_id, ctx.deps.request(), ctx.deps.db))
     return app.model_dump(exclude={"compose", "icon"})
 
 
@@ -257,15 +259,6 @@ async def _http[T](work: Awaitable[T]) -> T:
     """Run a route helper; its HTTP errors become the tool's failure message."""
     try:
         return await work
-    except HTTPException as exc:
-        raise ToolFailed(http_detail(exc)) from exc
-
-
-def _call[T](fn: Callable[..., T], *args: Any) -> T:
-    """`_http` for a route helper that isn't async (they use the chat's database session,
-    so they run on the event loop, not in a thread)."""
-    try:
-        return fn(*args)
     except HTTPException as exc:
         raise ToolFailed(http_detail(exc)) from exc
 

@@ -5,6 +5,7 @@ x-athena:
   tags: [Gaming, Emulator, Retro]
   license: "MIT"
   category: home
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/EmulatorJS/icon.svg
   homepage: https://emulatorjs.org
   web_port: WEB_PORT

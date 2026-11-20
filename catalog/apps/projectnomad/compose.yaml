@@ -5,6 +5,7 @@ x-athena:
   tags: [Home Automation, Dashboard, IoT]
   license: "MIT"
   category: home
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ProjectNOMAD/icon.png
   homepage: https://nomad.home
   web_port: WEB_PORT

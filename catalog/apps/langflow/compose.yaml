@@ -6,9 +6,7 @@ x-athena:
   homepage: https://www.langflow.org
   web_port: WEB_PORT
   web_path: /
-  platforms:
-    - linux/amd64
-    - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   env:
     - key: WEB_PORT
       label: Web port

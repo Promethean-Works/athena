@@ -5,6 +5,7 @@ x-athena:
   tags: [E-books, Audiobooks, Automation]
   license: "GPL-3.0"
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Lazylibrarian/icon.svg
   homepage: https://lazylibrarian.gitlab.io
   web_port: WEB_PORT

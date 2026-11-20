@@ -5,6 +5,7 @@ x-athena:
   tags: [Minecraft, Gaming, Server]
   license: "MIT"
   category: home
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Crafty/icon.svg
   homepage: https://crafty-controller.com
   web_port: WEB_PORT
@@ -19,7 +20,7 @@ x-athena:
 
 services:
   crafty:
-    image: arcadiatechnology/crafty-4:v4.11.1
+    image: arcadiatechnology/crafty-4:4.11.1
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8000/tcp"
