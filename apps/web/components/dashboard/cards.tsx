@@ -3,20 +3,28 @@
 import * as React from "react"
 import {
   ActivityIcon,
+  BoxIcon,
+  GlobeIcon,
   HardDriveIcon,
+  HistoryIcon,
   LayoutGridIcon,
   ServerIcon,
   ShieldCheckIcon,
   ThermometerIcon,
+  ZapIcon,
   type LucideIcon,
 } from "lucide-react"
 
+import { ActivityCard } from "@/components/dashboard/activity-card"
+import { AutomationCard } from "@/components/dashboard/automation-card"
+import { ContainersCard } from "@/components/dashboard/containers-card"
 import { DashboardApps } from "@/components/dashboard/dashboard-apps"
 import { HostStatsCards } from "@/components/dashboard/host-stats-cards"
 import {
   StorageCard,
   TemperaturesCard,
 } from "@/components/dashboard/storage-card"
+import { RemoteAccessCard } from "@/components/dashboard/remote-access-card"
 import { HostCapabilities } from "@/components/host-capabilities"
 import { ServerOverview } from "@/components/server-overview"
 
@@ -61,6 +69,24 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
     render: () => <DashboardApps />,
   },
   {
+    id: "containers",
+    title: "Containers",
+    description: "Running and stopped counts, and which ones need attention.",
+    icon: BoxIcon,
+    defaultSize: "half",
+    capability: "containers",
+    render: () => <ContainersCard />,
+  },
+  {
+    id: "automation",
+    title: "Automation",
+    description: "Next scheduled runs and how recent runs went.",
+    icon: ZapIcon,
+    defaultSize: "half",
+    capability: "automation",
+    render: () => <AutomationCard />,
+  },
+  {
     id: "storage",
     title: "Storage",
     description: "Space used on each disk.",
@@ -83,6 +109,24 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
     icon: ThermometerIcon,
     defaultSize: "half",
     render: () => <TemperaturesCard />,
+  },
+  {
+    id: "activity",
+    title: "Recent activity",
+    description: "The latest changes from the audit log (admins only).",
+    icon: HistoryIcon,
+    defaultSize: "half",
+    adminOnly: true,
+    render: () => <ActivityCard />,
+  },
+  {
+    id: "remote-access",
+    title: "Remote access",
+    description: "Tunnel status and the public address.",
+    icon: GlobeIcon,
+    defaultSize: "half",
+    capability: "tunnel.*",
+    render: () => <RemoteAccessCard />,
   },
   {
     id: "capabilities",
