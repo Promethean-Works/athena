@@ -86,14 +86,14 @@ Port 8420 is the default for an installed Athena, so use another one (8421) when
 The checkout you cloned stays on a clean `main`. Every task, however small, gets its own git worktree and branch, so several people or agents can work at once without touching each other's files:
 
 ```bash
-scripts/new-worktree.sh feat/folder-upload      # creates ../athena-folder-upload from origin/main
-cd ../athena-folder-upload
+scripts/new-worktree.sh feat/folder-upload      # creates ../worktrees/athena-folder-upload from origin/main
+cd ../worktrees/athena-folder-upload
 # … work, commit …
 git push -u origin HEAD
 gh pr create --title "feat(files): add folder upload"
 gh pr merge <n> --squash --auto --delete-branch
 # after it merges:
-git worktree remove ../athena-folder-upload
+git worktree remove ../worktrees/athena-folder-upload
 ```
 
 PR titles are Conventional Commits; they become the squash commit and the changelog line. `main` is protected, and auto-merge merges the PR once CI is green.
@@ -131,7 +131,7 @@ Nothing an agent needs later should live only in a chat or in an agent's private
 
 | Problem | Fix |
 |---|---|
-| A commit is refused: "committing in the base checkout" or "on main" | Work in a worktree (see above). To move changes: `git stash`, create the worktree, `git -C ../athena-<topic> stash pop` |
+| A commit is refused: "committing in the base checkout" or "on main" | Work in a worktree (see above). To move changes: `git stash`, create the worktree, `git -C ../worktrees/athena-<topic> stash pop` |
 | A commit is refused: gitleaks found a secret | Take it out (use an environment variable or the data dir). For a false positive, add an allowlist entry to `.gitleaks.toml` with a reason |
 | CI fails on "generated agent config is in sync" | Run `node scripts/agents-sync.mjs` and commit the result |
 | CI fails on "docs point at real files" | A doc names something you renamed or removed; fix the doc. To mention something absent on purpose, end the line with an HTML comment `docs-check: ignore` |

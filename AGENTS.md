@@ -25,7 +25,7 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 `main` is protected: no direct or force pushes. Details in `CONTRIBUTING.md`.
 
 1. **Never edit, branch or commit in the base checkout** (where the repo was cloned). It stays on `main`, clean.
-2. Every task, however small, starts in its own worktree before any file is touched: `scripts/new-worktree.sh <type>/<topic>` (or `git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main`). Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. Several agents work at once; worktrees keep them apart. After the merge: `git worktree remove ../athena-<topic>`.
+2. Every task, however small, starts in its own worktree before any file is touched: `scripts/new-worktree.sh <type>/<topic>` (or `git fetch origin && git worktree add ../worktrees/athena-<topic> -b <type>/<topic> origin/main`). Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. Several agents work at once; worktrees keep them apart. After the merge: `git worktree remove ../worktrees/athena-<topic>`.
 3. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`); it becomes the squash commit and changelog entry.
 4. Turn on auto-merge right away, without asking: `gh pr merge <n> --squash --auto --delete-branch`. Not for release-please PRs (the maintainer merges those) or PRs whose base isn't `main`. Also check CodeQL is green before calling a PR done.
 5. Never edit `CHANGELOG.md` or `version.txt`; release-please does.
