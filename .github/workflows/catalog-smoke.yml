@@ -103,5 +103,9 @@ jobs:
         if: always()
         with:
           name: catalog-smoke-${{ matrix.runner }}-${{ matrix.shard }}
-          path: apps/server/report
+          # Not report/work: test folders can hold root-owned files the runner can't read.
+          path: |
+            apps/server/report/summary.md
+            apps/server/report/results.json
+            apps/server/report/logs
           if-no-files-found: ignore
