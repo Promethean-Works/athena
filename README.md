@@ -83,7 +83,7 @@ More reading:
 - [docs/design/README.md](docs/design/README.md): architecture and decisions
 - [CONTRIBUTING.md](CONTRIBUTING.md): branches, commits and pull requests
 - [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): machine setup, agents, daily workflow, troubleshooting
-- [AGENTS.md](AGENTS.md): instructions for AI coding agents (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot)
+- [AGENTS.md](AGENTS.md): instructions for AI coding agents (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot, oh-my-pi)
 
 ## Security
 

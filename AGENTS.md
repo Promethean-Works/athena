@@ -2,7 +2,7 @@
 
 Self-hosted home server control panel (CasaOS-style) for **Linux, macOS and Windows**. Public repo: `github.com/tiagozaccaro/athena`.
 
-This file is the single source of instructions for every coding agent (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot). Other agents' files only point here. Every session loads this file, so it stays short: **read the rest only when the task needs it** (see [Read when](#read-when)).
+This file is the single source of instructions for every coding agent (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot, oh-my-pi). Other agents' files only point here. Every session loads this file, so it stays short: **read the rest only when the task needs it** (see [Read when](#read-when)).
 
 Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 16 static export, shadcn on Base UI, served by the server), `packages/ui` (shadcn components; Athena-made ones in `packages/ui/src/components/athena/`), `packages/api-client` (generated), `catalog/` (store apps), `scripts/` (installers, `check.sh`, git hooks, agent sync), `docs/`, `.agents/skills/`.
 
