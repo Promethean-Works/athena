@@ -2074,6 +2074,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Feedback Info */
+        get: operations["getFeedbackInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/feedback/issue-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Build Issue Url
+         * @description The new-issue URL for a report, with what Athena knows already filled in.
+         */
+        post: operations["buildIssueUrl"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2665,6 +2702,22 @@ export interface components {
             /** Env */
             env: string;
         };
+        /**
+         * FeedbackInfo
+         * @description What every report includes. No hostname, addresses, paths or secrets.
+         */
+        FeedbackInfo: {
+            /** Version */
+            version: string;
+            /** Os Version */
+            os_version: string;
+            /** Arch */
+            arch: string;
+            /** Runtime */
+            runtime: string;
+            /** Repo Url */
+            repo_url: string;
+        };
         /** FileEntry */
         FileEntry: {
             /** Name */
@@ -2821,6 +2874,42 @@ export interface components {
             token_header?: string | null;
             /** Token */
             token?: string | null;
+        };
+        /** IssueIn */
+        IssueIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "bug" | "change" | "feature" | "app";
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /** Catalog */
+            catalog?: string | null;
+            /** App Id */
+            app_id?: string | null;
+            /**
+             * Logs
+             * @default
+             */
+            logs: string;
+        };
+        /** IssueUrl */
+        IssueUrl: {
+            /** Url */
+            url: string;
+            /**
+             * Target
+             * @enum {string}
+             */
+            target: "athena" | "catalog";
+            /** Target Name */
+            target_name: string;
+            /** Logs Truncated */
+            logs_truncated: boolean;
         };
         /** ItemError */
         ItemError: {
@@ -8112,6 +8201,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TunnelStartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getFeedbackInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackInfo"];
+                };
+            };
+        };
+    };
+    buildIssueUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssueUrl"];
                 };
             };
             /** @description Validation Error */

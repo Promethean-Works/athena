@@ -43,7 +43,7 @@ body:
   - type: input
     id: os-details
     attributes:
-      label: OS version and architecture
+      label: OS, architecture and container runtime
       placeholder: "Ubuntu 24.04 x86_64 / macOS 26 arm64 / Windows 11 24H2"
   - type: dropdown
     id: runtime

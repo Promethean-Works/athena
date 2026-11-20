@@ -28,3 +28,13 @@ body:
     id: alternatives
     attributes:
       label: Alternatives considered
+  - type: input
+    id: version
+    attributes:
+      label: Athena version
+      placeholder: "0.1.0, or a commit SHA"
+  - type: input
+    id: os-details
+    attributes:
+      label: OS, architecture and container runtime
+      placeholder: "Ubuntu 24.04 · x86_64 · docker-engine"

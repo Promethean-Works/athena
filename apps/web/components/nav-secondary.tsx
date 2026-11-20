@@ -14,9 +14,12 @@ import {
 
 export function NavSecondary({
   items,
+  children,
   ...props
 }: {
   items: NavItem[]
+  /** Extra menu items after the links, e.g. ones that open a dialog. */
+  children?: React.ReactNode
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
     <SidebarGroup {...props}>
@@ -38,6 +41,7 @@ export function NavSecondary({
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+          {children}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
