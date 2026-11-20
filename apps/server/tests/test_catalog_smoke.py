@@ -1,6 +1,7 @@
 """The catalog smoke test's selection, install values and report (no container engine)."""
 
 import argparse
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -100,7 +101,12 @@ def test_summary_lists_failures_first() -> None:
 
 
 @pytest.mark.skipif(shutil.which("git") is None, reason="needs git")
-def test_changed_apps(tmp_path: Path) -> None:
+def test_changed_apps(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # Git hooks export GIT_DIR and GIT_INDEX_FILE; left in, `git init` here would act on
+    # the real repository (it once set core.bare = true there and committed to its branch).
+    for key in [k for k in os.environ if k.startswith("GIT_")]:
+        monkeypatch.delenv(key)
+
     def git(*args: str) -> None:
         subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
 

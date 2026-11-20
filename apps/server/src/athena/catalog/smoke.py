@@ -18,6 +18,10 @@ taken down with its volumes, and the images it pulled are removed (images that w
 already on the host before the test are kept). Results go to ``--out``:
 ``results.json``, ``summary.md`` and ``logs/<app>.log`` for each failure. The exit code
 is 1 when any app failed.
+
+Before each app it checks the disk: below ``--min-free-gb`` (default 20) it stops
+starting apps and marks the rest skipped. On Colima it runs ``fstrim`` in the VM after
+each app, since its disk file doesn't shrink when images are removed.
 """
 
 import argparse
@@ -114,6 +118,18 @@ class Engine:
         res = self.run("info", "--format", "{{.Architecture}}")
         return res.stdout.strip() or platform.machine()
 
+    def trim(self) -> None:
+        """Give the space of removed images back to the host. Colima's VM disk only grows
+        otherwise, so a long run fills the Mac's disk even though each image is removed."""
+        if any(".colima" in part for part in self.cli) and shutil.which("colima"):
+            with contextlib.suppress(OSError, subprocess.SubprocessError):
+                subprocess.run(
+                    ["colima", "ssh", "--", "sudo", "fstrim", "-a"],
+                    capture_output=True,
+                    timeout=300,
+                    check=False,
+                )
+
     def has_image(self, ref: str) -> bool:
         return self.run("image", "inspect", "--format", "{{.Id}}", ref).returncode == 0
 
@@ -195,14 +211,14 @@ def _name(container: dict) -> str:
 
 def _probe(client: httpx2.Client, port: int, path: str) -> tuple[int | None, str, str]:
     """(status, url, error) for the first scheme that answers."""
-    error = ""
+    errors: list[str] = []
     for scheme in ("http", "https"):
         url = f"{scheme}://127.0.0.1:{port}{path}"
         try:
             return client.get(url).status_code, url, ""
         except httpx2.HTTPError as exc:
-            error = f"{type(exc).__name__}: {exc}"
-    return None, "", error
+            errors.append(f"{scheme}: {type(exc).__name__}: {str(exc)[:80]}")
+    return None, "", "; ".join(errors)
 
 
 def _wait(
@@ -347,7 +363,12 @@ def run_one(
                 for ref in images:
                     if ref not in already:
                         engine.run("image", "rm", ref)
+                engine.trim()
             shutil.rmtree(folder, ignore_errors=True)
+
+
+def free_gb(path: Path) -> float:
+    return shutil.disk_usage(path).free / 1e9
 
 
 # ---------------------------------------------------------------- selection
@@ -439,6 +460,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--out", type=Path, default=Path("catalog-smoke-report"), help="report folder"
     )
+    parser.add_argument(
+        "--min-free-gb",
+        type=float,
+        default=20,
+        help="stop starting apps when the disk has less free space (default 20)",
+    )
     args = parser.parse_args(argv)
 
     root = builtin_catalog_dir()
@@ -477,14 +504,37 @@ def main(argv: list[str] | None = None) -> int:
 
     results: list[Result] = []
     lock = threading.Lock()
+    low_disk = threading.Event()
+
+    def write_report() -> None:
+        with contextlib.suppress(OSError):
+            (args.out / "results.json").write_text(
+                json.dumps([asdict(r) for r in results], indent=2), encoding="utf-8"
+            )
+            (args.out / "summary.md").write_text(summary(results, arch, os_name), encoding="utf-8")
 
     def task(target: Target) -> Result:
-        try:
-            result = run_one(target, engine, work, args.out, os_name, arch, args)
-        except Exception as exc:  # one broken app mustn't stop the run
-            result = Result(target.app.id, target.variant.slug, "failed", "error", repr(exc))
+        free = free_gb(work)
+        if free < args.min_free_gb:
+            engine.trim()
+            free = free_gb(work)
+        if low_disk.is_set() or free < args.min_free_gb:
+            low_disk.set()
+            result = Result(
+                target.app.id,
+                target.variant.slug,
+                "skipped",
+                "low disk",
+                f"{free:.0f} GB free, --min-free-gb is {args.min_free_gb:g}",
+            )
+        else:
+            try:
+                result = run_one(target, engine, work, args.out, os_name, arch, args)
+            except Exception as exc:  # one broken app mustn't stop the run
+                result = Result(target.app.id, target.variant.slug, "failed", "error", repr(exc))
         with lock:
             results.append(result)
+            write_report()
             print(
                 f"[{len(results)}/{len(targets)}] {result.label}: {result.status}"
                 f" {result.stage} {result.seconds}s {result.detail[:160]}".rstrip(),
@@ -499,12 +549,12 @@ def main(argv: list[str] | None = None) -> int:
         shutil.rmtree(work, ignore_errors=True)
         with contextlib.suppress(OSError):
             (args.out / "work").rmdir()
-        (args.out / "results.json").write_text(
-            json.dumps([asdict(r) for r in results], indent=2), encoding="utf-8"
-        )
-        (args.out / "summary.md").write_text(summary(results, arch, os_name), encoding="utf-8")
+        write_report()
     failed = sum(r.status == "failed" for r in results)
     print(f"report: {args.out / 'summary.md'}")
+    if low_disk.is_set():
+        print("stopped early: the disk is low on space (see --min-free-gb)", file=sys.stderr)
+        return 1
     return 1 if failed else 0
 
 

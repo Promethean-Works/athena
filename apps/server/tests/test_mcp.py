@@ -259,3 +259,18 @@ def test_mcp_token_app_action_runs_as_admin(tmp_path, monkeypatch):
         assert res.status_code == 200, res.text
         assert wait(client, job_id)["status"] == "succeeded"
         assert ("admin", "app.restart", "site", "via MCP token") in _audit_rows(client)
+
+
+def test_mcp_reached_when_web_ui_is_bundled(tmp_path: Path) -> None:
+    """The web UI's "/" mount must not swallow /api/mcp (it answered 405 before)."""
+    from conftest import make_app
+
+    web = tmp_path / "web"
+    web.mkdir()
+    (web / "index.html").write_bytes(b"<html></html>")
+    with TestClient(make_app(tmp_path, web_dir=web)) as client:
+        signed_in(client)
+        resp = client.post("/api/mcp", json=MCP_INIT, headers=ACCEPT, follow_redirects=False)
+        assert resp.status_code == 200, resp.text
+        assert resp.headers.get("Mcp-Session-Id")
+        assert client.get("/").status_code == 200  # the UI still serves

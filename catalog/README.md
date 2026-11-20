@@ -109,7 +109,7 @@ uv run python -m athena.catalog.smoke --changed      # apps changed against orig
 uv run python -m athena.catalog.smoke --all --jobs 3 # every app: hours and many GB of downloads
 ```
 
-Other flags: `--variants` (every compose variant), `--timeout` (seconds, default 180, doubled for emulated apps), `--keep` (leave the app running to inspect it), `--keep-images`, `--shard K/N`, `--out` (default `catalog-smoke-report/`, with `summary.md`, `results.json` and `logs/<id>.log` for each failure). Use `smoke: start` for apps without a web page reachable from the host (host networking is detected on its own) and `smoke: skip` with a `smoke_note` for apps that can't run on a test machine (a GPU, a device, a required account token). <!-- docs-check: ignore -->
+Other flags: `--variants` (every compose variant), `--timeout` (seconds, default 180, doubled for emulated apps), `--keep` (leave the app running to inspect it), `--keep-images`, `--min-free-gb` (stop starting apps below this much free disk, default 20; on Colima it also runs `fstrim` in the VM after each app), `--shard K/N`, `--out` (default `catalog-smoke-report/`, with `summary.md`, `results.json` and `logs/<id>.log` for each failure). Use `smoke: start` for apps without a web page reachable from the host (host networking is detected on its own) and `smoke: skip` with a `smoke_note` for apps that can't run on a test machine (a GPU, a device, a required account token). <!-- docs-check: ignore -->
 
 The `Catalog smoke` workflow runs it on amd64 and arm64 Linux: on pull requests for the apps they change, weekly and by hand for every app (split into shards), or by hand for named apps.
 

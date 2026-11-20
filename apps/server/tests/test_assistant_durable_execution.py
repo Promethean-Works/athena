@@ -7,8 +7,8 @@ import pytest
 from pgtask import Client, TaskRegistry
 from pydantic_ai_harness.pgtask import PGTaskDurability
 
-from athena.assistant.chat import Turns
 from athena.assistant.durable_execution import durable_execution_capabilities
+from athena.assistant.turns import Turns
 
 
 class _FakeTask:
