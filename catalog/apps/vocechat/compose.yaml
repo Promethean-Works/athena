@@ -23,6 +23,6 @@ services:
     image: privoce/vocechat-server:v0.5.17
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:3009/tcp"
+      - "${WEB_PORT}:3000/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/data:/home/vocechat-server/data

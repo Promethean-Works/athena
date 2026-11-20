@@ -9,6 +9,12 @@ x-athena:
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RagFlow/icon.svg
   homepage: https://ragflow.io
   web_port: WEB_PORT
+  smoke: skip
+  smoke_note: needs 16 GB of RAM and 50 GB of disk (Elasticsearch, MySQL, MinIO and a 3 GB image)
+  notes: >-
+    Needs an x86-64 CPU with at least 4 cores, 16 GB of RAM and 50 GB of free disk. The first start takes
+    a few minutes. Register the first account on the sign-in page, then add your model providers under
+    Model providers (an OpenAI-compatible API or a local Ollama at http://host.docker.internal:11434).
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RagFlow/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RagFlow/screenshot-2.png
@@ -17,12 +23,145 @@ x-athena:
       label: Web port
       type: port
       default: "8130"
+    - key: API_PORT
+      label: API port
+      type: port
+      default: "9380"
+      description: Port of RAGFlow's HTTP API (for SDKs and integrations).
+    - key: MYSQL_PASSWORD
+      label: MySQL password
+      type: password
+      generate: secret
+      advanced: true
+    - key: ELASTIC_PASSWORD
+      label: Elasticsearch password
+      type: password
+      generate: secret
+      advanced: true
+    - key: MINIO_PASSWORD
+      label: MinIO password
+      type: password
+      generate: secret
+      advanced: true
+    - key: REDIS_PASSWORD
+      label: Redis password
+      type: password
+      generate: secret
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
 
 services:
   ragflow:
-    image: icewhaletech/ragflow:v0.21.1
+    image: infiniflow/ragflow:v0.21.1-slim
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:9380/tcp"
+      - "${WEB_PORT}:80/tcp"
+      - "${API_PORT}:9380/tcp"
+    environment:
+      TZ: ${TZ}
+      MYSQL_HOST: mysql
+      MYSQL_DBNAME: rag_flow
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MINIO_HOST: minio
+      MINIO_USER: rag_flow
+      MINIO_PASSWORD: ${MINIO_PASSWORD}
+      ES_HOST: es01
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      DOC_ENGINE: elasticsearch
+      REGISTER_ENABLED: "1"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/logs:/ragflow/logs
+      - ${ATHENA_APP_DATA}/history_data_agent:/ragflow/history_data_agent
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      es01:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  es01:
+    image: elasticsearch:8.11.3
+    restart: unless-stopped
+    environment:
+      node.name: es01
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      bootstrap.memory_lock: "false"
+      discovery.type: single-node
+      xpack.security.enabled: "true"
+      xpack.security.http.ssl.enabled: "false"
+      xpack.security.transport.ssl.enabled: "false"
+      cluster.routing.allocation.disk.watermark.low: 5gb
+      cluster.routing.allocation.disk.watermark.high: 3gb
+      cluster.routing.allocation.disk.watermark.flood_stage: 2gb
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/es:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+  mysql:
+    image: mysql:8.0.39
+    restart: unless-stopped
+    command:
+      - --max_connections=1000
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --binlog_expire_logs_seconds=604800
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: rag_flow
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  minio:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    restart: unless-stopped
+    command: server --console-address ":9001" /data
+    environment:
+      MINIO_ROOT_USER: rag_flow
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  redis:
+    image: valkey/valkey:8
+    restart: unless-stopped
+    command: valkey-server --requirepass ${REDIS_PASSWORD} --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ${ATHENA_APP_DATA}/redis:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
