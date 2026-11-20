@@ -121,7 +121,7 @@ class Engine:
         with self._ports_lock:
             while True:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    s.bind(("0.0.0.0", 0))
+                    s.bind(("127.0.0.1", 0))
                     port = s.getsockname()[1]
                 if port not in self._ports:
                     self._ports.add(port)
