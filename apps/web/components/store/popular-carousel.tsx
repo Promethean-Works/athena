@@ -6,8 +6,10 @@ import Link from "next/link"
 import Autoplay from "embla-carousel-autoplay"
 
 import { Badge } from "@workspace/ui/components/badge"
+import { Button, buttonVariants } from "@workspace/ui/components/button"
+import { Card } from "@workspace/ui/components/card"
 import {
-  CarouselApi,
+  type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -15,7 +17,8 @@ import {
   CarouselPrevious,
 } from "@workspace/ui/components/carousel"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { FlameIcon } from "lucide-react"
+import { cn } from "@workspace/ui/lib/utils"
+import { CheckIcon } from "lucide-react"
 
 import { AppIcon } from "@/components/store/app-icon"
 import { StoreCover } from "@/components/store/store-cover"
@@ -25,111 +28,296 @@ import { type Schemas } from "@workspace/api-client"
 type StoreApp = Schemas["StoreApp"]
 
 type PopularCarouselProps = {
+  /** The popular apps, or null while the store is loading. */
   popular: StoreApp[] | null
 }
 
-export function PopularCarousel({ popular }: PopularCarouselProps) {
-  const [api, setApi] = React.useState<CarouselApi | null>(null)
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
 
-  const plugins = React.useMemo(
-    () => [
-      Autoplay({
-        delay: 3500,
-        stopOnInteraction: false,
-        stopOnMouseEnter: false,
-      }),
-    ],
-    []
+function subscribeReducedMotion(onChange: () => void) {
+  const media = window.matchMedia(REDUCED_MOTION)
+  media.addEventListener("change", onChange)
+  return () => media.removeEventListener("change", onChange)
+}
+
+/** True when the visitor asked for less motion. Assumed true until hydrated. */
+function useReducedMotion() {
+  return React.useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => true
   )
+}
 
-  const opts = React.useMemo(() => ({ slidesToScroll: 3 }), [])
-
-  // Re-init the carousel when the responsive breakpoint changes so the
-  // responsive slide widths (1 on mobile, 2 on small, 3 on large) take effect.
-  React.useEffect(() => {
-    if (!api) return
-    const media = window.matchMedia("(min-width: 1024px)")
-    const onChange = () => void api.reInit()
-    media.addEventListener("change", onChange)
-    return () => media.removeEventListener("change", onChange)
-  }, [api])
+export function PopularCarousel({ popular }: PopularCarouselProps) {
+  const headingId = React.useId()
 
   if (!popular) {
     return (
-      <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card px-4">
-        <div className="flex flex-col gap-1 px-4 pt-4">
-          <h2 className="flex items-center gap-2 font-heading text-base font-medium">
-            <FlameIcon className="size-4 text-primary" />
-            Popular right now
-          </h2>
-        </div>
-        <div className="flex gap-3 overflow-x-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <section aria-labelledby={headingId} className="flex flex-col gap-4">
+        <CarouselHeader headingId={headingId} />
+        <div
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          aria-hidden="true"
+        >
           {[0, 1, 2].map((i) => (
-            <div
+            <Card
               key={i}
-              className="w-64 shrink-0 overflow-hidden rounded-xl border bg-card"
+              className={cn(
+                "gap-0 pt-0",
+                i === 1 && "hidden sm:flex",
+                i === 2 && "hidden lg:flex"
+              )}
             >
-              <Skeleton className="h-48 w-full" />
-              <div className="flex flex-col gap-1 p-3">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-full" />
+              <Skeleton className="aspect-video w-full rounded-none" />
+              <div className="flex flex-col gap-4 px-4 pt-4">
+                <div className="flex items-start gap-3">
+                  <Skeleton className="size-10 rounded-lg" />
+                  <div className="flex flex-1 flex-col gap-1">
+                    <Skeleton className="h-5 w-1/2" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-20 rounded-4xl" />
+                  <Skeleton className="h-7 w-16" />
+                </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
     )
   }
 
+  return <PopularCarouselLoaded popular={popular} headingId={headingId} />
+}
+
+function CarouselHeader({
+  headingId,
+  children,
+}: {
+  headingId: string
+  children?: React.ReactNode
+}) {
   return (
-    <section className="overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-card to-card px-4">
-      <div className="flex flex-col gap-1 px-4 pt-4 pb-4">
-        <h2 className="flex items-center gap-2 font-heading text-base font-medium">
-          <FlameIcon className="size-4 text-primary" />
+    <div className="flex items-end justify-between gap-4">
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <h2 id={headingId} className="font-heading text-base font-medium">
           Popular right now
         </h2>
+        <p className="text-sm text-muted-foreground">
+          The apps most home servers start with.
+        </p>
       </div>
-      <Carousel
-        setApi={setApi}
-        opts={opts}
-        plugins={plugins}
-        className="px-4 pb-2"
-      >
-        <CarouselContent className="-ml-4">
-          {popular.map((app) => (
-            <CarouselItem
-              key={`${app.catalog}/${app.id}`}
-              className="h-full pl-4 sm:basis-[50%] lg:basis-[calc(100%/3)]"
+      {children}
+    </div>
+  )
+}
+
+function PopularCarouselLoaded({
+  popular,
+  headingId,
+}: {
+  popular: StoreApp[]
+  headingId: string
+}) {
+  const [api, setApi] = React.useState<CarouselApi | null>(null)
+  const [snapCount, setSnapCount] = React.useState(0)
+  const [selected, setSelected] = React.useState(0)
+  // Hover and focus pause autoplay; any scroll the visitor makes (drag,
+  // arrows, dots, arrow keys) stops it for good.
+  const [hovered, setHovered] = React.useState(false)
+  const [focused, setFocused] = React.useState(false)
+  const [stopped, setStopped] = React.useState(false)
+  const reducedMotion = useReducedMotion()
+
+  // embla-carousel-autoplay's stopOnMouseEnter/stopOnFocusIn only resume when
+  // stopOnInteraction is false, and then a drag doesn't stop it for good. So
+  // pausing is done here with stop()/play(), and stopping drops the plugin.
+  const plugins = React.useMemo(
+    () =>
+      reducedMotion || stopped
+        ? []
+        : [
+            Autoplay({
+              delay: 5000,
+              stopOnInteraction: true,
+              stopOnMouseEnter: false,
+              stopOnFocusIn: false,
+            }),
+          ],
+    [reducedMotion, stopped]
+  )
+
+  // "auto" scrolls by as many slides as fit, so the dots match the pages at
+  // every width (1, 2 or 3 slides). Embla re-measures and re-inits on resize.
+  const opts = React.useMemo(
+    () => ({ align: "start" as const, slidesToScroll: "auto" as const }),
+    []
+  )
+
+  React.useEffect(() => {
+    if (!api) return
+    const sync = () => {
+      setSnapCount(api.scrollSnapList().length)
+      setSelected(api.selectedScrollSnap())
+    }
+    const stop = () => setStopped(true)
+    sync()
+    api.on("select", sync)
+    api.on("reInit", sync)
+    api.on("pointerDown", stop)
+    return () => {
+      api.off("select", sync)
+      api.off("reInit", sync)
+      api.off("pointerDown", stop)
+    }
+  }, [api])
+
+  const paused = hovered || focused
+  React.useEffect(() => {
+    const autoplay = api?.plugins().autoplay
+    if (!autoplay) return
+    if (paused) autoplay.stop()
+    else autoplay.play()
+  }, [api, plugins, paused])
+
+  const multiPage = snapCount > 1
+
+  return (
+    <Carousel
+      setApi={setApi}
+      opts={opts}
+      plugins={plugins}
+      aria-labelledby={headingId}
+      className="flex flex-col gap-4"
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setFocused(false)
+        }
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+          setStopped(true)
+        }
+      }}
+      onClickCapture={(event) => {
+        const target = event.target as HTMLElement
+        if (
+          target.closest(
+            "[data-slot=carousel-previous],[data-slot=carousel-next]"
+          )
+        ) {
+          setStopped(true)
+        }
+      }}
+    >
+      <CarouselHeader headingId={headingId}>
+        {multiPage ? (
+          <div className="flex shrink-0 items-center gap-2">
+            <CarouselPrevious className="static inset-auto my-0" />
+            <CarouselNext className="static inset-auto my-0" />
+          </div>
+        ) : null}
+      </CarouselHeader>
+
+      <CarouselContent>
+        {popular.map((app) => (
+          <CarouselItem
+            key={`${app.catalog}/${app.id}`}
+            className="sm:basis-1/2 lg:basis-1/3"
+          >
+            <PopularSlide app={app} />
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+
+      {multiPage ? (
+        <div className="flex justify-center gap-1">
+          {Array.from({ length: snapCount }, (_, i) => (
+            <Button
+              key={i}
+              variant="ghost"
+              size="icon-xs"
+              aria-label={`Show page ${i + 1} of ${snapCount}`}
+              aria-current={i === selected ? "true" : undefined}
+              onClick={() => {
+                setStopped(true)
+                api?.scrollTo(i)
+              }}
             >
-              <Link
-                href={storeAppHref(app)}
-                className="group block flex h-full flex-col"
-              >
-                <StoreCover
-                  title={app.title}
-                  icon={app.icon}
-                  screenshot={app.cover}
-                />
-                <div className="flex flex-1 flex-col gap-1 p-4">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate text-sm font-medium">
-                      {app.title}
-                    </span>
-                    {app.installed.length ? (
-                      <Badge variant="secondary">Installed</Badge>
-                    ) : null}
-                  </span>
-                  <span className="line-clamp-2 text-xs text-muted-foreground">
-                    {app.tagline ?? app.description}
-                  </span>
-                </div>
-              </Link>
-            </CarouselItem>
+              <span
+                className={cn(
+                  "h-1.5 rounded-full transition-[width,background-color] motion-reduce:transition-none",
+                  i === selected
+                    ? "w-4 bg-primary"
+                    : "w-1.5 bg-muted-foreground/40"
+                )}
+              />
+            </Button>
           ))}
-        </CarouselContent>
-        <CarouselPrevious className="-left-3" />
-        <CarouselNext className="-right-3" />
-      </Carousel>
-    </section>
+        </div>
+      ) : null}
+    </Carousel>
+  )
+}
+
+/**
+ * One app as a card. The whole card is a single link to the app's store page;
+ * "Install" is styled like a button but is text inside that link, so no
+ * interactive element is nested inside another.
+ */
+function PopularSlide({ app }: { app: StoreApp }) {
+  const installed = app.installed.length > 0
+  const label = app.category_label || app.category || app.tags[0]
+
+  return (
+    <Link
+      href={storeAppHref(app)}
+      className="group/slide block h-full rounded-xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+    >
+      <Card className="h-full gap-0 pt-0 transition-shadow group-hover/slide:ring-primary/40">
+        <StoreCover
+          title={app.title}
+          icon={app.icon}
+          screenshot={app.cover}
+          className="rounded-none"
+        />
+        <div className="flex flex-1 flex-col gap-4 px-4 pt-4">
+          <div className="flex items-start gap-3">
+            <AppIcon title={app.title} icon={app.icon} className="size-10" />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <h3 className="truncate font-heading text-base leading-5 font-medium">
+                {app.title}
+              </h3>
+              <p className="line-clamp-2 h-10 text-sm leading-5 text-muted-foreground">
+                {app.tagline ?? app.description}
+              </p>
+            </div>
+          </div>
+          <div className="mt-auto flex items-center justify-between gap-2">
+            {label ? (
+              <Badge variant="outline" className="min-w-0 truncate">
+                {label}
+              </Badge>
+            ) : (
+              <span />
+            )}
+            {installed ? (
+              <Badge variant="secondary">
+                <CheckIcon data-icon="inline-start" />
+                Installed
+              </Badge>
+            ) : (
+              <span className={buttonVariants({ size: "sm" })}>Install</span>
+            )}
+          </div>
+        </div>
+      </Card>
+    </Link>
   )
 }
