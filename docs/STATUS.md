@@ -14,7 +14,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
-- Not yet verified: installing the CasaOS-ported catalog apps (#120) for real against Docker, especially the stacks re-imported in #167 (dify, librechat, clumoove) and their generated secrets.
+- Catalog smoke test (#169, #172, fixes #173–#176): every store app was installed for real on macOS arm64 (Colima); 135/199 passed at first, the rest were fixed or honestly marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run the `Catalog smoke` workflow by hand for `--all` on amd64 and arm64 and fix what fails there. Not verified: logins and real use of each app, only that it starts and serves its page.
 - Tunnel follow-ups (#150):
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
   - Tunnel fields save on every keystroke and are disabled while each save runs.
@@ -38,6 +38,8 @@ Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 - There's no generic OpenAI-compatible provider kind any more, and models.dev's `lmstudio` is skipped, so LM Studio or vLLM can't be added as a provider. Bring back an OpenAI-compatible kind (base URL + optional key)?
 - `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
 
+
+- Catalog choices from the smoke fixes, to confirm or undo: roonserver and unifi-network-application are `license: Proprietary` (against the open-source-only rule; remove them?); handbrake is amd64-only and crashes under emulation on an arm64 Mac (keep, or `smoke: skip`?); nextcloud keeps its code in a named volume (case-insensitive disks broke it); projectnomad gets the Docker socket (upstream needs it to install apps); anythingllm runs as root with `SYS_ADMIN` (upstream's advice); `mongodb4` still hard-codes `/DATA/AppData` paths. Recommendation: drop the two proprietary apps, keep the rest.
 
 ## Blockers
 
