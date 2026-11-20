@@ -13,16 +13,17 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from fastmcp.client.transports import StdioTransport, StreamableHttpTransport
 from pydantic import BaseModel, Field
-from pydantic_ai.mcp import MCPToolset
 from sqlmodel import Session, col, select
 
 from athena.assistant.settings import McpStdio, McpTransport
 from athena.crypto import SecretBox, SecretError
 from athena.db.models import AiIntegration
+
+if TYPE_CHECKING:
+    from pydantic_ai.mcp import MCPToolset
 
 log = logging.getLogger(__name__)
 
@@ -151,6 +152,9 @@ def integration_toolsets(rows: list[AiIntegration], box: SecretBox) -> list[MCPT
     A stdio server receives its token in `token_env`; an HTTP server in `token_header`.
     Integrations whose token can't be decrypted are skipped.
     """
+    from fastmcp.client.transports import StdioTransport, StreamableHttpTransport
+    from pydantic_ai.mcp import MCPToolset
+
     toolsets: list[MCPToolset[Any]] = []
     for row in rows:
         if row.kind not in BY_ID:

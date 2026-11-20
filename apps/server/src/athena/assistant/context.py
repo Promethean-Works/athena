@@ -14,13 +14,13 @@ Compacting too early costs one summary; guessing too high costs the whole reques
 on Ollama, silently drops the start of the prompt).
 """
 
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import httpx2
-from pydantic_ai.models import Model
-from pydantic_ai_harness.compaction import resolve_context_window
 
 from athena.assistant.models_dev import get_models_dev_service
 from athena.assistant.providers import (
@@ -29,6 +29,9 @@ from athena.assistant.providers import (
     ProviderError,
     fetch_models,
 )
+
+if TYPE_CHECKING:
+    from pydantic_ai.models import Model
 
 log = logging.getLogger(__name__)
 
@@ -65,6 +68,8 @@ async def window_for(
     cache: ModelCache,
     transport: httpx2.AsyncBaseTransport | None = None,
 ) -> ContextWindow:
+    from pydantic_ai_harness.compaction import resolve_context_window
+
     if (typed := field_value(cfg)) is not None:
         return ContextWindow(typed, "provider-field")
     reported = await _reported(cfg, model_id, cache, transport)
