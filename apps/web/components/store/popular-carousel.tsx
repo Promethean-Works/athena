@@ -1,12 +1,9 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-
 import Autoplay from "embla-carousel-autoplay"
 
-import { Badge } from "@workspace/ui/components/badge"
-import { Button, buttonVariants } from "@workspace/ui/components/button"
+import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import {
   type CarouselApi,
@@ -18,11 +15,8 @@ import {
 } from "@workspace/ui/components/carousel"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
-import { CheckIcon } from "lucide-react"
 
-import { AppIcon } from "@/components/store/app-icon"
-import { StoreCover } from "@/components/store/store-cover"
-import { storeAppHref } from "@/components/store/store-browser"
+import { StoreAppCard } from "@/components/store/store-app-card"
 import { type Schemas } from "@workspace/api-client"
 
 type StoreApp = Schemas["StoreApp"]
@@ -78,10 +72,7 @@ export function PopularCarousel({ popular }: PopularCarouselProps) {
                     <Skeleton className="h-10 w-full" />
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-5 w-20 rounded-4xl" />
-                  <Skeleton className="h-7 w-16" />
-                </div>
+                <Skeleton className="h-5 w-20 rounded-4xl" />
               </div>
             </Card>
           ))}
@@ -225,15 +216,16 @@ function PopularCarouselLoaded({
         ) : null}
       </CarouselHeader>
 
-      <CarouselContent>
+      {/* -ml-2 with pl-3/pr-1 on each slide keeps the 16px gap and leaves 4px
+          inside the viewport's overflow-hidden for each card's focus ring
+          and hover outline, which draw just outside the card. */}
+      <CarouselContent className="-ml-2">
         {popular.map((app) => (
           <CarouselItem
             key={`${app.catalog}/${app.id}`}
-            // Cards draw their outline just outside their box; the
-            // viewport's overflow-hidden clipped it at the edges.
-            className="py-px pr-px sm:basis-1/2 lg:basis-1/3"
+            className="py-1 pr-1 pl-3 sm:basis-1/2 lg:basis-1/3"
           >
-            <PopularSlide app={app} />
+            <StoreAppCard app={app} />
           </CarouselItem>
         ))}
       </CarouselContent>
@@ -265,61 +257,5 @@ function PopularCarouselLoaded({
         </div>
       ) : null}
     </Carousel>
-  )
-}
-
-/**
- * One app as a card. The whole card is a single link to the app's store page;
- * "Install" is styled like a button but is text inside that link, so no
- * interactive element is nested inside another.
- */
-function PopularSlide({ app }: { app: StoreApp }) {
-  const installed = app.installed.length > 0
-  const label = app.category_label || app.category || app.tags[0]
-
-  return (
-    <Link
-      href={storeAppHref(app)}
-      className="group/slide block h-full rounded-xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-    >
-      <Card className="h-full gap-0 pt-0 transition-shadow group-hover/slide:ring-primary/40">
-        <StoreCover
-          title={app.title}
-          icon={app.icon}
-          screenshot={app.cover}
-          className="rounded-none"
-        />
-        <div className="flex flex-1 flex-col gap-4 px-4 pt-4">
-          <div className="flex items-start gap-3">
-            <AppIcon title={app.title} icon={app.icon} className="size-10" />
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <h3 className="truncate font-heading text-base leading-5 font-medium">
-                {app.title}
-              </h3>
-              <p className="line-clamp-2 h-10 text-sm leading-5 text-muted-foreground">
-                {app.tagline ?? app.description}
-              </p>
-            </div>
-          </div>
-          <div className="mt-auto flex items-center justify-between gap-2">
-            {label ? (
-              <Badge variant="outline" className="min-w-0 truncate">
-                {label}
-              </Badge>
-            ) : (
-              <span />
-            )}
-            {installed ? (
-              <Badge variant="secondary">
-                <CheckIcon data-icon="inline-start" />
-                Installed
-              </Badge>
-            ) : (
-              <span className={buttonVariants({ size: "sm" })}>Install</span>
-            )}
-          </div>
-        </div>
-      </Card>
-    </Link>
   )
 }
