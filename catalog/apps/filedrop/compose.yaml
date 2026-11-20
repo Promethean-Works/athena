@@ -23,6 +23,6 @@ services:
     image: noecl/filedrop:1.0.1
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:8000/tcp"
     volumes:
       - ${ATHENA_APP_DATA}/data:/var/file_drop_files
