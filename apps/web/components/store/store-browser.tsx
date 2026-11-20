@@ -8,13 +8,8 @@ import { LibraryIcon, SearchIcon } from "lucide-react"
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card"
 import { PopularCarousel } from "@/components/store/popular-carousel"
+import { StoreAppCard } from "@/components/store/store-app-card"
 import {
   Empty,
   EmptyContent,
@@ -32,11 +27,6 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@workspace/ui/components/toggle-group"
-
-import { cn } from "@workspace/ui/lib/utils"
-
-import { AppIcon } from "@/components/store/app-icon"
-import { StoreCover } from "@/components/store/store-cover"
 
 type StoreApp = Schemas["StoreApp"]
 type Category = Schemas["Category"]
@@ -249,54 +239,7 @@ export function StoreBrowser() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {shown.map((app) => (
-            <Link
-              key={`${app.catalog}/${app.id}`}
-              href={storeAppHref(app)}
-              className="group rounded-xl focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-            >
-              <Card
-                className={cn(
-                  "h-full gap-0 pt-0 transition-colors group-hover:border-primary/40 group-hover:shadow-sm",
-                  app.support === "unsupported" && "opacity-60"
-                )}
-              >
-                <StoreCover
-                  title={app.title}
-                  icon={app.icon}
-                  screenshot={app.cover}
-                />
-                <CardHeader className="grid-cols-[auto_1fr] items-start gap-x-3 pt-4">
-                  <AppIcon
-                    title={app.title}
-                    icon={app.icon}
-                    className="row-span-2 size-9"
-                  />
-                  <CardTitle className="flex flex-wrap items-center gap-2">
-                    {app.title}
-                    {app.installed.length ? (
-                      <Badge variant="secondary">Installed</Badge>
-                    ) : null}
-                    <SupportBadge support={app.support} />
-                  </CardTitle>
-                  <CardDescription className="line-clamp-2">
-                    {app.tagline ?? app.description}
-                  </CardDescription>
-                  <div className="col-start-2 flex flex-wrap gap-1 pt-1">
-                    <Badge variant="outline">
-                      {app.category_label || app.category}
-                    </Badge>
-                    {app.tags.slice(0, 2).map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
-                    {app.catalog !== "builtin" ? (
-                      <Badge variant="outline">{app.catalog_name}</Badge>
-                    ) : null}
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
+            <StoreAppCard key={`${app.catalog}/${app.id}`} app={app} />
           ))}
         </div>
       )}
