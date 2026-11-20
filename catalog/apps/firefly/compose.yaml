@@ -17,6 +17,11 @@ x-athena:
       label: Web port
       type: port
       default: "8190"
+    - key: APP_KEY
+      label: Encryption key
+      type: password
+      generate: secret
+      advanced: true
     - key: DB_PASSWORD
       label: Database password
       type: password
@@ -34,6 +39,7 @@ services:
     ports:
       - "${WEB_PORT}:8080/tcp"
     environment:
+      APP_KEY: ${APP_KEY}
       DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: 3306

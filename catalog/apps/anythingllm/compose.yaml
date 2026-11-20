@@ -22,6 +22,12 @@ services:
   anythingllm:
     image: mintplexlabs/anythingllm:1.20.0
     restart: unless-stopped
+    # The image runs as uid 1000, which can't write a data folder owned by another user.
+    user: "0:0"
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      STORAGE_DIR: /app/server/storage
     ports:
       - "${WEB_PORT}:3001/tcp"
     volumes:
