@@ -1,6 +1,6 @@
 # Agent tooling
 
-_How the coding agents (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot) are set up for this repo. Read this when you change agent tooling (MCP servers, skills, generated agent config) or set up a machine. Day-to-day work doesn't need it._
+_How the coding agents (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot, oh-my-pi) are set up for this repo. Read this when you change agent tooling (MCP servers, skills, generated agent config) or set up a machine. Day-to-day work doesn't need it._
 
 ## One source of truth
 
@@ -10,10 +10,10 @@ Everything agent-related has one source of truth in the repo; each agent reads i
 |---|---|---|
 | Instructions | `AGENTS.md` (router) + `apps/*/AGENTS.md` | Claude Code through `CLAUDE.md` files that import them; the others read `AGENTS.md` directly |
 | Area gotchas | `docs/agents/gotchas/<area>.md` | Claude Code `.claude/rules/<area>.md` and Copilot `.github/instructions/<area>.instructions.md` (generated from `AREA_RULES`) point at them when a matching file is touched; everyone else follows the router |
-| Skills | `.agents/skills/` (third-party ones pinned in `skills-lock.json`) | Claude Code through the `.claude/skills` symlink; OpenCode, Codex, Antigravity and Copilot read it; Hermes after `hermes skills trust` |
-| MCP servers | `.mcp.json` | Claude Code and Copilot read it; generated `opencode.json`, `.codex/config.toml`, `.agents/mcp_config.json` (Antigravity); Hermes through `agents-sync.mjs --hermes` |
-| Subagents (`ui-verify`, `reviewer`) | `OPENCODE_SUBAGENT_ONLY` and `SUBAGENTS` in `scripts/agents-sync.mjs` | Generated `.claude/agents/`, `.codex/agents/` and agents in `opencode.json`. Exploring uses each tool's built-in explorer |
-| Slash commands (`/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship`) | The `athena-*` skills; `COMMANDS` in `scripts/agents-sync.mjs` | Generated `.claude/commands/` and `commands` in `opencode.json`; Hermes, Codex, Antigravity and Copilot run the skills directly |
+| Skills | `.agents/skills/` (third-party ones pinned in `skills-lock.json`) | Claude Code through the `.claude/skills` symlink; OpenCode, Codex, Antigravity, Copilot and oh-my-pi read it; Hermes after `hermes skills trust` |
+| MCP servers | `.mcp.json` | Claude Code, Copilot and oh-my-pi read it; generated `opencode.json`, `.codex/config.toml`, `.agents/mcp_config.json` (Antigravity); Hermes through `agents-sync.mjs --hermes` |
+| Subagents (`ui-verify`, `reviewer`) | `OPENCODE_SUBAGENT_ONLY` and `SUBAGENTS` in `scripts/agents-sync.mjs` | Generated `.claude/agents/`, `.codex/agents/`, `.omp/agents/` and agents in `opencode.json`. Exploring uses each tool's built-in explorer |
+| Slash commands (`/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship`) | The `athena-*` skills; `COMMANDS` in `scripts/agents-sync.mjs` | Generated `.claude/commands/` (oh-my-pi reads them too) and `commands` in `opencode.json`; Hermes, Codex, Antigravity and Copilot run the skills directly |
 | Secret files agents may not read | `SECRET_GLOBS`, `SECRET_DIRS` in `scripts/agents-sync.mjs` | `Read(...)` denies in `.claude/settings.json`, `read` denies in `opencode.json` |
 | Secret scanning | `.gitleaks.toml` | `scripts/pre-commit.sh` (staged changes) and CI's repo checks (the tree) |
 | Session start | `scripts/session-start.mjs` | Claude Code `SessionStart` hook: STATUS plus the setup check |
@@ -32,6 +32,7 @@ Checked against each tool's docs (Hermes: its source) on 2026-11-19. This is why
 | Codex | `AGENTS.md` from the repo root down to the cwd, 32 KiB in total | Never below the cwd: it follows the router |
 | Antigravity (ex Gemini CLI) | `AGENTS.md` and `GEMINI.md` | When a tool touches a file there <!-- docs-check: ignore --> |
 | Copilot | `AGENTS.md` (nearest wins), `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md` | Along the paths it works with <!-- docs-check: ignore --> |
+| oh-my-pi (`omp`) | `AGENTS.md`/`CLAUDE.md` from the cwd up to the repo root (one per folder; identical ones collapse), `.github/instructions/*.instructions.md` as rules | Deeper `AGENTS.md` files are listed as pointers to read before editing there |
 
 ## MCP servers (`.mcp.json`)
 
@@ -46,7 +47,7 @@ Third-party ones are pinned in `skills-lock.json`: `shadcn`, `building-pydantic-
 
 ## Changing tooling
 
-- *Add an MCP server:* edit `.mcp.json`, then run `node scripts/agents-sync.mjs` to regenerate every agent's copy (and `--hermes` to update Hermes). Never edit generated files or parts by hand: the `mcp` block of `opencode.json`, its `playwright_*` permission rules and `ui-verify` agent, `.claude/agents/`, `.claude/rules/`, `.github/instructions/`, `.codex/config.toml` and `.agents/mcp_config.json`. Which tools each agent gets is set in `scripts/agents-sync.mjs` (`UNUSED_TOOLS`, `OPENCODE_SUBAGENT_ONLY`). CI runs `--check`.
+- *Add an MCP server:* edit `.mcp.json`, then run `node scripts/agents-sync.mjs` to regenerate every agent's copy (and `--hermes` to update Hermes). Never edit generated files or parts by hand: the `mcp` block of `opencode.json`, its `playwright_*` permission rules and `ui-verify` agent, `.claude/agents/`, `.claude/rules/`, `.github/instructions/`, `.codex/config.toml`, `.omp/agents/` and `.agents/mcp_config.json`. Which tools each agent gets is set in `scripts/agents-sync.mjs` (`UNUSED_TOOLS`, `OPENCODE_SUBAGENT_ONLY`). CI runs `--check`.
 - *Add a third-party skill:* `npx skills add <owner/repo> --skill <name> -a claude-code -y`. It lands in `.agents/skills/` through the symlink and is recorded in `skills-lock.json`.
 - *Add a project skill:* create `.agents/skills/<name>/SKILL.md` with `name` and `description` frontmatter (the description is what agents see before loading the skill: say what it does and when to use it), and add it to the list in `AGENTS.md`. `scripts/check-docs.mjs` checks every name the skill mentions.
   - Hermes's scanner also hides **our own** skills when they contain `curl … | python3` (rated critical "supply chain"), even when Python only parses JSON. In skills, use `jq` or save to a file first. `sudo`, `uv run` and systemd mentions are only medium and don't hide a skill. To check a skill before committing: `PYTHONPATH=~/.hermes/hermes-agent ~/.hermes/tools/python-3.14*/bin/python3 -c "from pathlib import Path; from tools.skills_guard import scan_skill; print(scan_skill(Path('.agents/skills/<name>'), source='project').verdict)"` should print `safe`.
@@ -75,6 +76,7 @@ Per agent, what the script doesn't do:
 - **Hermes Agent:** its skill scanner rates `pydantic-ai-harness` "dangerous" (a false positive from docs mentioning `~/.ssh` and `os.environ`) and hides it; read `.agents/skills/pydantic-ai-harness/SKILL.md` directly when working on the assistant. Hermes trusts folders by path, so a worktree outside the trusted checkout doesn't get the project skills.
 - **Codex:** trust the project when asked, or `.codex/config.toml` is ignored. RTK has no Codex hook; TokenEconomizer: its README → Codex.
 - **Antigravity:** `rtk init --agent antigravity --hook-only`; TokenEconomizer: its README → Antigravity CLI.
+- **oh-my-pi:** the script installs RTK's global extension; nothing else is needed. It finds `AGENTS.md`, `.agents/skills`, `.claude/commands`, `.github/instructions` and the root `.mcp.json` by itself (that file is a fallback source, so its servers don't appear in `/mcp list`) and the subagents in `.omp/agents/` (it ignores `.claude/agents`). Not covered: secret-file read denies (omp has no per-path read rule), the session-start STATUS hook (it follows `AGENTS.md` → Every session), the Playwright scoping (omp gives MCP tools to every agent), and TokenEconomizer. Point `ui-verify` at a cheap model with omp's `smol` role (`/model` → Roles).
 - **Copilot:** nothing; it reads `AGENTS.md`, `.mcp.json`, `.agents/skills` and `.github/instructions/` from the repo.
 
 ## Token budget
