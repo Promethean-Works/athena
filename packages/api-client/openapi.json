@@ -1621,6 +1621,67 @@
         }
       }
     },
+    "/api/settings/dashboard": {
+      "get": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Get Dashboard",
+        "operationId": "getDashboardLayout",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardLayout"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Set Dashboard",
+        "description": "Each user has their own layout. Saving `{\"cards\": null}` goes back to the default.",
+        "operationId": "setDashboardLayout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DashboardLayout"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardLayout"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settings/system": {
       "get": {
         "tags": [
@@ -5790,6 +5851,56 @@
           }
         }
       }
+    },
+    "/api/audit": {
+      "get": {
+        "tags": [
+          "audit"
+        ],
+        "summary": "List Entries",
+        "description": "The newest entries first.",
+        "operationId": "listAuditEntries",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditEntryOut"
+                  },
+                  "title": "Response Listauditentries"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6307,6 +6418,48 @@
         },
         "type": "object",
         "title": "ApprovalsIn"
+      },
+      "AuditEntryOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "at",
+          "username",
+          "action",
+          "target"
+        ],
+        "title": "AuditEntryOut",
+        "description": "`detail` is left out on purpose: it can hold a shell command or a path the\nuser typed, and the dashboard only needs who did what to which target."
       },
       "AuthStatus": {
         "properties": {
@@ -7249,6 +7402,50 @@
           "password"
         ],
         "title": "Credentials"
+      },
+      "DashboardCard": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,39}$",
+            "title": "Id"
+          },
+          "size": {
+            "type": "string",
+            "enum": [
+              "half",
+              "full"
+            ],
+            "title": "Size",
+            "default": "half"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "DashboardCard"
+      },
+      "DashboardLayout": {
+        "properties": {
+          "cards": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DashboardCard"
+                },
+                "type": "array",
+                "maxItems": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cards"
+          }
+        },
+        "type": "object",
+        "title": "DashboardLayout"
       },
       "Decision": {
         "properties": {
