@@ -20,3 +20,4 @@ Other workflows: `pr-title`, CodeQL (separate; it can block merges), and `E2E` (
 - `pr-title` accepts Dependabot's capitalized "Bump …" subject; only the Conventional Commit type is enforced.
 - release-please PRs need the `RELEASE_PLEASE_TOKEN` secret to run CI (see STATUS → Blockers). Don't merge a release PR yourself.
 - The first release is 0.1.0 because of explicit config. release-please defaults to 1.0.0 without it.
+- `gitleaks dir .` (in `scripts/check.sh` and the pre-push hook) ignores `.gitignore`, so it scanned pytest's `__pycache__` (the compiled secret-guard tests hold fake tokens) and `.next/cache`, and failed every push after a local test run. `.gitleaks.toml` allowlists those build-output folders; add any new build-output folder there too.
