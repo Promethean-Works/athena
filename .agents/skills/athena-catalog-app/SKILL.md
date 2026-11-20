@@ -51,7 +51,15 @@ uv run pytest -q tests/test_catalog.py                     # loads every app, ch
 ATHENA_DOCKER_TESTS=1 uv run pytest -q tests/test_catalog.py -k compose   # docker compose config on each app (needs an engine)
 ```
 
-Then install it once for real through the UI, following the `athena-ui-verify` skill:
+Then run the runtime smoke test on the apps you added or changed. It pulls, starts and reaches each app's web port, then cleans up (see `catalog/README.md` → Checks):
+
+```bash
+uv run python -m athena.catalog.smoke --changed     # or: … smoke <id> [<id>…]
+```
+
+If an app can't pass on a test machine (a GPU, a device, an account token), mark it `smoke: start` or `smoke: skip` with a `smoke_note` instead of leaving it failing. The `Catalog smoke` workflow runs the same test on the PR, on amd64 and arm64.
+
+For a new app, also install it once for real through the UI, following the `athena-ui-verify` skill:
 - Open the store page, then install with defaults into a fresh data dir.
 - Check that the "Open" button reaches the web UI (`curl -s -o /dev/null -w '%{http_code}' localhost:<port>`).
 - Remove it with "delete data".
