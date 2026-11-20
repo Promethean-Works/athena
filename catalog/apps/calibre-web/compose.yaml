@@ -12,6 +12,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Calibre-web/thumbnail.png
   category: files
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/calibre-web.svg
   homepage: https://www.calibre-ebook.com
   web_port: WEB_PORT

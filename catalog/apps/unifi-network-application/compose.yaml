@@ -5,6 +5,7 @@ x-athena:
   tags: [UniFi, Network, Controller]
   license: "Proprietary"
   category: network
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Unifi-Network-Application/icon.svg
   homepage: https://ui.com
   web_port: WEB_PORT

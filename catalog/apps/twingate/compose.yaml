@@ -5,6 +5,7 @@ x-athena:
   tags: [Zero Trust, VPN, Security]
   license: "Proprietary"
   category: network
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Twingate/icon.svg
   homepage: https://twingate.com
   web_port: WEB_PORT

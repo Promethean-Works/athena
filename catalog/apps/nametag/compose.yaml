@@ -6,9 +6,7 @@ x-athena:
   homepage: https://nametag.one
   web_port: WEB_PORT
   web_path: /
-  platforms:
-    - linux/amd64
-    - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: >-
     Before installing, set NEXTAUTH_URL to the address you will open Nametag at, for example http://192.168.1.10:10300
     (use your server IP or domain). The default, http://localhost:10300, only works from the server device

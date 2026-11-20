@@ -10,9 +10,7 @@ x-athena:
   homepage: https://labelstud.io/
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: null
   env:
   - key: WEB_PORT

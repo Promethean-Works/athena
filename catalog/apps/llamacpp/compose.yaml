@@ -5,6 +5,7 @@ x-athena:
   tags: [LLM, AI, Local]
   license: "MIT"
   category: development
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/llama.cpp/icon.svg
   homepage: https://github.com/ggerganov/llama.cpp
   web_port: WEB_PORT

@@ -5,6 +5,7 @@ x-athena:
   tags: [Git, Code hosting, Actions]
   license: "GPL-3.0"
   category: development
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/forgejo.svg
   homepage: https://forgejo.org
   web_port: WEB_PORT

@@ -5,6 +5,7 @@ x-athena:
   tags: [Finance, Budgeting, Personal]
   license: "GPL-3.0"
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Firefly/icon.svg
   homepage: https://firefly-iii.org
   web_port: WEB_PORT

@@ -5,6 +5,7 @@ x-athena:
   tags: [Metrics, Monitoring]
   license: "Apache-2.0"
   category: monitoring
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prometheus.svg
   homepage: https://prometheus.io
   web_port: WEB_PORT

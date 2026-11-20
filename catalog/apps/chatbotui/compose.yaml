@@ -5,6 +5,7 @@ x-athena:
   tags: [AI, Chat, UI]
   license: "MIT"
   category: development
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ChatbotUI/icon.svg
   homepage: https://chatbot-ui.com
   web_port: WEB_PORT

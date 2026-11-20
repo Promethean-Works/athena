@@ -7,10 +7,7 @@ x-athena:
   homepage: https://b3log.org/siyuan/
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
-  - linux/arm
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   notes: '| accessAuthCode |
 
     | -------- |

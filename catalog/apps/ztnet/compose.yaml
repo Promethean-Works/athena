@@ -5,6 +5,7 @@ x-athena:
   tags: [ZeroTier, VPN, Network]
   license: "MIT"
   category: network
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ztnet/icon.svg
   homepage: https://zerotier.com
   web_port: WEB_PORT

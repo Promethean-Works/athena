@@ -5,6 +5,7 @@ x-athena:
   tags: [Gaming, Emulator, Retro]
   license: "GPL-3.0"
   category: home
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RetroArch/icon.svg
   homepage: https://www.retroarch.com
   web_port: WEB_PORT

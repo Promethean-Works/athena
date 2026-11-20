@@ -5,6 +5,7 @@ x-athena:
   tags: [DDNS, DNS, Network]
   license: "MIT"
   category: network
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ddns-go/icon.svg
   homepage: https://ddns-go.com
   web_port: WEB_PORT

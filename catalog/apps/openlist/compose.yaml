@@ -5,6 +5,7 @@ x-athena:
   tags: [Files, Storage, Cloud]
   license: "AGPL-3.0"
   category: files
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenList/icon.svg
   homepage: https://github.com/OpenListTeam/OpenList
   web_port: WEB_PORT

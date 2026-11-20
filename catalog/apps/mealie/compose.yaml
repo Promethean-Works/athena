@@ -12,6 +12,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/mealie-recipes/mealie/mealie-next/docs/docs/assets/img/home_screenshot.png
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/mealie.svg
   homepage: https://mealie.io
   web_port: WEB_PORT

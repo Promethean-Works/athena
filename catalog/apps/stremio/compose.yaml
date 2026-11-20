@@ -5,6 +5,7 @@ x-athena:
   tags: [Media, Streaming, Video]
   license: "GPL-3.0"
   category: media
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Stremio/icon.svg
   homepage: https://stremio.com
   web_port: WEB_PORT
