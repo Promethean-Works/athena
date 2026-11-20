@@ -5,6 +5,7 @@ x-athena:
   tags: [Chat, Community, Messaging]
   license: "Apache-2.0"
   category: utilities
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VoceChat/icon.svg
   homepage: https://voce.chat
   web_port: WEB_PORT

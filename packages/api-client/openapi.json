@@ -1407,6 +1407,9 @@
               }
             }
           },
+          "409": {
+            "description": "The app's images don't run on this host's CPU"
+          },
           "422": {
             "description": "Invalid values: detail.errors maps field keys to messages"
           }
@@ -10031,6 +10034,15 @@
             },
             "type": "array",
             "title": "Installed"
+          },
+          "support": {
+            "type": "string",
+            "enum": [
+              "native",
+              "emulated",
+              "unsupported"
+            ],
+            "title": "Support"
           }
         },
         "type": "object",
@@ -10047,7 +10059,8 @@
           "popular",
           "cover",
           "icon",
-          "installed"
+          "installed",
+          "support"
         ],
         "title": "StoreApp"
       },
@@ -10132,6 +10145,15 @@
             "type": "array",
             "title": "Installed"
           },
+          "support": {
+            "type": "string",
+            "enum": [
+              "native",
+              "emulated",
+              "unsupported"
+            ],
+            "title": "Support"
+          },
           "homepage": {
             "anyOf": [
               {
@@ -10160,6 +10182,17 @@
             },
             "type": "array",
             "title": "Platforms"
+          },
+          "host_platform": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Host Platform"
           },
           "images": {
             "items": {
@@ -10245,9 +10278,11 @@
           "cover",
           "icon",
           "installed",
+          "support",
           "homepage",
           "notes",
           "platforms",
+          "host_platform",
           "images",
           "web_port",
           "features",

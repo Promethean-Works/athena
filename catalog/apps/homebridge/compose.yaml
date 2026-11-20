@@ -5,6 +5,7 @@ x-athena:
   tags: [HomeKit, Home Automation, IoT]
   license: "Apache-2.0"
   category: home
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Homebridge/icon.svg
   homepage: https://homebridge.io/
   web_port: WEB_PORT
@@ -19,7 +20,7 @@ x-athena:
 
 services:
   homebridge:
-    image: homebridge/homebridge:v2.5.0
+    image: homebridge/homebridge:2026-11-15
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8581/tcp"

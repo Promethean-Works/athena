@@ -34,12 +34,16 @@ Checklist:
   - `icon`: `https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/<name>.svg`. Open the URL to check it exists (`curl -sI ... | head -1` should say 200). Use `png/` if there's no SVG.
   - `web_port: WEB_PORT`, and a `WEB_PORT` field whose default no other catalog app uses (`grep -rh -A3 'key: WEB_PORT' catalog/apps | grep default` lists the taken ones).
   - `notes` for anything the user must do on first run (default credentials, a port 53 clash, a setup wizard).
+- **No literal secrets.** An app ported from CasaOS often hard-codes its JWT key, DB and Redis passwords; turn each into a `generate: secret` field (`hex16`/`hex32` when the app decodes it as hex) and reuse the variable wherever the value appears.
+- **Check the image exists** before trusting a tag from another store: `uv run python -m athena.catalog.image_platforms <id>` reports "tag not found" or "denied". CasaOS's `latest` tags were once replaced with invented version numbers, and several multi-service apps were collapsed into one image that doesn't exist.
 - **Every `${VAR}`** is a declared `env` key or `ATHENA_APP_DATA`. Defaults use `@timezone`, `@uid`, `@gid` or `@app_data/<sub>`. Passwords and secrets use `type: password` plus `generate: secret`.
 - **Data** lives under `${ATHENA_APP_DATA}/<sub>`. User media goes through a `type: path` field.
 - Add `restart: unless-stopped` on long-running services.
 - **YAML 1.2:** quote anything that looks like a boolean or a number (`"yes"`, `"8080"`, `"0755"`).
 
 ## 4. Validate
+
+Fill in `platforms` from the registries (never by hand): `cd apps/server && uv run python -m athena.catalog.image_platforms <id> --write`.
 
 ```bash
 cd apps/server

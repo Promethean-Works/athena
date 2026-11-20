@@ -5,6 +5,7 @@ x-athena:
   tags: [Proxy, Scraping, Cloudflare]
   license: "AGPL-3.0"
   category: utilities
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlareSolverr/icon.svg
   homepage: https://flaresolverr.com
   web_port: WEB_PORT

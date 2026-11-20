@@ -7,9 +7,7 @@ x-athena:
   homepage: https://www.plex.tv
   web_port: 32400
   web_path: /web/index.html
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: "## Plex\n\n#### Stream Movies & TV Shows <br>\n\n*FAQ*\nAuthorized Files and Data to Plex\n\n\
     1. Click setting via top right menu of App icon\n2. map your device's media location in 'Host Path'\
     \ and link it to Plex's 'Container Path' at /Media for seamless access.\n  To add a media library\

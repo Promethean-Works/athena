@@ -5,6 +5,7 @@ x-athena:
   tags: [Music, Audio, Streaming]
   license: "Proprietary"
   category: media
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RoonServer/icon.svg
   homepage: https://roonlabs.com
   web_port: WEB_PORT

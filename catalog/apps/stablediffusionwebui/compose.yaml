@@ -7,8 +7,7 @@ x-athena:
   homepage: https://github.com/AUTOMATIC1111/stable-diffusion-webui
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64]
   notes: null
   env:
   - key: WEB_PORT

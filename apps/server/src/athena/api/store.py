@@ -23,9 +23,12 @@ from athena.catalog.loader import (
     resolve_values,
 )
 from athena.catalog.model import APP_ID, CATEGORY_LABELS, CatalogApp, EnvField, FieldType
+from athena.catalog.platforms import Support, host_platform, support
 from athena.catalog.registry import BUILTIN, CatalogRegistry
 from athena.db.models import App, Catalog
 from athena.jobs import Job, JobManager, JobOut
+from athena.platform.capabilities import CapabilityManifest
+from athena.platform.store import CapabilityStore
 
 router = APIRouter(prefix="/store", tags=["store"])
 
@@ -55,6 +58,9 @@ class StoreApp(BaseModel):
     icon: str | None
     installed: list[str]
     """Names of Athena apps installed from this catalog app."""
+    support: Support
+    """Whether the app's images run on this host's CPU: natively, under emulation
+    (Docker Desktop on an arm64 Mac or Windows PC), or not at all."""
 
 
 class FormField(BaseModel):
@@ -83,6 +89,8 @@ class StoreAppDetail(StoreApp):
     homepage: str | None
     notes: str | None
     platforms: list[str]
+    host_platform: str | None
+    """This host's CPU as a container platform (``linux/arm64``), None if unknown."""
     images: list[str]
     web_port: str | int | None
     features: list[str]
@@ -113,6 +121,15 @@ def _get(request: Request, catalog: str, app_id: str) -> CatalogApp:
     return app
 
 
+async def _manifest(request: Request) -> CapabilityManifest:
+    capabilities: CapabilityStore = request.app.state.capabilities
+    return await capabilities.get()
+
+
+def _support(app: CatalogApp, manifest: CapabilityManifest) -> Support:
+    return support(app.meta.platforms, manifest.os, manifest.arch)
+
+
 def _installed(db: DbSession) -> dict[str, list[str]]:
     by_catalog_id: dict[str, list[str]] = {}
     for app in db.exec(select(App).where(App.catalog_id.is_not(None))).all():  # type: ignore[union-attr]
@@ -125,7 +142,10 @@ def _catalog_names(db: DbSession) -> dict[str, str]:
 
 
 def _summary(
-    app: CatalogApp, installed: dict[str, list[str]], names: dict[str, str] | None = None
+    app: CatalogApp,
+    installed: dict[str, list[str]],
+    manifest: CapabilityManifest,
+    names: dict[str, str] | None = None,
 ) -> StoreApp:
     return StoreApp(
         catalog=app.catalog,
@@ -141,6 +161,7 @@ def _summary(
         cover=app.meta.screenshots[0] if app.meta.screenshots else None,
         icon=app.meta.icon,
         installed=sorted(installed.get(f"{app.catalog}/{app.id}", [])),
+        support=_support(app, manifest),
     )
 
 
@@ -150,10 +171,10 @@ def _field(f: EnvField, default: str) -> FormField:
         label=f.label,
         description=f.description,
         type=f.type,
-        default="" if f.generate == "secret" else default,
-        required=f.required and f.generate != "secret",
+        default="" if f.generate else default,
+        required=f.required and not f.generate,
         options=f.options,
-        generated=f.generate == "secret",
+        generated=f.generate is not None,
         advanced=f.advanced,
     )
 
@@ -171,7 +192,7 @@ def categories(request: Request) -> list[Category]:
 
 
 @router.get("/apps", operation_id="listStoreApps")
-def list_store_apps(
+async def list_store_apps(
     request: Request,
     db: DbSession,
     q: Annotated[str, Query(max_length=100)] = "",
@@ -180,8 +201,9 @@ def list_store_apps(
     needle = q.strip().lower()
     installed = _installed(db)
     names = _catalog_names(db)
+    manifest = await _manifest(request)
     return [
-        _summary(app, installed, names)
+        _summary(app, installed, manifest, names)
         for app in _registry(request).all()
         if (category is None or app.meta.category == category)
         and (
@@ -196,10 +218,11 @@ def list_store_apps(
 
 
 @router.get("/apps/{catalog}/{app_id}", operation_id="getStoreApp")
-def get_store_app(
+async def get_store_app(
     catalog: CatalogName, app_id: AppId, request: Request, db: DbSession
 ) -> StoreAppDetail:
     app = _get(request, catalog, app_id)
+    manifest = await _manifest(request)
     taken = {a.name for a in db.exec(select(App)).all()}
     name, n = app.id, 2
     while name in taken:
@@ -221,10 +244,11 @@ def get_store_app(
             )
         )
     return StoreAppDetail(
-        **_summary(app, _installed(db), _catalog_names(db)).model_dump(),
+        **_summary(app, _installed(db), manifest, _catalog_names(db)).model_dump(),
         homepage=app.meta.homepage,
         notes=app.meta.notes,
         platforms=app.meta.platforms,
+        host_platform=host_platform(manifest.arch),
         images=app.images,
         web_port=app.meta.web_port,
         features=app.meta.features,
@@ -241,7 +265,10 @@ def get_store_app(
     "/apps/{catalog}/{app_id}/install",
     operation_id="installStoreApp",
     status_code=status.HTTP_202_ACCEPTED,
-    responses={422: {"description": "Invalid values: detail.errors maps field keys to messages"}},
+    responses={
+        409: {"description": "The app's images don't run on this host's CPU"},
+        422: {"description": "Invalid values: detail.errors maps field keys to messages"},
+    },
 )
 async def install(
     catalog: CatalogName,
@@ -254,6 +281,14 @@ async def install(
 ) -> JobOut:
     """Write compose.yaml and .env from the install form, then deploy as a job."""
     app = _get(request, catalog, app_id)
+    manifest = await _manifest(request)
+    if _support(app, manifest) == "unsupported":
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"{app.meta.title} doesn't run on this host: it's published for "
+            f"{', '.join(app.meta.platforms) or 'no platform'}, and this host is "
+            f"{host_platform(manifest.arch)}.",
+        )
     slug = body.variant or "default"
     variant = next((v for v in app.variants if v.slug == slug), None)
     if variant is None:

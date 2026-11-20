@@ -18,6 +18,7 @@ x-athena:
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/jellyfin.svg
   homepage: https://jellyfin.org
   web_port: WEB_PORT     # env key (or a number) that the "Open" button uses
+  platforms: [linux/amd64, linux/arm64]  # CPUs its images exist for; filled by a script
   notes: >-              # optional, shown on the store page
     First-run instructions.
   tagline: Your own streaming service for movies, shows and music.  # card subtitle
@@ -51,7 +52,8 @@ x-athena:
     - key: DB_PASSWORD
       label: Database password
       type: password
-      generate: secret   # random value when left empty
+      generate: secret   # random value when left empty (32 URL-safe characters);
+                         # hex16 / hex32 for keys an app decodes as hex (32 / 64 characters)
     - key: SMTP_HOST
       label: Mail server
       required: false    # default true: an empty value is refused unless generated
@@ -84,6 +86,8 @@ slug title-cased when it's missing.
   - `@uid` and `@gid` are the server user's IDs (1000 when Athena runs as root).
   - `@app_data` and `@app_data/<sub>` are paths inside the app's data folder.
 - **Pin image tags** to a release, a major version, or an official channel (`stable`). Check that they exist for `linux/amd64` and `linux/arm64`.
+- **`platforms`** lists the CPUs every image of the default `compose.yaml` is published for (`linux/amd64`, `linux/arm64`, `linux/arm/v7`). Don't write it by hand: `cd apps/server && uv run python -m athena.catalog.image_platforms <id> --write` reads the registries and sets it (no ids: every app; no `--write`: report only). The store hides apps that don't match the host's CPU, marks amd64-only apps on an arm64 Mac or Windows PC as "Emulated", and install refuses the rest. Run it once at a time: Docker Hub's tag API allows about 180 requests a minute and a full run uses about 140.
+- **No fixed secrets.** Never ship a password, key or token as a literal (CasaOS files often do). Make it a `type: password` field with `generate: secret` (or `hex16`/`hex32`), and use the same `${KEY}` everywhere the value appears (a database URL, a `--requirepass` argument). Gitleaks fails the commit otherwise.
 - **Open-source apps only.** Use web ports that don't clash with other catalog apps, so several apps can run side by side.
 - **Icons** come from [dashboard-icons](https://github.com/homarr-labs/dashboard-icons) (Apache-2.0).
 - **Screenshots** should come from the project's own repository or documentation site (a raw GitHub URL is fine). Keep them under a few hundred KB, and check that the URL answers 200. The store falls back to the app icon when a screenshot can't load, so a missing or rotted URL is not fatal.
@@ -91,6 +95,6 @@ slug title-cased when it's missing.
 
 ## Checks
 
-`apps/server/tests/test_catalog.py` loads every app, checks its metadata and variables, and fills the form with defaults. When a container engine is available (`ATHENA_DOCKER_TESTS=1`, which is on in Linux CI), it also runs `docker compose config` on each app.
+`apps/server/tests/test_catalog.py` loads every app, checks its metadata and variables, and fills the form with defaults. When a container engine is available (`ATHENA_DOCKER_TESTS=1`, which is on in Linux CI), it also runs `docker compose config` on each app. Every app must declare `platforms` (except those in `UNREADABLE`, whose images can't be read yet); `ATHENA_NETWORK_TESTS=1` also checks them against the registries.
 
 The catalog is bundled into the server wheel as `athena/catalog_builtin`.

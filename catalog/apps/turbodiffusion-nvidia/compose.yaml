@@ -8,8 +8,7 @@ x-athena:
   homepage: https://github.com/thu-ml/TurboDiffusion
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64]
   notes: 'Built-in model: TurboWan2.1-T2V-1.3B-480P
 
 

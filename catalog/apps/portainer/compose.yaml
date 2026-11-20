@@ -13,6 +13,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Portainer/thumbnail.png
   category: utilities
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/portainer.svg
   homepage: https://www.portainer.io
   web_port: WEB_PORT

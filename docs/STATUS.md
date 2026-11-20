@@ -13,7 +13,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
-- Not yet verified: installing the CasaOS-ported catalog apps (#120) for real against Docker.
+- Not yet verified: installing the CasaOS-ported catalog apps (#120) for real against Docker, especially the stacks re-imported in #167 (dify, librechat, clumoove) and their generated secrets.
 - Tunnel follow-ups (#150):
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
   - ngrok `install`/`configure_service` call `job.log` without `await`.
@@ -37,7 +37,6 @@ Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 - There's no generic OpenAI-compatible provider kind any more, and models.dev's `lmstudio` is skipped, so LM Studio or vLLM can't be added as a provider. Bring back an OpenAI-compatible kind (base URL + optional key)?
 - `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
 
-- The catalog apps `taskingai` and `maybe` ship fixed upstream keys (`AES_ENCRYPTION_KEY`, `JWT_SECRET_KEY`, …) in their compose files, so every install shares them (allowlisted in `.gitleaks.toml`). Generate them per install (an install-form secret type)? Recommendation: yes.
 
 ## Blockers
 

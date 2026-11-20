@@ -7,8 +7,7 @@ x-athena:
   homepage: https://github.com/rdumasia303/deepseek_ocr_app
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64]
   notes: The first run will download the model (~5-10GB), which may take some time.
   env:
   - key: WEB_PORT

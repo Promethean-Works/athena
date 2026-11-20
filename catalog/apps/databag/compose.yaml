@@ -5,6 +5,7 @@ x-athena:
   tags: [Passwords, Notes, Contacts]
   license: "MIT"
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Databag/icon.svg
   homepage: https://databag.app
   web_port: WEB_PORT
