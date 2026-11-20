@@ -73,7 +73,7 @@ services:
     - LOCAL_STORAGE_ROOT=/clumoove
     volumes:
     - type: bind
-      source: /DATA/AppData/clumoove/storage
+      source: ${ATHENA_APP_DATA}/storage
       target: /clumoove
     depends_on:
     - postgres-db
@@ -93,7 +93,7 @@ services:
     - LOCAL_STORAGE_ROOT=/clumoove
     volumes:
     - type: bind
-      source: /DATA/AppData/clumoove/storage
+      source: ${ATHENA_APP_DATA}/storage
       target: /clumoove
     depends_on:
     - postgres-db
@@ -114,7 +114,7 @@ services:
       POSTGRES_DB: cloud_migration_db
     volumes:
     - type: bind
-      source: /DATA/AppData/clumoove/postgres
+      source: ${ATHENA_APP_DATA}/postgres
       target: /var/lib/postgresql/data
     networks:
     - clumoove-network
@@ -125,7 +125,7 @@ services:
     command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}" --bind 0.0.0.0
     volumes:
     - type: bind
-      source: /DATA/AppData/clumoove/redis
+      source: ${ATHENA_APP_DATA}/redis
       target: /data
     networks:
     - clumoove-network
