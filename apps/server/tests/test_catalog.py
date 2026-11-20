@@ -45,6 +45,10 @@ def test_every_builtin_app_installs_with_defaults(tmp_path: Path) -> None:
         for f in app.meta.env:
             if f.generate == "secret":
                 assert len(values[f.key]) >= 24, f"{app.id}: {f.key} not generated"
+            elif f.generate:
+                size = {"hex16": 32, "hex32": 64}[f.generate]
+                assert len(values[f.key]) == size, f"{app.id}: {f.key} not generated"
+                int(values[f.key], 16)
 
 
 def test_builtin_web_ports_dont_clash() -> None:
@@ -345,31 +349,7 @@ def test_read_env_round_trips(tmp_path: Path) -> None:
 # Apps whose images can't be read from their registry yet (a wrong tag or name, or a
 # private package), so the platform script can't fill them in. Remove an id once its
 # image is fixed and `python -m athena.catalog.image_platforms <id> --write` has run.
-UNREADABLE = {
-    "clumoove",
-    "crafty",
-    "deepseekharness",
-    "dify",
-    "excalidraw",
-    "gateway-go",
-    "homebridge",
-    "hugo",
-    "indextts",
-    "librechat",
-    "maybe",
-    "mineos",
-    "n8n",
-    "ollama",
-    "opodsync",
-    "photoprism",
-    "pinchflat",
-    "playit-agent",
-    "playitagent",
-    "prowlarr",
-    "radarr",
-    "readarr",
-    "sonarr",
-}
+UNREADABLE: set[str] = set()
 
 
 @pytest.mark.parametrize(
@@ -585,3 +565,21 @@ def test_store_allows_emulated_apps_on_an_arm_mac(tmp_path: Path, monkeypatch) -
         res = api.post("/api/store/apps/builtin/handbrake/install", json={"name": "hb"})
         assert res.status_code == 202, res.text
         assert wait(api, res.json()["id"])["status"] == "succeeded"
+
+
+def test_hex_secrets(tmp_path: Path) -> None:
+    text, d = doc(
+        [
+            PORT,
+            {"key": "IV", "label": "IV", "type": "password", "generate": "hex16"},
+            {"key": "KEY", "label": "Key", "type": "password", "generate": "hex32"},
+        ]
+    )
+    app = parse_app("a", "builtin", [("compose.yaml", text, d)])
+    values = resolve_values(app.meta.env, {}, tmp_path)
+    assert len(values["IV"]) == 32 and len(values["KEY"]) == 64
+    int(values["IV"], 16), int(values["KEY"], 16)
+    with pytest.raises(InstallValueError) as exc:
+        resolve_values(app.meta.env, {"IV": "not-hex"}, tmp_path)
+    assert "32 hexadecimal" in exc.value.errors["IV"]
+    assert resolve_values(app.meta.env, {"IV": "a" * 32}, tmp_path)["IV"] == "a" * 32

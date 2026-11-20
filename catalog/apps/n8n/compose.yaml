@@ -2,6 +2,7 @@ x-athena:
   title: n8n
   description: Workflow automation tool that connects apps and services.
   category: development
+  platforms: [linux/amd64, linux/arm64]
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/N8n/thumbnail.png
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/n8n.svg
@@ -19,7 +20,7 @@ x-athena:
 
 services:
   n8n:
-    image: docker.n8n.io/n8nio/n8n:stable
+    image: n8nio/n8n:2.48.7
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:5678"

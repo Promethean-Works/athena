@@ -7,9 +7,7 @@ x-athena:
   homepage: https://playit.gg
   web_port: null
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: This is the agent for use with playit.gg's reverse proxy. After having installed the container/app,
     you have to go to the settings of the container/app and go to the logs. The logs will tell you to
     click a link to activate the agent. Copy the link (you will have to do it manually with your cursor)
@@ -24,6 +22,6 @@ x-athena:
 services:
   playit-agent:
     restart: unless-stopped
-    image: ghcr.io/playit-cloud/playit-agent:v2.0.2
+    image: ghcr.io/playit-cloud/playit-agent:2.0.2
     network_mode: host
     container_name: playit-agent

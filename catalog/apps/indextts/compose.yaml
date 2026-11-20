@@ -1,27 +1,47 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Index-TTS
 x-athena:
   title: Index-TTS
   description: High-quality text-to-speech synthesis using Index-TTS models.
   tagline: Text-to-speech synthesis.
-  tags: [TTS, AI, Audio]
-  license: "MIT"
+  tags:
+  - TTS
+  - AI
+  - Audio
+  license: MIT
   category: development
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/icon.svg
   homepage: https://index-tts.com
   web_port: WEB_PORT
   screenshots:
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/screenshot-1.png
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/screenshot-2.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/screenshot-1.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Index-TTS/screenshot-2.png
   env:
-    - key: WEB_PORT
-      label: Web port
-      type: port
-      default: "8200"
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8200'
+  web_path: /
+  notes: '1. Please ensure available memory > 12 GB, otherwise the application may not run properly
 
+    2. The application takes approximately 5 minutes to start, please be patient
+
+    3. This application runs on CPU by default. This mode has low computational efficiency and will cause
+    extremely high resource consumption and potential system instability. For optimal performance and
+    stability, it is strongly recommended to use NVIDIA GPU to run this application
+
+    4. If you need to use NVIDIA GPU, please select "Custom Install" and enable the GPU option (supported
+    in ZimaOS 1.5.0 and above)'
 services:
-  indextts:
-    image: ghcr.io/index-tts/index-tts:v2.5.0
+  index-tts:
+    image: icewhaletech/index-tts:2.0
+    container_name: index-tts
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:7860/tcp"
-    volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+    - target: 7860
+      published: ${WEB_PORT}
+      protocol: tcp
+    deploy:
+      resources:
+        reservations:
+          memory: 12G

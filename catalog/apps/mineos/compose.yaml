@@ -5,6 +5,7 @@ x-athena:
   tags: [Minecraft, Gaming, Server]
   license: "GPL-3.0"
   category: home
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/MineOS/icon.svg
   homepage: https://mineos.io
   web_port: WEB_PORT
@@ -19,7 +20,7 @@ x-athena:
 
 services:
   mineos:
-    image: hexparrot/mineos:v0.6.9
+    image: hexparrot/mineos:latest@sha256:247be835fbdc48932e92dc3dee9e2a9fcee5fa877ce5cbb0edf7abda6f0323f5
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"
