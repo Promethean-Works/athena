@@ -5,6 +5,7 @@ x-athena:
   tags: [2FA, Security, Authentication]
   license: "MIT"
   category: productivity
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/2FAuth/icon.svg
   homepage: https://2fauth.app
   web_port: WEB_PORT

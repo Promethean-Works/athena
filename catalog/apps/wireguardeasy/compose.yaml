@@ -5,6 +5,7 @@ x-athena:
   tags: [VPN, WireGuard, Security]
   license: "GPL-3.0"
   category: network
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WireGuardEasy/icon.svg
   homepage: https://we-gitea.com
   web_port: WEB_PORT

@@ -32,11 +32,38 @@ import {
   ToggleGroupItem,
 } from "@workspace/ui/components/toggle-group"
 
+import { cn } from "@workspace/ui/lib/utils"
+
 import { AppIcon } from "@/components/store/app-icon"
 import { StoreCover } from "@/components/store/store-cover"
 
 type StoreApp = Schemas["StoreApp"]
 type Category = Schemas["Category"]
+
+/** "Emulated" or "Won't run here" next to an app's title; nothing when it runs natively. */
+export function SupportBadge({ support }: { support: StoreApp["support"] }) {
+  if (support === "emulated") {
+    return (
+      <Badge
+        variant="outline"
+        title="No image for this CPU; Docker runs another one under emulation, which is slower"
+      >
+        Emulated
+      </Badge>
+    )
+  }
+  if (support === "unsupported") {
+    return (
+      <Badge
+        variant="destructive"
+        title="No image for this server's CPU"
+      >
+        Won&apos;t run here
+      </Badge>
+    )
+  }
+  return null
+}
 
 export function storeAppHref(app: { catalog: string; id: string }) {
   return `/store/view/?catalog=${encodeURIComponent(app.catalog)}&id=${encodeURIComponent(app.id)}`
@@ -50,6 +77,8 @@ export function StoreBrowser() {
   const [error, setError] = React.useState<string | null>(null)
   const [query, setQuery] = React.useState(initialQuery)
   const [category, setCategory] = React.useState<string>("all")
+  // Apps with no image for this host's CPU are hidden until asked for.
+  const [showUnsupported, setShowUnsupported] = React.useState(false)
 
   React.useEffect(() => {
     void Promise.all([
@@ -62,14 +91,26 @@ export function StoreBrowser() {
     })
   }, [])
 
-  const popular = React.useMemo(
-    () => (apps ?? []).filter((a) => a.popular),
+  const runnable = React.useMemo(
+    () =>
+      (apps ?? []).filter(
+        (a) => showUnsupported || a.support !== "unsupported"
+      ),
+    [apps, showUnsupported]
+  )
+  const unsupportedCount = React.useMemo(
+    () => (apps ?? []).filter((a) => a.support === "unsupported").length,
     [apps]
+  )
+
+  const popular = React.useMemo(
+    () => runnable.filter((a) => a.popular && a.support !== "unsupported"),
+    [runnable]
   )
 
   const shown = React.useMemo(() => {
     const needle = query.trim().toLowerCase()
-    return (apps ?? []).filter(
+    return runnable.filter(
       (a) =>
         (category === "all" || a.category === category) &&
         (!needle ||
@@ -78,7 +119,7 @@ export function StoreBrowser() {
           (a.tagline ?? "").toLowerCase().includes(needle) ||
           a.tags.some((t) => t.toLowerCase().includes(needle)))
     )
-  }, [apps, query, category])
+  }, [runnable, query, category])
 
   if (error && !apps) {
     return (
@@ -100,8 +141,8 @@ export function StoreBrowser() {
           <p className="text-sm text-muted-foreground">
             {apps
               ? browsing
-                ? `${shown.length} of ${apps.length} apps`
-                : `${apps.length} apps, each a compose project Athena sets up for you.`
+                ? `${shown.length} of ${runnable.length} apps`
+                : `${runnable.length} apps, each a compose project Athena sets up for you.`
               : "Browse apps to install."}
           </p>
           <div className="flex items-center gap-2 sm:ml-auto">
@@ -126,6 +167,21 @@ export function StoreBrowser() {
             </Button>
           </div>
         </div>
+        {unsupportedCount ? (
+          <p className="text-sm text-muted-foreground">
+            {showUnsupported
+              ? `Showing ${unsupportedCount} ${unsupportedCount === 1 ? "app" : "apps"} that can't run on this server's CPU.`
+              : `${unsupportedCount} ${unsupportedCount === 1 ? "app is" : "apps are"} hidden because ${unsupportedCount === 1 ? "it has" : "they have"} no image for this server's CPU.`}{" "}
+            <Button
+              variant="link"
+              size="sm"
+              className="h-auto px-0"
+              onClick={() => setShowUnsupported((v) => !v)}
+            >
+              {showUnsupported ? "Hide them" : "Show them"}
+            </Button>
+          </p>
+        ) : null}
       </div>
 
       {!apps ? (
@@ -171,7 +227,12 @@ export function StoreBrowser() {
               href={storeAppHref(app)}
               className="group rounded-xl focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
             >
-              <Card className="h-full gap-0 pt-0 transition-colors group-hover:border-primary/40 group-hover:shadow-sm">
+              <Card
+                className={cn(
+                  "h-full gap-0 pt-0 transition-colors group-hover:border-primary/40 group-hover:shadow-sm",
+                  app.support === "unsupported" && "opacity-60"
+                )}
+              >
                 <StoreCover
                   title={app.title}
                   icon={app.icon}
@@ -188,6 +249,7 @@ export function StoreBrowser() {
                     {app.installed.length ? (
                       <Badge variant="secondary">Installed</Badge>
                     ) : null}
+                    <SupportBadge support={app.support} />
                   </CardTitle>
                   <CardDescription className="line-clamp-2">
                     {app.tagline ?? app.description}

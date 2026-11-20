@@ -9,3 +9,12 @@ paths = [
   '''^catalog/apps/taskingai/compose\.yaml$''',
   '''^catalog/apps/maybe/compose\.yaml$''',
 ]
+
+[[allowlists]]
+description = "Build output, never committed: `gitleaks dir` doesn't read .gitignore, and pytest's .pyc of the secret-guard tests holds their fake tokens"
+paths = [
+  '''(^|/)__pycache__/''',
+  '''(^|/)\.next/''',
+  '''(^|/)node_modules/''',
+  '''(^|/)\.venv/''',
+]

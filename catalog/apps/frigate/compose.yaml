@@ -5,6 +5,7 @@ x-athena:
   tags: [Security, Cameras, NVR, AI]
   license: "AGPL-3.0"
   category: security
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Frigate/icon.png
   homepage: https://frigate.video
   web_port: WEB_PORT

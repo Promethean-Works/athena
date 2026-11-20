@@ -5,6 +5,7 @@ x-athena:
   tags: [Usenet, Downloads, NZB]
   license: "GPL-3.0"
   category: downloads
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/nzbfast/icon.svg
   homepage: https://nzbfast.com
   web_port: WEB_PORT

@@ -7,6 +7,7 @@ import Link from "next/link"
 import {
   CheckIcon,
   ChevronDownIcon,
+  CpuIcon,
   ExternalLinkIcon,
   ImageOffIcon,
   InfoIcon,
@@ -65,7 +66,10 @@ import { cn } from "@workspace/ui/lib/utils"
 import { AppIcon } from "@/components/store/app-icon"
 import { InstallForm } from "@/components/store/install-form"
 import { StoreCover } from "@/components/store/store-cover"
-import { storeAppHref } from "@/components/store/store-browser"
+import {
+  storeAppHref,
+  SupportBadge,
+} from "@/components/store/store-browser"
 
 type Detail = Schemas["StoreAppDetail"]
 type StoreApp = Schemas["StoreApp"]
@@ -121,6 +125,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
               <p className="text-muted-foreground">{app.description}</p>
             )}
             <div className="flex flex-wrap items-center gap-2 pt-1">
+              <SupportBadge support={app.support} />
               <Badge variant="outline">
                 {app.category_label || app.category}
               </Badge>
@@ -148,6 +153,8 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
         </div>
 
         <Screenshots title={app.title} images={app.screenshots} />
+
+        <CpuAlert app={app} />
 
         {app.installed.length ? (
           <Alert>
@@ -291,11 +298,48 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
               </Select>
             </Field>
           )}
-          <InstallForm app={app} variant={selectedVariant} />
+          {app.support === "unsupported" ? (
+            <p className="text-sm text-muted-foreground">
+              {app.title} can&apos;t be installed on this server: it has no
+              image for {app.host_platform ?? "this CPU"}.
+            </p>
+          ) : (
+            <InstallForm app={app} variant={selectedVariant} />
+          )}
         </CardContent>
       </Card>
     </div>
   )
+}
+
+function CpuAlert({ app }: { app: Detail }) {
+  const published = app.platforms.join(", ")
+  const host = app.host_platform ?? "this server's CPU"
+  if (app.support === "unsupported") {
+    return (
+      <Alert variant="destructive">
+        <CpuIcon />
+        <AlertTitle>Doesn&apos;t run on this server</AlertTitle>
+        <AlertDescription>
+          Its images are published for {published}, and this server is {host}.
+        </AlertDescription>
+      </Alert>
+    )
+  }
+  if (app.support === "emulated") {
+    return (
+      <Alert>
+        <CpuIcon />
+        <AlertTitle>Runs under emulation</AlertTitle>
+        <AlertDescription>
+          There&apos;s no image for {host}, so Docker runs the {published}{" "}
+          one under emulation. It works, but it&apos;s slower and uses more
+          memory.
+        </AlertDescription>
+      </Alert>
+    )
+  }
+  return null
 }
 
 function ScreenshotImage({
@@ -435,7 +479,11 @@ function RelatedApps({ app }: { app: Detail }) {
   }, [app.category])
 
   const related = apps
-    .filter((a) => !(a.catalog === app.catalog && a.id === app.id))
+    .filter(
+      (a) =>
+        !(a.catalog === app.catalog && a.id === app.id) &&
+        a.support !== "unsupported"
+    )
     .slice(0, 4)
 
   if (related.length === 0) return null

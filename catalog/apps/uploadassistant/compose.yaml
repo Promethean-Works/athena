@@ -5,6 +5,7 @@ x-athena:
   tags: [Media, Upload, Organization]
   license: "MIT"
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/video.svg
   homepage: https://uploadassistant.app
   web_port: WEB_PORT

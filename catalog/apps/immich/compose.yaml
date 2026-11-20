@@ -14,6 +14,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/immich-app/immich/main/design/immich-screenshots.png
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/immich.svg
   homepage: https://immich.app
   web_port: WEB_PORT

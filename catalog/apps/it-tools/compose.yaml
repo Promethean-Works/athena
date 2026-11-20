@@ -5,6 +5,7 @@ x-athena:
   tags: [Tools, Developer]
   license: "GPL-3.0"
   category: utilities
+  platforms: [linux/amd64, linux/arm64]
   screenshots:
     - https://raw.githubusercontent.com/CorentinTh/it-tools/main/public/banner.png
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/it-tools.svg

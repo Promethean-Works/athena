@@ -5,6 +5,7 @@ x-athena:
   tags: [Monitoring, System, Stats]
   license: "BSD-2-Clause"
   category: monitoring
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Glances/icon.svg
   homepage: https://nicolargo.github.io/glances
   web_port: WEB_PORT
