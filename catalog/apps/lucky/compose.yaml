@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
     volumes:
     - type: bind
-      source: /DATA/AppData/lucky
+      source: ${ATHENA_APP_DATA}
       target: /goodluck
     environment:
       TZ: ${TZ}
