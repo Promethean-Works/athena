@@ -36,7 +36,6 @@ services:
     command:
     - /bin/bash
     - -c
-    - conda install -c conda-forge jupyterlab -y --quiet && jupyter lab --notebook-dir=/opt/notebooks
-      --ip='*' --port=8888 --no-browser --allow-root
+    - jupyter lab --notebook-dir=/opt/notebooks --ip=0.0.0.0 --port=8888 --no-browser --allow-root
     labels:
       icon: https://cdn.jsdelivr.net/gh/LisonEvf/CasaOS-AppStore@main/Apps/Anaconda3/icon.svg

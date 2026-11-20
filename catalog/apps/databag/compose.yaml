@@ -23,6 +23,6 @@ services:
     image: balzack/databag:0.1.18
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:7000/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/data:/var/lib/databag
