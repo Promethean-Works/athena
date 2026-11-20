@@ -198,7 +198,7 @@ export function StoreBrowser() {
       </div>
 
       {!apps ? (
-        <Skeleton className="h-52 w-full rounded-2xl" />
+        <PopularCarousel popular={null} />
       ) : popular.length && !browsing ? (
         <PopularCarousel popular={popular} />
       ) : null}
