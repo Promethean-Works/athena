@@ -22,20 +22,15 @@ x-athena:
       type: password
       generate: secret
       description: Sign in as admin with this password.
-    - key: PUID
-      label: User ID
-      default: "@uid"
-      advanced: true
-    - key: PGID
-      label: Group ID
-      default: "@gid"
-      advanced: true
 
 services:
   openlist:
     image: openlistteam/openlist:v4.2.2
     restart: unless-stopped
-    user: "${PUID}:${PGID}"
+    # Since v4.1 the image runs as uid 1001 and exits if it can't write ./data. On Linux,
+    # Docker creates the bind-mounted folder owned by root, so run as root (upstream's
+    # documented option) rather than as the server user.
+    user: "0:0"
     ports:
       - "${WEB_PORT}:5244/tcp"
     environment:
