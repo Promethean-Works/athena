@@ -57,6 +57,9 @@ UP_TIMEOUT = 10 * 60
 STABLE_FOR = 30
 """Seconds every container must keep running for a ``smoke: start`` app to pass."""
 POLL = 3.0
+CLEANUP_IMAGE = "busybox:1.37"
+"""Deletes the root-owned files containers leave in a test folder on Linux. Kept after
+the run (it's about 4 MB), so it's pulled once."""
 
 
 @dataclass
@@ -129,6 +132,17 @@ class Engine:
                     timeout=300,
                     check=False,
                 )
+
+    def remove_tree(self, folder: Path) -> None:
+        """Delete a test folder, including files the containers wrote as root (Linux)."""
+        shutil.rmtree(folder, ignore_errors=True)
+        if folder.exists():
+            # Mount the parent and delete the child, so the folder itself goes too.
+            self.run(
+                "run", "--rm", "--volume", f"{folder.parent}:/parent",
+                CLEANUP_IMAGE, "rm", "-rf", f"/parent/{folder.name}",
+                timeout=300,
+            )  # fmt: skip
 
     def has_image(self, ref: str) -> bool:
         return self.run("image", "inspect", "--format", "{{.Id}}", ref).returncode == 0
@@ -364,7 +378,7 @@ def run_one(
                     if ref not in already:
                         engine.run("image", "rm", ref)
                 engine.trim()
-            shutil.rmtree(folder, ignore_errors=True)
+            engine.remove_tree(folder)
 
 
 def free_gb(path: Path) -> float:

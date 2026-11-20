@@ -685,6 +685,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Dashboard */
+        get: operations["getDashboardLayout"];
+        /**
+         * Set Dashboard
+         * @description Each user has their own layout. Saving `{"cards": null}` goes back to the default.
+         */
+        put: operations["setDashboardLayout"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/system": {
         parameters: {
             query?: never;
@@ -2111,6 +2132,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Entries
+         * @description The newest entries first.
+         */
+        get: operations["listAuditEntries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2335,6 +2376,26 @@ export interface components {
             decisions?: components["schemas"]["Decision"][];
             /** Answers */
             answers?: components["schemas"]["Answer"][];
+        };
+        /**
+         * AuditEntryOut
+         * @description `detail` is left out on purpose: it can hold a shell command or a path the
+         *     user typed, and the dashboard only needs who did what to which target.
+         */
+        AuditEntryOut: {
+            /** Id */
+            id: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Username */
+            username: string;
+            /** Action */
+            action: string;
+            /** Target */
+            target: string | null;
         };
         /** AuthStatus */
         AuthStatus: {
@@ -2651,6 +2712,22 @@ export interface components {
             username: string;
             /** Password */
             password: string;
+        };
+        /** DashboardCard */
+        DashboardCard: {
+            /** Id */
+            id: string;
+            /**
+             * Size
+             * @default half
+             * @enum {string}
+             */
+            size: "half" | "full";
+        };
+        /** DashboardLayout */
+        DashboardLayout: {
+            /** Cards */
+            cards?: components["schemas"]["DashboardCard"][] | null;
         };
         /** Decision */
         Decision: {
@@ -5309,6 +5386,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Appearance"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getDashboardLayout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardLayout"];
+                };
+            };
+        };
+    };
+    setDashboardLayout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DashboardLayout"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardLayout"];
                 };
             };
             /** @description Validation Error */
@@ -8254,6 +8384,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IssueUrl"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listAuditEntries: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEntryOut"][];
                 };
             };
             /** @description Validation Error */

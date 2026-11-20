@@ -16,7 +16,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,23 +25,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@workspace/ui/components/empty"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 
-import { DeleteAppDialog } from "@/components/apps/app-bits"
+import { DeleteAppDialog, webPorts } from "@/components/apps/app-bits"
 import { useAppJobs } from "@/components/apps/use-app-jobs"
 import { type AppOut, useAppsList } from "@/components/apps/use-apps-list"
 import { isAllowed, useCapabilities } from "@/components/capabilities-provider"
 import { RuntimeEmpty } from "@/components/containers/runtime-empty"
 import { AppIcon } from "@/components/store/app-icon"
 
+const STATUS: Record<string, { label: string; dot: string }> = {
+  running: { label: "Running", dot: "bg-primary" },
+  partial: { label: "Partly running", dot: "bg-primary/50" },
+  stopped: { label: "Stopped", dot: "bg-muted-foreground/40" },
+  not_deployed: { label: "Not deployed", dot: "border border-muted-foreground/60" },
+}
+
+function statusOf(app: AppOut) {
+  const s = STATUS[app.status] ?? STATUS.not_deployed!
+  return app.status === "partial"
+    ? { ...s, label: `${app.running} of ${app.total} running` }
+    : s
+}
+
+/** One app: icon, name and status, an Open button when it serves a web page, and a menu. */
 function AppCard({
   app,
   onAction,
@@ -52,101 +59,92 @@ function AppCard({
   onRemove: (name: string) => void
 }) {
   const settingsHref = `/apps/view/?name=${encodeURIComponent(app.name)}`
-  const appUrl = app.web_port
-    ? `${window.location.protocol}//${window.location.hostname}:${app.web_port}`
-    : null
+  const port = webPorts(app)[0]
+  const up = app.status === "running" || app.status === "partial"
+  const appUrl =
+    port && up
+      ? `${window.location.protocol}//${window.location.hostname}:${port}`
+      : null
+  const title = app.title ?? app.name
+  const status = statusOf(app)
 
   return (
-    <div
-      key={app.name}
-      className="group relative flex flex-col items-center p-2 min-h-[120px] hover:bg-accent rounded-lg transition-colors"
-    >
-      <div className="relative w-full flex flex-col items-center">
-        {/* App icon with dropdown menu on top-right */}
-        <div className="relative group">
-          <a
-            href={appUrl ?? settingsHref}
-            target={appUrl ? "_blank" : undefined}
-            rel={appUrl ? "noopener noreferrer" : undefined}
-            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg"
-          >
-            <AppIcon title={app.title ?? app.name} icon={app.icon} className="size-20" />
-          </a>
-          {/* Three dots menu on top-right of icon - visible on hover */}
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 absolute top-1 right-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-7 w-7" />}>
-                <EllipsisVerticalIcon className="h-3.5 w-3.5" />
-                <span className="sr-only">Actions for {app.name}</span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-40">
-                <DropdownMenuGroup>
-                  {app.status === "running" ? (
-                    <>
-                      <DropdownMenuItem
-                        onClick={() => void onAction(app.name, "restart")}
-                      >
-                        <RotateCwIcon className="h-4 w-4" />
-                        Restart
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => void onAction(app.name, "stop")}
-                      >
-                        <SquareIcon className="h-4 w-4" />
-                        Stop
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuItem
-                      onClick={() => void onAction(app.name, "start")}
-                    >
-                      <PlayIcon className="h-4 w-4" />
-                      Start
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem
-                    onClick={() => void onAction(app.name, "update")}
-                  >
-                    <RefreshCcwIcon className="h-4 w-4" />
-                    Update images
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onClick={() => window.location.href = settingsHref}
-                    className="flex items-center gap-2"
-                  >
-                    <SettingsIcon className="h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                  {appUrl && (
-                    <DropdownMenuItem
-                      onClick={() => window.open(appUrl, '_blank', 'noopener,noreferrer')}
-                      className="flex items-center gap-2"
-                    >
-                      <ExternalLinkIcon className="h-4 w-4" />
-                      Open app
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => onRemove(app.name)}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    Remove
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-        <span
-          className="mt-1 text-center text-sm font-medium truncate w-full max-w-[140px]"
-        >
-          {app.name}
+    <div className="group/app flex items-center gap-3 rounded-xl border bg-card p-3 transition-colors hover:bg-accent/50">
+      <Link
+        href={settingsHref}
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        <AppIcon title={title} icon={app.icon} className="size-11 shrink-0" />
+        <span className="flex min-w-0 flex-col">
+          <span className="truncate text-sm font-medium">{title}</span>
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span
+              aria-hidden
+              className={`size-2 shrink-0 rounded-full ${status.dot}`}
+            />
+            <span className="truncate">{status.label}</span>
+          </span>
         </span>
-      </div>
+      </Link>
+      {appUrl ? (
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false}
+          render={<a href={appUrl} target="_blank" rel="noopener noreferrer" />}
+          aria-label={`Open ${title}`}
+        >
+          <ExternalLinkIcon data-icon="inline-start" />
+          Open
+        </Button>
+      ) : null}
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={<Button variant="ghost" size="icon-sm" />}
+          aria-label={`Actions for ${title}`}
+        >
+          <EllipsisVerticalIcon />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-44">
+          <DropdownMenuGroup>
+            {up ? (
+              <>
+                <DropdownMenuItem onClick={() => onAction(app.name, "restart")}>
+                  <RotateCwIcon />
+                  Restart
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAction(app.name, "stop")}>
+                  <SquareIcon />
+                  Stop
+                </DropdownMenuItem>
+              </>
+            ) : (
+              <DropdownMenuItem onClick={() => onAction(app.name, "start")}>
+                <PlayIcon />
+                Start
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem onClick={() => onAction(app.name, "update")}>
+              <RefreshCcwIcon />
+              Update images
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem render={<Link href={settingsHref} />}>
+              <SettingsIcon />
+              Settings and logs
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => onRemove(app.name)}
+            >
+              <Trash2Icon />
+              Remove
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }
@@ -162,9 +160,9 @@ function AppsList() {
   }
   if (!apps) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-40 w-full" />
+      <div className="grid gap-3 @2xl/main:grid-cols-2 @5xl/main:grid-cols-3">
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} className="h-17 w-full" />
         ))}
       </div>
     )
@@ -172,23 +170,21 @@ function AppsList() {
   if (apps.length === 0) {
     return (
       <>
-        <Empty className="border">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <LayoutGridIcon />
-            </EmptyMedia>
-            <EmptyTitle>No apps yet</EmptyTitle>
-            <EmptyDescription>
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed p-4">
+          <span className="flex size-9 items-center justify-center rounded-lg bg-muted">
+            <LayoutGridIcon className="size-4" />
+          </span>
+          <div className="mr-auto flex flex-col">
+            <span className="text-sm font-medium">No apps yet</span>
+            <span className="text-sm text-muted-foreground">
               Install one from the store, or deploy your own compose file.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button render={<Link href="/store/" />} nativeButton={false}>
-              <StoreIcon data-icon="inline-start" />
-              Browse the store
-            </Button>
-          </EmptyContent>
-        </Empty>
+            </span>
+          </div>
+          <Button size="sm" render={<Link href="/store/" />} nativeButton={false}>
+            <StoreIcon data-icon="inline-start" />
+            Browse the store
+          </Button>
+        </div>
         {jobs.dialog}
       </>
     )
@@ -196,7 +192,7 @@ function AppsList() {
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+      <div className="grid gap-3 @2xl/main:grid-cols-2 @5xl/main:grid-cols-3">
         {apps.map((app) => (
           <AppCard
             key={app.name}

@@ -9,6 +9,10 @@ x-athena:
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Crafty/icon.svg
   homepage: https://crafty-controller.com
   web_port: WEB_PORT
+  notes: >-
+    Crafty serves only HTTPS with a self-signed certificate: open https://<server>:<port>
+    and accept the browser warning. The first admin password is in
+    config/default-creds.txt in the app's data folder.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Crafty/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Crafty/screenshot-2.png
@@ -23,7 +27,7 @@ services:
     image: arcadiatechnology/crafty-4:4.11.1
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8000/tcp"
+      - "${WEB_PORT}:8443/tcp"
     volumes:
       - ${ATHENA_APP_DATA}/config:/crafty/app/config
       - ${ATHENA_APP_DATA}/servers:/crafty/servers
