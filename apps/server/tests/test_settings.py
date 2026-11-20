@@ -126,3 +126,57 @@ def test_change_password_is_throttled(tmp_path: Path) -> None:
     ]
     assert codes[:5] == [400] * 5
     assert codes[5] == 429
+
+
+def test_dashboard_layout_defaults_saves_and_resets(tmp_path: Path) -> None:
+    client = signed_in(TestClient(make_app(tmp_path)))
+    assert client.get("/api/settings/dashboard").json() == {"cards": None}
+    layout = {"cards": [{"id": "stats", "size": "full"}, {"id": "storage", "size": "half"}]}
+    res = client.put("/api/settings/dashboard", json=layout)
+    assert res.status_code == 200, res.text
+    assert client.get("/api/settings/dashboard").json() == layout
+    # A card id the server doesn't know is fine: the UI owns the list.
+    res = client.put("/api/settings/dashboard", json={"cards": [{"id": "future-card"}]})
+    assert res.json() == {"cards": [{"id": "future-card", "size": "half"}]}
+    assert client.put("/api/settings/dashboard", json={"cards": None}).status_code == 200
+    assert client.get("/api/settings/dashboard").json() == {"cards": None}
+
+
+def test_dashboard_layout_is_validated(tmp_path: Path) -> None:
+    client = signed_in(TestClient(make_app(tmp_path)))
+    bad = [
+        {"cards": [{"id": "Stats"}]},
+        {"cards": [{"id": "x" * 41}]},
+        {"cards": [{"id": "stats", "size": "huge"}]},
+        {"cards": [{"id": "stats"}, {"id": "stats"}]},
+        {"cards": [{"id": f"c{i}"} for i in range(41)]},
+    ]
+    for body in bad:
+        assert client.put("/api/settings/dashboard", json=body).status_code == 422, body
+
+
+def test_dashboard_layout_ignores_invalid_stored_json(tmp_path: Path) -> None:
+    client = signed_in(TestClient(make_app(tmp_path)))
+    with client.app.state.db.engine.begin() as conn:  # type: ignore[attr-defined]
+        conn.exec_driver_sql("UPDATE users SET dashboard = '{\"cards\": 5}'")
+    assert client.get("/api/settings/dashboard").json() == {"cards": None}
+
+
+def test_audit_list_is_admin_only_newest_first_without_detail(tmp_path: Path) -> None:
+    from sqlmodel import Session
+
+    from athena import audit
+
+    client = signed_in(TestClient(make_app(tmp_path)))
+    with Session(client.app.state.db.engine) as db:  # type: ignore[attr-defined]
+        for i in range(3):
+            audit.record(db, "admin", "app.start", f"athena-test-{i}", detail="secret-ish")
+    res = client.get("/api/audit", params={"limit": 2})
+    assert res.status_code == 200, res.text
+    rows = res.json()
+    assert [r["target"] for r in rows] == ["athena-test-2", "athena-test-1"]
+    assert all("detail" not in r for r in rows)
+    assert client.get("/api/audit", params={"limit": 51}).status_code == 422
+    with client.app.state.db.engine.begin() as conn:  # type: ignore[attr-defined]
+        conn.exec_driver_sql("UPDATE users SET is_admin = 0")
+    assert client.get("/api/audit").status_code == 403

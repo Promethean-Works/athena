@@ -21,6 +21,8 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
     appearance: str | None = None
     """The user's appearance settings as JSON (see athena.api.settings.Appearance)."""
+    dashboard: str | None = None
+    """The user's dashboard layout as JSON (see athena.api.settings.DashboardLayout)."""
 
 
 class AuthSession(SQLModel, table=True):
