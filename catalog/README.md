@@ -25,6 +25,9 @@ x-athena:
   tags: [Movies, TV, Music]      # up to 6 small chips on the card
   license: GPL-2.0               # shown on the app page
   popular: true                  # featured in the store's front-page carousel
+  smoke: web                     # what the runtime smoke test checks: web (default),
+                                 # start (no reachable web page) or skip
+  smoke_note: needs an NVIDIA GPU  # why smoke isn't web
   features:                      # up to 8 bullets, "What you get" on the app page
     - Stream to TVs, phones, browsers and DLNA devices
     - Hardware transcoding when the host supports it
@@ -96,5 +99,18 @@ slug title-cased when it's missing.
 ## Checks
 
 `apps/server/tests/test_catalog.py` loads every app, checks its metadata and variables, and fills the form with defaults. When a container engine is available (`ATHENA_DOCKER_TESTS=1`, which is on in Linux CI), it also runs `docker compose config` on each app. Every app must declare `platforms` (except those in `UNREADABLE`, whose images can't be read yet); `ATHENA_NETWORK_TESTS=1` also checks them against the registries.
+
+`python -m athena.catalog.smoke` installs apps for real and checks they come up: it fills the form with defaults (ports moved to free ones, paths into a temporary folder), pulls the images, runs `compose up` under an `athena-test-<id>` project, and waits until the web port answers with a status below 500 (or, with `smoke: start`, until the containers keep running for 30 s). Then it takes the app down with its volumes and removes the images it pulled. Apps whose images don't run on the host's CPU are skipped.
+
+```bash
+cd apps/server
+uv run python -m athena.catalog.smoke <id> [<id>…]   # some apps
+uv run python -m athena.catalog.smoke --changed      # apps changed against origin/main, uncommitted included
+uv run python -m athena.catalog.smoke --all --jobs 3 # every app: hours and many GB of downloads
+```
+
+Other flags: `--variants` (every compose variant), `--timeout` (seconds, default 180, doubled for emulated apps), `--keep` (leave the app running to inspect it), `--keep-images`, `--shard K/N`, `--out` (default `catalog-smoke-report/`, with `summary.md`, `results.json` and `logs/<id>.log` for each failure). Use `smoke: start` for apps without a web page reachable from the host (host networking is detected on its own) and `smoke: skip` with a `smoke_note` for apps that can't run on a test machine (a GPU, a device, a required account token). <!-- docs-check: ignore -->
+
+The `Catalog smoke` workflow runs it on amd64 and arm64 Linux: on pull requests for the apps they change, weekly and by hand for every app (split into shards), or by hand for named apps.
 
 The catalog is bundled into the server wheel as `athena/catalog_builtin`.

@@ -113,6 +113,12 @@ class AppMeta(BaseModel):
     """SPDX-ish license name, shown in the app's details."""
     popular: bool = False
     """Feature in the store's front-page banner."""
+    smoke: Literal["web", "start", "skip"] = "web"
+    """What the runtime smoke test (``athena.catalog.smoke``) checks: ``web`` waits for
+    the web port to answer, ``start`` only for the containers to keep running (apps
+    without a reachable web page, e.g. host networking), ``skip`` doesn't run it."""
+    smoke_note: str | None = None
+    """Why ``smoke`` isn't ``web`` (e.g. "needs an NVIDIA GPU")."""
 
     @field_validator("tagline")
     @classmethod

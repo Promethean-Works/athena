@@ -16,6 +16,7 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Release server for UI checks | `pnpm build` then `cd apps/server && ATHENA_WEB_DIR=../web/out uv run athena serve --port 8421 --data-dir "$DATA"` |
 | Dev mode | `pnpm dev` (Next on :3000, proxies `/api` to :8420) plus `uv run athena serve` |
 | Build the wheel | `scripts/build-wheel.sh` (also used by `release.yml` and the E2E workflow) |
+| Store apps start for real | `cd apps/server && uv run python -m athena.catalog.smoke --changed` (or `<id>…`, or `--all --jobs 3`); report in `catalog-smoke-report/` |
 | Installer dry run | `scripts/install.sh --dry-run`; `athena service install --dry-run` |
 | PR status | `gh pr checks <n>`, `gh run view <run-id> --log-failed`, `gh api repos/tiagozaccaro/athena/code-scanning/alerts?state=open` |
 
