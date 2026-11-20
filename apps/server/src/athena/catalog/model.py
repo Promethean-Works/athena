@@ -22,6 +22,7 @@ A catalog app is a plain compose file plus an `x-athena` block:
           label: Database password
           type: password
           generate: secret        # filled with a random value if left empty
+                                  # (hex16 / hex32: that many random bytes as hex)
 
 The compose file references values with standard `${KEY}` interpolation. Athena
 writes the answers to `.env` next to `compose.yaml`, which compose reads on its own.
@@ -72,8 +73,10 @@ class EnvField(BaseModel):
     required: bool = True
     options: list[str] | None = None
     """For type: select."""
-    generate: Literal["secret"] | None = None
-    """Fill an empty value with a random secret at install time."""
+    generate: Literal["secret", "hex16", "hex32"] | None = None
+    """Fill an empty value with a random secret at install time: ``secret`` is 32 URL-safe
+    characters, ``hex16``/``hex32`` are 16 or 32 random bytes as hex (32 or 64 characters),
+    for apps that decode their key as hex (e.g. an AES key and IV)."""
     advanced: bool = False
     """Collapsed in the install form."""
 

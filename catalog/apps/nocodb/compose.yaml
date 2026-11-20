@@ -13,6 +13,7 @@ x-athena:
     - https://raw.githubusercontent.com/nocodb/nocodb/develop/packages/nc-gui/assets/img/views/grid.png
     - https://raw.githubusercontent.com/nocodb/nocodb/develop/packages/nc-gui/assets/img/views/kanban.png
   category: development
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/nocodb.svg
   homepage: https://nocodb.com
   web_port: WEB_PORT

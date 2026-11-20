@@ -5,6 +5,7 @@ x-athena:
   tags: [Notes, Knowledge Base, Organization]
   license: "AGPL-3.0"
   category: productivity
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Trilium/icon.svg
   homepage: https://trilium.next
   web_port: WEB_PORT

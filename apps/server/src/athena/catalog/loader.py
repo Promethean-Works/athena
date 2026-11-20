@@ -108,6 +108,13 @@ def form_defaults(env_fields: list[EnvField], app_data: Path) -> dict[str, str]:
     return {f.key: resolve_default(f, app_data) for f in env_fields}
 
 
+HEX_BYTES = {"hex16": 16, "hex32": 32}
+
+
+def _is_hex(value: str, size: int) -> bool:
+    return len(value) == size * 2 and all(c in "0123456789abcdefABCDEF" for c in value)
+
+
 def resolve_values(
     env_fields: list[EnvField], submitted: dict[str, str], app_data: Path
 ) -> dict[str, str]:
@@ -119,6 +126,8 @@ def resolve_values(
         value = (raw if raw is not None else resolve_default(field, app_data)).strip()
         if not value and field.generate == "secret":
             value = secrets.token_urlsafe(24)
+        elif not value and field.generate in HEX_BYTES:
+            value = secrets.token_hex(HEX_BYTES[field.generate])
         if not value:
             if field.required:
                 errors[field.key] = "Required"
@@ -126,6 +135,9 @@ def resolve_values(
             continue
         if "\n" in value or "\r" in value:
             errors[field.key] = "Must be a single line"
+        elif field.generate in HEX_BYTES and not _is_hex(value, HEX_BYTES[field.generate]):
+            size = HEX_BYTES[field.generate] * 2
+            errors[field.key] = f"Must be {size} hexadecimal characters (or empty to generate)"
         elif field.type == "port":
             if not value.isdigit() or not 1 <= int(value) <= 65535:
                 errors[field.key] = "Must be a port number between 1 and 65535"

@@ -5,6 +5,7 @@ x-athena:
   tags: [Media, Streaming, Movies, TV]
   license: "GPL-2.0"
   category: media
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Emby/icon.svg
   homepage: https://emby.media
   web_port: WEB_PORT

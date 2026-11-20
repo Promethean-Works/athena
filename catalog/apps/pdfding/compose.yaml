@@ -7,9 +7,7 @@ x-athena:
   homepage: https://www.pdfding.com
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: 'After installation, you can access PdfDing at http://your-server-ip:8000. Create your first
     admin account during the initial setup.
 

@@ -5,6 +5,7 @@ x-athena:
   tags: [Home Automation, IoT, Smart Home]
   license: "EPL-2.0"
   category: home
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenHAB/icon.svg
   homepage: https://www.openhab.org
   web_port: WEB_PORT

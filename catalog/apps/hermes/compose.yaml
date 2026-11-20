@@ -5,6 +5,7 @@ x-athena:
   tags: [SMS, Messaging, Gateway]
   license: "AGPL-3.0"
   category: network
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hermes/icon.svg
   homepage: https://hermes.app
   web_port: WEB_PORT

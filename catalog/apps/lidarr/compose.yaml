@@ -7,6 +7,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Lidarr/thumbnail.png
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/lidarr.svg
   homepage: https://lidarr.audio
   web_port: WEB_PORT

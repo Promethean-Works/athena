@@ -5,6 +5,7 @@ x-athena:
   tags: [AI, LLM, Chat]
   license: "MIT"
   category: development
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenWebUI/icon.svg
   homepage: https://openwebui.com
   web_port: WEB_PORT

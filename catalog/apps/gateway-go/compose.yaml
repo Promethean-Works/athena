@@ -1,27 +1,44 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Gateway-go
 x-athena:
   title: Gateway-go
   description: Self-hosted API gateway and reverse proxy with a web management UI.
   tagline: Self-hosted API gateway.
-  tags: [API Gateway, Proxy, Network]
-  license: "MIT"
+  tags:
+  - API Gateway
+  - Proxy
+  - Network
+  license: MIT
   category: network
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/icon.svg
   homepage: https://gateway-go.com
   web_port: WEB_PORT
   screenshots:
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/screenshot-1.png
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/screenshot-2.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/screenshot-1.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/screenshot-2.png
   env:
-    - key: WEB_PORT
-      label: Web port
-      type: port
-      default: "8193"
-
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8193'
+  web_path: /
 services:
-  gateway:
-    image: ghcr.io/gateway-go/gateway:v2.0.12
+  gateway-go:
+    image: openiothub/gateway-go:v2.0.12
+    network_mode: host
+    deploy:
+      resources:
+        reservations:
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Gateway-go/icon.svg
     restart: unless-stopped
-    ports:
-      - "${WEB_PORT}:8080/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+    - type: bind
+      source: ${ATHENA_APP_DATA}/config
+      target: /root
+    ports:
+    - target: 34323
+      published: ${WEB_PORT}
+      protocol: tcp
+    container_name: gateway-go

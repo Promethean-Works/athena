@@ -5,6 +5,7 @@ x-athena:
   tags: [Reddit, Archive, Social]
   license: "MIT"
   category: utilities
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/SnapOtter/icon.png
   homepage: https://snapotter.com
   web_port: WEB_PORT

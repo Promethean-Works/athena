@@ -7,6 +7,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Transmission/thumbnail.png
   category: downloads
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/transmission.svg
   homepage: https://transmissionbt.com
   web_port: WEB_PORT

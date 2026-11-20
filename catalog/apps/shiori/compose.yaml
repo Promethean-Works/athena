@@ -5,6 +5,7 @@ x-athena:
   tags: [Bookmarks, Reading]
   license: "MIT"
   category: productivity
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   screenshots:
     - https://raw.githubusercontent.com/go-shiori/shiori/master/docs/assets/screenshots/01-login.png
     - https://raw.githubusercontent.com/go-shiori/shiori/master/docs/assets/screenshots/02-home.png

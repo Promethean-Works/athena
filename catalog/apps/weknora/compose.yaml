@@ -5,6 +5,7 @@ x-athena:
   tags: [AI, Knowledge, Team]
   license: "AGPL-3.0"
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WeKnora/icon.svg
   homepage: https://weknora.com
   web_port: WEB_PORT
