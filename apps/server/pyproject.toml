@@ -25,7 +25,7 @@ dependencies = [
     "croniter>=1.0",
     "httpx2>=2.16.0",
     "pydantic-ai-harness[coder,dynamic-workflow,prompt-injection-defender,repair-tool-arguments,skills,codemode]==0.69.0",
-    "mcp>=1.0,<2.0",
+    "mcp>=1.0,<3.0",
     "fastmcp>=2.0,<4.0",
     "exa-py>=2.28.0",
     "pgtask>=0.4.0",
