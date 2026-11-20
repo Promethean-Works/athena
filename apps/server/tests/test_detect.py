@@ -184,3 +184,36 @@ def test_real_probe_never_raises() -> None:
     ids = {c.id for c in manifest.capabilities}
     assert {"containers", "terminal.host", "files"} <= ids
     assert manifest.os in {"linux", "darwin", "windows"}
+
+
+def test_installed_tunnels_are_detected() -> None:
+    # These detectors once returned an action the model refuses, so an installed
+    # cloudflared, tailscale or ngrok vanished from the manifest.
+    from athena.platform.detect import (
+        detect_tunnel_cloudflare,
+        detect_tunnel_ngrok,
+        detect_tunnel_tailscale,
+    )
+
+    probe = FakeProbe(
+        binaries={
+            "cloudflared": "/usr/bin/cloudflared",
+            "ngrok": "/usr/bin/ngrok",
+            "tailscale": "/usr/bin/tailscale",
+        },
+        commands={
+            ("/usr/bin/cloudflared", "version"): RunResult(0, "cloudflared 2026.11.0", ""),
+            ("/usr/bin/ngrok", "version"): RunResult(0, "ngrok 3.20.0", ""),
+            ("/usr/bin/tailscale", "status", "--json"): RunResult(
+                0,
+                '{"BackendState": "Running", "CurrentTailnet": {"MagicDNSSuffix": "t.ts.net"}}',
+                "",
+            ),
+        },
+    )
+    assert detect_tunnel_cloudflare(probe).status == "ready"
+    assert detect_tunnel_ngrok(probe).status == "ready"
+    tailscale = detect_tunnel_tailscale(probe)
+    assert (tailscale.status, tailscale.detail) == ("ready", "Logged in to t.ts.net")
+    stopped = FakeProbe(binaries={"tailscale": "/usr/bin/tailscale"})
+    assert detect_tunnel_tailscale(stopped).status == "stopped"

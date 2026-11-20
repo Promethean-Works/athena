@@ -14,8 +14,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
 - Not yet verified: installing the CasaOS-ported catalog apps (#120) for real against Docker.
-- Store by CPU (#165) follow-ups: searching for a hidden (unsupported) app says "No apps match" without mentioning it's hidden; the unsupported Install card still shows the ".env" sentence above "can't be installed"; 23 apps in `UNREADABLE` (`tests/test_catalog.py`) need their image fixed, then `python -m athena.catalog.image_platforms <id> --write`.
-- `detect_tunnel_cloudflare` logs a capability error at startup: it returns `actions=["start","configure"]` but `Capability` allows only `start` and `setup` (seen on main while verifying #165).
+- Store by CPU (#165) follow-up: 23 apps in `UNREADABLE` (`tests/test_catalog.py`) need their image fixed, then `python -m athena.catalog.image_platforms <id> --write`.
 - Tunnel follow-ups (#150):
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
   - ngrok `install`/`configure_service` call `job.log` without `await`.

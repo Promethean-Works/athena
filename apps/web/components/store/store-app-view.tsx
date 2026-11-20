@@ -44,10 +44,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@workspace/ui/components/collapsible"
-import {
-  Field,
-  FieldLabel,
-} from "@workspace/ui/components/field"
+import { Field, FieldLabel } from "@workspace/ui/components/field"
 import {
   Dialog,
   DialogClose,
@@ -66,10 +63,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { AppIcon } from "@/components/store/app-icon"
 import { InstallForm } from "@/components/store/install-form"
 import { StoreCover } from "@/components/store/store-cover"
-import {
-  storeAppHref,
-  SupportBadge,
-} from "@/components/store/store-browser"
+import { storeAppHref, SupportBadge } from "@/components/store/store-browser"
 
 type Detail = Schemas["StoreAppDetail"]
 type StoreApp = Schemas["StoreApp"]
@@ -269,10 +263,12 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
       <Card className="h-fit xl:sticky xl:top-6">
         <CardHeader>
           <CardTitle>Install</CardTitle>
-          <CardDescription>
-            Your answers are saved in the app&apos;s .env file on the server,
-            next to its compose.yaml.
-          </CardDescription>
+          {app.support !== "unsupported" ? (
+            <CardDescription>
+              Your answers are saved in the app&apos;s .env file on the server,
+              next to its compose.yaml.
+            </CardDescription>
+          ) : null}
         </CardHeader>
         <CardContent>
           {app.variants.length > 1 && (
@@ -332,9 +328,8 @@ function CpuAlert({ app }: { app: Detail }) {
         <CpuIcon />
         <AlertTitle>Runs under emulation</AlertTitle>
         <AlertDescription>
-          There&apos;s no image for {host}, so Docker runs the {published}{" "}
-          one under emulation. It works, but it&apos;s slower and uses more
-          memory.
+          There&apos;s no image for {host}, so Docker runs the {published} one
+          under emulation. It works, but it&apos;s slower and uses more memory.
         </AlertDescription>
       </Alert>
     )
@@ -437,7 +432,10 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
       ) : null}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent showCloseButton={false} className="max-w-5xl sm:max-w-5xl">
+        <DialogContent
+          showCloseButton={false}
+          className="max-w-5xl sm:max-w-5xl"
+        >
           <DialogTitle className="sr-only">{title} screenshot</DialogTitle>
           <DialogDescription className="sr-only">
             A screenshot of {title}.
