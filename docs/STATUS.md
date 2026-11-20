@@ -38,11 +38,11 @@ Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 
 ## Open questions
 
+- Other apps marked `license: Proprietary`: unifi-controller, resiliosync, twingate (and tailscale, whose client is actually BSD-3-Clause). Remove the first three and fix tailscale's license?
 - There's no generic OpenAI-compatible provider kind any more, and models.dev's `lmstudio` is skipped, so LM Studio or vLLM can't be added as a provider. Bring back an OpenAI-compatible kind (base URL + optional key)?
 - `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
 
 
-- Catalog choices from the smoke fixes, to confirm or undo: roonserver and unifi-network-application are `license: Proprietary` (against the open-source-only rule; remove them?); handbrake is amd64-only and crashes under emulation on an arm64 Mac (keep, or `smoke: skip`?); nextcloud keeps its code in a named volume (case-insensitive disks broke it); projectnomad gets the Docker socket (upstream needs it to install apps); anythingllm runs as root with `SYS_ADMIN` (upstream's advice); `mongodb4` still hard-codes `/DATA/AppData` paths. Recommendation: drop the two proprietary apps, keep the rest.
 
 ## Blockers
 

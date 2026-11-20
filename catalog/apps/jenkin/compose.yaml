@@ -28,7 +28,7 @@ services:
       protocol: tcp
     volumes:
     - type: bind
-      source: /DATA/AppData/Jenkins/data
+      source: ${ATHENA_APP_DATA}/data
       target: /data
     - type: bind
       source: /var/lib/docker/volumes/b098c98b2c5dec792246dc33375853c05958ace7c144f4aa157326a6f6c0de4c/_data

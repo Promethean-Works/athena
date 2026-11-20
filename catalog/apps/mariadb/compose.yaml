@@ -49,6 +49,6 @@ services:
       protocol: tcp
     volumes:
     - type: bind
-      source: /DATA/AppData/mariadb/config
+      source: ${ATHENA_APP_DATA}/config
       target: /config
     container_name: mariadb
