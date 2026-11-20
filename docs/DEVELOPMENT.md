@@ -53,7 +53,7 @@ Everything else is in the repo and needs no setup:
 | **Codex** | `AGENTS.md` | `.agents/skills` | `.codex/config.toml` (trust the project when asked) | `.codex/agents/`, skills |
 | **Antigravity** | `AGENTS.md` | `.agents/skills` | `.agents/mcp_config.json` | Skills |
 | **GitHub Copilot** | `AGENTS.md`, `.github/instructions/` | `.agents/skills` | `.mcp.json` | Skills |
-| **oh-my-pi** | `AGENTS.md`, `.github/instructions/` as rules | `.agents/skills` | `.mcp.json` | `.claude/commands/`, `.omp/agents/` |
+| **oh-my-pi** | `.omp/AGENTS.md` (imports `AGENTS.md` and STATUS), `.github/instructions/` as rules | `.agents/skills` | `.mcp.json` (Playwright replaced by omp's own browser) | `.claude/commands/`, `.omp/agents/` |
 
 The MCP servers are `shadcn` (component registry), `next-devtools` (Next.js docs and diagnostics), `playwright` (a headless browser for UI checks) and `context7` (current library docs; set `CONTEXT7_API_KEY` for higher rate limits).
 
