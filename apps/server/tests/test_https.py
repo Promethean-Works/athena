@@ -244,7 +244,8 @@ def test_self_signed_serves_https_redirects_and_turns_off(tmp_path):
         r = client.put("/api/https", json={"mode": "off", "port": port}, follow_redirects=False)
         assert r.status_code == 200, r.text
         assert r.json()["listening"] is False
-        with pytest.raises(httpx.ConnectError):
+        # Windows retries a refused connection, so it shows up as a timeout there.
+        with pytest.raises((httpx.ConnectError, httpx.ConnectTimeout)):
             httpx.get(f"https://127.0.0.1:{port}/api/health", verify=_ssl_context(ca), timeout=2)
 
 
