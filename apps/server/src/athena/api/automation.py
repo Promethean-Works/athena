@@ -127,10 +127,13 @@ def update_trigger(
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
         trigger.webhook_token = None
     else:
+        # Keep the token of a trigger that was already a webhook: toggling it (the
+        # Enabled switch) must not break the URL n8n or a script already calls.
+        if trigger.kind != "http" or not trigger.webhook_token:
+            trigger.webhook_token = secrets.token_hex(16)
         trigger.kind = "http"
         trigger.cron_expression = None
         trigger.next_run_at = None
-        trigger.webhook_token = secrets.token_hex(16)
 
     db.add(trigger)
     db.commit()
