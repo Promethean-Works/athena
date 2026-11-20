@@ -1,0 +1,66 @@
+name: Store app doesn't work
+description: An app from Athena's store won't install, won't start or doesn't work
+labels: [catalog, bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Apps from a third-party catalog are usually fixed in that catalog's own repository.
+        Athena's "Report a problem" button sends them there when it can.
+  - type: input
+    id: app
+    attributes:
+      label: App
+      description: The app's id in the store, e.g. `jellyfin`.
+    validations:
+      required: true
+  - type: input
+    id: catalog
+    attributes:
+      label: Catalog
+      description: "`builtin`, or the URL of the catalog it came from."
+    validations:
+      required: true
+  - type: input
+    id: images
+    attributes:
+      label: Images
+      placeholder: "jellyfin/jellyfin:10.10.7"
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What goes wrong?
+      options:
+        - It won't install
+        - It installs but won't start
+        - It starts but its web page doesn't open
+        - It runs but something inside doesn't work
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Athena version
+    validations:
+      required: true
+  - type: input
+    id: os-details
+    attributes:
+      label: OS, architecture and container runtime
+      placeholder: "Raspberry Pi OS 12 · aarch64 · docker-engine"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: The app's container logs or the install job's output. Remove any secrets.
+      render: shell

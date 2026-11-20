@@ -14,6 +14,7 @@ from athena import __version__
 from athena.api import apps, auth, automation, capabilities, containers, jobs, system
 from athena.api import assistant as assistant_api
 from athena.api import cloud as cloud_api
+from athena.api import feedback as feedback_api
 from athena.api import files as files_api
 from athena.api import packages as packages_api
 from athena.api import settings as settings_api
@@ -177,6 +178,7 @@ def create_app(
     # session is required (n8n, external agents).
     app.include_router(automation.public_router, prefix="/api")
     app.include_router(tunnel_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(feedback_api.router, prefix="/api", dependencies=[require_user])
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
     # MCP server: streamable-HTTP endpoint for external agents (n8n, Claude Desktop, …).

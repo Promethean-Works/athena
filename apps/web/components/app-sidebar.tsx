@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { ServerIcon } from "lucide-react"
 
+import { FeedbackMenuItem } from "@/components/feedback/feedback-dialog"
 import { navMain, navSecondary } from "@/components/nav"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -36,7 +37,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
-        <NavSecondary items={navSecondary} className="mt-auto" />
+        <NavSecondary items={navSecondary} className="mt-auto">
+          <FeedbackMenuItem />
+        </NavSecondary>
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
