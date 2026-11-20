@@ -23,7 +23,7 @@ services:
     image: jvmilazz0/kavita:0.9.0.2
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:5150/tcp"
+      - "${WEB_PORT}:5000/tcp"
     volumes:
       - ${ATHENA_APP_DATA}/data:/data
       - ${ATHENA_APP_DATA}/comics:/comics:ro

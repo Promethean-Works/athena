@@ -16,6 +16,7 @@ x-athena:
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/gatus.svg
   homepage: https://gatus.io
   web_port: WEB_PORT
+  notes: A starter configuration is written to `config/config.yaml` in the app's data folder on the first start. Add your endpoints there and restart the app.
   env:
     - key: WEB_PORT
       label: Web port
@@ -23,9 +24,37 @@ x-athena:
       default: "8097"
 
 services:
+  # Gatus stops when it has no configuration, so write a starter one on the first start.
+  gatus-init:
+    image: busybox:1.37
+    restart: "no"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
+    command:
+      - sh
+      - -c
+      - |
+        [ -e /config/config.yaml ] && exit 0
+        cat > /config/config.yaml <<'EOF'
+        # Gatus configuration: https://github.com/TwiN/gatus#configuration
+        # Restart the app after editing this file.
+        storage:
+          type: sqlite
+          path: /data/data.db
+        endpoints:
+          - name: Gatus
+            group: Example
+            url: http://localhost:8080/health
+            interval: 5m
+            conditions:
+              - "[STATUS] == 200"
+        EOF
   gatus:
     image: twinproduction/gatus:v5.38.0
     restart: unless-stopped
+    depends_on:
+      gatus-init:
+        condition: service_completed_successfully
     ports:
       - "${WEB_PORT}:8080"
     volumes:

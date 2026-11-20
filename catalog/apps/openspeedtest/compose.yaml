@@ -23,4 +23,4 @@ services:
     image: openspeedtest/latest:v2.0.6
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:3004/tcp"
+      - "${WEB_PORT}:3000/tcp"

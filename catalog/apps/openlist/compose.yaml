@@ -21,14 +21,25 @@ x-athena:
       label: Admin password
       type: password
       generate: secret
+      description: Sign in as admin with this password.
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
 
 services:
   openlist:
     image: openlistteam/openlist:v4.2.2
     restart: unless-stopped
+    user: "${PUID}:${PGID}"
     ports:
       - "${WEB_PORT}:5244/tcp"
     environment:
-      PASSWORD: ${PASSWORD}
+      OPENLIST_ADMIN_PASSWORD: ${PASSWORD}
+      UMASK: "022"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/data:/opt/openlist/data
