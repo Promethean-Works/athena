@@ -174,7 +174,7 @@ class NgrokTunnelProvider(TunnelProvider):
             archive_path = tmpdir_path / filename
 
             # Download
-            job.log(f"Downloading ngrok from {url}")
+            await job.log(f"Downloading ngrok from {url}")
             urllib.request.urlretrieve(url, archive_path)
 
             # Extract
@@ -207,7 +207,7 @@ class NgrokTunnelProvider(TunnelProvider):
             if system != "windows":
                 dest.chmod(0o755)
 
-            job.log(f"Installed ngrok to {dest}")
+            await job.log(f"Installed ngrok to {dest}")
 
     async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
         """Configure systemd/launchd/Task Scheduler for auto-start."""
@@ -245,14 +245,14 @@ WantedBy=multi-user.target
             subprocess.run(["systemctl", "daemon-reload"], check=False)
             subprocess.run(["systemctl", "enable", "ngrok"], check=False)
             subprocess.run(["systemctl", "start", "ngrok"], check=False)
-            job.log("Enabled ngrok systemd service (auth token must be configured)")
+            await job.log("Enabled ngrok systemd service (auth token must be configured)")
         else:
             subprocess.run(["systemctl", "stop", "ngrok"], check=False)
             subprocess.run(["systemctl", "disable", "ngrok"], check=False)
             if service_path.exists():
                 service_path.unlink()
             subprocess.run(["systemctl", "daemon-reload"], check=False)
-            job.log("Disabled ngrok systemd service")
+            await job.log("Disabled ngrok systemd service")
 
     async def _configure_launchd(self, job: Any, enabled: bool, port: int) -> None:
         """Configure launchd agent."""
@@ -291,12 +291,12 @@ WantedBy=multi-user.target
             plist_path.parent.mkdir(parents=True, exist_ok=True)
             plist_path.write_text(plist_content)
             subprocess.run(["launchctl", "load", str(plist_path)], check=False)
-            job.log("Enabled ngrok launchd agent (auth token must be configured)")
+            await job.log("Enabled ngrok launchd agent (auth token must be configured)")
         else:
             subprocess.run(["launchctl", "unload", str(plist_path)], check=False)
             if plist_path.exists():
                 plist_path.unlink()
-            job.log("Disabled ngrok launchd agent")
+            await job.log("Disabled ngrok launchd agent")
 
     async def _configure_windows_task(self, job: Any, enabled: bool, port: int) -> None:
         """Configure Windows Task Scheduler."""
@@ -318,10 +318,10 @@ WantedBy=multi-user.target
                 "/F",
             ]
             subprocess.run(cmd, check=False)
-            job.log("Enabled ngrok Windows scheduled task (auth token must be configured)")
+            await job.log("Enabled ngrok Windows scheduled task (auth token must be configured)")
         else:
             subprocess.run(
                 ["schtasks", "/Delete", "/TN", "Athena Ngrok Tunnel", "/F"],
                 check=False,
             )
-            job.log("Disabled ngrok Windows scheduled task")
+            await job.log("Disabled ngrok Windows scheduled task")

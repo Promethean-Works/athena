@@ -17,7 +17,6 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified: installing the CasaOS-ported catalog apps (#120) for real against Docker, especially the stacks re-imported in #167 (dify, librechat, clumoove) and their generated secrets.
 - Tunnel follow-ups (#150):
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
-  - ngrok `install`/`configure_service` call `job.log` without `await`.
   - Tunnel fields save on every keystroke and are disabled while each save runs.
   - `tunnel_auto_start` is saved but nothing reads it at startup, so the tunnel doesn't start on boot.
   - The tunnel UI isn't verified in a browser yet, and no real tunnel has been tested with any provider.

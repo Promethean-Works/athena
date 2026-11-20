@@ -156,7 +156,7 @@ class TailscaleTunnelProvider(TunnelProvider):
 
         if system == "windows":
             # Windows: use winget or download MSI
-            job.log("Installing Tailscale on Windows...")
+            await job.log("Installing Tailscale on Windows...")
             result = subprocess.run(
                 ["winget", "install", "--id", "Tailscale.Tailscale", "--silent"],
                 capture_output=True,
@@ -175,12 +175,12 @@ class TailscaleTunnelProvider(TunnelProvider):
                 )
         else:
             # Linux/macOS: use official install script
-            job.log("Downloading Tailscale install script...")
+            await job.log("Downloading Tailscale install script...")
             script_url = "https://tailscale.com/install.sh"
             with urllib.request.urlopen(script_url) as response:
                 script = response.read()
 
-            job.log("Running Tailscale install script...")
+            await job.log("Running Tailscale install script...")
             result = subprocess.run(
                 ["sh"],
                 input=script,
@@ -190,7 +190,7 @@ class TailscaleTunnelProvider(TunnelProvider):
             if result.returncode != 0:
                 raise RuntimeError(f"Tailscale install failed: {result.stderr}")
 
-        job.log("Tailscale installed. Run 'tailscale up' to authenticate.")
+        await job.log("Tailscale installed. Run 'tailscale up' to authenticate.")
 
     async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
         """Configure auto-start. Tailscale runs as a system daemon (tailscaled)."""
@@ -201,10 +201,10 @@ class TailscaleTunnelProvider(TunnelProvider):
         if system == "linux":
             if enabled:
                 subprocess.run(["systemctl", "enable", "--now", "tailscaled"], check=False)
-                job.log("Enabled tailscaled systemd service")
+                await job.log("Enabled tailscaled systemd service")
             else:
                 subprocess.run(["systemctl", "disable", "tailscaled"], check=False)
-                job.log("Disabled tailscaled systemd service")
+                await job.log("Disabled tailscaled systemd service")
         elif system == "darwin":
             # macOS: tailscale runs as a launch daemon installed by the pkg
             if enabled:
@@ -212,7 +212,7 @@ class TailscaleTunnelProvider(TunnelProvider):
                     ["launchctl", "load", "/Library/LaunchDaemons/com.tailscale.tailscaled.plist"],
                     check=False,
                 )
-                job.log("Enabled tailscaled launchd daemon")
+                await job.log("Enabled tailscaled launchd daemon")
             else:
                 subprocess.run(
                     [
@@ -222,14 +222,14 @@ class TailscaleTunnelProvider(TunnelProvider):
                     ],
                     check=False,
                 )
-                job.log("Disabled tailscaled launchd daemon")
+                await job.log("Disabled tailscaled launchd daemon")
         elif system == "windows":
             # Windows: Tailscale runs as a service
             if enabled:
                 subprocess.run(["sc", "config", "Tailscale", "start=", "auto"], check=False)
                 subprocess.run(["net", "start", "Tailscale"], check=False)
-                job.log("Enabled Tailscale Windows service")
+                await job.log("Enabled Tailscale Windows service")
             else:
                 subprocess.run(["net", "stop", "Tailscale"], check=False)
                 subprocess.run(["sc", "config", "Tailscale", "start=", "demand"], check=False)
-                job.log("Disabled Tailscale Windows service")
+                await job.log("Disabled Tailscale Windows service")
