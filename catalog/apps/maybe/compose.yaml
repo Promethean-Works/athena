@@ -6,9 +6,7 @@ x-athena:
   homepage: https://github.com/maybe-finance/maybe
   web_port: WEB_PORT
   web_path: /
-  platforms:
-    - linux/amd64
-    - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   env:
     - key: WEB_PORT
       label: Web port
@@ -35,7 +33,7 @@ x-athena:
 
 services:
   maybe-web:
-    image: ghcr.io/maybe-finance/maybe:v0.6.0
+    image: ghcr.io/maybe-finance/maybe:0.6.0
     restart: unless-stopped
     depends_on:
       maybe-db:
@@ -60,7 +58,7 @@ services:
       - ${ATHENA_APP_DATA}/app/storage:/rails/storage
 
   maybe-worker:
-    image: ghcr.io/maybe-finance/maybe:v0.6.0
+    image: ghcr.io/maybe-finance/maybe:0.6.0
     restart: unless-stopped
     depends_on:
       maybe-db:
