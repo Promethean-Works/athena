@@ -7,6 +7,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Prowlarr/thumbnail.png
   category: downloads
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/prowlarr.svg
   homepage: https://prowlarr.com
   web_port: WEB_PORT
@@ -30,7 +31,7 @@ x-athena:
 
 services:
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:v3.0.2.5780
+    image: lscr.io/linuxserver/prowlarr:3.0.2
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:9696"

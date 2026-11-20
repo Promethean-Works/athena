@@ -12,6 +12,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ESPHome/screenshot-1.png
   category: home
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/esphome.svg
   homepage: https://esphome.io
   web_port: WEB_PORT

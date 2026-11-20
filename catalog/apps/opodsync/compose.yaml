@@ -5,6 +5,7 @@ x-athena:
   tags: [Podcasts, Audio, Sync]
   license: "MIT"
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/oPodSync/icon.svg
   homepage: https://opodsync.com
   web_port: WEB_PORT
@@ -19,7 +20,7 @@ x-athena:
 
 services:
   opodsync:
-    image: ganeshlab/opodsync:0.6.1
+    image: ganeshlab/opodsync:latest@sha256:605c5e78bfe5392cdc4557d3d6f02d28eb709c5d5b5cf1c15d4500fc2e6f8319
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080/tcp"

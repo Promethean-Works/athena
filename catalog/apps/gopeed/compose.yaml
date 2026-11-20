@@ -5,6 +5,7 @@ x-athena:
   tags: [Downloads, Download Manager]
   license: "AGPL-3.0"
   category: downloads
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gopeed/icon.svg
   homepage: https://gopeed.com
   web_port: WEB_PORT

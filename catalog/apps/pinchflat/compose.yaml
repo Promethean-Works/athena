@@ -7,8 +7,7 @@ x-athena:
   homepage: https://github.com/kieraneglin/pinchflat
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64, linux/arm64]
   notes: 'Pinchflat will automatically create the necessary directories and start downloading content
     based on your configured sources.
 
@@ -43,7 +42,7 @@ x-athena:
     description: The CasaOS Media folder.
 services:
   pinchflat:
-    image: ghcr.io/kieraneglin/pinchflat:v2025.9.26
+    image: ghcr.io/kieraneglin/pinchflat:v2025.6.6
     deploy:
       resources:
         reservations:

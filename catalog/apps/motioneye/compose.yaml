@@ -5,6 +5,7 @@ x-athena:
   tags: [Security, Cameras, Surveillance]
   license: "GPL-3.0"
   category: security
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Motioneye/icon.svg
   homepage: https://motioneye.io
   web_port: WEB_PORT

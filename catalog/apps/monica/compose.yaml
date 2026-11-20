@@ -12,6 +12,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Monica/screenshot-1.png
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/monica.svg
   homepage: https://www.monicahq.com
   web_port: WEB_PORT

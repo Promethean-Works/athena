@@ -5,6 +5,7 @@ x-athena:
   tags: [AI, Low-code, Workflow]
   license: "MIT"
   category: development
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlowiseAi/icon.svg
   homepage: https://flowiseai.com
   web_port: WEB_PORT

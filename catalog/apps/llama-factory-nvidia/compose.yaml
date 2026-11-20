@@ -7,8 +7,7 @@ x-athena:
   homepage: https://llamafactory.readthedocs.io/
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64]
   notes: null
   env:
   - key: WEB_PORT

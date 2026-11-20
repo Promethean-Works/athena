@@ -18,6 +18,8 @@ M2–M4 can proceed in parallel once M1 lands, and so can M5 and M6. M7 depends 
 
 Ideas with no milestone yet. Move one into `docs/STATUS.md` → Next when it's picked up.
 
+- **from the competitor review** (`docs/plans/improvements.md` → Phase 2): backup and restore, HTTPS with a reverse proxy, 2FA, users with roles, app updates, alerts, stats history, disk management.
+
 - **cloud:** mounts (FUSE; `rclone nfsmount` on macOS), scheduled or saved syncs, encrypting the rclone config with the OS keyring (§7), uploads to a remote without staging the whole file on the server first, Range requests for seeking in remote videos, and stopping an orphaned `rclone rcd` if Athena is killed (`SIGKILL` leaves it running).
 - **shares:** a size limit for upload links, per-file audit of WebDAV changes, locks that survive a restart, WebDAV for more than one account, and NFS shares.
 - **files:** folder uploads (drag a folder), resumable uploads across page reloads, and search.

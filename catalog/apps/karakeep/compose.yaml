@@ -5,6 +5,7 @@ x-athena:
   tags: [Bookmarks, Links, Privacy]
   license: "MIT"
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Karakeep/icon.svg
   homepage: https://karakeep.app
   web_port: WEB_PORT

@@ -5,6 +5,7 @@ x-athena:
   tags: [Media, Requests, Plex, Jellyfin]
   license: "Apache-2.0"
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ombi/icon.svg
   homepage: https://ombi.io
   web_port: WEB_PORT

@@ -1,27 +1,134 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Clumoove
 x-athena:
   title: Clumoove
   description: Movie and TV show tracker with a clean, modern interface.
   tagline: Movie and TV show tracker.
-  tags: [Movies, TV, Tracking]
-  license: "MIT"
+  tags:
+  - Movies
+  - TV
+  - Tracking
+  license: MIT
   category: media
+  platforms:
+  - linux/amd64
+  - linux/arm64
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Clumoove/icon.svg
   homepage: https://clumoove.com
   web_port: WEB_PORT
   screenshots:
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Clumoove/screenshot-1.png
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Clumoove/screenshot-2.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Clumoove/screenshot-1.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Clumoove/screenshot-2.png
   env:
-    - key: WEB_PORT
-      label: Web port
-      type: port
-      default: "8173"
-
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8173'
+  - key: DB_PASSWORD
+    label: Database password
+    type: password
+    generate: secret
+    advanced: true
+  - key: REDIS_PASSWORD
+    label: Redis password
+    type: password
+    generate: secret
+    advanced: true
+  - key: ENCRYPTION_SECRET_KEY
+    label: Encryption key
+    type: password
+    generate: secret
+    advanced: true
+  - key: JWT_SECRET_KEY
+    label: JWT signing key
+    type: password
+    generate: secret
+    advanced: true
+  web_path: /
 services:
-  clumoove:
-    image: ghcr.io/xXRoxXeRXx/clumoove:v0.15.0
+  frontend:
+    image: ghcr.io/xxroxxerxx/clumoove-frontend:v0.19.0@sha256:8fbdb27158f4cfaabccf5b7f5f5866686dc3fb5e01bd40997f080b4facd6385a
+    container_name: clumoove-frontend
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+    - target: 3000
+      published: ${WEB_PORT}
+      protocol: tcp
+    environment:
+    - CLUMOOVE_API_URL=
+    depends_on:
+    - api-backend
+    networks:
+    - clumoove-network
+  api-backend:
+    image: ghcr.io/xxroxxerxx/clumoove-api:v0.19.0@sha256:d5a30c51c5ac6684e6afc399ca5ab845338bc06ab14cc3873bdbd52e2d3478cf
+    container_name: clumoove-api
+    restart: unless-stopped
+    environment:
+    - DATABASE_URL=postgres://clumoove:${DB_PASSWORD}@postgres-db:5432/cloud_migration_db?sslmode=disable
+    - REDIS_URL=redis://:${REDIS_PASSWORD}@redis-queue:6379
+    - PORT=8000
+    - ENCRYPTION_SECRET_KEY=${ENCRYPTION_SECRET_KEY}
+    - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    - TRUSTED_PROXY=1
+    - LOCAL_STORAGE_ROOT=/clumoove
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+    - type: bind
+      source: /DATA/AppData/clumoove/storage
+      target: /clumoove
+    depends_on:
+    - postgres-db
+    - redis-queue
+    networks:
+    - clumoove-network
+  migration-worker:
+    image: ghcr.io/xxroxxerxx/clumoove-worker:v0.19.0@sha256:680ba9935621eb032b6abd5d0d25472eddd2738222f35778fce86914d6a47662
+    container_name: clumoove-worker
+    restart: unless-stopped
+    command:
+    - /app/worker
+    environment:
+    - DATABASE_URL=postgres://clumoove:${DB_PASSWORD}@postgres-db:5432/cloud_migration_db?sslmode=disable
+    - REDIS_URL=redis://:${REDIS_PASSWORD}@redis-queue:6379
+    - ENCRYPTION_SECRET_KEY=${ENCRYPTION_SECRET_KEY}
+    - LOCAL_STORAGE_ROOT=/clumoove
+    volumes:
+    - type: bind
+      source: /DATA/AppData/clumoove/storage
+      target: /clumoove
+    depends_on:
+    - postgres-db
+    - redis-queue
+    networks:
+    - clumoove-network
+  postgres-db:
+    image: postgres:15-alpine@sha256:fe0737ba566a2c5b2a28f34433c0a423261900ec17b9bf7ad115e1aae7e57f1b
+    container_name: clumoove-postgres
+    restart: unless-stopped
+    command:
+    - postgres
+    - -c
+    - max_connections=300
+    environment:
+      POSTGRES_USER: clumoove
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: cloud_migration_db
+    volumes:
+    - type: bind
+      source: /DATA/AppData/clumoove/postgres
+      target: /var/lib/postgresql/data
+    networks:
+    - clumoove-network
+  redis-queue:
+    image: redis:7-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
+    container_name: clumoove-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}" --bind 0.0.0.0
+    volumes:
+    - type: bind
+      source: /DATA/AppData/clumoove/redis
+      target: /data
+    networks:
+    - clumoove-network
+networks:
+  clumoove-network:
+    driver: bridge

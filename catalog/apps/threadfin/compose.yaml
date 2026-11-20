@@ -5,6 +5,7 @@ x-athena:
   tags: [IPTV, TV, Streaming]
   license: "MIT"
   category: media
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Threadfin/icon.svg
   homepage: https://threadfin.app
   web_port: WEB_PORT

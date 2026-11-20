@@ -5,6 +5,7 @@ x-athena:
   tags: [Emby, Statistics, Media]
   license: "MIT"
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Embystat/icon.svg
   homepage: https://embystat.com
   web_port: WEB_PORT
