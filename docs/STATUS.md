@@ -14,6 +14,8 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in a browser: the cloud add-storage wizard (#97) and the cloud remote cards (#92), with a real rclone remote.
 - Not yet verified: installing the CasaOS-ported catalog apps (#120) for real against Docker.
+- Store by CPU (#165) follow-ups: searching for a hidden (unsupported) app says "No apps match" without mentioning it's hidden; the unsupported Install card still shows the ".env" sentence above "can't be installed"; 23 apps in `UNREADABLE` (`tests/test_catalog.py`) need their image fixed, then `python -m athena.catalog.image_platforms <id> --write`.
+- `detect_tunnel_cloudflare` logs a capability error at startup: it returns `actions=["start","configure"]` but `Capability` allows only `start` and `setup` (seen on main while verifying #165).
 - Tunnel follow-ups (#150):
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
   - ngrok `install`/`configure_service` call `job.log` without `await`.
@@ -27,6 +29,8 @@ M7 part D stage 3 (design §4.5 Parts): extras with outside services.
 - Browser (#89): **blocked**. `pydantic-ai-harness[browser-use]==0.68.0` pins `browser-use` → `google-genai==1.65.0`, which conflicts with `pydantic-ai-slim[google]>=2.68.0` (`google-genai>=2.30.0`). Needs a harness release whose `browser-use` extra allows `google-genai>=2.30.0`; then unpin `pydantic-ai-harness` in `apps/server/pyproject.toml`. The toggle does nothing until then.
 - Durable execution (D.6): turns run inside pgtask tasks against Postgres when `durable_execution_enabled` is on and `ATHENA_DURABLE_EXECUTION_DATABASE_URL` is set, checkpointing each model request and tool call; without them turns run inline as before. A real Postgres connection is tested; a crash/kill/resume flow isn't yet.
 - Coding stack (D.7): foundation, file write/edit behind approval cards, shell behind `ShellGuard`, and Code Mode are done (see HISTORY). `Coder` from pydantic-ai-harness is intentionally not used: its bundled shell is unrestricted and bypasses `ShellGuard`. Deferred to later stages: `ipython_code_mode`, `smart_search`, `macroscope`, `capability_creation`, `pydantic_ai_docs`.
+
+Raspberry Pi fixes and features from the competitor review: `docs/plans/improvements.md` (phase 1 fixes broken things: cloudflared download, store apps by host arch, broken catalog images, 32-bit install check, arm64 CI).
 
 Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 

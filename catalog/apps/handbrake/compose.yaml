@@ -5,6 +5,7 @@ x-athena:
   tags: [Video, Transcoding]
   license: "GPL-2.0"
   category: utilities
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Handbrake/icon.svg
   homepage: https://handbrake.fr
   web_port: WEB_PORT

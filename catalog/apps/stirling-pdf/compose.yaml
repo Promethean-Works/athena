@@ -12,6 +12,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/docs/images/home-light.png
   category: utilities
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/stirling-pdf.svg
   homepage: https://www.stirlingpdf.com
   web_port: WEB_PORT

@@ -5,6 +5,7 @@ x-athena:
   tags: [Holographic, Display, Player]
   license: "MIT"
   category: home
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/HoloPlay/icon.svg
   homepage: https://lookingglassfactory.com
   web_port: WEB_PORT

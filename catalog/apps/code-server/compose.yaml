@@ -13,6 +13,7 @@ x-athena:
     - https://raw.githubusercontent.com/coder/code-server/main/docs/assets/screenshot-1.png
     - https://raw.githubusercontent.com/coder/code-server/main/docs/assets/screenshot-2.png
   category: development
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/visual-studio-code.svg
   homepage: https://github.com/coder/code-server
   web_port: WEB_PORT

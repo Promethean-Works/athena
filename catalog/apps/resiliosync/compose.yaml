@@ -5,6 +5,7 @@ x-athena:
   tags: [Sync, P2P, Files]
   license: "Proprietary"
   category: files
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Resilio-sync/icon.svg
   homepage: https://www.resilio.com
   web_port: WEB_PORT

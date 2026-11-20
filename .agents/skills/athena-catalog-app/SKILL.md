@@ -41,6 +41,8 @@ Checklist:
 
 ## 4. Validate
 
+Fill in `platforms` from the registries (never by hand): `cd apps/server && uv run python -m athena.catalog.image_platforms <id> --write`.
+
 ```bash
 cd apps/server
 uv run pytest -q tests/test_catalog.py                     # loads every app, checks metadata, variables and ports
