@@ -8,9 +8,7 @@ x-athena:
   homepage: https://mariadb.org/
   web_port: null
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: 'Default user: `casaos`
 
     Default password: `casaos`

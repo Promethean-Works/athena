@@ -5,6 +5,7 @@ x-athena:
   tags: [WebDAV, Files, Sharing]
   license: "MIT"
   category: files
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WebDav/icon.svg
   homepage: https://ugeek.github.io/webdav
   web_port: WEB_PORT

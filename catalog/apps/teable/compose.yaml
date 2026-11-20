@@ -5,6 +5,7 @@ x-athena:
   tags: [No-code, Database, Tables]
   license: "MIT"
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Teable/icon.svg
   homepage: https://teable.io
   web_port: WEB_PORT

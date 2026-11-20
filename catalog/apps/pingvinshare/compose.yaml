@@ -5,6 +5,7 @@ x-athena:
   tags: [File Sharing, Transfer, Privacy]
   license: "AGPL-3.0"
   category: utilities
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Pingvin-Share/icon.svg
   homepage: https://pingvin-share.com
   web_port: WEB_PORT

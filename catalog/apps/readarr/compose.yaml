@@ -7,6 +7,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Readarr/thumbnail.png
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/readarr.svg
   homepage: https://readarr.com
   web_port: WEB_PORT
@@ -30,7 +31,7 @@ x-athena:
 
 services:
   readarr:
-    image: lscr.io/linuxserver/readarr:v0.4.18.2805
+    image: lscr.io/linuxserver/readarr:0.4.18-develop
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8787"

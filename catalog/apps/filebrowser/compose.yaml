@@ -5,6 +5,7 @@ x-athena:
   tags: [Files, Sharing]
   license: "Apache-2.0"
   category: files
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/filebrowser.svg
   homepage: https://filebrowser.org
   web_port: WEB_PORT

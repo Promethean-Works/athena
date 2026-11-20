@@ -14,6 +14,7 @@ x-athena:
     - https://docs.goauthentik.io/img/screen_apps_light.jpg
     - https://docs.goauthentik.io/img/screen_apps_dark.jpg
   category: security
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authentik.svg
   homepage: https://goauthentik.io
   web_port: WEB_PORT

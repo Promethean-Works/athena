@@ -7,8 +7,7 @@ x-athena:
   homepage: https://www.anaconda.com
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64, linux/arm64]
   notes: After installation, please check the token in the container log (Settings - TopRight - Terminal
     and Logs - Logs).
   env:

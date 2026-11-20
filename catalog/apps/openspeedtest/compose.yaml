@@ -5,6 +5,7 @@ x-athena:
   tags: [Network, Speed Test, Monitoring]
   license: "MIT"
   category: network
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenSpeedTest/icon.svg
   homepage: https://openspeedtest.com
   web_port: WEB_PORT

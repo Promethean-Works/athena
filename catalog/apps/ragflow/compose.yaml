@@ -5,6 +5,7 @@ x-athena:
   tags: [AI, RAG, Documents]
   license: "AGPL-3.0"
   category: development
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RagFlow/icon.svg
   homepage: https://ragflow.io
   web_port: WEB_PORT
