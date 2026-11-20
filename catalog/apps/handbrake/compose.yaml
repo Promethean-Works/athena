@@ -6,6 +6,8 @@ x-athena:
   license: "GPL-2.0"
   category: utilities
   platforms: [linux/amd64]
+  smoke: skip
+  smoke_note: amd64-only image that crashes under emulation on arm64
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Handbrake/icon.svg
   homepage: https://handbrake.fr
   web_port: WEB_PORT
