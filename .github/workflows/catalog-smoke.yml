@@ -1,0 +1,107 @@
+# Installs store apps for real and checks they start (python -m athena.catalog.smoke).
+# - Pull requests that touch catalog/apps/: only the apps they change.
+# - Manual run: the apps you name, or every app split into shards.
+# - Weekly: every app, so tags that rot upstream show up.
+# Runs on amd64 and arm64 (Raspberry Pi class) Linux runners.
+name: Catalog smoke
+
+on:
+  pull_request:
+    paths: ["catalog/apps/**"]
+  workflow_dispatch:
+    inputs:
+      apps:
+        description: "App ids separated by spaces (empty: every app)"
+        required: false
+        default: ""
+      shards:
+        description: "How many parallel jobs per CPU for a full run"
+        required: false
+        default: "6"
+  schedule:
+    - cron: "0 3 * * 0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.plan.outputs.shards }}
+      select: ${{ steps.plan.outputs.select }}
+      count: ${{ steps.plan.outputs.count }}
+    steps:
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          APPS: ${{ inputs.apps }}
+          SHARDS: ${{ inputs.shards }}
+        run: |
+          count=1
+          if [ "$EVENT" = "pull_request" ]; then
+            select="--changed origin/$BASE_REF"
+          elif [ -n "$APPS" ]; then
+            select="$APPS"
+          else
+            select="--all"
+            count="${SHARDS:-6}"
+          fi
+          case "$count" in ''|*[!0-9]*) echo "shards must be a number" >&2; exit 1 ;; esac
+          shards="[$(seq -s, 1 "$count")]"
+          {
+            echo "select=$select"
+            echo "shards=$shards"
+            echo "count=$count"
+          } >> "$GITHUB_OUTPUT"
+
+  smoke:
+    name: smoke (${{ matrix.runner }}, ${{ matrix.shard }}/${{ needs.plan.outputs.count }})
+    needs: plan
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: true
+
+      - name: Install
+        working-directory: apps/server
+        run: uv sync --locked
+
+      - name: Smoke test
+        working-directory: apps/server
+        env:
+          SELECT: ${{ needs.plan.outputs.select }}
+          SHARD: ${{ matrix.shard }}
+          COUNT: ${{ needs.plan.outputs.count }}
+        run: |
+          # shellcheck disable=SC2086 # SELECT is a list of words on purpose
+          uv run python -m athena.catalog.smoke $SELECT --shard "$SHARD/$COUNT" --jobs 2 --out report
+
+      - name: Summary
+        if: always()
+        working-directory: apps/server
+        run: if [ -f report/summary.md ]; then cat report/summary.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: catalog-smoke-${{ matrix.runner }}-${{ matrix.shard }}
+          path: apps/server/report
+          if-no-files-found: ignore
