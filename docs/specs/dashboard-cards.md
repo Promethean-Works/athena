@@ -1,6 +1,6 @@
 # Spec: customizable dashboard
 
-**Status:** Approved (2026-11-20) · **Milestone:** Backlog (screen review) · **Design:** `docs/design/README.md` → web UI
+**Status:** Done (#181, #182, #183; approved 2026-11-20) · **Milestone:** Backlog (screen review) · **Design:** `docs/design/README.md` → web UI
 
 ## Goal
 
