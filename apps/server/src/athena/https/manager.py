@@ -194,6 +194,8 @@ class HttpsManager:
                 timeout_graceful_shutdown=SHUTDOWN_GRACE_SECONDS,
             )
             config.load()  # builds the SSLContext here, so a bad certificate raises now
+            if config.ssl is not None:
+                config.ssl.minimum_version = ssl.TLSVersion.TLSv1_2
         except Exception as exc:
             sock.close()
             log.exception("HTTPS listener config")

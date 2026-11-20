@@ -37,7 +37,9 @@ def _free_port() -> int:
 
 
 def _ssl_context(ca: Path) -> ssl.SSLContext:
-    return ssl.create_default_context(cafile=str(ca))
+    ctx = ssl.create_default_context(cafile=str(ca))
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    return ctx
 
 
 def _served_cert(port: int, ca: Path) -> x509.Certificate:
@@ -52,6 +54,14 @@ def _served_cert(port: int, ca: Path) -> x509.Certificate:
 
 
 # ---------------------------------------------------------------- local CA
+
+
+def test_the_listener_refuses_old_tls(tmp_path):
+    port = _free_port()
+    with TestClient(_app(tmp_path)) as client:
+        signed_in(client)
+        assert client.put("/api/https", json={"mode": "self_signed", "port": port}).is_success
+        assert client.app.state.https._server.config.ssl.minimum_version >= ssl.TLSVersion.TLSv1_2
 
 
 def test_server_cert_is_signed_by_the_ca_and_covers_the_host(tmp_path):
