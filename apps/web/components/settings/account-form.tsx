@@ -2,7 +2,11 @@
 
 import * as React from "react"
 
+import { LogOutIcon } from "lucide-react"
+
 import { api, errorMessage } from "@workspace/api-client"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
+import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
   Card,
@@ -19,6 +23,14 @@ import {
   FieldLabel,
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@workspace/ui/components/item"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { toast } from "@workspace/ui/components/toast"
 
@@ -28,7 +40,7 @@ const MIN_LENGTH = 8
 
 /** Settings → Account: who you are, and changing your password. */
 export function AccountForm() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const formRef = React.useRef<HTMLFormElement>(null)
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -66,14 +78,32 @@ export function AccountForm() {
   return (
     <div className="flex flex-col gap-4 md:gap-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Account</CardTitle>
-          <CardDescription>
-            Signed in as{" "}
-            <span className="font-medium text-foreground">{user.username}</span>
-            {user.is_admin ? " · administrator" : ""}
-          </CardDescription>
-        </CardHeader>
+        <CardContent>
+          <Item className="p-0">
+            <ItemMedia>
+              <Avatar className="size-10">
+                <AvatarFallback>
+                  {user.username.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>
+                {user.username}
+                <Badge variant="secondary">
+                  {user.is_admin ? "Administrator" : "User"}
+                </Badge>
+              </ItemTitle>
+              <ItemDescription>Signed in on this browser</ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Button variant="outline" onClick={() => void logout()}>
+                <LogOutIcon data-icon="inline-start" />
+                Sign out
+              </Button>
+            </ItemActions>
+          </Item>
+        </CardContent>
       </Card>
 
       <Card>
