@@ -20,7 +20,7 @@
 //   node scripts/agents-setup.mjs --yes        fix without asking (agents: ask the user first)
 //   --with-models                              also apply .agents/user/*.models.json
 //   --only <a,b>                               only these groups: repo, tools, claude,
-//                                              opencode, hermes, codex, antigravity
+//                                              opencode, hermes, codex, antigravity, omp
 //
 // Only agents whose CLI is on PATH are set up. Fixes are idempotent and merge into
 // existing configs; nothing is overwritten.
@@ -153,7 +153,7 @@ const hermesPluginEnabled = (name) => {
 }
 const mcpServers = Object.keys(readJson(join(ROOT, ".mcp.json"))?.mcpServers ?? {})
 const rtkHook = readJson(join(ROOT, ".agents/user/claude.settings.json"))
-const has = { claude: !!which("claude"), opencode: !!which("opencode"), hermes: !!which("hermes"), codex: !!which("codex"), antigravity: !!which("agy") }
+const has = { claude: !!which("claude"), opencode: !!which("opencode"), hermes: !!which("hermes"), codex: !!which("codex"), antigravity: !!which("agy"), omp: !!which("omp") }
 let python = null
 const pythonOnce = () => (python ??= findPython() ?? "")
 
@@ -344,6 +344,14 @@ const steps = [
     title: "Antigravity: RTK hook",
     ok: () => false,
     manual: "Run `rtk init --agent antigravity --hook-only`. TokenEconomizer: see its README → Antigravity CLI (macOS/Linux only).",
+  },
+  // oh-my-pi reads the repo's AGENTS.md, skills, commands and .mcp.json by itself.
+  {
+    group: "omp",
+    when: has.omp,
+    title: "oh-my-pi: RTK extension (~/.omp/agent/extensions/rtk.ts)",
+    ok: () => exists(join(HOME, ".omp/agent/extensions/rtk.ts")),
+    fix: { show: "rtk init -g --agent omp --hook-only --no-patch", run: () => run("rtk", ["init", "-g", "--agent", "omp", "--hook-only", "--no-patch"], { stdio: "inherit" }) },
   },
 ].filter((s) => s.when !== false && (!ONLY || ONLY.has(s.group)) && !(QUIET && s.quietSkip))
 

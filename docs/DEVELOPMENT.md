@@ -11,7 +11,7 @@ How to set up a machine to work on Athena, with or without AI coding agents, and
 | git, Node.js (LTS) with pnpm, Python 3.13 with [uv](https://docs.astral.sh/uv/) | Building and running Athena |
 | [GitHub CLI](https://cli.github.com/) (`gh auth login`) | PRs, CI and auto-merge |
 | Docker or another container engine (optional) | Apps and container features; tests that need it are skipped without it |
-| One or more coding agents (optional) | Claude Code, OpenCode, Hermes Agent, Codex, Antigravity or GitHub Copilot |
+| One or more coding agents (optional) | Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, GitHub Copilot or oh-my-pi (`omp`) |
 
 ### Steps
 
@@ -53,6 +53,7 @@ Everything else is in the repo and needs no setup:
 | **Codex** | `AGENTS.md` | `.agents/skills` | `.codex/config.toml` (trust the project when asked) | `.codex/agents/`, skills |
 | **Antigravity** | `AGENTS.md` | `.agents/skills` | `.agents/mcp_config.json` | Skills |
 | **GitHub Copilot** | `AGENTS.md`, `.github/instructions/` | `.agents/skills` | `.mcp.json` | Skills |
+| **oh-my-pi** | `AGENTS.md`, `.github/instructions/` as rules | `.agents/skills` | `.mcp.json` | `.claude/commands/`, `.omp/agents/` |
 
 The MCP servers are `shadcn` (component registry), `next-devtools` (Next.js docs and diagnostics), `playwright` (a headless browser for UI checks) and `context7` (current library docs; set `CONTEXT7_API_KEY` for higher rate limits).
 
@@ -63,6 +64,7 @@ Many of these files are generated from one source by `node scripts/agents-sync.m
 - **Windows:** turn on Developer Mode and `git config core.symlinks true` before cloning, so `.claude/skills` is a real link. Where a link can't be made, `agents-setup.mjs` copies the file instead; re-run it after updating TokenEconomizer.
 - **macOS:** the system `python3` is 3.9, too old for TokenEconomizer; `agents-setup.mjs` finds or installs (through uv) a 3.10+ and points `TE_PYTHON` at it.
 - **Codex and Antigravity:** RTK and TokenEconomizer aren't wired up automatically; the script prints the steps.
+- **oh-my-pi:** `agents-setup.mjs` installs the RTK extension; TokenEconomizer has no omp integration.
 
 ## 2. Run Athena
 

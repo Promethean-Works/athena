@@ -3,8 +3,8 @@
 //
 //   node scripts/agents-sync.mjs           write the generated files (see GENERATED below):
 //                                          the "mcp" block of opencode.json, Claude Code
-//                                          subagents, Codex and Antigravity MCP config, and the
-//                                          per-area rules for Claude Code and Copilot
+//                                          and oh-my-pi subagents, Codex and Antigravity MCP
+//                                          config, and the per-area rules for Claude Code and Copilot
 //   node scripts/agents-sync.mjs --check   exit 1 if either is out of date (for CI)
 //   node scripts/agents-sync.mjs --hermes  trust this repo's skills in Hermes and register
 //                                          any missing MCP servers (via the hermes CLI)
@@ -44,6 +44,7 @@ const OPENCODE_SUBAGENT_ONLY = {
     description:
       "Verifies an Athena UI or API change in a real browser (release build, Playwright). Use after changing apps/web or an API the UI calls.",
     claudeModel: "sonnet", // many small, repetitive browser steps; an alias, so always valid
+    ompModel: "@smol", // oh-my-pi's cheap-model role (falls back to the default model)
     system:
       "Follow the athena-ui-verify skill (.agents/skills/athena-ui-verify/SKILL.md) exactly. Report what you verified, what you couldn't and why, and any bugs you found.",
   },
@@ -180,7 +181,8 @@ const permissions = [
   ...openCodeSecretRules, // last, so a broad allow earlier can't override them
 ];
 // Subagents: the MCP-scoped ones above plus SUBAGENTS, written for Claude Code
-// (.claude/agents/), OpenCode (opencode.json agents) and Codex (.codex/agents/).
+// (.claude/agents/), OpenCode (opencode.json agents), Codex (.codex/agents/) and oh-my-pi
+// (.omp/agents/, which also replaces omp's bundled `reviewer`).
 // Claude Code and OpenCode also have a built-in explorer (Explore / explore) for
 // read-only searches, so there's no custom one; give it a cheap model per machine.
 const SUBAGENTS = {
@@ -189,6 +191,7 @@ const SUBAGENTS = {
       "Reviews a diff against Athena's rules (AGENTS.md, the app rules, gotchas) and reports bugs and rule breaks without editing. Use before opening a PR, or when asked to review.",
     claudeModel: "inherit", // a review needs the strongest model in use
     claudeTools: "Read, Grep, Glob, Bash",
+    ompTools: ["read", "find", "grep", "glob", "bash"], // no edit/write: read-only
     readOnly: true,
     system:
       "Follow the athena-review skill (.agents/skills/athena-review/SKILL.md) exactly. Never edit files. Report findings ordered by severity, each with file:line, why it's wrong and a suggested fix.",
@@ -300,6 +303,27 @@ const codexAgents = Object.fromEntries(
     ].join("\n"),
   ]),
 );
+// oh-my-pi skips .claude/agents (different frontmatter) and reads only .omp/agents/*.md.
+// No model means the session's model; omp gives MCP tools to every agent, so the
+// playwright scoping above doesn't apply there.
+const ompAgents = Object.fromEntries(
+  allSubagents.map((a) => [
+    join(".omp", "agents", `${a.name}.md`),
+    [
+      "---",
+      `name: ${a.name}`,
+      `description: ${JSON.stringify(a.description)}`,
+      ...(a.ompModel ? [`model: ${JSON.stringify(a.ompModel)}`] : []),
+      ...(a.ompTools ? ["tools:", ...a.ompTools.map((t) => `  - ${t}`)] : []),
+      "---",
+      "",
+      generatedNote(a.source),
+      "",
+      a.system,
+      "",
+    ].join("\n"),
+  ]),
+);
 // Codex reads MCP servers from .codex/config.toml (only in trusted projects).
 const toml = (v) => JSON.stringify(v); // JSON strings and arrays of strings are valid TOML
 const codexToml = [
@@ -361,6 +385,7 @@ const outputs = {
   ...claudeAgents,
   ...claudeCommands,
   ...codexAgents,
+  ...ompAgents,
   [join(".codex", "config.toml")]: codexToml,
   [join(".agents", "mcp_config.json")]: antigravity,
   ...areaRules,
