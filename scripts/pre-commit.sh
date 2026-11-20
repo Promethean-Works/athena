@@ -30,8 +30,8 @@ common_dir=$(cd "$(git rev-parse --git-common-dir)" && pwd -P)
 fix_hint() {
   echo "Move your changes to a worktree instead:"
   echo "  git stash"
-  echo "  git fetch origin && git worktree add ../athena-<topic> -b <type>/<topic> origin/main"
-  echo "  git -C ../athena-<topic> stash pop"
+  echo "  git fetch origin && git worktree add ../worktrees/athena-<topic> -b <type>/<topic> origin/main"
+  echo "  git -C ../worktrees/athena-<topic> stash pop"
   echo "Skip once (emergency only): ATHENA_ALLOW_MAIN_COMMIT=1 git commit ..."
 }
 
