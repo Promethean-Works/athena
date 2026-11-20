@@ -1,0 +1,28 @@
+name: Change request
+description: Change how something that already exists in Athena works
+labels: [change, triage]
+body:
+  - type: textarea
+    id: current
+    attributes:
+      label: How it works today
+      description: The page, setting or behaviour you'd like changed.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: How it should work
+      description: What you'd change, and why it would be better.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Athena version
+      placeholder: "0.1.0, or a commit SHA"
+  - type: input
+    id: os-details
+    attributes:
+      label: OS, architecture and container runtime
+      placeholder: "Ubuntu 24.04 · x86_64 · docker-engine"

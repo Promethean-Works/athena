@@ -60,6 +60,7 @@ import {
 } from "@workspace/ui/components/empty"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
+import { AppReportButton } from "@/components/feedback/app-report-dialog"
 import { AppIcon } from "@/components/store/app-icon"
 import { InstallForm } from "@/components/store/install-form"
 import { StoreCover } from "@/components/store/store-cover"
@@ -256,6 +257,11 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
             />
           </CollapsibleContent>
         </Collapsible>
+
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span>Doesn&apos;t work as expected?</span>
+          <AppReportButton app={app} />
+        </div>
 
         <RelatedApps app={app} />
       </div>

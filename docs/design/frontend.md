@@ -107,3 +107,5 @@ shadcn presets are applied at *init/build time* by the CLI. Athena needs them sw
 ```
 
 Static export doesn't allow dynamic segments without `generateStaticParams`. The workaround is query params (`/apps/view?name=…`) or a catch-all with client routing. **Decision: use query params for detail pages.**
+
+**Feedback** has no page: "Send feedback" in the sidebar's bottom group opens a dialog (bug, change, feature), and each store app page has "Report a problem". Both open a filled-in issue on the forge in a new tab (`components/feedback/`, spec `docs/specs/feedback.md`).
