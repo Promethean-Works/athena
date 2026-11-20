@@ -17,6 +17,11 @@ x-athena:
       label: Web port
       type: port
       default: "8204"
+    - key: NEXTAUTH_SECRET
+      label: NextAuth secret
+      type: password
+      generate: secret
+      advanced: true
 
 services:
   karakeep:
@@ -24,5 +29,8 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3000/tcp"
+    environment:
+      DATA_DIR: /data
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
     volumes:
       - ${ATHENA_APP_DATA}/data:/data

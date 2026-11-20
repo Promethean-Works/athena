@@ -22,7 +22,7 @@ x-athena:
     type: port
     default: '8199'
   web_path: /
-  notes: We recommend reviewing the [Quick Start](https://gohugo.io/getting-started/quick-start/) documentation
+  notes: On first start an empty Hugo project is created in the app's data folder (`project`). Add a theme and content there; the preview reloads on its own. We recommend reviewing the [Quick Start](https://gohugo.io/getting-started/quick-start/) documentation
     to learn how to use Hugo.
 services:
   hugo:
@@ -45,6 +45,9 @@ services:
     - type: bind
       source: ${ATHENA_APP_DATA}/cache
       target: /cache
+    entrypoint:
+    - /bin/sh
+    - -c
     command:
-    - server
-    - --bind=0.0.0.0
+    - ls /project/hugo.* /project/config.* /project/config >/dev/null 2>&1 || hugo new project /project --force;
+      exec hugo server --source /project --bind=0.0.0.0 --baseURL=/ --appendPort=false --liveReloadPort=${WEB_PORT}

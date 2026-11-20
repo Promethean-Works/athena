@@ -23,6 +23,10 @@ services:
     image: nzbfast/nzbfast:1.3.1
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:6790/tcp"
+      - "${WEB_PORT}:6789/tcp"
+    environment:
+      NZBFAST_OUT: /data/usenet
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/config:/config
+      - ${ATHENA_APP_DATA}/watch:/watch
+      - ${ATHENA_APP_DATA}/usenet:/data/usenet
