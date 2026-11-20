@@ -30,6 +30,15 @@ def builtin():
     return load_catalog(root, "builtin")
 
 
+def user_entries(app) -> dict[str, str]:
+    """What a user must type: required fields with no default or generated value (a token)."""
+    return {
+        f.key: "user-entered"
+        for f in app.meta.env
+        if f.required and not f.default and not f.generate
+    }
+
+
 def test_builtin_catalog_loads_without_errors() -> None:
     apps, errors = builtin()
     assert errors == []
@@ -40,7 +49,7 @@ def test_builtin_catalog_loads_without_errors() -> None:
 def test_every_builtin_app_installs_with_defaults(tmp_path: Path) -> None:
     apps, _ = builtin()
     for app in apps:
-        values = resolve_values(app.meta.env, {}, tmp_path / app.id / "data")
+        values = resolve_values(app.meta.env, user_entries(app), tmp_path / app.id / "data")
         assert set(values) == {f.key for f in app.meta.env}, app.id
         for f in app.meta.env:
             if f.generate == "secret":
@@ -83,7 +92,8 @@ def test_every_builtin_app_passes_compose_config(tmp_path: Path) -> None:
         folder = tmp_path / app.id
         folder.mkdir()
         (folder / "compose.yaml").write_text(app.compose)
-        (folder / ".env").write_text(env_file(resolve_values(app.meta.env, {}, folder / "data")))
+        values = resolve_values(app.meta.env, user_entries(app), folder / "data")
+        (folder / ".env").write_text(env_file(values))
         result = subprocess.run(
             [*cli, "compose", "--file", str(folder / "compose.yaml"), "config", "--quiet"],
             capture_output=True,
