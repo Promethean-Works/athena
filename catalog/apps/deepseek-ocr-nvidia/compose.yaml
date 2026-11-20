@@ -8,6 +8,8 @@ x-athena:
   web_port: WEB_PORT
   web_path: /
   platforms: [linux/amd64]
+  smoke: skip
+  smoke_note: needs an NVIDIA GPU
   notes: The first run will download the model (~5-10GB), which may take some time.
   env:
   - key: WEB_PORT
