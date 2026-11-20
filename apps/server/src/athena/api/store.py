@@ -171,10 +171,10 @@ def _field(f: EnvField, default: str) -> FormField:
         label=f.label,
         description=f.description,
         type=f.type,
-        default="" if f.generate == "secret" else default,
-        required=f.required and f.generate != "secret",
+        default="" if f.generate else default,
+        required=f.required and not f.generate,
         options=f.options,
-        generated=f.generate == "secret",
+        generated=f.generate is not None,
         advanced=f.advanced,
     )
 

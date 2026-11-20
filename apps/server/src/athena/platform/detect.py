@@ -356,7 +356,6 @@ def detect_tunnel_cloudflare(probe: Probe) -> Capability:
         status="ready",
         provider="cloudflare",
         detail=version,
-        actions=["start", "configure"],
     )
 
 
@@ -386,7 +385,6 @@ def detect_tunnel_tailscale(probe: Probe) -> Capability:
                     status="ready",
                     provider="tailscale",
                     detail=f"Logged in to {tailnet}",
-                    actions=["start", "configure"],
                 )
         except Exception:
             pass
@@ -396,7 +394,6 @@ def detect_tunnel_tailscale(probe: Probe) -> Capability:
         status="stopped",
         provider="tailscale",
         detail="Tailscale installed but not logged in (run: tailscale up)",
-        actions=["start", "configure"],
     )
 
 
@@ -418,7 +415,6 @@ def detect_tunnel_ngrok(probe: Probe) -> Capability:
         status="ready",
         provider="ngrok",
         detail=version,
-        actions=["start", "configure"],
     )
 
 

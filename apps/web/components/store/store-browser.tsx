@@ -17,6 +17,7 @@ import {
 import { PopularCarousel } from "@/components/store/popular-carousel"
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
@@ -54,10 +55,7 @@ export function SupportBadge({ support }: { support: StoreApp["support"] }) {
   }
   if (support === "unsupported") {
     return (
-      <Badge
-        variant="destructive"
-        title="No image for this server's CPU"
-      >
+      <Badge variant="destructive" title="No image for this server's CPU">
         Won&apos;t run here
       </Badge>
     )
@@ -108,18 +106,33 @@ export function StoreBrowser() {
     [runnable]
   )
 
-  const shown = React.useMemo(() => {
-    const needle = query.trim().toLowerCase()
-    return runnable.filter(
-      (a) =>
+  const matches = React.useCallback(
+    (a: StoreApp) => {
+      const needle = query.trim().toLowerCase()
+      return (
         (category === "all" || a.category === category) &&
         (!needle ||
           a.title.toLowerCase().includes(needle) ||
           a.description.toLowerCase().includes(needle) ||
           (a.tagline ?? "").toLowerCase().includes(needle) ||
           a.tags.some((t) => t.toLowerCase().includes(needle)))
-    )
-  }, [runnable, query, category])
+      )
+    },
+    [query, category]
+  )
+  const shown = React.useMemo(
+    () => runnable.filter(matches),
+    [runnable, matches]
+  )
+  // Hidden apps that match the search, so "No apps match" can say they exist.
+  const hiddenMatches = React.useMemo(
+    () =>
+      showUnsupported
+        ? 0
+        : (apps ?? []).filter((a) => a.support === "unsupported" && matches(a))
+            .length,
+    [apps, showUnsupported, matches]
+  )
 
   if (error && !apps) {
     return (
@@ -216,8 +229,22 @@ export function StoreBrowser() {
         <Empty className="border">
           <EmptyHeader>
             <EmptyTitle>No apps match</EmptyTitle>
-            <EmptyDescription>Try another search or category.</EmptyDescription>
+            <EmptyDescription>
+              {hiddenMatches
+                ? `${hiddenMatches} matching ${hiddenMatches === 1 ? "app is" : "apps are"} hidden because ${hiddenMatches === 1 ? "it has" : "they have"} no image for this server's CPU.`
+                : "Try another search or category."}
+            </EmptyDescription>
           </EmptyHeader>
+          {hiddenMatches ? (
+            <EmptyContent>
+              <Button
+                variant="outline"
+                onClick={() => setShowUnsupported(true)}
+              >
+                Show {hiddenMatches === 1 ? "it" : "them"}
+              </Button>
+            </EmptyContent>
+          ) : null}
         </Empty>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
