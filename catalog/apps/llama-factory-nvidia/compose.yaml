@@ -8,6 +8,8 @@ x-athena:
   web_port: WEB_PORT
   web_path: /
   platforms: [linux/amd64]
+  smoke: skip
+  smoke_note: needs an NVIDIA GPU
   notes: null
   env:
   - key: WEB_PORT
@@ -17,6 +19,7 @@ x-athena:
 services:
   llama-factory-nvidia:
     image: hiyouga/llamafactory:0.9.4
+    platform: linux/amd64
     container_name: llama-factory-nvidia
     ports:
     - target: 7860

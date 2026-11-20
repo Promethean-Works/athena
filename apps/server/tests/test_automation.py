@@ -259,3 +259,21 @@ def test_validate_action_endpoint(tmp_path):
         },
     )
     assert r.status_code == 200, r.text
+
+
+def test_updating_http_trigger_keeps_webhook_token(tmp_path):
+    client, _ = _client(tmp_path)
+    body = {
+        "kind": "http",
+        "name": "webhook job",
+        "action": {"kind": "app", "name": "x", "verb": "start"},
+        "enabled": True,
+    }
+    r = client.post("/api/automation/triggers", json=body)
+    assert r.status_code == 201, r.text
+    trigger = r.json()
+
+    r = client.patch(f"/api/automation/triggers/{trigger['id']}", json={**body, "enabled": False})
+    assert r.status_code == 200, r.text
+    assert r.json()["enabled"] is False
+    assert r.json()["webhook_token"] == trigger["webhook_token"]

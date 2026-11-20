@@ -23,6 +23,8 @@ services:
     image: ghcr.io/qdm12/ddns-updater:v2.10.0
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:8000/tcp"
+    # The image runs as uid 1000, but Docker creates a missing data folder as root.
+    user: "0:0"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/config
+      - ${ATHENA_APP_DATA}/data:/updater/data
