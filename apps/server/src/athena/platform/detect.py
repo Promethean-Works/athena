@@ -423,6 +423,7 @@ def detect_builtin(probe: Probe) -> list[Capability]:
         Capability(id="files", label="Files", status="ready", provider="builtin"),
         Capability(id="automation", label="Automation", status="ready", provider="builtin"),
         Capability(id="shares.webdav", label="WebDAV shares", status="ready", provider="wsgidav"),
+        Capability(id="https", label="HTTPS", status="ready", provider="builtin"),
     ]
 
 
