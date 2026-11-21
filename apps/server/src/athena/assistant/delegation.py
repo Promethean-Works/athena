@@ -1,4 +1,4 @@
-"""Delegated look-ups, background work and the advisor (docs/mvp-design.md §4.5, part D
+"""Delegated look-ups, background work and the advisor (docs/design/assistant.md, part D
 stage 2).
 
 - `SubAgents` gives the chat's model `delegate_task(agent_name, task)` with one helper, the

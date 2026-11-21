@@ -7,6 +7,7 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Bazarr/thumbnail.png
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/bazarr.svg
   homepage: https://www.bazarr.media
   web_port: WEB_PORT

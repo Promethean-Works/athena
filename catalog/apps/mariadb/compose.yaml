@@ -3,14 +3,12 @@ x-athena:
   title: MariaDB
   description: MariaDB Server is one of the most popular database servers in the world. It's made by the
     original developers of MySQL and guaranteed to stay open source.
-  category: development
+  category: databases
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/MariaDB/icon.svg
   homepage: https://mariadb.org/
   web_port: null
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: 'Default user: `casaos`
 
     Default password: `casaos`
@@ -51,6 +49,6 @@ services:
       protocol: tcp
     volumes:
     - type: bind
-      source: /DATA/AppData/mariadb/config
+      source: ${ATHENA_APP_DATA}/config
       target: /config
     container_name: mariadb

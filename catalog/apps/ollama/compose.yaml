@@ -12,7 +12,8 @@ x-athena:
     - The assistant in Athena can use it for free
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ollama/screenshot-1.png
-  category: development
+  category: ai
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/ollama.svg
   homepage: https://ollama.com
   web_port: WEB_PORT
@@ -24,7 +25,7 @@ x-athena:
 
 services:
   ollama:
-    image: ollama/ollama:0.40.17
+    image: ollama/ollama:0.40.16
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:11434"

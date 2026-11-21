@@ -5,6 +5,7 @@ x-athena:
   tags: [Monitoring, Network, Latency]
   license: "GPL-2.0"
   category: monitoring
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Smokeping/icon.svg
   homepage: https://smokeping.org
   web_port: WEB_PORT
@@ -30,7 +31,7 @@ services:
     image: linuxserver/smokeping:2.9.0
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:80/tcp"
     environment:
       PUID: ${PUID}
       PGID: ${PGID}

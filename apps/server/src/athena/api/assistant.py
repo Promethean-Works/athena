@@ -1,25 +1,27 @@
-"""The AI assistant: providers, model lists and chats (docs/mvp-design.md §4.5).
+"""The AI assistant: providers, model lists and chats (docs/design/assistant.md).
 
 Everything here is admin only: the assistant reads the host, and providers hold keys.
 """
 
+from __future__ import annotations
+
+import asyncio
+import importlib
 import json
 import logging
 import secrets
+import sys
 from datetime import datetime
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from pydantic_ai import ToolDenied
-from pydantic_ai.exceptions import UserError
-from pydantic_ai.models import Model
 from sqlmodel import Session, col, select
 
 from athena import audit
 from athena.api.jobs import SSE_HEADERS
-from athena.assistant import chat, questions
+from athena.assistant import chat_models, questions
 from athena.assistant import settings as ai_settings
 from athena.assistant.context import window_for
 from athena.assistant.integrations import (
@@ -36,17 +38,9 @@ from athena.assistant.integrations import (
 from athena.assistant.integrations import (
     _out as integration_out,
 )
-from athena.assistant.kinds import (
-    BY_ID,
-    KindField,
-    KindId,
-    ProviderKind,
-    secret_keys,
-)
-from athena.assistant.kinds import (
-    NATIVE_KINDS as KINDS,
-)
-from athena.assistant.models_dev import get_models_dev_service, refresh_models_dev_cache
+from athena.assistant.kinds import ProviderKind, secret_keys
+from athena.assistant.models_dev import list_kinds as list_provider_kinds
+from athena.assistant.models_dev import refresh_models_dev_cache, resolve_kind
 from athena.assistant.plans import PlanStep, delete_plan, plan_of
 from athena.assistant.providers import (
     ModelCache,
@@ -60,9 +54,15 @@ from athena.assistant.providers import (
     split_values,
 )
 from athena.assistant.settings import ModelRef
-from athena.auth.deps import Authed, CurrentUser, DbSession, current_user
+from athena.assistant.turns import Turns
+from athena.auth.deps import Authed, CurrentUser, DbSession, SettingsStore, current_user
 from athena.crypto import SecretBox, SecretError
 from athena.db.models import AiConversation, AiIntegration, AiProvider
+
+if TYPE_CHECKING:
+    from pydantic_ai.models import Model
+
+    from athena.assistant.chat import Window
 
 log = logging.getLogger(__name__)
 
@@ -122,7 +122,7 @@ class ModelsOut(BaseModel):
 class ProviderModels(ModelsOut):
     provider_id: str
     provider_name: str
-    kind: KindId
+    kind: str
     lists_models: bool
 
 
@@ -131,8 +131,15 @@ class TestOut(BaseModel):
     message: str
 
 
+def _kind(row: AiProvider) -> ProviderKind:
+    kind = resolve_kind(row.kind)
+    if kind is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such provider")
+    return kind
+
+
 def _out(row: AiProvider, box: SecretBox) -> ProviderOut:
-    kind = BY_ID[row.kind]
+    kind = _kind(row)
     stored: list[str] = []
     if row.secrets:
         try:
@@ -151,7 +158,7 @@ def _out(row: AiProvider, box: SecretBox) -> ProviderOut:
 
 def _get_provider(db: Session, provider_id: str) -> AiProvider:
     row = db.get(AiProvider, provider_id)
-    if row is None or row.kind not in BY_ID:
+    if row is None or resolve_kind(row.kind) is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such provider")
     return row
 
@@ -174,86 +181,34 @@ def _store(row: AiProvider, kind: ProviderKind, values: dict[str, str], box: Sec
 
 
 @router.get("/kinds", operation_id="listAiProviderKinds")
-def list_kinds(request: Request) -> list[ProviderKind]:
-    """Return all provider kinds: native + dynamic from models.dev cache."""
-    kinds = list(KINDS)  # Native kinds
-    # Add dynamic kinds from models.dev cache
-    service = get_models_dev_service()
-    if service:
-        kinds.extend(service.get_dynamic_kinds())
-    return kinds
+async def list_kinds() -> list[ProviderKind]:
+    """Every models.dev provider pydantic-ai can use, plus local Ollama."""
+    return await list_provider_kinds()
 
 
 @router.post(
     "/kinds/refresh", operation_id="refreshAiProviderKinds", status_code=status.HTTP_202_ACCEPTED
 )
-async def refresh_kinds(request: Request, user: Authed, db: DbSession) -> dict[str, Any]:
+async def refresh_kinds(request: Request, user: Authed) -> dict[str, Any]:
     """Manually refresh the models.dev cache and return the updated kinds."""
-    # Force refresh the cache
-    count = await refresh_models_dev_cache(db.session, force=True)
-    # Return updated kinds
-    kinds = list(KINDS)
-    service = get_models_dev_service()
-    if service:
-        kinds.extend(service.get_dynamic_kinds())
+    count = await refresh_models_dev_cache(force=True)
+    kinds = await list_provider_kinds()
     return {"refreshed": count, "kinds": [k.model_dump() for k in kinds]}
 
 
 @router.get("/providers", operation_id="listAiProviders")
 def list_providers(request: Request, db: DbSession) -> list[ProviderOut]:
     rows = db.exec(select(AiProvider).order_by(col(AiProvider.created_at))).all()
-    return [_out(r, _box(request)) for r in rows if r.kind in BY_ID]
+    return [_out(r, _box(request)) for r in rows if resolve_kind(r.kind) is not None]
 
 
 @router.post("/providers", operation_id="createAiProvider", status_code=status.HTTP_201_CREATED)
 def create_provider(body: ProviderIn, request: Request, user: Authed, db: DbSession) -> ProviderOut:
-    # Validate kind exists (native or dynamic)
-    kind = BY_ID.get(body.kind)
+    kind = resolve_kind(body.kind)
     if kind is None:
-        service = get_models_dev_service()
-        if service:
-            # Check if it's a dynamic kind from models.dev
-            entry = service.get_provider(body.kind)
-            if entry and entry.is_openai_compatible:
-                # Create a dynamic kind for this provider
-                kind = ProviderKind(
-                    id=entry.provider_id,
-                    label=entry.name,
-                    group="cloud" if entry.api_url else "local",
-                    fields=[
-                        KindField(
-                            key="api_key",
-                            label="API key",
-                            secret=True,
-                            required=True,
-                            help=(
-                                f"Set {entry.provider_id.upper().replace('-', '_')}_API_KEY "
-                                "in your environment or enter it here"
-                            ),
-                        ),
-                        KindField(
-                            key="base_url",
-                            label="Base URL",
-                            required=False,
-                            default=entry.api_url,
-                            placeholder=entry.api_url,
-                            help=entry.doc_url or "Provider's API endpoint",
-                        ),
-                        KindField(
-                            key="context_window",
-                            label="Context window",
-                            placeholder="e.g. 32768",
-                            help="Tokens the model accepts. Leave empty to detect automatically.",
-                        ),
-                    ],
-                    lists_models=True,
-                )
-                BY_ID[body.kind] = kind  # Cache it for future use
-        # If still None, it's an unknown kind
-        if kind is None:
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_CONTENT, f"Unknown provider kind: {body.kind}"
-            )
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, f"Unknown provider kind: {body.kind}"
+        )
 
     row = AiProvider(id=secrets.token_hex(8), kind=kind.id, name=body.name.strip())
     _store(row, kind, body.values, _box(request))
@@ -269,7 +224,7 @@ def update_provider(
     provider_id: ProviderId, body: ProviderUpdate, request: Request, user: Authed, db: DbSession
 ) -> ProviderOut:
     row = _get_provider(db, provider_id)
-    kind = BY_ID[row.kind]
+    kind = _kind(row)
     box = _box(request)
     values = dict(body.values)
     # Empty secrets keep what's stored (the form shows them as "Unchanged").
@@ -296,16 +251,20 @@ def update_provider(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_provider(
-    provider_id: ProviderId, request: Request, user: Authed, db: DbSession
+    provider_id: ProviderId,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    settings_file: SettingsStore,
 ) -> Response:
     row = _get_provider(db, provider_id)
     db.delete(row)
-    settings = ai_settings.load(db)
+    settings = ai_settings.load(settings_file)
     for attr in ("default_model", "title_model", "advisor_model", "review_model"):
         ref: ModelRef | None = getattr(settings, attr)
         if ref and ref.provider_id == provider_id:
             setattr(settings, attr, None)
-    ai_settings.save(db, settings)
+    ai_settings.save(settings_file, settings)
     audit.record(db, user.user.username, "ai.provider.remove", row.name)
     db.commit()
     _cache(request).drop(provider_id)
@@ -439,7 +398,7 @@ async def test_provider(provider_id: ProviderId, request: Request, db: DbSession
         models = await _models(request, row, refresh=True)
     except ProviderError as exc:
         return TestOut(ok=False, message=str(exc))
-    if not BY_ID[row.kind].lists_models:
+    if not _kind(row).lists_models:
         return TestOut(ok=True, message="Connected. Type your deployment name as the model.")
     if not models:
         return TestOut(ok=True, message="Connected, but the provider lists no models.")
@@ -465,9 +424,9 @@ async def all_models(request: Request, db: DbSession) -> list[ProviderModels]:
     with its error, so its model ids can be typed."""
     out = []
     for row in db.exec(select(AiProvider).order_by(col(AiProvider.created_at))).all():
-        if row.kind not in BY_ID:
+        kind = resolve_kind(row.kind)
+        if kind is None:
             continue
-        kind = BY_ID[row.kind]
         try:
             models, error = await _models(request, row, refresh=False), None
         except (ProviderError, HTTPException) as exc:
@@ -497,11 +456,11 @@ class ConversationOut(BaseModel):
 
 
 class ConversationDetail(ConversationOut):
-    messages: list[chat.ChatMessage]
+    messages: list[chat_models.ChatMessage]
     running: bool
     naming: bool = False
     """A title model is still naming the chat; the title changes when it's done."""
-    usage: chat.ChatUsage
+    usage: chat_models.ChatUsage
     """What the whole chat has used so far."""
     spend_limit_usd: float | None
     """Settings → AI's limit per chat, if any."""
@@ -561,7 +520,14 @@ def _get_conv(db: Session, user: CurrentUser, conversation_id: str) -> AiConvers
     return row
 
 
-def _turns(request: Request) -> chat.Turns:
+async def _load_chat() -> None:
+    """Import the agent stack (`assistant.chat`) off the event loop the first time: it takes
+    a second or more, longer on a Pi, and would stall every other request meanwhile."""
+    if "athena.assistant.chat" not in sys.modules:
+        await asyncio.to_thread(importlib.import_module, "athena.assistant.chat")
+
+
+def _turns(request: Request) -> Turns:
     return request.app.state.assistant_turns
 
 
@@ -578,8 +544,10 @@ def list_conversations(user: Authed, db: DbSession) -> list[ConversationOut]:
 @router.post(
     "/conversations", operation_id="createConversation", status_code=status.HTTP_201_CREATED
 )
-def create_conversation(body: ConversationIn, user: Authed, db: DbSession) -> ConversationOut:
-    model = body.model or ai_settings.load(db).default_model
+def create_conversation(
+    body: ConversationIn, user: Authed, db: DbSession, settings_file: SettingsStore
+) -> ConversationOut:
+    model = body.model or ai_settings.load(settings_file).default_model
     assert user.user.id is not None
     row = AiConversation(
         id=secrets.token_hex(8),
@@ -595,8 +563,15 @@ def create_conversation(body: ConversationIn, user: Authed, db: DbSession) -> Co
 
 @router.get("/conversations/{conversation_id}", operation_id="getConversation")
 async def get_conversation(
-    conversation_id: ConversationId, request: Request, user: Authed, db: DbSession
+    conversation_id: ConversationId,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    settings_file: SettingsStore,
 ) -> ConversationDetail:
+    await _load_chat()
+    from athena.assistant import chat
+
     row = _get_conv(db, user, conversation_id)
     conv = chat.load_history(row)
     messages = chat.transcript_messages(row, conv)
@@ -608,7 +583,7 @@ async def get_conversation(
         running=_turns(request).get(row.id) is not None,
         naming=_turns(request).naming(row.id),
         usage=chat.usage_of(conv.usage if conv else None),
-        spend_limit_usd=ai_settings.load(db).spend_limit_usd,
+        spend_limit_usd=ai_settings.load(settings_file).spend_limit_usd,
         plan=await plan_of(request.app.state.settings.data_dir, row.id),
     )
 
@@ -651,7 +626,12 @@ async def delete_conversation(
     responses={200: {"content": {"text/event-stream": {}}}},
 )
 async def send_message(
-    conversation_id: ConversationId, body: MessageIn, request: Request, user: Authed, db: DbSession
+    conversation_id: ConversationId,
+    body: MessageIn,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    settings_file: SettingsStore,
 ) -> StreamingResponse:
     """Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a
     new block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,
@@ -662,13 +642,14 @@ async def send_message(
     started), `title` (the first message's line; a title model renames the chat after
     `done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While
     actions or questions wait, a new message denies and declines them."""
+    await _load_chat()
     row = _get_conv(db, user, conversation_id)
     turns = _turns(request)
     if turns.get(row.id) is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "This chat is still answering")
     model = _model_for(request, db, row, body.model)
     _audit_skipped(db, user, row)
-    settings = ai_settings.load(db)
+    settings = ai_settings.load(settings_file)
     assert user.user.id is not None
     turn = turns.start(
         row.id,
@@ -680,7 +661,9 @@ async def send_message(
         window=_window_of(request, db, row, model),
         durable=settings.durable_execution_enabled,
         title_model=(
-            _title_model(request, db, settings, model) if row.title == chat.NEW_CHAT else None
+            _title_model(request, db, settings, model)
+            if row.title == chat_models.NEW_CHAT
+            else None
         ),
         advisor_model=_advisor_model(request, db, settings),
         review_model=_review_model(request, db, settings),
@@ -700,10 +683,16 @@ async def answer_approvals(
     request: Request,
     user: Authed,
     db: DbSession,
+    settings_file: SettingsStore,
 ) -> StreamingResponse:
     """Answer everything a paused chat is waiting on, and continue it: Approve or Deny each
     action (approved actions run as you, and each decision is audited) and answer or decline
     each question. Streams the same events as sendMessage."""
+    await _load_chat()
+    from pydantic_ai import ToolDenied
+
+    from athena.assistant import chat
+
     row = _get_conv(db, user, conversation_id)
     turns = _turns(request)
     if turns.get(row.id) is not None:
@@ -727,7 +716,7 @@ async def answer_approvals(
         except ValueError as exc:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
     model = _model_for(request, db, row, None)
-    settings = ai_settings.load(db)
+    settings = ai_settings.load(settings_file)
     decisions = resume.approvals
     for call_id, d in decided.items():
         call = calls[call_id]
@@ -761,6 +750,8 @@ async def answer_approvals(
 def _audit_skipped(db: Session, user: CurrentUser, row: AiConversation) -> None:
     """A new message denies the actions still waiting (see `chat._results`); record
     those denials like the ones answered on their card."""
+    from athena.assistant import chat
+
     conv = chat.load_history(row)
     pending = conv.deferred_tool_requests if conv else None
     for call in pending.approvals if pending else []:
@@ -778,7 +769,7 @@ def _model_for(
     ref = chosen or (
         ModelRef(provider_id=row.provider_id, model=row.model)
         if row.provider_id and row.model
-        else ai_settings.load(db).default_model
+        else ai_settings.load(request.app.state.settings_file).default_model
     )
     if ref is None:
         raise HTTPException(status.HTTP_409_CONFLICT, "Pick a model first")
@@ -789,7 +780,7 @@ def _model_for(
     return model
 
 
-def _window_of(request: Request, db: Session, row: AiConversation, model: Model) -> chat.Window:
+def _window_of(request: Request, db: Session, row: AiConversation, model: Model) -> Window:
     """Looks up the chat model's context window when the turn starts (after `_model_for`
     saved the choice on the chat)."""
     provider = db.get(AiProvider, row.provider_id)
@@ -839,8 +830,10 @@ def _review_model(request: Request, db: Session, settings: ai_settings.AiSetting
 
 
 def _build(request: Request, db: Session, ref: ModelRef) -> Model:
+    from pydantic_ai.exceptions import UserError
+
     provider = db.get(AiProvider, ref.provider_id)
-    if provider is None or provider.kind not in BY_ID:
+    if provider is None or resolve_kind(provider.kind) is None:
         raise HTTPException(
             status.HTTP_409_CONFLICT, "That model's provider was removed. Pick another model."
         )

@@ -1,4 +1,4 @@
-"""Browser agent (docs/mvp-design.md §4.5, part D stage 3).
+"""Browser agent (docs/design/assistant.md, part D stage 3).
 
 When "Browser" is on in Settings → AI, the assistant gets a `browse_web` tool that
 hands an open-ended web task to an autonomous

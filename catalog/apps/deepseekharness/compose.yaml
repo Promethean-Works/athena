@@ -1,27 +1,46 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/DeepSeekHarness
 x-athena:
   title: DeepSeek Harness
   description: Evaluation framework for DeepSeek and other large language models.
   tagline: LLM evaluation framework.
-  tags: [AI, LLM, Evaluation]
-  license: "MIT"
-  category: development
+  tags:
+  - AI
+  - LLM
+  - Evaluation
+  license: MIT
+  category: ai
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/deepseek.svg
   homepage: https://github.com/DeepSeek-AI/DeepSeek-Harness
   web_port: WEB_PORT
   screenshots:
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DeepSeekHarness/screenshot-1.png
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DeepSeekHarness/screenshot-2.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DeepSeekHarness/screenshot-1.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/DeepSeekHarness/screenshot-2.png
   env:
-    - key: WEB_PORT
-      label: Web port
-      type: port
-      default: "8180"
-
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8180'
+  web_path: /
 services:
-  deepseek-harness:
-    image: ghcr.io/deepseekai/deepseek-harness:dsh-v0.2.2-rc.5
-    restart: unless-stopped
+  dsh:
+    command: null
+    container_name: dsh-harness
+    entrypoint: null
+    image: ghcr.io/smanx/deepseek-harness:0.2.2-rc.5
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/deepseek.png
+    networks:
+    - default
     ports:
-      - "${WEB_PORT}:8080/tcp"
+    - mode: ingress
+      target: 3080
+      published: ${WEB_PORT}
+      protocol: tcp
+    restart: unless-stopped
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+    - type: bind
+      source: ${ATHENA_APP_DATA}
+      target: /root/.dsh
+      bind:
+        create_host_path: true

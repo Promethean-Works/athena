@@ -1,1 +1,1 @@
-"""Single-admin authentication (docs/mvp-design.md §7)."""
+"""Single-admin authentication (docs/design/security.md)."""

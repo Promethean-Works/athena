@@ -5,6 +5,7 @@ x-athena:
   tags: [Gaming, ROMs, Library]
   license: "MIT"
   category: home
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/RomM/icon.svg
   homepage: https://romm.sh
   web_port: WEB_PORT
@@ -16,12 +17,63 @@ x-athena:
       label: Web port
       type: port
       default: "8133"
+    - key: LIBRARY_PATH
+      label: Game library folder
+      type: path
+      description: The folder with your ROMs (see the RomM docs for the folder layout).
+      default: "@app_data/library"
+    - key: AUTH_SECRET_KEY
+      label: Session secret key
+      type: password
+      generate: hex32
+      advanced: true
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
+    - key: DB_ROOT_PASSWORD
+      label: Database root password
+      type: password
+      generate: secret
+      advanced: true
 
 services:
   romm:
     image: rommapp/romm:4.8.1
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8000/tcp"
+      - "${WEB_PORT}:8080/tcp"
+    environment:
+      DB_HOST: romm-db
+      DB_NAME: romm
+      DB_USER: romm-user
+      DB_PASSWD: ${DB_PASSWORD}
+      ROMM_AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
+      HASHEOUS_API_ENABLED: "true"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/resources:/romm/resources
+      - ${ATHENA_APP_DATA}/redis:/redis-data
+      - ${LIBRARY_PATH}:/romm/library
+      - ${ATHENA_APP_DATA}/assets:/romm/assets
+      - ${ATHENA_APP_DATA}/config:/romm/config
+    depends_on:
+      romm-db:
+        condition: service_healthy
+
+  romm-db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: romm
+      MARIADB_USER: romm-user
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5

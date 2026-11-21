@@ -5,6 +5,7 @@ x-athena:
   tags: [Network, Speed Test, Monitoring]
   license: "MIT"
   category: network
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/OpenSpeedTest/icon.svg
   homepage: https://openspeedtest.com
   web_port: WEB_PORT
@@ -22,4 +23,4 @@ services:
     image: openspeedtest/latest:v2.0.6
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:3004/tcp"
+      - "${WEB_PORT}:3000/tcp"

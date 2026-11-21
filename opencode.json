@@ -56,6 +56,76 @@
       "action": "playwright_*",
       "resource": "*",
       "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*/.env",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*/.env.*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*/secret.key",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*/.credentials*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.pem",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*/id_rsa*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*/id_ed25519*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": ".env",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": ".env.*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "secret.key",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": ".credentials*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "id_rsa*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "id_ed25519*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": ".dev-data/*",
+      "effect": "deny"
     }
   ],
   "agents": {
@@ -70,6 +140,42 @@
           "effect": "allow"
         }
       ]
+    },
+    "reviewer": {
+      "description": "Reviews a diff against Athena's rules (AGENTS.md, the app rules, gotchas) and reports bugs and rule breaks without editing. Use before opening a PR, or when asked to review.",
+      "mode": "subagent",
+      "system": "Follow the athena-review skill (.agents/skills/athena-review/SKILL.md) exactly. Never edit files. Report findings ordered by severity, each with file:line, why it's wrong and a suggested fix.",
+      "permissions": [
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        }
+      ]
+    }
+  },
+  "commands": {
+    "next": {
+      "description": "Read STATUS and propose the next concrete step",
+      "template": "Use the athena-next skill (.agents/skills/athena-next/SKILL.md) and follow it. $ARGUMENTS"
+    },
+    "check-prs": {
+      "description": "Check open PRs: CI, CodeQL, merges; fix failures",
+      "template": "Use the athena-check-prs skill (.agents/skills/athena-check-prs/SKILL.md) and follow it. $ARGUMENTS"
+    },
+    "ship": {
+      "description": "Commit, open the PR with auto-merge, watch CI",
+      "template": "Use the athena-ship skill (.agents/skills/athena-ship/SKILL.md) and follow it. $ARGUMENTS"
+    },
+    "handoff": {
+      "description": "Update STATUS, HISTORY and gotchas before ending the session",
+      "template": "Use the athena-handoff skill (.agents/skills/athena-handoff/SKILL.md) and follow it. $ARGUMENTS"
+    },
+    "review-diff": {
+      "description": "Review the current diff against the project rules",
+      "template": "Use the athena-review skill (.agents/skills/athena-review/SKILL.md) and follow it. $ARGUMENTS",
+      "agent": "reviewer",
+      "subagent": true
     }
   }
 }

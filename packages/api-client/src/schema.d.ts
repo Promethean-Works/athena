@@ -21,6 +21,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/system/restart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restart Athena
+         * @description Stop the server; the `athena serve` supervisor starts a new one (admins only).
+         */
+        post: operations["restartAthena"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/system/info": {
         parameters: {
             query?: never;
@@ -685,6 +705,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Dashboard */
+        get: operations["getDashboardLayout"];
+        /**
+         * Set Dashboard
+         * @description Each user has their own layout. Saving `{"cards": null}` goes back to the default.
+         */
+        put: operations["setDashboardLayout"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/system": {
         parameters: {
             query?: never;
@@ -692,13 +733,39 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get System */
+        /**
+         * Get System
+         * @description Tunnel secrets are never returned; `tunnel_secrets_set` lists the stored ones.
+         */
         get: operations["getSystemSettings"];
         /**
          * Set System
          * @description Turning the terminal off also closes the terminals that are open.
+         *
+         *     Tunnel secrets left empty or out of `tunnel_config` keep their stored value.
          */
         put: operations["setSystemSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Settings File
+         * @description Where the host-wide settings are saved, so an admin can fix them in an editor if
+         *     a change keeps Athena from starting (docs/specs/settings-file.md). Admins only.
+         */
+        get: operations["getSettingsFile"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -1550,7 +1617,7 @@ export interface paths {
         };
         /**
          * List Kinds
-         * @description Return all provider kinds: native + dynamic from models.dev cache.
+         * @description Every models.dev provider pydantic-ai can use, plus local Ollama.
          */
         get: operations["listAiProviderKinds"];
         put?: never;
@@ -1978,7 +2045,7 @@ export interface paths {
         put?: never;
         /**
          * Start Tunnel
-         * @description Start the tunnel.
+         * @description Start the tunnel (admin only).
          */
         post: operations["start_tunnel_api_tunnel_start_post"];
         delete?: never;
@@ -1998,7 +2065,7 @@ export interface paths {
         put?: never;
         /**
          * Stop Tunnel
-         * @description Stop the tunnel.
+         * @description Stop the tunnel (admin only).
          */
         post: operations["stop_tunnel_api_tunnel_stop_post"];
         delete?: never;
@@ -2018,6 +2085,8 @@ export interface paths {
         /**
          * Update Tunnel Config
          * @description Update tunnel configuration (admin only).
+         *
+         *     Secrets left empty or out of `config` keep their stored value; `null` clears one.
          */
         put: operations["update_tunnel_config_api_tunnel_config_put"];
         post?: never;
@@ -2060,6 +2129,149 @@ export interface paths {
          * @description Enable/disable auto-start service (admin only).
          */
         put: operations["configure_tunnel_service_api_tunnel_service_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Feedback Info */
+        get: operations["getFeedbackInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/feedback/issue-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Build Issue Url
+         * @description The new-issue URL for a report, with what Athena knows already filled in.
+         */
+        post: operations["buildIssueUrl"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Entries
+         * @description The newest entries first.
+         */
+        get: operations["listAuditEntries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/https": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Https */
+        get: operations["getHttpsStatus"];
+        /**
+         * Set Https
+         * @description Applied at once: the HTTPS listener starts, moves or stops before this returns.
+         *
+         *     If the new settings can't be applied (the port is in use, say), nothing is saved and
+         *     the current listener keeps running.
+         */
+        put: operations["setHttpsSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/https/certificate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Issue Certificate
+         * @description Save the Let's Encrypt settings and get (or renew) the certificate in a job.
+         *
+         *     The HTTPS mode doesn't change: once the job succeeds, pick Let's Encrypt and save.
+         */
+        post: operations["issueHttpsCertificate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/https/ca/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rotate Ca
+         * @description A new local CA and certificate. Devices that trusted the old CA must trust the new one.
+         */
+        post: operations["rotateHttpsCa"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/https/ca.crt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Ca
+         * @description Athena's local CA certificate (PEM), to install on devices. Never the key.
+         */
+        get: operations["downloadHttpsCa"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -2292,6 +2504,26 @@ export interface components {
             /** Answers */
             answers?: components["schemas"]["Answer"][];
         };
+        /**
+         * AuditEntryOut
+         * @description `detail` is left out on purpose: it can hold a shell command or a path the
+         *     user typed, and the dashboard only needs who did what to which target.
+         */
+        AuditEntryOut: {
+            /** Id */
+            id: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Username */
+            username: string;
+            /** Action */
+            action: string;
+            /** Target */
+            target: string | null;
+        };
         /** AuthStatus */
         AuthStatus: {
             /** Setup Required */
@@ -2371,6 +2603,27 @@ export interface components {
             label: string;
             /** Count */
             count: number;
+        };
+        /** CertificateInfo */
+        CertificateInfo: {
+            /** Subject */
+            subject: string;
+            /** Issuer */
+            issuer: string;
+            /** Names */
+            names: string[];
+            /**
+             * Not Before
+             * Format: date-time
+             */
+            not_before: string;
+            /**
+             * Not After
+             * Format: date-time
+             */
+            not_after: string;
+            /** Sha256 */
+            sha256: string;
         };
         /** ChatMessage */
         ChatMessage: {
@@ -2608,6 +2861,22 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** DashboardCard */
+        DashboardCard: {
+            /** Id */
+            id: string;
+            /**
+             * Size
+             * @default half
+             * @enum {string}
+             */
+            size: "half" | "full";
+        };
+        /** DashboardLayout */
+        DashboardLayout: {
+            /** Cards */
+            cards?: components["schemas"]["DashboardCard"][] | null;
+        };
         /** Decision */
         Decision: {
             /** Id */
@@ -2653,10 +2922,55 @@ export interface components {
             /** Percent */
             percent: number;
         };
+        /** DnsField */
+        DnsField: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Env */
+            env: string;
+            /** Secret */
+            secret: boolean;
+            /**
+             * Required
+             * @default true
+             */
+            required: boolean;
+            /** Help */
+            help?: string | null;
+        };
+        /** DnsProvider */
+        DnsProvider: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Fields */
+            fields: components["schemas"]["DnsField"][];
+            /** Docs */
+            docs: string;
+        };
         /** EnvIn */
         EnvIn: {
             /** Env */
             env: string;
+        };
+        /**
+         * FeedbackInfo
+         * @description What every report includes. No hostname, addresses, paths or secrets.
+         */
+        FeedbackInfo: {
+            /** Version */
+            version: string;
+            /** Os Version */
+            os_version: string;
+            /** Arch */
+            arch: string;
+            /** Runtime */
+            runtime: string;
+            /** Repo Url */
+            repo_url: string;
         };
         /** FileEntry */
         FileEntry: {
@@ -2737,6 +3051,58 @@ export interface components {
             status: "ok";
             /** Version */
             version: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+        };
+        /** HttpsSettings */
+        HttpsSettings: {
+            /**
+             * Mode
+             * @default off
+             * @enum {string}
+             */
+            mode: "off" | "self_signed" | "letsencrypt";
+            /**
+             * Port
+             * @default 8443
+             */
+            port: number;
+            /**
+             * Redirect
+             * @default true
+             */
+            redirect: boolean;
+            /** Extra Names */
+            extra_names?: string[];
+            letsencrypt?: components["schemas"]["LetsEncryptSettings"];
+        };
+        /** HttpsStatus */
+        HttpsStatus: {
+            settings: components["schemas"]["HttpsSettings"];
+            /** Http Port */
+            http_port: number;
+            /** Listening */
+            listening: boolean;
+            /** Urls */
+            urls: string[];
+            certificate: components["schemas"]["CertificateInfo"] | null;
+            ca: components["schemas"]["CertificateInfo"] | null;
+            /** Last Error */
+            last_error: string | null;
+            letsencrypt_certificate: components["schemas"]["CertificateInfo"] | null;
+            /** Last Renewal */
+            last_renewal: string | null;
+            /** Renewal Error */
+            renewal_error: string | null;
+            /** Renewal Job */
+            renewal_job: string | null;
+            /** Port80 Free */
+            port80_free: boolean;
+            /** Dns Providers */
+            dns_providers: components["schemas"]["DnsProvider"][];
         };
         /** InstalledPackage */
         InstalledPackage: {
@@ -2814,6 +3180,42 @@ export interface components {
             token_header?: string | null;
             /** Token */
             token?: string | null;
+        };
+        /** IssueIn */
+        IssueIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "bug" | "change" | "feature" | "app";
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /** Catalog */
+            catalog?: string | null;
+            /** App Id */
+            app_id?: string | null;
+            /**
+             * Logs
+             * @default
+             */
+            logs: string;
+        };
+        /** IssueUrl */
+        IssueUrl: {
+            /** Url */
+            url: string;
+            /**
+             * Target
+             * @enum {string}
+             */
+            target: "athena" | "catalog";
+            /** Target Name */
+            target_name: string;
+            /** Logs Truncated */
+            logs_truncated: boolean;
         };
         /** ItemError */
         ItemError: {
@@ -2903,6 +3305,35 @@ export interface components {
             placeholder?: string | null;
             /** Help */
             help?: string | null;
+        };
+        /** LetsEncryptSettings */
+        LetsEncryptSettings: {
+            /** Domains */
+            domains?: string[];
+            /**
+             * Email
+             * @default
+             */
+            email: string;
+            /**
+             * Challenge
+             * @default http
+             * @enum {string}
+             */
+            challenge: "http" | "dns";
+            /** Dns Provider */
+            dns_provider?: string | null;
+            /** Dns Config */
+            dns_config?: {
+                [key: string]: string | null;
+            };
+            /** Dns Secrets Set */
+            dns_secrets_set?: string[];
+            /**
+             * Staging
+             * @default false
+             */
+            staging: boolean;
         };
         /** Listing */
         Listing: {
@@ -3198,14 +3629,14 @@ export interface components {
         /** ProviderKind */
         ProviderKind: {
             /** Id */
-            id: ("anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "cohere") | string;
+            id: string;
             /** Label */
             label: string;
             /**
              * Group
              * @enum {string}
              */
-            group: "cloud" | "local";
+            group: "cloud" | "local" | "custom";
             /** Fields */
             fields: components["schemas"]["KindField"][];
             /**
@@ -3224,11 +3655,8 @@ export interface components {
             provider_id: string;
             /** Provider Name */
             provider_name: string;
-            /**
-             * Kind
-             * @enum {string}
-             */
-            kind: "anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "cohere";
+            /** Kind */
+            kind: string;
             /** Lists Models */
             lists_models: boolean;
         };
@@ -3401,6 +3829,13 @@ export interface components {
             path: string;
             /** Name */
             name: string;
+        };
+        /** SettingsFileOut */
+        SettingsFileOut: {
+            /** Path */
+            path: string;
+            /** Backup Path */
+            backup_path: string;
         };
         /** SetupRequest */
         SetupRequest: {
@@ -3610,6 +4045,11 @@ export interface components {
             icon: string | null;
             /** Installed */
             installed: string[];
+            /**
+             * Support
+             * @enum {string}
+             */
+            support: "native" | "emulated" | "unsupported";
         };
         /** StoreAppDetail */
         StoreAppDetail: {
@@ -3639,12 +4079,19 @@ export interface components {
             icon: string | null;
             /** Installed */
             installed: string[];
+            /**
+             * Support
+             * @enum {string}
+             */
+            support: "native" | "emulated" | "unsupported";
             /** Homepage */
             homepage: string | null;
             /** Notes */
             notes: string | null;
             /** Platforms */
             platforms: string[];
+            /** Host Platform */
+            host_platform: string | null;
             /** Images */
             images: string[];
             /** Web Port */
@@ -3727,6 +4174,11 @@ export interface components {
              * @default 8420
              */
             tunnel_port: number;
+            /**
+             * Tunnel Secrets Set
+             * @default []
+             */
+            tunnel_secrets_set: string[];
         };
         /** Temperature */
         Temperature: {
@@ -3862,6 +4314,12 @@ export interface components {
             auto_start?: boolean | null;
             /** Port */
             port?: number | null;
+        };
+        /** TunnelConfigResponse */
+        TunnelConfigResponse: {
+            /** Ok */
+            ok: boolean;
+            settings: components["schemas"]["SystemSettings"];
         };
         /** TunnelInstallRequest */
         TunnelInstallRequest: {
@@ -4032,6 +4490,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    restartAthena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
@@ -5021,6 +5499,13 @@ export interface operations {
                     "application/json": components["schemas"]["JobOut"];
                 };
             };
+            /** @description The app's images don't run on this host's CPU */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Invalid values: detail.errors maps field keys to messages */
             422: {
                 headers: {
@@ -5196,6 +5681,59 @@ export interface operations {
             };
         };
     };
+    getDashboardLayout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardLayout"];
+                };
+            };
+        };
+    };
+    setDashboardLayout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DashboardLayout"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardLayout"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     getSystemSettings: {
         parameters: {
             query?: never;
@@ -5245,6 +5783,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getSettingsFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsFileOut"];
                 };
             };
         };
@@ -8010,9 +8568,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["TunnelConfigResponse"];
                 };
             };
             /** @description Validation Error */
@@ -8086,6 +8642,216 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getFeedbackInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackInfo"];
+                };
+            };
+        };
+    };
+    buildIssueUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssueUrl"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listAuditEntries: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEntryOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getHttpsStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HttpsStatus"];
+                };
+            };
+        };
+    };
+    setHttpsSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HttpsSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HttpsStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    issueHttpsCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LetsEncryptSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rotateHttpsCa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HttpsStatus"];
+                };
+            };
+        };
+    };
+    downloadHttpsCa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/x-x509-ca-cert": unknown;
                 };
             };
         };

@@ -5,6 +5,7 @@ x-athena:
   tags: [Comics, Automation]
   license: "GPL-3.0"
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Mylar3/icon.svg
   homepage: https://mylar3.com
   web_port: WEB_PORT

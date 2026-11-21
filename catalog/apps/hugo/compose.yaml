@@ -1,27 +1,53 @@
+# Imported from the CasaOS AppStore (Apache-2.0): Apps/Hugo
 x-athena:
   title: Hugo
   description: Static site generator server for building and previewing Hugo websites.
   tagline: Static site generator server.
-  tags: [Static Site, Web, Generator]
-  license: "Apache-2.0"
+  tags:
+  - Static Site
+  - Web
+  - Generator
+  license: Apache-2.0
   category: development
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hugo/icon.svg
   homepage: https://gohugo.io
   web_port: WEB_PORT
   screenshots:
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hugo/screenshot-1.png
-    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hugo/screenshot-2.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hugo/screenshot-1.png
+  - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Hugo/screenshot-2.png
   env:
-    - key: WEB_PORT
-      label: Web port
-      type: port
-      default: "8199"
-
+  - key: WEB_PORT
+    label: Web port
+    type: port
+    default: '8199'
+  web_path: /
+  notes: On first start an empty Hugo project is created in the app's data folder (`project`). Add a theme and content there; the preview reloads on its own. We recommend reviewing the [Quick Start](https://gohugo.io/getting-started/quick-start/) documentation
+    to learn how to use Hugo.
 services:
   hugo:
-    image: klakegg/hugo:0.140
+    image: ghcr.io/gohugoio/hugo:v0.161.1
+    container_name: hugo
+    deploy:
+      resources:
+        reservations:
+          memory: 256M
     restart: unless-stopped
+    user: 0:0
     ports:
-      - "${WEB_PORT}:1313/tcp"
+    - target: 1313
+      published: ${WEB_PORT}
+      protocol: tcp
     volumes:
-      - ${ATHENA_APP_DATA}/site:/src
+    - type: bind
+      source: ${ATHENA_APP_DATA}/project
+      target: /project
+    - type: bind
+      source: ${ATHENA_APP_DATA}/cache
+      target: /cache
+    entrypoint:
+    - /bin/sh
+    - -c
+    command:
+    - ls /project/hugo.* /project/config.* /project/config >/dev/null 2>&1 || hugo new project /project --force;
+      exec hugo server --source /project --bind=0.0.0.0 --baseURL=/ --appendPort=false --liveReloadPort=${WEB_PORT}

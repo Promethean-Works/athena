@@ -4,7 +4,8 @@ x-athena:
   tagline: Web-based database manager.
   tags: [Database, Admin, SQL]
   license: "Apache-2.0"
-  category: development
+  category: databases
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CloudBeaver/icon.svg
   homepage: https://cloudbeaver.com
   web_port: WEB_PORT
@@ -22,7 +23,7 @@ services:
     image: dbeaver/cloudbeaver:26.2.5
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:8978/tcp"
     volumes:
       - ${ATHENA_APP_DATA}/workspace:/workspace
       - ${ATHENA_APP_DATA}/metadata:/metadata

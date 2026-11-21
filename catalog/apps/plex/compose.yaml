@@ -7,15 +7,11 @@ x-athena:
   homepage: https://www.plex.tv
   web_port: 32400
   web_path: /web/index.html
-  platforms:
-  - linux/amd64
-  - linux/arm64
-  notes: "## Plex\n\n#### Stream Movies & TV Shows <br>\n\n*FAQ*\nAuthorized Files and Data to Plex\n\n\
-    1. Click setting via top right menu of App icon\n2. map your device's media location in 'Host Path'\
-    \ and link it to Plex's 'Container Path' at /Media for seamless access.\n  To add a media library\
-    \ in Plex\n3. Go to Plex settings\n4. click 'Add Library'\n5. select your media type, and specify\
-    \ the path, such as /Media, where your media files are stored for Plex to catalog and include in your\
-    \ library."
+  platforms: [linux/amd64, linux/arm64]
+  notes: >-
+    Open Plex, sign in, and add a library pointing at /Media (your media folder).
+    Hardware transcoding needs a Plex Pass and the host's GPU: add `devices: ["/dev/dri:/dev/dri"]`
+    to the service on a Linux host with an Intel or AMD GPU.
   env:
   - key: PGID
     label: Group ID
@@ -29,12 +25,9 @@ x-athena:
     label: Media folder
     type: path
     default: '@app_data/media'
-    description: The CasaOS Media folder.
+    description: The folder with your movies, shows and music, seen by Plex as /Media.
 services:
   plex:
-    devices:
-    - /dev/dri:/dev/dri
-    - /dev/dvb:/dev/dvb
     environment:
       PGID: ${PGID}
       PUID: ${PUID}

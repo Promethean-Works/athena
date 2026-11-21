@@ -1,17 +1,17 @@
-"""Settings: per-user appearance, and host-wide system settings (admins only)."""
+"""Settings: per-user appearance and dashboard, and host-wide system settings (admins only)."""
 
 import json
 import logging
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Request, status
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from athena import audit, system_settings
 from athena.api.terminal import close_all as close_terminals
 from athena.assistant import settings as ai_settings
 from athena.assistant.settings import AiSettings
-from athena.auth.deps import Authed, DbSession
+from athena.auth.deps import Authed, DbSession, SettingsStore
 from athena.db.models import AiProvider
 from athena.system_settings import SystemSettings
 
@@ -57,42 +57,115 @@ def set_appearance(body: Appearance, user: Authed, db: DbSession) -> Appearance:
     return body
 
 
+# Card ids belong to the UI (apps/web/components/dashboard/cards.tsx). The server only
+# checks their shape, so adding a card needs no server change; the UI skips ids it
+# doesn't know.
+CardId = Annotated[str, Field(pattern=r"^[a-z][a-z0-9-]{0,39}$")]
+MAX_DASHBOARD_CARDS = 40
+
+
+class DashboardCard(BaseModel):
+    id: CardId
+    size: Literal["half", "full"] = "half"
+
+
+class DashboardLayout(BaseModel):
+    cards: list[DashboardCard] | None = Field(default=None, max_length=MAX_DASHBOARD_CARDS)
+    """The cards in order. None means the user never saved one: show the default."""
+
+    @field_validator("cards")
+    @classmethod
+    def _unique(cls, cards: list[DashboardCard] | None) -> list[DashboardCard] | None:
+        if cards is not None and len({c.id for c in cards}) != len(cards):
+            raise ValueError("each card can appear only once")
+        return cards
+
+
+@router.get("/dashboard", operation_id="getDashboardLayout")
+def get_dashboard(user: Authed) -> DashboardLayout:
+    stored = user.user.dashboard
+    if not stored:
+        return DashboardLayout()
+    try:
+        return DashboardLayout.model_validate_json(stored)
+    except ValidationError:
+        log.warning("ignoring invalid dashboard layout for %s", user.user.username)
+        return DashboardLayout()
+
+
+@router.put("/dashboard", operation_id="setDashboardLayout")
+def set_dashboard(body: DashboardLayout, user: Authed, db: DbSession) -> DashboardLayout:
+    """Each user has their own layout. Saving `{"cards": null}` goes back to the default."""
+    user.user.dashboard = None if body.cards is None else body.model_dump_json(exclude_none=True)
+    db.add(user.user)
+    db.commit()
+    return body
+
+
 @router.get("/system", operation_id="getSystemSettings")
-def get_system(db: DbSession) -> SystemSettings:
-    return system_settings.load(db)
+def get_system(settings_file: SettingsStore) -> SystemSettings:
+    """Tunnel secrets are never returned; `tunnel_secrets_set` lists the stored ones."""
+    return system_settings.public(system_settings.load(settings_file))
 
 
 @router.put("/system", operation_id="setSystemSettings")
 def set_system(
-    body: SystemSettings, request: Request, user: Authed, db: DbSession
+    body: SystemSettings,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    settings_file: SettingsStore,
 ) -> SystemSettings:
-    """Turning the terminal off also closes the terminals that are open."""
+    """Turning the terminal off also closes the terminals that are open.
+
+    Tunnel secrets left empty or out of `tunnel_config` keep their stored value."""
     if not user.user.is_admin:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change system settings")
-    before = system_settings.load(db)
-    system_settings.save(db, body)
+    before = system_settings.load(settings_file)
+    body.tunnel_config = system_settings.merge_tunnel_config(
+        before.tunnel_config, body.tunnel_config, request.app.state.secret_box
+    )
+    system_settings.save(settings_file, body)
     if before.terminal_enabled != body.terminal_enabled:
         state = "on" if body.terminal_enabled else "off"
         audit.record(db, user.user.username, "settings.terminal", state)
         if not body.terminal_enabled:
             close_terminals(request.app)
-    return body
+    return system_settings.public(body)
+
+
+class SettingsFileOut(BaseModel):
+    path: str
+    """Where athena.json is on this server."""
+    backup_path: str
+    """The version before the last save (`athena.json.bak`)."""
+
+
+@router.get("/file", operation_id="getSettingsFile")
+def get_settings_file(user: Authed, settings_file: SettingsStore) -> SettingsFileOut:
+    """Where the host-wide settings are saved, so an admin can fix them in an editor if
+    a change keeps Athena from starting (docs/specs/settings-file.md). Admins only."""
+    if not user.user.is_admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can see this")
+    return SettingsFileOut(path=str(settings_file.path), backup_path=str(settings_file.backup_path))
 
 
 @router.get("/ai", operation_id="getAiSettings")
-def get_ai(db: DbSession) -> AiSettings:
-    return ai_settings.load(db)
+def get_ai(settings_file: SettingsStore) -> AiSettings:
+    return ai_settings.load(settings_file)
 
 
 @router.put("/ai", operation_id="setAiSettings")
-def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
+def set_ai(
+    body: AiSettings, user: Authed, db: DbSession, settings_file: SettingsStore
+) -> AiSettings:
     if not user.user.is_admin:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change AI settings")
     for ref in (body.default_model, body.title_model, body.advisor_model):
         if ref is not None and db.get(AiProvider, ref.provider_id) is None:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "No such provider")
-    before = ai_settings.load(db)
-    ai_settings.save(db, body)
+    before = ai_settings.load(settings_file)
+    ai_settings.save(settings_file, body)
     if before.shell_enabled != body.shell_enabled:
         state = "on" if body.shell_enabled else "off"
         audit.record(db, user.user.username, "settings.assistant_shell", state)

@@ -1,5 +1,5 @@
 """How many tokens a chat's model accepts, so compaction knows when to shorten the history
-(docs/mvp-design.md §4.5, part D stage 1).
+(docs/design/assistant.md, part D stage 1).
 
 The window is looked up once per turn, in this order:
 
@@ -14,14 +14,15 @@ Compacting too early costs one summary; guessing too high costs the whole reques
 on Ollama, silently drops the start of the prompt).
 """
 
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import httpx2
-from pydantic_ai.models import Model
-from pydantic_ai_harness.compaction import resolve_context_window
 
+from athena.assistant.kinds import LOCAL_KINDS
 from athena.assistant.models_dev import get_models_dev_service
 from athena.assistant.providers import (
     ModelCache,
@@ -29,6 +30,9 @@ from athena.assistant.providers import (
     ProviderError,
     fetch_models,
 )
+
+if TYPE_CHECKING:
+    from pydantic_ai.models import Model
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +45,9 @@ admin raises it with `OLLAMA_CONTEXT_LENGTH` on the Ollama server."""
 
 LISTS_WINDOWS = {"openrouter", "groq", "mistral"}
 """Native kinds whose model list can carry each model's window."""
+
+LOCAL_OPENAI_IDS = ({k.id for k in LOCAL_KINDS} - {"ollama"}) | {"openai-compatible"}
+"""Local and custom kinds with an OpenAI-style /v1/models list (llama.cpp, vLLM, ...)."""
 
 PROBE_TIMEOUT = 5.0
 
@@ -65,6 +72,8 @@ async def window_for(
     cache: ModelCache,
     transport: httpx2.AsyncBaseTransport | None = None,
 ) -> ContextWindow:
+    from pydantic_ai_harness.compaction import resolve_context_window
+
     if (typed := field_value(cfg)) is not None:
         return ContextWindow(typed, "provider-field")
     reported = await _reported(cfg, model_id, cache, transport)
@@ -88,7 +97,8 @@ async def _reported(
     try:
         if cfg.kind.id == "ollama":
             return await _ollama_loaded(cfg, model_id, transport)
-        if cfg.kind.id in LISTS_WINDOWS:
+        # Local OpenAI-style servers list each model's window (vLLM `max_model_len`).
+        if cfg.kind.id in LISTS_WINDOWS or cfg.kind.id in LOCAL_OPENAI_IDS:
             models = cache.get(cfg.id)
             if models is None:
                 models = await fetch_models(cfg, transport)

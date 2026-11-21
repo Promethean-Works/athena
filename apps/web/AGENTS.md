@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Athena web app (`apps/web`)
 
-Rules for working on the UI. The repo-wide rules, Git workflow and handoff are in the root `AGENTS.md`; read that first. Lessons and gotchas are in `docs/AGENT-NOTES.md`. For step-by-step changes (page, sidebar entry, API calls), use the `athena-recipes` skill. Before calling UI work done, use `athena-ui-verify`.
+Rules for working on the UI. The repo-wide rules, Git workflow and handoff are in the root `AGENTS.md`; read that first. Gotchas: `docs/agents/gotchas/web.md` (read before changing UI code) and `docs/agents/gotchas/browser.md` (for browser checks). For step-by-step changes (page, sidebar entry, API calls), use the `athena-recipes` skill. Before calling UI work done, use `athena-ui-verify`.
 
 ## Stack and commands
 
@@ -30,7 +30,7 @@ Next.js 16 with a static export (`output: "export"`, `trailingSlash: true`), Rea
 |---|---|
 | `app/(app)/` | Signed-in pages, inside `AuthProvider` then `CapabilitiesProvider` (`layout.tsx`). Each `page.tsx` is a few lines that render a view from `components/` |
 | `app/(auth)/` | `/setup` and `/login` |
-| `components/<area>/` | Views and pieces per area: `apps`, `assistant`, `cloud`, `containers`, `dashboard`, `files`, `packages`, `settings`, `share` (the public `/s/` page), `store`, `terminal` |
+| `components/<area>/` | Views and pieces per area: `apps`, `assistant`, `automation`, `cloud`, `containers`, `dashboard`, `files`, `packages`, `settings`, `share` (the public `/s/` page), `store`, `terminal` |
 | `components/nav.ts` | Sidebar entries; add one only when its page exists |
 | `components/job-dialog.tsx`, `log-view.tsx` | Job progress and live logs |
 | `hooks/` | `use-api.ts` (load on mount), `use-event-stream.ts` (SSE) |
@@ -59,7 +59,7 @@ Next.js 16 with a static export (`output: "export"`, `trailingSlash: true`), Rea
   - Use shadcn first: search the registries (shadcn MCP / `shadcn search`, or the skill) before building anything. For chat UI that includes shadcn's chat components and the AI Elements patterns at ui.shadcn.com/docs/ai-elements, which are copied in and need no Vercel AI SDK. Only create a component when nothing fits.
   - The app shell comes from the `dashboard-01` block, without its demo data, demo page or demo content components.
   - Base UI isn't Radix: it uses the `render` prop instead of `asChild`, and `Select` and `ToggleGroup` have different APIs. Check the `shadcn` skill.
-  - Code editing uses `CodeEditor` from `@workspace/ui/components/athena/code-editor`; terminals use `<Terminal>` from `@workspace/ui/components/athena/terminal`, with `TerminalSession`, `ShellSheet` and `useTerminalAccess` in `components/terminal/`. The share dialogs are `components/files/share-*.tsx`, and the WebDAV switch is `components/settings/webdav-card.tsx`.
+  - Code editing uses `CodeEditor` from `@workspace/ui/components/athena/code-editor`; terminals use `<Terminal>` from `@workspace/ui/components/athena/terminal`, with `TerminalSession`, `ShellSheet` and `useTerminalAccess` in `components/terminal/`. The share dialogs are `components/files/share-*.tsx`, the WebDAV switch is `components/settings/webdav-card.tsx`, and a copyable read-only value is `CopyField` (`components/settings/copy-field.tsx`).
   - Chat UI is shadcn's own (`message`, `bubble`, `message-scroller`, `trace`, `code-block`) following the AI Elements patterns, without the Vercel AI SDK. Replies stream from `useChatStream` (`components/assistant/use-chat-stream.ts`, fetch + SSE reader); models are picked with `ModelPicker` (`components/assistant/model-picker.tsx`). `AssistantChat` (`components/assistant/assistant-view.tsx`) is the chat itself, used by the `/assistant` page (chat id in `?c=`) and by `AssistantSheet` in the site header (chat id in state, `compact`).
   - Files work on a `Source` (`{ location }` or `{ remote }`, in `components/files/file-utils.ts`): use `downloadUrl(source, …)`, `folderHref(source, …)` and `FolderPicker` (`components/files/folder-picker.tsx`), which already handle cloud remotes. Get remotes from `useRemotes()` (`components/cloud/use-remotes.ts`), which is empty when rclone isn't ready.
 - **Design quality** (the `frontend-design` skill, `.agents/skills/frontend-design/`):

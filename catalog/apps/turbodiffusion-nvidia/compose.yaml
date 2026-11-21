@@ -3,13 +3,14 @@ x-athena:
   title: TurboDiffusion(Nvidia GPU)
   description: An accelerated video generation framework that speeds up end-to-end diffusion while preserving
     video quality
-  category: utilities
+  category: ai
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/TurboDiffusion_Nvidia/icon.png
   homepage: https://github.com/thu-ml/TurboDiffusion
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64]
+  smoke: skip
+  smoke_note: needs an NVIDIA GPU
   notes: 'Built-in model: TurboWan2.1-T2V-1.3B-480P
 
 

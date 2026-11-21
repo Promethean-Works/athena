@@ -4,7 +4,8 @@ x-athena:
   tagline: Self-hosted bookmark manager.
   tags: [Bookmarks, Links, Privacy]
   license: "MIT"
-  category: productivity
+  category: reading
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Karakeep/icon.svg
   homepage: https://karakeep.app
   web_port: WEB_PORT
@@ -16,6 +17,11 @@ x-athena:
       label: Web port
       type: port
       default: "8204"
+    - key: NEXTAUTH_SECRET
+      label: NextAuth secret
+      type: password
+      generate: secret
+      advanced: true
 
 services:
   karakeep:
@@ -23,5 +29,8 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3000/tcp"
+    environment:
+      DATA_DIR: /data
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
     volumes:
       - ${ATHENA_APP_DATA}/data:/data

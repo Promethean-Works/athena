@@ -1,5 +1,7 @@
 """Saved AI providers: their settings, the pydantic-ai model for a model id, and the live
-model list (docs/mvp-design.md §4.5)."""
+model list (docs/design/assistant.md)."""
+
+from __future__ import annotations
 
 import asyncio
 import contextlib
@@ -8,19 +10,20 @@ import json
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlsplit
 
 import httpx2
 from pydantic import BaseModel
-from pydantic_ai import ConcurrencyLimiter
-from pydantic_ai.models import Model
-from pydantic_ai.models.concurrency import ConcurrencyLimitedModel
 
-from athena.assistant.kinds import BY_ID, ProviderKind, get_native_kind_ids, secret_keys
-from athena.assistant.models_dev import get_models_dev_service
+from athena.assistant.kinds import ProviderKind, get_native_kind_ids, secret_keys
+from athena.assistant.models_dev import get_models_dev_service, resolve_kind, style_of
 from athena.crypto import SecretBox
 from athena.db.models import AiProvider
+
+if TYPE_CHECKING:
+    from pydantic_ai import ConcurrencyLimiter
+    from pydantic_ai.models import Model
 
 LIST_TIMEOUT = 15.0
 CACHE_SECONDS = 600
@@ -68,7 +71,9 @@ class ProviderConfig:
 
 
 def config_of(row: AiProvider, box: SecretBox) -> ProviderConfig:
-    kind = BY_ID[row.kind]
+    kind = resolve_kind(row.kind)
+    if kind is None:
+        raise ProviderError(f"Unknown provider kind: {row.kind}")
     values: dict[str, str] = dict(json.loads(row.config or "{}"))
     if row.secrets:
         values.update(json.loads(box.decrypt(row.secrets)))
@@ -127,6 +132,8 @@ def is_local(kind: str, base_url: str | None) -> bool:
 def queue_for(base_url: str) -> ConcurrencyLimiter:
     """One queue per local server, shared by every model on it: chat turns, titles,
     delegates, the advisor and reviews wait their turn instead of hitting it at once."""
+    from pydantic_ai import ConcurrencyLimiter
+
     key = _strip(base_url)
     if key not in _queues:
         _queues[key] = ConcurrencyLimiter(max_running=1, name=f"ai:{key}")
@@ -136,6 +143,8 @@ def queue_for(base_url: str) -> ConcurrencyLimiter:
 def build_model(cfg: ProviderConfig, model_id: str) -> Model:
     """The pydantic-ai model for `model_id` on this provider. Models on a local server
     share a queue, so it gets one request at a time."""
+    from pydantic_ai.models.concurrency import ConcurrencyLimitedModel
+
     model = _build_model(cfg, model_id)
     if is_local(cfg.kind.id, model.base_url):
         return ConcurrencyLimitedModel(model, queue_for(model.base_url or cfg.kind.id))
@@ -146,13 +155,15 @@ def _build_model(cfg: ProviderConfig, model_id: str) -> Model:
     kind = cfg.kind.id
     key = cfg.get("api_key")
 
-    if kind == "anthropic":
+    if kind in ("anthropic", "anthropic-compatible"):
         from pydantic_ai.models.anthropic import AnthropicModel
         from pydantic_ai.providers.anthropic import AnthropicProvider
 
-        return AnthropicModel(
-            model_id, provider=AnthropicProvider(api_key=key, base_url=cfg.get("base_url"))
-        )
+        base = cfg.get("base_url")
+        if base and kind == "anthropic-compatible":
+            base = _strip(base).removesuffix("/v1")  # the SDK adds /v1 itself
+            key = key or "not-needed"  # a proxy without keys
+        return AnthropicModel(model_id, provider=AnthropicProvider(api_key=key, base_url=base))
     if kind == "openai":
         from pydantic_ai.models.openai import OpenAIResponsesModel
         from pydantic_ai.providers.openai import OpenAIProvider
@@ -212,7 +223,7 @@ def _build_model(cfg: ProviderConfig, model_id: str) -> Model:
                 api_key=key,
             ),
         )
-    if kind == "bedrock":
+    if kind == "amazon-bedrock":
         from pydantic_ai.models.bedrock import BedrockConverseModel
         from pydantic_ai.providers.bedrock import BedrockProvider
 
@@ -233,20 +244,21 @@ def _build_model(cfg: ProviderConfig, model_id: str) -> Model:
             model_id, provider=OllamaProvider(base_url=f"{base}/v1", api_key=key or "ollama")
         )
 
-    # All other providers (including dynamically loaded from models.dev) use OpenAI-compatible API
+    # Every other models.dev provider: its OpenAI- or Anthropic-compatible API at the
+    # admin's base URL, or the one models.dev lists.
+    service = get_models_dev_service()
+    entry = service.get_provider(kind) if service else None
+    base_url = cfg.get("base_url") or (entry.api_url if entry else None) or ""
+    if entry is not None and style_of(entry) == "anthropic":
+        from pydantic_ai.models.anthropic import AnthropicModel
+        from pydantic_ai.providers.anthropic import AnthropicProvider
+
+        # models.dev gives the AI SDK's base (".../v1"); the Anthropic SDK adds "/v1".
+        base = _strip(base_url).removesuffix("/v1")
+        return AnthropicModel(model_id, provider=AnthropicProvider(api_key=key, base_url=base))
+
     from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.openai import OpenAIProvider
-
-    # Get base URL from models.dev cache
-    service = get_models_dev_service()
-    base_url = None
-    if service:
-        entry = service.get_provider(kind)
-        if entry and entry.api_url:
-            base_url = entry.api_url
-
-    # Fall back to configured base_url
-    base_url = base_url or cfg.get("base_url") or ""
 
     return OpenAIChatModel(
         model_id,
@@ -326,7 +338,7 @@ async def _anthropic(client: httpx2.AsyncClient, cfg: ProviderConfig) -> list[Mo
     data = await _json(
         client,
         "GET",
-        f"{_strip(cfg.get('base_url') or '')}/v1/models",
+        f"{_strip(cfg.get('base_url') or '').removesuffix('/v1')}/v1/models",
         params={"limit": 1000},
         headers={"x-api-key": cfg.get("api_key") or "", "anthropic-version": "2023-06-01"},
     )
@@ -467,13 +479,13 @@ async def fetch_models(
     kind = cfg.kind.id
 
     # Native providers with special model listing
-    if kind == "bedrock":
+    if kind == "amazon-bedrock":
         return await asyncio.to_thread(_bedrock, cfg)
 
     # Try provider's own API first for native providers
     try:
         async with httpx2.AsyncClient(timeout=LIST_TIMEOUT, transport=transport) as client:
-            if kind == "anthropic":
+            if kind in ("anthropic", "anthropic-compatible"):
                 return await _anthropic(client, cfg)
             elif kind == "google":
                 return await _google(client, cfg)

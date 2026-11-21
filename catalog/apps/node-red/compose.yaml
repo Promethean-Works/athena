@@ -12,6 +12,7 @@ x-athena:
   screenshots:
     - https://nodered.org/images/node-red-screenshot.png
   category: home
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/node-red.svg
   homepage: https://nodered.org
   web_port: WEB_PORT

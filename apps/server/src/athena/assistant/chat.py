@@ -1,5 +1,5 @@
 """Chat turns: run the agent for one user message, stream typed events, save the history
-(docs/mvp-design.md §4.5).
+(docs/design/assistant.md).
 
 A turn runs in its own task and keeps going if the browser goes away, so the answer is
 saved either way. Stopping uses pydantic-ai's CancellationToken, which keeps what the
@@ -9,26 +9,21 @@ checkpointed, so an interrupted run resumes from its last completed step instead
 repeating paid work.
 """
 
-import asyncio
-import contextlib
 import copy
 import dataclasses
 import json
 import logging
 import os
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Any
 
 from fastapi import FastAPI
-from pgtask import Client, EnqueueRequest, Task, TaskRegistry
-from pydantic import BaseModel
 from pydantic_ai import (
     Agent,
     AgentRunResultEvent,
-    CancellationToken,
     Conversation,
     ConversationTypeAdapter,
     DeferredToolRequests,
@@ -68,6 +63,7 @@ from athena.assistant import actions
 from athena.assistant import settings as ai_settings
 from athena.assistant.approval_review import review_capabilities as approval_review_capabilities
 from athena.assistant.browser_use import browser_use_capabilities
+from athena.assistant.chat_models import NEW_CHAT, ChatMessage, ChatPart, ChatUsage
 from athena.assistant.code_mode import code_mode_capabilities
 from athena.assistant.coding_stack import CODING_INSTRUCTIONS, coding_stack_capabilities
 from athena.assistant.compaction import TranscriptRecorder, compaction_capabilities
@@ -96,6 +92,7 @@ from athena.assistant.robustness import robustness_capabilities
 from athena.assistant.safety import safety_capabilities
 from athena.assistant.settings import McpServer
 from athena.assistant.tools import Deps, shell_provider, toolset_for
+from athena.assistant.turns import Turn
 from athena.assistant.web_research import web_research_capabilities
 from athena.assistant.workspace import shell_capabilities
 from athena.auth.deps import CurrentUser
@@ -184,33 +181,6 @@ def clean_title(raw: str) -> str | None:
 
 
 # ---------------------------------------------------------------- UI messages
-
-
-class ChatPart(BaseModel):
-    type: Literal["text", "reasoning", "tool"]
-    text: str | None = None
-    tool_call_id: str | None = None
-    tool_name: str | None = None
-    args: Any = None
-    result: str | None = None
-    """The tool's result as JSON or text, cut to RESULT_CHARS."""
-    error: str | None = None
-    state: Literal["running", "done", "error", "approval", "question", "denied"] | None = None
-    """`approval`: waiting for Approve/Deny. `question`: an `ask_user_question` waiting for
-    the admin's answer. `denied`: the admin said no."""
-    summary: str | None = None
-    """For tools that need approval: the action in one sentence."""
-    destructive: bool = False
-    job_id: str | None = None
-    """The job an approved action started (GET /api/jobs/{id} while it's kept)."""
-    draft: bool = False
-    """Text the model revised afterwards ("Double-check answers"); the UI folds it away."""
-
-
-class ChatMessage(BaseModel):
-    id: str
-    role: Literal["user", "assistant"]
-    parts: list[ChatPart]
 
 
 def _result_text(content: Any) -> str:
@@ -401,43 +371,10 @@ class Resume:
     answers: dict[str, Any] = field(default_factory=dict)
 
 
-NEW_CHAT = "New chat"
-"""The title a chat has until its first message names it."""
-
 DENIED_BY_NEW_MESSAGE = "The admin didn't approve this; they sent a new message instead."
 
 
 # ---------------------------------------------------------------- running a turn
-
-
-def sse(event: str, data: Any) -> str:
-    return f"event: {event}\ndata: {json.dumps(data, default=str)}\n\n"
-
-
-@dataclass
-class Turn:
-    """One running reply. Events go to whoever is listening; the task saves the result."""
-
-    conversation_id: str
-    token: CancellationToken = field(default_factory=CancellationToken)
-    queue: asyncio.Queue[str | None] = field(default_factory=asyncio.Queue)
-    task: asyncio.Task[None] | None = None
-    name_with: "tuple[Model, str, str] | None" = None
-    """Set when the turn saved: the title model, the first message and the stand-in title."""
-
-    def emit(self, event: str, data: Any) -> None:
-        self.queue.put_nowait(sse(event, data))
-
-    async def stream(self) -> AsyncIterator[str]:
-        while (item := await self.queue.get()) is not None:
-            yield item
-
-
-class ChatUsage(BaseModel):
-    input_tokens: int = 0
-    output_tokens: int = 0
-    cost: float | None = None
-    """USD, when the model's prices are known."""
 
 
 def usage_of(usage: RunUsage | None) -> ChatUsage:
@@ -451,7 +388,7 @@ def usage_of(usage: RunUsage | None) -> ChatUsage:
     )
 
 
-async def _run(
+async def run_turn(
     turn: Turn,
     *,
     app: FastAPI,
@@ -475,7 +412,7 @@ async def _run(
         results = _results(previous, resume)
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
-        ai = ai_settings.load(db)
+        ai = ai_settings.load(app.state.settings_file)
         integration_rows = db.exec(
             select(AiIntegration).order_by(col(AiIntegration.created_at))
         ).all()
@@ -547,7 +484,7 @@ async def _run(
             turn.emit("error", {"message": _limit_message(exc, spend_limit)})
         except Exception as exc:  # the model's errors are for the person to read
             log.warning("assistant turn failed: %s", exc)
-            turn.emit("error", {"message": _readable(exc)})
+            turn.emit("error", {"message": readable(exc)})
         if saved is not None:
             if compacted_ok:
                 row.transcript = new_transcript(row, previous, recorder, list(saved.messages))
@@ -795,7 +732,14 @@ def _forward(turn: Turn, event: Any) -> None:
             )
 
 
-def _readable(exc: Exception) -> str:
+def readable(exc: Exception) -> str:
+    # pydantic-ai runs the turn in a task group, so an error can arrive wrapped in an
+    # ExceptionGroup ("unhandled errors in a TaskGroup"); show the error inside it.
+    while isinstance(exc, BaseExceptionGroup) and len(exc.exceptions) == 1:
+        inner = exc.exceptions[0]
+        if not isinstance(inner, Exception):
+            break
+        exc = inner
     text = str(exc).strip() or type(exc).__name__
     return text if len(text) <= 500 else text[:500] + "…"
 
@@ -805,7 +749,7 @@ def _title(text: str) -> str:
     return line if len(line) <= TITLE_LENGTH else line[: TITLE_LENGTH - 1].rstrip() + "…"
 
 
-def _rename(app: FastAPI, conversation_id: str, stand_in: str, title: str) -> None:
+def rename(app: FastAPI, conversation_id: str, stand_in: str, title: str) -> None:
     for db in app.state.db.session():
         row = db.get(AiConversation, conversation_id)
         # Renamed (or deleted) meanwhile: the admin's choice wins.
@@ -813,146 +757,3 @@ def _rename(app: FastAPI, conversation_id: str, stand_in: str, title: str) -> No
             row.title = title
             db.add(row)
             db.commit()
-
-
-class Turns:
-    """Running turns by conversation id: one at a time per chat."""
-
-    def __init__(self) -> None:
-        self._turns: dict[str, Turn] = {}
-        # Set by `create_app` when a pgtask/Postgres database URL is configured: turns are
-        # then enqueued as pgtask tasks so they're durable (checkpointed) across crashes.
-        self.pgtask_client: Client | None = None
-        self.pgtask_registry: TaskRegistry | None = None
-        self._pgtask_executors: dict[str, Callable[[Task], Awaitable[None]]] = {}
-        self._titles: dict[str, asyncio.Task[None]] = {}
-        """Titles being generated, by conversation id: they run after their turn ends."""
-
-    def naming(self, conversation_id: str) -> bool:
-        """Whether a title model is still naming this chat."""
-        task = self._titles.get(conversation_id)
-        return task is not None and not task.done()
-
-    def _name(self, app: FastAPI, conversation_id: str, job: "tuple[Model, str, str]") -> None:
-        model, text, stand_in = job
-
-        async def run() -> None:
-            try:
-                generated = await asyncio.wait_for(generate_title(model, text), TITLE_TIMEOUT)
-                if generated:
-                    _rename(app, conversation_id, stand_in, generated)
-            except Exception as exc:  # the first line stays the title
-                log.info("couldn't generate a chat title: %s", _readable(exc))
-            finally:
-                self._titles.pop(conversation_id, None)
-
-        self._titles[conversation_id] = asyncio.create_task(run())
-
-    def get(self, conversation_id: str) -> Turn | None:
-        turn = self._turns.get(conversation_id)
-        if turn and turn.task and turn.task.done():
-            self._turns.pop(conversation_id, None)
-            return None
-        return turn
-
-    def register_pgtask_handlers(self) -> None:
-        """Register the pgtask task that runs each durable assistant turn.
-
-        The handler runs inside a pgtask task, so `current_task_steps()` is not None and
-        the `PGTaskDurability` capability checkpoints every model request and tool call.
-        """
-        if self.pgtask_registry is None:
-            return
-
-        @self.pgtask_registry.task("athena.assistant.turn")
-        async def handle_turn(task: Task, payload: dict[str, Any]) -> None:
-            cid = payload.get("conversation_id") if isinstance(payload, dict) else None
-            executor = self._pgtask_executors.pop(cid, None) if cid else None
-            if executor is None:
-                log.warning("pgtask turn %s has no executor to run", task.id)
-                return
-            await executor(task)
-
-    def _run_durable(self, conversation_id: str) -> Awaitable[None]:
-        """Enqueue this turn as a pgtask task and wait for it to complete.
-
-        `turn.task` is this awaitable, so stopping/shutdown can cancel it and the turn
-        stays "live" while its events stream to the browser.
-        """
-        assert self.pgtask_client is not None
-
-        async def run() -> None:
-            handle = await self.pgtask_client.enqueue(
-                EnqueueRequest(
-                    task_name="athena.assistant.turn",
-                    payload={"conversation_id": conversation_id},
-                )
-            )
-            try:
-                await handle.result()
-            finally:
-                self._pgtask_executors.pop(conversation_id, None)
-
-        return run()
-
-    def start(
-        self,
-        conversation_id: str,
-        *,
-        app: FastAPI,
-        model: Model,
-        text: str | None,
-        spend_limit: float | None,
-        user_id: int,
-        window: Window,
-        resume: Resume | None = None,
-        title_model: Model | None = None,
-        advisor_model: Model | None = None,
-        review_model: Model | None = None,
-        durable: bool = False,
-    ) -> Turn:
-        """Start one turn. When `durable` and a pgtask client are configured, the turn is
-        run inside a pgtask task (checkpointed, resumable); otherwise it runs inline."""
-        turn = Turn(conversation_id)
-
-        async def body() -> None:
-            try:
-                await _run(
-                    turn,
-                    app=app,
-                    model=model,
-                    text=text,
-                    resume=resume,
-                    spend_limit=spend_limit,
-                    user_id=user_id,
-                    title_model=title_model,
-                    advisor_model=advisor_model,
-                    review_model=review_model,
-                    window=window,
-                )
-            except Exception:
-                log.exception("assistant turn crashed")
-                turn.emit("error", {"message": "The assistant failed. See the server log."})
-                turn.emit("done", {})
-            finally:
-                turn.queue.put_nowait(None)
-                self._turns.pop(conversation_id, None)
-                if turn.name_with is not None:
-                    self._name(app, conversation_id, turn.name_with)
-
-        self._turns[conversation_id] = turn
-        if durable and self.pgtask_client is not None and self.pgtask_registry is not None:
-            self._pgtask_executors[conversation_id] = body
-            turn.task = asyncio.create_task(self._run_durable(conversation_id))
-        else:
-            turn.task = asyncio.create_task(body())
-        return turn
-
-    async def stop_all(self) -> None:
-        for title in list(self._titles.values()):
-            title.cancel()
-        for turn in list(self._turns.values()):
-            turn.token.cancel()
-            if turn.task:
-                with contextlib.suppress(Exception, asyncio.CancelledError):
-                    await asyncio.wait_for(turn.task, 5)

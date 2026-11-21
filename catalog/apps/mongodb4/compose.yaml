@@ -3,16 +3,18 @@ x-athena:
   title: MongoDB 4
   description: A free and open-source cross-platform document-oriented database program. Classified as
     a NoSQL database program, MongoDB uses JSON-like documents with schemata.
-  category: development
+  category: databases
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/MongoDB4/icon.svg
   homepage: https://www.mongodb.com/
   web_port: null
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: null
   env:
+  - key: DB_PORT
+    label: MongoDB port
+    type: port
+    default: '27017'
   - key: PUID
     label: User ID
     default: '@uid'
@@ -35,13 +37,13 @@ services:
       TZ: ${TZ}
     ports:
     - target: 27017
-      published: '27017'
+      published: ${DB_PORT}
       protocol: tcp
     volumes:
     - type: bind
-      source: /DATA/AppData/mongodb4/data/configdb
+      source: ${ATHENA_APP_DATA}/data/configdb
       target: /data/configdb
     - type: bind
-      source: /DATA/AppData/mongodb4/data/db
+      source: ${ATHENA_APP_DATA}/data/db
       target: /data/db
     container_name: mongodb4

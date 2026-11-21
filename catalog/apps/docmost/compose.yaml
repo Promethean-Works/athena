@@ -4,10 +4,14 @@ x-athena:
   tagline: Collaborative documentation platform.
   tags: [Wiki, Documentation, Team]
   license: "MIT"
-  category: productivity
+  category: notes
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Docmost/icon.svg
   homepage: https://docmost.com
   web_port: WEB_PORT
+  notes: >-
+    If you reach Athena from another machine, set APP_URL in the app's .env to the
+    address you use so links and invitations work.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Docmost/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Docmost/screenshot-2.png
@@ -16,12 +20,60 @@ x-athena:
       label: Web port
       type: port
       default: "8182"
+    - key: APP_SECRET
+      label: App secret
+      type: password
+      generate: secret
+      advanced: true
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
 
 services:
   docmost:
     image: docmost/docmost:0.97.0
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "${WEB_PORT}:3000/tcp"
+    environment:
+      APP_URL: http://localhost:${WEB_PORT}
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: postgresql://docmost:${DB_PASSWORD}@db:5432/docmost
+      REDIS_URL: redis://redis:6379
     volumes:
-      - ${ATHENA_APP_DATA}/data:/app/data
+      - ${ATHENA_APP_DATA}/data:/app/data/storage
+
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: docmost
+      POSTGRES_USER: docmost
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docmost -d docmost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - ${ATHENA_APP_DATA}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

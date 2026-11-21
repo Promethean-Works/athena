@@ -1,4 +1,4 @@
-"""Shared pieces for package managers (docs/mvp-design.md §3, "Package managers per OS").
+"""Shared pieces for package managers (docs/design/platform.md, "Package managers per OS").
 
 Every manager reads through `Runner` (so tests can replay recorded output) and parses
 with pure functions that tests run against fixtures in tests/fixtures/packages/. Changes

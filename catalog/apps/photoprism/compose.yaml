@@ -12,6 +12,7 @@ x-athena:
   screenshots:
     - https://dl.photoprism.app/img/ui/2025/desktop-search.jpg
   category: media
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/photoprism.svg
   homepage: https://photoprism.app
   web_port: WEB_PORT
@@ -31,7 +32,7 @@ x-athena:
 
 services:
   photoprism:
-    image: photoprism/photoprism:261029-963b58c50
+    image: photoprism/photoprism:261029
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:2342"

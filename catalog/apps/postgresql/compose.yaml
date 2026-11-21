@@ -4,16 +4,19 @@ x-athena:
   tagline: Open-source relational database.
   tags: [Database, SQL, PostgreSQL]
   license: "PostgreSQL"
-  category: development
+  category: databases
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  smoke: start
+  smoke_note: a database server, no web page
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PostgreSQL/icon.svg
   homepage: https://www.postgresql.org
-  web_port: WEB_PORT
+  web_port: null
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PostgreSQL/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/PostgreSQL/screenshot-2.png
   env:
     - key: WEB_PORT
-      label: Web port
+      label: Database port
       type: port
       default: "8216"
     - key: POSTGRES_PASSWORD

@@ -1,5 +1,5 @@
 """The assistant's tools: Athena's own service layer, filtered by the capability manifest
-(docs/mvp-design.md §4.5). Everything here only reads; the tools that change things are in
+(docs/design/assistant.md). Everything here only reads; the tools that change things are in
 `actions.py` and need the admin's approval.
 """
 
@@ -90,6 +90,36 @@ async def get_system_stats(ctx: Ctx) -> dict[str, Any]:
     monitor = ctx.deps.app.state.monitor
     snapshot = await monitor.snapshot()
     return snapshot.model_dump(exclude={"history"})
+
+
+async def https_status(ctx: Ctx) -> dict[str, Any]:
+    """Athena's own HTTPS: mode (off, self_signed, letsencrypt), the URLs to open, the
+    served certificate's names and expiry, and the last Let's Encrypt renewal or error.
+    Read-only: HTTPS is changed only in Settings → HTTPS."""
+    from athena.api.https import status_of
+
+    status = status_of(ctx.deps.app.state.https)
+    out = status.model_dump(
+        mode="json",
+        include={
+            "listening",
+            "urls",
+            "certificate",
+            "letsencrypt_certificate",
+            "last_error",
+            "last_renewal",
+            "renewal_error",
+        },
+    )
+    settings = status.settings
+    out["mode"] = settings.mode
+    out["port"] = settings.port
+    out["redirect"] = settings.redirect
+    if settings.mode == "letsencrypt":
+        out["domains"] = settings.letsencrypt.domains
+        out["challenge"] = settings.letsencrypt.challenge
+        out["staging"] = settings.letsencrypt.staging
+    return out
 
 
 # ---------------------------------------------------------------- containers
@@ -194,15 +224,17 @@ async def read_text_file(ctx: Ctx, location_id: int, path: str) -> dict[str, Any
 
 async def search_store(ctx: Ctx, query: str = "", category: str | None = None) -> dict[str, Any]:
     """Apps in the app store matching `query` (title, description or id; "" for all),
-    optionally in one category. At most 50. `installed` lists Athena apps made from it."""
+    optionally in one category. At most 50. `installed` lists Athena apps made from it.
+    `support` says whether it runs on this host's CPU: "native", "emulated" (slower) or
+    "unsupported" (it can't be installed here; don't offer it)."""
     from athena.api import store
 
-    found = _call(store.list_store_apps, ctx.deps.request(), ctx.deps.db, query[:100], category)
+    found = await _http(
+        store.list_store_apps(ctx.deps.request(), ctx.deps.db, query[:100], category)
+    )
+    fields = {"catalog", "id", "title", "description", "category", "installed", "support"}
     return {
-        "apps": [
-            a.model_dump(include={"catalog", "id", "title", "description", "category", "installed"})
-            for a in found[:MAX_STORE_APPS]
-        ],
+        "apps": [a.model_dump(include=fields) for a in found[:MAX_STORE_APPS]],
         "truncated": len(found) > MAX_STORE_APPS,
     }
 
@@ -214,7 +246,7 @@ async def get_store_app(ctx: Ctx, catalog: str, app_id: str) -> dict[str, Any]:
 
     _check(catalog, CATALOG_NAME, "catalog")
     _check(app_id, APP_ID, "app id")
-    app = _call(store.get_store_app, catalog, app_id, ctx.deps.request(), ctx.deps.db)
+    app = await _http(store.get_store_app(catalog, app_id, ctx.deps.request(), ctx.deps.db))
     return app.model_dump(exclude={"compose", "icon"})
 
 
@@ -261,15 +293,6 @@ async def _http[T](work: Awaitable[T]) -> T:
         raise ToolFailed(http_detail(exc)) from exc
 
 
-def _call[T](fn: Callable[..., T], *args: Any) -> T:
-    """`_http` for a route helper that isn't async (they use the chat's database session,
-    so they run on the event loop, not in a thread)."""
-    try:
-        return fn(*args)
-    except HTTPException as exc:
-        raise ToolFailed(http_detail(exc)) from exc
-
-
 def http_detail(exc: HTTPException) -> str:
     detail = exc.detail
     if isinstance(detail, dict):
@@ -308,6 +331,7 @@ def read_only_tools(manifest: CapabilityManifest) -> list[Any]:
     tools: list[Any] = [
         Tool(get_capabilities, metadata={"code_mode": True}),
         Tool(get_system_stats, metadata={"code_mode": True}),
+        Tool(https_status, metadata={"code_mode": True}),
     ]
     if _ready(manifest, "containers"):
         tools += [

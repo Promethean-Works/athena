@@ -1,34 +1,16 @@
-"""The AI provider kinds Athena knows (docs/mvp-design.md §4.5).
+"""The AI provider kinds Athena knows (docs/design/assistant.md).
 
 Each kind is a small form description: the UI renders the fields, the server checks
 them, and `providers.py` turns a saved provider into a pydantic-ai model.
 
-Only providers with native pydantic-ai support or special handling are defined here.
-Additional OpenAI-compatible providers are loaded dynamically from models.dev at runtime.
+Every provider in the list comes from models.dev (`models_dev.py`). The kinds here are
+only the form and model class for models.dev ids that need their own pydantic-ai
+provider (`NATIVE_KINDS`), and local Ollama, which models.dev doesn't list.
 """
 
 from typing import Literal
 
 from pydantic import BaseModel
-
-# Native provider IDs - these have dedicated pydantic-ai models or special handling
-NativeKindId = Literal[
-    "anthropic",
-    "openai",
-    "google",
-    "openrouter",
-    "groq",
-    "mistral",
-    "deepseek",
-    "xai",
-    "azure",
-    "bedrock",
-    "ollama",
-    "cohere",
-]
-
-# Backward compatibility for API
-KindId = NativeKindId
 
 
 class KindField(BaseModel):
@@ -43,9 +25,10 @@ class KindField(BaseModel):
 
 
 class ProviderKind(BaseModel):
-    id: NativeKindId | str  # Allow string for dynamic kinds from models.dev
+    id: str
+    """The models.dev provider id (or "ollama")."""
     label: str
-    group: Literal["cloud", "local"]
+    group: Literal["cloud", "local", "custom"]
     fields: list[KindField]
     lists_models: bool = True
     """False when model ids can only be typed (Azure deployments)."""
@@ -75,7 +58,8 @@ def _url(default: str | None, *, required: bool = False, help: str | None = None
     )
 
 
-# Native provider kinds - these have special pydantic-ai support
+# models.dev ids with their own pydantic-ai provider or form. Listed only when models.dev
+# lists them; their label then comes from models.dev.
 NATIVE_KINDS: list[ProviderKind] = [
     ProviderKind(
         id="anthropic",
@@ -113,7 +97,7 @@ NATIVE_KINDS: list[ProviderKind] = [
         ],
     ),
     ProviderKind(
-        id="bedrock",
+        id="amazon-bedrock",
         label="Amazon Bedrock",
         group="cloud",
         fields=[
@@ -125,6 +109,32 @@ NATIVE_KINDS: list[ProviderKind] = [
         ],
     ),
     ProviderKind(
+        id="cohere",
+        label="Cohere",
+        group="cloud",
+        fields=[_key()],
+    ),
+]
+
+
+def _local(id: str, label: str, base_url: str, help: str | None = None) -> ProviderKind:
+    """A local server with an OpenAI-compatible API (models listed from its /v1/models)."""
+    return ProviderKind(
+        id=id,
+        label=label,
+        group="local",
+        fields=[
+            _url(base_url, required=True, help=help),
+            _key(required=False, help="Only if the server was started with an API key."),
+            _window("Tokens the server runs models with."),
+        ],
+    )
+
+
+# Local servers models.dev doesn't list (it has only "ollama-cloud" and a few desktop
+# apps such as LM Studio). Always listed; each URL is the project's documented default.
+LOCAL_KINDS: list[ProviderKind] = [
+    ProviderKind(
         id="ollama",
         label="Ollama",
         group="local",
@@ -134,16 +144,70 @@ NATIVE_KINDS: list[ProviderKind] = [
             _window("Tokens Ollama runs models with (OLLAMA_CONTEXT_LENGTH on the Ollama server)."),
         ],
     ),
+    _local("llama-cpp", "llama.cpp (llama-server)", "http://127.0.0.1:8080/v1"),
+    _local("vllm", "vLLM", "http://127.0.0.1:8000/v1"),
+    _local("sglang", "SGLang", "http://127.0.0.1:30000/v1"),
+    _local("localai", "LocalAI", "http://127.0.0.1:8080/v1"),
+    _local("jan", "Jan", "http://127.0.0.1:1337/v1", help="Start Jan's Local API Server first."),
+    _local(
+        "gpt4all",
+        "GPT4All",
+        "http://127.0.0.1:4891/v1",
+        help="Turn on GPT4All's Local API Server first.",
+    ),
+    _local("koboldcpp", "KoboldCpp", "http://127.0.0.1:5001/v1"),
+    _local("llamafile", "llamafile", "http://127.0.0.1:8080/v1"),
+    _local("tabbyapi", "TabbyAPI", "http://127.0.0.1:5000/v1"),
+    _local(
+        "text-generation-webui",
+        "Text Generation WebUI",
+        "http://127.0.0.1:5000/v1",
+        help="Start it with --api.",
+    ),
+    _local(
+        "docker-model-runner",
+        "Docker Model Runner",
+        "http://127.0.0.1:12434/engines/v1",
+        help="Turn on host-side TCP support (docker desktop enable model-runner --tcp 12434).",
+    ),
+    _local("lemonade", "Lemonade Server", "http://127.0.0.1:13305/api/v1"),
+    _local("mlx-lm", "MLX LM (mlx_lm.server)", "http://127.0.0.1:8080/v1"),
+    _local("xinference", "Xinference", "http://127.0.0.1:9997/v1"),
+]
+
+# Any other server: the admin gives the base URL. Always listed.
+CUSTOM_KINDS: list[ProviderKind] = [
     ProviderKind(
-        id="cohere",
-        label="Cohere",
-        group="cloud",
-        fields=[_key()],
+        id="openai-compatible",
+        label="OpenAI-compatible API",
+        group="custom",
+        fields=[
+            _url(
+                None,
+                required=True,
+                help="The address before /chat/completions, e.g. http://host:8000/v1.",
+            ),
+            _key(required=False),
+            _window("Tokens the model accepts."),
+        ],
+    ),
+    ProviderKind(
+        id="anthropic-compatible",
+        label="Anthropic-compatible API",
+        group="custom",
+        fields=[
+            _url(
+                None,
+                required=True,
+                help="The address before /v1/messages, e.g. https://host/anthropic.",
+            ),
+            _key(required=False),
+            _window("Tokens the model accepts."),
+        ],
     ),
 ]
 
-# Backward compatibility - BY_ID includes native kinds
-BY_ID: dict[str, ProviderKind] = {k.id: k for k in NATIVE_KINDS}
+BY_ID: dict[str, ProviderKind] = {k.id: k for k in [*NATIVE_KINDS, *LOCAL_KINDS, *CUSTOM_KINDS]}
 
 
 def secret_keys(kind: ProviderKind) -> set[str]:
@@ -151,5 +215,5 @@ def secret_keys(kind: ProviderKind) -> set[str]:
 
 
 def get_native_kind_ids() -> set[str]:
-    """Return the set of native provider kind IDs."""
-    return {k.id for k in NATIVE_KINDS}
+    """The kinds Athena defines itself: `NATIVE_KINDS`, `LOCAL_KINDS` and `CUSTOM_KINDS`."""
+    return set(BY_ID)

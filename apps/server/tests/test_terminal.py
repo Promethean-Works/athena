@@ -3,6 +3,7 @@
 import asyncio
 import contextlib
 import json
+import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -326,3 +327,64 @@ def test_system_settings_need_an_admin(client_for) -> None:
     with client.app.state.db.engine.begin() as conn:
         conn.exec_driver_sql("UPDATE users SET is_admin = 0")
     assert client.put("/api/settings/system", json={"terminal_enabled": False}).status_code == 403
+
+
+_CONSOLE_CHILD = """
+import gc, json, subprocess, sys, time
+
+if sys.argv[2] == "raw":  # pywinpty alone
+    from winpty import PtyProcess
+    from athena.terminal.pty import _Windows
+
+    class Raw(_Windows):
+        def __init__(self, argv):
+            self.proc = PtyProcess.spawn(argv, dimensions=(24, 80))
+            self.pid = self.proc.pid
+
+    pty = Raw(["powershell.exe", "-NoLogo"])
+else:
+    from athena.terminal.pty import _Windows
+
+    pty = _Windows(["powershell.exe", "-NoLogo"], 80, 24, None, None)
+time.sleep(2)
+pty.read()
+pty.terminate()  # as the terminal WebSocket does when the page closes
+del pty
+gc.collect()
+time.sleep(2)
+try:
+    r = subprocess.run(["cmd", "/c", "echo", "after"], stdout=subprocess.PIPE,
+                       stderr=subprocess.PIPE, check=True)
+    seen = r.stdout.decode().strip()
+except OSError as exc:
+    seen = f"winerror {getattr(exc, 'winerror', None)}"
+with open(sys.argv[1], "w") as f:
+    json.dump(seen, f)
+"""
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="ConPTY console handling")
+@pytest.mark.parametrize(("mode", "want"), [("raw", "winerror 6"), ("athena", "after")])
+def test_child_processes_still_start_after_a_terminal_session(tmp_path, mode, want):
+    """Run like the logon task: pythonw.exe with no console and NULL standard handles.
+    One ConPTY session, then a program started the way python-on-whales starts `docker`
+    (stdin inherited).
+
+    `raw` (pywinpty alone) shows the bug: its console is freed with the session and the
+    standard handles it set are left dead. `athena` keeps a hidden console first.
+    python.exe doesn't reproduce it; it gets standard handles even when detached.
+    """
+    pythonw = Path(sys.executable).with_name("pythonw.exe")
+    assert pythonw.is_file()
+    script = tmp_path / "child.py"
+    script.write_text(_CONSOLE_CHILD)
+    result = tmp_path / "result.json"
+    info = subprocess.STARTUPINFO()
+    info.dwFlags |= subprocess.STARTF_USESTDHANDLES
+    info.hStdInput = info.hStdOutput = info.hStdError = 0
+    detached = 0x00000008  # DETACHED_PROCESS: no console
+    proc = subprocess.Popen(
+        [str(pythonw), str(script), str(result), mode], startupinfo=info, creationflags=detached
+    )
+    assert proc.wait(timeout=90) == 0
+    assert json.loads(result.read_text()) == want

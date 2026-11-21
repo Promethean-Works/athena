@@ -1,7 +1,8 @@
 {
   "env": {
     "BASH_MAX_OUTPUT_LENGTH": "20000",
-    "MAX_MCP_OUTPUT_TOKENS": "20000"
+    "MAX_MCP_OUTPUT_TOKENS": "20000",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "claudeMdExcludes": [
     "**/.venv/**/CLAUDE.md",
@@ -46,7 +47,31 @@
       "Bash(opencode mcp list)",
       "Bash(npm view *)",
       "Bash(gh run watch *)",
-      "Bash(hermes mcp list)"
+      "Bash(hermes mcp list)",
+      "Bash(node scripts/agents-setup.mjs --check*)",
+      "Bash(node scripts/agents-setup.mjs --dry-run*)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/secret.key)",
+      "Read(**/.credentials*)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Read(**/id_ed25519*)",
+      "Read(./.dev-data/**)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/session-start.mjs\""
+          }
+        ]
+      }
     ]
   }
 }

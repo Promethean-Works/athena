@@ -5,9 +5,13 @@ x-athena:
   tags: [WebDAV, Files, Sharing]
   license: "MIT"
   category: files
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WebDav/icon.svg
-  homepage: https://ugeek.github.io/webdav
+  homepage: https://github.com/hacdias/webdav
   web_port: WEB_PORT
+  notes: >-
+    Connect a WebDAV client to http://<server>:<web port>/ with the username and password from the
+    install form. If you left the password empty, Athena generated one: it's WEBDAV_PASSWORD in the app's .env.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/WebDav/screenshot-1.png
   env:
@@ -15,12 +19,42 @@ x-athena:
       label: Web port
       type: port
       default: "8155"
+    - key: FILES_PATH
+      label: Shared folder
+      type: path
+      description: The folder served over WebDAV.
+      default: "@app_data/data"
+    - key: WEBDAV_USERNAME
+      label: Username
+      default: admin
+    - key: WEBDAV_PASSWORD
+      label: Password
+      type: password
+      generate: secret
 
 services:
   webdav:
-    image: ugeek/webdav:amd64
+    image: ghcr.io/hacdias/webdav:v5.17.3
     restart: unless-stopped
+    command: ["-c", "/config.yml"]
     ports:
-      - "${WEB_PORT}:80/tcp"
+      - "${WEB_PORT}:6065/tcp"
+    environment:
+      WEBDAV_USERNAME: ${WEBDAV_USERNAME}
+      WEBDAV_PASSWORD: ${WEBDAV_PASSWORD}
+    configs:
+      - source: webdav_config
+        target: /config.yml
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${FILES_PATH}:/data
+
+configs:
+  webdav_config:
+    content: |
+      address: 0.0.0.0
+      port: 6065
+      directory: /data
+      permissions: CRUD
+      users:
+        - username: "{env}WEBDAV_USERNAME"
+          password: "{env}WEBDAV_PASSWORD"

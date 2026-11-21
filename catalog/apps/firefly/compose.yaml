@@ -4,7 +4,8 @@ x-athena:
   tagline: Personal finance manager.
   tags: [Finance, Budgeting, Personal]
   license: "GPL-3.0"
-  category: productivity
+  category: finance
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Firefly/icon.svg
   homepage: https://firefly-iii.org
   web_port: WEB_PORT
@@ -16,6 +17,11 @@ x-athena:
       label: Web port
       type: port
       default: "8190"
+    - key: APP_KEY
+      label: Encryption key
+      type: password
+      generate: secret
+      advanced: true
     - key: DB_PASSWORD
       label: Database password
       type: password
@@ -33,6 +39,7 @@ services:
     ports:
       - "${WEB_PORT}:8080/tcp"
     environment:
+      APP_KEY: ${APP_KEY}
       DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: 3306

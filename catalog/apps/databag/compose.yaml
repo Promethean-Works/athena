@@ -5,6 +5,7 @@ x-athena:
   tags: [Passwords, Notes, Contacts]
   license: "MIT"
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Databag/icon.svg
   homepage: https://databag.app
   web_port: WEB_PORT
@@ -22,6 +23,6 @@ services:
     image: balzack/databag:0.1.18
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:7000/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/data:/var/lib/databag

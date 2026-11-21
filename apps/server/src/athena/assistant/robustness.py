@@ -1,4 +1,4 @@
-"""Harness capabilities that keep every assistant run on track (docs/mvp-design.md §4.5,
+"""Harness capabilities that keep every assistant run on track (docs/design/assistant.md,
 part D stage 1). They're always on and have no settings.
 
 - `RepairToolArguments`: fixes the malformed JSON small local models write for tool calls

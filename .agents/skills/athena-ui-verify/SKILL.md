@@ -20,6 +20,8 @@ The browser comes from the **`playwright` MCP server** (`.mcp.json`; headless, i
 | Prove what was sent | `browser_network_requests` |
 | Phone width / dark mode | `browser_resize`, or `browser_evaluate` to toggle the `dark` class |
 
+**oh-my-pi** drops the Playwright MCP server on purpose (it has its own browser) and gives you the browser through its `eval` tool instead: `browser.open` with `viewport` for phone width, then the tab's `ariaSnapshot()`/`observe()` (instead of `browser_snapshot`), `click`, `fill`, `press`, `screenshot`, `console()`/`errors()` and `requests()`. Keep its default headless engine; never use `app: "relay"`, which drives the maintainer's own Chrome. Screenshots go wherever you save them: put them in `.playwright-mcp/` so cleanup finds them. <!-- docs-check: ignore -->
+
 ## 0. Pick the scope
 
 Browser output (snapshots, screenshots, console and network dumps) is most of this skill's cost. Do only what the diff needs:

@@ -2,14 +2,12 @@
 x-athena:
   title: Logseq
   description: A privacy-first, open-source platform for knowledge management and collaboration.
-  category: productivity
+  category: notes
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Logseq/icon.svg
   homepage: https://logseq.com/
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64]
   notes: null
   env:
   - key: WEB_PORT
@@ -43,7 +41,7 @@ services:
     restart: unless-stopped
     volumes:
     - type: bind
-      source: /DATA/AppData/logseq/config
+      source: ${ATHENA_APP_DATA}/config
       target: /config
     - type: bind
       source: ${DOCUMENTS_PATH}/Notes

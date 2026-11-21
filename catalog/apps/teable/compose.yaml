@@ -5,6 +5,7 @@ x-athena:
   tags: [No-code, Database, Tables]
   license: "MIT"
   category: productivity
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Teable/icon.svg
   homepage: https://teable.io
   web_port: WEB_PORT
@@ -16,12 +17,65 @@ x-athena:
       label: Web port
       type: port
       default: "8144"
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
+    - key: REDIS_PASSWORD
+      label: Redis password
+      type: password
+      generate: secret
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
 
 services:
   teable:
     image: teableio/teable:release.2026-11-19T10-43-10Z.3988
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:3200/tcp"
+      - "${WEB_PORT}:3000/tcp"
+    environment:
+      TZ: ${TZ}
+      PUBLIC_ORIGIN: http://localhost:${WEB_PORT}
+      PRISMA_DATABASE_URL: postgresql://teable:${DB_PASSWORD}@teable-db:5432/teable
+      BACKEND_CACHE_PROVIDER: redis
+      BACKEND_CACHE_REDIS_URI: redis://default:${REDIS_PASSWORD}@teable-cache:6379/0
     volumes:
-      - ${ATHENA_APP_DATA}/data:/app/data
+      - ${ATHENA_APP_DATA}/assets:/app/.assets
+    depends_on:
+      teable-db:
+        condition: service_healthy
+      teable-cache:
+        condition: service_healthy
+
+  teable-db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      POSTGRES_DB: teable
+      POSTGRES_USER: teable
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teable -d teable"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  teable-cache:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5

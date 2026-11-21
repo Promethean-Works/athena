@@ -4,10 +4,14 @@ x-athena:
   tagline: Resumable file upload server.
   tags: [File Upload, Sharing, Transfer]
   license: "Unlicense"
-  category: utilities
+  category: files
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CopyParty/icon.svg
   homepage: https://copyparty.readthedocs.io
   web_port: WEB_PORT
+  notes: >-
+    Sign in as admin with the password from the install form (or the app's .env).
+    Only that account can read and write the shared folder.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CopyParty/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/CopyParty/screenshot-2.png
@@ -16,12 +20,18 @@ x-athena:
       label: Web port
       type: port
       default: "8175"
+    - key: ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
 
 services:
   copyparty:
     image: ghcr.io/9001/copyparty-ac:1.20.26
     restart: unless-stopped
+    command: ["-a", "admin:${ADMIN_PASSWORD}", "-v", "/w::rwmda,admin", "-e2dsa"]
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:3923/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/data:/w
+      - ${ATHENA_APP_DATA}/config:/cfg

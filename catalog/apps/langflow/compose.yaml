@@ -1,14 +1,12 @@
 x-athena:
   title: Langflow
   description: Open-source UI for building and debugging multi-agent and RAG applications
-  category: utilities
+  category: ai
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/LangFlow/icon.svg
   homepage: https://www.langflow.org
   web_port: WEB_PORT
   web_path: /
-  platforms:
-    - linux/amd64
-    - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   env:
     - key: WEB_PORT
       label: Web port
@@ -22,10 +20,22 @@ x-athena:
       description: Password for the bundled PostgreSQL database.
 
 services:
+  langflow-init:
+    # The app runs as uid 1000, but Docker creates a missing data folder as root on Linux.
+    image: langflowai/langflow:1.9.3
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["chown -R 1000:0 /app/langflow"]
+    restart: "no"
+    volumes:
+      - ${ATHENA_APP_DATA}/backend:/app/langflow
+
   langflow:
     image: langflowai/langflow:1.9.3
     restart: unless-stopped
     depends_on:
+      langflow-init:
+        condition: service_completed_successfully
       langflow-postgres:
         condition: service_healthy
     ports:

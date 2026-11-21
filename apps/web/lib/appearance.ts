@@ -9,7 +9,7 @@ import type { Schemas } from "@workspace/api-client"
 import manifest from "@workspace/ui/themes.json"
 
 /**
- * Runtime appearance (docs/mvp-design.md §5.4). The options come from
+ * Runtime appearance (docs/design/frontend.md §5.4). The options come from
  * packages/ui/src/styles/themes.json, which `pnpm gen:theme` writes from the shadcn
  * registry next to the CSS it generates, so the UI only offers what the CSS defines.
  */

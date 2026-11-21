@@ -5,27 +5,28 @@ x-athena:
   tags: [Tunnel, Cloudflare, Network]
   license: "Apache-2.0"
   category: network
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Cloudflared/icon.svg
   homepage: https://developers.cloudflare.com/cloudflare-one/tunnels
-  web_port: WEB_PORT
+  web_port: null
+  smoke: skip
+  smoke_note: needs a Cloudflare tunnel token
+  notes: >-
+    Create a tunnel in the Cloudflare Zero Trust dashboard (Networks → Tunnels), choose
+    Docker, and paste the token from the shown command into the form.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Cloudflared/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Cloudflared/screenshot-2.png
   env:
-    - key: WEB_PORT
-      label: Web port
-      type: port
-      default: "8172"
     - key: TUNNEL_TOKEN
       label: Tunnel token
       type: password
-      required: false
-      advanced: true
+      description: From the Cloudflare Zero Trust dashboard, Networks → Tunnels.
 
 services:
   cloudflared:
     image: cloudflare/cloudflared:2026.11.1
     restart: unless-stopped
-    ports:
-      - "${WEB_PORT}:8080/tcp"
-    command: tunnel --no-autoupdate --token ${TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN}

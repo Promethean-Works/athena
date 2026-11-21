@@ -36,8 +36,8 @@ done
 [ -z "${changed//$'\n'/}" ] && exit 0
 
 parts=(repo)
-if grep -qE '^(apps/server/|packages/api-client/)' <<<"$changed"; then
-  parts+=(server web) # an API change can leave the generated client stale
+if grep -qE '^(apps/server/|packages/api-client/|catalog/)' <<<"$changed"; then
+  parts+=(server web) # an API change can leave the generated client stale; catalog/ is tested by the server suite
 elif grep -qE '^(apps/web/|packages/|package\.json|pnpm-)' <<<"$changed"; then
   parts+=(web)
 fi

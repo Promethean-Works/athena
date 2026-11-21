@@ -1,4 +1,4 @@
-"""WebDAV at /dav/ through wsgidav (docs/mvp-design.md §4.3).
+"""WebDAV at /dav/ through wsgidav (docs/design/files.md).
 
 The root of the share lists the file manager's locations as folders; nothing outside
 them is reachable. Paths go through athena.files.paths like the files API:
@@ -26,11 +26,10 @@ import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from a2wsgi import WSGIMiddleware
-from pydantic import BaseModel, ValidationError
-from sqlmodel import Session
+from pydantic import BaseModel
 from starlette.types import ASGIApp, Receive, Scope, Send
 from wsgidav.dav_error import HTTP_FORBIDDEN, DAVError
 from wsgidav.dav_provider import DAVCollection
@@ -40,14 +39,15 @@ from wsgidav.wsgidav_app import WsgiDAVApp
 
 from athena.auth.service import LoginThrottle, hash_password, verify_password
 from athena.db import Database
-from athena.db.models import SystemSetting
 from athena.files import locations
 from athena.files.paths import UPLOAD_PREFIX, FileError, entry, inside
+
+if TYPE_CHECKING:
+    from athena.settings_file import SettingsFile
 
 log = logging.getLogger(__name__)
 
 MOUNT = "/dav"
-KEY = "webdav"
 REALM = "Athena"
 CACHE_SECONDS = 300
 PASSWORD_BYTES = 18
@@ -67,31 +67,22 @@ class WebDavConfig(BaseModel):
     password_hash: str | None = None
 
 
-def load(db: Session) -> WebDavConfig:
-    row = db.get(SystemSetting, KEY)
-    if row is None:
-        return WebDavConfig()
-    try:
-        return WebDavConfig.model_validate_json(row.value)
-    except ValidationError:
-        log.warning("ignoring invalid WebDAV settings")
-        return WebDavConfig()
+def load(config: "SettingsFile") -> WebDavConfig:
+    """A copy of the webdav settings this run uses (athena.json, read at startup)."""
+    return config.section("webdav")
 
 
-def save(db: Session, config: WebDavConfig) -> None:
-    row = db.get(SystemSetting, KEY) or SystemSetting(key=KEY, value="")
-    row.value = config.model_dump_json()
-    db.add(row)
-    db.commit()
+def save(config: "SettingsFile", webdav: WebDavConfig) -> None:
+    config.save("webdav", webdav)
 
 
-def new_password(db: Session, username: str) -> str:
+def new_password(settings: "SettingsFile", username: str) -> str:
     """Replace the WebDAV password with a new random one and return it (shown once)."""
     password = secrets.token_urlsafe(PASSWORD_BYTES)
-    config = load(db)
+    config = load(settings)
     config.username = username
     config.password_hash = hash_password(password)
-    save(db, config)
+    save(settings, config)
     return password
 
 
@@ -257,8 +248,8 @@ class Credentials:
     compared in constant time; a new password changes the hash, so it applies at once.
     """
 
-    def __init__(self, db: Database) -> None:
-        self.db = db
+    def __init__(self, settings: "SettingsFile") -> None:
+        self.settings = settings
         self.throttle = LoginThrottle(limit=10)
         self._ok: tuple[str, str, str, float] | None = None
         """(password hash, username, password, valid until)."""
@@ -277,8 +268,7 @@ class Credentials:
     def check(self, username: str, password: str, client: str) -> bool:
         if self.throttle.retry_after(client):
             return False
-        for session in self.db.session():
-            config = load(session)
+        config = load(self.settings)
         if not (config.enabled and config.username and config.password_hash):
             return False
         now = time.monotonic()
@@ -329,7 +319,7 @@ def _roots(db: Database) -> Callable[[], dict[str, Path]]:
     return roots
 
 
-def dav_app(db: Database) -> WsgiDAVApp:
+def dav_app(db: Database, settings: "SettingsFile") -> WsgiDAVApp:
     # It warns on every start about middleware that's off on purpose and about Basic
     # sign-in without TLS (the settings page says so instead).
     logging.getLogger("wsgidav").setLevel(logging.ERROR)
@@ -343,7 +333,7 @@ def dav_app(db: Database) -> WsgiDAVApp:
                 "accept_digest": False,
                 "default_to_digest": False,
             },
-            "athena_credentials": Credentials(db),
+            "athena_credentials": Credentials(settings),
             "dir_browser": {"enable": False},
             "property_manager": True,
             "lock_storage": True,
@@ -359,15 +349,13 @@ class WebDavMiddleware:
     """Sends /dav and /dav/… to wsgidav when WebDAV is on (404 otherwise), and adds the
     sandboxing headers to its answers. Everything else goes to the app."""
 
-    def __init__(self, app: ASGIApp, db: Database) -> None:
+    def __init__(self, app: ASGIApp, db: Database, settings: "SettingsFile") -> None:
         self.app = app
-        self.db = db
-        self.dav = WSGIMiddleware(dav_app(db), workers=8)  # type: ignore[arg-type]
+        self.settings = settings
+        self.dav = WSGIMiddleware(dav_app(db, settings), workers=8)  # type: ignore[arg-type]
 
     def _enabled(self) -> bool:
-        for session in self.db.session():
-            return load(session).enabled
-        return False
+        return load(self.settings).enabled
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         path = scope.get("path", "")

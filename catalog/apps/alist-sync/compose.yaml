@@ -2,15 +2,12 @@
 x-athena:
   title: Alist-Sync
   description: An Alist storage synchronization tool based on the Web interface.
-  category: productivity
+  category: files
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Alist-Sync/icon.svg
   homepage: https://github.com/xjxjin/alist-sync
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   notes: The default login password is admin/admin.
   env:
   - key: WEB_PORT

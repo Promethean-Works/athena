@@ -5,6 +5,7 @@ x-athena:
   tags: [Chat, Community, Messaging]
   license: "Apache-2.0"
   category: utilities
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/VoceChat/icon.svg
   homepage: https://voce.chat
   web_port: WEB_PORT
@@ -22,6 +23,6 @@ services:
     image: privoce/vocechat-server:v0.5.17
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:3009/tcp"
+      - "${WEB_PORT}:3000/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/data:/home/vocechat-server/data

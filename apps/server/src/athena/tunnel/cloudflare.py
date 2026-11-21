@@ -1,16 +1,67 @@
 """Cloudflare Tunnel provider implementation."""
 
-import json
+import asyncio
 import logging
 import os
+import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 from athena.tunnel.base import TunnelConfig, TunnelProvider, TunnelStatus
+from athena.tunnel.process import TunnelProcess, find_binary
 
 log = logging.getLogger(__name__)
+
+_ARCH_ALIASES = {
+    "x86_64": "amd64",
+    "amd64": "amd64",
+    "aarch64": "arm64",
+    "arm64": "arm64",
+    "armv7l": "arm",
+    "armv6l": "arm",
+    "i386": "386",
+    "i686": "386",
+    "x86": "386",
+}
+
+
+def release_asset(system: str, machine: str) -> str:
+    """Name of the cloudflared release asset for this OS and CPU.
+
+    Linux and Windows releases are bare binaries; only macOS ships a .tgz.
+    Windows has no arm64 build, so Windows on ARM runs the amd64 one
+    under emulation.
+    """
+    arch = _ARCH_ALIASES.get(machine.lower())
+    system = system.lower()
+    if system == "linux" and arch in ("amd64", "arm64", "arm", "386"):
+        return f"cloudflared-linux-{arch}"
+    if system == "darwin" and arch in ("amd64", "arm64"):
+        return f"cloudflared-darwin-{arch}.tgz"
+    if system == "windows" and arch in ("amd64", "arm64", "386"):
+        return f"cloudflared-windows-{'amd64' if arch == 'arm64' else arch}.exe"
+    raise ValueError(f"cloudflared has no release for {system} on {machine}")
+
+
+_QUICK_URL = re.compile(r"https://[a-z0-9-]+\.trycloudflare\.com")
+_CONNECTED = re.compile(r"Registered tunnel connection")
+_START_TIMEOUT = 60.0
+
+
+def _cloudflared_running() -> bool:
+    """Whether any `cloudflared tunnel` process runs (e.g. from the auto-start service)."""
+    if sys.platform == "win32":
+        result = subprocess.run(
+            ["tasklist", "/FI", "IMAGENAME eq cloudflared.exe", "/NH"],
+            capture_output=True,
+            text=True,
+        )
+        return "cloudflared.exe" in result.stdout
+    result = subprocess.run(["pgrep", "-f", "cloudflared tunnel"], capture_output=True)
+    return result.returncode == 0
 
 
 class CloudflareTunnelProvider(TunnelProvider):
@@ -24,109 +75,96 @@ class CloudflareTunnelProvider(TunnelProvider):
     def label(self) -> str:
         return "Cloudflare Tunnel"
 
+    def __init__(self) -> None:
+        self._process: TunnelProcess | None = None
+        self._url: str | None = None
+
     async def start(self, job: Any, config: TunnelConfig) -> str:
-        """Start cloudflared tunnel. Returns public URL."""
+        """Run cloudflared and wait until it reports its public URL. Returns the URL.
+
+        A quick tunnel (`--url`) needs no account and prints a random
+        trycloudflare.com URL. A named tunnel runs with the tunnel token from the
+        Cloudflare dashboard (passed in `TUNNEL_TOKEN`, not argv, so `ps` can't see
+        it); its routes are set up in the dashboard, so the URL is the configured
+        domain.
+        """
+        if self._process is not None and self._process.alive:
+            raise RuntimeError("The tunnel is already running; stop it first")
         provider_config = config.provider_config or {}
         quick_tunnel = provider_config.get("quick_tunnel", True)
         tunnel_name = provider_config.get("tunnel_name")
         domain = provider_config.get("domain")
         api_token = provider_config.get("api_token")
 
-        port = config.port
-
+        binary = find_binary("cloudflared")
+        if binary is None:
+            raise RuntimeError("cloudflared isn't installed")
+        env = os.environ.copy()
         if quick_tunnel:
-            # Quick tunnel: cloudflared tunnel --url http://localhost:PORT
-            # No auth needed, ephemeral trycloudflare.com URL
-            env = os.environ.copy()
+            argv = [binary, "tunnel", "--no-autoupdate", "--url", f"http://localhost:{config.port}"]
+            ready = _QUICK_URL
         else:
-            # Named tunnel: requires API token and tunnel name
             if not api_token:
                 raise ValueError("API Token required for named tunnel")
             if not tunnel_name:
                 raise ValueError("Tunnel name required for named tunnel")
-
-            # Write config file for named tunnel
-            config_dir = Path("/etc/cloudflared")
-            config_dir.mkdir(parents=True, exist_ok=True)
-            config_file = config_dir / "config.yml"
-
-            config_content = {
-                "tunnel": tunnel_name,
-                "credentials-file": f"/etc/cloudflared/{tunnel_name}.json",
-                "ingress": [
-                    {
-                        "hostname": domain or f"{tunnel_name}.cfargotunnel.com",
-                        "service": f"http://localhost:{port}",
-                    },
-                    {"service": "http_status:404"},
-                ],
-            }
-
-            import yaml
-
-            config_file.write_text(yaml.dump(config_content))
-            env = os.environ.copy()
+            argv = [binary, "tunnel", "--no-autoupdate", "run"]
             env["TUNNEL_TOKEN"] = api_token
+            ready = _CONNECTED
 
-        # Start the process in background
-        # Note: In production, this would be managed by the job system
-        # For now, we return the expected URL pattern
+        await job.log(f"Starting cloudflared for http://localhost:{config.port}")
+        process = TunnelProcess(argv, env, ready)
+        match = await process.wait_ready(_START_TIMEOUT)
+        self._process = process
         if quick_tunnel:
-            # Quick tunnel URL is ephemeral, we can't know it ahead of time
-            # The actual URL would be parsed from cloudflared output
-            return "https://<ephemeral>.trycloudflare.com"
+            self._url = match.group(0)
         else:
-            return f"https://{domain or f'{tunnel_name}.cfargotunnel.com'}"
+            self._url = f"https://{domain or f'{tunnel_name}.cfargotunnel.com'}"
+        return self._url
 
     async def stop(self, job: Any) -> None:
-        """Stop cloudflared tunnel."""
-        # cloudflared tunnels are stopped by killing the process
-        # In production, we'd track the process and kill it
-        pass
+        """Stop the cloudflared that Athena started."""
+        process, self._process, self._url = self._process, None, None
+        if process is None or not process.alive:
+            if _cloudflared_running():
+                raise RuntimeError(
+                    "cloudflared is running but Athena didn't start it "
+                    "(an auto-start service or another program); stop it there"
+                )
+            await job.log("The tunnel wasn't running")
+            return
+        await asyncio.to_thread(process.stop)
+
+    def shutdown(self) -> None:
+        if self._process is not None:
+            self._process.stop()
+            self._process = None
+            self._url = None
 
     def status(self) -> TunnelStatus:
         """Check cloudflared tunnel status."""
-        try:
-            # Check if cloudflared is running
-            result = subprocess.run(
-                ["pgrep", "-f", "cloudflared tunnel"],
-                capture_output=True,
-            )
-            running = result.returncode == 0
-
-            # For quick tunnels, we'd need to parse the actual URL from logs
-            # For named tunnels, we can construct the URL
-            public_url = None
-            if running:
-                # Try to get tunnel list for named tunnels
-                try:
-                    result = subprocess.run(
-                        ["cloudflared", "tunnel", "list", "--output", "json"],
-                        capture_output=True,
-                        text=True,
-                        timeout=10,
-                    )
-                    if result.returncode == 0:
-                        tunnels = json.loads(result.stdout)
-                        for t in tunnels:
-                            if t.get("status") == "healthy":
-                                public_url = f"https://{t.get('name')}.cfargotunnel.com"
-                                break
-                except Exception:
-                    pass
-
+        if self._process is not None and self._process.alive:
             return TunnelStatus(
-                running=running,
-                public_url=public_url,
+                running=True,
+                public_url=self._url,
                 provider="cloudflare",
-                detail="Cloudflare Tunnel running" if running else "Not running",
+                detail="Cloudflare Tunnel running",
             )
+        try:
+            running = _cloudflared_running()
         except Exception as e:
             return TunnelStatus(
                 running=False,
                 provider="cloudflare",
                 detail=f"Status check failed: {e}",
             )
+        if running:
+            detail = "cloudflared is running outside Athena"
+        elif self._process is not None:
+            detail = f"cloudflared exited (code {self._process.proc.returncode})"
+        else:
+            detail = "Not running"
+        return TunnelStatus(running=running, provider="cloudflare", detail=detail)
 
     def get_config_schema(self) -> dict:
         """Return JSON schema for Cloudflare Tunnel configuration."""
@@ -164,55 +202,29 @@ class CloudflareTunnelProvider(TunnelProvider):
     async def install(self, job: Any) -> None:
         """Download and install cloudflared."""
         import platform
+        import tempfile
         import urllib.request
 
         system = platform.system().lower()
-        arch = platform.machine().lower()
-
-        # Map architecture
-        if arch in ("x86_64", "amd64"):
-            arch = "amd64"
-        elif arch in ("aarch64", "arm64"):
-            arch = "arm64"
-        else:
-            raise ValueError(f"Unsupported architecture: {arch}")
-
-        # Download URL pattern
-        if system == "darwin":
-            filename = f"cloudflared-darwin-{arch}.tgz"
-        elif system == "linux":
-            filename = f"cloudflared-linux-{arch}.tgz"
-        elif system == "windows":
-            filename = f"cloudflared-windows-{arch}.zip"
-        else:
-            raise ValueError(f"Unsupported OS: {system}")
-
+        filename = release_asset(system, platform.machine())
         url = f"https://github.com/cloudflare/cloudflared/releases/latest/download/{filename}"
-
-        # Download to temp
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
-            archive_path = tmpdir_path / filename
+            download_path = tmpdir_path / filename
 
-            # Download
-            job.log(f"Downloading cloudflared from {url}")
-            urllib.request.urlretrieve(url, archive_path)
+            await job.log(f"Downloading cloudflared from {url}")
+            await asyncio.to_thread(urllib.request.urlretrieve, url, download_path)
 
-            # Extract
             if filename.endswith(".tgz"):
                 import tarfile
 
-                with tarfile.open(archive_path, "r:gz") as tar:
-                    tar.extractall(tmpdir_path)
+                with tarfile.open(download_path, "r:gz") as tar:
+                    tar.extract("cloudflared", tmpdir_path, filter="data")
                 binary_path = tmpdir_path / "cloudflared"
             else:
-                import zipfile
-
-                with zipfile.ZipFile(archive_path, "r") as zipf:
-                    zipf.extractall(tmpdir_path)
-                binary_path = tmpdir_path / "cloudflared.exe"
+                # Linux and Windows releases are the bare binary.
+                binary_path = download_path
 
             # Install to PATH
             if system == "windows":
@@ -232,9 +244,9 @@ class CloudflareTunnelProvider(TunnelProvider):
             if system != "windows":
                 dest.chmod(0o755)
 
-            job.log(f"Installed cloudflared to {dest}")
+            await job.log(f"Installed cloudflared to {dest}")
 
-    async def configure_service(self, job: Any, enabled: bool) -> None:
+    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
         """Configure systemd/launchd service for auto-start."""
         import platform
 
@@ -268,14 +280,14 @@ WantedBy=multi-user.target
             subprocess.run(["systemctl", "daemon-reload"], check=False)
             subprocess.run(["systemctl", "enable", "cloudflared"], check=False)
             subprocess.run(["systemctl", "start", "cloudflared"], check=False)
-            job.log("Enabled cloudflared systemd service")
+            await job.log("Enabled cloudflared systemd service")
         else:
             subprocess.run(["systemctl", "stop", "cloudflared"], check=False)
             subprocess.run(["systemctl", "disable", "cloudflared"], check=False)
             if service_path.exists():
                 service_path.unlink()
             subprocess.run(["systemctl", "daemon-reload"], check=False)
-            job.log("Disabled cloudflared systemd service")
+            await job.log("Disabled cloudflared systemd service")
 
     async def _configure_launchd(self, job: Any, enabled: bool) -> None:
         """Configure launchd agent."""
@@ -309,12 +321,12 @@ WantedBy=multi-user.target
             plist_path.parent.mkdir(parents=True, exist_ok=True)
             plist_path.write_text(plist_content)
             subprocess.run(["launchctl", "load", str(plist_path)], check=False)
-            job.log("Enabled cloudflared launchd agent")
+            await job.log("Enabled cloudflared launchd agent")
         else:
             subprocess.run(["launchctl", "unload", str(plist_path)], check=False)
             if plist_path.exists():
                 plist_path.unlink()
-            job.log("Disabled cloudflared launchd agent")
+            await job.log("Disabled cloudflared launchd agent")
 
     async def _configure_windows_task(self, job: Any, enabled: bool) -> None:
         """Configure Windows Task Scheduler."""
@@ -336,10 +348,10 @@ WantedBy=multi-user.target
                 "/F",
             ]
             subprocess.run(cmd, check=False)
-            job.log("Enabled cloudflared Windows scheduled task")
+            await job.log("Enabled cloudflared Windows scheduled task")
         else:
             subprocess.run(
                 ["schtasks", "/Delete", "/TN", "Athena Cloudflare Tunnel", "/F"],
                 check=False,
             )
-            job.log("Disabled cloudflared Windows scheduled task")
+            await job.log("Disabled cloudflared Windows scheduled task")

@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import {
-  ChevronDownIcon,
   CloudIcon,
   CpuIcon,
   PencilIcon,
@@ -32,14 +31,17 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
+  Combobox,
+  ComboboxCollection,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxLabel,
+  ComboboxList,
+  ComboboxTrigger,
+} from "@workspace/ui/components/combobox"
 import {
   Empty,
   EmptyContent,
@@ -54,6 +56,7 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldSeparator,
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -81,11 +84,23 @@ import {
   type ProviderEditing,
   type ProviderKind,
 } from "@/components/settings/ai-provider-dialog"
+import {
+  editingFor,
+  LocalServerButtons,
+  localServersSentence,
+  useLocalAiServers,
+} from "@/components/settings/local-ai-servers"
 
 type AiSettings = Schemas["AiSettings"]
 type Integration = Schemas["IntegrationOut"]
 type IntegrationKind = Schemas["IntegrationKindOut"]
 
+type KindGroup = { value: string; items: ProviderKind[] }
+
+/**
+ * A searchable "Add provider" picker: models.dev lists dozens of providers, too many
+ * for a plain menu.
+ */
 export function AddMenu({
   kinds,
   onPick,
@@ -95,38 +110,59 @@ export function AddMenu({
   onPick: (kind: ProviderKind) => void
   label?: string
 }) {
-  const groups: [string, ProviderKind[]][] = [
-    ["Cloud", kinds.filter((k) => k.group === "cloud")],
-    ["Local", kinds.filter((k) => k.group === "local")],
-  ]
+  const groups = React.useMemo<KindGroup[]>(() => {
+    const byLabel = (a: ProviderKind, b: ProviderKind) =>
+      a.label.localeCompare(b.label)
+    return [
+      {
+        value: "Cloud",
+        items: kinds.filter((k) => k.group === "cloud").sort(byLabel),
+      },
+      {
+        value: "Local",
+        items: kinds.filter((k) => k.group === "local").sort(byLabel),
+      },
+      // Custom endpoints stay last, in the server's order.
+      { value: "Custom", items: kinds.filter((k) => k.group === "custom") },
+    ].filter((g) => g.items.length > 0)
+  }, [kinds])
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+    <Combobox
+      items={groups}
+      value={null}
+      onValueChange={(k: ProviderKind | null) => {
+        if (k) onPick(k)
+      }}
+      itemToStringLabel={(k: ProviderKind) => k.label}
+      itemToStringValue={(k: ProviderKind) => k.id}
+    >
+      <ComboboxTrigger render={<Button variant="outline" size="sm" />}>
         <PlusIcon />
         {label}
-        <ChevronDownIcon />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
-        {groups.map(([title, list], i) => (
-          <React.Fragment key={title}>
-            {i > 0 ? <DropdownMenuSeparator /> : null}
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>{title}</DropdownMenuLabel>
-              {list.map((k) => (
-                <DropdownMenuItem key={k.id} onClick={() => onPick(k)}>
-                  {k.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuGroup>
-          </React.Fragment>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </ComboboxTrigger>
+      <ComboboxContent className="w-64 max-w-[calc(100vw-2rem)]" align="end">
+        <ComboboxInput showTrigger={false} placeholder="Search providers" />
+        <ComboboxEmpty>No provider matches.</ComboboxEmpty>
+        <ComboboxList>
+          {(group: KindGroup) => (
+            <ComboboxGroup key={group.value} items={group.items}>
+              <ComboboxLabel>{group.value}</ComboboxLabel>
+              <ComboboxCollection>
+                {(k: ProviderKind) => (
+                  <ComboboxItem key={k.id} value={k}>
+                    {k.label}
+                  </ComboboxItem>
+                )}
+              </ComboboxCollection>
+            </ComboboxGroup>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   )
 }
 
 function ProvidersCard({ onChanged }: { onChanged: () => void }) {
-  const ollama = useCapability("ai.ollama")
   const [kinds, setKinds] = React.useState<ProviderKind[]>([])
   const [providers, setProviders] = React.useState<Provider[] | null>(null)
   const [editing, setEditing] = React.useState<ProviderEditing>(null)
@@ -146,7 +182,7 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
   }, [load])
 
   const kindOf = (id: string) => kinds.find((k) => k.id === id)
-  const ollamaKind = kindOf("ollama")
+  const local = useLocalAiServers(kinds)
 
   async function test(p: Provider) {
     setTesting(p.id)
@@ -195,11 +231,6 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
     if (added) void test(p)
   }
 
-  function useOllama() {
-    if (!ollamaKind || !ollama?.endpoint) return
-    setEditing({ kind: ollamaKind, values: { base_url: ollama.endpoint } })
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -220,30 +251,24 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
           <Empty className="border">
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                {ollama?.available ? <CpuIcon /> : <CloudIcon />}
+                {local.length ? <CpuIcon /> : <CloudIcon />}
               </EmptyMedia>
               <EmptyTitle>No providers yet</EmptyTitle>
               <EmptyDescription>
-                {ollama?.available
-                  ? `${ollama.detail ?? "Ollama"} is running on this server. Its models run on your own hardware and nothing leaves the server.`
-                  : "Add a cloud provider with an API key, or install Ollama on this server to run models locally."}
+                {local.length
+                  ? localServersSentence(local)
+                  : "Add a cloud provider with an API key, or run Ollama, llama.cpp or another local AI server on this server to run models locally."}
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent className="flex-row flex-wrap justify-center">
-              {ollama?.available && ollamaKind ? (
-                <Button onClick={useOllama}>
-                  <CpuIcon />
-                  Use Ollama on this server
-                </Button>
-              ) : null}
+              <LocalServerButtons
+                servers={local}
+                onUse={(server) => setEditing(editingFor(server))}
+              />
               <AddMenu
                 kinds={kinds}
                 onPick={(kind) => setEditing({ kind })}
-                label={
-                  ollama?.available
-                    ? "Another provider"
-                    : "Add a cloud provider"
-                }
+                label={local.length ? "Another provider" : "Add a provider"}
               />
             </EmptyContent>
           </Empty>
@@ -636,7 +661,9 @@ function ShellCard({
                 onBlur={saveCommands}
                 rows={6}
                 spellCheck={false}
-                className="font-mono"
+                // The shared Textarea grows with its content; a long allowlist
+                // made the page scroll for a screen. Keep it at six lines.
+                className="[field-sizing:fixed] max-h-48 font-mono"
               />
               <FieldDescription>
                 One per line. Every program in a command is checked, including
@@ -654,50 +681,108 @@ function ShellCard({
   )
 }
 
-function MemoryCard({
+/** One on/off setting: label, a single description, and the switch. */
+function ToggleRow({
+  id,
+  label,
+  checked,
+  disabled,
+  onChange,
+  children,
+}: {
+  id: string
+  label: string
+  checked: boolean
+  disabled?: boolean
+  onChange: (checked: boolean) => void
+  children: React.ReactNode
+}) {
+  return (
+    <Field orientation="horizontal" data-disabled={disabled || undefined}>
+      <FieldContent>
+        <FieldLabel htmlFor={id}>{label}</FieldLabel>
+        <FieldDescription>{children}</FieldDescription>
+      </FieldContent>
+      <Switch
+        id={id}
+        checked={checked}
+        disabled={disabled}
+        onCheckedChange={onChange}
+      />
+    </Field>
+  )
+}
+
+type ToggleKey =
+  | "memory_enabled"
+  | "web_research_enabled"
+  | "docker_sandbox_enabled"
+  | "durable_execution_enabled"
+  | "coding_stack_enabled"
+  | "browser_use_enabled"
+
+function useToggle(settings: AiSettings | null, save: SaveAi) {
+  return (key: ToggleKey, name: string) => (checked: boolean) => {
+    if (!settings) return
+    void save(
+      { ...settings, [key]: checked },
+      `${name} turned ${checked ? "on" : "off"}`
+    )
+  }
+}
+
+/** Everyday tools the assistant can use. Each is one switch. */
+function ToolsCard({
   settings,
   save,
 }: {
   settings: AiSettings | null
   save: SaveAi
 }) {
+  const toggle = useToggle(settings, save)
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Memory and skills</CardTitle>
+        <CardTitle>Memory and research</CardTitle>
         <CardDescription>
-          The assistant can keep notes that later chats read, such as how this
-          server is set up. Each admin has their own notes. Notes and skills
-          that look like hidden instructions are refused and written to the
-          audit log.
+          What the assistant can keep between chats and look up on its own.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {settings === null ? (
-          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-24 w-full" />
         ) : (
           <FieldGroup>
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor="memory-enabled">
-                  Remember across chats
-                </FieldLabel>
-                <FieldDescription>
-                  Turning it off keeps the saved notes; the assistant just stops
-                  reading and writing them.
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id="memory-enabled"
-                checked={settings.memory_enabled}
-                onCheckedChange={(checked) =>
-                  void save(
-                    { ...settings, memory_enabled: checked },
-                    checked ? "Memory turned on" : "Memory turned off"
-                  )
-                }
-              />
-            </Field>
+            <ToggleRow
+              id="memory-enabled"
+              label="Remember across chats"
+              checked={settings.memory_enabled}
+              onChange={toggle("memory_enabled", "Memory")}
+            >
+              Keeps notes that later chats read, such as how this server is set
+              up. Each admin has their own. Turning it off keeps the notes; the
+              assistant just stops using them. Notes that look like hidden
+              instructions are refused and written to the audit log.
+            </ToggleRow>
+            <ToggleRow
+              id="web-research-enabled"
+              label="Web research"
+              checked={settings.web_research_enabled}
+              onChange={toggle("web_research_enabled", "Web research")}
+            >
+              Searches the web with{" "}
+              <a
+                href="https://exa.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Exa
+              </a>{" "}
+              and reads the pages it finds. The server needs an{" "}
+              <code>EXA_API_KEY</code> environment variable before any search
+              works.
+            </ToggleRow>
+            <FieldSeparator />
             <FieldDescription>
               Skills are instructions the assistant loads when a task needs
               them. Add one as a folder with a <code>SKILL.md</code> file in{" "}
@@ -710,52 +795,77 @@ function MemoryCard({
   )
 }
 
-function WebResearchCard({
+/** Opt-in features that need extra setup on the server. */
+function AdvancedCard({
   settings,
   save,
 }: {
   settings: AiSettings | null
   save: SaveAi
 }) {
+  const containers = useCapability("containers")
+  const containersReady = containers?.status === "ready"
+  const toggle = useToggle(settings, save)
   return (
+    // The section heading above names it; a card title would repeat it.
     <Card>
-      <CardHeader>
-        <CardTitle>Web research</CardTitle>
-        <CardDescription>
-          Let the assistant search the web with Exa and read pages it finds. The
-          server needs an <code>EXA_API_KEY</code> environment variable (from
-          <a href="https://exa.ai" target="_blank" rel="noopener noreferrer">
-            Exa
-          </a>
-          ); the setting only turns the tools on.
-        </CardDescription>
-      </CardHeader>
       <CardContent>
         {settings === null ? (
-          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-32 w-full" />
         ) : (
           <FieldGroup>
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor="web-research-enabled">Web research</FieldLabel>
-                <FieldDescription>
-                  Off by default. Requires an <code>EXA_API_KEY</code> in the
-                  server&rsquo;s environment before any search works.
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id="web-research-enabled"
-                checked={settings.web_research_enabled}
-                onCheckedChange={(checked) =>
-                  void save(
-                    { ...settings, web_research_enabled: checked },
-                    checked
-                      ? "Web research turned on"
-                      : "Web research turned off"
-                  )
-                }
-              />
-            </Field>
+            <ToggleRow
+              id="docker-sandbox-enabled"
+              label="Docker sandbox"
+              checked={settings.docker_sandbox_enabled}
+              // Let an admin turn it off even when the engine went away.
+              disabled={!containersReady && !settings.docker_sandbox_enabled}
+              onChange={toggle("docker_sandbox_enabled", "Docker sandbox")}
+            >
+              Runs commands and edits files in an isolated container instead of
+              on this server. Pulls a small Python image on first use.
+              {!containersReady &&
+                ` Needs ${containers?.label ?? "a container engine"} ready first.`}
+            </ToggleRow>
+            <ToggleRow
+              id="coding-stack-enabled"
+              label="Coding stack"
+              checked={settings.coding_stack_enabled}
+              onChange={toggle("coding_stack_enabled", "Coding stack")}
+            >
+              Reads <code>AGENTS.md</code> and <code>CLAUDE.md</code> from{" "}
+              <code>assistant/code-workspace</code> in Athena&apos;s data
+              folder, and reads or writes files there. Reading is free; every
+              write shows an Approve/Deny card first.
+            </ToggleRow>
+            <ToggleRow
+              id="durable-execution-enabled"
+              label="Durable execution"
+              checked={settings.durable_execution_enabled}
+              onChange={toggle(
+                "durable_execution_enabled",
+                "Durable execution"
+              )}
+            >
+              Checkpoints each model request and tool call, so an interrupted
+              chat resumes instead of repeating paid work. Needs pgtask and a
+              Postgres database (
+              <code>ATHENA_DURABLE_EXECUTION_DATABASE_URL</code>
+              ); without them it changes nothing.
+            </ToggleRow>
+            <ToggleRow
+              id="browser-use-enabled"
+              label="Browser agent"
+              checked={settings.browser_use_enabled}
+              // Nothing provides the browser tool yet (docs/STATUS.md → Next),
+              // so it can only be turned off.
+              disabled={!settings.browser_use_enabled}
+              onChange={toggle("browser_use_enabled", "Browser agent")}
+            >
+              Hands open-ended web tasks to an autonomous browser. Not available
+              yet: it waits for a browser-use release that installs alongside
+              the rest of the server.
+            </ToggleRow>
           </FieldGroup>
         )}
       </CardContent>
@@ -770,31 +880,32 @@ function ReviewCard({
   settings: AiSettings | null
   save: SaveAi
 }) {
-  const { providers, reload } = useModels()
-  const [version, setVersion] = React.useState(0)
-
-  React.useEffect(() => {
-    if (version > 0) void reload()
-  }, [version, reload])
+  const { providers } = useModels()
 
   function saveModel(ref: ModelRef | null) {
-    if (!settings) return
-    if (ref === settings.review_model) return
+    if (!settings || ref === settings.review_model) return
     void save(
-      { ...settings, review_model: ref },
+      {
+        ...settings,
+        review_model: ref,
+        // No model means nothing can review; keep the two in step.
+        review_tool_calls: ref ? settings.review_tool_calls : false,
+      },
       ref ? "Review model saved" : "Review turned off"
     )
-    setVersion((v) => v + 1)
   }
+
+  // Nothing to pick from until a provider exists; Providers above says so.
+  if (!providers?.length && settings !== null) return null
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Review tool calls</CardTitle>
         <CardDescription>
-          Before an action reaches your Approve/Deny card, a second model reviews it
-          and auto-approves the clearly safe ones, so you only see the risky ones. Needs
-          a review model (its key counts toward the spend limit like any model call).
+          A second model checks each action before it reaches your Approve/Deny
+          card and approves the clearly safe ones, so you only see the risky
+          ones.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -804,249 +915,45 @@ function ReviewCard({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="review-model">Review model</FieldLabel>
-              <ModelPicker
-                id="review-model"
-                variant="field"
-                providers={providers}
-                value={settings.review_model}
-                onChange={saveModel}
-              />
-              {settings.review_model && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    void saveModel(null)
-                    setVersion((v) => v + 1)
-                  }}
-                >
-                  Turn off
-                </Button>
-              )}
+              <div className="flex gap-2">
+                <ModelPicker
+                  id="review-model"
+                  variant="field"
+                  className="flex-1"
+                  providers={providers}
+                  value={settings.review_model}
+                  onChange={saveModel}
+                />
+                {settings.review_model && (
+                  <Button variant="outline" onClick={() => saveModel(null)}>
+                    Clear
+                  </Button>
+                )}
+              </div>
               <FieldDescription>
-                Optional. A second model the assistant asks before each action. It
-                auto-approves clearly safe calls so you only see the risky ones. Its
-                provider sees the call's name and arguments, not the whole chat.
+                Its provider sees each call&apos;s name and arguments, not the
+                whole chat. Every check is one more model call and counts toward
+                the spend limit.
               </FieldDescription>
             </Field>
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor="review-tool-calls">Review tool calls</FieldLabel>
-                <FieldDescription>
-                  Off by default. When on, clearly safe actions are approved for you
-                  and only risky ones reach your card; each check is one more model call.
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id="review-tool-calls"
-                checked={settings.review_tool_calls}
-                onCheckedChange={(checked) =>
-                  void save(
-                    { ...settings, review_tool_calls: checked },
-                    checked ? "Tool-call reviewing turned on" : "Tool-call reviewing turned off"
-                  )
-                }
-              />
-            </Field>
-          </FieldGroup>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function DockerSandboxCard({
-  settings,
-  save,
-}: {
-  settings: AiSettings | null
-  save: SaveAi
-}) {
-  const where = useCapability("containers")
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Docker sandbox</CardTitle>
-        <CardDescription>
-          Run commands and edit files in an isolated container instead of directly
-          on this server. Needs the {where?.label ?? "containers"} capability ready
-          and pulls a small Python image on first use.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {settings === null ? (
-          <Skeleton className="h-12 w-full" />
-        ) : (
-          <FieldGroup>
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor="docker-sandbox-enabled">Docker sandbox</FieldLabel>
-                <FieldDescription>
-                  Off by default. Only offered when this server has a ready
-                  container engine (Docker or Podman).
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id="docker-sandbox-enabled"
-                checked={settings.docker_sandbox_enabled}
-                onCheckedChange={(checked) =>
-                  void save(
-                    { ...settings, docker_sandbox_enabled: checked },
-                    checked ? "Docker sandbox turned on" : "Docker sandbox turned off"
-                  )
-                }
-              />
-            </Field>
-          </FieldGroup>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function DurableExecutionCard({
-  settings,
-  save,
-}: {
-  settings: AiSettings | null
-  save: SaveAi
-}) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Durable execution</CardTitle>
-        <CardDescription>
-          Checkpoint each turn's model requests and tool calls so an interrupted run
-          resumes from the last completed step instead of repeating paid work. Needs
-          pgtask and a Postgres database (run one as a compose app on this server);
-          the setting only turns the capability on.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {settings === null ? (
-          <Skeleton className="h-12 w-full" />
-        ) : (
-          <FieldGroup>
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor="durable-execution-enabled">Durable execution</FieldLabel>
-                <FieldDescription>
-                  Off by default. Only useful once turns run inside pgtask tasks
-                  against Postgres; without that it changes nothing.
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id="durable-execution-enabled"
-                checked={settings.durable_execution_enabled}
-                onCheckedChange={(checked) =>
-                  void save(
-                    { ...settings, durable_execution_enabled: checked },
-                    checked
-                      ? "Durable execution turned on"
-                      : "Durable execution turned off"
-                  )
-                }
-              />
-            </Field>
-          </FieldGroup>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function CodingStackCard({
-  settings,
-  save,
-}: {
-  settings: AiSettings | null
-  save: SaveAi
-}) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Coding stack</CardTitle>
-        <CardDescription>
-          Give the assistant coding-assistant capabilities that read code context
-          (AGENTS.md / CLAUDE.md) from a workspace inside Athena's data folder,
-          and read or write files inside that workspace. Reading runs free;
-          writing, editing or creating a file shows an Approve/Deny card first.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {settings === null ? (
-          <Skeleton className="h-12 w-full" />
-        ) : (
-          <FieldGroup>
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor="coding-stack-enabled">Coding stack</FieldLabel>
-                <FieldDescription>
-                  Off by default. Reads AGENTS.md / CLAUDE.md from
-                  <code>assistant/code-workspace</code> inside Athena's data
-                  folder and loads them into the assistant's instructions.
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id="coding-stack-enabled"
-                checked={settings.coding_stack_enabled}
-                onCheckedChange={(checked) =>
-                  void save(
-                    { ...settings, coding_stack_enabled: checked },
-                    checked ? "Coding stack turned on" : "Coding stack turned off"
-                  )
-                }
-              />
-            </Field>
-          </FieldGroup>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function BrowserCard({
-  settings,
-  save,
-}: {
-  settings: AiSettings | null
-  save: SaveAi
-}) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Browser</CardTitle>
-        <CardDescription>
-          Off by default. Lets the assistant hand an open-ended web task to an
-          autonomous browser agent (`browse_web`). Needs a pydantic-ai-harness
-          release whose browser-use extra is compatible with the server's other
-          dependencies before any tool is offered.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {settings === null ? (
-          <Skeleton className="h-12 w-full" />
-        ) : (
-          <FieldGroup>
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor="browser-use-enabled">Browser</FieldLabel>
-                <FieldDescription>
-                  Off by default. Offered only once the browser-use dependency can
-                  be installed alongside the rest of the server.
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id="browser-use-enabled"
-                checked={settings.browser_use_enabled}
-                onCheckedChange={(checked) =>
-                  void save(
-                    { ...settings, browser_use_enabled: checked },
-                    checked ? "Browser turned on" : "Browser turned off"
-                  )
-                }
-              />
-            </Field>
+            <ToggleRow
+              id="review-tool-calls"
+              label="Review before asking me"
+              checked={settings.review_tool_calls}
+              disabled={!settings.review_model && !settings.review_tool_calls}
+              onChange={(checked) =>
+                void save(
+                  { ...settings, review_tool_calls: checked },
+                  checked
+                    ? "Tool-call reviewing turned on"
+                    : "Tool-call reviewing turned off"
+                )
+              }
+            >
+              {settings.review_model
+                ? "Safe actions are approved for you; risky ones still reach your card."
+                : "Pick a review model first."}
+            </ToggleRow>
           </FieldGroup>
         )}
       </CardContent>
@@ -1062,7 +969,9 @@ function IntegrationsCard({
   save: SaveAi
 }) {
   const [kinds, setKinds] = React.useState<IntegrationKind[]>([])
-  const [integrations, setIntegrations] = React.useState<Integration[] | null>(null)
+  const [integrations, setIntegrations] = React.useState<Integration[] | null>(
+    null
+  )
   const [editing, setEditing] = React.useState<{
     integration: Integration | null
     kinds: IntegrationKind[]
@@ -1083,9 +992,12 @@ function IntegrationsCard({
 
   async function remove(integration: Integration) {
     setRemoving(null)
-    const { error } = await api.DELETE("/api/assistant/integrations/{integration_id}", {
-      params: { path: { integration_id: integration.id } },
-    })
+    const { error } = await api.DELETE(
+      "/api/assistant/integrations/{integration_id}",
+      {
+        params: { path: { integration_id: integration.id } },
+      }
+    )
     if (error) {
       toast.add({
         type: "error",
@@ -1117,8 +1029,9 @@ function IntegrationsCard({
       <CardHeader>
         <CardTitle>Hosted integrations</CardTitle>
         <CardDescription>
-          MCP servers Athena runs for the assistant (GitHub, Linear, Notion, …). Each
-          has an encrypted token, and its actions go through your Approve/Deny card.
+          MCP servers Athena runs for the assistant (GitHub, Linear, Notion, …).
+          Each has an encrypted token, and its actions go through your
+          Approve/Deny card.
         </CardDescription>
         <CardAction>
           {kinds.length ? (
@@ -1208,7 +1121,41 @@ function IntegrationsCard({
   )
 }
 
-/** Settings → AI: providers, default models and limits (admins only). */
+const SECTIONS = [
+  { id: "models", title: "Models" },
+  { id: "tools", title: "Tools" },
+  { id: "advanced", title: "Advanced" },
+] as const
+
+function Section({
+  id,
+  title,
+  description,
+  children,
+}: {
+  id: string
+  title: string
+  description: string
+  children: React.ReactNode
+}) {
+  return (
+    <section
+      id={id}
+      aria-labelledby={`${id}-title`}
+      className="flex scroll-mt-20 flex-col gap-4"
+    >
+      <div className="flex flex-col gap-1">
+        <h2 id={`${id}-title`} className="font-heading text-base font-medium">
+          {title}
+        </h2>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      {children}
+    </section>
+  )
+}
+
+/** Settings → AI: providers, default models, tools and limits (admins only). */
 export function AiSettingsView() {
   const { user } = useAuth()
   const [version, setVersion] = React.useState(0)
@@ -1223,18 +1170,45 @@ export function AiSettingsView() {
     )
   }
   return (
-    <div className="flex flex-col gap-4 md:gap-6">
-      <ProvidersCard onChanged={() => setVersion((v) => v + 1)} />
-      <DefaultsCard version={version} settings={settings} save={save} />
-      <MemoryCard settings={settings} save={save} />
-      <WebResearchCard settings={settings} save={save} />
-      <ReviewCard settings={settings} save={save} />
-      <DockerSandboxCard settings={settings} save={save} />
-      <DurableExecutionCard settings={settings} save={save} />
-      <CodingStackCard settings={settings} save={save} />
-      <BrowserCard settings={settings} save={save} />
-      <IntegrationsCard settings={settings} save={save} />
-      <ShellCard settings={settings} save={save} />
+    <div className="flex flex-col gap-8">
+      <nav aria-label="AI settings sections" className="flex flex-wrap gap-1">
+        {SECTIONS.map((s) => (
+          <Button
+            key={s.id}
+            variant="outline"
+            size="sm"
+            nativeButton={false}
+            render={<a href={`#${s.id}`} />}
+          >
+            {s.title}
+          </Button>
+        ))}
+      </nav>
+      <Section
+        id="models"
+        title="Models"
+        description="Where the assistant's models come from and which ones it uses."
+      >
+        <ProvidersCard onChanged={() => setVersion((v) => v + 1)} />
+        <DefaultsCard version={version} settings={settings} save={save} />
+        <ReviewCard settings={settings} save={save} />
+      </Section>
+      <Section
+        id="tools"
+        title="Tools"
+        description="What the assistant can do besides managing apps, packages and files."
+      >
+        <ToolsCard settings={settings} save={save} />
+        <IntegrationsCard settings={settings} save={save} />
+        <ShellCard settings={settings} save={save} />
+      </Section>
+      <Section
+        id="advanced"
+        title="Advanced"
+        description="Off by default. Each one needs something extra on the server."
+      >
+        <AdvancedCard settings={settings} save={save} />
+      </Section>
     </div>
   )
 }

@@ -2,14 +2,12 @@
 x-athena:
   title: LibreDB Studio
   description: Open-source self-hosted SQL IDE.
-  category: development
+  category: databases
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/LibreDBStudio/icon.svg
   homepage: https://libredb.org
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: null
   env:
   - key: WEB_PORT

@@ -1,13 +1,15 @@
 x-athena:
   title: Project NOMAD
-  description: Smart home dashboard and automation hub with a modern web interface.
-  tagline: Smart home dashboard.
-  tags: [Home Automation, Dashboard, IoT]
-  license: "MIT"
-  category: home
+  description: Offline-first knowledge and education server with Wikipedia, books, courses, maps and optional local AI.
+  tagline: Offline knowledge and education server.
+  tags: [Offline, Knowledge, Education]
+  license: "Apache-2.0"
+  category: notes
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ProjectNOMAD/icon.png
-  homepage: https://nomad.home
+  homepage: https://www.projectnomad.us
   web_port: WEB_PORT
+  notes: Project NOMAD installs its content apps (Kiwix, Ollama and others) as extra containers through the Docker socket, so it has full control of the container engine.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ProjectNOMAD/thumbnail.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ProjectNOMAD/screenshot-1.png
@@ -16,12 +18,79 @@ x-athena:
       label: Web port
       type: port
       default: "8126"
+    - key: APP_KEY
+      label: App key
+      type: password
+      generate: hex32
+      advanced: true
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
+    - key: DB_ROOT_PASSWORD
+      label: Database root password
+      type: password
+      generate: secret
+      advanced: true
 
 services:
   nomad:
     image: ghcr.io/crosstalk-solutions/project-nomad:1.35.1
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "${WEB_PORT}:8080/tcp"
+    environment:
+      NODE_ENV: production
+      NOMAD_STORAGE_PATH: ${ATHENA_APP_DATA}/storage
+      PORT: "8080"
+      HOST: 0.0.0.0
+      URL: http://localhost:${WEB_PORT}
+      LOG_LEVEL: info
+      APP_KEY: ${APP_KEY}
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: nomad
+      DB_NAME: nomad
+      DB_USER: nomad_user
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSL: "false"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/storage:/app/storage
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: nomad
+      MYSQL_USER: nomad_user
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - ${ATHENA_APP_DATA}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10

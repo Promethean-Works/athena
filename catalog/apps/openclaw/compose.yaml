@@ -2,14 +2,12 @@
 x-athena:
   title: OpenClaw
   description: OpenClaw is a personal AI assistant you run on your own devices
-  category: utilities
+  category: ai
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/OpenClaw/icon.svg
   homepage: https://openclaw.ai
   web_port: WEB_PORT
   web_path: /#token=casaos
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: 'The first launch requires a one-time browser approval:
 
     1. Open OpenClaw from its ZimaOS app icon and keep the "Approve this browser" page open.

@@ -49,6 +49,9 @@ class TunnelProvider(ABC):
         """Stop the tunnel."""
         pass
 
+    def shutdown(self) -> None:  # noqa: B027 - optional hook, no-op by default
+        """Stop a tunnel process Athena owns when the server exits."""
+
     @abstractmethod
     def status(self) -> TunnelStatus:
         """Get current tunnel status."""
@@ -65,6 +68,8 @@ class TunnelProvider(ABC):
         pass
 
     @abstractmethod
-    async def configure_service(self, job: Any, enabled: bool) -> None:
-        """Enable/disable auto-start service (systemd/launchd/Task Scheduler)."""
+    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
+        """Enable/disable auto-start service (systemd/launchd/Task Scheduler).
+
+        `port` is the local port the service exposes (the `tunnel_port` setting)."""
         pass

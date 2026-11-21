@@ -4,7 +4,10 @@ x-athena:
   tagline: Video transcoder.
   tags: [Video, Transcoding]
   license: "GPL-2.0"
-  category: utilities
+  category: media
+  platforms: [linux/amd64]
+  smoke: skip
+  smoke_note: amd64-only image that crashes under emulation on arm64
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Handbrake/icon.svg
   homepage: https://handbrake.fr
   web_port: WEB_PORT
@@ -28,9 +31,10 @@ x-athena:
 services:
   handbrake:
     image: ghcr.io/linuxserver/handbrake:1.11.2-ls52
+    platform: linux/amd64
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:3000/tcp"
     environment:
       PUID: ${PUID}
       PGID: ${PGID}

@@ -393,6 +393,19 @@ async def app_action(
     db: DbSession,
 ) -> JobOut:
     """start (up -d), stop, restart, or update (pull + up -d)."""
+    return start_app_action(name, action, request, runtime, user.user.username, db)
+
+
+def start_app_action(
+    name: str,
+    action: str,
+    request: Request,
+    runtime: Runtime,
+    username: str,
+    db: Session,
+    detail: str | None = None,
+) -> JobOut:
+    """Start an app's lifecycle job and audit it (shared with the MCP server)."""
     _get_app(db, name)
     store = _store(request)
     path = store.compose_path(name)
@@ -406,7 +419,7 @@ async def app_action(
                 env=store.env(name),
             )
 
-    audit.record(db, user.user.username, f"app.{action}", name)
+    audit.record(db, username, f"app.{action}", name, detail=detail)
     return _start_job(request, name, f"{action.capitalize()} {name}", body)
 
 

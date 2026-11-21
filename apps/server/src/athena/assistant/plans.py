@@ -1,4 +1,4 @@
-"""The assistant's plan for a chat (docs/mvp-design.md §4.5, part D stage 2).
+"""The assistant's plan for a chat (docs/design/assistant.md, part D stage 2).
 
 The harness `Planning` with only its `write_plan` tool: the model restates the whole plan to
 add a step or change a status, so there are no step ids to track (or guess) and the tool
@@ -10,13 +10,16 @@ the plan as a checklist above the prompt bar, read from the same store, and hide
 `write_plan`'s own rows.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel
-from pydantic_ai.capabilities import AbstractCapability
-from pydantic_ai_harness import Planning
-from pydantic_ai_harness.planning import SqlitePlanStore
+
+if TYPE_CHECKING:
+    from pydantic_ai.capabilities import AbstractCapability
+    from pydantic_ai_harness.planning import SqlitePlanStore
 
 PLAN_TOOL = "write_plan"
 """The one plan tool; a `plan` event follows each call."""
@@ -35,6 +38,8 @@ def plans_db(data_dir: Path) -> Path:
 
 
 def plan_store(data_dir: Path, conversation_id: str) -> SqlitePlanStore:
+    from pydantic_ai_harness.planning import SqlitePlanStore
+
     db = plans_db(data_dir)
     db.parent.mkdir(parents=True, exist_ok=True)
     return SqlitePlanStore(str(db), session=f"conv-{conversation_id}")
@@ -60,6 +65,8 @@ async def delete_plan(data_dir: Path, conversation_id: str) -> None:
 
 
 def planning_capabilities(data_dir: Path, conversation_id: str) -> list[AbstractCapability[Any]]:
+    from pydantic_ai_harness import Planning
+
     # One tool and no subtasks: every tool schema is paid for on every request, and small
     # local models run in small contexts.
     return [Planning(store=plan_store(data_dir, conversation_id), tools=[PLAN_TOOL])]

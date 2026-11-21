@@ -1,5 +1,5 @@
 """File manager: locations, listing, text editing, downloads, chunked uploads, and
-folder, rename, delete, copy and move operations (docs/mvp-design.md §4.3).
+folder, rename, delete, copy and move operations (docs/design/files.md).
 
 Every path is a location id plus a `/`-separated path inside it; athena.files.paths
 keeps it there. Only admins add, change or remove locations.

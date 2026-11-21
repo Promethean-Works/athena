@@ -2,13 +2,14 @@
 x-athena:
   title: Stable Diffusion
   description: An AI model used to generate images conditioned on text descriptions.
-  category: utilities
+  category: ai
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/StableDiffusionWebUI/icon.svg
   homepage: https://github.com/AUTOMATIC1111/stable-diffusion-webui
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64]
+  smoke: skip
+  smoke_note: needs an NVIDIA GPU
   notes: null
   env:
   - key: WEB_PORT
@@ -35,13 +36,13 @@ services:
     restart: unless-stopped
     volumes:
     - type: bind
-      source: /DATA/AppData/Stable-Diffusion-WebUI/models
+      source: ${ATHENA_APP_DATA}/models
       target: /data/models
     - type: bind
-      source: /DATA/AppData/Stable-Diffusion-WebUI/outputs
+      source: ${ATHENA_APP_DATA}/outputs
       target: /data/outputs
     - type: bind
-      source: /DATA/AppData/Stable-Diffusion-WebUI/config
+      source: ${ATHENA_APP_DATA}/config
       target: /data/config
     privileged: false
     container_name: icewhale-stable-diffusion-webui

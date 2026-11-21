@@ -4,7 +4,8 @@ x-athena:
   tagline: Low-code AI agent builder.
   tags: [AI, Low-code, Workflow]
   license: "MIT"
-  category: development
+  category: ai
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/FlowiseAi/icon.svg
   homepage: https://flowiseai.com
   web_port: WEB_PORT
@@ -29,7 +30,8 @@ x-athena:
 
 services:
   flowise:
-    image: flowiseai/flowise:3.1.4
+    # 3.1.4 crashes at start (connect-sqlite3 0.9.17, FlowiseAI/Flowise#6688); stay on 3.1.3 until fixed.
+    image: flowiseai/flowise:3.1.3
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:3000/tcp"

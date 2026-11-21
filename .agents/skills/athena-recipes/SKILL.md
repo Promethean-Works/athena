@@ -16,7 +16,7 @@ Paths below are relative to `apps/server/src/athena/` (server) or `apps/web/` (w
    - Request and response bodies are Pydantic models in the same file. Return the model; don't return dicts.
    - Session dependencies come from `athena.auth.deps`: `user: Authed`, `db: DbSession`. For admin-only, check `user.user.is_admin` and raise 403 (see `set_system` in `api/settings.py`).
    - Errors: `raise HTTPException(status.HTTP_409_CONFLICT, "Readable message")`. The UI shows the message as is, so write it for a person.
-2. **Register:** a new router goes in `main.py`: `app.include_router(<area>.router, prefix="/api", dependencies=[require_user])`. Never leave a router public; only health, `/api/auth/*` and the public share route are.
+2. **Register:** a new router goes in `main.py`: `app.include_router(<area>.router, prefix="/api", dependencies=[require_user])`. Never leave a router public; only health, `/api/auth/*`, the public share route, `POST /api/automation/webhook/{token}` (token auth) and `/api/mcp` (session or `ATHENA_MCP_TOKEN` bearer) are.
 3. **Privileged action?** Call `audit.record(db, user.user.username, "<area>.<action>", target)`.
 4. **Test:** in `apps/server/tests/test_<area>.py`:
    ```python
@@ -86,7 +86,7 @@ The client adds the CSRF header and handles 401 (redirect to `/login/`) by itsel
 
 ## F. Host-wide setting (admin only)
 
-1. Add a field with a safe default to `SystemSettings` in `system_settings.py`. Stored JSON is validated on load, and unknown or invalid values fall back to defaults, so no migration is needed.
+1. Add a field with a safe default to `SystemSettings` in `system_settings.py`. It's saved in the `system` section of `<data-dir>/athena.json` (`settings_file.py`), so no migration is needed. The file is validated strictly at startup: a missing field takes its default, an unknown or invalid one stops the server. A whole new section is a field on `AthenaConfig` plus `load`/`save` wrappers like `system_settings.load`.
 2. If changing it has side effects (like closing terminals), handle that in `set_system` in `api/settings.py` and audit it.
 3. Add the control on Settings → System (`app/(app)/settings/`), then run `pnpm gen:api`.
 
@@ -94,11 +94,17 @@ The client adds the CSRF header and handles 401 (redirect to `/login/`) by itsel
 
 Stop and use the `athena-platform-feature` skill: capability id, detection, provider, registry, gated UI and fixtures.
 
-## H. Before you say "done"
+## H. A big feature (spec first)
+
+1. Copy `docs/specs/_template.md` to `docs/specs/<feature>.md`; fill in goal, non-goals, platforms, design, parts, acceptance checks and open questions (each with a recommendation).
+2. Get the maintainer's yes (a `docs:` PR or in chat) before writing code.
+3. One PR per part; each PR body names the spec part. Afterwards fold what stays true into `docs/design/` and mark the spec Done (see `docs/specs/README.md`).
+
+## I. Before you say "done"
 
 - [ ] `scripts/check.sh` passes, and `packages/api-client` is regenerated and committed if the API changed.
 - [ ] New code has tests, including a failure case.
 - [ ] UI changes are verified in a browser (`athena-ui-verify`).
-- [ ] New dependency → license row in `docs/mvp-design.md` §9. Design change → §11 row.
+- [ ] New dependency → license row in `docs/design/licenses.md`. Design change → its section in `docs/design/` plus a row in `docs/design/decisions.md`.
 - [ ] PR opened with auto-merge, and CI plus CodeQL are green (`athena-ship`).
-- [ ] `docs/STATUS.md` updated; new lessons added to `docs/AGENT-NOTES.md`.
+- [ ] `docs/STATUS.md` updated; new lessons added to the right file in `docs/agents/gotchas/`.

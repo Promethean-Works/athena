@@ -61,3 +61,6 @@ apps/server/src/athena/catalog_builtin/
 
 # Local dev data (VS Code launch configs and tasks)
 .dev-data/
+
+# Catalog smoke test reports (python -m athena.catalog.smoke)
+catalog-smoke-report/

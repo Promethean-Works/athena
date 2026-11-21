@@ -4,7 +4,7 @@
 
 Athena manages containers, apps, host packages, files and cloud storage from one web dashboard, and includes an AI assistant that can operate it all. It's in the spirit of [CasaOS](https://github.com/IceWhaleTech/CasaOS), but cross-platform: it detects what your machine has and only shows what works there.
 
-> **Status: pre-alpha.** Development is at milestone M7 (the AI assistant) and nothing has been released yet. See [docs/STATUS.md](docs/STATUS.md).
+> **Status: pre-alpha.** Nothing has been released yet. The current milestone is in [docs/STATUS.md](docs/STATUS.md).
 
 ## Planned features (MVP)
 
@@ -17,7 +17,7 @@ Athena manages containers, apps, host packages, files and cloud storage from one
 - **AI assistant**: built on [Pydantic AI](https://ai.pydantic.dev). It works with cloud models or local Ollama, and asks for your approval before changing anything.
 - **Appearance**: switch base color, theme, chart colors, fonts and radius live.
 
-Athena uses open-source dependencies only. See the full design in [docs/mvp-design.md](docs/mvp-design.md).
+Athena uses open-source dependencies only. See the full design in [docs/design/README.md](docs/design/README.md).
 
 ## Install (once the first release is out)
 
@@ -41,9 +41,20 @@ Then open `http://<your-server-ip>:8420`. The first visit asks you to create the
 athena admin reset-password
 ```
 
+**A setting broke Athena?** Settings are kept in one file, `athena.json`, in the data folder (`/var/lib/athena` on Linux, `~/Library/Application Support/Athena` on macOS, `%LOCALAPPDATA%\Athena\data` on Windows). If a bad value keeps Athena from starting, or locks you out (a wrong port, HTTPS), fix it in any text editor and restart Athena. On Linux, edit it with `sudo`.
+
+```bash
+athena config path            # where the file is
+athena config check           # what's wrong with it, with line numbers
+athena config reset https     # or server, system, ai, webdav: back to defaults
+athena https off              # just turn HTTPS off
+```
+
+Athena refuses to start with an invalid file rather than guessing, and keeps the version before the last save as `athena.json.bak`. Changes you make by hand apply when Athena restarts.
+
 ## Development
 
-The project is a monorepo: a Next.js + shadcn/ui frontend (pnpm + Turborepo) and a Python backend (uv).
+The project is a monorepo: a Next.js + shadcn/ui frontend (pnpm + Turborepo) and a Python backend (uv). **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** is the full guide: setting up a machine (including AI coding agents, with one command), the daily workflow, and troubleshooting.
 
 **Requirements:** Node.js 20.9+, [pnpm](https://pnpm.io), and [uv](https://docs.astral.sh/uv/).
 
@@ -76,13 +87,14 @@ Open http://localhost:3000. `next dev` proxies `/api` to the server on port 8420
 | `apps/web` | Next.js app (static export), app shell from the shadcn `dashboard-01` block |
 | `packages/ui` | shadcn/ui components shared by the app |
 | `packages/api-client` | Typed API client generated from the server's OpenAPI schema |
-| `apps/server` | FastAPI server and the `athena` CLI (`serve`, `openapi`, `service install`) |
+| `apps/server` | FastAPI server and the `athena` CLI (`serve`, `start`, `stop`, `openapi`, `service install\|uninstall\|status`, `doctor`, `config path\|show\|check\|reset`, `admin reset-password`) |
 
 More reading:
 
-- [docs/mvp-design.md](docs/mvp-design.md): architecture and decisions
+- [docs/design/README.md](docs/design/README.md): architecture and decisions
 - [CONTRIBUTING.md](CONTRIBUTING.md): branches, commits and pull requests
-- [AGENTS.md](AGENTS.md): instructions for AI coding agents (Claude Code, OpenCode, Hermes Agent)
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): machine setup, agents, daily workflow, troubleshooting
+- [AGENTS.md](AGENTS.md): instructions for AI coding agents (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot, oh-my-pi)
 
 ## Security
 

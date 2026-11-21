@@ -24,7 +24,7 @@ import { useApi } from "@/hooks/use-api"
 
 type Manager = Schemas["ManagerOut"]
 
-/** A tab per package manager detected on this host (docs/mvp-design.md §3). */
+/** A tab per package manager detected on this host (docs/design/platform.md). */
 export function PackagesView() {
   const managers = useApi(() => api.GET("/api/packages"))
   const [tab, setTab] = React.useState<string | null>(null)

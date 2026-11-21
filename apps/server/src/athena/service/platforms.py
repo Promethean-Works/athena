@@ -5,7 +5,7 @@ import plistlib
 import sys
 from pathlib import Path
 
-from athena.config import DEFAULT_PORT, default_data_dir
+from athena.config import default_data_dir
 from athena.service.plan import MakeDir, Plan, RemoveFile, Run, ServiceSpec, WriteFile
 
 SERVICE_NAME = "athena"
@@ -28,9 +28,9 @@ def _posix(path: Path) -> str:
 def _serve_args(
     spec: ServiceSpec, *, include_defaults: bool = True, posix: bool = False
 ) -> list[str]:
+    # No --port: the port lives in athena.json (`service install --port` saves it there),
+    # so editing the file is enough to change it.
     args = ["-m", "athena", "serve"]
-    if include_defaults or spec.port != DEFAULT_PORT:
-        args += ["--port", str(spec.port)]
     if include_defaults or spec.data_dir != default_data_dir():
         args += ["--data-dir", _posix(spec.data_dir) if posix else str(spec.data_dir)]
     return args
@@ -127,6 +127,26 @@ def _launchd_domain() -> str:
     return f"gui/{getuid() if getuid else 0}"
 
 
+LAUNCHD_BOOTOUT_WAIT_SECONDS = 30
+
+
+def _launchd_bootout() -> Run:
+    """Unload the agent and wait until launchd has really let go of it.
+
+    `launchctl bootout` returns before the agent is gone (the server takes a few seconds
+    to shut down), and a `bootstrap` right after fails with "5: Input/output error".
+    That broke every reinstall over a running agent: upgrades and service restarts.
+    """
+    target = f"{_launchd_domain()}/{LAUNCHD_LABEL}"
+    tries = LAUNCHD_BOOTOUT_WAIT_SECONDS * 2
+    script = (
+        f"launchctl bootout {target} 2>/dev/null; i=0; "
+        f"while launchctl print {target} >/dev/null 2>&1 && [ $i -lt {tries} ]; "
+        "do sleep 0.5; i=$((i+1)); done"
+    )
+    return Run(["/bin/sh", "-c", script], ignore_errors=True)
+
+
 def _darwin_install(spec: ServiceSpec) -> Plan:
     plist = launchd_plist_path()
     return Plan(
@@ -135,9 +155,7 @@ def _darwin_install(spec: ServiceSpec) -> Plan:
             MakeDir(spec.data_dir / "logs"),
             WriteFile(plist, launchd_plist(spec)),
             # Replace a previously loaded agent (fails harmlessly if none is loaded).
-            Run(
-                ["launchctl", "bootout", f"{_launchd_domain()}/{LAUNCHD_LABEL}"], ignore_errors=True
-            ),
+            _launchd_bootout(),
             Run(["launchctl", "bootstrap", _launchd_domain(), str(plist)]),
         ],
     )
@@ -147,9 +165,7 @@ def _darwin_uninstall() -> Plan:
     return Plan(
         f"Removing launchd agent {LAUNCHD_LABEL}",
         [
-            Run(
-                ["launchctl", "bootout", f"{_launchd_domain()}/{LAUNCHD_LABEL}"], ignore_errors=True
-            ),
+            _launchd_bootout(),
             RemoveFile(launchd_plist_path()),
         ],
     )

@@ -1,5 +1,6 @@
 """Tailscale Funnel provider implementation."""
 
+import asyncio
 import json
 import logging
 import subprocess
@@ -8,6 +9,32 @@ from typing import Any
 from athena.tunnel.base import TunnelConfig, TunnelProvider, TunnelStatus
 
 log = logging.getLogger(__name__)
+
+
+_TIMEOUT = 30
+
+
+def _run(argv: list[str], timeout: float) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
+
+
+def funnel_url_from(serve_config: dict) -> str | None:
+    """The public URL from `tailscale funnel status --json`, or None when Funnel is off.
+
+    `AllowFunnel` maps `<node>.<tailnet>.ts.net:<port>` to true for each funnelled port.
+    """
+    for host_port, allowed in (serve_config.get("AllowFunnel") or {}).items():
+        if allowed:
+            host, _, port = host_port.rpartition(":")
+            return f"https://{host}" if port == "443" else f"https://{host_port}"
+    return None
+
+
+def _funnel_url() -> str | None:
+    result = _run(["tailscale", "funnel", "status", "--json"], _TIMEOUT)
+    if result.returncode != 0 or not result.stdout.strip():
+        return None
+    return funnel_url_from(json.loads(result.stdout))
 
 
 class TailscaleTunnelProvider(TunnelProvider):
@@ -22,100 +49,53 @@ class TailscaleTunnelProvider(TunnelProvider):
         return "Tailscale Funnel"
 
     async def start(self, job: Any, config: TunnelConfig) -> str:
-        """Start Tailscale Funnel. Returns public URL."""
-        port = config.port
+        """Turn on Tailscale Funnel for the port, in the background. Returns the URL.
 
-        # Enable funnel for the port
-        result = subprocess.run(
-            ["tailscale", "funnel", str(port)],
-            capture_output=True,
-            text=True,
+        Without `--bg`, `tailscale funnel <port>` stays in the foreground until it's
+        interrupted, and the job would never finish.
+        """
+        await job.log(f"Turning on Tailscale Funnel for http://localhost:{config.port}")
+        result = await asyncio.to_thread(
+            _run, ["tailscale", "funnel", "--bg", str(config.port)], _TIMEOUT
         )
-
         if result.returncode != 0:
-            raise RuntimeError(f"Failed to start Tailscale Funnel: {result.stderr}")
-
-        # Get the funnel URL
-        status_result = subprocess.run(
-            ["tailscale", "funnel", "status"],
-            capture_output=True,
-            text=True,
-        )
-
-        # Parse the URL from status output
-        # Output format: "https://<node>.<tailnet>.ts.net -> localhost:PORT"
-        public_url = None
-        for line in status_result.stdout.splitlines():
-            if "->" in line and f"localhost:{port}" in line:
-                public_url = line.split("->")[0].strip()
-                break
-
-        if not public_url:
-            # Fallback: construct from tailnet info
-            status_result = subprocess.run(
-                ["tailscale", "status", "--json"],
-                capture_output=True,
-                text=True,
+            raise RuntimeError(
+                f"Failed to start Tailscale Funnel: {result.stderr or result.stdout}"
             )
-            if status_result.returncode == 0:
-                status = json.loads(status_result.stdout)
-                tailnet = status.get("CurrentTailnet", {})
-                dns_suffix = tailnet.get("MagicDNSSuffix", "")
-                node_name = status.get("Self", {}).get("HostName", "")
-                if dns_suffix and node_name:
-                    public_url = f"https://{node_name}.{dns_suffix}"
-
-        return public_url or "https://<node>.<tailnet>.ts.net"
+        url = await asyncio.to_thread(_funnel_url)
+        if url is None:
+            raise RuntimeError("Tailscale Funnel was turned on but reports no public URL")
+        return url
 
     async def stop(self, job: Any) -> None:
-        """Stop Tailscale Funnel."""
-        subprocess.run(["tailscale", "funnel", "off"], capture_output=True)
+        """Turn off Tailscale Funnel on HTTPS port 443 (where `funnel --bg` puts it)."""
+        result = await asyncio.to_thread(
+            _run, ["tailscale", "funnel", "--https=443", "off"], _TIMEOUT
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"Failed to stop Tailscale Funnel: {result.stderr or result.stdout}")
 
     def status(self) -> TunnelStatus:
         """Check Tailscale Funnel status."""
         try:
-            # Check if tailscale is running
-            result = subprocess.run(
-                ["tailscale", "status", "--json"],
-                capture_output=True,
-                text=True,
-            )
-
+            result = _run(["tailscale", "status", "--json"], _TIMEOUT)
             if result.returncode != 0:
                 return TunnelStatus(
                     running=False,
                     provider="tailscale",
                     detail="Tailscale not running",
                 )
-
             status = json.loads(result.stdout)
             backend_state = status.get("BackendState", "")
-
             if backend_state != "Running":
                 return TunnelStatus(
                     running=False,
                     provider="tailscale",
                     detail=f"Tailscale not logged in (state: {backend_state})",
                 )
-
-            # Check funnel status
-            funnel_result = subprocess.run(
-                ["tailscale", "funnel", "status"],
-                capture_output=True,
-                text=True,
-            )
-
-            running = False
-            public_url = None
-            if funnel_result.returncode == 0 and funnel_result.stdout.strip():
-                running = True
-                for line in funnel_result.stdout.splitlines():
-                    if "->" in line:
-                        public_url = line.split("->")[0].strip()
-                        break
-
+            public_url = _funnel_url()
+            running = public_url is not None
             tailnet_name = status.get("CurrentTailnet", {}).get("MagicDNSSuffix", "tailnet")
-
             return TunnelStatus(
                 running=running,
                 public_url=public_url,
@@ -156,7 +136,7 @@ class TailscaleTunnelProvider(TunnelProvider):
 
         if system == "windows":
             # Windows: use winget or download MSI
-            job.log("Installing Tailscale on Windows...")
+            await job.log("Installing Tailscale on Windows...")
             result = subprocess.run(
                 ["winget", "install", "--id", "Tailscale.Tailscale", "--silent"],
                 capture_output=True,
@@ -175,12 +155,12 @@ class TailscaleTunnelProvider(TunnelProvider):
                 )
         else:
             # Linux/macOS: use official install script
-            job.log("Downloading Tailscale install script...")
+            await job.log("Downloading Tailscale install script...")
             script_url = "https://tailscale.com/install.sh"
             with urllib.request.urlopen(script_url) as response:
                 script = response.read()
 
-            job.log("Running Tailscale install script...")
+            await job.log("Running Tailscale install script...")
             result = subprocess.run(
                 ["sh"],
                 input=script,
@@ -190,9 +170,9 @@ class TailscaleTunnelProvider(TunnelProvider):
             if result.returncode != 0:
                 raise RuntimeError(f"Tailscale install failed: {result.stderr}")
 
-        job.log("Tailscale installed. Run 'tailscale up' to authenticate.")
+        await job.log("Tailscale installed. Run 'tailscale up' to authenticate.")
 
-    async def configure_service(self, job: Any, enabled: bool) -> None:
+    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
         """Configure auto-start. Tailscale runs as a system daemon (tailscaled)."""
         import platform
 
@@ -201,10 +181,10 @@ class TailscaleTunnelProvider(TunnelProvider):
         if system == "linux":
             if enabled:
                 subprocess.run(["systemctl", "enable", "--now", "tailscaled"], check=False)
-                job.log("Enabled tailscaled systemd service")
+                await job.log("Enabled tailscaled systemd service")
             else:
                 subprocess.run(["systemctl", "disable", "tailscaled"], check=False)
-                job.log("Disabled tailscaled systemd service")
+                await job.log("Disabled tailscaled systemd service")
         elif system == "darwin":
             # macOS: tailscale runs as a launch daemon installed by the pkg
             if enabled:
@@ -212,7 +192,7 @@ class TailscaleTunnelProvider(TunnelProvider):
                     ["launchctl", "load", "/Library/LaunchDaemons/com.tailscale.tailscaled.plist"],
                     check=False,
                 )
-                job.log("Enabled tailscaled launchd daemon")
+                await job.log("Enabled tailscaled launchd daemon")
             else:
                 subprocess.run(
                     [
@@ -222,14 +202,14 @@ class TailscaleTunnelProvider(TunnelProvider):
                     ],
                     check=False,
                 )
-                job.log("Disabled tailscaled launchd daemon")
+                await job.log("Disabled tailscaled launchd daemon")
         elif system == "windows":
             # Windows: Tailscale runs as a service
             if enabled:
                 subprocess.run(["sc", "config", "Tailscale", "start=", "auto"], check=False)
                 subprocess.run(["net", "start", "Tailscale"], check=False)
-                job.log("Enabled Tailscale Windows service")
+                await job.log("Enabled Tailscale Windows service")
             else:
                 subprocess.run(["net", "stop", "Tailscale"], check=False)
                 subprocess.run(["sc", "config", "Tailscale", "start=", "demand"], check=False)
-                job.log("Disabled Tailscale Windows service")
+                await job.log("Disabled Tailscale Windows service")

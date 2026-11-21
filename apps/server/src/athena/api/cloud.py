@@ -1,5 +1,5 @@
 """Cloud storage through rclone: remotes, browsing a remote like a location, and copy,
-move and sync jobs between locations and remotes (docs/mvp-design.md §4.4).
+move and sync jobs between locations and remotes (docs/design/cloud.md).
 
 Everything needs the `cloud.rclone` capability. Only admins add, change or remove
 remotes. A remote's paths are checked by athena.cloud.remotes (no `..`), and a

@@ -5,6 +5,7 @@ x-athena:
   tags: [Downloads, Torrents, Management]
   license: "MIT"
   category: downloads
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Qui/icon.svg
   homepage: https://github.com/autobrr/qui
   web_port: WEB_PORT
@@ -22,6 +23,6 @@ services:
     image: ghcr.io/autobrr/qui:v1.28.0
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:7476/tcp"
     volumes:
-      - ${ATHENA_APP_DATA}/data:/data
+      - ${ATHENA_APP_DATA}/config:/config

@@ -5,6 +5,7 @@ x-athena:
   tags: [Monitoring, Uptime, Alerts]
   license: "MIT"
   category: monitoring
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Downtify/icon.svg
   homepage: https://downtify.com
   web_port: WEB_PORT
@@ -22,6 +23,6 @@ services:
     image: ghcr.io/henriquesebastiao/downtify:3.11.0
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:8000/tcp"
     volumes:
       - ${ATHENA_APP_DATA}/data:/data

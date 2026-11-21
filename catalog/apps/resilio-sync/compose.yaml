@@ -2,14 +2,12 @@
 x-athena:
   title: resilio-sync
   description: Unleash the power of seamless file synchronization.
-  category: productivity
+  category: files
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Resilio-sync/icon.svg
   homepage: https://www.resilio.com/sync/
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: null
   env:
   - key: WEB_PORT

@@ -1,6 +1,6 @@
 # Contributing to Athena
 
-Thanks for helping out! This guide covers how changes get into Athena. Read [docs/mvp-design.md](docs/mvp-design.md) for the architecture and [docs/STATUS.md](docs/STATUS.md) for what's being worked on.
+Thanks for helping out! This guide covers how changes get into Athena. Set up your machine with [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), read [docs/design/README.md](docs/design/README.md) for the architecture and [docs/STATUS.md](docs/STATUS.md) for what's being worked on.
 
 ## Workflow
 
@@ -9,12 +9,13 @@ Thanks for helping out! This guide covers how changes get into Athena. Read [doc
 1. **Branch from an up-to-date `main`, in its own worktree** (agents must; humans are encouraged to):
    ```bash
    git fetch origin
-   git worktree add ../athena-install-form -b feat/app-store-install-form origin/main
-   cd ../athena-install-form
+   git worktree add ../worktrees/athena-install-form -b feat/app-store-install-form origin/main
+   cd ../worktrees/athena-install-form
    ```
-   Branch names are `<type>/<short-description>`, using the same types as commits (below).
+   `scripts/new-worktree.sh <type>/<topic>` does the same (creates `../worktrees/athena-<topic>` from `origin/main`, next to the base checkout). Branch names are `<type>/<short-description>`, using the same types as commits (below).
 2. **Commit** in small, focused steps. Individual commit messages are free-form, because the PR is squashed.
-3. **Check before pushing.** Run `scripts/check.sh` (the same checks as CI), or turn on the pre-push hook once per clone with `git config core.hooksPath .githooks`.
+3. **Check before pushing.** Run `scripts/check.sh` (the same checks as CI). Turn on the git hooks once per clone with `git config core.hooksPath .githooks` (required for agents): pre-commit refuses commits on `main` or in the base checkout, and pre-push runs the parts of `scripts/check.sh` the push touches.
+   - Skip once: `git commit --no-verify` or `ATHENA_ALLOW_MAIN_COMMIT=1 git commit …` (emergencies only), and `git push --no-verify` or `ATHENA_SKIP_CHECKS=1 git push`.
 4. **Open a pull request** against `main`. Use the template and fill in the testing section.
 5. **CI must pass**, and all review conversations must be resolved.
 6. **Squash-merge.** The PR title becomes the commit on `main`, and the branch is deleted automatically.
@@ -46,7 +47,7 @@ Add `!` after the type (`feat!: …`) or a `BREAKING CHANGE:` footer for breakin
 
 ## Releases
 
-[release-please](https://github.com/googleapis/release-please) keeps a release PR open that collects merged changes. Merging that PR tags a version, publishes a GitHub release with the changelog, and attaches the install scripts and packages.
+[release-please](https://github.com/googleapis/release-please) keeps a release PR open that collects merged changes. Merging that PR tags a version and creates a draft GitHub release with the changelog; the release workflow then attaches the server wheel and the install scripts and publishes it. If the upload fails the release stays a draft, so `releases/latest` never points at one the installers can't use.
 
 ## Cross-platform rules
 
@@ -54,7 +55,7 @@ Athena runs on Linux, macOS and Windows. Any change that touches the host (conta
 
 - go through a platform provider and capability (see the `athena-platform-feature` skill in `.agents/skills/`);
 - be tested on every OS it claims to support, either in CI or manually. List the OSes in the PR;
-- use open-source dependencies only, recorded in [docs/mvp-design.md §9](docs/mvp-design.md#9-dependency--license-inventory).
+- use open-source dependencies only, recorded in [docs/design/licenses.md](docs/design/licenses.md).
 
 ### Testing a real install on another OS
 

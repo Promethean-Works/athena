@@ -4,6 +4,8 @@
   "include-component-in-tag": false,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
+  "draft": true,
+  "force-tag-creation": true,
   "packages": {
     ".": {
       "package-name": "athena",
@@ -13,6 +15,11 @@
           "type": "toml",
           "path": "apps/server/pyproject.toml",
           "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
+          "path": "apps/server/uv.lock",
+          "jsonpath": "$.package[?(@.name.value=='athena-server')].version"
         },
         {
           "type": "json",

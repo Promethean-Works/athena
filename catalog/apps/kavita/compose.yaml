@@ -5,6 +5,7 @@ x-athena:
   tags: [Comics, Manga, Reading]
   license: "AGPL-3.0"
   category: media
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Kavita/icon.svg
   homepage: https://kavita.readmy.li
   web_port: WEB_PORT
@@ -22,7 +23,7 @@ services:
     image: jvmilazz0/kavita:0.9.0.2
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:5150/tcp"
+      - "${WEB_PORT}:5000/tcp"
     volumes:
       - ${ATHENA_APP_DATA}/data:/data
       - ${ATHENA_APP_DATA}/comics:/comics:ro

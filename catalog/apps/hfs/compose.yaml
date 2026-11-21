@@ -2,14 +2,12 @@
 x-athena:
   title: HFS
   description: Share files through your browser
-  category: productivity
+  category: files
   icon: https://raw.githubusercontent.com/rejetto/hfs/main/admin/public/hfs-logo-icon.svg
   homepage: https://rejetto.com/hfs/
   web_port: WEB_PORT
   web_path: /~/admin/
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: '**First login**
 
 

@@ -21,6 +21,8 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
     appearance: str | None = None
     """The user's appearance settings as JSON (see athena.api.settings.Appearance)."""
+    dashboard: str | None = None
+    """The user's dashboard layout as JSON (see athena.api.settings.DashboardLayout)."""
 
 
 class AuthSession(SQLModel, table=True):
@@ -37,7 +39,7 @@ class AuthSession(SQLModel, table=True):
 
 
 class AuditEntry(SQLModel, table=True):
-    """Who did what to the host (docs/mvp-design.md §7). Never edited, only appended."""
+    """Who did what to the host (docs/design/security.md). Never edited, only appended."""
 
     __tablename__ = "audit_log"
 
@@ -83,7 +85,8 @@ class Catalog(SQLModel, table=True):
 
 
 class SystemSetting(SQLModel, table=True):
-    """Host-wide settings, one JSON value per key (see athena.system_settings)."""
+    """Small markers, one value per key (`files_defaults_seeded`). Settings live in
+    `<data-dir>/athena.json` (`athena.settings_file`), not here."""
 
     __tablename__ = "system_settings"
 
@@ -92,7 +95,7 @@ class SystemSetting(SQLModel, table=True):
 
 
 class FileLocation(SQLModel, table=True):
-    """A folder the file manager may browse (docs/mvp-design.md §4.3). Nothing outside
+    """A folder the file manager may browse (docs/design/files.md). Nothing outside
     the configured locations is reachable through the files API."""
 
     __tablename__ = "file_locations"
@@ -105,7 +108,7 @@ class FileLocation(SQLModel, table=True):
 
 
 class Share(SQLModel, table=True):
-    """A public link to a file or folder in a location (docs/mvp-design.md §4.3).
+    """A public link to a file or folder in a location (docs/design/files.md).
 
     The token is the link, so it's stored as is: the admin can copy the link again
     later. Removing the location removes its links.
@@ -129,7 +132,7 @@ class Share(SQLModel, table=True):
 
 
 class SmbShare(SQLModel, table=True):
-    """An SMB share Athena created for a file location (docs/mvp-design.md §4.3).
+    """An SMB share Athena created for a file location (docs/design/files.md).
 
     The share is published by the host's Samba server (Linux) from smb.conf; this
     row tracks what Athena created so it can be listed and removed.
@@ -149,13 +152,13 @@ class SmbShare(SQLModel, table=True):
 
 
 class AiProvider(SQLModel, table=True):
-    """An AI provider the assistant can use (docs/mvp-design.md §4.5). Server-wide."""
+    """An AI provider the assistant can use (docs/design/assistant.md). Server-wide."""
 
     __tablename__ = "ai_providers"
 
     id: str = Field(primary_key=True, max_length=32)
     kind: str = Field(max_length=32)
-    """One of athena.assistant.kinds.KINDS, e.g. "anthropic", "ollama"."""
+    """A models.dev provider id or "ollama" (athena.assistant.kinds), e.g. "anthropic"."""
     name: str = Field(max_length=64)
     config: str = "{}"
     """Non-secret settings as JSON, e.g. {"base_url": "…"}."""
@@ -165,7 +168,7 @@ class AiProvider(SQLModel, table=True):
 
 
 class ModelsDevCache(SQLModel, table=True):
-    """Cached provider and model data from models.dev (docs/mvp-design.md §4.5)."""
+    """Cached provider and model data from models.dev (docs/design/assistant.md)."""
 
     __tablename__ = "models_dev_cache"
 
@@ -194,7 +197,7 @@ class ModelsDevCache(SQLModel, table=True):
 
 
 class AiIntegration(SQLModel, table=True):
-    """A hosted integration the assistant can use (docs/mvp-design.md §4.5, part D.5).
+    """A hosted integration the assistant can use (docs/design/assistant.md, part D.5).
 
     Each integration is an MCP server Athena runs (a stdio command or a streamable-HTTP
     endpoint) with a per-server encrypted token. Server-wide, admins only.
@@ -237,7 +240,7 @@ class AiConversation(SQLModel, table=True):
 
 
 class AutomationTrigger(SQLModel, table=True):
-    """A durable trigger that starts an automation job (docs/mvp-design.md §8).
+    """A durable trigger that starts an automation job (docs/design/automation.md).
 
     kind "cron" fires on a cron expression; kind "http" fires when its webhook
     URL is called. `action` is the job to run, stored as JSON.

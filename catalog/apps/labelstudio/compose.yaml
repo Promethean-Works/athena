@@ -5,14 +5,12 @@ x-athena:
     text, images, videos, and time series with a simple and straightforward UI and export to various model
     formats. It can be used to prepare raw data or improve existing training data to get more accurate
     ML mod
-  category: utilities
+  category: ai
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/LabelStudio/icon.svg
   homepage: https://labelstud.io/
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
+  platforms: [linux/amd64, linux/arm64]
   notes: null
   env:
   - key: WEB_PORT
@@ -32,7 +30,21 @@ x-athena:
     default: '@timezone'
     advanced: true
 services:
+  label-studio-init:
+    # The app runs as uid 1001, but Docker creates a missing data folder as root on Linux.
+    image: heartexlabs/label-studio:1.23.0
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["chown -R 1001:0 /label-studio/data"]
+    restart: "no"
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/data
+      target: /label-studio/data
   label-studio:
+    depends_on:
+      label-studio-init:
+        condition: service_completed_successfully
     environment:
       PGID: ${PGID}
       PUID: ${PUID}

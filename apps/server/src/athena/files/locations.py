@@ -1,4 +1,4 @@
-"""File locations: the folders the file manager may reach (docs/mvp-design.md §4.3)."""
+"""File locations: the folders the file manager may reach (docs/design/files.md)."""
 
 import os
 import sys

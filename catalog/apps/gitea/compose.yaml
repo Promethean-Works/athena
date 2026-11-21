@@ -13,6 +13,7 @@ x-athena:
     - https://dl.gitea.com/screenshots/home.png
     - https://dl.gitea.com/screenshots/issues.png
   category: development
+  platforms: [linux/amd64, linux/arm64]
   icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/gitea.svg
   homepage: https://gitea.io
   web_port: WEB_PORT

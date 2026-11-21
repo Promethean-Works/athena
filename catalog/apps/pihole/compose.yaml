@@ -5,6 +5,7 @@ x-athena:
   tags: [DNS, Ad Blocking, Network]
   license: "EUPL-1.2"
   category: network
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Pihole/icon.svg
   homepage: https://pi-hole.net
   web_port: WEB_PORT
@@ -16,6 +17,11 @@ x-athena:
       label: Web port
       type: port
       default: "8214"
+    - key: DNS_PORT
+      label: DNS port
+      type: port
+      default: "53"
+      description: Devices on your network send DNS queries here. Keep 53 unless another DNS server already uses it.
     - key: TZ
       label: Timezone
       default: "@timezone"
@@ -31,11 +37,12 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:80/tcp"
-      - "53:53/tcp"
-      - "53:53/udp"
+      - "${DNS_PORT}:53/tcp"
+      - "${DNS_PORT}:53/udp"
     environment:
       TZ: ${TZ}
-      WEBPASSWORD: ${WEBPASSWORD}
+      FTLCONF_webserver_api_password: ${WEBPASSWORD}
+      FTLCONF_dns_listeningMode: all
     volumes:
       - ${ATHENA_APP_DATA}/etc-pihole:/etc/pihole
       - ${ATHENA_APP_DATA}/etc-dnsmasq.d:/etc/dnsmasq.d

@@ -1,39 +1,29 @@
-# Imported from the CasaOS AppStore (Apache-2.0): Apps/Pingvin-Share
 x-athena:
-  title: Pingvin-Share
-  description: Self-hosted file sharing with a modern web interface
-  category: productivity
-  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/Pingvin-Share/icon.svg
-  homepage: https://stonith404.github.io/pingvin-share/
+  title: Pingvin Share
+  description: Open-source file sharing application with support for files, folders, and text.
+  tagline: Open-source file sharing.
+  tags: [File Sharing, Transfer, Privacy]
+  license: "AGPL-3.0"
+  category: files
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Pingvin-Share/icon.svg
+  homepage: https://pingvin-share.com
   web_port: WEB_PORT
-  web_path: /
-  platforms:
-  - linux/amd64
-  - linux/arm64
-  notes: null
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Pingvin-Share/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Pingvin-Share/screenshot-2.png
   env:
-  - key: WEB_PORT
-    label: Web port
-    type: port
-    default: '3410'
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8215"
+
 services:
   pingvin-share:
     image: stonith404/pingvin-share:v1.13.0
     restart: unless-stopped
     ports:
-    - target: 3000
-      published: ${WEB_PORT}
-      protocol: tcp
-    environment:
-      TRUST_PROXY: false
-    deploy:
-      resources:
-        reservations:
-          memory: 256M
+      - "${WEB_PORT}:3000/tcp"
     volumes:
-    - type: bind
-      source: ${ATHENA_APP_DATA}/data
-      target: /opt/app/backend/data
-    - type: bind
-      source: ${ATHENA_APP_DATA}/images
-      target: /opt/app/frontend/public/img
+      - ${ATHENA_APP_DATA}/data:/opt/app/backend/data
+      - ${ATHENA_APP_DATA}/images:/opt/app/frontend/public/img

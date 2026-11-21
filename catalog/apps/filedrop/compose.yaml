@@ -4,7 +4,8 @@ x-athena:
   tagline: Simple file drop page.
   tags: [File Sharing, Drop, Transfer]
   license: "MIT"
-  category: utilities
+  category: files
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Filedrop/icon.svg
   homepage: https://filedrop.com
   web_port: WEB_PORT
@@ -22,6 +23,6 @@ services:
     image: noecl/filedrop:1.0.1
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:8000/tcp"
     volumes:
       - ${ATHENA_APP_DATA}/data:/var/file_drop_files

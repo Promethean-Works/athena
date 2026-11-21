@@ -1,4 +1,4 @@
-"""The web terminal over a WebSocket (docs/mvp-design.md §4.2, §7).
+"""The web terminal over a WebSocket (docs/design/terminal.md, §7).
 
     WS /api/terminal/ws?target=host | container:<id or name>
 
@@ -110,7 +110,7 @@ async def terminal_ws(ws: WebSocket, target: str = "host") -> None:
                 raise Closed(4403, "Missing or invalid CSRF token")
             if not user.is_admin:
                 raise Closed(4403, "Only admins can open a terminal")
-            if not system_settings.load(db).terminal_enabled:
+            if not system_settings.load(ws.app.state.settings_file).terminal_enabled:
                 raise Closed(4409, "The terminal is turned off in Settings → System")
             plan = await _plan(ws, target)
             if len(sessions) >= MAX_SESSIONS:

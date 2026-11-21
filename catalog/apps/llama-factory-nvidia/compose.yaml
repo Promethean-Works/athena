@@ -2,13 +2,14 @@
 x-athena:
   title: LLaMA Factory(Nvidia GPU)
   description: Unified LLM Fine-Tuning with 100+ Models
-  category: utilities
+  category: ai
   icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/LLaMA-Factory_Nvidia/icon.svg
   homepage: https://llamafactory.readthedocs.io/
   web_port: WEB_PORT
   web_path: /
-  platforms:
-  - linux/amd64
+  platforms: [linux/amd64]
+  smoke: skip
+  smoke_note: needs an NVIDIA GPU
   notes: null
   env:
   - key: WEB_PORT
@@ -18,6 +19,7 @@ x-athena:
 services:
   llama-factory-nvidia:
     image: hiyouga/llamafactory:0.9.4
+    platform: linux/amd64
     container_name: llama-factory-nvidia
     ports:
     - target: 7860

@@ -4,16 +4,19 @@ import * as React from "react"
 import Link from "next/link"
 import {
   EllipsisVerticalIcon,
+  ExternalLinkIcon,
   LayoutGridIcon,
   PlayIcon,
   RefreshCcwIcon,
   RotateCwIcon,
+  SettingsIcon,
   SquareIcon,
   StoreIcon,
   Trash2Icon,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import {
   Card,
   CardAction,

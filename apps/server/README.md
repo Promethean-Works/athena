@@ -17,9 +17,11 @@ Run the web app at the same time with `pnpm dev` from the repo root. It proxies 
 
 | Command | What it does |
 |---|---|
-| `athena serve [--host --port --data-dir --reload]` | Run the server |
+| `athena serve [--host --port --data-dir --reload]` | Run the server. `--host`/`--port` override `server.host`/`server.port` in `<data-dir>/athena.json` |
 | `athena openapi [--output FILE]` | Print or write the OpenAPI schema, which `packages/api-client` is generated from |
-| `athena service install --data-dir DIR --port N [--dry-run]` | Register Athena to start automatically: systemd (Linux, root), launchd agent (macOS), Scheduled Task at logon (Windows) |
+| `athena service install --data-dir DIR [--port N] [--dry-run]` | Register Athena to start automatically: systemd (Linux, root), launchd agent (macOS), Scheduled Task at logon (Windows). `--port` is saved as `server.port` in athena.json, not in the service |
+| `athena config path\|show\|check\|reset SECTION [--data-dir DIR]` | Where athena.json is; the server settings and where each comes from (flag, env, file, default); check it like `serve` does; put one section back to its defaults |
+| `athena https status\|off [--data-dir DIR]` | Show HTTPS settings, or turn HTTPS off for the next start |
 | `athena service uninstall [--dry-run]` | Remove that registration |
 | `athena service status` | Show whether the service is registered and running |
 | `athena admin reset-password [--data-dir DIR] [--username NAME] [--password-stdin]` | Recover a forgotten password: prompts twice (or reads stdin), then signs that account out everywhere. Run it as the service's user (`sudo` on Linux) |

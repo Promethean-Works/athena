@@ -5,9 +5,11 @@ x-athena:
   tags: [Minecraft, Gaming, Server]
   license: "GPL-3.0"
   category: home
+  platforms: [linux/amd64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/MineOS/icon.svg
   homepage: https://mineos.io
   web_port: WEB_PORT
+  notes: The web interface uses HTTPS with a self-signed certificate, so open it with `https://` and accept the browser warning. Sign in with the username and password from the install form.
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/MineOS/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/MineOS/screenshot-2.png
@@ -16,12 +18,23 @@ x-athena:
       label: Web port
       type: port
       default: "8118"
+    - key: USER_NAME
+      label: Username
+      default: mc
+      description: Letters and digits only.
+    - key: USER_PASSWORD
+      label: Password
+      type: password
+      generate: secret
 
 services:
   mineos:
-    image: hexparrot/mineos:v0.6.9
+    image: hexparrot/mineos:latest@sha256:247be835fbdc48932e92dc3dee9e2a9fcee5fa877ce5cbb0edf7abda6f0323f5
     restart: unless-stopped
     ports:
-      - "${WEB_PORT}:8080/tcp"
+      - "${WEB_PORT}:8443/tcp"
+    environment:
+      USER_NAME: ${USER_NAME}
+      USER_PASSWORD: ${USER_PASSWORD}
     volumes:
       - ${ATHENA_APP_DATA}/data:/var/games

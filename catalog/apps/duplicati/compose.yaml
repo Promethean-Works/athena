@@ -4,7 +4,8 @@ x-athena:
   tagline: Store securely encrypted backups in the cloud.
   tags: [Backup, Cloud, Encryption]
   license: "LGPL-2.1"
-  category: productivity
+  category: files
+  platforms: [linux/amd64, linux/arm64]
   icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Duplicati/icon.svg
   homepage: https://duplicati.com/
   web_port: WEB_PORT
@@ -16,6 +17,11 @@ x-athena:
       label: Web port
       type: port
       default: "8105"
+    - key: SETTINGS_ENCRYPTION_KEY
+      label: Settings encryption key
+      type: password
+      generate: secret
+      advanced: true
     - key: PUID
       label: User ID
       default: "@uid"
@@ -39,6 +45,7 @@ services:
       PUID: ${PUID}
       PGID: ${PGID}
       TZ: ${TZ}
+      SETTINGS_ENCRYPTION_KEY: ${SETTINGS_ENCRYPTION_KEY}
     volumes:
       - ${ATHENA_APP_DATA}/config:/config
       - ${ATHENA_APP_DATA}/backups:/backups
