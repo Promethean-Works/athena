@@ -165,8 +165,8 @@ function Install-Athena {
         & $script:Uv tool install --force --python 3.13 $source
     }
     Write-Step 'Registering Athena to start at logon'
-    Invoke-Step "athena service install --data-dir `"$DataDir`" --port $Port" {
-        & $athena service install --data-dir $DataDir --port $Port
+    Invoke-Step "athena service install --data-dir `"$DataDir`"" {
+        & $athena service install --data-dir $DataDir
     }
 }
 
