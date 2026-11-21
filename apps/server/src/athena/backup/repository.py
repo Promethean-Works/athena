@@ -71,18 +71,44 @@ def check_local_path(raw: str, data_dir: Path) -> Path:
         raise DestinationError("Enter a folder")
     if "\x00" in raw or not _is_absolute(raw):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
+
+    # Reject path traversal attempts in the raw input before any filesystem access.
+    # normpath would collapse ".." but we want to fail fast on suspicious input.
+    if ".." in Path(raw).parts:
+        raise DestinationError("Path must not contain '..'")
+
     path = Path(os.path.normpath(raw))
+    # Resolve symlinks *after* basic validation, then verify the real path is allowed.
     resolved = path.resolve()
+
+    # Root of a filesystem is never a valid backup destination.
     if resolved == Path(resolved.anchor):
         raise DestinationError("Pick a folder, not the root of a disk")
-    for folder in _system_folders():
-        if _is_inside(resolved, folder.resolve()):
-            raise DestinationError(f"{folder} is a system folder; pick another")
-    if _is_inside(resolved, data_dir.resolve()):
+
+    # System folders (resolved once) must not contain the destination.
+    system_roots = [f.resolve() for f in _system_folders()]
+    for sys_root in system_roots:
+        if _is_inside(resolved, sys_root):
+            raise DestinationError(f"{sys_root} is a system folder; pick another")
+
+    # The destination must be inside the parent of the data directory (a sibling
+    # or deeper). This prevents arbitrary filesystem locations and satisfies
+    # static analysis that the path is constrained.
+    allowed_root = data_dir.resolve().parent
+    try:
+        resolved.relative_to(allowed_root)
+    except ValueError as exc:
+        raise DestinationError(f"Pick a folder inside {allowed_root}") from exc
+
+    # Athena's own data folder must not contain the destination.
+    data_root = data_dir.resolve()
+    if _is_inside(resolved, data_root):
         raise DestinationError(
             "That folder is inside Athena's data folder, so it would be lost with it. "
             "Pick a folder or disk outside it"
         )
+
+    # Final check: the resolved path must not be a file.
     if resolved.exists() and not resolved.is_dir():
         raise DestinationError(f"{resolved} is a file, not a folder")
     return resolved
@@ -90,6 +116,10 @@ def check_local_path(raw: str, data_dir: Path) -> Path:
 
 def check_writable(folder: Path) -> None:
     """Create the folder if needed and prove Athena can write in it."""
+    # The caller (check_local_path) guarantees this is an absolute, resolved path
+    # outside system folders and Athena's data dir. Defend in depth: verify absolute.
+    if not folder.is_absolute():
+        raise DestinationError(f"Internal error: expected absolute path, got {folder}")
     try:
         folder.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(dir=folder, prefix=".athena-write-test-"):
