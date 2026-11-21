@@ -251,6 +251,55 @@ def test_ollama_models_and_tool_support(tmp_path):
         assert test == {"ok": True, "message": "Connected: 2 models, 1 can use tools."}
 
 
+def test_local_and_custom_servers_list_models_and_windows(tmp_path):
+    app = make_app(tmp_path)
+    app.state.ai_transport = mock_transport(
+        {
+            "/v1/models": {"data": [{"id": "qwen3", "max_model_len": 40960}]},
+            "/anthropic/v1/models": {"data": [{"id": "m2", "display_name": "M2"}]},
+        }
+    )
+    with TestClient(app) as client:
+        signed_in(client)
+        kinds = {k["id"]: k["group"] for k in client.get("/api/assistant/kinds").json()}
+        assert kinds["vllm"] == "local" and kinds["llama-cpp"] == "local"
+        assert kinds["openai-compatible"] == kinds["anthropic-compatible"] == "custom"
+        vllm = add_provider(client, "vllm", "vLLM", {})  # the default URL, no key
+        custom = add_provider(
+            client, "openai-compatible", "Box", {"base_url": "http://box.lan:9000/v1"}
+        )
+        claude_like = add_provider(
+            client,
+            "anthropic-compatible",
+            "M",
+            {"base_url": "https://api.m.example/anthropic/v1", "api_key": KEY},
+        )
+        for p in (vllm, custom):
+            models = client.get(f"/api/assistant/providers/{p['id']}/models").json()["models"]
+            assert [(m["id"], m["context_window"]) for m in models] == [("qwen3", 40960)]
+        models = client.get(f"/api/assistant/providers/{claude_like['id']}/models").json()
+        assert [m["id"] for m in models["models"]] == ["m2"]
+
+
+def test_custom_kinds_need_a_base_url(tmp_path):
+    with TestClient(make_app(tmp_path)) as client:
+        signed_in(client)
+        res = client.post(
+            "/api/assistant/providers",
+            json={"kind": "openai-compatible", "name": "x", "values": {}},
+        )
+        assert res.status_code == 422 and "Base URL" in res.text
+
+
+def test_anthropic_compatible_base_url_drops_v1():
+    spec = BY_ID["anthropic-compatible"]
+    cfg = ProviderConfig(
+        id="p", kind=spec, name="M", values={"base_url": "https://api.m.example/anthropic/v1/"}
+    )
+    model = build_model(cfg, "m2")
+    assert str(model.base_url).rstrip("/") == "https://api.m.example/anthropic"
+
+
 def test_model_list_errors_are_readable(tmp_path):
     app = make_app(tmp_path)
     app.state.ai_transport = mock_transport({"/v1/models": 401})

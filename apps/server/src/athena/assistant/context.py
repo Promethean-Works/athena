@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Literal
 
 import httpx2
 
+from athena.assistant.kinds import LOCAL_KINDS
 from athena.assistant.models_dev import get_models_dev_service
 from athena.assistant.providers import (
     ModelCache,
@@ -44,6 +45,9 @@ admin raises it with `OLLAMA_CONTEXT_LENGTH` on the Ollama server."""
 
 LISTS_WINDOWS = {"openrouter", "groq", "mistral"}
 """Native kinds whose model list can carry each model's window."""
+
+LOCAL_OPENAI_IDS = ({k.id for k in LOCAL_KINDS} - {"ollama"}) | {"openai-compatible"}
+"""Local and custom kinds with an OpenAI-style /v1/models list (llama.cpp, vLLM, ...)."""
 
 PROBE_TIMEOUT = 5.0
 
@@ -93,7 +97,8 @@ async def _reported(
     try:
         if cfg.kind.id == "ollama":
             return await _ollama_loaded(cfg, model_id, transport)
-        if cfg.kind.id in LISTS_WINDOWS:
+        # Local OpenAI-style servers list each model's window (vLLM `max_model_len`).
+        if cfg.kind.id in LISTS_WINDOWS or cfg.kind.id in LOCAL_OPENAI_IDS:
             models = cache.get(cfg.id)
             if models is None:
                 models = await fetch_models(cfg, transport)

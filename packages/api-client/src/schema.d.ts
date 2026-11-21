@@ -3590,7 +3590,7 @@ export interface components {
              * Group
              * @enum {string}
              */
-            group: "cloud" | "local";
+            group: "cloud" | "local" | "custom";
             /** Fields */
             fields: components["schemas"]["KindField"][];
             /**
