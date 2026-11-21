@@ -113,24 +113,30 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
         raise DestinationError("No allowed backup locations are configured")
     if not any(_is_inside(target, root) for root in roots):
         raise DestinationError("Pick a folder inside an allowed backup location")
+
+    canonical_roots = [Path(os.path.realpath(os.fspath(root))) for root in roots]
+
+    def _canonical_inside_allowed(candidate: Path) -> Path:
+        canonical_candidate = Path(os.path.realpath(os.fspath(candidate)))
+        if not any(_is_inside(canonical_candidate, root) for root in canonical_roots):
+            raise DestinationError("Pick a folder inside an allowed backup location")
+        return canonical_candidate
+
+    safe_target = _canonical_inside_allowed(target)
+
     try:
-        target.mkdir(parents=True, exist_ok=True)
-        writable = target.resolve(strict=True)
-        if target.is_symlink() or writable != target:
+        safe_target.mkdir(parents=True, exist_ok=True)
+        writable = safe_target.resolve(strict=True)
+        safe_writable_path = _canonical_inside_allowed(writable)
+        if safe_target.is_symlink() or safe_writable_path != safe_target:
             raise DestinationError("Symbolic links are not allowed; pick a real folder path")
-        if not any(_is_inside(writable, root) for root in roots):
-            raise DestinationError("Pick a folder inside an allowed backup location")
 
-        safe_writable_dir = os.path.realpath(os.fspath(writable))
-        canonical_roots = [Path(os.path.realpath(os.fspath(root))) for root in roots]
-        safe_writable_path = Path(safe_writable_dir)
-        if not any(_is_inside(safe_writable_path, root) for root in canonical_roots):
-            raise DestinationError("Pick a folder inside an allowed backup location")
-
-        with tempfile.NamedTemporaryFile(dir=safe_writable_dir, prefix=".athena-write-test-"):
+        with tempfile.NamedTemporaryFile(
+            dir=os.fspath(safe_writable_path), prefix=".athena-write-test-"
+        ):
             pass
     except OSError as exc:
-        raise DestinationError(f"Athena can't write in {target}: {exc.strerror or exc}") from exc
+        raise DestinationError(f"Athena can't write in {safe_target}: {exc.strerror or exc}") from exc
 
 
 def generate_password() -> str:
