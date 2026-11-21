@@ -3,6 +3,7 @@
 import asyncio
 import contextlib
 import json
+import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -326,3 +327,56 @@ def test_system_settings_need_an_admin(client_for) -> None:
     with client.app.state.db.engine.begin() as conn:
         conn.exec_driver_sql("UPDATE users SET is_admin = 0")
     assert client.put("/api/settings/system", json={"terminal_enabled": False}).status_code == 403
+
+
+_CONSOLE_CHILD = """
+import gc, json, subprocess, sys, time
+
+def session():
+    if sys.argv[2] == "raw":
+        from winpty import PtyProcess
+        proc = PtyProcess.spawn(["cmd", "/c", "echo", "hi"], dimensions=(24, 80))
+        alive = proc.isalive
+    else:
+        from athena.terminal.pty import _Windows
+        pty = _Windows(["cmd", "/c", "echo", "hi"], 80, 24, None, None)
+        proc, alive = pty.proc, pty.isalive
+    deadline = time.monotonic() + 20
+    while alive() and time.monotonic() < deadline:
+        time.sleep(0.1)
+
+session()
+gc.collect()  # winpty-rs frees the console it made when the session is dropped
+time.sleep(1)
+try:
+    r = subprocess.run(["cmd", "/c", "echo", "after"], stdout=subprocess.PIPE,
+                       stderr=subprocess.PIPE, check=True)
+    seen = r.stdout.decode().strip()
+except OSError as exc:
+    seen = f"winerror {getattr(exc, 'winerror', None)}"
+with open(sys.argv[1], "w") as f:
+    json.dump(seen, f)
+"""
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="ConPTY console handling")
+@pytest.mark.parametrize(("mode", "want"), [("raw", "winerror 6"), ("athena", "after")])
+def test_child_processes_still_start_after_a_terminal_session(tmp_path, mode, want):
+    """Run like the logon task (no console, no standard handles): one ConPTY session,
+    then a program started the way python-on-whales starts `docker` (stdin inherited).
+
+    `raw` (pywinpty alone) shows the bug: its console is freed with the session and the
+    process is left with dead standard handles. `athena` keeps a hidden console first.
+    """
+    script = tmp_path / "child.py"
+    script.write_text(_CONSOLE_CHILD)
+    result = tmp_path / "result.json"
+    info = subprocess.STARTUPINFO()
+    info.dwFlags |= subprocess.STARTF_USESTDHANDLES  # NULL handles, as for pythonw.exe
+    info.hStdInput = info.hStdOutput = info.hStdError = 0
+    detached = 0x00000008  # DETACHED_PROCESS: no console
+    proc = subprocess.Popen(
+        [sys.executable, str(script), str(result), mode], startupinfo=info, creationflags=detached
+    )
+    assert proc.wait(timeout=90) == 0
+    assert json.loads(result.read_text()) == want
