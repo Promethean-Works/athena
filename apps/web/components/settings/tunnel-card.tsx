@@ -3,7 +3,6 @@
 import * as React from "react"
 import {
   AlertTriangleIcon,
-  CopyIcon,
   DownloadIcon,
   EyeIcon,
   EyeOffIcon,
@@ -58,7 +57,7 @@ import { useAuth } from "@/components/auth-provider"
 import { useCapability } from "@/components/capabilities-provider"
 import { JobDialog } from "@/components/job-dialog"
 import { patchSystemSettings } from "@/components/settings/system-settings"
-import { copyText } from "@/lib/clipboard"
+import { CopyField } from "@/components/settings/copy-field"
 
 type TunnelProvider = "cloudflare" | "tailscale" | "ngrok"
 type SystemSettings = Schemas["SystemSettings"]
@@ -70,41 +69,6 @@ const PROVIDER_LABELS: Record<TunnelProvider, string> = {
   cloudflare: "Cloudflare Tunnel",
   tailscale: "Tailscale Funnel",
   ngrok: "ngrok",
-}
-
-function CopyField({
-  id,
-  label,
-  value,
-}: {
-  id: string
-  label: string
-  value: string
-}) {
-  return (
-    <Field>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <InputGroup>
-        <InputGroupInput id={id} readOnly value={value} className="font-mono" />
-        <InputGroupAddon align="inline-end">
-          <InputGroupButton
-            size="icon-xs"
-            aria-label={`Copy ${label.toLowerCase()}`}
-            onClick={async () => {
-              const ok = await copyText(value)
-              toast.add(
-                ok
-                  ? { type: "success", title: `${label} copied` }
-                  : { type: "error", title: "Couldn't copy" }
-              )
-            }}
-          >
-            <CopyIcon />
-          </InputGroupButton>
-        </InputGroupAddon>
-      </InputGroup>
-    </Field>
-  )
 }
 
 function SecretInput({
