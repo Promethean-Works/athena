@@ -74,7 +74,7 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
     path = Path(os.path.normpath(raw))
     resolved = path.resolve(strict=False)
-    if path.exists() and path.is_symlink():
+    if path != resolved:
         raise DestinationError("Symbolic links are not allowed; pick a real folder path")
     if resolved == Path(resolved.anchor):
         raise DestinationError("Pick a folder, not the root of a disk")
