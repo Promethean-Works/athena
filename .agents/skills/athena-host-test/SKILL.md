@@ -66,6 +66,40 @@ EOF
 limactl shell athena-ubuntu -- dpkg -s sl | head -3     # the side effect, checked outside Athena
 ```
 
+HTTPS: self-signed, across a restart, then `athena https off`. The server's venv already has httpx and cryptography, so the VM needs no uv:
+
+```bash
+P=/opt/athena/tools/athena-server/bin/python; S="$PWD/scripts/e2e/https_check.py"
+limactl shell athena-ubuntu -- bash -c "cd /tmp && $P $S on --out /tmp/hout \
+  && sudo systemctl restart athena && $P $S check --out /tmp/hout \
+  && sudo athena https off --data-dir /var/lib/athena && sudo systemctl restart athena \
+  && $P $S off --out /tmp/hout"
+```
+
+Let's Encrypt HTTP-01 with real port-80 validation (CI's Pebble skips validation). Pebble validates by connecting to the domain on port 80, and `pebble-challtestsrv` answers every DNS query with the VM's address. Use port 14010, not 14000: Lima forwards VM ports to the Mac, where another Pebble may already hold 14000. The flag is `-dnsserver`; challtestsrv 2.10.3 has no `-dns01` and exits at once.
+
+```bash
+limactl shell athena-ubuntu -- bash -s <<'SH'
+set -e; mkdir -p /tmp/peb && cd /tmp/peb
+IP=$(ip -4 -br addr show eth0 | awk '{print $3}' | cut -d/ -f1)
+sudo docker create --name athena-test-pebcfg ghcr.io/letsencrypt/pebble:2.10.3 >/dev/null
+sudo docker cp athena-test-pebcfg:/test ./test; sudo docker rm athena-test-pebcfg >/dev/null
+jq '.pebble.httpPort=80 | .pebble.listenAddress="0.0.0.0:14010" | .pebble.managementListenAddress="127.0.0.1:15010"' \
+  test/config/pebble-config.json > port80.json
+sudo docker run -d --name athena-test-challtestsrv --network host ghcr.io/letsencrypt/pebble-challtestsrv:2.10.3 \
+  -defaultIPv4 "$IP" -dnsserver 127.0.0.1:8053 -http01 "" -https01 "" -tlsalpn01 "" -doh "" -management 127.0.0.1:8055
+sudo docker run -d --name athena-test-pebble --network host -e PEBBLE_VA_NOSLEEP=1 -e PEBBLE_WFE_NONCEREJECT=0 \
+  -v /tmp/peb/port80.json:/port80.json:ro ghcr.io/letsencrypt/pebble:2.10.3 -config /port80.json -dnsserver 127.0.0.1:8053
+sudo cp test/certs/pebble.minica.pem /var/lib/athena/
+sudo mkdir -p /etc/systemd/system/athena.service.d
+printf '[Service]\nEnvironment=ATHENA_ACME_DIRECTORY=https://localhost:14010/dir\nEnvironment=ATHENA_ACME_CA_CERTIFICATES=/var/lib/athena/pebble.minica.pem\n' \
+  | sudo tee /etc/systemd/system/athena.service.d/athena-test-pebble.conf
+sudo systemctl daemon-reload && sudo systemctl restart athena
+SH
+```
+
+Then sign in, `POST /api/https/certificate` with `{"domains":["nas.athena-test.example.com"],"email":"admin@athena-test.example.com","challenge":"http"}`, poll `GET /api/jobs/<id>` (its `lines` hold lego's output) and `PUT /api/https` with mode `letsencrypt`. To check the refusal when port 80 is taken, hold it first: `sudo systemd-run --unit athena-test-port80 python3 -m http.server 80`. Afterwards remove the two containers, the drop-in and `/tmp/peb`.
+
 Uninstall check, then clean up:
 
 ```bash
