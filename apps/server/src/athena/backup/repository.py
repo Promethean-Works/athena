@@ -127,10 +127,10 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
         safe_target.mkdir(parents=True, exist_ok=True)
         writable = safe_target.resolve(strict=True)
         safe_writable_path = _canonical_inside_allowed(writable)
-        if safe_target.is_symlink() or safe_writable_path != safe_target:
+        if safe_target.is_symlink() or safe_writable_path != _canonical_inside_allowed(safe_target):
             raise DestinationError("Symbolic links are not allowed; pick a real folder path")
         with tempfile.NamedTemporaryFile(
-            dir=os.fspath(safe_writable_path), prefix=".athena-write-test-"
+            dir=safe_writable_path, prefix=".athena-write-test-"
         ):
             pass
     except OSError as exc:
