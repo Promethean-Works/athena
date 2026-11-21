@@ -37,13 +37,6 @@ class DestinationError(ValueError):
     """The destination can't be used; the message says why and is shown to the admin."""
 
 
-class ValidatedLocalPath:
-    """A local path that passed backup destination validation."""
-
-    def __init__(self, path: Path) -> None:
-        self.path = path
-
-
 def _is_inside(path: Path, folder: Path) -> bool:
     return path == folder or folder in path.parents
 
@@ -67,9 +60,13 @@ def _is_absolute(raw: str) -> bool:
     return PurePosixPath(raw).is_absolute()
 
 
-def check_local_path(
-    raw: str, data_dir: Path, allowed_roots: list[Path] | None = None
-) -> ValidatedLocalPath:
+def _roots(allowed_roots: list[Path] | None, path: Path) -> list[Path]:
+    """The folders a destination may live in; none configured means any folder on the disk."""
+    roots = [Path(r).resolve(strict=False) for r in allowed_roots or [] if Path(r).is_absolute()]
+    return roots or [Path(path.anchor)]
+
+
+def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None = None) -> Path:
     """The folder for a local repository, or `DestinationError`.
 
     It must be absolute, writable, not a system folder and not inside Athena's own data
@@ -83,8 +80,6 @@ def check_local_path(
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
     path = Path(os.path.normpath(raw))
     resolved = path.resolve(strict=False)
-    if path != resolved:
-        raise DestinationError("Symbolic links are not allowed; pick a real folder path")
     if resolved == Path(resolved.anchor):
         raise DestinationError("Pick a folder, not the root of a disk")
     for folder in _system_folders():
@@ -96,30 +91,22 @@ def check_local_path(
             "Pick a folder or disk outside it"
         )
 
-    if not allowed_roots:
-        raise DestinationError("No allowed backup locations are configured")
-    roots = [Path(root).resolve(strict=False) for root in allowed_roots if Path(root).is_absolute()]
-    if not roots:
-        raise DestinationError("No allowed backup locations are configured")
+    roots = _roots(allowed_roots, resolved)
     if not any(_is_inside(resolved, root) for root in roots):
         raise DestinationError("Pick a folder inside an allowed backup location")
 
     if resolved.exists() and not resolved.is_dir():
         raise DestinationError(f"{resolved} is a file, not a folder")
-    return ValidatedLocalPath(resolved)
+    return resolved
 
 
-def check_writable(folder: ValidatedLocalPath, allowed_roots: list[Path] | None = None) -> None:
+def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> None:
     """Create the folder if needed and prove Athena can write in it."""
-    raw = str(folder.path).strip()
+    raw = str(folder).strip()
     if "\x00" in raw or not _is_absolute(raw):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
     target = Path(os.path.normpath(raw)).resolve(strict=False)
-    if not allowed_roots:
-        raise DestinationError("No allowed backup locations are configured")
-    roots = [Path(root).resolve(strict=False) for root in allowed_roots if Path(root).is_absolute()]
-    if not roots:
-        raise DestinationError("No allowed backup locations are configured")
+    roots = _roots(allowed_roots, target)
     if not any(_is_inside(target, root) for root in roots):
         raise DestinationError("Pick a folder inside an allowed backup location")
 
@@ -141,7 +128,9 @@ def check_writable(folder: ValidatedLocalPath, allowed_roots: list[Path] | None 
             current = current / part
             if current.exists():
                 if current.is_symlink():
-                    raise DestinationError("Symbolic links are not allowed; pick a real folder path")
+                    raise DestinationError(
+                        "Symbolic links are not allowed; pick a real folder path"
+                    )
             else:
                 current.mkdir(exist_ok=True)
                 _canonical_inside_allowed(current)
@@ -160,7 +149,9 @@ def check_writable(folder: ValidatedLocalPath, allowed_roots: list[Path] | None 
         ):
             pass
     except OSError as exc:
-        raise DestinationError(f"Athena can't write in {safe_target}: {exc.strerror or exc}") from exc
+        raise DestinationError(
+            f"Athena can't write in {safe_target}: {exc.strerror or exc}"
+        ) from exc
 
 
 def generate_password() -> str:
