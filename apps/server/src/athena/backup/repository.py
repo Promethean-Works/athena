@@ -60,11 +60,12 @@ def _is_absolute(raw: str) -> bool:
     return PurePosixPath(raw).is_absolute()
 
 
-def check_local_path(raw: str, data_dir: Path) -> Path:
+def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None = None) -> Path:
     """The folder for a local repository, or `DestinationError`.
 
     It must be absolute, writable, not a system folder and not inside Athena's own data
     folder (a backup of itself that a restore would delete along with the data).
+    If `allowed_roots` is set, it must also be inside one of those folders.
     """
     raw = raw.strip()
     if not raw:
@@ -85,6 +86,10 @@ def check_local_path(raw: str, data_dir: Path) -> Path:
             "That folder is inside Athena's data folder, so it would be lost with it. "
             "Pick a folder or disk outside it"
         )
+    if allowed_roots:
+        roots = [Path(root).resolve() for root in allowed_roots]
+        if not any(_is_inside(resolved, root) for root in roots):
+            raise DestinationError("Pick a folder inside an allowed backup location")
     if resolved.exists() and not resolved.is_dir():
         raise DestinationError(f"{resolved} is a file, not a folder")
     return resolved
