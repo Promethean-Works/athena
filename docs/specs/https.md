@@ -1,6 +1,6 @@
 # Spec: HTTPS for Athena (self-signed and Let's Encrypt)
 
-**Status:** Approved (2026-11-20), part 1 done (#192) · **Milestone:** Backlog (competitor review, `docs/plans/improvements.md` → Phase 2 item 2, first half) · **Design:** `docs/design/security.md` (new section "HTTPS")
+**Status:** Approved (2026-11-20), parts 1–2 done (#192, #196) · **Milestone:** Backlog (competitor review, `docs/plans/improvements.md` → Phase 2 item 2, first half) · **Design:** `docs/design/security.md` (new section "HTTPS")
 
 ## Goal
 
