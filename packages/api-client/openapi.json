@@ -26,6 +26,26 @@
         }
       }
     },
+    "/api/system/restart": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Restart Athena",
+        "description": "Stop the server; the `athena serve` supervisor starts a new one (admins only).",
+        "operationId": "restartAthena",
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/system/info": {
       "get": {
         "tags": [
@@ -8136,12 +8156,18 @@
           "version": {
             "type": "string",
             "title": "Version"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
           }
         },
         "type": "object",
         "required": [
           "status",
-          "version"
+          "version",
+          "started_at"
         ],
         "title": "Health"
       },

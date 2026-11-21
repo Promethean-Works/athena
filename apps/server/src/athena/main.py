@@ -4,6 +4,7 @@ import asyncio
 import contextlib
 import logging
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from fastapi import FastAPI, HTTPException, Request, status
@@ -152,6 +153,7 @@ def create_app(
     app.state.share_throttle = LoginThrottle(limit=10)
     app.state.jobs = JobManager()
     app.state.app_jobs = {}
+    app.state.started_at = datetime.now(UTC)
     app.state.monitor = monitor or HostMonitor()
     app.state.package_runner = run_command
     app.state.package_jobs = {}
