@@ -1,0 +1,15 @@
+# CodeQL settings for local runs (scripts/codeql.sh and the VS Code CodeQL extension).
+# GitHub's default setup (what runs on PRs) ignores this file; keep the two close:
+# same languages, the "default" query suite, remote threat model.
+name: athena-codeql
+paths-ignore:
+  - "**/node_modules"
+  - "**/.venv"
+  - "**/.next"
+  - "**/out"
+  - "**/dist"
+  - "**/build"
+  - ".dev-data"
+  - ".codeql"
+  - apps/server/src/athena/web
+  - apps/server/src/athena/catalog_builtin

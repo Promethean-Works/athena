@@ -9,6 +9,7 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Task | Command |
 |---|---|
 | **Everything CI runs** | `scripts/check.sh` (`--quick` skips the web build; `web`, `server` or `repo` runs one part). Without a terminal it's quiet: one `ok`/`FAIL` line per step and the last 40 lines of a failure, with the full log's path. `--verbose` streams everything |
+| **CodeQL locally** | `scripts/codeql.sh [create\|analyze\|all] [python\|javascript-typescript\|actions]` builds databases in `.codeql/databases/` (the VS Code CodeQL extension lists them) and writes SARIF to `.codeql/results/`. Settings: `.github/codeql/codeql-config.yml`. GitHub's default setup on PRs ignores that file |
 | Docs name real things | `node scripts/check-docs.mjs` (`--list` prints everything it verified) |
 | Regenerate API client | `pnpm gen:api` (after any API change; CI fails on drift) |
 | Regenerate theme CSS | `pnpm gen:theme` (after shadcn upgrades; needs network) |
