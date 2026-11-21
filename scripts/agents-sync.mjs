@@ -65,7 +65,8 @@ const openCodeSecretRules = [
 ].filter((r, i, all) => all.findIndex((x) => x.resource === r.resource) === i);
 
 // OpenCode names MCP tools <server>_<tool>, with unsupported characters turned into _.
-const openCodeToolGlob = (server) => `${server.replace(/[^A-Za-z0-9_]/g, "_")}_*`;
+// Server names come from .mcp.json (a tracked config file), so this allowlist is complete.
+const openCodeToolGlob = (server) => `${server.replace(/[^a-zA-Z0-9_-]/g, "")}_*`;
 
 // OpenCode 2.x config shape: { mcp: { servers: { <name>: {...} } } }
 function toOpenCode(s) {
