@@ -415,6 +415,53 @@ def _config_set(args: argparse.Namespace) -> int:
     return 0
 
 
+# ---------------------------------------------------------------- https
+
+
+def _https(args: argparse.Namespace) -> int:
+    """`athena https status|off`: the way back in if HTTPS settings lock you out."""
+    from sqlalchemy.exc import OperationalError
+    from sqlmodel import Session
+
+    from athena.db import Database
+    from athena.https import local_ca
+    from athena.https import settings as https_settings
+
+    data_dir = Path(args.data_dir)
+    db_path = data_dir / "athena.db"
+    if not db_path.is_file():
+        print(f"error: no Athena database at {db_path}. Pass --data-dir.", file=sys.stderr)
+        return 1
+    database = Database(db_path)
+    try:
+        database.migrate()
+        with Session(database.engine) as db:
+            current = https_settings.load(db)
+            if args.https_command == "off":
+                https_settings.save(db, current.model_copy(update={"mode": "off"}))
+                print(
+                    "HTTPS is off. Restart Athena (athena service install, or stop and "
+                    "start it) to serve plain HTTP only."
+                )
+                return 0
+    except (OperationalError, PermissionError) as exc:
+        hint = " (run it with sudo, as the service runs as root)" if os.name == "posix" else ""
+        print(f"error: can't open {db_path}: {exc}{hint}", file=sys.stderr)
+        return 1
+    finally:
+        database.engine.dispose()
+    print(f"mode:     {current.mode}")
+    print(f"port:     {current.port}")
+    print(f"redirect: {'on' if current.redirect else 'off'}")
+    cert = local_ca.load_cert(local_ca.tls_paths(data_dir).cert)
+    if current.mode != "off" and cert is not None:
+        dns, ips = local_ca.cert_names(cert)
+        names = ", ".join([*sorted(dns), *(str(ip) for ip in sorted(ips, key=str))])
+        print(f"expires:  {cert.not_valid_after_utc:%Y-%m-%d}")
+        print(f"names:    {names}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="athena", description="Athena home server")
     parser.add_argument("--version", action="version", version=f"athena {__version__}")
@@ -482,6 +529,16 @@ def build_parser() -> argparse.ArgumentParser:
     config_set.add_argument("key")
     config_set.add_argument("value")
     config_set.set_defaults(func=_config_set)
+
+    https = sub.add_parser("https", help="show HTTPS settings, or turn HTTPS off")
+    https_sub = https.add_subparsers(dest="https_command", required=True)
+    for name, help_text in (
+        ("status", "show the HTTPS mode, port and certificate"),
+        ("off", "turn HTTPS off (takes effect when Athena restarts)"),
+    ):
+        cmd = https_sub.add_parser(name, help=help_text)
+        cmd.add_argument("--data-dir", type=Path, default=default_data_dir())
+    https.set_defaults(func=_https)
 
     return parser
 

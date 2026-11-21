@@ -17,6 +17,7 @@ from athena.api import audit as audit_api
 from athena.api import cloud as cloud_api
 from athena.api import feedback as feedback_api
 from athena.api import files as files_api
+from athena.api import https as https_api
 from athena.api import packages as packages_api
 from athena.api import settings as settings_api
 from athena.api import shares as shares_api
@@ -38,6 +39,8 @@ from athena.crypto import SecretBox
 from athena.db import Database
 from athena.files.locations import seed_defaults
 from athena.files.webdav import WebDavMiddleware
+from athena.https.manager import HttpsManager
+from athena.https.redirect import HttpsRedirectMiddleware
 from athena.jobs import JobManager
 from athena.logging_setup import setup_logging
 from athena.mcp.auth import MCPAuthMiddleware
@@ -97,6 +100,8 @@ def create_app(
         # database URL is configured; hosts without Postgres run turns inline instead.
         worker: Worker | None = None
         worker_task: asyncio.Task[None] | None = None
+        # HTTPS: a second listener on the HTTPS port when it's turned on (never raises).
+        await app.state.https.start()
         if settings.durable_execution_database_url:
             from pgtask import Client, TaskRegistry
             from pgtask import Worker as PgWorker
@@ -110,6 +115,7 @@ def create_app(
             worker = PgWorker(settings.durable_execution_database_url, registry, poll_interval=1.0)
             worker_task = asyncio.create_task(worker.run())
         yield
+        await app.state.https.stop()
         task.cancel()
         scheduler_task.cancel()
         refresh_task.cancel()
@@ -155,6 +161,7 @@ def create_app(
     app.state.catalogs = catalogs or CatalogRegistry(remote_root=settings.data_dir / "catalogs")
     # Wakes the automation scheduler when a trigger is created, enabled or edited.
     app.state.automation_event = asyncio.Event()
+    app.state.https = HttpsManager(app, settings.host, settings.port, settings.data_dir)
     # Public: /api/health, /api/auth/*, /api/public/shares/{token} (a share link's
     # visitor), POST /api/automation/webhook/{token} (the token is the credential) and
     # /api/mcp (session or ATHENA_MCP_TOKEN bearer, mounted in the lifespan). Everything
@@ -184,6 +191,7 @@ def create_app(
     app.include_router(tunnel_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(feedback_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(audit_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(https_api.router, prefix="/api", dependencies=[require_user])
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
     # MCP server: streamable-HTTP endpoint for external agents (n8n, Claude Desktop, …).
@@ -205,6 +213,8 @@ def create_app(
 
     app.add_middleware(WebDavMiddleware, db=db)
     app.add_middleware(MCPPathMiddleware)
+    # Outermost, so a browser on the HTTP port is sent to HTTPS before anything else runs.
+    app.add_middleware(HttpsRedirectMiddleware, port=lambda: app.state.https.redirect_port)
 
     # Mounted last so /api routes win. In development the UI is served by `next dev`
     # instead, and this directory doesn't exist.
