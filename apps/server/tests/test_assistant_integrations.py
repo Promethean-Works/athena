@@ -2,7 +2,6 @@
 
 import json
 from datetime import UTC, datetime
-from pathlib import Path
 
 from conftest import make_app, signed_in
 from fastapi.testclient import TestClient
@@ -64,8 +63,8 @@ def test_kinds_endpoint(tmp_path):
         assert listed == []
 
 
-def test_integration_toolsets_are_empty_with_none():
-    assert integration_toolsets([], app_box(make_app(Path("/tmp/nope")))) == []
+def test_integration_toolsets_are_empty_with_none(tmp_path):
+    assert integration_toolsets([], app_box(make_app(tmp_path))) == []
 
 
 def test_toolset_injects_token_into_stdio_env(tmp_path):

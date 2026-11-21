@@ -29,7 +29,9 @@ from test_https import _app, _free_port
 from athena.db.models import AuditEntry, SystemSetting
 from athena.downloads import DownloadError, extract_member, fetch_verified
 from athena.https import lego, letsencrypt, local_ca
+from athena.https import manager as manager_mod
 from athena.https.settings import LetsEncryptSettings
+from athena.jobs import Job
 
 FAKE_LEGO = Path(__file__).parent / "fixtures" / "fake_lego.py"
 TOKEN = "cf-secret-token-123"
@@ -337,6 +339,38 @@ def test_the_daily_check_renews_a_certificate_close_to_expiry(tmp_path, fake_leg
         assert json.loads(fake_lego.read_text())["env"]["CLOUDFLARE_DNS_API_TOKEN"] == TOKEN
         assert client.portal.call(manager.check_certificate) is False  # type: ignore[union-attr]
         client.put("/api/https", json={"mode": "off", "port": port})
+
+
+def test_lego_failure_shows_the_error_value_not_a_cut_log_line():
+    job = Job("t")
+    cause = "listen tcp :80: bind: address already in use"
+    job.lines.append(
+        'time=2026-11-21T10:05:32Z level=ERROR msg=Error error="renew certificate: could not '
+        'obtain the certificate for \\"athena\\": ' + "x" * 400 + f' {cause}]"'
+    )
+    text = manager_mod._lego_failure(job, 1)
+    assert text.startswith("lego failed (exit code 1): …")
+    assert text.endswith(f"{cause}]")
+    assert "level=" not in text
+    assert len(text) < 360
+
+    job = Job("t")
+    job.lines.append('level=ERROR msg=Error error="obtain: \\"nas\\" failed"')
+    assert manager_mod._lego_failure(job, 2) == 'lego failed (exit code 2): obtain: "nas" failed'
+
+
+def test_http_challenge_fails_fast_when_port80_is_taken(tmp_path, fake_lego, monkeypatch):
+    monkeypatch.delenv(letsencrypt.HTTP_ADDRESS_ENV, raising=False)
+    monkeypatch.setattr(manager_mod, "port80_problem", lambda: "Port 80 is already in use.")
+    with TestClient(_app(tmp_path)) as client:
+        signed_in(client)
+        body = {"domains": ["nas.example.com"], "email": "me@example.com", "challenge": "http"}
+        r = client.post("/api/https/certificate", json=body)
+        assert r.status_code == 202, r.text
+        job = _wait_job(client, r.json()["id"])
+        assert job["status"] == "failed"
+        assert not fake_lego.exists()  # lego never ran
+        assert client.get("/api/https").json()["renewal_error"] == "Port 80 is already in use."
 
 
 def test_issue_refuses_incomplete_settings(tmp_path):

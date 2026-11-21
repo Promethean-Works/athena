@@ -1,5 +1,8 @@
 import io
+import os
 import plistlib
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -9,6 +12,7 @@ from athena.service.plan import MakeDir, Plan, RemoveFile, Run, WriteFile
 from athena.service.platforms import (
     SYSTEMD_UNIT,
     UnsupportedPlatformError,
+    _launchd_bootout,
     launchd_plist,
     systemd_unit,
     windows_task_command,
@@ -63,6 +67,27 @@ def test_darwin_install_plan_bootstraps_agent() -> None:
     plan = build_install(SPEC, platform="darwin")
     argvs = [s.argv for s in plan.steps if isinstance(s, Run)]
     assert argvs[-1][:2] == ["launchctl", "bootstrap"]
+    # bootout returns before the agent is gone; bootstrap right after fails with EIO.
+    wait = argvs[-2]
+    assert wait[:2] == ["/bin/sh", "-c"]
+    assert "launchctl bootout" in wait[2] and "while launchctl print" in wait[2]
+
+
+def test_launchd_bootout_waits_until_the_agent_is_gone(tmp_path) -> None:
+    """Runs the real wait loop with a fake launchctl that reports the agent for 2 polls."""
+    if sys.platform == "win32":
+        pytest.skip("POSIX shell")
+    count = tmp_path / "count"
+    count.write_text("0")
+    fake = tmp_path / "launchctl"
+    fake.write_text(
+        "#!/bin/sh\n"
+        f'[ "$1" = print ] || exit 0\nn=$(cat {count}); echo $((n+1)) > {count}; [ "$n" -lt 2 ]\n'
+    )
+    fake.chmod(0o755)
+    env = {**os.environ, "PATH": f"{tmp_path}:{os.environ['PATH']}"}
+    assert subprocess.run(_launchd_bootout().argv, env=env, timeout=10).returncode == 0
+    assert count.read_text().strip() == "3"  # loaded, loaded, gone
 
 
 def test_windows_task_uses_pythonw_and_skips_default_args() -> None:

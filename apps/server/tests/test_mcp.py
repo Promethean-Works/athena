@@ -114,9 +114,7 @@ def test_mcp_call_tool_with_session(tmp_path):
 def test_mcp_call_tool_with_bearer_token(tmp_path):
     os.environ["ATHENA_MCP_TOKEN"] = "test-secret-token-123"
     try:
-        settings = Settings(
-            data_dir=Path("/tmp/mcpbearer") / "data", web_dir=Path("/tmp/mcpbearer") / "no-web"
-        )
+        settings = Settings(data_dir=tmp_path / "data", web_dir=tmp_path / "no-web")
         app = create_app(settings)
         with TestClient(app) as client:
             headers = {**ACCEPT, "Authorization": "Bearer test-secret-token-123"}

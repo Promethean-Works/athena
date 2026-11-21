@@ -20,6 +20,7 @@ on:
       - scripts/e2e/**
       - apps/server/src/athena/service/**
       - apps/server/src/athena/cli.py
+      - apps/server/src/athena/https/**
       - .github/workflows/e2e.yml
 
 permissions:
@@ -135,6 +136,27 @@ jobs:
           args=()
           for id in $EXPECT; do args+=(--expect "$id"); done
           uv run scripts/e2e/smoke.py --url http://localhost:8420 --out e2e-out "${args[@]}"
+
+      # docs/specs/https.md: self-signed HTTPS on 8443 (CA-verified TLS, Secure cookie,
+      # LAN redirect), still on after a service restart, and `athena https off` brings
+      # plain HTTP back. Reinstalling the service is how each OS restarts it.
+      - name: HTTPS across a service restart
+        shell: bash
+        run: |
+          case "$RUNNER_OS" in
+            Linux) athena=(sudo /usr/local/bin/athena); data=/var/lib/athena ;;
+            macOS) athena=("$HOME/.local/bin/athena"); data="$HOME/Library/Application Support/Athena" ;;
+            Windows) athena=("$LOCALAPPDATA/Athena/app/bin/athena.exe"); data="$LOCALAPPDATA/Athena/data" ;;
+          esac
+          restart() { "${athena[@]}" service install --data-dir "$data" --port 8420; }
+          step() { uv run scripts/e2e/https_check.py "$1" --out e2e-out; }
+          step on
+          restart
+          step check
+          "${athena[@]}" https status --data-dir "$data"
+          "${athena[@]}" https off --data-dir "$data"
+          restart
+          step off
 
       - name: Collect server logs
         if: always()
