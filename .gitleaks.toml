@@ -4,17 +4,18 @@
 useDefault = true
 
 [[allowlists]]
-description = "Build output, never committed: `gitleaks dir` doesn't read .gitignore, pytest's .pyc of the secret-guard tests holds their fake tokens, and the catalog smoke test's report folder holds the throwaway .env files it generates"
+description = "Build output, never committed: gitleaks dir doesn't read .gitignore, pytest's .pyc of the secret-guard tests holds their fake tokens, and the catalog smoke test's report folder holds the throwaway .env files it generates"
 paths = [
   '''(^|/)__pycache__/''',
   '''(^|/)\.next/''',
   '''(^|/)node_modules/''',
   '''(^|/)\.venv/''',
   '''(^|/)catalog-smoke-report/''',
+  '''(^|/)\.dev-data/''',
 ]
 
 [[allowlists]]
-description = "Bytecode caches: pytest compiles test files (with their fake tokens) into ignored __pycache__ folders, which `gitleaks dir` still scans"
+description = "Bytecode caches: pytest compiles test files (with their fake tokens) into ignored __pycache__ folders, which gitleaks dir still scans"
 paths = [
   '''(^|/)__pycache__/''',
 ]

@@ -42,6 +42,9 @@ Thumbs.db
 !.vscode/launch.json
 !.vscode/tasks.json
 
+# Dev data (local databases, configs, logs)
+.dev-data/
+
 # Agent-local files (shared agent config is committed; see AGENTS.md)
 .claude/settings.local.json
 .opencode/
