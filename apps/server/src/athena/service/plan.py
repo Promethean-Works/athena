@@ -13,7 +13,6 @@ class ServiceSpec:
 
     python: Path  # interpreter of the installed athena-server (sys.executable)
     data_dir: Path
-    port: int
 
 
 @dataclass(frozen=True)

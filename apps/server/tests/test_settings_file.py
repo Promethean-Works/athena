@@ -31,12 +31,13 @@ def test_missing_file_means_defaults_and_gets_written(tmp_path: Path) -> None:
     assert f.load() == AthenaConfig()
     data = _on_disk(f)
     assert data["$schema"] == "./athena.schema.json"
-    assert list(data)[1:] == ["system", "https", "ai", "webdav"]
+    assert list(data)[1:] == ["server", "system", "https", "ai", "webdav"]
+    assert data["server"]["port"] == 8420
     assert data["system"]["terminal_enabled"] is True
     assert "tunnel_secrets_set" not in data["system"]
     assert "dns_secrets_set" not in data["https"]["letsencrypt"]
     schema = json.loads(f.schema_path.read_text(encoding="utf-8"))
-    assert {"$schema", "system", "https", "ai", "webdav"} <= set(schema["properties"])
+    assert {"$schema", "server", "system", "https", "ai", "webdav"} <= set(schema["properties"])
     if os.name == "posix":
         assert stat.S_IMODE(f.path.stat().st_mode) == 0o600
 

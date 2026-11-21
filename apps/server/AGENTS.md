@@ -4,7 +4,7 @@ Rules for working on the Python server. The repo-wide rules, Git workflow and ha
 
 ## Stack and commands
 
-Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI `athena` (`serve`, `openapi`, `service install|uninstall|status`, `start`, `stop`, `doctor`, `config show|get|set`, `admin reset-password`, `https status|off`). Run everything with `uv run` from this folder:
+Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI `athena` (`serve`, `openapi`, `service install|uninstall|status`, `start`, `stop`, `doctor`, `config path|show|check|reset`, `admin reset-password`, `https status|off`). Run everything with `uv run` from this folder:
 
 | Task | Command |
 |---|---|
