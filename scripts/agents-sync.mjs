@@ -189,7 +189,7 @@ const SUBAGENTS = {
   reviewer: {
     description:
       "Reviews a diff against Athena's rules (AGENTS.md, the app rules, gotchas) and reports bugs and rule breaks without editing. Use before opening a PR, or when asked to review.",
-    claudeModel: "inherit", // a review needs the strongest model in use
+    claudeModel: "sonnet", // chosen by the maintainer to save usage (was "inherit")
     claudeTools: "Read, Grep, Glob, Bash",
     ompTools: ["read", "find", "grep", "glob", "bash"], // no edit/write: read-only
     readOnly: true,
