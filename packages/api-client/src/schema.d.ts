@@ -2152,6 +2152,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/https": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Https */
+        get: operations["getHttpsStatus"];
+        /**
+         * Set Https
+         * @description Applied at once: the HTTPS listener starts, moves or stops before this returns.
+         *
+         *     If the new settings can't be applied (the port is in use, say), nothing is saved and
+         *     the current listener keeps running.
+         */
+        put: operations["setHttpsSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/https/ca/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rotate Ca
+         * @description A new local CA and certificate. Devices that trusted the old CA must trust the new one.
+         */
+        post: operations["rotateHttpsCa"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/https/ca.crt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Ca
+         * @description Athena's local CA certificate (PEM), to install on devices. Never the key.
+         */
+        get: operations["downloadHttpsCa"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2476,6 +2540,27 @@ export interface components {
             label: string;
             /** Count */
             count: number;
+        };
+        /** CertificateInfo */
+        CertificateInfo: {
+            /** Subject */
+            subject: string;
+            /** Issuer */
+            issuer: string;
+            /** Names */
+            names: string[];
+            /**
+             * Not Before
+             * Format: date-time
+             */
+            not_before: string;
+            /**
+             * Not After
+             * Format: date-time
+             */
+            not_after: string;
+            /** Sha256 */
+            sha256: string;
         };
         /** ChatMessage */
         ChatMessage: {
@@ -2874,6 +2959,41 @@ export interface components {
             status: "ok";
             /** Version */
             version: string;
+        };
+        /** HttpsSettings */
+        HttpsSettings: {
+            /**
+             * Mode
+             * @default off
+             * @enum {string}
+             */
+            mode: "off" | "self_signed";
+            /**
+             * Port
+             * @default 8443
+             */
+            port: number;
+            /**
+             * Redirect
+             * @default true
+             */
+            redirect: boolean;
+            /** Extra Names */
+            extra_names?: string[];
+        };
+        /** HttpsStatus */
+        HttpsStatus: {
+            settings: components["schemas"]["HttpsSettings"];
+            /** Http Port */
+            http_port: number;
+            /** Listening */
+            listening: boolean;
+            /** Urls */
+            urls: string[];
+            certificate: components["schemas"]["CertificateInfo"] | null;
+            ca: components["schemas"]["CertificateInfo"] | null;
+            /** Last Error */
+            last_error: string | null;
         };
         /** InstalledPackage */
         InstalledPackage: {
@@ -8424,6 +8544,99 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getHttpsStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HttpsStatus"];
+                };
+            };
+        };
+    };
+    setHttpsSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HttpsSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HttpsStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rotateHttpsCa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HttpsStatus"];
+                };
+            };
+        };
+    };
+    downloadHttpsCa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/x-x509-ca-cert": unknown;
                 };
             };
         };
