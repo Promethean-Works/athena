@@ -16,7 +16,6 @@ import {
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import {
   Card,
   CardAction,
