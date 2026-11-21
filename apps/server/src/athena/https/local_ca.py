@@ -58,7 +58,7 @@ def tls_paths(data_dir: Path) -> TlsPaths:
     return TlsPaths(data_dir / "tls")
 
 
-def _write(path: Path, data: bytes, private: bool) -> None:
+def write_file(path: Path, data: bytes, private: bool) -> None:
     """Write atomically (a running server may reload the file), keys readable by owner only."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with contextlib.suppress(OSError):
@@ -210,8 +210,8 @@ def _make_ca(paths: TlsPaths, now: datetime) -> tuple[ec.EllipticCurvePrivateKey
         .add_extension(x509.SubjectKeyIdentifier.from_public_key(key.public_key()), critical=False)
         .sign(key, hashes.SHA256())
     )
-    _write(paths.ca_key, _key_pem(key), private=True)
-    _write(paths.ca_cert, cert.public_bytes(serialization.Encoding.PEM), private=False)
+    write_file(paths.ca_key, _key_pem(key), private=True)
+    write_file(paths.ca_cert, cert.public_bytes(serialization.Encoding.PEM), private=False)
     return key, cert
 
 
@@ -314,8 +314,8 @@ def _issue(
     )
     # Key first: a reload between the two writes then fails on a mismatch instead of
     # serving a certificate whose key is gone.
-    _write(paths.key, _key_pem(key), private=True)
-    _write(paths.cert, cert.public_bytes(serialization.Encoding.PEM), private=False)
+    write_file(paths.key, _key_pem(key), private=True)
+    write_file(paths.cert, cert.public_bytes(serialization.Encoding.PEM), private=False)
 
 
 def _key_matches(path: Path, cert: x509.Certificate) -> bool:

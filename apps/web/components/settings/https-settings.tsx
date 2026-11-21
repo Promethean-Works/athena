@@ -5,6 +5,7 @@ import {
   CopyIcon,
   DownloadIcon,
   ExternalLinkIcon,
+  FileBadgeIcon,
   LockIcon,
   LockOpenIcon,
   RefreshCwIcon,
@@ -57,6 +58,13 @@ import {
   RadioGroup,
   RadioGroupItem,
 } from "@workspace/ui/components/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Switch } from "@workspace/ui/components/switch"
 import {
@@ -69,23 +77,68 @@ import { toast } from "@workspace/ui/components/toast"
 
 import { useAuth } from "@/components/auth-provider"
 import { useCapability } from "@/components/capabilities-provider"
+import { JobDialog } from "@/components/job-dialog"
 import { copyText } from "@/lib/clipboard"
 
 type Status = Schemas["HttpsStatus"]
 type Settings = Schemas["HttpsSettings"]
 type Mode = NonNullable<Settings["mode"]>
+type LetsEncrypt = Schemas["LetsEncryptSettings"]
+type Challenge = NonNullable<LetsEncrypt["challenge"]>
+type DnsProvider = Schemas["DnsProvider"]
+type Job = Schemas["JobOut"]
 
 const RECOVERY_COMMAND = "athena https off"
 const CA_URL = "/api/https/ca.crt"
 
-type Draft = { mode: Mode; port: string; redirect: boolean; names: string }
+type Draft = {
+  mode: Mode
+  port: string
+  redirect: boolean
+  names: string
+  domains: string
+  email: string
+  challenge: Challenge
+  provider: string
+  /** The DNS provider's fields. Secrets start empty: an empty one keeps the stored value. */
+  dns: Record<string, string>
+  staging: boolean
+}
 
 function toDraft(s: Settings): Draft {
+  const le = s.letsencrypt
+  const dns: Record<string, string> = {}
+  for (const [k, v] of Object.entries(le?.dns_config ?? {})) {
+    if (typeof v === "string") dns[k] = v
+  }
   return {
     mode: s.mode ?? "off",
     port: String(s.port ?? 8443),
     redirect: s.redirect ?? true,
     names: (s.extra_names ?? []).join(", "),
+    domains: (le?.domains ?? []).join(", "),
+    email: le?.email ?? "",
+    challenge: le?.challenge ?? "http",
+    provider: le?.dns_provider ?? "cloudflare",
+    dns,
+    staging: le?.staging ?? false,
+  }
+}
+
+function toLetsEncrypt(draft: Draft): LetsEncrypt {
+  const dns = draft.challenge === "dns"
+  return {
+    domains: parseNames(draft.domains),
+    email: draft.email.trim(),
+    challenge: draft.challenge,
+    dns_provider: dns ? draft.provider : null,
+    // Empty values are left out, so stored secrets are kept.
+    dns_config: dns
+      ? Object.fromEntries(
+          Object.entries(draft.dns).filter(([, v]) => v.trim() !== "")
+        )
+      : {},
+    staging: draft.staging,
   }
 }
 
@@ -199,6 +252,14 @@ export function HttpsSettings() {
     if (user.is_admin) void load()
   }, [load, user.is_admin])
 
+  // A certificate job started elsewhere (the daily check, another tab): follow it.
+  const jobRunning = status?.renewal_job != null
+  React.useEffect(() => {
+    if (!jobRunning) return
+    const timer = window.setInterval(() => void load(), 3000)
+    return () => window.clearInterval(timer)
+  }, [jobRunning, load])
+
   if (!user.is_admin) {
     return (
       <Empty className="border">
@@ -239,7 +300,7 @@ export function HttpsSettings() {
   return (
     <div className="flex flex-col gap-4 md:gap-6">
       <StatusCard status={status} />
-      <SettingsCard status={status} onSaved={setStatus} />
+      <SettingsCard status={status} onSaved={setStatus} reload={load} />
       {status.ca && status.settings.mode === "self_signed" ? (
         <TrustCard status={status} onRotated={setStatus} />
       ) : null}
@@ -252,6 +313,8 @@ function StatusCard({ status }: { status: Status }) {
   const url = preferredUrl(status)
   const cert = status.certificate
   const left = cert ? daysUntil(cert.not_after) : null
+  const renewalError =
+    status.settings.mode === "letsencrypt" ? status.renewal_error : null
   return (
     <Card>
       <CardHeader>
@@ -275,17 +338,29 @@ function StatusCard({ status }: { status: Status }) {
         </CardTitle>
         <CardDescription>
           {on
-            ? "Athena encrypts the connection with its own certificate. Plain HTTP stays on port " +
-              `${status.http_port}.`
+            ? `Athena encrypts the connection with ${
+                status.settings.mode === "letsencrypt"
+                  ? "a certificate from Let's Encrypt"
+                  : "its own certificate"
+              }. Plain HTTP stays on port ${status.http_port}.`
             : `Athena is served over plain HTTP on port ${status.http_port}, so passwords and files cross the network unencrypted.`}
         </CardDescription>
       </CardHeader>
-      {status.last_error || (on && (url || cert)) ? (
+      {status.last_error || renewalError || (on && (url || cert)) ? (
         <CardContent className="flex flex-col gap-4">
           {status.last_error ? (
             <Alert variant="destructive">
               <AlertTitle>HTTPS problem</AlertTitle>
               <AlertDescription>{status.last_error}</AlertDescription>
+            </Alert>
+          ) : null}
+          {renewalError ? (
+            <Alert variant="destructive">
+              <AlertTitle>Let&apos;s Encrypt renewal failed</AlertTitle>
+              <AlertDescription>
+                {renewalError} The current certificate is still served until it
+                expires.
+              </AlertDescription>
             </Alert>
           ) : null}
           {on && url && status.listening ? (
@@ -353,9 +428,11 @@ function StatusCard({ status }: { status: Status }) {
 function SettingsCard({
   status,
   onSaved,
+  reload,
 }: {
   status: Status
   onSaved: (s: Status) => void
+  reload: () => Promise<void>
 }) {
   const [draft, setDraft] = React.useState<Draft>(() =>
     toDraft(status.settings)
@@ -363,6 +440,9 @@ function SettingsCard({
   const [saving, setSaving] = React.useState(false)
   const [confirming, setConfirming] = React.useState(false)
   const [serverError, setServerError] = React.useState<string | null>(null)
+  const [errorTitle, setErrorTitle] = React.useState("Couldn't save")
+  const [job, setJob] = React.useState<Job | null>(null)
+  const [requesting, setRequesting] = React.useState(false)
 
   const saved = toDraft(status.settings)
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved)
@@ -375,6 +455,8 @@ function SettingsCard({
       : port === status.http_port
         ? `Port ${port} is Athena's HTTP port. Pick another one.`
         : null
+  const needsCertificate =
+    draft.mode === "letsencrypt" && !status.letsencrypt_certificate
 
   function next(): Settings {
     return {
@@ -382,6 +464,45 @@ function SettingsCard({
       port: on ? port : Number(saved.port),
       redirect: draft.redirect,
       extra_names: parseNames(draft.names),
+      letsencrypt: toLetsEncrypt(draft),
+    }
+  }
+
+  async function requestCertificate() {
+    setRequesting(true)
+    setServerError(null)
+    const { data, error } = await api.POST("/api/https/certificate", {
+      body: toLetsEncrypt(draft),
+    })
+    setRequesting(false)
+    if (data) {
+      setJob(data)
+      // The server stored the settings (and any secret typed), so start over from them.
+      const secrets = new Set(
+        status.dns_providers.flatMap((p) =>
+          p.fields.filter((f) => f.secret).map((f) => f.key)
+        )
+      )
+      setDraft({
+        ...draft,
+        dns: Object.fromEntries(
+          Object.entries(draft.dns).filter(([k]) => !secrets.has(k))
+        ),
+      })
+    } else {
+      setErrorTitle("Couldn't request a certificate")
+      setServerError(errorMessage(error))
+    }
+  }
+
+  async function certificateFinished(succeeded: boolean) {
+    await reload()
+    if (succeeded && status.settings.mode !== "letsencrypt") {
+      toast.add({
+        type: "success",
+        title: "Certificate ready",
+        description: "Save with Let's Encrypt selected to start serving it.",
+      })
     }
   }
 
@@ -397,6 +518,7 @@ function SettingsCard({
     setConfirming(false)
     setSaving(true)
     setServerError(null)
+    setErrorTitle("Couldn't save")
     const { data, error } = await api.PUT("/api/https", { body: next() })
     setSaving(false)
     if (data) {
@@ -473,6 +595,18 @@ function SettingsCard({
                     </FieldDescription>
                   </FieldContent>
                 </Field>
+                <Field orientation="horizontal">
+                  <RadioGroupItem value="letsencrypt" id="https-mode-le" />
+                  <FieldContent>
+                    <FieldLabel htmlFor="https-mode-le" className="font-normal">
+                      Let&apos;s Encrypt
+                    </FieldLabel>
+                    <FieldDescription>
+                      A free certificate every browser trusts, for a domain you
+                      own that points at this server. Renewed automatically.
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
               </RadioGroup>
             </FieldSet>
 
@@ -517,28 +651,40 @@ function SettingsCard({
                   />
                 </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="https-names">Extra names</FieldLabel>
-                  <Input
-                    id="https-names"
-                    placeholder="nas.home.lan, 10.0.0.5"
-                    value={draft.names}
-                    onChange={(e) =>
-                      setDraft({ ...draft, names: e.target.value })
-                    }
+                {draft.mode === "letsencrypt" ? (
+                  <LetsEncryptFields
+                    draft={draft}
+                    setDraft={setDraft}
+                    status={status}
+                    requesting={requesting || job !== null}
+                    onRequest={() => void requestCertificate()}
                   />
-                  <FieldDescription>
-                    The certificate already covers this server&apos;s name, its
-                    .local name and its network addresses. Add any other name or
-                    address you open Athena with, separated by commas.
-                  </FieldDescription>
-                </Field>
+                ) : null}
+
+                {draft.mode === "self_signed" ? (
+                  <Field>
+                    <FieldLabel htmlFor="https-names">Extra names</FieldLabel>
+                    <Input
+                      id="https-names"
+                      placeholder="nas.home.lan, 10.0.0.5"
+                      value={draft.names}
+                      onChange={(e) =>
+                        setDraft({ ...draft, names: e.target.value })
+                      }
+                    />
+                    <FieldDescription>
+                      The certificate already covers this server&apos;s name,
+                      its .local name and its network addresses. Add any other
+                      name or address you open Athena with, separated by commas.
+                    </FieldDescription>
+                  </Field>
+                ) : null}
               </>
             ) : null}
 
             {serverError ? (
               <Alert variant="destructive">
-                <AlertTitle>Couldn&apos;t save</AlertTitle>
+                <AlertTitle>{errorTitle}</AlertTitle>
                 <AlertDescription>{serverError}</AlertDescription>
               </Alert>
             ) : null}
@@ -567,7 +713,8 @@ function SettingsCard({
           <Button
             type="submit"
             form="https-settings"
-            disabled={!dirty || saving || !!portError}
+            disabled={!dirty || saving || !!portError || needsCertificate}
+            title={needsCertificate ? "Get a certificate first" : undefined}
           >
             {saving ? "Saving…" : "Save"}
           </Button>
@@ -580,9 +727,11 @@ function SettingsCard({
             <AlertDialogTitle>Send browsers to HTTPS?</AlertDialogTitle>
             <AlertDialogDescription>
               After saving, opening Athena on port {status.http_port} takes you
-              to <span className="font-mono break-all">{newUrl}</span>. Until
-              you trust Athena&apos;s CA on a device, its browser shows a
-              warning there. If you can&apos;t get back in, run{" "}
+              to <span className="font-mono break-all">{newUrl}</span>.{" "}
+              {draft.mode === "letsencrypt"
+                ? "Open Athena by its domain name there; other names get a certificate warning."
+                : "Until you trust Athena's CA on a device, its browser shows a warning there."}{" "}
+              If you can&apos;t get back in, run{" "}
               <span className="font-mono">{RECOVERY_COMMAND}</span> on the
               server and restart Athena.
             </AlertDialogDescription>
@@ -595,7 +744,206 @@ function SettingsCard({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <JobDialog
+        job={job}
+        onClose={() => setJob(null)}
+        onFinished={(ok) => void certificateFinished(ok)}
+      />
     </Card>
+  )
+}
+
+function LetsEncryptFields({
+  draft,
+  setDraft,
+  status,
+  requesting,
+  onRequest,
+}: {
+  draft: Draft
+  setDraft: (d: Draft) => void
+  status: Status
+  requesting: boolean
+  onRequest: () => void
+}) {
+  const provider: DnsProvider | undefined = status.dns_providers.find(
+    (p) => p.id === draft.provider
+  )
+  const secretsSet = new Set(status.settings.letsencrypt?.dns_secrets_set ?? [])
+  const cert = status.letsencrypt_certificate
+  const running = requesting || status.renewal_job !== null
+  return (
+    <FieldSet>
+      <FieldLegend variant="label">Let&apos;s Encrypt</FieldLegend>
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="le-domains">Domains</FieldLabel>
+          <Input
+            id="le-domains"
+            placeholder="nas.example.com"
+            value={draft.domains}
+            onChange={(e) => setDraft({ ...draft, domains: e.target.value })}
+          />
+          <FieldDescription>
+            Separate several with commas. Each must point at this server in
+            public DNS. A wildcard (*.example.com) needs the DNS challenge.
+          </FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="le-email">Email</FieldLabel>
+          <Input
+            id="le-email"
+            type="email"
+            placeholder="you@example.com"
+            value={draft.email}
+            onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+          />
+          <FieldDescription>
+            Let&apos;s Encrypt writes here if a certificate is about to expire.
+          </FieldDescription>
+        </Field>
+
+        <FieldSet>
+          <FieldLegend variant="label">
+            How Let&apos;s Encrypt checks
+          </FieldLegend>
+          <RadioGroup
+            value={draft.challenge}
+            onValueChange={(v) =>
+              setDraft({ ...draft, challenge: v as Challenge })
+            }
+          >
+            <Field orientation="horizontal">
+              <RadioGroupItem value="http" id="le-challenge-http" />
+              <FieldContent>
+                <FieldLabel htmlFor="le-challenge-http" className="font-normal">
+                  HTTP (port 80)
+                </FieldLabel>
+                <FieldDescription>
+                  Let&apos;s Encrypt connects to port 80 on this server, so it
+                  must be reachable from the internet (forward it on your
+                  router).
+                </FieldDescription>
+              </FieldContent>
+            </Field>
+            <Field orientation="horizontal">
+              <RadioGroupItem value="dns" id="le-challenge-dns" />
+              <FieldContent>
+                <FieldLabel htmlFor="le-challenge-dns" className="font-normal">
+                  DNS
+                </FieldLabel>
+                <FieldDescription>
+                  Athena adds a temporary DNS record through your DNS provider.
+                  No open ports; works for wildcards.
+                </FieldDescription>
+              </FieldContent>
+            </Field>
+          </RadioGroup>
+        </FieldSet>
+
+        {draft.challenge === "http" && !status.port80_free ? (
+          <Alert>
+            <AlertTitle>Port 80 can&apos;t be opened right now</AlertTitle>
+            <AlertDescription>
+              Another program uses it, or Athena isn&apos;t allowed to open it.
+              Free port 80 or use the DNS challenge.
+            </AlertDescription>
+          </Alert>
+        ) : null}
+
+        {draft.challenge === "dns" ? (
+          <>
+            <Field>
+              <FieldLabel htmlFor="le-provider">DNS provider</FieldLabel>
+              <Select
+                value={draft.provider}
+                onValueChange={(v) =>
+                  v && setDraft({ ...draft, provider: v as string })
+                }
+              >
+                <SelectTrigger id="le-provider" className="w-48">
+                  <SelectValue>
+                    {(value: string) =>
+                      status.dns_providers.find((p) => p.id === value)?.label ??
+                      value
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {status.dns_providers.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            {provider?.fields.map((f) => (
+              <Field key={f.key}>
+                <FieldLabel htmlFor={`le-dns-${f.key}`}>{f.label}</FieldLabel>
+                <Input
+                  id={`le-dns-${f.key}`}
+                  type={f.secret ? "password" : "text"}
+                  autoComplete="off"
+                  placeholder={
+                    f.secret && secretsSet.has(f.key) ? "Saved (unchanged)" : ""
+                  }
+                  value={draft.dns[f.key] ?? ""}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      dns: { ...draft.dns, [f.key]: e.target.value },
+                    })
+                  }
+                />
+                {f.help ? <FieldDescription>{f.help}</FieldDescription> : null}
+              </Field>
+            ))}
+          </>
+        ) : null}
+
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldLabel htmlFor="le-staging">Use the staging server</FieldLabel>
+            <FieldDescription>
+              For trying things out: browsers don&apos;t trust its certificates,
+              but its limits are generous.
+            </FieldDescription>
+          </FieldContent>
+          <Switch
+            id="le-staging"
+            checked={draft.staging}
+            onCheckedChange={(checked) =>
+              setDraft({ ...draft, staging: checked })
+            }
+          />
+        </Field>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={running}
+            onClick={onRequest}
+          >
+            <FileBadgeIcon data-icon="inline-start" />
+            {running
+              ? "Getting certificate…"
+              : cert
+                ? "Renew certificate now"
+                : "Get certificate"}
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {cert
+              ? `Current certificate for ${cert.names.join(", ")}, valid until ${formatDate(cert.not_after)}.`
+              : "Get a certificate, then save to start serving it."}
+          </span>
+        </div>
+        {status.renewal_error ? (
+          <FieldError>Last attempt failed: {status.renewal_error}</FieldError>
+        ) : null}
+      </FieldGroup>
+    </FieldSet>
   )
 }
 

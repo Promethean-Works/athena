@@ -4,6 +4,7 @@ import hashlib
 import ipaddress
 import logging
 import ssl
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -15,10 +16,13 @@ from pydantic import BaseModel
 
 from athena import audit
 from athena.auth.deps import Authed, DbSession
-from athena.https import local_ca
+from athena.crypto import SecretError
+from athena.https import letsencrypt, local_ca
 from athena.https import settings as https_settings
-from athena.https.manager import HttpsError, HttpsManager
-from athena.https.settings import HttpsSettings
+from athena.https.dns_providers import PROVIDERS, DnsProvider, provider_env
+from athena.https.manager import HttpsError, HttpsManager, bind
+from athena.https.settings import HttpsSettings, LetsEncryptSettings
+from athena.jobs import JobOut
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/https", tags=["https"])
@@ -47,6 +51,16 @@ class HttpsStatus(BaseModel):
     ca: CertificateInfo | None
     """Athena's local CA, to download and trust on each device."""
     last_error: str | None
+    letsencrypt_certificate: CertificateInfo | None
+    """The certificate from Let's Encrypt, whether or not that mode is on."""
+    last_renewal: datetime | None
+    renewal_error: str | None
+    """Why the last attempt to get or renew it failed (the old certificate stays)."""
+    renewal_job: str | None
+    """The id of a certificate job that's running now."""
+    port80_free: bool
+    """Whether port 80 can be opened, which the HTTP challenge needs."""
+    dns_providers: list[DnsProvider]
 
 
 def _manager(request: Request) -> HttpsManager:
@@ -87,24 +101,54 @@ def _urls(cert: x509.Certificate | None, port: int) -> list[str]:
     return out
 
 
-def _status(manager: HttpsManager) -> HttpsStatus:
+_port80: tuple[float, bool] = (0.0, True)
+PORT80_CACHE_SECONDS = 10
+
+
+def _port80_free(manager: HttpsManager) -> bool:
+    """Whether port 80 can be opened on every interface, as lego's HTTP challenge does.
+
+    Not probed while a certificate job runs (the probe could take the port from lego),
+    and cached briefly so status calls don't keep opening it.
+    """
+    global _port80
+    checked, free = _port80
+    if manager.certificate_job_running or time.monotonic() - checked < PORT80_CACHE_SECONDS:
+        return free
+    try:
+        bind("0.0.0.0", 80).close()
+        free = True
+    except HttpsError:
+        free = False
+    _port80 = (time.monotonic(), free)
+    return free
+
+
+def status_of(manager: HttpsManager) -> HttpsStatus:
     on = manager.settings.mode != "off"
-    paths = manager.paths
+    cert_path, _ = manager.cert_files(manager.settings)
+    job = manager.renewal_job
     return HttpsStatus(
-        settings=manager.settings,
+        settings=https_settings.public(manager.settings),
         http_port=manager.http_port,
         listening=manager.listening_port is not None,
-        urls=_urls(local_ca.load_cert(paths.cert), manager.settings.port) if on else [],
-        certificate=_info(paths.cert) if on else None,
-        ca=_info(paths.ca_cert),
+        urls=_urls(local_ca.load_cert(cert_path), manager.settings.port) if on else [],
+        certificate=_info(cert_path) if on else None,
+        ca=_info(manager.paths.ca_cert),
         last_error=manager.last_error,
+        letsencrypt_certificate=_info(letsencrypt.le_paths(manager.paths)[0]),
+        last_renewal=manager.last_renewal,
+        renewal_error=manager.renewal_error,
+        renewal_job=job.id if job is not None and job.status == "running" else None,
+        port80_free=_port80_free(manager),
+        dns_providers=PROVIDERS,
     )
 
 
 @router.get("", operation_id="getHttpsStatus")
 def get_https(request: Request, user: Authed) -> HttpsStatus:
     _require_admin(user)
-    return _status(_manager(request))
+    return status_of(_manager(request))
 
 
 @router.put("", operation_id="setHttpsSettings")
@@ -119,6 +163,11 @@ async def set_https(
     _require_admin(user)
     manager = _manager(request)
     before = manager.settings
+    if "letsencrypt" in body.model_fields_set:
+        body = https_settings.with_secrets(before, body, request.app.state.secret_box)
+    else:
+        # Clients that only know the other fields keep it as stored (already encrypted).
+        body = body.model_copy(update={"letsencrypt": before.letsencrypt})
     try:
         await manager.apply(body, persist=lambda new: https_settings.save(db, new))
     except HttpsError as exc:
@@ -129,7 +178,47 @@ async def set_https(
     if (before.redirect, before.extra_names) != (body.redirect, body.extra_names):
         redirect = "redirect on" if body.redirect else "redirect off"
         audit.record(db, user.user.username, "https.settings_changed", redirect)
-    return _status(manager)
+    return status_of(manager)
+
+
+@router.post(
+    "/certificate", operation_id="issueHttpsCertificate", status_code=status.HTTP_202_ACCEPTED
+)
+async def issue_certificate(
+    body: LetsEncryptSettings, request: Request, user: Authed, db: DbSession
+) -> JobOut:
+    """Save the Let's Encrypt settings and get (or renew) the certificate in a job.
+
+    The HTTPS mode doesn't change: once the job succeeds, pick Let's Encrypt and save.
+    """
+    _require_admin(user)
+    problem = body.problem()
+    if problem:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, problem)
+    manager = _manager(request)
+    busy = HTTPException(status.HTTP_409_CONFLICT, "A certificate request is already running")
+    if manager.certificate_job_running:
+        raise busy
+    merged = https_settings.with_secrets(
+        manager.settings,
+        manager.settings.model_copy(update={"letsencrypt": body}),
+        request.app.state.secret_box,
+    )
+    le = merged.letsencrypt
+    if le.challenge == "dns":
+        try:
+            values = https_settings.dns_values(le, request.app.state.secret_box)
+            provider_env(le.dns_provider or "", values)
+        except SecretError as exc:
+            raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
+    await manager.save_letsencrypt(le, persist=lambda new: https_settings.save(db, new))
+    if manager.certificate_job_running:  # the daily check started one meanwhile
+        raise busy
+    # Asked for by the admin: a new certificate even if the current one isn't due.
+    job = manager.start_certificate_job(le, by=user.user.username, force=True)
+    return job.out()
 
 
 @router.post("/ca/rotate", operation_id="rotateHttpsCa")
@@ -145,7 +234,7 @@ async def rotate_ca(request: Request, user: Authed, db: DbSession) -> HttpsStatu
             status.HTTP_500_INTERNAL_SERVER_ERROR, "Couldn't make a new CA; see the server log."
         ) from exc
     audit.record(db, user.user.username, "https.ca_rotated")
-    return _status(manager)
+    return status_of(manager)
 
 
 @router.get(
