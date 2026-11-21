@@ -22,6 +22,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from athena.assistant.settings import AiSettings
+from athena.backup.settings import BackupSettings
 from athena.config import SETTINGS_FILE, ServerSettings
 from athena.files.webdav import WebDavConfig
 from athena.https.settings import HttpsSettings
@@ -34,7 +35,7 @@ SCHEMA_NAME = "athena.schema.json"
 BACKUP_SUFFIX = ".bak"
 SCHEMA_KEY = "$schema"
 
-Section = Literal["server", "system", "https", "ai", "webdav"]  # config.SECTIONS
+Section = Literal["server", "system", "https", "ai", "webdav", "backup"]  # config.SECTIONS
 
 # Read-only fields the API fills in; never written to the file.
 _WRITE_EXCLUDE: dict[str, Any] = {
@@ -64,6 +65,8 @@ class AthenaConfig(BaseModel):
     """The AI assistant (Settings → AI)."""
     webdav: WebDavConfig = Field(default_factory=WebDavConfig)
     """WebDAV access to the file locations."""
+    backup: BackupSettings = Field(default_factory=BackupSettings)
+    """Host-wide backup knobs (`paused`, prune and check intervals, default retention)."""
 
 
 class SettingsFileError(Exception):

@@ -6086,6 +6086,159 @@
           }
         }
       }
+    },
+    "/api/backup/destinations": {
+      "get": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "List Destinations",
+        "operationId": "listBackupDestinations",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DestinationOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listbackupdestinations"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Create Destination",
+        "description": "Create the repository (or open an existing one, which is how a new host finds old\nbackups) and keep its password, encrypted, for scheduled runs.",
+        "operationId": "createBackupDestination",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DestinationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DestinationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/backup/destinations/recovery-kit": {
+      "post": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Recovery Kit",
+        "description": "Check a destination and make its recovery kit, without creating anything yet.",
+        "operationId": "createBackupRecoveryKit",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DestinationDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryKit"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/backup/destinations/{destination_id}": {
+      "delete": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Delete Destination",
+        "description": "Forget a destination. The backups stay where they are unless `delete_backups`.",
+        "operationId": "deleteBackupDestination",
+        "parameters": [
+          {
+            "name": "destination_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Destination Id"
+            }
+          },
+          {
+            "name": "delete_backups",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Delete Backups"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7760,6 +7913,118 @@
           "errors"
         ],
         "title": "DeleteOut"
+      },
+      "DestinationDraft": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "const": "local",
+            "title": "Kind",
+            "default": "local"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "path"
+        ],
+        "title": "DestinationDraft",
+        "description": "What the admin typed; the recovery kit is made from it before anything is created."
+      },
+      "DestinationIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "const": "local",
+            "title": "Kind",
+            "default": "local"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "recovery_kit_saved": {
+            "type": "boolean",
+            "title": "Recovery Kit Saved"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "path",
+          "password",
+          "recovery_kit_saved"
+        ],
+        "title": "DestinationIn"
+      },
+      "DestinationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "local",
+              "rclone"
+            ],
+            "title": "Kind"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "location",
+          "created_at"
+        ],
+        "title": "DestinationOut"
       },
       "DiskUsage": {
         "properties": {
@@ -10174,6 +10439,39 @@
           "header"
         ],
         "title": "QuestionAnswer"
+      },
+      "RecoveryKit": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "kit": {
+            "type": "string",
+            "title": "Kit"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "location",
+          "password",
+          "kit",
+          "filename"
+        ],
+        "title": "RecoveryKit"
       },
       "RemoteDetail": {
         "properties": {

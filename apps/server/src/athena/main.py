@@ -15,6 +15,7 @@ from athena import __version__
 from athena.api import apps, auth, automation, capabilities, containers, jobs, system
 from athena.api import assistant as assistant_api
 from athena.api import audit as audit_api
+from athena.api import backup as backup_api
 from athena.api import cloud as cloud_api
 from athena.api import feedback as feedback_api
 from athena.api import files as files_api
@@ -33,6 +34,7 @@ from athena.assistant.turns import Turns
 from athena.auth.deps import require_user
 from athena.auth.service import LoginThrottle
 from athena.automation import service as automation_service
+from athena.backup.service import ResticProvider
 from athena.catalog.registry import CatalogRegistry
 from athena.cloud.rclone import Rclone
 from athena.config import Settings
@@ -163,6 +165,7 @@ def create_app(
     # Started on the first cloud call, so hosts that never use it don't run rclone.
     app.state.rclone = rclone or Rclone(settings.data_dir)
     app.state.secret_box = SecretBox(settings.data_dir)
+    app.state.restic = ResticProvider(settings.data_dir)
     app.state.model_cache = ModelCache()
     app.state.ai_transport = None  # tests swap in an httpx2.MockTransport
     app.state.assistant_turns = Turns()
@@ -200,6 +203,7 @@ def create_app(
     app.include_router(feedback_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(audit_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(https_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(backup_api.router, prefix="/api", dependencies=[require_user])
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
     # MCP server: streamable-HTTP endpoint for external agents (n8n, Claude Desktop, …).

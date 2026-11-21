@@ -31,7 +31,7 @@ def default_data_dir() -> Path:
 
 DEFAULT_FEEDBACK_REPO = "https://github.com/tiagozaccaro/athena"
 SETTINGS_FILE = "athena.json"
-SECTIONS = ("server", "system", "https", "ai", "webdav")
+SECTIONS = ("server", "system", "https", "ai", "webdav", "backup")
 """The sections of athena.json, in file order (`athena.settings_file.AthenaConfig`)."""
 
 

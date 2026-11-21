@@ -5,6 +5,7 @@ here later). The checksum is pinned in Athena's code, not read from the same ser
 the file, so a tampered download can't come with a matching checksum.
 """
 
+import bz2
 import hashlib
 import io
 import logging
@@ -57,6 +58,24 @@ def extract_member(archive: bytes, name: str, member: str) -> bytes:
     except KeyError as exc:
         raise DownloadError(f"{name} has no {member}") from exc
     except (tarfile.TarError, zipfile.BadZipFile, OSError) as exc:
+        raise DownloadError(f"{name} isn't a valid archive: {exc}") from exc
+
+
+def extract_single(archive: bytes, name: str) -> bytes:
+    """The one program in a `.bz2` file, or in a `.zip` holding a single `.exe` (restic)."""
+    try:
+        if name.endswith(".bz2"):
+            # Bounded, so a tiny file that expands to gigabytes can't fill the memory.
+            data = bz2.BZ2Decompressor().decompress(archive, max_length=MAX_ARCHIVE_BYTES + 1)
+            if len(data) > MAX_ARCHIVE_BYTES:
+                raise DownloadError(f"{name} is larger than expected")
+            return data
+        with zipfile.ZipFile(io.BytesIO(archive)) as zf:
+            exes = [i for i in zf.infolist() if not i.is_dir() and i.filename.endswith(".exe")]
+            if len(exes) != 1:
+                raise DownloadError(f"{name} doesn't hold exactly one program")
+            return zf.read(exes[0])
+    except (OSError, EOFError, zipfile.BadZipFile) as exc:
         raise DownloadError(f"{name} isn't a valid archive: {exc}") from exc
 
 

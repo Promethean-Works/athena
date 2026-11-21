@@ -539,12 +539,21 @@ def detect_tunnel_ngrok(probe: Probe) -> Capability:
     )
 
 
+def _restic_detail() -> str:
+    from athena.backup.restic import VERSION
+
+    return f"restic {VERSION}"
+
+
 def detect_builtin(probe: Probe) -> list[Capability]:
     return [
         Capability(id="files", label="Files", status="ready", provider="builtin"),
         Capability(id="automation", label="Automation", status="ready", provider="builtin"),
         Capability(id="shares.webdav", label="WebDAV shares", status="ready", provider="wsgidav"),
         Capability(id="https", label="HTTPS", status="ready", provider="builtin"),
+        Capability(
+            id="backup", label="Backup", status="ready", provider="restic", detail=_restic_detail()
+        ),
     ]
 
 
