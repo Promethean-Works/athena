@@ -77,6 +77,7 @@ class HttpsManager:
         self._port: int | None = None
         self._check_task: asyncio.Task[None] | None = None
         self._lock = asyncio.Lock()
+        self._stopping: set[asyncio.Task[None]] = set()
 
     # ------------------------------------------------------------ state
 
@@ -115,6 +116,8 @@ class HttpsManager:
             self._check_task = None
         async with self._lock:
             await self._stop_server()
+        if self._stopping:
+            await asyncio.gather(*self._stopping, return_exceptions=True)
 
     async def apply(
         self, new: HttpsSettings, persist: Callable[[HttpsSettings], None] | None = None
@@ -157,7 +160,7 @@ class HttpsManager:
 
     async def _apply(self, new: HttpsSettings) -> None:
         if new.mode == "off":
-            await self._stop_server()
+            self._stop_in_background()
             self.settings = new
             return
         if new.port == self.http_port:
@@ -177,7 +180,7 @@ class HttpsManager:
             return
         server, task = await self._start_server(new.port)
         # Only now that the new listener serves does the old one go away.
-        await self._stop_server()
+        self._stop_in_background()
         self._server, self._task, self._port = server, task, new.port
         self.settings = new
         log.info("HTTPS listening on %s:%d", self.host, new.port)
@@ -227,6 +230,22 @@ class HttpsManager:
         if self._server is None or self._server.config.ssl is None:
             return
         self._server.config.ssl.load_cert_chain(str(self.paths.cert), str(self.paths.key))
+
+    def _stop_in_background(self) -> None:
+        """Stop the current listener without waiting for it.
+
+        The request asking for the change may itself have come over this listener, and
+        uvicorn's graceful shutdown waits for open requests: awaiting it here would wait on
+        ourselves. The old listener closes its socket at once and finishes the request
+        (so the browser gets its answer) before it's gone.
+        """
+        server, task = self._server, self._task
+        self._server = self._task = self._port = None
+        if server is None or task is None:
+            return
+        stopping = asyncio.create_task(self._stop(server, task))
+        self._stopping.add(stopping)
+        stopping.add_done_callback(self._stopping.discard)
 
     async def _stop_server(self) -> None:
         server, task = self._server, self._task

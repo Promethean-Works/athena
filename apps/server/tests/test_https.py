@@ -2,6 +2,7 @@ import ipaddress
 import os
 import socket
 import ssl
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -51,6 +52,18 @@ def _served_cert(port: int, ca: Path) -> x509.Certificate:
         der = tls.getpeercert(binary_form=True)
     assert der is not None
     return x509.load_der_x509_certificate(der)
+
+
+def _wait_closed(port: int) -> None:
+    """The old listener stops in the background; wait until it refuses connections."""
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
+        try:
+            socket.create_connection(("127.0.0.1", port), timeout=1).close()
+        except OSError:
+            return
+        time.sleep(0.05)
+    raise AssertionError(f"port {port} still accepts connections")
 
 
 # ---------------------------------------------------------------- local CA
@@ -244,9 +257,7 @@ def test_self_signed_serves_https_redirects_and_turns_off(tmp_path):
         r = client.put("/api/https", json={"mode": "off", "port": port}, follow_redirects=False)
         assert r.status_code == 200, r.text
         assert r.json()["listening"] is False
-        # Windows retries a refused connection, so it shows up as a timeout there.
-        with pytest.raises((httpx.ConnectError, httpx.ConnectTimeout)):
-            httpx.get(f"https://127.0.0.1:{port}/api/health", verify=_ssl_context(ca), timeout=2)
+        _wait_closed(port)
 
 
 def test_new_names_are_served_without_a_restart(tmp_path):
@@ -405,3 +416,24 @@ def test_a_failed_port_change_keeps_the_old_listener(tmp_path):
     # And the database still has the old port.
     with TestClient(_app(tmp_path)):
         _served_cert(port, tmp_path / "data" / "tls" / "ca.crt")
+
+
+def test_turning_https_off_over_https_answers_the_request(tmp_path):
+    """The listener that carries the request is the one being stopped."""
+    port = _free_port()
+    with TestClient(_app(tmp_path)) as client:
+        signed_in(client)
+        assert client.put("/api/https", json={"mode": "self_signed", "port": port}).is_success
+        ca = tmp_path / "data" / "tls" / "ca.crt"
+        with httpx.Client(
+            base_url=f"https://127.0.0.1:{port}", verify=_ssl_context(ca), timeout=10
+        ) as tls:
+            login = tls.post("/api/auth/login", json=ADMIN)
+            assert login.status_code == 200, login.text
+            tls.headers["X-CSRF-Token"] = login.json()["csrf_token"]
+            started = time.monotonic()
+            r = tls.put("/api/https", json={"mode": "off", "port": port})
+            assert r.status_code == 200, r.text
+            assert time.monotonic() - started < 2
+            assert r.json()["listening"] is False
+        _wait_closed(port)
