@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
-- HTTPS (`docs/specs/https.md`): part 1 (#192) done. Next: part 2, Settings → HTTPS page.
+- HTTPS (`docs/specs/https.md`): parts 1–2 done (#192, #196). Next: part 3, Let's Encrypt via lego.
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - models.dev providers now load (fix/models-dev-refresh), so the Settings → AI "Add provider" dropdown lists ~75 kinds with no search. Make it a searchable combobox (verify with `athena-ui-verify`). Some routers slip past `SKIP_PATTERNS` (e.g. "Kilo Gateway": the skip checks the id, not the name).
 - Dashboard follow-ups: touch dragging on a real phone; an app "update available" badge (`AppOut` has no such field).
