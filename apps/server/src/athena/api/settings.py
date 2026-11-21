@@ -134,6 +134,22 @@ def set_system(
     return system_settings.public(body)
 
 
+class SettingsFileOut(BaseModel):
+    path: str
+    """Where athena.json is on this server."""
+    backup_path: str
+    """The version before the last save (`athena.json.bak`)."""
+
+
+@router.get("/file", operation_id="getSettingsFile")
+def get_settings_file(user: Authed, settings_file: SettingsStore) -> SettingsFileOut:
+    """Where the host-wide settings are saved, so an admin can fix them in an editor if
+    a change keeps Athena from starting (docs/specs/settings-file.md). Admins only."""
+    if not user.user.is_admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can see this")
+    return SettingsFileOut(path=str(settings_file.path), backup_path=str(settings_file.backup_path))
+
+
 @router.get("/ai", operation_id="getAiSettings")
 def get_ai(settings_file: SettingsStore) -> AiSettings:
     return ai_settings.load(settings_file)
