@@ -62,9 +62,9 @@ async def _refresh_models_dev_cache(app: FastAPI) -> None:
     try:
         from athena.assistant.models_dev import refresh_models_dev_cache
 
-        await refresh_models_dev_cache(app.state.db.session)
+        await refresh_models_dev_cache()
     except Exception as e:
-        log.warning(f"Failed to refresh models.dev cache: {e}")
+        log.warning("Failed to refresh models.dev cache: %s", e)
 
 
 def create_app(

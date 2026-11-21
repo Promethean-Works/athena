@@ -39,16 +39,18 @@ from athena.assistant.integrations import (
     _out as integration_out,
 )
 from athena.assistant.kinds import (
-    BY_ID,
-    KindField,
+    NATIVE_KINDS as KINDS,
+)
+from athena.assistant.kinds import (
     KindId,
     ProviderKind,
     secret_keys,
 )
-from athena.assistant.kinds import (
-    NATIVE_KINDS as KINDS,
+from athena.assistant.models_dev import (
+    get_models_dev_service,
+    refresh_models_dev_cache,
+    resolve_kind,
 )
-from athena.assistant.models_dev import get_models_dev_service, refresh_models_dev_cache
 from athena.assistant.plans import PlanStep, delete_plan, plan_of
 from athena.assistant.providers import (
     ModelCache,
@@ -139,8 +141,15 @@ class TestOut(BaseModel):
     message: str
 
 
+def _kind(row: AiProvider) -> ProviderKind:
+    kind = resolve_kind(row.kind)
+    if kind is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such provider")
+    return kind
+
+
 def _out(row: AiProvider, box: SecretBox) -> ProviderOut:
-    kind = BY_ID[row.kind]
+    kind = _kind(row)
     stored: list[str] = []
     if row.secrets:
         try:
@@ -159,7 +168,7 @@ def _out(row: AiProvider, box: SecretBox) -> ProviderOut:
 
 def _get_provider(db: Session, provider_id: str) -> AiProvider:
     row = db.get(AiProvider, provider_id)
-    if row is None or row.kind not in BY_ID:
+    if row is None or resolve_kind(row.kind) is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such provider")
     return row
 
@@ -195,10 +204,9 @@ def list_kinds(request: Request) -> list[ProviderKind]:
 @router.post(
     "/kinds/refresh", operation_id="refreshAiProviderKinds", status_code=status.HTTP_202_ACCEPTED
 )
-async def refresh_kinds(request: Request, user: Authed, db: DbSession) -> dict[str, Any]:
+async def refresh_kinds(request: Request, user: Authed) -> dict[str, Any]:
     """Manually refresh the models.dev cache and return the updated kinds."""
-    # Force refresh the cache
-    count = await refresh_models_dev_cache(db.session, force=True)
+    count = await refresh_models_dev_cache(force=True)
     # Return updated kinds
     kinds = list(KINDS)
     service = get_models_dev_service()
@@ -210,58 +218,16 @@ async def refresh_kinds(request: Request, user: Authed, db: DbSession) -> dict[s
 @router.get("/providers", operation_id="listAiProviders")
 def list_providers(request: Request, db: DbSession) -> list[ProviderOut]:
     rows = db.exec(select(AiProvider).order_by(col(AiProvider.created_at))).all()
-    return [_out(r, _box(request)) for r in rows if r.kind in BY_ID]
+    return [_out(r, _box(request)) for r in rows if resolve_kind(r.kind) is not None]
 
 
 @router.post("/providers", operation_id="createAiProvider", status_code=status.HTTP_201_CREATED)
 def create_provider(body: ProviderIn, request: Request, user: Authed, db: DbSession) -> ProviderOut:
-    # Validate kind exists (native or dynamic)
-    kind = BY_ID.get(body.kind)
+    kind = resolve_kind(body.kind)
     if kind is None:
-        service = get_models_dev_service()
-        if service:
-            # Check if it's a dynamic kind from models.dev
-            entry = service.get_provider(body.kind)
-            if entry and entry.is_openai_compatible:
-                # Create a dynamic kind for this provider
-                kind = ProviderKind(
-                    id=entry.provider_id,
-                    label=entry.name,
-                    group="cloud" if entry.api_url else "local",
-                    fields=[
-                        KindField(
-                            key="api_key",
-                            label="API key",
-                            secret=True,
-                            required=True,
-                            help=(
-                                f"Set {entry.provider_id.upper().replace('-', '_')}_API_KEY "
-                                "in your environment or enter it here"
-                            ),
-                        ),
-                        KindField(
-                            key="base_url",
-                            label="Base URL",
-                            required=False,
-                            default=entry.api_url,
-                            placeholder=entry.api_url,
-                            help=entry.doc_url or "Provider's API endpoint",
-                        ),
-                        KindField(
-                            key="context_window",
-                            label="Context window",
-                            placeholder="e.g. 32768",
-                            help="Tokens the model accepts. Leave empty to detect automatically.",
-                        ),
-                    ],
-                    lists_models=True,
-                )
-                BY_ID[body.kind] = kind  # Cache it for future use
-        # If still None, it's an unknown kind
-        if kind is None:
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_CONTENT, f"Unknown provider kind: {body.kind}"
-            )
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, f"Unknown provider kind: {body.kind}"
+        )
 
     row = AiProvider(id=secrets.token_hex(8), kind=kind.id, name=body.name.strip())
     _store(row, kind, body.values, _box(request))
@@ -277,7 +243,7 @@ def update_provider(
     provider_id: ProviderId, body: ProviderUpdate, request: Request, user: Authed, db: DbSession
 ) -> ProviderOut:
     row = _get_provider(db, provider_id)
-    kind = BY_ID[row.kind]
+    kind = _kind(row)
     box = _box(request)
     values = dict(body.values)
     # Empty secrets keep what's stored (the form shows them as "Unchanged").
@@ -447,7 +413,7 @@ async def test_provider(provider_id: ProviderId, request: Request, db: DbSession
         models = await _models(request, row, refresh=True)
     except ProviderError as exc:
         return TestOut(ok=False, message=str(exc))
-    if not BY_ID[row.kind].lists_models:
+    if not _kind(row).lists_models:
         return TestOut(ok=True, message="Connected. Type your deployment name as the model.")
     if not models:
         return TestOut(ok=True, message="Connected, but the provider lists no models.")
@@ -473,9 +439,9 @@ async def all_models(request: Request, db: DbSession) -> list[ProviderModels]:
     with its error, so its model ids can be typed."""
     out = []
     for row in db.exec(select(AiProvider).order_by(col(AiProvider.created_at))).all():
-        if row.kind not in BY_ID:
+        kind = resolve_kind(row.kind)
+        if kind is None:
             continue
-        kind = BY_ID[row.kind]
         try:
             models, error = await _models(request, row, refresh=False), None
         except (ProviderError, HTTPException) as exc:
@@ -870,7 +836,7 @@ def _build(request: Request, db: Session, ref: ModelRef) -> Model:
     from pydantic_ai.exceptions import UserError
 
     provider = db.get(AiProvider, ref.provider_id)
-    if provider is None or provider.kind not in BY_ID:
+    if provider is None or resolve_kind(provider.kind) is None:
         raise HTTPException(
             status.HTTP_409_CONFLICT, "That model's provider was removed. Pick another model."
         )
