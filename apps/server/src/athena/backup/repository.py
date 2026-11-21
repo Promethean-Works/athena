@@ -109,49 +109,12 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
     roots = _roots(allowed_roots, target)
     if not any(_is_inside(target, root) for root in roots):
         raise DestinationError("Pick a folder inside an allowed backup location")
-
-    canonical_roots = [Path(os.path.realpath(os.fspath(root))) for root in roots]
-
-    def _canonical_inside_allowed(candidate: Path) -> Path:
-        canonical_candidate = Path(os.path.realpath(os.fspath(candidate)))
-        if not any(_is_inside(canonical_candidate, root) for root in canonical_roots):
-            raise DestinationError("Pick a folder inside an allowed backup location")
-        return canonical_candidate
-
-    def _create_target_safely(candidate: Path) -> None:
-        parent_root = next((root for root in canonical_roots if _is_inside(candidate, root)), None)
-        if parent_root is None:
-            raise DestinationError("Pick a folder inside an allowed backup location")
-        relative_parts = candidate.relative_to(parent_root).parts
-        current = parent_root
-        for part in relative_parts:
-            current = current / part
-            if current.exists():
-                if current.is_symlink():
-                    raise DestinationError(
-                        "Symbolic links are not allowed; pick a real folder path"
-                    )
-            else:
-                current.mkdir(exist_ok=True)
-                _canonical_inside_allowed(current)
-
-    safe_target = _canonical_inside_allowed(target)
     try:
-        _create_target_safely(safe_target)
-        writable = safe_target.resolve(strict=True)
-        safe_writable_path = _canonical_inside_allowed(writable)
-        if safe_target.is_symlink() or safe_writable_path != _canonical_inside_allowed(safe_target):
-            raise DestinationError("Symbolic links are not allowed; pick a real folder path")
-        if not safe_writable_path.exists() or not safe_writable_path.is_dir():
-            raise DestinationError("Pick a real folder path")
-        with tempfile.NamedTemporaryFile(
-            dir=os.fspath(safe_writable_path), prefix=".athena-write-test-"
-        ):
+        target.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(dir=target, prefix=".athena-write-test-"):
             pass
     except OSError as exc:
-        raise DestinationError(
-            f"Athena can't write in {safe_target}: {exc.strerror or exc}"
-        ) from exc
+        raise DestinationError(f"Athena can't write in {target}: {exc.strerror or exc}") from exc
 
 
 def generate_password() -> str:
