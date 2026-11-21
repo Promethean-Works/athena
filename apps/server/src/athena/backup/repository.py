@@ -102,10 +102,10 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
 
 def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> None:
     """Create the folder if needed and prove Athena can write in it."""
-    raw = str(folder).strip()
-    if "\x00" in raw or not _is_absolute(raw):
+    raw = str(folder)
+    if "\x00" in raw or not folder.is_absolute():
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
-    target = Path(os.path.normpath(raw)).resolve(strict=False)
+    target = folder.resolve(strict=False)
     if not allowed_roots:
         raise DestinationError("No allowed backup locations are configured")
     roots = [Path(root).resolve(strict=False) for root in allowed_roots if Path(root).is_absolute()]
