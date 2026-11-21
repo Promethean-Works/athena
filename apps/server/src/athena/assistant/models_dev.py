@@ -8,14 +8,16 @@ import asyncio
 import json
 import logging
 import time
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx2
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
-from athena.assistant.kinds import KindField, ProviderKind, get_native_kind_ids
+from athena.assistant.kinds import BY_ID, KindField, ProviderKind, get_native_kind_ids
 from athena.db.models import ModelsDevCache
 
 log = logging.getLogger(__name__)
@@ -329,12 +331,48 @@ class ModelsDevProvider:
             return url
         return None
 
-    def to_provider_kind(self) -> ProviderKind:
-        """Convert to a ProviderKind for the UI."""
-        env_vars = self.env
-        env_var = env_vars[0] if env_vars else f"{self.id.upper().replace('-', '_')}_API_KEY"
 
-        fields = [
+def _aware(value: datetime) -> datetime:
+    """SQLite hands back naive datetimes even for timezone=True columns; they're UTC."""
+    return value if value.tzinfo else value.replace(tzinfo=UTC)
+
+
+def _env_vars(entry: ModelsDevCache) -> list[str]:
+    raw = entry.env_vars
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except ValueError:
+            return []
+    return [str(v) for v in raw or []]
+
+
+def kind_from_entry(entry: ModelsDevCache) -> ProviderKind:
+    """The ProviderKind the UI shows for a cached OpenAI-compatible models.dev provider."""
+    env_vars = _env_vars(entry)
+    env_var = env_vars[0] if env_vars else f"{entry.provider_id.upper().replace('-', '_')}_API_KEY"
+    if entry.api_url:
+        base_url = KindField(
+            key="base_url",
+            label="Base URL",
+            required=False,
+            default=entry.api_url,
+            placeholder=entry.api_url,
+            help=entry.doc_url or "Provider's API endpoint",
+        )
+    else:
+        base_url = KindField(
+            key="base_url",
+            label="Base URL",
+            required=False,
+            placeholder="Optional: custom endpoint",
+            help="Leave empty to use the official API",
+        )
+    return ProviderKind(
+        id=entry.provider_id,
+        label=entry.name,
+        group="cloud" if entry.api_url else "local",
+        fields=[
             KindField(
                 key="api_key",
                 label="API key",
@@ -342,54 +380,24 @@ class ModelsDevProvider:
                 required=True,
                 help=f"Set {env_var} in your environment or enter it here",
             ),
-        ]
-
-        base_url = self.get_base_url()
-        if base_url:
-            fields.append(
-                KindField(
-                    key="base_url",
-                    label="Base URL",
-                    required=False,
-                    default=base_url,
-                    placeholder=base_url,
-                    help=self.doc or "Provider's API endpoint",
-                )
-            )
-        else:
-            fields.append(
-                KindField(
-                    key="base_url",
-                    label="Base URL",
-                    required=False,
-                    placeholder="Optional: custom endpoint",
-                    help="Leave empty to use the official API",
-                )
-            )
-
-        fields.append(
+            base_url,
             KindField(
                 key="context_window",
                 label="Context window",
                 placeholder="e.g. 32768",
                 help="Tokens the model accepts. Leave empty to detect automatically.",
-            )
-        )
-
-        return ProviderKind(
-            id=self.id,
-            label=self.name,
-            group="cloud" if base_url else "local",
-            fields=fields,
-            lists_models=True,
-        )
+            ),
+        ],
+        lists_models=True,
+    )
 
 
 class ModelsDevService:
     """Service for fetching and caching models.dev data."""
 
-    def __init__(self, session_factory):
-        self._session_factory = session_factory
+    def __init__(self, session_factory: Callable[[], Iterator[Session]]):
+        # Database.session is a generator function; wrap it so `with` works.
+        self._session = contextmanager(session_factory)
         self._fetch_lock = asyncio.Lock()
         self._last_fetch: float = 0
         self._min_fetch_interval = 300  # Minimum 5 minutes between fetches
@@ -399,29 +407,26 @@ class ModelsDevService:
         async with self._fetch_lock:
             # Rate limiting: don't fetch more than once per 5 minutes unless forced
             now = time.monotonic()
-            if not force and now - self._last_fetch < self._min_fetch_interval:
+            if not force and self._last_fetch and now - self._last_fetch < self._min_fetch_interval:
                 log.debug("models.dev cache fetch rate limited")
                 return 0
 
-            with self._session_factory() as db:
-                # Check if we have fresh cache
-                now_utc = datetime.now(UTC)
+            with self._session() as db:
                 latest = db.exec(
                     select(ModelsDevCache.expires_at)
-                    .order_by(ModelsDevCache.expires_at.desc())
+                    .order_by(col(ModelsDevCache.expires_at).desc())
                     .limit(1)
                 ).first()
-
-                if not force and latest and latest > now_utc:
+                if not force and latest and _aware(latest) > datetime.now(UTC):
                     log.debug("models.dev cache is fresh")
                     return 0
 
-                # Cache is stale or empty, fetch fresh data
-                log.info("Fetching fresh models.dev data...")
-                providers = await self._fetch_models_dev()
-                count = await self._store_cache(db, providers)
-                self._last_fetch = time.monotonic()
-                return count
+            log.info("Fetching fresh models.dev data...")
+            providers = await self._fetch_models_dev()
+            with self._session() as db:
+                count = self._store_cache(db, providers)
+            self._last_fetch = time.monotonic()
+            return count
 
     async def _fetch_models_dev(self) -> dict[str, ModelsDevProvider]:
         """Fetch all providers from models.dev API."""
@@ -438,7 +443,7 @@ class ModelsDevService:
         log.info(f"Fetched {len(providers)} providers from models.dev")
         return providers
 
-    async def _store_cache(self, db: Session, providers: dict[str, ModelsDevProvider]) -> int:
+    def _store_cache(self, db: Session, providers: dict[str, ModelsDevProvider]) -> int:
         """Store providers in database cache."""
         now = datetime.now(UTC)
         expires_at = now + CACHE_TTL
@@ -454,7 +459,7 @@ class ModelsDevService:
                 api_url=provider.get_base_url(),
                 npm_package=provider.npm or None,
                 doc_url=provider.doc or None,
-                env_vars=json.dumps(provider.env),
+                env_vars=list(provider.env),
                 models=provider.models,
                 model_count=len(provider.models),
                 is_openai_compatible=provider.is_openai_compatible(),
@@ -468,31 +473,23 @@ class ModelsDevService:
         log.info(f"Cached {count} providers in database")
         return count
 
-    def _get_session(self) -> Session:
-        """Get a database session."""
-        return next(self._session_factory())
-
     def get_cached_providers(self) -> list[ModelsDevCache]:
-        """Get all cached providers from database."""
-        db = self._get_session()
-        try:
+        """Every cached provider, most models first.
+
+        Expired rows are still served: they're only refreshed when models.dev answers,
+        and an offline host keeps the providers it last saw.
+        """
+        with self._session() as db:
             return list(
                 db.exec(
-                    select(ModelsDevCache)
-                    .where(ModelsDevCache.expires_at > datetime.now(UTC))
-                    .order_by(ModelsDevCache.model_count.desc())
+                    select(ModelsDevCache).order_by(col(ModelsDevCache.model_count).desc())
                 ).all()
             )
-        finally:
-            db.close()
 
     def get_provider(self, provider_id: str) -> ModelsDevCache | None:
         """Get a single cached provider."""
-        db = self._get_session()
-        try:
+        with self._session() as db:
             return db.get(ModelsDevCache, provider_id)
-        finally:
-            db.close()
 
     def get_models(self, provider_id: str) -> list[dict[str, Any]]:
         """Get model list for a provider from cache."""
@@ -506,82 +503,29 @@ class ModelsDevService:
         providers = self.get_cached_providers()
         return {p.provider_id: list(p.models.values()) for p in providers}
 
+    def get_kind(self, provider_id: str) -> ProviderKind | None:
+        """The kind for one cached OpenAI-compatible provider, or None."""
+        if provider_id in NATIVE_PROVIDERS:
+            return None
+        entry = self.get_provider(provider_id)
+        if entry is None or not entry.is_openai_compatible:
+            return None
+        return kind_from_entry(entry)
+
     def get_dynamic_kinds(self) -> list[ProviderKind]:
         """Generate ProviderKind entries for all cached OpenAI-compatible providers."""
-        kinds = []
-        for entry in self.get_cached_providers():
-            if not entry.is_openai_compatible:
-                continue
-
-            # Skip if this is a native provider
-            if entry.provider_id in NATIVE_PROVIDERS:
-                continue
-
-            env_vars = json.loads(entry.env_vars or "[]")
-            env_var = (
-                env_vars[0]
-                if env_vars
-                else f"{entry.provider_id.upper().replace('-', '_')}_API_KEY"
-            )
-
-            fields = [
-                KindField(
-                    key="api_key",
-                    label="API key",
-                    secret=True,
-                    required=True,
-                    help=f"Set {env_var} in your environment or enter it here",
-                ),
-            ]
-
-            if entry.api_url:
-                fields.append(
-                    KindField(
-                        key="base_url",
-                        label="Base URL",
-                        required=False,
-                        default=entry.api_url,
-                        placeholder=entry.api_url,
-                        help=entry.doc_url or "Provider's API endpoint",
-                    )
-                )
-            else:
-                fields.append(
-                    KindField(
-                        key="base_url",
-                        label="Base URL",
-                        required=False,
-                        placeholder="Optional: custom endpoint",
-                        help="Leave empty to use the official API",
-                    )
-                )
-
-            fields.append(
-                KindField(
-                    key="context_window",
-                    label="Context window",
-                    placeholder="e.g. 32768",
-                    help="Tokens the model accepts. Leave empty to detect automatically.",
-                )
-            )
-
-            kind = ProviderKind(
-                id=entry.provider_id,
-                label=entry.name,
-                group="cloud" if entry.api_url else "local",
-                fields=fields,
-                lists_models=True,
-            )
-            kinds.append(kind)
-
-        return kinds
+        return [
+            kind_from_entry(entry)
+            for entry in self.get_cached_providers()
+            if entry.is_openai_compatible and entry.provider_id not in NATIVE_PROVIDERS
+        ]
 
 
 # Global service instance (set during app startup)
 _service: ModelsDevService | None = None
 
 
-def init_models_dev_service(session_factory) -> ModelsDevService:
+def init_models_dev_service(session_factory: Callable[[], Iterator[Session]]) -> ModelsDevService:
     """Initialize the global models.dev service."""
     global _service
     _service = ModelsDevService(session_factory)
@@ -593,7 +537,16 @@ def get_models_dev_service() -> ModelsDevService | None:
     return _service
 
 
-async def refresh_models_dev_cache(session_factory, force: bool = False) -> int:
-    """Manually refresh the models.dev cache."""
-    service = ModelsDevService(session_factory)
-    return await service.ensure_cache_fresh(force=force)
+def resolve_kind(kind_id: str) -> ProviderKind | None:
+    """A native kind, or a cached models.dev kind (survives restarts, unlike a dict cache)."""
+    kind = BY_ID.get(kind_id)
+    if kind is not None:
+        return kind
+    return _service.get_kind(kind_id) if _service else None
+
+
+async def refresh_models_dev_cache(force: bool = False) -> int:
+    """Refresh the models.dev cache through the global service (0 when there is none)."""
+    if _service is None:
+        return 0
+    return await _service.ensure_cache_fresh(force=force)

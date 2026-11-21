@@ -10,7 +10,7 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 - HTTPS: spec `docs/specs/https.md` approved. Next: part 1.
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
-- The models.dev refresh at startup never runs: `main.py` passes `app.state.db.session` (a generator function) to `refresh_models_dev_cache`, which uses it as a context manager, so every start logs "Failed to refresh models.dev cache: 'generator' object does not support the context manager protocol".
+- models.dev providers now load (fix/models-dev-refresh), so the Settings → AI "Add provider" dropdown lists ~75 kinds with no search. Make it a searchable combobox (verify with `athena-ui-verify`). Some routers slip past `SKIP_PATTERNS` (e.g. "Kilo Gateway": the skip checks the id, not the name).
 - Dashboard follow-ups: touch dragging on a real phone; an app "update available" badge (`AppOut` has no such field).
 - A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).

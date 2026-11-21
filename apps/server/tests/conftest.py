@@ -1,12 +1,25 @@
 from pathlib import Path
 
+import pytest
 from fake_probe import FakeProbe
 from fastapi.testclient import TestClient
 
+from athena.assistant import models_dev
 from athena.config import Settings
 from athena.main import create_app
 from athena.platform.detect import detect
 from athena.platform.store import CapabilityStore
+
+
+@pytest.fixture(autouse=True)
+def _no_models_dev(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every app start refreshes the models.dev cache; tests never reach the internet."""
+
+    async def empty(self: models_dev.ModelsDevService) -> dict:
+        return {}
+
+    monkeypatch.setattr(models_dev.ModelsDevService, "_fetch_models_dev", empty)
+
 
 ADMIN = {"username": "admin", "password": "correct horse battery"}
 
