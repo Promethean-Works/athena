@@ -155,13 +155,15 @@ def _build_model(cfg: ProviderConfig, model_id: str) -> Model:
     kind = cfg.kind.id
     key = cfg.get("api_key")
 
-    if kind == "anthropic":
+    if kind in ("anthropic", "anthropic-compatible"):
         from pydantic_ai.models.anthropic import AnthropicModel
         from pydantic_ai.providers.anthropic import AnthropicProvider
 
-        return AnthropicModel(
-            model_id, provider=AnthropicProvider(api_key=key, base_url=cfg.get("base_url"))
-        )
+        base = cfg.get("base_url")
+        if base and kind == "anthropic-compatible":
+            base = _strip(base).removesuffix("/v1")  # the SDK adds /v1 itself
+            key = key or "not-needed"  # a proxy without keys
+        return AnthropicModel(model_id, provider=AnthropicProvider(api_key=key, base_url=base))
     if kind == "openai":
         from pydantic_ai.models.openai import OpenAIResponsesModel
         from pydantic_ai.providers.openai import OpenAIProvider
@@ -336,7 +338,7 @@ async def _anthropic(client: httpx2.AsyncClient, cfg: ProviderConfig) -> list[Mo
     data = await _json(
         client,
         "GET",
-        f"{_strip(cfg.get('base_url') or '')}/v1/models",
+        f"{_strip(cfg.get('base_url') or '').removesuffix('/v1')}/v1/models",
         params={"limit": 1000},
         headers={"x-api-key": cfg.get("api_key") or "", "anthropic-version": "2023-06-01"},
     )
@@ -483,7 +485,7 @@ async def fetch_models(
     # Try provider's own API first for native providers
     try:
         async with httpx2.AsyncClient(timeout=LIST_TIMEOUT, transport=transport) as client:
-            if kind == "anthropic":
+            if kind in ("anthropic", "anthropic-compatible"):
                 return await _anthropic(client, cfg)
             elif kind == "google":
                 return await _google(client, cfg)

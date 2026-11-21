@@ -9790,7 +9790,8 @@
             "type": "string",
             "enum": [
               "cloud",
-              "local"
+              "local",
+              "custom"
             ],
             "title": "Group"
           },

@@ -18,7 +18,14 @@ from urllib.parse import urlsplit
 import httpx2
 from sqlmodel import Session, col, select
 
-from athena.assistant.kinds import BY_ID, LOCAL_KINDS, NATIVE_KINDS, KindField, ProviderKind
+from athena.assistant.kinds import (
+    BY_ID,
+    CUSTOM_KINDS,
+    LOCAL_KINDS,
+    NATIVE_KINDS,
+    KindField,
+    ProviderKind,
+)
 from athena.db.models import ModelsDevCache
 
 log = logging.getLogger(__name__)
@@ -29,6 +36,9 @@ FETCH_TIMEOUT = 30.0
 
 # models.dev ids with their own pydantic-ai provider (kinds.py NATIVE_KINDS).
 NATIVE_PROVIDERS = {k.id for k in NATIVE_KINDS}
+
+# Athena's own local and custom kinds win if models.dev ever lists the same id.
+OWN_IDS = {k.id for k in [*LOCAL_KINDS, *CUSTOM_KINDS]}
 
 # AI SDK packages whose API pydantic-ai speaks at any base URL.
 OPENAI_SDKS = {"@ai-sdk/openai-compatible", "@ai-sdk/openai"}
@@ -322,21 +332,25 @@ def get_models_dev_service() -> ModelsDevService | None:
 def resolve_kind(kind_id: str) -> ProviderKind | None:
     """A saved provider's kind: from the models.dev cache table (survives restarts), or the
     built-in form for a native or local kind, so a saved provider never vanishes."""
+    if kind_id in OWN_IDS:
+        return BY_ID[kind_id]
     kind = _service.get_kind(kind_id) if _service else None
     return kind or BY_ID.get(kind_id)
 
 
 async def list_kinds() -> list[ProviderKind]:
     """What the "Add provider" picker offers: every models.dev provider pydantic-ai can
-    use, plus local Ollama. An empty cache (first start) is filled first."""
+    use, local servers models.dev doesn't list, and custom endpoints. An empty cache
+    (first start) is filled first."""
     if _service is None:
-        return list(LOCAL_KINDS)
+        return [*LOCAL_KINDS, *CUSTOM_KINDS]
     if not _service.get_cached_providers():
         try:
             await _service.ensure_cache_fresh()
-        except Exception as exc:  # offline: Ollama alone until models.dev answers
+        except Exception as exc:  # offline: local and custom kinds only
             log.warning("Couldn't fetch models.dev: %s", exc)
-    return [*_service.get_kinds(), *LOCAL_KINDS]
+    listed = [k for k in _service.get_kinds() if k.id not in OWN_IDS]
+    return [*listed, *LOCAL_KINDS, *CUSTOM_KINDS]
 
 
 async def refresh_models_dev_cache(force: bool = False) -> int:

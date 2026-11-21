@@ -204,7 +204,7 @@ def test_local_and_templated_urls(tmp_path, fake_fetch):
     assert cerebras.default == "https://api.cerebras.ai/v1"
 
 
-def test_the_kinds_list_fills_an_empty_cache_and_always_has_ollama(tmp_path, fake_fetch):
+def test_the_kinds_list_fills_an_empty_cache_and_always_has_local_and_custom(tmp_path, fake_fetch):
     with TestClient(make_app(tmp_path)) as client:
         signed_in(client)
         for session in client.app.state.db.session():  # type: ignore[attr-defined]
@@ -213,7 +213,8 @@ def test_the_kinds_list_fills_an_empty_cache_and_always_has_ollama(tmp_path, fak
             session.commit()
         models_dev._service._last_fetch = 0  # type: ignore[union-attr]
         kinds = [k["id"] for k in client.get("/api/assistant/kinds").json()]
-        assert "acme-ai" in kinds and "anthropic" in kinds and kinds[-1] == "ollama"
+        assert "acme-ai" in kinds and "anthropic" in kinds and "ollama" in kinds
+        assert kinds[-2:] == ["openai-compatible", "anthropic-compatible"]
         assert "closed-ai" not in kinds
 
 

@@ -116,6 +116,8 @@ export function AddMenu({
         value: "Local",
         items: kinds.filter((k) => k.group === "local").sort(byLabel),
       },
+      // Custom endpoints stay last, in the server's order.
+      { value: "Custom", items: kinds.filter((k) => k.group === "custom") },
     ].filter((g) => g.items.length > 0)
   }, [kinds])
   return (
