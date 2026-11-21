@@ -16,8 +16,8 @@ from urllib.parse import urlsplit
 import httpx2
 from pydantic import BaseModel
 
-from athena.assistant.kinds import BY_ID, ProviderKind, get_native_kind_ids, secret_keys
-from athena.assistant.models_dev import get_models_dev_service
+from athena.assistant.kinds import ProviderKind, get_native_kind_ids, secret_keys
+from athena.assistant.models_dev import get_models_dev_service, resolve_kind
 from athena.crypto import SecretBox
 from athena.db.models import AiProvider
 
@@ -71,7 +71,9 @@ class ProviderConfig:
 
 
 def config_of(row: AiProvider, box: SecretBox) -> ProviderConfig:
-    kind = BY_ID[row.kind]
+    kind = resolve_kind(row.kind)
+    if kind is None:
+        raise ProviderError(f"Unknown provider kind: {row.kind}")
     values: dict[str, str] = dict(json.loads(row.config or "{}"))
     if row.secrets:
         values.update(json.loads(box.decrypt(row.secrets)))
