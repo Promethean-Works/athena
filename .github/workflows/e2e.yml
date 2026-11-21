@@ -21,6 +21,7 @@ on:
       - apps/server/src/athena/service/**
       - apps/server/src/athena/cli.py
       - apps/server/src/athena/https/**
+      - apps/server/src/athena/terminal/**
       - .github/workflows/e2e.yml
 
 permissions:
