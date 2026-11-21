@@ -11,7 +11,7 @@ from pathlib import Path
 
 import psutil
 
-from athena import __version__
+from athena import __version__, restart
 from athena.config import SECTIONS, default_data_dir
 
 SHUTDOWN_GRACE_SECONDS = 5
@@ -37,19 +37,84 @@ def _serve(args: argparse.Namespace) -> int:
     Path(args.data_dir).mkdir(parents=True, exist_ok=True)
     if not _settings_file_ok(Path(args.data_dir)):
         return 1
+    # `--reload` has its own worker process and can't restart itself: run it as before.
+    # Otherwise this process is the supervisor and the server runs in a child, so that
+    # "Restart Athena" works the same under every service manager (see athena/restart.py).
+    if not args.reload and os.environ.get(restart.CHILD_ENV) != "1":
+        return _supervise(args)
     settings = Settings(data_dir=Path(args.data_dir))
-    uvicorn.run(
-        "athena.main:create_app",
-        factory=True,
-        host=settings.host,
-        port=settings.port,
-        reload=args.reload,
-        log_config=None,  # athena.logging_setup configures logging in create_app
+    options = {
+        "factory": True,
+        "host": settings.host,
+        "port": settings.port,
+        "log_config": None,  # athena.logging_setup configures logging in create_app
         # SSE streams (live stats, logs) never end on their own; without a timeout an
         # open dashboard keeps the server from stopping (and a service restart hangs).
-        timeout_graceful_shutdown=SHUTDOWN_GRACE_SECONDS,
-    )
-    return 0
+        "timeout_graceful_shutdown": SHUTDOWN_GRACE_SECONDS,
+    }
+    if args.reload:
+        uvicorn.run("athena.main:create_app", reload=True, **options)
+        return 0
+    server = uvicorn.Server(uvicorn.Config("athena.main:create_app", **options))
+    restart.register(server)
+    _stop_with_parent(server)
+    server.run()
+    return restart.RESTART_EXIT_CODE if restart.requested() else 0
+
+
+def _stop_with_parent(server: object) -> None:
+    """Stop the server when the supervisor is gone (it was killed, not asked to stop).
+
+    A killed supervisor (Windows has no SIGTERM to forward) would leave this child
+    holding the port with nobody to restart it.
+    """
+    import threading
+    import time
+
+    parent_pid = os.getppid()
+
+    def watch() -> None:
+        while True:
+            time.sleep(2)
+            if os.getppid() != parent_pid or not psutil.pid_exists(parent_pid):
+                server.should_exit = True  # type: ignore[attr-defined]
+                return
+
+    threading.Thread(target=watch, name="athena-parent-watch", daemon=True).start()
+
+
+def _supervise(args: argparse.Namespace) -> int:
+    """Run the server in a child process and start it again when it asks for a restart.
+
+    The child is `athena serve` with `ATHENA_SERVE_CHILD=1`. Exit code 75 means
+    "restart"; any other code ends the supervisor with the same code, so a crash or an
+    invalid athena.json isn't retried in a loop. Each start re-reads athena.json.
+    """
+    import signal
+
+    cmd = [sys.executable, "-m", "athena", "serve", "--data-dir", str(args.data_dir)]
+    env = {**os.environ, restart.CHILD_ENV: "1"}
+    stopping = False
+    child: subprocess.Popen | None = None
+
+    def stop(signum: int, _frame: object) -> None:
+        nonlocal stopping
+        stopping = True
+        if child is not None and child.poll() is None:
+            # Forward it: the child shuts down gracefully and exits.
+            with contextlib.suppress(OSError):
+                child.send_signal(signum)
+
+    previous = {sig: signal.signal(sig, stop) for sig in (signal.SIGINT, signal.SIGTERM)}
+    try:
+        while True:
+            child = subprocess.Popen(cmd, env=env)
+            code = child.wait()
+            if stopping or code != restart.RESTART_EXIT_CODE:
+                return code
+    finally:
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
 
 
 def _settings_file_ok(data_dir: Path, starting: bool = True) -> bool:

@@ -8,14 +8,13 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Backup and restore: spec `docs/specs/backup.md` approved 2026-11-21 (restic, versions page, Restart Athena in the user menu). Next: part 1 (Restart Athena).
+- Backup and restore: spec `docs/specs/backup.md` approved 2026-11-21 (restic, versions page, Restart Athena in the user menu). Part 1 (Restart Athena) is pushed on `claude/next-plans-nqilvp`, no PR yet. Next: its PR, `athena-host-test` for the service, then part 2.
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt or Cloudflare, trusting the CA on real devices. The last renewal/error live in memory only (a restart forgets them). Follow-up: own-certificate upload.
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.
 - Windows E2E flake (also on `main`, run 44856906030): `GET /api/containers` sometimes 500s under the service with `OSError: [WinError 6] The handle is invalid` in `subprocess._make_inheritable`: `pythonw.exe` has no console handles and python-on-whales starts `docker` without `stdin=DEVNULL`.
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - Dashboard follow-ups: touch dragging on a real phone; an app "update available" badge (`AppOut` has no such field).
 - A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
-- E2E `install + smoke (windows-latest)` fails about half the time on main too: `500 GET /api/containers` during the phone/dark step (seen 2026-11-21). Find the server traceback in that job's log.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).

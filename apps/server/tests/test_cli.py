@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -8,6 +9,7 @@ import pytest
 from conftest import ADMIN, make_app, signed_in
 from fastapi.testclient import TestClient
 
+from athena import restart
 from athena.cli import main
 
 
@@ -88,12 +90,138 @@ def test_serve_bounds_graceful_shutdown(tmp_path: Path, monkeypatch: pytest.Monk
     import uvicorn
 
     seen: dict = {}
-    monkeypatch.setattr(uvicorn, "run", lambda *a, **kw: seen.update(kw))
+    monkeypatch.setattr(uvicorn.Server, "run", lambda self: seen.update(config=self.config))
     for key in ("ATHENA_HOST", "ATHENA_PORT", "ATHENA_DATA_DIR", "ATHENA_LOG_TO_FILE"):
         monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv(restart.CHILD_ENV, "1")
+    monkeypatch.setattr("athena.cli._stop_with_parent", lambda server: None)
     assert main(["serve", "--port", "8499", "--data-dir", str(tmp_path / "d")]) == 0
-    assert seen["port"] == 8499
-    assert 0 < seen["timeout_graceful_shutdown"] <= 10
+    assert seen["config"].port == 8499
+    assert 0 < seen["config"].timeout_graceful_shutdown <= 10
+    restart.register(None)
+
+
+def test_serve_exits_with_the_restart_code_when_asked(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import uvicorn
+
+    def run(self: uvicorn.Server) -> None:
+        assert restart.request()
+
+    monkeypatch.setattr(uvicorn.Server, "run", run)
+    monkeypatch.setenv(restart.CHILD_ENV, "1")
+    monkeypatch.setattr("athena.cli._stop_with_parent", lambda server: None)
+    code = main(["serve", "--port", "8499", "--data-dir", str(tmp_path / "d")])
+    assert code == restart.RESTART_EXIT_CODE
+    restart.register(None)
+
+
+class FakeChild:
+    def __init__(self, code: int) -> None:
+        self.code = code
+
+    def wait(self) -> int:
+        return self.code
+
+    def poll(self) -> int:
+        return self.code
+
+
+def test_supervisor_restarts_on_75_and_stops_on_other_codes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    codes = iter([75, 75, 0])
+    starts: list[dict] = []
+
+    def popen(cmd: list[str], env: dict) -> FakeChild:
+        starts.append(env)
+        return FakeChild(next(codes))
+
+    monkeypatch.delenv(restart.CHILD_ENV, raising=False)
+    monkeypatch.setattr(subprocess, "Popen", popen)
+    assert main(["serve", "--data-dir", str(tmp_path / "d")]) == 0
+    assert len(starts) == 3
+    assert all(env[restart.CHILD_ENV] == "1" for env in starts)
+
+
+def test_supervisor_does_not_retry_a_crash(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    starts: list[int] = []
+
+    def popen(cmd: list[str], env: dict) -> FakeChild:
+        starts.append(1)
+        return FakeChild(1)
+
+    monkeypatch.delenv(restart.CHILD_ENV, raising=False)
+    monkeypatch.setattr(subprocess, "Popen", popen)
+    assert main(["serve", "--data-dir", str(tmp_path / "d")]) == 1
+    assert len(starts) == 1
+
+
+def test_a_real_supervised_server_comes_back_after_a_restart(tmp_path: Path) -> None:
+    """End to end: the real CLI, a real child, POST /api/system/restart, a new start time."""
+    import socket
+    import sys
+    import time
+    import urllib.request
+
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    data = tmp_path / "data"
+    env = {k: v for k, v in os.environ.items() if not k.startswith("ATHENA_")}
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "athena", "serve", "--port", str(port), "--data-dir", str(data)],
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    def health() -> str | None:
+        try:
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/health", timeout=2) as r:
+                return json.load(r)["started_at"]
+        except OSError:
+            return None
+
+    def wait_for(predicate, seconds: float = 40):  # type: ignore[no-untyped-def]
+        end = time.monotonic() + seconds
+        while time.monotonic() < end:
+            value = predicate()
+            if value:
+                return value
+            time.sleep(0.3)
+        return None
+
+    try:
+        first = wait_for(health)
+        assert first, "the server didn't start"
+        base = f"http://127.0.0.1:{port}/api"
+        setup = urllib.request.Request(
+            f"{base}/auth/setup",
+            data=json.dumps(ADMIN).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(setup, timeout=10) as r:
+            csrf = json.load(r)["csrf_token"]
+            cookie = r.headers["Set-Cookie"].split(";")[0]
+        restart_req = urllib.request.Request(
+            f"{base}/system/restart",
+            data=b"",
+            method="POST",
+            headers={"X-CSRF-Token": csrf, "Cookie": cookie},
+        )
+        with urllib.request.urlopen(restart_req, timeout=10) as r:
+            assert r.status == 202
+        second = wait_for(lambda: (h := health()) and h != first and h)
+        assert second, "the server didn't come back"
+        assert proc.poll() is None  # the supervisor itself keeps running
+    finally:
+        proc.terminate()
+        try:
+            proc.wait(timeout=20)
+        except subprocess.TimeoutExpired:
+            proc.kill()
 
 
 # ---------------------------------------------------------------- start / stop
@@ -283,31 +411,38 @@ def test_config_reset_needs_valid_json(tmp_path: Path, capsys: pytest.CaptureFix
     assert "athena.json:1:" in capsys.readouterr().err
 
 
+def _capture_serve(monkeypatch: pytest.MonkeyPatch) -> dict:
+    """Run `athena serve` as the supervised child, with the server itself stubbed out."""
+    import uvicorn
+
+    seen: dict = {}
+    monkeypatch.setattr(uvicorn.Server, "run", lambda self: seen.update(config=self.config))
+    monkeypatch.setenv(restart.CHILD_ENV, "1")
+    monkeypatch.setattr("athena.cli._stop_with_parent", lambda server: None)
+    return seen
+
+
 def test_serve_takes_host_and_port_from_the_file(
     tmp_path: Path, clean_env: pytest.MonkeyPatch
 ) -> None:
-    import uvicorn
-
-    seen: dict = {}
-    clean_env.setattr(uvicorn, "run", lambda *a, **kw: seen.update(kw))
+    seen = _capture_serve(clean_env)
     _settings_file(tmp_path, {"server": {"host": "127.0.0.1", "port": 8500}})
     assert main(["serve", "--data-dir", str(tmp_path)]) == 0
-    assert (seen["host"], seen["port"]) == ("127.0.0.1", 8500)
+    assert (seen["config"].host, seen["config"].port) == ("127.0.0.1", 8500)
+    restart.register(None)
 
 
 def test_flag_beats_env_beats_file(tmp_path: Path, clean_env: pytest.MonkeyPatch) -> None:
-    import uvicorn
-
     from athena.config import Settings
 
-    seen: dict = {}
-    clean_env.setattr(uvicorn, "run", lambda *a, **kw: seen.update(kw))
+    seen = _capture_serve(clean_env)
     _settings_file(tmp_path, {"server": {"port": 8500}})
     assert Settings(data_dir=tmp_path).port == 8500
     clean_env.setenv("ATHENA_PORT", "8600")
     assert Settings(data_dir=tmp_path).port == 8600
     assert main(["serve", "--port", "8700", "--data-dir", str(tmp_path)]) == 0
-    assert seen["port"] == 8700
+    assert seen["config"].port == 8700
+    restart.register(None)
 
 
 def test_service_install_port_goes_into_the_file(

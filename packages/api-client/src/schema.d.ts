@@ -21,6 +21,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/system/restart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restart Athena
+         * @description Stop the server; the `athena serve` supervisor starts a new one (admins only).
+         */
+        post: operations["restartAthena"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/system/info": {
         parameters: {
             query?: never;
@@ -3031,6 +3051,11 @@ export interface components {
             status: "ok";
             /** Version */
             version: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
         };
         /** HttpsSettings */
         HttpsSettings: {
@@ -4465,6 +4490,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    restartAthena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };

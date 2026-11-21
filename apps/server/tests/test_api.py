@@ -4,7 +4,7 @@ from conftest import make_app, signed_in
 from fake_probe import FakeProbe
 from fastapi.testclient import TestClient
 
-from athena import __version__
+from athena import __version__, restart
 from athena.platform.detect import detect
 from athena.platform.store import CapabilityStore
 
@@ -16,7 +16,52 @@ def client(tmp_path: Path, web_dir: Path | None = None) -> TestClient:
 def test_health(tmp_path: Path) -> None:
     res = client(tmp_path).get("/api/health")
     assert res.status_code == 200
-    assert res.json() == {"status": "ok", "version": __version__}
+    body = res.json()
+    assert body["status"] == "ok"
+    assert body["version"] == __version__
+    assert body["started_at"]
+    # The same process answers with the same start time (the UI polls it after a restart).
+    assert client(tmp_path / "other").get("/api/health").json()["started_at"] >= body["started_at"]
+
+
+class FakeServer:
+    should_exit = False
+
+
+def test_restart_needs_a_supervisor_and_is_audited(tmp_path: Path) -> None:
+    c = client(tmp_path)
+    restart.register(None)
+    assert c.post("/api/system/restart").status_code == 409
+    server = FakeServer()
+    restart.register(server)
+    try:
+        with c:
+            res = c.post("/api/system/restart")
+        assert res.status_code == 202
+        assert server.should_exit is True
+        assert restart.requested()
+        actions = [row["action"] for row in c.get("/api/audit").json()]
+        assert "system.restart" in actions
+    finally:
+        restart.register(None)
+
+
+def test_restart_is_admin_only(tmp_path: Path) -> None:
+    c = client(tmp_path)
+    server = FakeServer()
+    restart.register(server)
+    try:
+        with c.app.state.db.engine.begin() as conn:  # type: ignore[attr-defined]
+            conn.exec_driver_sql("UPDATE users SET is_admin = 0")
+        assert c.post("/api/system/restart").status_code == 403
+        assert server.should_exit is False
+    finally:
+        restart.register(None)
+
+
+def test_restart_needs_a_session(tmp_path: Path) -> None:
+    c = TestClient(make_app(tmp_path))
+    assert c.post("/api/system/restart").status_code == 401
 
 
 def test_system_info(tmp_path: Path) -> None:
