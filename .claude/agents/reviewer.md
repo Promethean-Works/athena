@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: "Reviews a diff against Athena's rules (AGENTS.md, the app rules, gotchas) and reports bugs and rule breaks without editing. Use before opening a PR, or when asked to review."
-model: inherit
+model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
 
