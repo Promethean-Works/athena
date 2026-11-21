@@ -89,7 +89,9 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
 
     if not allowed_roots:
         raise DestinationError("No allowed backup locations are configured")
-    roots = [Path(root).resolve() for root in allowed_roots]
+    roots = [Path(root).resolve(strict=False) for root in allowed_roots if Path(root).is_absolute()]
+    if not roots:
+        raise DestinationError("No allowed backup locations are configured")
     if not any(_is_inside(resolved, root) for root in roots):
         raise DestinationError("Pick a folder inside an allowed backup location")
 
@@ -100,16 +102,18 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
 
 def check_writable(folder: Path) -> None:
     """Create the folder if needed and prove Athena can write in it."""
+    if not _is_absolute(str(folder)):
+        raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
     try:
-        expected = folder.resolve(strict=False)
-        folder.mkdir(parents=True, exist_ok=True)
-        writable = folder.resolve(strict=True)
-        if folder.is_symlink() or writable != expected:
+        target = folder.resolve(strict=False)
+        target.mkdir(parents=True, exist_ok=True)
+        writable = target.resolve(strict=True)
+        if target.is_symlink() or writable != target:
             raise DestinationError("Symbolic links are not allowed; pick a real folder path")
         with tempfile.NamedTemporaryFile(dir=writable, prefix=".athena-write-test-"):
             pass
     except OSError as exc:
-        raise DestinationError(f"Athena can't write in {folder}: {exc.strerror or exc}") from exc
+        raise DestinationError(f"Athena can't write in {target}: {exc.strerror or exc}") from exc
 
 
 def generate_password() -> str:
