@@ -60,6 +60,19 @@ def _is_absolute(raw: str) -> bool:
     return PurePosixPath(raw).is_absolute()
 
 
+def _check_safe_local_path_syntax(raw: str) -> None:
+    """Reject dangerous/ambiguous raw path syntaxes before filesystem access."""
+    if sys.platform == "win32":
+        p = PureWindowsPath(raw)
+        anchor = p.anchor or ""
+        # UNC paths (\\server\share\...) and device/extended paths (\\?\..., \\.\...)
+        if anchor.startswith("\\\\"):
+            raise DestinationError("Use a local drive path, not a network or device path")
+        # Reserved device names (CON, NUL, COM1, etc.) anywhere in parts.
+        if any(part and PureWindowsPath(part).is_reserved() for part in p.parts):
+            raise DestinationError("Path contains a reserved Windows device name")
+
+
 def check_local_path(raw: str, data_dir: Path) -> Path:
     """The folder for a local repository, or `DestinationError`.
 
@@ -71,10 +84,19 @@ def check_local_path(raw: str, data_dir: Path) -> Path:
         raise DestinationError("Enter a folder")
     if "\x00" in raw or not _is_absolute(raw):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
+    _check_safe_local_path_syntax(raw)
     path = Path(os.path.normpath(raw))
     resolved = path.resolve()
+    allowed_root = (data_dir / "backups").resolve()
+    if not _is_inside(resolved, allowed_root):
+        raise DestinationError(f"Pick a folder inside {allowed_root}")
     if resolved == Path(resolved.anchor):
         raise DestinationError("Pick a folder, not the root of a disk")
+    allowed_root = data_dir.resolve().parent
+    try:
+        resolved.relative_to(allowed_root)
+    except ValueError as exc:
+        raise DestinationError(f"Pick a folder inside {allowed_root}") from exc
     for folder in _system_folders():
         if _is_inside(resolved, folder.resolve()):
             raise DestinationError(f"{folder} is a system folder; pick another")
