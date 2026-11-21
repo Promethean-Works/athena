@@ -90,7 +90,7 @@ def _location(request: Request, draft: DestinationDraft) -> str:
     allowed_roots = [Path(p) for p in allowed_raw]
     try:
         folder = repository.check_local_path(draft.path, data_dir, allowed_roots)
-        repository.check_writable(folder)
+        repository.check_writable(folder, allowed_roots)
     except DestinationError as exc:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
     return str(folder)

@@ -100,12 +100,19 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
     return resolved
 
 
-def check_writable(folder: Path) -> None:
+def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> None:
     """Create the folder if needed and prove Athena can write in it."""
     if not _is_absolute(str(folder)):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
+    target = folder.resolve(strict=False)
+    if not allowed_roots:
+        raise DestinationError("No allowed backup locations are configured")
+    roots = [Path(root).resolve(strict=False) for root in allowed_roots if Path(root).is_absolute()]
+    if not roots:
+        raise DestinationError("No allowed backup locations are configured")
+    if not any(_is_inside(target, root) for root in roots):
+        raise DestinationError("Pick a folder inside an allowed backup location")
     try:
-        target = folder.resolve(strict=False)
         target.mkdir(parents=True, exist_ok=True)
         writable = target.resolve(strict=True)
         if target.is_symlink() or writable != target:
