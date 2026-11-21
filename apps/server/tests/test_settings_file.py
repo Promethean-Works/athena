@@ -193,3 +193,15 @@ def test_https_off_refuses_a_broken_file(tmp_path: Path, capsys) -> None:
     err = capsys.readouterr().err
     assert "athena.json:1:" in err
     assert "can't start" not in err
+
+
+def test_admins_see_where_the_file_is(tmp_path: Path) -> None:
+    with TestClient(make_app(tmp_path)) as client:
+        signed_in(client)
+        res = client.get("/api/settings/file")
+        assert res.status_code == 200, res.text
+        assert Path(res.json()["path"]) == client.app.state.settings_file.path
+        assert res.json()["backup_path"].endswith("athena.json.bak")
+        with client.app.state.db.engine.begin() as conn:
+            conn.exec_driver_sql("UPDATE users SET is_admin = 0")
+        assert client.get("/api/settings/file").status_code == 403
