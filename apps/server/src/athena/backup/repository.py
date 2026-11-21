@@ -37,6 +37,13 @@ class DestinationError(ValueError):
     """The destination can't be used; the message says why and is shown to the admin."""
 
 
+class ValidatedLocalPath:
+    """A local path that passed backup destination validation."""
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+
+
 def _is_inside(path: Path, folder: Path) -> bool:
     return path == folder or folder in path.parents
 
@@ -60,7 +67,9 @@ def _is_absolute(raw: str) -> bool:
     return PurePosixPath(raw).is_absolute()
 
 
-def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None = None) -> Path:
+def check_local_path(
+    raw: str, data_dir: Path, allowed_roots: list[Path] | None = None
+) -> ValidatedLocalPath:
     """The folder for a local repository, or `DestinationError`.
 
     It must be absolute, writable, not a system folder and not inside Athena's own data
@@ -97,12 +106,12 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
 
     if resolved.exists() and not resolved.is_dir():
         raise DestinationError(f"{resolved} is a file, not a folder")
-    return resolved
+    return ValidatedLocalPath(resolved)
 
 
-def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> None:
+def check_writable(folder: ValidatedLocalPath, allowed_roots: list[Path] | None = None) -> None:
     """Create the folder if needed and prove Athena can write in it."""
-    raw = str(folder).strip()
+    raw = str(folder.path).strip()
     if "\x00" in raw or not _is_absolute(raw):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
     target = Path(os.path.normpath(raw)).resolve(strict=False)
@@ -144,8 +153,10 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
         safe_writable_path = _canonical_inside_allowed(writable)
         if safe_target.is_symlink() or safe_writable_path != _canonical_inside_allowed(safe_target):
             raise DestinationError("Symbolic links are not allowed; pick a real folder path")
+        if not safe_writable_path.exists() or not safe_writable_path.is_dir():
+            raise DestinationError("Pick a real folder path")
         with tempfile.NamedTemporaryFile(
-            dir=safe_writable_path, prefix=".athena-write-test-"
+            dir=os.fspath(safe_writable_path), prefix=".athena-write-test-"
         ):
             pass
     except OSError as exc:

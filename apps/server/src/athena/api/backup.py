@@ -93,7 +93,7 @@ def _location(request: Request, draft: DestinationDraft) -> str:
         repository.check_writable(folder, allowed_roots)
     except DestinationError as exc:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
-    return str(folder)
+    return str(folder.path)
 
 
 def _password(draft: DestinationDraft) -> str:
