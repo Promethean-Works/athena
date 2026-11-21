@@ -31,12 +31,13 @@ def test_missing_file_means_defaults_and_gets_written(tmp_path: Path) -> None:
     assert f.load() == AthenaConfig()
     data = _on_disk(f)
     assert data["$schema"] == "./athena.schema.json"
-    assert list(data)[1:] == ["system", "https", "ai", "webdav"]
+    assert list(data)[1:] == ["server", "system", "https", "ai", "webdav"]
+    assert data["server"]["port"] == 8420
     assert data["system"]["terminal_enabled"] is True
     assert "tunnel_secrets_set" not in data["system"]
     assert "dns_secrets_set" not in data["https"]["letsencrypt"]
     schema = json.loads(f.schema_path.read_text(encoding="utf-8"))
-    assert {"$schema", "system", "https", "ai", "webdav"} <= set(schema["properties"])
+    assert {"$schema", "server", "system", "https", "ai", "webdav"} <= set(schema["properties"])
     if os.name == "posix":
         assert stat.S_IMODE(f.path.stat().st_mode) == 0o600
 
@@ -192,3 +193,15 @@ def test_https_off_refuses_a_broken_file(tmp_path: Path, capsys) -> None:
     err = capsys.readouterr().err
     assert "athena.json:1:" in err
     assert "can't start" not in err
+
+
+def test_admins_see_where_the_file_is(tmp_path: Path) -> None:
+    with TestClient(make_app(tmp_path)) as client:
+        signed_in(client)
+        res = client.get("/api/settings/file")
+        assert res.status_code == 200, res.text
+        assert Path(res.json()["path"]) == client.app.state.settings_file.path
+        assert res.json()["backup_path"].endswith("athena.json.bak")
+        with client.app.state.db.engine.begin() as conn:
+            conn.exec_driver_sql("UPDATE users SET is_admin = 0")
+        assert client.get("/api/settings/file").status_code == 403

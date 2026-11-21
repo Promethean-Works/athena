@@ -1,7 +1,6 @@
 import io
 import json
 import subprocess
-import sys
 from pathlib import Path
 
 import psutil
@@ -188,38 +187,144 @@ def test_stop_running_server(
 # ---------------------------------------------------------------- config
 
 
-def test_config_show_prints_settings(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+@pytest.fixture
+def clean_env(monkeypatch: pytest.MonkeyPatch) -> pytest.MonkeyPatch:
+    """No ATHENA_* server variables, and those `serve` exports put back afterwards."""
+    for name in ("HOST", "PORT", "DATA_DIR", "LOG_TO_FILE", "FEEDBACK_REPO"):
+        monkeypatch.setenv(f"ATHENA_{name}", "")
+        monkeypatch.delenv(f"ATHENA_{name}")
+    monkeypatch.delenv("ATHENA_DURABLE_EXECUTION_DATABASE_URL", raising=False)
+    return monkeypatch
+
+
+def _settings_file(data_dir: Path, data: object) -> Path:
+    data_dir.mkdir(parents=True, exist_ok=True)
+    path = data_dir / "athena.json"
+    path.write_bytes((data if isinstance(data, str) else json.dumps(data)).encode())
+    return path
+
+
+def test_config_path(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["config", "path", "--data-dir", str(tmp_path)]) == 0
+    assert Path(capsys.readouterr().out.strip()) == tmp_path / "athena.json"
+
+
+def test_config_show_says_where_each_value_comes_from(
+    tmp_path: Path, clean_env: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    monkeypatch.delenv("ATHENA_PORT", raising=False)
-    assert main(["config", "show"]) == 0
+    url = "postgresql://athena:hunter2@db/athena"
+    _settings_file(tmp_path, {"server": {"port": 8500, "durable_execution_database_url": url}})
+    clean_env.setenv("ATHENA_HOST", "127.0.0.1")
+    assert main(["config", "show", "--data-dir", str(tmp_path)]) == 0
     out = capsys.readouterr().out
-    assert "port=" in out
-    assert "(default)" in out
+    assert "port = 8500  (file)" in out
+    assert "host = 127.0.0.1  (env ATHENA_HOST)" in out
+    assert "feedback_repo = https://github.com/tiagozaccaro/athena  (default)" in out
+    assert "hunter2" not in out
+    assert "athena:***@db" in out
 
 
-def test_config_get_prints_one_setting(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
-) -> None:
-    monkeypatch.setenv("ATHENA_PORT", "9999")
-    assert main(["config", "get", "port"]) == 0
-    assert capsys.readouterr().out.strip() == "9999"
+def test_redact_url_hides_every_form_of_secret() -> None:
+    from athena.cli import _redact_url
+
+    assert _redact_url("postgresql://u:pw@h:5432/db") == "postgresql://u:***@h:5432/db"
+    assert _redact_url("postgresql://u@h/db?password=pw") == "postgresql://u:***@h/db?***"
+    assert "pw" not in _redact_url("postgresql://h/db?sslmode=require&password=pw")
 
 
-def test_config_get_unknown_key(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    assert main(["config", "get", "nope"]) == 1
-    assert "unknown setting" in capsys.readouterr().err
+def test_config_check(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["config", "check", "--data-dir", str(tmp_path)]) == 0
+    assert "Athena will use defaults" in capsys.readouterr().out
+    _settings_file(tmp_path, '{\n  "server": {"port": 0}\n}')
+    assert main(["config", "check", "--data-dir", str(tmp_path)]) == 1
+    err = capsys.readouterr().err
+    assert "athena.json:2:14: server.port: Input should be greater than or equal to 1" in err
+    _settings_file(tmp_path, {"server": {"port": 8500}})
+    assert main(["config", "check", "--data-dir", str(tmp_path)]) == 0
+    assert "is valid" in capsys.readouterr().out
 
 
-def test_config_set_prints_export_command(
+def test_config_reset_fixes_a_bad_section_and_keeps_the_rest(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    assert main(["config", "set", "port", "9999"]) == 0
-    out = capsys.readouterr().out
-    if sys.platform == "win32":
-        assert 'setx ATHENA_PORT "9999"' in out
-    else:
-        assert 'export ATHENA_PORT="9999"' in out
+    path = _settings_file(
+        tmp_path, {"https": {"port": "nope"}, "system": {"terminal_enabled": False}}
+    )
+    assert main(["config", "reset", "https", "--data-dir", str(tmp_path)]) == 0
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["https"]["port"] == 8443
+    assert data["system"]["terminal_enabled"] is False
+    assert json.loads((tmp_path / "athena.json.bak").read_text(encoding="utf-8"))["https"] == {
+        "port": "nope"
+    }
+    assert "back to its defaults" in capsys.readouterr().out
+
+
+def test_config_reset_refuses_when_another_section_is_invalid(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    text = '{\n  "https": {"port": "x"},\n  "system": {"nope": 1}\n}'
+    _settings_file(tmp_path, text)
+    assert main(["config", "reset", "https", "--data-dir", str(tmp_path)]) == 1
+    err = capsys.readouterr().err
+    assert "the rest of the file is invalid too" in err
+    assert "athena.json:3:14: system.nope" in err  # positions in the real file
+    assert (tmp_path / "athena.json").read_text(encoding="utf-8") == text
+
+
+def test_config_reset_without_a_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["config", "reset", "server", "--data-dir", str(tmp_path / "typo")]) == 1
+    assert "nothing to reset" in capsys.readouterr().err
+
+
+def test_config_reset_needs_valid_json(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    _settings_file(tmp_path, '{"https": {')
+    assert main(["config", "reset", "https", "--data-dir", str(tmp_path)]) == 1
+    assert "athena.json:1:" in capsys.readouterr().err
+
+
+def test_serve_takes_host_and_port_from_the_file(
+    tmp_path: Path, clean_env: pytest.MonkeyPatch
+) -> None:
+    import uvicorn
+
+    seen: dict = {}
+    clean_env.setattr(uvicorn, "run", lambda *a, **kw: seen.update(kw))
+    _settings_file(tmp_path, {"server": {"host": "127.0.0.1", "port": 8500}})
+    assert main(["serve", "--data-dir", str(tmp_path)]) == 0
+    assert (seen["host"], seen["port"]) == ("127.0.0.1", 8500)
+
+
+def test_flag_beats_env_beats_file(tmp_path: Path, clean_env: pytest.MonkeyPatch) -> None:
+    import uvicorn
+
+    from athena.config import Settings
+
+    seen: dict = {}
+    clean_env.setattr(uvicorn, "run", lambda *a, **kw: seen.update(kw))
+    _settings_file(tmp_path, {"server": {"port": 8500}})
+    assert Settings(data_dir=tmp_path).port == 8500
+    clean_env.setenv("ATHENA_PORT", "8600")
+    assert Settings(data_dir=tmp_path).port == 8600
+    assert main(["serve", "--port", "8700", "--data-dir", str(tmp_path)]) == 0
+    assert seen["port"] == 8700
+
+
+def test_service_install_port_goes_into_the_file(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from athena.cli import _set_port
+
+    assert _set_port(tmp_path, 8500, dry_run=True)
+    assert "[dry-run] set server.port to 8500" in capsys.readouterr().out
+    assert not (tmp_path / "athena.json").exists()
+    path = _settings_file(tmp_path, {"system": {"terminal_enabled": False}})
+    assert _set_port(tmp_path, 8500, dry_run=False)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["server"]["port"] == 8500
+    assert data["system"]["terminal_enabled"] is False
+    assert not _set_port(tmp_path, 70000, dry_run=False)
+    assert not _set_port(tmp_path, 70000, dry_run=True)
 
 
 # ---------------------------------------------------------------- doctor
@@ -233,6 +338,20 @@ def test_doctor_prints_report(tmp_path: Path, capsys: pytest.CaptureFixture[str]
     assert "database" in out
     assert "port" in out
     assert "docker" in out
+    assert "settings" in out
+
+
+def test_doctor_reports_a_broken_settings_file(
+    tmp_path: Path, clean_env: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _settings_file(tmp_path, {"https": {"port": "nope"}})
+    assert main(["doctor", "--data-dir", str(tmp_path)]) == 1
+    assert "[fail] settings" in capsys.readouterr().out
+    # A bad server value too: doctor still reports instead of crashing.
+    _settings_file(tmp_path, {"server": {"port": "abc"}})
+    assert main(["doctor", "--data-dir", str(tmp_path)]) == 1
+    out = capsys.readouterr().out
+    assert "[fail] settings" in out and "server.port" in out
 
 
 class FakePopen:

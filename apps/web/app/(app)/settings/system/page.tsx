@@ -1,3 +1,4 @@
+import { SettingsFileCard } from "@/components/settings/settings-file-card"
 import { SystemForm } from "@/components/settings/system-form"
 import { TunnelCard } from "@/components/settings/tunnel-card"
 import { WebDavCard } from "@/components/settings/webdav-card"
@@ -8,6 +9,7 @@ export default function SystemSettingsPage() {
       <SystemForm />
       <TunnelCard />
       <WebDavCard />
+      <SettingsFileCard />
     </div>
   )
 }

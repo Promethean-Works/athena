@@ -148,7 +148,7 @@ jobs:
             macOS) athena=("$HOME/.local/bin/athena"); data="$HOME/Library/Application Support/Athena" ;;
             Windows) athena=("$LOCALAPPDATA/Athena/app/bin/athena.exe"); data="$LOCALAPPDATA/Athena/data" ;;
           esac
-          restart() { "${athena[@]}" service install --data-dir "$data" --port 8420; }
+          restart() { "${athena[@]}" service install --data-dir "$data"; }
           step() { uv run scripts/e2e/https_check.py "$1" --out e2e-out; }
           step on
           restart

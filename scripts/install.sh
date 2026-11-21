@@ -242,7 +242,7 @@ install_athena() {
   run mkdir -p "$BIN_DIR" "$DATA_DIR"
   run "$UV" tool install --force --python 3.13 "$source"
   say "Registering the Athena service"
-  run "$BIN_DIR/athena" service install --data-dir "$DATA_DIR" --port "$PORT"
+  run "$BIN_DIR/athena" service install --data-dir "$DATA_DIR"
 }
 
 uninstall_athena() {
