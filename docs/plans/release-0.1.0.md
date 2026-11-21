@@ -6,7 +6,7 @@ _Written 2026-11-21 from `docs/STATUS.md`, `docs/plans/improvements.md`, `docs/d
 
 0.1.0 is the first build anyone can install with the one-line installer. It has to install cleanly on Linux (amd64 and arm64), macOS and Windows, every page it shows has to work on that host, nothing it offers may be a dead toggle, and a user who loses their disk can get their apps back. Everything else waits for 0.2.0.
 
-**Scope rule:** M0–M8 are the feature set. 0.1.0 adds backup and restore (spec approved) and otherwise only fixes, hides or verifies what exists. New features from the competitor review (2FA, users with roles, app updates, alerts, stats history, disks) are 0.2.0+ unless the maintainer pulls one in (see [Open questions](#open-questions)).
+**Scope rule:** M0–M8 are the feature set. 0.1.0 adds backup and restore (spec approved) and otherwise only fixes, hides or verifies what exists. New features from the competitor review (2FA, users with roles, app updates, alerts, stats history, disks) are 0.2.0+ unless the maintainer pulls one in (see [Decisions](#decisions-maintainer-2026-11-21)).
 
 **Tiers:** **Must** blocks the release. **Should** goes in if it's ready, otherwise it moves to 0.1.x. **Later** is out of 0.1.0.
 
@@ -46,6 +46,7 @@ Spec `docs/specs/backup.md`, approved 2026-11-21. Part 1 (Restart Athena) merged
 
 - [ ] **Browser tool toggle** (`browser_use_enabled`) does nothing while #89 is blocked on the pydantic-ai-harness / google-genai conflict. Hide it until it works.
 - [ ] **Drop the `coder` extra** of pydantic-ai-harness from `apps/server/pyproject.toml`: `Coder` isn't used on purpose (its shell bypasses `ShellGuard`), and the extra adds install weight. Settles the STATUS open question.
+- [ ] **Tunnel warning** (instead of 2FA, decision 2): while a tunnel is on, Settings → System and the dashboard's remote-access card say the terminal, package installs and the assistant are reachable from the internet with one password, and link to turning them off.
 - [ ] **Durable execution:** label it "Experimental" in Settings → AI unless the crash/kill/resume flow is tested before the release.
 
 ## 5. Verification on real hosts (Must)
@@ -70,7 +71,6 @@ Things marked "not verified" in STATUS that a first user hits on day one.
 ## 7. Should (in if ready, else 0.1.x)
 
 - [ ] **Update notice:** the server checks the latest GitHub release once a day (a Settings → System switch, on by default, nothing sent but the request) and the UI shows "Athena x.y.z is available" with the upgrade command.
-- [ ] **Tunnel warning:** while a tunnel is on, Settings → System and the dashboard's remote-access card say the terminal, package installs and the assistant are reachable from the internet with one password, and link to turning them off.
 - [ ] **Pi health:** under-voltage and throttling on the dashboard (`vcgencmd get_throttled` or the sysfs file); cache the `nvidia-smi` lookup in `monitor.py`.
 - [ ] **Memory on 1 GB boards:** measure RSS on a Pi after the lazy assistant imports (HISTORY); fix the next biggest eager import if it's still over ~200 MB idle.
 - [ ] **Own-certificate upload** for HTTPS.
@@ -90,9 +90,9 @@ From `docs/plans/improvements.md` phase 2 and the backlog: 2FA and passkeys, use
 5. The maintainer merges #3. The release workflow uploads assets and publishes; the post-release E2E passes.
 6. Announce (README badge, GitHub release notes edited for humans on top of the generated changelog).
 
-## Open questions
+## Decisions (maintainer, 2026-11-21)
 
-1. **Is backup in 0.1.0?** Recommendation: yes, all five parts. It's the most asked-for gap against competitors, the spec is approved and part 2 is in review. Cutting it would ship 0.1.0 about two to three weeks sooner.
-2. **2FA in 0.1.0?** Recommendation: no, 0.2.0 first item; ship the tunnel warning (§7) instead. TOTP is small, but it touches login, the recovery command and the setup wizard, and nothing else in 0.1.0 depends on it. Pull it in if 0.1.0 will be announced publicly with tunnels as a headline.
-3. **Failing package managers or tunnels found in §5:** fix before release, or turn the capability off and ship? Recommendation: turn off and list under "Known limitations" in the README; fix in 0.1.x.
-4. **An `-rc` pre-release first?** Recommendation: yes. release-please can cut `0.1.0-rc.1` with `prerelease: true` and a `Release-As` footer; it's the only way to test the real asset job without risking the real tag. A pre-release isn't `releases/latest`, so test it with the installers' `--version 0.1.0-rc.1`.
+1. **Backup is in 0.1.0**, all five parts.
+2. **No 2FA in 0.1.0.** The tunnel warning (§7) ships instead; 2FA is the first 0.2.0 item.
+3. **A package manager or tunnel that fails §5 and can't be fixed quickly** gets its capability turned off and a line under "Known limitations" in the README; fix in 0.1.x.
+4. **A `0.1.0-rc.1` pre-release comes first** (release-please `prerelease: true` and a `Release-As` footer). A pre-release isn't `releases/latest`, so test it with the installers' `--version 0.1.0-rc.1`.

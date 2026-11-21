@@ -30,7 +30,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## Next
 
-**Release 0.1.0:** `docs/plans/release-0.1.0.md` lists every Must/Should item and the release checklist; its open questions need the maintainer's answers first. Work the Must items before new features.
+**Release 0.1.0:** `docs/plans/release-0.1.0.md` lists every Must/Should item and the release checklist; decisions are recorded at its end (backup in, no 2FA, rc first). Work the Must items before new features.
 
 M7 part D stage 3 (design §4.5 Parts): extras with outside services.
 - Browser (#89): **blocked**. `pydantic-ai-harness[browser-use]==0.68.0` pins `browser-use` → `google-genai==1.65.0`, which conflicts with `pydantic-ai-slim[google]>=2.68.0` (`google-genai>=2.30.0`). Needs a harness release whose `browser-use` extra allows `google-genai>=2.30.0`; then unpin `pydantic-ai-harness` in `apps/server/pyproject.toml`. The toggle does nothing until then.
