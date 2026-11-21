@@ -3,7 +3,8 @@
 # leaving the base checkout on main (see AGENTS.md -> Git workflow). Usage:
 #   scripts/new-worktree.sh <type>/<topic>
 #
-# Creates ../athena-<topic> next to the repo on branch <type>/<topic>.
+# Creates ../worktrees/athena-<topic> (next to the base checkout) on branch <type>/<topic>.
+# Works the same when run from inside another worktree.
 set -euo pipefail
 
 if [ $# -ne 1 ]; then
@@ -23,9 +24,11 @@ esac
 topic="${branch#*/}"
 topic="${topic//\//-}"
 
-cd "$(git rev-parse --show-toplevel)" || exit 1
+# The base checkout's folder, even when run from a linked worktree.
+base="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
+cd "$base" || exit 1
 
-worktree_dir="../athena-$topic"
+worktree_dir="$(cd .. && pwd)/worktrees/athena-$topic"
 if [ -e "$worktree_dir" ]; then
   echo "error: worktree dir already exists: $worktree_dir" >&2
   exit 1
@@ -33,6 +36,7 @@ fi
 
 echo "==> creating worktree at $worktree_dir on $branch from origin/main"
 git fetch origin
+mkdir -p "$(dirname "$worktree_dir")"
 git worktree add "$worktree_dir" -b "$branch" origin/main
 
 echo
