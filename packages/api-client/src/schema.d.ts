@@ -1576,7 +1576,7 @@ export interface paths {
         };
         /**
          * List Kinds
-         * @description Return all provider kinds: native + dynamic from models.dev cache.
+         * @description Every models.dev provider pydantic-ai can use, plus local Ollama.
          */
         get: operations["listAiProviderKinds"];
         put?: never;
@@ -3583,7 +3583,7 @@ export interface components {
         /** ProviderKind */
         ProviderKind: {
             /** Id */
-            id: ("anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "cohere") | string;
+            id: string;
             /** Label */
             label: string;
             /**
@@ -3609,11 +3609,8 @@ export interface components {
             provider_id: string;
             /** Provider Name */
             provider_name: string;
-            /**
-             * Kind
-             * @enum {string}
-             */
-            kind: "anthropic" | "openai" | "google" | "openrouter" | "groq" | "mistral" | "deepseek" | "xai" | "azure" | "bedrock" | "ollama" | "cohere";
+            /** Kind */
+            kind: string;
             /** Lists Models */
             lists_models: boolean;
         };

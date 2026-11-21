@@ -157,7 +157,7 @@ class AiProvider(SQLModel, table=True):
 
     id: str = Field(primary_key=True, max_length=32)
     kind: str = Field(max_length=32)
-    """One of athena.assistant.kinds.KINDS, e.g. "anthropic", "ollama"."""
+    """A models.dev provider id or "ollama" (athena.assistant.kinds), e.g. "anthropic"."""
     name: str = Field(max_length=64)
     config: str = "{}"
     """Non-secret settings as JSON, e.g. {"base_url": "…"}."""
