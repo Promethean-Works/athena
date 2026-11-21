@@ -1,15 +1,17 @@
 """Cloudflare Tunnel provider implementation."""
 
 import asyncio
-import json
 import logging
 import os
+import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 from athena.tunnel.base import TunnelConfig, TunnelProvider, TunnelStatus
+from athena.tunnel.process import TunnelProcess, find_binary
 
 log = logging.getLogger(__name__)
 
@@ -44,6 +46,24 @@ def release_asset(system: str, machine: str) -> str:
     raise ValueError(f"cloudflared has no release for {system} on {machine}")
 
 
+_QUICK_URL = re.compile(r"https://[a-z0-9-]+\.trycloudflare\.com")
+_CONNECTED = re.compile(r"Registered tunnel connection")
+_START_TIMEOUT = 60.0
+
+
+def _cloudflared_running() -> bool:
+    """Whether any `cloudflared tunnel` process runs (e.g. from the auto-start service)."""
+    if sys.platform == "win32":
+        result = subprocess.run(
+            ["tasklist", "/FI", "IMAGENAME eq cloudflared.exe", "/NH"],
+            capture_output=True,
+            text=True,
+        )
+        return "cloudflared.exe" in result.stdout
+    result = subprocess.run(["pgrep", "-f", "cloudflared tunnel"], capture_output=True)
+    return result.returncode == 0
+
+
 class CloudflareTunnelProvider(TunnelProvider):
     """Cloudflare Tunnel provider supporting both named and quick tunnels."""
 
@@ -55,109 +75,96 @@ class CloudflareTunnelProvider(TunnelProvider):
     def label(self) -> str:
         return "Cloudflare Tunnel"
 
+    def __init__(self) -> None:
+        self._process: TunnelProcess | None = None
+        self._url: str | None = None
+
     async def start(self, job: Any, config: TunnelConfig) -> str:
-        """Start cloudflared tunnel. Returns public URL."""
+        """Run cloudflared and wait until it reports its public URL. Returns the URL.
+
+        A quick tunnel (`--url`) needs no account and prints a random
+        trycloudflare.com URL. A named tunnel runs with the tunnel token from the
+        Cloudflare dashboard (passed in `TUNNEL_TOKEN`, not argv, so `ps` can't see
+        it); its routes are set up in the dashboard, so the URL is the configured
+        domain.
+        """
+        if self._process is not None and self._process.alive:
+            raise RuntimeError("The tunnel is already running; stop it first")
         provider_config = config.provider_config or {}
         quick_tunnel = provider_config.get("quick_tunnel", True)
         tunnel_name = provider_config.get("tunnel_name")
         domain = provider_config.get("domain")
         api_token = provider_config.get("api_token")
 
-        port = config.port
-
+        binary = find_binary("cloudflared")
+        if binary is None:
+            raise RuntimeError("cloudflared isn't installed")
+        env = os.environ.copy()
         if quick_tunnel:
-            # Quick tunnel: cloudflared tunnel --url http://localhost:PORT
-            # No auth needed, ephemeral trycloudflare.com URL
-            env = os.environ.copy()
+            argv = [binary, "tunnel", "--no-autoupdate", "--url", f"http://localhost:{config.port}"]
+            ready = _QUICK_URL
         else:
-            # Named tunnel: requires API token and tunnel name
             if not api_token:
                 raise ValueError("API Token required for named tunnel")
             if not tunnel_name:
                 raise ValueError("Tunnel name required for named tunnel")
-
-            # Write config file for named tunnel
-            config_dir = Path("/etc/cloudflared")
-            config_dir.mkdir(parents=True, exist_ok=True)
-            config_file = config_dir / "config.yml"
-
-            config_content = {
-                "tunnel": tunnel_name,
-                "credentials-file": f"/etc/cloudflared/{tunnel_name}.json",
-                "ingress": [
-                    {
-                        "hostname": domain or f"{tunnel_name}.cfargotunnel.com",
-                        "service": f"http://localhost:{port}",
-                    },
-                    {"service": "http_status:404"},
-                ],
-            }
-
-            import yaml
-
-            config_file.write_text(yaml.dump(config_content))
-            env = os.environ.copy()
+            argv = [binary, "tunnel", "--no-autoupdate", "run"]
             env["TUNNEL_TOKEN"] = api_token
+            ready = _CONNECTED
 
-        # Start the process in background
-        # Note: In production, this would be managed by the job system
-        # For now, we return the expected URL pattern
+        await job.log(f"Starting cloudflared for http://localhost:{config.port}")
+        process = TunnelProcess(argv, env, ready)
+        match = await process.wait_ready(_START_TIMEOUT)
+        self._process = process
         if quick_tunnel:
-            # Quick tunnel URL is ephemeral, we can't know it ahead of time
-            # The actual URL would be parsed from cloudflared output
-            return "https://<ephemeral>.trycloudflare.com"
+            self._url = match.group(0)
         else:
-            return f"https://{domain or f'{tunnel_name}.cfargotunnel.com'}"
+            self._url = f"https://{domain or f'{tunnel_name}.cfargotunnel.com'}"
+        return self._url
 
     async def stop(self, job: Any) -> None:
-        """Stop cloudflared tunnel."""
-        # cloudflared tunnels are stopped by killing the process
-        # In production, we'd track the process and kill it
-        pass
+        """Stop the cloudflared that Athena started."""
+        process, self._process, self._url = self._process, None, None
+        if process is None or not process.alive:
+            if _cloudflared_running():
+                raise RuntimeError(
+                    "cloudflared is running but Athena didn't start it "
+                    "(an auto-start service or another program); stop it there"
+                )
+            await job.log("The tunnel wasn't running")
+            return
+        await asyncio.to_thread(process.stop)
+
+    def shutdown(self) -> None:
+        if self._process is not None:
+            self._process.stop()
+            self._process = None
+            self._url = None
 
     def status(self) -> TunnelStatus:
         """Check cloudflared tunnel status."""
-        try:
-            # Check if cloudflared is running
-            result = subprocess.run(
-                ["pgrep", "-f", "cloudflared tunnel"],
-                capture_output=True,
-            )
-            running = result.returncode == 0
-
-            # For quick tunnels, we'd need to parse the actual URL from logs
-            # For named tunnels, we can construct the URL
-            public_url = None
-            if running:
-                # Try to get tunnel list for named tunnels
-                try:
-                    result = subprocess.run(
-                        ["cloudflared", "tunnel", "list", "--output", "json"],
-                        capture_output=True,
-                        text=True,
-                        timeout=10,
-                    )
-                    if result.returncode == 0:
-                        tunnels = json.loads(result.stdout)
-                        for t in tunnels:
-                            if t.get("status") == "healthy":
-                                public_url = f"https://{t.get('name')}.cfargotunnel.com"
-                                break
-                except Exception:
-                    pass
-
+        if self._process is not None and self._process.alive:
             return TunnelStatus(
-                running=running,
-                public_url=public_url,
+                running=True,
+                public_url=self._url,
                 provider="cloudflare",
-                detail="Cloudflare Tunnel running" if running else "Not running",
+                detail="Cloudflare Tunnel running",
             )
+        try:
+            running = _cloudflared_running()
         except Exception as e:
             return TunnelStatus(
                 running=False,
                 provider="cloudflare",
                 detail=f"Status check failed: {e}",
             )
+        if running:
+            detail = "cloudflared is running outside Athena"
+        elif self._process is not None:
+            detail = f"cloudflared exited (code {self._process.proc.returncode})"
+        else:
+            detail = "Not running"
+        return TunnelStatus(running=running, provider="cloudflare", detail=detail)
 
     def get_config_schema(self) -> dict:
         """Return JSON schema for Cloudflare Tunnel configuration."""
