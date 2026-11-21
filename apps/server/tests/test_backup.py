@@ -62,7 +62,7 @@ def ok(out: str = "") -> Result:
 
 
 def client_for(tmp_path: Path, tool: Restic | None = None) -> TestClient:
-    app = make_app(tmp_path)
+    app = make_app(tmp_path, backup_allowed_roots=[tmp_path])
     app.state.restic = FakeProvider(tool or FakeRestic())
     return signed_in(TestClient(app))
 
@@ -261,13 +261,13 @@ def test_check_local_path_accepts_a_folder_outside_the_data_dir(tmp_path: Path) 
     data = tmp_path / "data"
     data.mkdir()
     target = tmp_path / "usb" / "backups"
-    assert repository.check_local_path(str(target), data) == target.resolve()
+    assert repository.check_local_path(str(target), data, [tmp_path]) == target.resolve()
 
 
 @pytest.mark.parametrize("raw", ["", "   ", "backups", "./backups", "../x", "a\x00b"])
 def test_check_local_path_wants_a_full_path(tmp_path: Path, raw: str) -> None:
     with pytest.raises(DestinationError):
-        repository.check_local_path(raw, tmp_path)
+        repository.check_local_path(raw, tmp_path, [tmp_path])
 
 
 def test_check_local_path_refuses_the_data_dir_and_anything_in_it(tmp_path: Path) -> None:
@@ -275,7 +275,7 @@ def test_check_local_path_refuses_the_data_dir_and_anything_in_it(tmp_path: Path
     data.mkdir()
     for inside in (data, data / "backups", data / "apps" / "x"):
         with pytest.raises(DestinationError, match="inside Athena's data folder"):
-            repository.check_local_path(str(inside), data)
+            repository.check_local_path(str(inside), data, [tmp_path])
 
 
 def test_check_local_path_follows_symlinks_into_the_data_dir(tmp_path: Path) -> None:
@@ -287,23 +287,25 @@ def test_check_local_path_follows_symlinks_into_the_data_dir(tmp_path: Path) -> 
     except OSError:
         pytest.skip("symlinks need privileges on this host")
     with pytest.raises(DestinationError, match="inside Athena's data folder"):
-        repository.check_local_path(str(link / "b"), data)
+        repository.check_local_path(str(link / "b"), data, [tmp_path])
 
 
 def test_check_local_path_refuses_a_file_and_a_disk_root(tmp_path: Path) -> None:
     a_file = tmp_path / "file"
     a_file.write_text("x", encoding="utf-8")
     with pytest.raises(DestinationError, match="is a file"):
-        repository.check_local_path(str(a_file), tmp_path / "data")
+        repository.check_local_path(str(a_file), tmp_path / "data", [tmp_path])
     with pytest.raises(DestinationError, match="root"):
-        repository.check_local_path(Path(tmp_path.anchor).as_posix(), tmp_path / "data")
+        repository.check_local_path(
+            Path(tmp_path.anchor).as_posix(), tmp_path / "data", [Path(tmp_path.anchor)]
+        )
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="POSIX system folders")
 def test_check_local_path_refuses_system_folders(tmp_path: Path) -> None:
     for system in ("/etc", "/usr/local/backups", "/proc/x", "/dev"):
         with pytest.raises(DestinationError, match="system folder"):
-            repository.check_local_path(system, tmp_path)
+            repository.check_local_path(system, tmp_path, [Path(tmp_path.anchor)])
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="POSIX permissions")
@@ -314,14 +316,14 @@ def test_check_writable_explains_a_read_only_folder(tmp_path: Path) -> None:
     ro.chmod(0o500)
     try:
         with pytest.raises(DestinationError, match="can't write"):
-            repository.check_writable(ro / "sub")
+            repository.check_writable(ro / "sub", [tmp_path])
     finally:
         ro.chmod(0o700)
 
 
 def test_check_writable_creates_the_folder_and_leaves_nothing_behind(tmp_path: Path) -> None:
     target = tmp_path / "new" / "deep"
-    repository.check_writable(target)
+    repository.check_writable(target, [tmp_path])
     assert target.is_dir()
     assert list(target.iterdir()) == []
 
@@ -495,7 +497,7 @@ def test_create_with_a_wrong_password_for_an_existing_repository_fails(tmp_path:
 
 
 def test_create_reports_a_failed_restic_download(tmp_path: Path) -> None:
-    app = make_app(tmp_path)
+    app = make_app(tmp_path, backup_allowed_roots=[tmp_path])
 
     class Failing(ResticProvider):
         async def get(self, log_line=None):  # type: ignore[no-untyped-def,override]

@@ -3,6 +3,7 @@
 import os
 import secrets
 import shutil
+import string
 import sys
 import tempfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -60,10 +61,30 @@ def _is_absolute(raw: str) -> bool:
     return PurePosixPath(raw).is_absolute()
 
 
-def _roots(allowed_roots: list[Path] | None, path: Path) -> list[Path]:
-    """The folders a destination may live in; none configured means any folder on the disk."""
-    roots = [Path(r).resolve(strict=False) for r in allowed_roots or [] if Path(r).is_absolute()]
-    return roots or [Path(path.anchor)]
+_DEFAULT_ROOTS_POSIX = ("/mnt", "/media", "/run/media", "/Volumes", "/srv", "/home", "/Users")
+
+
+def _default_roots() -> list[str]:
+    if sys.platform == "win32":
+        return [
+            f"{letter}:\\" for letter in string.ascii_uppercase if os.path.isdir(f"{letter}:\\")
+        ]
+    return [*_DEFAULT_ROOTS_POSIX, os.path.expanduser("~")]
+
+
+def _confine(raw: str, allowed_roots: list[Path] | None) -> str:
+    """The real path of `raw`, or `DestinationError` when it isn't inside an allowed root.
+
+    Every filesystem call on a destination uses the string this returns, so nothing the
+    admin typed reaches the disk without passing the check against the fixed roots.
+    """
+    roots = [os.fspath(r) for r in allowed_roots or []] or _default_roots()
+    full = os.path.normcase(os.path.realpath(os.path.normpath(raw)))
+    for root in roots:
+        base = os.path.normcase(os.path.realpath(root)).rstrip(os.sep)
+        if full == base or full.startswith(base + os.sep):
+            return full
+    raise DestinationError("Pick a folder inside an allowed backup location")
 
 
 def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None = None) -> Path:
@@ -71,15 +92,15 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
 
     It must be absolute, writable, not a system folder and not inside Athena's own data
     folder (a backup of itself that a restore would delete along with the data).
-    It must also be inside one of the configured allowed backup root folders.
+    It must also be inside an allowed backup root (`backup_allowed_roots`, or the usual
+    mount points).
     """
     raw = raw.strip()
     if not raw:
         raise DestinationError("Enter a folder")
     if "\x00" in raw or not _is_absolute(raw):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
-    path = Path(os.path.normpath(raw))
-    resolved = path.resolve(strict=False)
+    resolved = Path(_confine(raw, allowed_roots))
     if resolved == Path(resolved.anchor):
         raise DestinationError("Pick a folder, not the root of a disk")
     for folder in _system_folders():
@@ -91,10 +112,6 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
             "Pick a folder or disk outside it"
         )
 
-    roots = _roots(allowed_roots, resolved)
-    if not any(_is_inside(resolved, root) for root in roots):
-        raise DestinationError("Pick a folder inside an allowed backup location")
-
     if resolved.exists() and not resolved.is_dir():
         raise DestinationError(f"{resolved} is a file, not a folder")
     return resolved
@@ -105,10 +122,7 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
     raw = str(folder).strip()
     if "\x00" in raw or not _is_absolute(raw):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
-    target = Path(os.path.normpath(raw)).resolve(strict=False)
-    roots = _roots(allowed_roots, target)
-    if not any(_is_inside(target, root) for root in roots):
-        raise DestinationError("Pick a folder inside an allowed backup location")
+    target = Path(_confine(raw, allowed_roots))
     try:
         target.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(dir=target, prefix=".athena-write-test-"):

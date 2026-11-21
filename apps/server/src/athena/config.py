@@ -94,6 +94,9 @@ class Settings(BaseSettings):
     # Where "Send feedback" opens issues (docs/specs/feedback.md). Forks point it at their
     # own repository; GitHub gets the issue forms, Codeberg and GitLab a plain issue.
     feedback_repo: str = DEFAULT_FEEDBACK_REPO
+    # Folders a local backup destination may live in. Empty means the usual places for a
+    # disk to be mounted (/mnt, /media, /Volumes, the home folders; every drive on Windows).
+    backup_allowed_roots: list[Path] = []
 
     @classmethod
     def settings_customise_sources(

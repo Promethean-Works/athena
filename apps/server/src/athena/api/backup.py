@@ -86,8 +86,7 @@ def _location(request: Request, draft: DestinationDraft) -> str:
     """The checked, writable folder for a draft, as the text stored in the database."""
     settings = request.app.state.settings
     data_dir: Path = settings.data_dir
-    allowed_raw = getattr(settings, "backup_local_allowed_roots", []) or []
-    allowed_roots = [Path(p) for p in allowed_raw]
+    allowed_roots = list(settings.backup_allowed_roots)
     try:
         folder = repository.check_local_path(draft.path, data_dir, allowed_roots)
         repository.check_writable(folder, allowed_roots)
