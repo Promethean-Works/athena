@@ -1,6 +1,6 @@
 # Spec: settings in a JSON file
 
-**Status:** Approved (2026-11-21), parts 1–2 done (#204, part 2 PR) · **Milestone:** none (infrastructure) · **Design:** `docs/design/backend.md`, `docs/design/security.md`
+**Status:** Approved (2026-11-21), parts 1–2 done (#204, #209) · **Milestone:** none (infrastructure) · **Design:** `docs/design/backend.md`, `docs/design/security.md`
 
 ## Goal
 
