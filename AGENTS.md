@@ -35,6 +35,7 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 - **Cross-platform first.** Anything that touches the host goes through a provider and a capability in the manifest; the UI and the assistant show only what the host supports (`athena-platform-feature` skill).
 - **Don't guess APIs.** Copy the closest existing feature, then check current docs (Context7, the `shadcn` skill or MCP, `node_modules/next/dist/docs/`). Versions here are newer than most training data (Next 16, Base UI, xterm.js 6, Python 3.13, pydantic-ai 2.x).
 - **Open-source dependencies only**, each recorded in `docs/design/licenses.md`.
+- **Not released yet.** No upgrade or back-compat code when data or settings change shape: convert the dev data once.
 - **Leave the maintainer's things alone.** Port 8420 may be their own Athena (use 8421+). Act only on containers, apps and images named `athena-demo-*` / `athena-test-*`. Fake anything that would change the host in browser checks.
 - Run pnpm from the repo root and Python with `uv run` inside `apps/server`. Never hand-write API request types: `pnpm gen:api` regenerates `packages/api-client` after any route change.
 

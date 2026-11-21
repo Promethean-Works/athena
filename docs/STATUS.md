@@ -4,12 +4,13 @@ _Shared handoff log for every coding agent. Update it at the end of each session
 
 **Current milestone:** M8, automation (cron and webhook triggers, MCP server, Automation UI): parts A–D shipped in #114. M7 (the AI assistant, §4.5) is done except part D stage 3 (see **Next**).
 
-Finished work is in `docs/HISTORY.md` (read it only when you need a feature's background). When you finish something, add a short bullet there with the PR number and take it out of In progress below.
+Finished work is in `docs/HISTORY.md` (read it only when needed). When you finish something, add a bullet there with the PR number and remove it below.
 
 ## In progress
 
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt or Cloudflare, trusting the CA on real devices. The last renewal/error live in memory only (a restart forgets them). Follow-up: own-certificate upload.
 - Windows E2E flake (also on `main`, run 44856906030): `GET /api/containers` sometimes 500s under the service with `OSError: [WinError 6] The handle is invalid` in `subprocess._make_inheritable`: `pythonw.exe` has no console handles and python-on-whales starts `docker` without `stdin=DEVNULL`.
+- Settings file (`docs/specs/settings-file.md`): next, part 1.
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - Dashboard follow-ups: touch dragging on a real phone; an app "update available" badge (`AppOut` has no such field).
 - A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
