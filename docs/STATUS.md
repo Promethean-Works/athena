@@ -24,12 +24,13 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
   - `tunnel_auto_start` is saved but nothing reads it at startup, so the tunnel doesn't start on boot.
   - Real-tested: a Cloudflare quick tunnel (macOS). Not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`, which nothing writes.
-  - Every tunnel detector (`platform/detect.py`) returns the action `"configure"`, which `Capability.actions` doesn't allow, so detection fails (logged as an error) on any host where cloudflared, ngrok or tailscale is installed. Add `configure` to `Action` (and regenerate the API client) or drop it.
 
 - models.dev providers left out because pydantic-ai needs their own SDK: Google Vertex (service-account form for `GoogleProvider(vertexai=True)`), watsonx, GitLab, SAP AI Core and a few gateways. Vertex is the one worth adding.
 
 
 ## Next
+
+**Release 0.1.0:** `docs/plans/release-0.1.0.md` lists every Must/Should item and the release checklist; decisions are recorded at its end (backup in, no 2FA, rc first). Work the Must items before new features.
 
 M7 part D stage 3 (design §4.5 Parts): extras with outside services.
 - Browser (#89): **blocked**. `pydantic-ai-harness[browser-use]==0.68.0` pins `browser-use` → `google-genai==1.65.0`, which conflicts with `pydantic-ai-slim[google]>=2.68.0` (`google-genai>=2.30.0`). Needs a harness release whose `browser-use` extra allows `google-genai>=2.30.0`; then unpin `pydantic-ai-harness` in `apps/server/pyproject.toml`. The toggle does nothing until then.
@@ -48,4 +49,4 @@ Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 
 ## Blockers
 
-- None. The first release (release-please PR #3, `RELEASE_PLEASE_TOKEN` is set) is on hold: the maintainer merges it once the plan under **Next** is complete. Agents: don't merge it or turn on its auto-merge.
+- None. The first release (release-please PR #3, `RELEASE_PLEASE_TOKEN` is set) is on hold: the maintainer merges it once every Must item in `docs/plans/release-0.1.0.md` is ticked. Agents: don't merge it or turn on its auto-merge.
