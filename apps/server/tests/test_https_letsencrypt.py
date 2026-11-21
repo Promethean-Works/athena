@@ -224,6 +224,7 @@ def _wait_job(client: TestClient, job_id: str) -> dict:
 
 def _served(port: int) -> x509.Certificate:
     ctx = ssl.create_default_context()
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
     with (
@@ -377,7 +378,8 @@ def test_real_lego_gets_a_certificate_from_pebble(tmp_path):
         assert job["status"] == "succeeded", "\n".join(job["lines"])
         r = client.put("/api/https", json={"mode": "letsencrypt", "port": port})
         assert r.status_code == 200, r.text
-        assert "nas.example.com" in _served(port).subject.rfc4514_string()
+        dns, _ = local_ca.cert_names(_served(port))
+        assert dns == {"nas.example.com"}
         client.put("/api/https", json={"mode": "off", "port": port})
 
 
