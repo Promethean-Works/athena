@@ -157,6 +157,7 @@ def test_command_http_challenge(tmp_path, monkeypatch):
     monkeypatch.setenv("LEGO_SERVER", "https://evil.example/directory")
     monkeypatch.delenv(letsencrypt.ACME_DIRECTORY_ENV, raising=False)
     monkeypatch.delenv(letsencrypt.HTTP_ADDRESS_ENV, raising=False)
+    monkeypatch.delenv(letsencrypt.ACME_CA_ENV, raising=False)  # set in CI for Pebble
     paths = local_ca.tls_paths(tmp_path)
     le = LetsEncryptSettings(domains=["nas.example.com"], email="me@example.com", staging=True)
     cmd = letsencrypt.build_command(Path("lego"), paths, le, {})

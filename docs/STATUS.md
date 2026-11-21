@@ -8,11 +8,12 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 ## In progress
 
-- HTTPS (`docs/specs/https.md`): parts 1–3 done (#192, #196, feat/https-letsencrypt). Next: part 4 (design section, gotchas, `athena-host-test` on a Linux VM incl. HTTP-01 on port 80, Windows E2E). Part 3 not verified for real: issuing from real Let's Encrypt (HTTP-01 or a real Cloudflare token); renewal and the last renewal/error live in memory only, so a restart forgets them until the next daily check. The Pebble CI test (ubuntu-latest) is the only run of the real lego against an ACME server.
+- HTTPS (`docs/specs/https.md`): parts 1–3 done (#192, #196, #199). Next: part 4 (design section, gotchas, `athena-host-test` on a Linux VM incl. HTTP-01 on port 80, Windows E2E). Part 3 not verified for real: issuing from real Let's Encrypt (HTTP-01 or a real Cloudflare token); renewal and the last renewal/error live in memory only, so a restart forgets them until the next daily check. The Pebble CI test (ubuntu-latest) is the only run of the real lego against an ACME server.
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - models.dev providers now load (fix/models-dev-refresh), so the Settings → AI "Add provider" dropdown lists ~75 kinds with no search. Make it a searchable combobox (verify with `athena-ui-verify`). Some routers slip past `SKIP_PATTERNS` (e.g. "Kilo Gateway": the skip checks the id, not the name).
 - Dashboard follow-ups: touch dragging on a real phone; an app "update available" badge (`AppOut` has no such field).
 - A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
+- E2E `install + smoke (windows-latest)` fails about half the time on main too: `500 GET /api/containers` during the phone/dark step (seen 2026-11-21). Find the server traceback in that job's log.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
 - Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
 - Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
