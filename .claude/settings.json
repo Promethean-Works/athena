@@ -1,7 +1,8 @@
 {
   "env": {
     "BASH_MAX_OUTPUT_LENGTH": "20000",
-    "MAX_MCP_OUTPUT_TOKENS": "20000"
+    "MAX_MCP_OUTPUT_TOKENS": "20000",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "claudeMdExcludes": [
     "**/.venv/**/CLAUDE.md",

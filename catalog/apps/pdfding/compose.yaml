@@ -19,8 +19,29 @@ x-athena:
     label: Web port
     type: port
     default: '8001'
+  - key: SECRET_KEY
+    label: Secret key
+    type: password
+    generate: secret
 services:
+  pdfding-init:
+    # The app runs as uid 1000, but Docker creates a missing data folder as root on Linux.
+    image: mrmn/pdfding:v1.7.2
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["chown -R 1000:1000 /home/nonroot/pdfding/db /home/nonroot/pdfding/media"]
+    restart: "no"
+    volumes:
+    - type: bind
+      source: ${ATHENA_APP_DATA}/db
+      target: /home/nonroot/pdfding/db
+    - type: bind
+      source: ${ATHENA_APP_DATA}/media
+      target: /home/nonroot/pdfding/media
   pdfding:
+    depends_on:
+      pdfding-init:
+        condition: service_completed_successfully
     image: mrmn/pdfding:v1.7.2
     deploy:
       resources:
@@ -41,8 +62,7 @@ services:
       target: /home/nonroot/pdfding/media
     environment:
     - HOST_NAME=*
-    - SECRET_KEY=your_secret_key_here
+    - SECRET_KEY=${SECRET_KEY}
     - CSRF_COOKIE_SECURE=FALSE
     - SESSION_COOKIE_SECURE=FALSE
     - DEBUG=FALSE
-    container_name: pdfding
