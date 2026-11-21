@@ -8,7 +8,7 @@ description: Checks Athena's open pull requests - CI, CodeQL, auto-merge, merge 
 1. List them: `gh pr list --state open --json number,title,headRefName,autoMergeRequest,mergeStateStatus`. Skip release-please PRs (the maintainer merges those).
 2. For each PR:
    - `gh pr checks <n>`; for a failure, `gh run view <run-id> --log-failed | tail -80`. The table of known failures and fixes is in the `athena-ship` skill (step 5) and `docs/agents/gotchas/git-ci.md`.
-   - Fix it in that PR's worktree (`git worktree list`; create one from the PR branch if needed: `git worktree add ../athena-<topic> <branch>`). Never fix on `main`.
+   - Fix it in that PR's worktree (`git worktree list`; create one from the PR branch if needed: `git worktree add ../worktrees/athena-<topic> <branch>`). Never fix on `main`.
    - Behind `main` or conflicting: `git merge origin/main` (no rebase; force pushes are blocked). Generated files (`packages/api-client`) are regenerated, not hand-merged.
    - Auto-merge off on a PR to `main`: turn it on (`gh pr merge <n> --squash --auto --delete-branch`).
    - Also look at CodeQL: `gh api "repos/tiagozaccaro/athena/code-scanning/alerts?state=open&ref=refs/pull/<n>/merge"`. Fix alerts in code; dismissing is the maintainer's call.

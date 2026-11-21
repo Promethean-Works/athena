@@ -49,6 +49,7 @@ from athena.monitor import HostMonitor
 from athena.packages.base import run_command
 from athena.platform.store import CapabilityStore
 from athena.terminal import shells
+from athena.tunnel import get_all_providers
 
 if TYPE_CHECKING:
     from pgtask import Worker
@@ -127,6 +128,8 @@ def create_app(
         await mcp.aclose()
         await app.state.monitor.stop()
         await asyncio.to_thread(app.state.rclone.stop)
+        for tunnel in get_all_providers():
+            await asyncio.to_thread(tunnel.shutdown)
 
     app = FastAPI(
         title="Athena",
