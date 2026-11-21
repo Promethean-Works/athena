@@ -49,6 +49,9 @@ class TunnelProvider(ABC):
         """Stop the tunnel."""
         pass
 
+    def shutdown(self) -> None:  # noqa: B027 - optional hook, no-op by default
+        """Stop a tunnel process Athena owns when the server exits."""
+
     @abstractmethod
     def status(self) -> TunnelStatus:
         """Get current tunnel status."""

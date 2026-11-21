@@ -1,10 +1,11 @@
 """Ngrok provider implementation."""
 
-import contextlib
+import asyncio
 import json
 import logging
 import os
 import platform
+import re
 import shutil
 import subprocess
 import urllib.request
@@ -12,8 +13,27 @@ from pathlib import Path
 from typing import Any
 
 from athena.tunnel.base import TunnelConfig, TunnelProvider, TunnelStatus
+from athena.tunnel.process import TunnelProcess, find_binary
 
 log = logging.getLogger(__name__)
+
+
+# logfmt line: `... msg="started tunnel" obj=tunnels name=command_line addr=... url=https://x`
+_STARTED = re.compile(r'msg="started tunnel".*?\burl=(https://\S+)')
+_START_TIMEOUT = 60.0
+
+
+def _api_url() -> str | None:
+    """The HTTPS URL from the local ngrok agent API (port 4040), if one runs."""
+    try:
+        with urllib.request.urlopen("http://localhost:4040/api/tunnels", timeout=2) as resp:
+            data = json.loads(resp.read().decode())
+    except Exception:
+        return None
+    for tunnel in data.get("tunnels", []):
+        if tunnel.get("proto") == "https":
+            return tunnel.get("public_url")
+    return None
 
 
 class NgrokTunnelProvider(TunnelProvider):
@@ -27,91 +47,84 @@ class NgrokTunnelProvider(TunnelProvider):
     def label(self) -> str:
         return "Ngrok"
 
+    def __init__(self) -> None:
+        self._process: TunnelProcess | None = None
+        self._url: str | None = None
+
     async def start(self, job: Any, config: TunnelConfig) -> str:
-        """Start ngrok tunnel. Returns public URL."""
+        """Run `ngrok http` and wait for its public URL. Returns the URL.
+
+        The auth token goes in `NGROK_AUTHTOKEN` rather than argv or ngrok's config
+        file, so it isn't visible in `ps` or written to disk in plain text.
+        """
+        if self._process is not None and self._process.alive:
+            raise RuntimeError("The tunnel is already running; stop it first")
         provider_config = config.provider_config or {}
         auth_token = provider_config.get("auth_token")
         domain = provider_config.get("domain")
         subdomain = provider_config.get("subdomain")
-
         if not auth_token:
             raise ValueError("Ngrok auth token required")
+        binary = find_binary("ngrok")
+        if binary is None:
+            raise RuntimeError("ngrok isn't installed")
 
-        port = config.port
-
-        # Configure auth token
-        subprocess.run(["ngrok", "config", "add-authtoken", auth_token], capture_output=True)
-
-        # Build command
-        cmd = ["ngrok", "http", str(port)]
-
+        argv = [binary, "http", str(config.port), "--log", "stdout", "--log-format", "logfmt"]
         if domain:
-            cmd.extend(["--domain", domain])
+            argv += ["--domain", domain]
         elif subdomain:
-            cmd.extend(["--subdomain", subdomain])
+            argv += ["--subdomain", subdomain]
+        env = os.environ.copy()
+        env["NGROK_AUTHTOKEN"] = auth_token
 
-        # Start ngrok in background
-        # Note: In production, this would be managed by the job system
-        # For now, we return the expected URL pattern
-        # The actual URL would be parsed from ngrok API or output
-
-        # Get URL from ngrok API
-        with contextlib.suppress(Exception):
-            # Start ngrok process
-            # In reality, we'd start it as a background job and poll the API
-            pass
-
-        if domain:
-            return f"https://{domain}"
-        elif subdomain:
-            return f"https://{subdomain}.ngrok.io"
-        else:
-            # Free tier: random URL
-            return "https://<random>.ngrok-free.app"
+        await job.log(f"Starting ngrok for http://localhost:{config.port}")
+        process = TunnelProcess(argv, env, _STARTED)
+        match = await process.wait_ready(_START_TIMEOUT)
+        self._process = process
+        self._url = match.group(1)
+        return self._url
 
     async def stop(self, job: Any) -> None:
-        """Stop ngrok tunnel."""
-        subprocess.run(["ngrok", "stop"], capture_output=True)
+        """Stop the ngrok that Athena started."""
+        process, self._process, self._url = self._process, None, None
+        if process is None or not process.alive:
+            if _api_url() is not None:
+                raise RuntimeError(
+                    "ngrok is running but Athena didn't start it "
+                    "(an auto-start service or another program); stop it there"
+                )
+            await job.log("The tunnel wasn't running")
+            return
+        await asyncio.to_thread(process.stop)
+
+    def shutdown(self) -> None:
+        if self._process is not None:
+            self._process.stop()
+            self._process = None
+            self._url = None
 
     def status(self) -> TunnelStatus:
-        """Check ngrok tunnel status via API."""
-        try:
-            # ngrok API runs on localhost:4040
-            import urllib.request
-
-            with urllib.request.urlopen("http://localhost:4040/api/tunnels", timeout=2) as resp:
-                data = json.loads(resp.read().decode())
-
-            tunnels = data.get("tunnels", [])
-            if not tunnels:
-                return TunnelStatus(
-                    running=False,
-                    provider="ngrok",
-                    detail="Ngrok not running",
-                )
-
-            # Get the first HTTP tunnel
-            for tunnel in tunnels:
-                if tunnel.get("proto") == "https":
-                    public_url = tunnel.get("public_url")
-                    return TunnelStatus(
-                        running=True,
-                        public_url=public_url,
-                        provider="ngrok",
-                        detail=f"Ngrok tunnel active: {public_url}",
-                    )
-
+        """Athena's own ngrok, else one found through ngrok's local API."""
+        if self._process is not None and self._process.alive:
             return TunnelStatus(
-                running=False,
+                running=True,
+                public_url=self._url,
                 provider="ngrok",
-                detail="No HTTPS tunnels found",
+                detail=f"Ngrok tunnel active: {self._url}",
             )
-        except Exception:
+        public_url = _api_url()
+        if public_url is not None:
             return TunnelStatus(
-                running=False,
+                running=True,
+                public_url=public_url,
                 provider="ngrok",
-                detail="Ngrok not running or API unavailable",
+                detail=f"Ngrok tunnel active (started outside Athena): {public_url}",
             )
+        if self._process is not None:
+            detail = f"ngrok exited (code {self._process.proc.returncode})"
+        else:
+            detail = "Ngrok not running"
+        return TunnelStatus(running=False, provider="ngrok", detail=detail)
 
     def get_config_schema(self) -> dict:
         """Return JSON schema for Ngrok configuration."""
