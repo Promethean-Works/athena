@@ -73,19 +73,25 @@ def _default_roots() -> list[str]:
 
 
 def _real(raw: str) -> str:
-    return os.path.normcase(os.path.realpath(os.path.normpath(raw)))
+    """The absolute, normalised, symlink-free form of `raw`."""
+    return os.path.normpath(os.path.normcase(os.path.realpath(raw)))
 
 
 def _bases(allowed_roots: list[Path] | None) -> list[str]:
     roots = [os.fspath(r) for r in allowed_roots or []] or _default_roots()
-    return [_real(root).rstrip(os.sep) for root in roots]
+    return [_real(root) for root in roots]
+
+
+def _on_boundary(full: str, base: str) -> bool:
+    """`full` starts with `base` and not in the middle of a folder name (/mnt/a vs /mnt/ab)."""
+    return len(full) == len(base) or base.endswith(os.sep) or full[len(base)] == os.sep
 
 
 def _confine(raw: str, allowed_roots: list[Path] | None) -> str:
     """The real path of `raw`, or `DestinationError` when it isn't inside an allowed root."""
     full = _real(raw)
     for base in _bases(allowed_roots):
-        if full == base or full.startswith(base + os.sep):
+        if full.startswith(base) and _on_boundary(full, base):
             return full
     raise DestinationError("Pick a folder inside an allowed backup location")
 
@@ -94,7 +100,7 @@ def _is_file(raw: str, allowed_roots: list[Path] | None) -> bool:
     """Whether `raw` (inside an allowed root) is an existing file."""
     full = _real(raw)
     for base in _bases(allowed_roots):
-        if full == base or full.startswith(base + os.sep):
+        if full.startswith(base) and _on_boundary(full, base):
             return os.path.exists(full) and not os.path.isdir(full)
     raise DestinationError("Pick a folder inside an allowed backup location")
 
@@ -136,7 +142,7 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
     full = _real(raw)
     for base in _bases(allowed_roots):
-        if full == base or full.startswith(base + os.sep):
+        if full.startswith(base) and _on_boundary(full, base):
             try:
                 os.makedirs(full, exist_ok=True)
                 with tempfile.NamedTemporaryFile(dir=full, prefix=".athena-write-test-"):
