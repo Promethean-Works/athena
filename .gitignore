@@ -64,3 +64,6 @@ apps/server/src/athena/catalog_builtin/
 
 # Catalog smoke test reports (python -m athena.catalog.smoke)
 catalog-smoke-report/
+
+# CodeQL local databases and results (scripts/codeql.sh)
+.codeql/
