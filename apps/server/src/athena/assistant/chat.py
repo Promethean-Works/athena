@@ -412,7 +412,7 @@ async def run_turn(
         results = _results(previous, resume)
         # Actions call route helpers, which take the signed-in user; the session isn't used.
         current = CurrentUser(user=user, session=AuthSession(user_id=user_id))
-        ai = ai_settings.load(db)
+        ai = ai_settings.load(app.state.settings_file)
         integration_rows = db.exec(
             select(AiIntegration).order_by(col(AiIntegration.created_at))
         ).all()

@@ -86,7 +86,7 @@ The client adds the CSRF header and handles 401 (redirect to `/login/`) by itsel
 
 ## F. Host-wide setting (admin only)
 
-1. Add a field with a safe default to `SystemSettings` in `system_settings.py`. Stored JSON is validated on load, and unknown or invalid values fall back to defaults, so no migration is needed.
+1. Add a field with a safe default to `SystemSettings` in `system_settings.py`. It's saved in the `system` section of `<data-dir>/athena.json` (`settings_file.py`), so no migration is needed. The file is validated strictly at startup: a missing field takes its default, an unknown or invalid one stops the server. A whole new section is a field on `AthenaConfig` plus `load`/`save` wrappers like `system_settings.load`.
 2. If changing it has side effects (like closing terminals), handle that in `set_system` in `api/settings.py` and audit it.
 3. Add the control on Settings → System (`app/(app)/settings/`), then run `pnpm gen:api`.
 

@@ -9,6 +9,7 @@ from sqlmodel import Session
 
 from athena.auth.service import session_for_token
 from athena.db.models import AuthSession, User
+from athena.settings_file import SettingsFile
 
 COOKIE_NAME = "athena_session"
 CSRF_HEADER = "X-CSRF-Token"
@@ -26,6 +27,14 @@ class CurrentUser:
 
 
 DbSession = Annotated[Session, Depends(get_db)]
+
+
+def get_settings_file(request: Request) -> SettingsFile:
+    return request.app.state.settings_file
+
+
+SettingsStore = Annotated[SettingsFile, Depends(get_settings_file)]
+"""athena.json: host-wide settings (`athena.settings_file`)."""
 
 
 def current_user(request: Request, db: DbSession) -> CurrentUser:

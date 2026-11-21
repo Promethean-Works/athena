@@ -55,7 +55,7 @@ from athena.assistant.providers import (
 )
 from athena.assistant.settings import ModelRef
 from athena.assistant.turns import Turns
-from athena.auth.deps import Authed, CurrentUser, DbSession, current_user
+from athena.auth.deps import Authed, CurrentUser, DbSession, SettingsStore, current_user
 from athena.crypto import SecretBox, SecretError
 from athena.db.models import AiConversation, AiIntegration, AiProvider
 
@@ -251,16 +251,20 @@ def update_provider(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_provider(
-    provider_id: ProviderId, request: Request, user: Authed, db: DbSession
+    provider_id: ProviderId,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    settings_file: SettingsStore,
 ) -> Response:
     row = _get_provider(db, provider_id)
     db.delete(row)
-    settings = ai_settings.load(db)
+    settings = ai_settings.load(settings_file)
     for attr in ("default_model", "title_model", "advisor_model", "review_model"):
         ref: ModelRef | None = getattr(settings, attr)
         if ref and ref.provider_id == provider_id:
             setattr(settings, attr, None)
-    ai_settings.save(db, settings)
+    ai_settings.save(settings_file, settings)
     audit.record(db, user.user.username, "ai.provider.remove", row.name)
     db.commit()
     _cache(request).drop(provider_id)
@@ -540,8 +544,10 @@ def list_conversations(user: Authed, db: DbSession) -> list[ConversationOut]:
 @router.post(
     "/conversations", operation_id="createConversation", status_code=status.HTTP_201_CREATED
 )
-def create_conversation(body: ConversationIn, user: Authed, db: DbSession) -> ConversationOut:
-    model = body.model or ai_settings.load(db).default_model
+def create_conversation(
+    body: ConversationIn, user: Authed, db: DbSession, settings_file: SettingsStore
+) -> ConversationOut:
+    model = body.model or ai_settings.load(settings_file).default_model
     assert user.user.id is not None
     row = AiConversation(
         id=secrets.token_hex(8),
@@ -557,7 +563,11 @@ def create_conversation(body: ConversationIn, user: Authed, db: DbSession) -> Co
 
 @router.get("/conversations/{conversation_id}", operation_id="getConversation")
 async def get_conversation(
-    conversation_id: ConversationId, request: Request, user: Authed, db: DbSession
+    conversation_id: ConversationId,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    settings_file: SettingsStore,
 ) -> ConversationDetail:
     await _load_chat()
     from athena.assistant import chat
@@ -573,7 +583,7 @@ async def get_conversation(
         running=_turns(request).get(row.id) is not None,
         naming=_turns(request).naming(row.id),
         usage=chat.usage_of(conv.usage if conv else None),
-        spend_limit_usd=ai_settings.load(db).spend_limit_usd,
+        spend_limit_usd=ai_settings.load(settings_file).spend_limit_usd,
         plan=await plan_of(request.app.state.settings.data_dir, row.id),
     )
 
@@ -616,7 +626,12 @@ async def delete_conversation(
     responses={200: {"content": {"text/event-stream": {}}}},
 )
 async def send_message(
-    conversation_id: ConversationId, body: MessageIn, request: Request, user: Authed, db: DbSession
+    conversation_id: ConversationId,
+    body: MessageIn,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    settings_file: SettingsStore,
 ) -> StreamingResponse:
     """Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a
     new block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,
@@ -634,7 +649,7 @@ async def send_message(
         raise HTTPException(status.HTTP_409_CONFLICT, "This chat is still answering")
     model = _model_for(request, db, row, body.model)
     _audit_skipped(db, user, row)
-    settings = ai_settings.load(db)
+    settings = ai_settings.load(settings_file)
     assert user.user.id is not None
     turn = turns.start(
         row.id,
@@ -668,6 +683,7 @@ async def answer_approvals(
     request: Request,
     user: Authed,
     db: DbSession,
+    settings_file: SettingsStore,
 ) -> StreamingResponse:
     """Answer everything a paused chat is waiting on, and continue it: Approve or Deny each
     action (approved actions run as you, and each decision is audited) and answer or decline
@@ -700,7 +716,7 @@ async def answer_approvals(
         except ValueError as exc:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
     model = _model_for(request, db, row, None)
-    settings = ai_settings.load(db)
+    settings = ai_settings.load(settings_file)
     decisions = resume.approvals
     for call_id, d in decided.items():
         call = calls[call_id]
@@ -753,7 +769,7 @@ def _model_for(
     ref = chosen or (
         ModelRef(provider_id=row.provider_id, model=row.model)
         if row.provider_id and row.model
-        else ai_settings.load(db).default_model
+        else ai_settings.load(request.app.state.settings_file).default_model
     )
     if ref is None:
         raise HTTPException(status.HTTP_409_CONFLICT, "Pick a model first")

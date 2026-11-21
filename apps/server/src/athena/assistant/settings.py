@@ -2,16 +2,16 @@
 `system_settings` under the key "ai". Invalid stored values fall back to defaults."""
 
 import logging
-from typing import Annotated, Literal
+from typing import TYPE_CHECKING, Annotated, Literal
 
-from pydantic import BaseModel, Field, ValidationError, model_validator
-from sqlmodel import Session
+from pydantic import BaseModel, Field, model_validator
 
-from athena.db.models import SystemSetting
 from athena.terminal.shells import default_commands
 
+if TYPE_CHECKING:
+    from athena.settings_file import SettingsFile
+
 log = logging.getLogger(__name__)
-KEY = "ai"
 
 
 class ModelRef(BaseModel):
@@ -120,19 +120,10 @@ class AiSettings(BaseModel):
         return self
 
 
-def load(db: Session) -> AiSettings:
-    row = db.get(SystemSetting, KEY)
-    if row is None:
-        return AiSettings()
-    try:
-        return AiSettings.model_validate_json(row.value)
-    except ValidationError:
-        log.warning("ignoring invalid AI settings")
-        return AiSettings()
+def load(config: "SettingsFile") -> AiSettings:
+    """A copy of the ai settings this run uses (athena.json, read at startup)."""
+    return config.section("ai")
 
 
-def save(db: Session, settings: AiSettings) -> None:
-    row = db.get(SystemSetting, KEY) or SystemSetting(key=KEY, value="")
-    row.value = settings.model_dump_json()
-    db.add(row)
-    db.commit()
+def save(config: "SettingsFile", settings: AiSettings) -> None:
+    config.save("ai", settings)
