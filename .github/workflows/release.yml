@@ -22,6 +22,11 @@ jobs:
       # PRs opened with GITHUB_TOKEN don't trigger CI, so required checks would never
       # run on the release PR. Set the RELEASE_PLEASE_TOKEN secret (a fine-grained PAT
       # with contents + pull-requests write on this repo) so they do.
+      # The release is created as a draft (release-please-config.json `draft`) and
+      # published by the assets job once the wheel is uploaded, so `releases/latest`
+      # never points at a release the installers can't download from.
+      # `force-tag-creation` pushes the tag now: GitHub tags a draft only on publish,
+      # and release-please finds the previous release by its tag.
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: rp
         with:
@@ -64,3 +69,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.release-please.outputs.tag_name }}
         run: gh release upload "$TAG" dist/*.whl scripts/install.sh scripts/install.ps1 --clobber
+
+      # Only now does the release become public and `releases/latest`. If a step above
+      # fails, it stays a draft: fix it and re-run this job.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: gh release edit "$TAG" --draft=false

@@ -150,8 +150,12 @@ def _openapi(args: argparse.Namespace) -> int:
     # which needs root), so build the app against a throwaway one.
     with tempfile.TemporaryDirectory() as tmp:
         app = create_app(Settings(data_dir=Path(tmp)))
-        schema = json.dumps(app.openapi(), indent=2) + "\n"
+        spec = app.openapi()
         app.state.db.engine.dispose()  # release the SQLite file so Windows can delete it
+    # The export feeds packages/api-client, which CI checks is up to date. Pin the
+    # version so a release bump doesn't make it stale; /api/openapi.json keeps the real one.
+    spec["info"]["version"] = "0.0.0"
+    schema = json.dumps(spec, indent=2) + "\n"
     if args.output:
         Path(args.output).write_text(schema, encoding="utf-8")
     else:
