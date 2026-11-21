@@ -17,7 +17,7 @@ import httpx2
 from pydantic import BaseModel
 
 from athena.assistant.kinds import ProviderKind, get_native_kind_ids, secret_keys
-from athena.assistant.models_dev import get_models_dev_service, resolve_kind
+from athena.assistant.models_dev import get_models_dev_service, resolve_kind, style_of
 from athena.crypto import SecretBox
 from athena.db.models import AiProvider
 
@@ -221,7 +221,7 @@ def _build_model(cfg: ProviderConfig, model_id: str) -> Model:
                 api_key=key,
             ),
         )
-    if kind == "bedrock":
+    if kind == "amazon-bedrock":
         from pydantic_ai.models.bedrock import BedrockConverseModel
         from pydantic_ai.providers.bedrock import BedrockProvider
 
@@ -242,20 +242,21 @@ def _build_model(cfg: ProviderConfig, model_id: str) -> Model:
             model_id, provider=OllamaProvider(base_url=f"{base}/v1", api_key=key or "ollama")
         )
 
-    # All other providers (including dynamically loaded from models.dev) use OpenAI-compatible API
+    # Every other models.dev provider: its OpenAI- or Anthropic-compatible API at the
+    # admin's base URL, or the one models.dev lists.
+    service = get_models_dev_service()
+    entry = service.get_provider(kind) if service else None
+    base_url = cfg.get("base_url") or (entry.api_url if entry else None) or ""
+    if entry is not None and style_of(entry) == "anthropic":
+        from pydantic_ai.models.anthropic import AnthropicModel
+        from pydantic_ai.providers.anthropic import AnthropicProvider
+
+        # models.dev gives the AI SDK's base (".../v1"); the Anthropic SDK adds "/v1".
+        base = _strip(base_url).removesuffix("/v1")
+        return AnthropicModel(model_id, provider=AnthropicProvider(api_key=key, base_url=base))
+
     from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.openai import OpenAIProvider
-
-    # Get base URL from models.dev cache
-    service = get_models_dev_service()
-    base_url = None
-    if service:
-        entry = service.get_provider(kind)
-        if entry and entry.api_url:
-            base_url = entry.api_url
-
-    # Fall back to configured base_url
-    base_url = base_url or cfg.get("base_url") or ""
 
     return OpenAIChatModel(
         model_id,
@@ -476,7 +477,7 @@ async def fetch_models(
     kind = cfg.kind.id
 
     # Native providers with special model listing
-    if kind == "bedrock":
+    if kind == "amazon-bedrock":
         return await asyncio.to_thread(_bedrock, cfg)
 
     # Try provider's own API first for native providers

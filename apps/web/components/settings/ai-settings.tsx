@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import {
-  ChevronDownIcon,
   CloudIcon,
   CpuIcon,
   PencilIcon,
@@ -32,14 +31,17 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
+  Combobox,
+  ComboboxCollection,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxLabel,
+  ComboboxList,
+  ComboboxTrigger,
+} from "@workspace/ui/components/combobox"
 import {
   Empty,
   EmptyContent,
@@ -87,6 +89,12 @@ type AiSettings = Schemas["AiSettings"]
 type Integration = Schemas["IntegrationOut"]
 type IntegrationKind = Schemas["IntegrationKindOut"]
 
+type KindGroup = { value: string; items: ProviderKind[] }
+
+/**
+ * A searchable "Add provider" picker: models.dev lists dozens of providers, too many
+ * for a plain menu.
+ */
 export function AddMenu({
   kinds,
   onPick,
@@ -96,33 +104,53 @@ export function AddMenu({
   onPick: (kind: ProviderKind) => void
   label?: string
 }) {
-  const groups: [string, ProviderKind[]][] = [
-    ["Cloud", kinds.filter((k) => k.group === "cloud")],
-    ["Local", kinds.filter((k) => k.group === "local")],
-  ]
+  const groups = React.useMemo<KindGroup[]>(() => {
+    const byLabel = (a: ProviderKind, b: ProviderKind) =>
+      a.label.localeCompare(b.label)
+    return [
+      {
+        value: "Cloud",
+        items: kinds.filter((k) => k.group === "cloud").sort(byLabel),
+      },
+      {
+        value: "Local",
+        items: kinds.filter((k) => k.group === "local").sort(byLabel),
+      },
+    ].filter((g) => g.items.length > 0)
+  }, [kinds])
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+    <Combobox
+      items={groups}
+      value={null}
+      onValueChange={(k: ProviderKind | null) => {
+        if (k) onPick(k)
+      }}
+      itemToStringLabel={(k: ProviderKind) => k.label}
+      itemToStringValue={(k: ProviderKind) => k.id}
+    >
+      <ComboboxTrigger render={<Button variant="outline" size="sm" />}>
         <PlusIcon />
         {label}
-        <ChevronDownIcon />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
-        {groups.map(([title, list], i) => (
-          <React.Fragment key={title}>
-            {i > 0 ? <DropdownMenuSeparator /> : null}
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>{title}</DropdownMenuLabel>
-              {list.map((k) => (
-                <DropdownMenuItem key={k.id} onClick={() => onPick(k)}>
-                  {k.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuGroup>
-          </React.Fragment>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </ComboboxTrigger>
+      <ComboboxContent className="w-64 max-w-[calc(100vw-2rem)]" align="end">
+        <ComboboxInput showTrigger={false} placeholder="Search providers" />
+        <ComboboxEmpty>No provider matches.</ComboboxEmpty>
+        <ComboboxList>
+          {(group: KindGroup) => (
+            <ComboboxGroup key={group.value} items={group.items}>
+              <ComboboxLabel>{group.value}</ComboboxLabel>
+              <ComboboxCollection>
+                {(k: ProviderKind) => (
+                  <ComboboxItem key={k.id} value={k}>
+                    {k.label}
+                  </ComboboxItem>
+                )}
+              </ComboboxCollection>
+            </ComboboxGroup>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   )
 }
 
@@ -639,7 +667,7 @@ function ShellCard({
                 spellCheck={false}
                 // The shared Textarea grows with its content; a long allowlist
                 // made the page scroll for a screen. Keep it at six lines.
-                className="max-h-48 font-mono [field-sizing:fixed]"
+                className="[field-sizing:fixed] max-h-48 font-mono"
               />
               <FieldDescription>
                 One per line. Every program in a command is checked, including
@@ -747,7 +775,11 @@ function ToolsCard({
               onChange={toggle("web_research_enabled", "Web research")}
             >
               Searches the web with{" "}
-              <a href="https://exa.ai" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://exa.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Exa
               </a>{" "}
               and reads the pages it finds. The server needs an{" "}
@@ -821,7 +853,8 @@ function AdvancedCard({
             >
               Checkpoints each model request and tool call, so an interrupted
               chat resumes instead of repeating paid work. Needs pgtask and a
-              Postgres database (<code>ATHENA_DURABLE_EXECUTION_DATABASE_URL</code>
+              Postgres database (
+              <code>ATHENA_DURABLE_EXECUTION_DATABASE_URL</code>
               ); without them it changes nothing.
             </ToggleRow>
             <ToggleRow
@@ -940,7 +973,9 @@ function IntegrationsCard({
   save: SaveAi
 }) {
   const [kinds, setKinds] = React.useState<IntegrationKind[]>([])
-  const [integrations, setIntegrations] = React.useState<Integration[] | null>(null)
+  const [integrations, setIntegrations] = React.useState<Integration[] | null>(
+    null
+  )
   const [editing, setEditing] = React.useState<{
     integration: Integration | null
     kinds: IntegrationKind[]
@@ -961,9 +996,12 @@ function IntegrationsCard({
 
   async function remove(integration: Integration) {
     setRemoving(null)
-    const { error } = await api.DELETE("/api/assistant/integrations/{integration_id}", {
-      params: { path: { integration_id: integration.id } },
-    })
+    const { error } = await api.DELETE(
+      "/api/assistant/integrations/{integration_id}",
+      {
+        params: { path: { integration_id: integration.id } },
+      }
+    )
     if (error) {
       toast.add({
         type: "error",
@@ -995,8 +1033,9 @@ function IntegrationsCard({
       <CardHeader>
         <CardTitle>Hosted integrations</CardTitle>
         <CardDescription>
-          MCP servers Athena runs for the assistant (GitHub, Linear, Notion, …). Each
-          has an encrypted token, and its actions go through your Approve/Deny card.
+          MCP servers Athena runs for the assistant (GitHub, Linear, Notion, …).
+          Each has an encrypted token, and its actions go through your
+          Approve/Deny card.
         </CardDescription>
         <CardAction>
           {kinds.length ? (

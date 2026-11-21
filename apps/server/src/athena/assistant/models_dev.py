@@ -12,12 +12,13 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, Literal
+from urllib.parse import urlsplit
 
 import httpx2
 from sqlmodel import Session, col, select
 
-from athena.assistant.kinds import BY_ID, KindField, ProviderKind, get_native_kind_ids
+from athena.assistant.kinds import BY_ID, LOCAL_KINDS, NATIVE_KINDS, KindField, ProviderKind
 from athena.db.models import ModelsDevCache
 
 log = logging.getLogger(__name__)
@@ -26,264 +27,46 @@ MODELS_DEV_API = "https://models.dev/api.json"
 CACHE_TTL = timedelta(hours=24)  # Cache for 24 hours
 FETCH_TIMEOUT = 30.0
 
-# Providers with native pydantic-ai support (use dedicated providers, not OpenAI-compatible)
-# These are the ones defined in kinds.py as NATIVE_KINDS
-NATIVE_PROVIDERS = get_native_kind_ids()
+# models.dev ids with their own pydantic-ai provider (kinds.py NATIVE_KINDS).
+NATIVE_PROVIDERS = {k.id for k in NATIVE_KINDS}
 
-# Skip patterns (token plans, routers, gateways, unknown providers)
-SKIP_PATTERNS = [
-    "token-plan",
-    "coding-plan",
-    "gateway",
-    "router",
-    "merge-gateway",
-    "unrestricted",
-    "unbiased",
-    "refuseless",
-    "abliteration",
-    "ai-router",
-    "agentrouter",
-    "openreason",
-    "korouter",
-    "trustedrouter",
-    "unorouter",
-    "teamorouter",
-    "logits",
-    "routing-run",
-    "the-grid-ai",
-    "confidential-ai",
-    "aistupidlevel",
-    "hubris",
-    "frequency",
-    "ambient",
-    "crossmodel",
-    "aipg",
-    "paraloncloud",
-    "vercel",
-    "bothub",
-    "lynkr",
-    "toapis",
-    "phase",
-    "kenari",
-    "reflection",
-    "cline-pass",
-    "claudinio",
-    "teapot-router",
-    "chutes",
-    "fortytwo",
-    "tinfoil",
-    "nano-gpt",
-    "cheapest-token",
-    "standardcompute",
-    "uplinkswitch",
-    "aihubmix",
-    "vancine",
-    "moneo",
-    "obscurify",
-    "berget",
-    "entrim",
-    "echo",
-    "auriko",
-    "evroc",
-    "ofox",
-    "ezkielyna",
-    "morph",
-    "sokkan",
-    "jalapeno",
-    "frogbot",
-    "wallaby",
-    "joingonka",
-    "friendli",
-    "submodel",
-    "verda",
-    "bumo",
-    "inceptron",
-    "aki-io",
-    "bee",
-    "atomic-chat",
-    "synthetic",
-    "runcrate",
-    "fiftyx",
-    "neosmith",
-    "wally",
-    "pendra",
-    "tokengo",
-    "moark",
-    "tenstorrent",
-    "superbot-gg",
-    "sandbase",
-    "ruapi",
-    "vispark",
-    "aigrow",
-    "zeldoc",
-    "aimlapi",
-    "sarvam",
-    "agnes",
-    "uncensuredai",
-    "powerspring",
-    "munito-eu",
-    "munito",
-    "inco",
-    "dinference",
-    "qvac",
-    "databricks",
-    "tokenify",
-    "above",
-    "neuralwatt",
-    "greenpt",
-    "adaption",
-    "nearai",
-    "modelis",
-    "aiand",
-    "wandb",
-    "klavo",
-    "watt",
-    "nan",
-    "kosmik",
-    "sap-ai-core",
-    "ebcloud",
-    "cloudflare-ai-gateway",
-    "inference-coop",
-    "stepfun-ai-step-plan",
-    "infer",
-    "stepfun",
-    "prime",
-    "kunavo",
-    "scaleway",
-    "snowflake-cortex",
-    "github-copilot",
-    "huggingface",
-    "hostinger-router",
-    "xpersona",
-    "lyceum",
-    "synthorai",
-    "alibaba-token-plan",
-    "engy",
-    "proxystacks",
-    "mixlayer",
-    "zro",
-    "doubleword",
-    "trustedtokens",
-    "meganova",
-    "sakana",
-    "minimax-cn",
-    "venice",
-    "zai-coding-plan",
-    "scx-ai",
-    "anyapi",
-    "liquid",
-    "kuae-cloud-coding-plan",
-    "cloudflare-workers-ai",
-    "tencent-coding-plan",
-    "inference-coop",
-    "stepfun-ai",
-    "inception",
-    "baseten",
-    "poolside",
-    "zai",
-    "amd",
-    "crusoe",
-    "umans-ai",
-    "powerspring",
-    "privatemode-ai",
-    "zenmux",
-    "coralbricks",
-    "lowrouter",
-    "fastrouter",
-    "lmstudio",
-    "helicone",
-    "tencent-token-plan",
-    "siliconflow",
-    "sagg",
-    "wafer.ai",
-    "inferx",
-    "kitani",
-    "nokeep",
-    "infersia",
-    "stepping-stone",
-    "deepinfra",
-    "zhipuai",
-    "cortecs",
-    "minimax",
-    "orcarouter",
-    "drun",
-    "steadyrouter",
-    "tokenwatt",
-    "azure-cognitive-services",
-    "arcee",
-    "vivgrid",
-    "nova",
-    "freemodel",
-    "salad-cloud",
-    "xiaomi-token-plan",
-    "xiaomi-token-plan-ams",
-    "xiaomi-token-plan-cn",
-    "xiaomi-token-plan-sgp",
-    "subconscious",
-    "hetzner",
-    "graphn",
-    "huawei-maas",
-    "qihang-ai",
-    "cloudflare-workers-ai",
-    "inferenceapis",
-    "opencode",
-    "opencode-go",
-    "tokenrouter",
-    "cheapllm",
-    "boundless",
-    "llmgateway",
-    "llmgateway-providers",
-    "merge-gateway",
-    "watsonx",
-    "aigrow",
-    "ai-router",
-    "ruapi",
-    "vispark",
-    "volcengine-coding-plan",
-    "zhipuai-coding-plan",
-    "klokintegration",
-    "siliconflow-cn",
-    "moark",
-    "unbiased",
-    "abliteratedllm",
-    "xai",
-    "augure",
-    "inferris",
-    "bailing",
-    "autarcho",
-    "isoquant",
-    "moonshotai-cn",
-    "mallard",
-    "opper",
-    "alibaba-coding-plan-cn",
-    "confidential-ai",
-    "daoxe",
-    "llmtr",
-    "moonshotai",
-    "melious",
-    "kimi-code-plan-global",
-    "kimi-code-plan-cn",
-    "anonrouter",
-    "evroc",
-    "ofox",
-    "upstage",
-    "digitalocean",
-    "vultr",
-    "novita-ai",
-    "nebius",
-    "inference",
-    "modal",
-    "oci",
-    "perplexity-agent",
-    "ollama-cloud",
-]
+# AI SDK packages whose API pydantic-ai speaks at any base URL.
+OPENAI_SDKS = {"@ai-sdk/openai-compatible", "@ai-sdk/openai"}
+ANTHROPIC_SDKS = {"@ai-sdk/anthropic"}
+
+# Providers models.dev lists with their own AI SDK package and no `api` URL, whose
+# OpenAI-compatible endpoint is documented (the same defaults pydantic-ai's own
+# providers use).
+KNOWN_BASE_URLS = {
+    "cerebras": "https://api.cerebras.ai/v1",
+    "togetherai": "https://api.together.xyz/v1",
+    "deepinfra": "https://api.deepinfra.com/v1/openai",
+    "perplexity": "https://api.perplexity.ai",
+    "vercel": "https://ai-gateway.vercel.sh/v1",
+    "venice": "https://api.venice.ai/api/v1",
+}
+
+ApiStyle = Literal["native", "openai", "anthropic"]
 
 
-def should_skip(provider_id: str) -> bool:
-    """Check if a provider should be skipped."""
+def api_style(provider_id: str, npm: str | None, api_url: str | None) -> ApiStyle | None:
+    """How pydantic-ai talks to a models.dev provider, or None when it can't (its own SDK
+    and no OpenAI- or Anthropic-compatible endpoint, e.g. Google Vertex or watsonx)."""
     if provider_id in NATIVE_PROVIDERS:
-        return True
-    return any(pattern in provider_id for pattern in SKIP_PATTERNS)
+        return "native"
+    if not api_url:
+        return None
+    if npm in OPENAI_SDKS or npm == "@openrouter/ai-sdk-provider":
+        return "openai"
+    if npm in ANTHROPIC_SDKS:
+        return "anthropic"
+    if provider_id in KNOWN_BASE_URLS:
+        return "openai"
+    return None
+
+
+def _is_local_url(url: str) -> bool:
+    return urlsplit(url).hostname in ("localhost", "127.0.0.1", "0.0.0.0", "::1")
 
 
 @dataclass
@@ -311,17 +94,13 @@ class ModelsDevProvider:
         )
 
     def is_openai_compatible(self) -> bool:
-        """Check if this provider uses OpenAI-compatible API."""
-        if self.npm in (
-            "@ai-sdk/openai-compatible",
-            "@ai-sdk/openai",
-            "@openrouter/ai-sdk-provider",
-        ):
-            return True
-        return bool(self.api and "openai" in self.api.lower())
+        """Whether pydantic-ai reaches it through its OpenAI-compatible model."""
+        return api_style(self.id, self.npm, self.get_base_url()) == "openai"
 
     def get_base_url(self) -> str | None:
-        """Get the base URL for OpenAI-compatible endpoints."""
+        """The API's base URL: models.dev's `api`, or a documented one (KNOWN_BASE_URLS)."""
+        if not self.api:
+            return KNOWN_BASE_URLS.get(self.id)
         if self.api:
             url = self.api.rstrip("/")
             for suffix in ["/models", "/v1/models", "/v2/models", "/api/v1/models"]:
@@ -347,45 +126,57 @@ def _env_vars(entry: ModelsDevCache) -> list[str]:
     return [str(v) for v in raw or []]
 
 
-def kind_from_entry(entry: ModelsDevCache) -> ProviderKind:
-    """The ProviderKind the UI shows for a cached OpenAI-compatible models.dev provider."""
+def style_of(entry: ModelsDevCache) -> ApiStyle | None:
+    return api_style(entry.provider_id, entry.npm_package, entry.api_url)
+
+
+def kind_from_entry(entry: ModelsDevCache) -> ProviderKind | None:
+    """The ProviderKind the UI shows for a cached models.dev provider, or None when
+    pydantic-ai can't use it."""
+    style = style_of(entry)
+    if style is None:
+        return None
+    if style == "native":
+        return BY_ID[entry.provider_id].model_copy(update={"label": entry.name})
     env_vars = _env_vars(entry)
     env_var = env_vars[0] if env_vars else f"{entry.provider_id.upper().replace('-', '_')}_API_KEY"
-    if entry.api_url:
+    url = entry.api_url or ""
+    local = _is_local_url(url)
+    if "${" in url:
+        # e.g. https://${DATABRICKS_HOST}/ai-gateway/mlflow/v1: the admin fills it in.
         base_url = KindField(
             key="base_url",
             label="Base URL",
-            required=False,
-            default=entry.api_url,
-            placeholder=entry.api_url,
-            help=entry.doc_url or "Provider's API endpoint",
+            required=True,
+            placeholder=url,
+            help="Replace the ${...} parts with your own values.",
         )
     else:
         base_url = KindField(
             key="base_url",
             label="Base URL",
-            required=False,
-            placeholder="Optional: custom endpoint",
-            help="Leave empty to use the official API",
+            default=url,
+            placeholder=url,
+            help=entry.doc_url or None,
         )
     return ProviderKind(
         id=entry.provider_id,
         label=entry.name,
-        group="cloud" if entry.api_url else "local",
+        group="local" if local else "cloud",
         fields=[
             KindField(
                 key="api_key",
                 label="API key",
                 secret=True,
-                required=True,
-                help=f"Set {env_var} in your environment or enter it here",
+                required=not local,
+                help=f"From {env_var} in the provider's docs.",
             ),
             base_url,
             KindField(
                 key="context_window",
                 label="Context window",
                 placeholder="e.g. 32768",
-                help="Tokens the model accepts. Leave empty to detect automatically.",
+                help="Tokens the model accepts. Leave empty to detect it.",
             ),
         ],
         lists_models=True,
@@ -422,11 +213,11 @@ class ModelsDevService:
                     return 0
 
             log.info("Fetching fresh models.dev data...")
+            # Counted before the fetch, so an offline host doesn't retry on every request.
+            self._last_fetch = time.monotonic()
             providers = await self._fetch_models_dev()
             with self._session() as db:
-                count = self._store_cache(db, providers)
-            self._last_fetch = time.monotonic()
-            return count
+                return self._store_cache(db, providers)
 
     async def _fetch_models_dev(self) -> dict[str, ModelsDevProvider]:
         """Fetch all providers from models.dev API."""
@@ -437,8 +228,6 @@ class ModelsDevService:
 
         providers = {}
         for provider_id, provider_data in data.items():
-            if should_skip(provider_id):
-                continue
             providers[provider_id] = ModelsDevProvider.from_json(provider_id, provider_data)
         log.info(f"Fetched {len(providers)} providers from models.dev")
         return providers
@@ -504,21 +293,14 @@ class ModelsDevService:
         return {p.provider_id: list(p.models.values()) for p in providers}
 
     def get_kind(self, provider_id: str) -> ProviderKind | None:
-        """The kind for one cached OpenAI-compatible provider, or None."""
-        if provider_id in NATIVE_PROVIDERS:
-            return None
+        """The kind for one cached models.dev provider pydantic-ai can use, or None."""
         entry = self.get_provider(provider_id)
-        if entry is None or not entry.is_openai_compatible:
-            return None
-        return kind_from_entry(entry)
+        return kind_from_entry(entry) if entry is not None else None
 
-    def get_dynamic_kinds(self) -> list[ProviderKind]:
-        """Generate ProviderKind entries for all cached OpenAI-compatible providers."""
-        return [
-            kind_from_entry(entry)
-            for entry in self.get_cached_providers()
-            if entry.is_openai_compatible and entry.provider_id not in NATIVE_PROVIDERS
-        ]
+    def get_kinds(self) -> list[ProviderKind]:
+        """Every cached models.dev provider pydantic-ai can use, most models first."""
+        kinds = (kind_from_entry(entry) for entry in self.get_cached_providers())
+        return [k for k in kinds if k is not None]
 
 
 # Global service instance (set during app startup)
@@ -538,11 +320,23 @@ def get_models_dev_service() -> ModelsDevService | None:
 
 
 def resolve_kind(kind_id: str) -> ProviderKind | None:
-    """A native kind, or a cached models.dev kind (survives restarts, unlike a dict cache)."""
-    kind = BY_ID.get(kind_id)
-    if kind is not None:
-        return kind
-    return _service.get_kind(kind_id) if _service else None
+    """A saved provider's kind: from the models.dev cache table (survives restarts), or the
+    built-in form for a native or local kind, so a saved provider never vanishes."""
+    kind = _service.get_kind(kind_id) if _service else None
+    return kind or BY_ID.get(kind_id)
+
+
+async def list_kinds() -> list[ProviderKind]:
+    """What the "Add provider" picker offers: every models.dev provider pydantic-ai can
+    use, plus local Ollama. An empty cache (first start) is filled first."""
+    if _service is None:
+        return list(LOCAL_KINDS)
+    if not _service.get_cached_providers():
+        try:
+            await _service.ensure_cache_fresh()
+        except Exception as exc:  # offline: Ollama alone until models.dev answers
+            log.warning("Couldn't fetch models.dev: %s", exc)
+    return [*_service.get_kinds(), *LOCAL_KINDS]
 
 
 async def refresh_models_dev_cache(force: bool = False) -> int:
