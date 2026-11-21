@@ -1,49 +1,42 @@
-# Imported from the CasaOS AppStore (Apache-2.0): Apps/ChatGPT-Next-Web
 x-athena:
   title: ChatGPT Next Web
-  description: A well-designed cross-platform ChatGPT UI.
+  description: One-click ChatGPT-style web interface for LLMs with one-click deployment.
+  tagline: ChatGPT-style web interface.
+  tags: [AI, Chat, LLM]
+  license: "MIT"
   category: ai
-  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/ChatGPT-Next-Web/icon.svg
-  homepage: https://nextchat.club
-  web_port: WEB_PORT
-  web_path: /
   platforms: [linux/amd64, linux/arm64]
-  notes: null
+  icon: https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ChatGPT-Next-Web/icon.svg
+  homepage: https://chatgpt-next-web.vercel.app
+  web_port: WEB_PORT
+  screenshots:
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ChatGPT-Next-Web/screenshot-1.png
+    - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/ChatGPT-Next-Web/screenshot-2.png
   env:
-  - key: WEB_PORT
-    label: Web port
-    type: port
-    default: '3004'
-  - key: PGID
-    label: Group ID
-    default: '@gid'
-    advanced: true
-  - key: PUID
-    label: User ID
-    default: '@uid'
-    advanced: true
-  - key: TZ
-    label: Timezone
-    default: '@timezone'
-    advanced: true
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8169"
+    - key: OPENAI_API_KEY
+      label: OpenAI API key
+      type: password
+      required: false
+      advanced: true
+    - key: CODE
+      label: Access code
+      type: password
+      description: Leave empty to disable access control.
+      required: false
+      advanced: true
+
 services:
   chatgpt-next-web:
-    environment:
-      PGID: ${PGID}
-      PUID: ${PUID}
-      TZ: ${TZ}
-      CODE: ''
-      PROXY_URL: ''
-      BASE_URL: https://api.openai.com
     image: yidadaa/chatgpt-next-web:v2.16.1
-    deploy:
-      resources:
-        reservations:
-          memory: 64M
-    network_mode: bridge
-    ports:
-    - target: 3000
-      published: ${WEB_PORT}
-      protocol: tcp
     restart: unless-stopped
-    container_name: chatgpt-next-web
+    ports:
+      - "${WEB_PORT}:3000/tcp"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      CODE: ${CODE}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data
