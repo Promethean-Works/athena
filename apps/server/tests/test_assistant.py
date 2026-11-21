@@ -21,11 +21,14 @@ from sqlmodel import select
 
 from athena.api import assistant as assistant_api
 from athena.assistant import chat, providers
-from athena.assistant.kinds import NATIVE_KINDS as KINDS
+from athena.assistant.kinds import BY_ID
 from athena.assistant.providers import ProviderConfig, build_model
 from athena.crypto import SecretBox, SecretError
 from athena.db.models import AiProvider, AuditEntry
 from athena.platform.detect import detect_ollama
+
+KINDS = list(BY_ID.values())
+
 
 KEY = "sk-test-not-a-real-key"
 

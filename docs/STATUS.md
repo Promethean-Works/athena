@@ -10,7 +10,6 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
 
 - HTTPS (`docs/specs/https.md`): parts 1–3 done (#192, #196, #199). Next: part 4 (design section, gotchas, `athena-host-test` on a Linux VM incl. HTTP-01 on port 80, Windows E2E). Part 3 not verified for real: issuing from real Let's Encrypt (HTTP-01 or a real Cloudflare token); renewal and the last renewal/error live in memory only, so a restart forgets them until the next daily check. The Pebble CI test (ubuntu-latest) is the only run of the real lego against an ACME server.
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
-- models.dev providers now load (fix/models-dev-refresh), so the Settings → AI "Add provider" dropdown lists ~75 kinds with no search. Make it a searchable combobox (verify with `athena-ui-verify`). Some routers slip past `SKIP_PATTERNS` (e.g. "Kilo Gateway": the skip checks the id, not the name).
 - Dashboard follow-ups: touch dragging on a real phone; an app "update available" badge (`AppOut` has no such field).
 - A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
 - E2E `install + smoke (windows-latest)` fails about half the time on main too: `500 GET /api/containers` during the phone/dark step (seen 2026-11-21). Find the server traceback in that job's log.
@@ -25,6 +24,8 @@ Finished work is in `docs/HISTORY.md` (read it only when you need a feature's ba
   - Real-tested: a Cloudflare quick tunnel (macOS). Not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`, which nothing writes.
   - Every tunnel detector (`platform/detect.py`) returns the action `"configure"`, which `Capability.actions` doesn't allow, so detection fails (logged as an error) on any host where cloudflared, ngrok or tailscale is installed. Add `configure` to `Action` (and regenerate the API client) or drop it.
 
+- models.dev providers left out because pydantic-ai needs their own SDK: Google Vertex (service-account form for `GoogleProvider(vertexai=True)`), watsonx, GitLab, SAP AI Core and a few gateways. Vertex is the one worth adding.
+
 ## Next
 
 M7 part D stage 3 (design §4.5 Parts): extras with outside services.
@@ -38,7 +39,7 @@ Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 
 ## Open questions
 
-- There's no generic OpenAI-compatible provider kind any more, and models.dev's `lmstudio` is skipped, so LM Studio or vLLM can't be added as a provider. Bring back an OpenAI-compatible kind (base URL + optional key)?
+- LM Studio (and other loopback models.dev entries) are now listed with an editable base URL, so vLLM or llama.cpp work through them; is a separate generic "OpenAI-compatible" kind still wanted?
 - `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
 
 

@@ -4395,7 +4395,7 @@
           "assistant"
         ],
         "summary": "List Kinds",
-        "description": "Return all provider kinds: native + dynamic from models.dev cache.",
+        "description": "Every models.dev provider pydantic-ai can use, plus local Ollama.",
         "operationId": "listAiProviderKinds",
         "responses": {
           "200": {
@@ -9779,28 +9779,7 @@
       "ProviderKind": {
         "properties": {
           "id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "anthropic",
-                  "openai",
-                  "google",
-                  "openrouter",
-                  "groq",
-                  "mistral",
-                  "deepseek",
-                  "xai",
-                  "azure",
-                  "bedrock",
-                  "ollama",
-                  "cohere"
-                ]
-              },
-              {
-                "type": "string"
-              }
-            ],
+            "type": "string",
             "title": "Id"
           },
           "label": {
@@ -9867,20 +9846,6 @@
           },
           "kind": {
             "type": "string",
-            "enum": [
-              "anthropic",
-              "openai",
-              "google",
-              "openrouter",
-              "groq",
-              "mistral",
-              "deepseek",
-              "xai",
-              "azure",
-              "bedrock",
-              "ollama",
-              "cohere"
-            ],
             "title": "Kind"
           },
           "lists_models": {

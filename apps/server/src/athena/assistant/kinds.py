@@ -3,32 +3,14 @@
 Each kind is a small form description: the UI renders the fields, the server checks
 them, and `providers.py` turns a saved provider into a pydantic-ai model.
 
-Only providers with native pydantic-ai support or special handling are defined here.
-Additional OpenAI-compatible providers are loaded dynamically from models.dev at runtime.
+Every provider in the list comes from models.dev (`models_dev.py`). The kinds here are
+only the form and model class for models.dev ids that need their own pydantic-ai
+provider (`NATIVE_KINDS`), and local Ollama, which models.dev doesn't list.
 """
 
 from typing import Literal
 
 from pydantic import BaseModel
-
-# Native provider IDs - these have dedicated pydantic-ai models or special handling
-NativeKindId = Literal[
-    "anthropic",
-    "openai",
-    "google",
-    "openrouter",
-    "groq",
-    "mistral",
-    "deepseek",
-    "xai",
-    "azure",
-    "bedrock",
-    "ollama",
-    "cohere",
-]
-
-# Backward compatibility for API
-KindId = NativeKindId
 
 
 class KindField(BaseModel):
@@ -43,7 +25,8 @@ class KindField(BaseModel):
 
 
 class ProviderKind(BaseModel):
-    id: NativeKindId | str  # Allow string for dynamic kinds from models.dev
+    id: str
+    """The models.dev provider id (or "ollama")."""
     label: str
     group: Literal["cloud", "local"]
     fields: list[KindField]
@@ -75,7 +58,8 @@ def _url(default: str | None, *, required: bool = False, help: str | None = None
     )
 
 
-# Native provider kinds - these have special pydantic-ai support
+# models.dev ids with their own pydantic-ai provider or form. Listed only when models.dev
+# lists them; their label then comes from models.dev.
 NATIVE_KINDS: list[ProviderKind] = [
     ProviderKind(
         id="anthropic",
@@ -113,7 +97,7 @@ NATIVE_KINDS: list[ProviderKind] = [
         ],
     ),
     ProviderKind(
-        id="bedrock",
+        id="amazon-bedrock",
         label="Amazon Bedrock",
         group="cloud",
         fields=[
@@ -125,6 +109,16 @@ NATIVE_KINDS: list[ProviderKind] = [
         ],
     ),
     ProviderKind(
+        id="cohere",
+        label="Cohere",
+        group="cloud",
+        fields=[_key()],
+    ),
+]
+
+# Local providers models.dev doesn't list (it has only "ollama-cloud"). Always listed.
+LOCAL_KINDS: list[ProviderKind] = [
+    ProviderKind(
         id="ollama",
         label="Ollama",
         group="local",
@@ -134,16 +128,9 @@ NATIVE_KINDS: list[ProviderKind] = [
             _window("Tokens Ollama runs models with (OLLAMA_CONTEXT_LENGTH on the Ollama server)."),
         ],
     ),
-    ProviderKind(
-        id="cohere",
-        label="Cohere",
-        group="cloud",
-        fields=[_key()],
-    ),
 ]
 
-# Backward compatibility - BY_ID includes native kinds
-BY_ID: dict[str, ProviderKind] = {k.id: k for k in NATIVE_KINDS}
+BY_ID: dict[str, ProviderKind] = {k.id: k for k in [*NATIVE_KINDS, *LOCAL_KINDS]}
 
 
 def secret_keys(kind: ProviderKind) -> set[str]:
@@ -151,5 +138,5 @@ def secret_keys(kind: ProviderKind) -> set[str]:
 
 
 def get_native_kind_ids() -> set[str]:
-    """Return the set of native provider kind IDs."""
-    return {k.id for k in NATIVE_KINDS}
+    """The kinds with their own pydantic-ai provider: `NATIVE_KINDS` and `LOCAL_KINDS`."""
+    return set(BY_ID)
