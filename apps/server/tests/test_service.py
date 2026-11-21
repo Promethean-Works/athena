@@ -19,9 +19,7 @@ from athena.service.platforms import (
 )
 
 SPEC = ServiceSpec(
-    python=Path("/opt/athena/tools/athena-server/bin/python"),
-    data_dir=Path("/var/lib/athena"),
-    port=8420,
+    python=Path("/opt/athena/tools/athena-server/bin/python"), data_dir=Path("/var/lib/athena")
 )
 
 
@@ -29,13 +27,14 @@ def test_systemd_unit_runs_athena_serve() -> None:
     unit = systemd_unit(SPEC)
     assert (
         "ExecStart=/opt/athena/tools/athena-server/bin/python -m athena serve "
-        "--port 8420 --data-dir /var/lib/athena" in unit
+        "--data-dir /var/lib/athena" in unit
     )
+    assert "--port" not in unit  # the port is in athena.json
     assert "WantedBy=multi-user.target" in unit
 
 
 def test_systemd_unit_quotes_paths_with_spaces() -> None:
-    spec = ServiceSpec(python=SPEC.python, data_dir=Path("/srv/my data"), port=9000)
+    spec = ServiceSpec(python=SPEC.python, data_dir=Path("/srv/my data"))
     assert '--data-dir "/srv/my data"' in systemd_unit(spec)
 
 
@@ -55,7 +54,6 @@ def test_launchd_plist() -> None:
     spec = ServiceSpec(
         python=Path("/Users/me/.local/share/athena/tools/athena-server/bin/python"),
         data_dir=Path("/Users/me/Library/Application Support/Athena"),
-        port=8420,
     )
     data = plistlib.loads(launchd_plist(spec).encode())
     assert data["ProgramArguments"][:4] == [spec.python.as_posix(), "-m", "athena", "serve"]
@@ -96,7 +94,6 @@ def test_windows_task_uses_pythonw_and_skips_default_args() -> None:
     spec = ServiceSpec(
         python=Path("C:/Users/me/AppData/Local/Athena/app/tools/athena-server/Scripts/python.exe"),
         data_dir=default_data_dir(),
-        port=8420,
     )
     command = windows_task_command(spec)
     assert "pythonw.exe" in command
@@ -131,9 +128,7 @@ def test_windows_stops_the_venv_launchers_child(plan: Plan) -> None:
 
 
 def test_windows_task_rejects_too_long_command() -> None:
-    spec = ServiceSpec(
-        python=Path("C:/" + "x" * 300 + "/python.exe"), data_dir=Path("C:/d"), port=1
-    )
+    spec = ServiceSpec(python=Path("C:/" + "x" * 300 + "/python.exe"), data_dir=Path("C:/d"))
     with pytest.raises(UnsupportedPlatformError):
         windows_task_command(spec)
 
