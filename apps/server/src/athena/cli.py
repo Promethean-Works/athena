@@ -12,7 +12,7 @@ from pathlib import Path
 import psutil
 
 from athena import __version__
-from athena.config import DEFAULT_PORT, default_data_dir
+from athena.config import SECTIONS, default_data_dir
 
 SHUTDOWN_GRACE_SECONDS = 5
 
@@ -24,19 +24,25 @@ PID_FILE_NAME = "athena.pid"
 def _serve(args: argparse.Namespace) -> int:
     import uvicorn
 
+    from athena.config import Settings
+
     # Settings are read from the environment so they also reach the --reload worker.
-    os.environ["ATHENA_HOST"] = args.host
-    os.environ["ATHENA_PORT"] = str(args.port)
+    # A flag only overrides athena.json when it's given.
+    if args.host is not None:
+        os.environ["ATHENA_HOST"] = args.host
+    if args.port is not None:
+        os.environ["ATHENA_PORT"] = str(args.port)
     os.environ["ATHENA_DATA_DIR"] = str(args.data_dir)
     os.environ["ATHENA_LOG_TO_FILE"] = "1"
     Path(args.data_dir).mkdir(parents=True, exist_ok=True)
     if not _settings_file_ok(Path(args.data_dir)):
         return 1
+    settings = Settings(data_dir=Path(args.data_dir))
     uvicorn.run(
         "athena.main:create_app",
         factory=True,
-        host=args.host,
-        port=args.port,
+        host=settings.host,
+        port=settings.port,
         reload=args.reload,
         log_config=None,  # athena.logging_setup configures logging in create_app
         # SSE streams (live stats, logs) never end on their own; without a timeout an
@@ -63,7 +69,7 @@ def _settings_file_ok(data_dir: Path, starting: bool = True) -> bool:
         print(f"Fix it in an editor{hint} and try again.", file=sys.stderr)
         return False
     except PermissionError as exc:
-        hint = " (run it with sudo, as the service runs as root)" if os.name == "posix" else ""
+        hint = " (run it with sudo, as the service runs as root)" if _service_is_root() else ""
         print(f"error: can't read {exc.filename}: {exc.strerror}{hint}", file=sys.stderr)
         return False
     return True
@@ -100,10 +106,12 @@ def _service(args: argparse.Namespace) -> int:
                     file=sys.stderr,
                 )
                 return 1
-            spec = ServiceSpec(
-                python=Path(sys.executable), data_dir=Path(args.data_dir), port=args.port
-            )
+            spec = ServiceSpec(python=Path(sys.executable), data_dir=Path(args.data_dir))
             plan = build_install(spec)
+            if args.port is not None and not _set_port(
+                Path(args.data_dir), args.port, args.dry_run
+            ):
+                return 1
         elif args.service_command == "uninstall":
             plan = build_uninstall()
         else:
@@ -112,6 +120,29 @@ def _service(args: argparse.Namespace) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     return execute(plan, dry_run=getattr(args, "dry_run", False))
+
+
+def _set_port(data_dir: Path, port: int, dry_run: bool) -> bool:
+    """Save `server.port` in athena.json (the service itself is installed without one)."""
+    from athena.settings_file import SettingsFile, SettingsFileError
+
+    settings_file = SettingsFile(data_dir)
+    if not 1 <= port <= 65535:
+        print(f"error: {port} isn't a port (1-65535)", file=sys.stderr)
+        return False
+    if dry_run:
+        print(f"  [dry-run] set server.port to {port} in {settings_file.path}")
+        return True
+    try:
+        server = settings_file.read().server
+        data_dir.mkdir(parents=True, exist_ok=True)
+        settings_file.load()
+        settings_file.save("server", server.model_copy(update={"port": port}))
+    except SettingsFileError:
+        _settings_file_ok(data_dir, starting=False)  # prints the problems
+        return False
+    print(f"==> saved server.port = {port} in {settings_file.path}")
+    return True
 
 
 def _read_new_password(args: argparse.Namespace) -> str | None:
@@ -171,7 +202,7 @@ def _reset_password(args: argparse.Namespace) -> int:
             print(f"Password for {user.username!r} reset. All of its sessions were signed out.")
             return 0
     except (OperationalError, PermissionError) as exc:
-        hint = " (run it with sudo, as the service runs as root)" if os.name == "posix" else ""
+        hint = " (run it with sudo, as the service runs as root)" if _service_is_root() else ""
         print(f"error: can't open {db_path}: {exc}{hint}", file=sys.stderr)
         return 1
     finally:
@@ -254,13 +285,13 @@ def _start(args: argparse.Namespace) -> int:
         "-m",
         "athena",
         "serve",
-        "--host",
-        args.host,
-        "--port",
-        str(args.port),
         "--data-dir",
         str(data_dir),
     ]
+    if args.host is not None:
+        cmd += ["--host", args.host]
+    if args.port is not None:
+        cmd += ["--port", str(args.port)]
     with open(log_file, "ab", buffering=0) as log:
         proc = subprocess.Popen(cmd, stdout=log, stderr=log, **_detached_kwargs())
     _write_pid(data_dir, proc.pid)
@@ -310,9 +341,17 @@ def _docker_available() -> tuple[bool, str]:
 
 def _doctor(args: argparse.Namespace) -> int:
     """Run host/server diagnostics and print a report."""
+    from pydantic import ValidationError
+
+    from athena.config import ServerSettings, Settings
+
     data_dir: Path = args.data_dir
-    host = args.host
-    port = args.port
+    try:
+        effective = Settings(data_dir=data_dir)
+    except ValidationError:  # a bad server value: the settings row below says which
+        effective = ServerSettings()  # type: ignore[assignment]
+    host = args.host if args.host is not None else effective.host
+    port = args.port if args.port is not None else effective.port
     results: list[tuple[str, str, str]] = []  # name, status (ok/warn/fail), message
 
     # 1. athena running?
@@ -339,6 +378,9 @@ def _doctor(args: argparse.Namespace) -> int:
         results.append(("database", "ok", str(db_path)))
     else:
         results.append(("database", "warn", "no database yet (run 'athena serve')"))
+
+    # 3b. athena.json
+    results.append(_settings_check(data_dir))
 
     # 4. port reachable
     probe_host = "127.0.0.1" if host in ("0.0.0.0", "::") else host
@@ -399,45 +441,120 @@ def _doctor(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------- config
 
 
+def _settings_check(data_dir: Path) -> tuple[str, str, str]:
+    """athena.json's row in `athena doctor`."""
+    from athena.settings_file import SettingsFile, SettingsFileError
+
+    settings_file = SettingsFile(data_dir)
+    if not settings_file.path.is_file():
+        return ("settings", "warn", f"no {settings_file.path.name} yet (run 'athena serve')")
+    try:
+        settings_file.read()
+    except SettingsFileError as exc:
+        more = f" (+{len(exc.problems) - 1} more)" if len(exc.problems) > 1 else ""
+        return ("settings", "fail", f"{exc.problems[0]}{more}; see 'athena config check'")
+    except PermissionError as exc:
+        hint = " (run doctor with sudo)" if _service_is_root() else ""
+        return ("settings", "fail", f"can't read {exc.filename}: {exc.strerror}{hint}")
+    return ("settings", "ok", str(settings_file.path))
+
+
+def _redact_url(url: str) -> str:
+    """A database URL fit to print: user, host, port and path only (no secret, no query)."""
+    from urllib.parse import urlsplit, urlunsplit
+
+    parts = urlsplit(url)
+    host = parts.hostname or ""
+    if parts.port is not None:
+        host += f":{parts.port}"
+    user = f"{parts.username}:***@" if parts.username else ""
+    query = "***" if parts.query else ""
+    return urlunsplit((parts.scheme, user + host, parts.path, query, ""))
+
+
+def _config_path(args: argparse.Namespace) -> int:
+    """Print where athena.json is."""
+    from athena.settings_file import SettingsFile
+
+    print(SettingsFile(Path(args.data_dir)).path)
+    return 0
+
+
 def _config_show(args: argparse.Namespace) -> int:
-    """Print the effective settings and where each comes from."""
-    from athena.config import Settings
+    """Print the effective server settings and where each one comes from."""
+    from athena.config import ServerSettings, Settings, server_section
+    from athena.settings_file import SettingsFile
 
-    settings = Settings()
-    for field in Settings.model_fields:
+    data_dir = Path(args.data_dir)
+    settings_file = SettingsFile(data_dir)
+    if not _settings_file_ok(data_dir, starting=False):
+        return 1
+    in_file = server_section(settings_file.path)
+    settings = Settings(data_dir=data_dir)
+    print(f"settings file: {settings_file.path}")
+    print(f"data_dir = {data_dir}  (--data-dir or the default; never in the file)")
+    for field in ServerSettings.model_fields:
         value = getattr(settings, field)
-        env_var = f"ATHENA_{field.upper()}"
-        source = "env" if env_var in os.environ else "default"
-        print(f"{field}={value}  ({source})")
+        if field == "durable_execution_database_url" and value:
+            value = _redact_url(value)
+        if f"ATHENA_{field.upper()}" in os.environ:
+            source = f"env ATHENA_{field.upper()}"
+        elif field in in_file:
+            source = "file"
+        else:
+            source = "default"
+        print(f"{field} = {value}  ({source})")
+    print("Other settings (system, https, ai, webdav) are in the file; edit it, then restart.")
     return 0
 
 
-def _config_get(args: argparse.Namespace) -> int:
-    """Print a single setting value."""
-    from athena.config import Settings
+def _config_check(args: argparse.Namespace) -> int:
+    """Check athena.json the way `athena serve` does."""
+    from athena.settings_file import SettingsFile
 
-    settings = Settings()
-    if not hasattr(settings, args.key):
-        print(f"error: unknown setting {args.key!r}", file=sys.stderr)
+    data_dir = Path(args.data_dir)
+    if not _settings_file_ok(data_dir, starting=False):
         return 1
-    print(getattr(settings, args.key))
+    path = SettingsFile(data_dir).path
+    print(f"{path} is valid" if path.is_file() else f"no {path} yet: Athena will use defaults")
     return 0
 
 
-def _config_set(args: argparse.Namespace) -> int:
-    """Print a shell command to set a setting via an environment variable."""
-    from athena.config import Settings
+def _config_reset(args: argparse.Namespace) -> int:
+    """Put one section of athena.json back to its defaults."""
+    from athena.settings_file import SettingsFile, SettingsFileError
 
-    settings = Settings()
-    if not hasattr(settings, args.key):
-        print(f"error: unknown setting {args.key!r}", file=sys.stderr)
+    data_dir = Path(args.data_dir)
+    settings_file = SettingsFile(data_dir)
+    try:
+        settings_file.reset(args.section)
+    except FileNotFoundError:
+        print(
+            f"error: no {settings_file.path}: nothing to reset. Pass --data-dir.", file=sys.stderr
+        )
         return 1
-    env_var = f"ATHENA_{args.key.upper()}"
-    if sys.platform == "win32":
-        print(f'setx {env_var} "{args.value}"')
-    else:
-        print(f'export {env_var}="{args.value}"')
+    except SettingsFileError as exc:
+        print(
+            f"error: can't reset {args.section}: the rest of the file is invalid too.",
+            file=sys.stderr,
+        )
+        for problem in exc.problems:
+            print(f"  {problem}", file=sys.stderr)
+        print("Fix those (or reset their sections too) and try again.", file=sys.stderr)
+        return 1
+    except PermissionError as exc:
+        hint = " (run it with sudo, as the service runs as root)" if _service_is_root() else ""
+        print(f"error: can't write {exc.filename}: {exc.strerror}{hint}", file=sys.stderr)
+        return 1
+    backup = settings_file.backup_path.name
+    print(f"{args.section} is back to its defaults (the previous file is {backup}).")
+    print("Restart Athena to use them.")
     return 0
+
+
+def _service_is_root() -> bool:
+    """Whether the system service runs as root (Linux), so its files need sudo."""
+    return sys.platform.startswith("linux")
 
 
 # ---------------------------------------------------------------- https
@@ -470,7 +587,7 @@ def _https(args: argparse.Namespace) -> int:
         _settings_file_ok(data_dir, starting=False)  # prints the problems
         return 1
     except PermissionError as exc:
-        hint = " (run it with sudo, as the service runs as root)" if os.name == "posix" else ""
+        hint = " (run it with sudo, as the service runs as root)" if _service_is_root() else ""
         print(f"error: can't open {exc.filename}: {exc.strerror}{hint}", file=sys.stderr)
         return 1
     print(f"mode:     {current.mode}")
@@ -497,8 +614,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     serve = sub.add_parser("serve", help="run the server")
-    serve.add_argument("--host", default="0.0.0.0")
-    serve.add_argument("--port", type=int, default=DEFAULT_PORT)
+    serve.add_argument("--host", help="overrides server.host in athena.json")
+    serve.add_argument("--port", type=int, help="overrides server.port in athena.json")
     serve.add_argument("--data-dir", type=Path, default=default_data_dir())
     serve.add_argument("--reload", action="store_true", help="reload on code changes (development)")
     serve.set_defaults(func=_serve)
@@ -511,7 +628,7 @@ def build_parser() -> argparse.ArgumentParser:
     service_sub = service.add_subparsers(dest="service_command", required=True)
     install = service_sub.add_parser("install", help="register Athena to start automatically")
     install.add_argument("--data-dir", type=Path, default=default_data_dir())
-    install.add_argument("--port", type=int, default=DEFAULT_PORT)
+    install.add_argument("--port", type=int, help="save it as server.port in athena.json")
     install.add_argument("--dry-run", action="store_true")
     uninstall = service_sub.add_parser("uninstall", help="remove the registration")
     uninstall.add_argument("--dry-run", action="store_true")
@@ -532,8 +649,8 @@ def build_parser() -> argparse.ArgumentParser:
     reset.set_defaults(func=_reset_password)
 
     background = sub.add_parser("start", help="start the server in the background")
-    background.add_argument("--host", default="0.0.0.0")
-    background.add_argument("--port", type=int, default=DEFAULT_PORT)
+    background.add_argument("--host", help="overrides server.host in athena.json")
+    background.add_argument("--port", type=int, help="overrides server.port in athena.json")
     background.add_argument("--data-dir", type=Path, default=default_data_dir())
     background.set_defaults(func=_start)
 
@@ -542,22 +659,24 @@ def build_parser() -> argparse.ArgumentParser:
     stop.set_defaults(func=_stop)
 
     doctor = sub.add_parser("doctor", help="run host/server diagnostics")
-    doctor.add_argument("--host", default="0.0.0.0")
-    doctor.add_argument("--port", type=int, default=DEFAULT_PORT)
+    doctor.add_argument("--host", help="default: server.host from athena.json")
+    doctor.add_argument("--port", type=int, help="default: server.port from athena.json")
     doctor.add_argument("--data-dir", type=Path, default=default_data_dir())
     doctor.set_defaults(func=_doctor)
 
-    config = sub.add_parser("config", help="show or set effective settings")
+    config = sub.add_parser("config", help="find, check or reset athena.json (the settings file)")
     config_sub = config.add_subparsers(dest="config_command", required=True)
-    config_show = config_sub.add_parser("show", help="print all settings and their source")
-    config_show.set_defaults(func=_config_show)
-    config_get = config_sub.add_parser("get", help="print one setting value")
-    config_get.add_argument("key")
-    config_get.set_defaults(func=_config_get)
-    config_set = config_sub.add_parser("set", help="print a shell command to set a setting")
-    config_set.add_argument("key")
-    config_set.add_argument("value")
-    config_set.set_defaults(func=_config_set)
+    for name, func, help_text in (
+        ("path", _config_path, "print where athena.json is"),
+        ("show", _config_show, "print the server settings and where each comes from"),
+        ("check", _config_check, "check athena.json the way 'athena serve' does"),
+        ("reset", _config_reset, "put one section back to its defaults (keeps a .bak)"),
+    ):
+        cmd = config_sub.add_parser(name, help=help_text)
+        cmd.add_argument("--data-dir", type=Path, default=default_data_dir())
+        if name == "reset":
+            cmd.add_argument("section", choices=SECTIONS)
+        cmd.set_defaults(func=func)
 
     https = sub.add_parser("https", help="show HTTPS settings, or turn HTTPS off")
     https_sub = https.add_subparsers(dest="https_command", required=True)

@@ -22,18 +22,19 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from athena.assistant.settings import AiSettings
+from athena.config import SETTINGS_FILE, ServerSettings
 from athena.files.webdav import WebDavConfig
 from athena.https.settings import HttpsSettings
 from athena.system_settings import SystemSettings
 
 log = logging.getLogger(__name__)
 
-FILE_NAME = "athena.json"
+FILE_NAME = SETTINGS_FILE
 SCHEMA_NAME = "athena.schema.json"
 BACKUP_SUFFIX = ".bak"
 SCHEMA_KEY = "$schema"
 
-Section = Literal["system", "https", "ai", "webdav"]
+Section = Literal["server", "system", "https", "ai", "webdav"]  # config.SECTIONS
 
 # Read-only fields the API fills in; never written to the file.
 _WRITE_EXCLUDE: dict[str, Any] = {
@@ -52,6 +53,9 @@ class AthenaConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    server: ServerSettings = Field(default_factory=ServerSettings)
+    """Address, port and other server options. A flag or ATHENA_* variable overrides
+    them; changes apply on restart."""
     system: SystemSettings = Field(default_factory=SystemSettings)
     """Terminal and remote access (Settings → System)."""
     https: HttpsSettings = Field(default_factory=HttpsSettings)
@@ -113,7 +117,12 @@ def parse(path: Path, text: str) -> AthenaConfig:
     if not isinstance(data, dict):
         problem = f"{path.name}: the file must hold one JSON object {{...}}"
         raise SettingsFileError(path, [problem])
-    data.pop(SCHEMA_KEY, None)
+    return _validate(path, text, data)
+
+
+def _validate(path: Path, text: str, data: dict[str, Any]) -> AthenaConfig:
+    """Validate parsed athena.json; error positions are looked up in `text`."""
+    data = {k: v for k, v in data.items() if k != SCHEMA_KEY}
     try:
         return AthenaConfig.model_validate(data, extra="forbid")
     except ValidationError as exc:
@@ -231,6 +240,28 @@ class SettingsFile:
             stored = section.model_copy(deep=True)  # later changes by the caller don't leak in
             self._write(dump(on_disk.model_copy(update={name: stored})))
             self._config = current.model_copy(update={name: stored})
+
+    def reset(self, name: Section) -> None:
+        """Put one section back to its defaults, keeping the others as they are on disk.
+
+        Works on a file whose only problem is in that section, so it's a way out of a
+        bad value. Raises `SettingsFileError` if the file isn't valid JSON, or if another
+        section is invalid too, and `FileNotFoundError` if there's no file.
+        """
+        with self._lock:
+            text = self.path.read_text(encoding="utf-8")
+            try:
+                data = json.loads(text)
+            except json.JSONDecodeError:
+                parse(self.path, text)  # raises with the line and column
+                raise
+            if not isinstance(data, dict):
+                parse(self.path, text)
+            data.pop(name, None)
+            config = _validate(self.path, text, data)
+            self._write(dump(config))
+            if self._config is not None:
+                self._config = self._config.model_copy(update={name: getattr(config, name)})
 
     def _write(self, text: str) -> None:
         """Replace the file atomically, keeping the previous version as `.bak`."""

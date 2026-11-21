@@ -6,7 +6,7 @@ apps/server/
   src/athena/
     main.py                 # create_app(): routers, app.state, static mount, lifespan
                             # (detection, monitor, scheduler, MCP, models.dev refresh)
-    cli.py, config.py       # the CLI; settings (platformdirs data dir, ATHENA_* env)
+    cli.py, config.py       # the CLI; server settings: flag > ATHENA_* env > athena.json `server` > default
     jobs.py                 # in-memory job runner, SSE events, cancel
     audit.py, monitor.py, system_settings.py, settings_file.py, crypto.py, logging_setup.py
     api/                    # one thin router per area

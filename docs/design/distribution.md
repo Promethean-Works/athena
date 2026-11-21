@@ -11,5 +11,5 @@
   - The scripts install the runtime where the decisions allow it (Docker Engine on Linux, Colima on macOS; Windows is detect only), plus uv and the wheel through `uv tool install`, in Athena-owned directories.
   - They support `--version`, `--dry-run`, `--no-runtime`, and `--uninstall [--purge]`, plus `--wheel <path|url>` (`-Wheel` on Windows) to install an unreleased build from `scripts/build-wheel.sh`.
 - **End-to-end check:** the `E2E` workflow builds the wheel from the commit and runs the real installers on Ubuntu, macOS and Windows runners. It checks the service starts, runs `scripts/e2e/smoke.py` (Playwright: setup, sign-in, every page, the host terminal, phone width and dark mode), then uninstalls with `--purge` and checks that nothing is left. Locally, the same steps run in a Lima VM (see CONTRIBUTING).
-- **Service install:** `athena service install --data-dir --port` registers a systemd unit on Linux, a launchd agent on macOS, or a Scheduled Task at logon on Windows.
+- **Service install:** `athena service install --data-dir [--port]` registers a systemd unit on Linux, a launchd agent on macOS, or a Scheduled Task at logon on Windows. The unit has no `--port`: `--port` is saved as `server.port` in `<data-dir>/athena.json`, so a hand edit plus a restart changes it.
 - **Later:** single-file binaries (PyInstaller/Nuitka) and native installers.
