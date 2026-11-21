@@ -453,7 +453,13 @@ def _https(args: argparse.Namespace) -> int:
     print(f"mode:     {current.mode}")
     print(f"port:     {current.port}")
     print(f"redirect: {'on' if current.redirect else 'off'}")
-    cert = local_ca.load_cert(local_ca.tls_paths(data_dir).cert)
+    paths = local_ca.tls_paths(data_dir)
+    if current.mode == "letsencrypt":
+        from athena.https.letsencrypt import le_paths
+
+        cert = local_ca.load_cert(le_paths(paths)[0])
+    else:
+        cert = local_ca.load_cert(paths.cert)
     if current.mode != "off" and cert is not None:
         dns, ips = local_ca.cert_names(cert)
         names = ", ".join([*sorted(dns), *(str(ip) for ip in sorted(ips, key=str))])

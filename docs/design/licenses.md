@@ -41,6 +41,8 @@
 | Colima, Lima | MIT / Apache-2.0 |
 | Podman | Apache-2.0 |
 | rclone | MIT |
+| lego (ACME client, downloaded at runtime for Let's Encrypt, pinned version and SHA-256) | MIT |
+| Pebble (Let's Encrypt's test ACME server, CI only, not shipped) | MPL-2.0 |
 | winget-cli, scoop, Chocolatey CLI | MIT / Unlicense / Apache-2.0 |
 | Homebrew | BSD-2 |
 | CasaOS AppStore (catalog data) | Apache-2.0 |

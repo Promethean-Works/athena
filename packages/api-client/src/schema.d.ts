@@ -2176,6 +2176,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/https/certificate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Issue Certificate
+         * @description Save the Let's Encrypt settings and get (or renew) the certificate in a job.
+         *
+         *     The HTTPS mode doesn't change: once the job succeeds, pick Let's Encrypt and save.
+         */
+        post: operations["issueHttpsCertificate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/https/ca/rotate": {
         parameters: {
             query?: never;
@@ -2859,6 +2881,35 @@ export interface components {
             /** Percent */
             percent: number;
         };
+        /** DnsField */
+        DnsField: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Env */
+            env: string;
+            /** Secret */
+            secret: boolean;
+            /**
+             * Required
+             * @default true
+             */
+            required: boolean;
+            /** Help */
+            help?: string | null;
+        };
+        /** DnsProvider */
+        DnsProvider: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Fields */
+            fields: components["schemas"]["DnsField"][];
+            /** Docs */
+            docs: string;
+        };
         /** EnvIn */
         EnvIn: {
             /** Env */
@@ -2967,7 +3018,7 @@ export interface components {
              * @default off
              * @enum {string}
              */
-            mode: "off" | "self_signed";
+            mode: "off" | "self_signed" | "letsencrypt";
             /**
              * Port
              * @default 8443
@@ -2980,6 +3031,7 @@ export interface components {
             redirect: boolean;
             /** Extra Names */
             extra_names?: string[];
+            letsencrypt?: components["schemas"]["LetsEncryptSettings"];
         };
         /** HttpsStatus */
         HttpsStatus: {
@@ -2994,6 +3046,17 @@ export interface components {
             ca: components["schemas"]["CertificateInfo"] | null;
             /** Last Error */
             last_error: string | null;
+            letsencrypt_certificate: components["schemas"]["CertificateInfo"] | null;
+            /** Last Renewal */
+            last_renewal: string | null;
+            /** Renewal Error */
+            renewal_error: string | null;
+            /** Renewal Job */
+            renewal_job: string | null;
+            /** Port80 Free */
+            port80_free: boolean;
+            /** Dns Providers */
+            dns_providers: components["schemas"]["DnsProvider"][];
         };
         /** InstalledPackage */
         InstalledPackage: {
@@ -3196,6 +3259,35 @@ export interface components {
             placeholder?: string | null;
             /** Help */
             help?: string | null;
+        };
+        /** LetsEncryptSettings */
+        LetsEncryptSettings: {
+            /** Domains */
+            domains?: string[];
+            /**
+             * Email
+             * @default
+             */
+            email: string;
+            /**
+             * Challenge
+             * @default http
+             * @enum {string}
+             */
+            challenge: "http" | "dns";
+            /** Dns Provider */
+            dns_provider?: string | null;
+            /** Dns Config */
+            dns_config?: {
+                [key: string]: string | null;
+            };
+            /** Dns Secrets Set */
+            dns_secrets_set?: string[];
+            /**
+             * Staging
+             * @default false
+             */
+            staging: boolean;
         };
         /** Listing */
         Listing: {
@@ -8588,6 +8680,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HttpsStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    issueHttpsCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LetsEncryptSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
                 };
             };
             /** @description Validation Error */

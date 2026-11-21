@@ -92,6 +92,36 @@ async def get_system_stats(ctx: Ctx) -> dict[str, Any]:
     return snapshot.model_dump(exclude={"history"})
 
 
+async def https_status(ctx: Ctx) -> dict[str, Any]:
+    """Athena's own HTTPS: mode (off, self_signed, letsencrypt), the URLs to open, the
+    served certificate's names and expiry, and the last Let's Encrypt renewal or error.
+    Read-only: HTTPS is changed only in Settings → HTTPS."""
+    from athena.api.https import status_of
+
+    status = status_of(ctx.deps.app.state.https)
+    out = status.model_dump(
+        mode="json",
+        include={
+            "listening",
+            "urls",
+            "certificate",
+            "letsencrypt_certificate",
+            "last_error",
+            "last_renewal",
+            "renewal_error",
+        },
+    )
+    settings = status.settings
+    out["mode"] = settings.mode
+    out["port"] = settings.port
+    out["redirect"] = settings.redirect
+    if settings.mode == "letsencrypt":
+        out["domains"] = settings.letsencrypt.domains
+        out["challenge"] = settings.letsencrypt.challenge
+        out["staging"] = settings.letsencrypt.staging
+    return out
+
+
 # ---------------------------------------------------------------- containers
 
 
@@ -301,6 +331,7 @@ def read_only_tools(manifest: CapabilityManifest) -> list[Any]:
     tools: list[Any] = [
         Tool(get_capabilities, metadata={"code_mode": True}),
         Tool(get_system_stats, metadata={"code_mode": True}),
+        Tool(https_status, metadata={"code_mode": True}),
     ]
     if _ready(manifest, "containers"):
         tools += [
