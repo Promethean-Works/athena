@@ -5901,6 +5901,107 @@
           }
         }
       }
+    },
+    "/api/https": {
+      "get": {
+        "tags": [
+          "https"
+        ],
+        "summary": "Get Https",
+        "operationId": "getHttpsStatus",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpsStatus"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "https"
+        ],
+        "summary": "Set Https",
+        "description": "Applied at once: the HTTPS listener starts, moves or stops before this returns.\n\nIf the new settings can't be applied (the port is in use, say), nothing is saved and\nthe current listener keeps running.",
+        "operationId": "setHttpsSettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HttpsSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpsStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/https/ca/rotate": {
+      "post": {
+        "tags": [
+          "https"
+        ],
+        "summary": "Rotate Ca",
+        "description": "A new local CA and certificate. Devices that trusted the old CA must trust the new one.",
+        "operationId": "rotateHttpsCa",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpsStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/https/ca.crt": {
+      "get": {
+        "tags": [
+          "https"
+        ],
+        "summary": "Download Ca",
+        "description": "Athena's local CA certificate (PEM), to install on devices. Never the key.",
+        "operationId": "downloadHttpsCa",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/x-x509-ca-cert": {}
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6712,6 +6813,49 @@
           "count"
         ],
         "title": "Category"
+      },
+      "CertificateInfo": {
+        "properties": {
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "issuer": {
+            "type": "string",
+            "title": "Issuer"
+          },
+          "names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Names"
+          },
+          "not_before": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Not Before"
+          },
+          "not_after": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Not After"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject",
+          "issuer",
+          "names",
+          "not_before",
+          "not_after",
+          "sha256"
+        ],
+        "title": "CertificateInfo"
       },
       "ChatMessage": {
         "properties": {
@@ -7861,6 +8005,105 @@
           "version"
         ],
         "title": "Health"
+      },
+      "HttpsSettings": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "off",
+              "self_signed"
+            ],
+            "title": "Mode",
+            "default": "off"
+          },
+          "port": {
+            "type": "integer",
+            "maximum": 65535.0,
+            "minimum": 1.0,
+            "title": "Port",
+            "default": 8443
+          },
+          "redirect": {
+            "type": "boolean",
+            "title": "Redirect",
+            "default": true
+          },
+          "extra_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Extra Names"
+          }
+        },
+        "type": "object",
+        "title": "HttpsSettings"
+      },
+      "HttpsStatus": {
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/HttpsSettings"
+          },
+          "http_port": {
+            "type": "integer",
+            "title": "Http Port"
+          },
+          "listening": {
+            "type": "boolean",
+            "title": "Listening"
+          },
+          "urls": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Urls"
+          },
+          "certificate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CertificateInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ca": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CertificateInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "settings",
+          "http_port",
+          "listening",
+          "urls",
+          "certificate",
+          "ca",
+          "last_error"
+        ],
+        "title": "HttpsStatus"
       },
       "InstalledPackage": {
         "properties": {

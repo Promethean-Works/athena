@@ -4,7 +4,7 @@ Rules for working on the Python server. The repo-wide rules, Git workflow and ha
 
 ## Stack and commands
 
-Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI `athena` (`serve`, `openapi`, `service install|uninstall|status`, `start`, `stop`, `doctor`, `config show|get|set`, `admin reset-password`). Run everything with `uv run` from this folder:
+Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI `athena` (`serve`, `openapi`, `service install|uninstall|status`, `start`, `stop`, `doctor`, `config show|get|set`, `admin reset-password`, `https status|off`). Run everything with `uv run` from this folder:
 
 | Task | Command |
 |---|---|
@@ -36,6 +36,7 @@ Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI
 | `service/` | `athena service install` per OS (`platforms.py`, `plan.py`) |
 | `automation/` | `service.py`: durable triggers (cron, webhook), their job runs and the scheduler loop |
 | `mcp/` | Athena's own MCP server at `/api/mcp`: `server.py` (tools), `auth.py` (session cookie or `ATHENA_MCP_TOKEN` bearer) |
+| `https/` | HTTPS for Athena itself: `settings.py` (its own `system_settings` row), `local_ca.py` (local CA and server certificate), `manager.py` (`HttpsManager`: a second uvicorn server on the HTTPS port, run from the lifespan), `redirect.py` (HTTP → HTTPS, never for loopback, proxies or `/api/health`) |
 | `tunnel/` | Remote access: `base.py` (`TunnelProvider`), `cloudflare.py`, `tailscale.py`, `ngrok.py`; `get_provider` in `__init__.py` |
 | `jobs.py`, `audit.py`, `monitor.py`, `system_settings.py` | Jobs over SSE, the audit log, host stats, host-wide settings |
 | `crypto.py` | `SecretBox`: Fernet encryption of stored secrets with `<data-dir>/secret.key` |
