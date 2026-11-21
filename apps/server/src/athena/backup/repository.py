@@ -72,18 +72,30 @@ def _default_roots() -> list[str]:
     return [*_DEFAULT_ROOTS_POSIX, os.path.expanduser("~")]
 
 
-def _confine(raw: str, allowed_roots: list[Path] | None) -> str:
-    """The real path of `raw`, or `DestinationError` when it isn't inside an allowed root.
+def _real(raw: str) -> str:
+    return os.path.normcase(os.path.realpath(os.path.normpath(raw)))
 
-    Every filesystem call on a destination uses the string this returns, so nothing the
-    admin typed reaches the disk without passing the check against the fixed roots.
-    """
+
+def _bases(allowed_roots: list[Path] | None) -> list[str]:
     roots = [os.fspath(r) for r in allowed_roots or []] or _default_roots()
-    full = os.path.normcase(os.path.realpath(os.path.normpath(raw)))
-    for root in roots:
-        base = os.path.normcase(os.path.realpath(root)).rstrip(os.sep)
+    return [_real(root).rstrip(os.sep) for root in roots]
+
+
+def _confine(raw: str, allowed_roots: list[Path] | None) -> str:
+    """The real path of `raw`, or `DestinationError` when it isn't inside an allowed root."""
+    full = _real(raw)
+    for base in _bases(allowed_roots):
         if full == base or full.startswith(base + os.sep):
             return full
+    raise DestinationError("Pick a folder inside an allowed backup location")
+
+
+def _is_file(raw: str, allowed_roots: list[Path] | None) -> bool:
+    """Whether `raw` (inside an allowed root) is an existing file."""
+    full = _real(raw)
+    for base in _bases(allowed_roots):
+        if full == base or full.startswith(base + os.sep):
+            return os.path.exists(full) and not os.path.isdir(full)
     raise DestinationError("Pick a folder inside an allowed backup location")
 
 
@@ -112,7 +124,7 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
             "Pick a folder or disk outside it"
         )
 
-    if resolved.exists() and not resolved.is_dir():
+    if _is_file(raw, allowed_roots):
         raise DestinationError(f"{resolved} is a file, not a folder")
     return resolved
 
@@ -122,13 +134,19 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
     raw = str(folder).strip()
     if "\x00" in raw or not _is_absolute(raw):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
-    target = Path(_confine(raw, allowed_roots))
-    try:
-        target.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(dir=target, prefix=".athena-write-test-"):
-            pass
-    except OSError as exc:
-        raise DestinationError(f"Athena can't write in {target}: {exc.strerror or exc}") from exc
+    full = _real(raw)
+    for base in _bases(allowed_roots):
+        if full == base or full.startswith(base + os.sep):
+            try:
+                os.makedirs(full, exist_ok=True)
+                with tempfile.NamedTemporaryFile(dir=full, prefix=".athena-write-test-"):
+                    pass
+            except OSError as exc:
+                raise DestinationError(
+                    f"Athena can't write in {full}: {exc.strerror or exc}"
+                ) from exc
+            return
+    raise DestinationError("Pick a folder inside an allowed backup location")
 
 
 def generate_password() -> str:
