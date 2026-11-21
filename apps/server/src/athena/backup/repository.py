@@ -122,9 +122,24 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
             raise DestinationError("Pick a folder inside an allowed backup location")
         return canonical_candidate
 
+    def _create_target_safely(candidate: Path) -> None:
+        parent_root = next((root for root in canonical_roots if _is_inside(candidate, root)), None)
+        if parent_root is None:
+            raise DestinationError("Pick a folder inside an allowed backup location")
+        relative_parts = candidate.relative_to(parent_root).parts
+        current = parent_root
+        for part in relative_parts:
+            current = current / part
+            if current.exists():
+                if current.is_symlink():
+                    raise DestinationError("Symbolic links are not allowed; pick a real folder path")
+            else:
+                current.mkdir(exist_ok=True)
+                _canonical_inside_allowed(current)
+
     safe_target = _canonical_inside_allowed(target)
     try:
-        safe_target.mkdir(parents=True, exist_ok=True)
+        _create_target_safely(safe_target)
         writable = safe_target.resolve(strict=True)
         safe_writable_path = _canonical_inside_allowed(writable)
         if safe_target.is_symlink() or safe_writable_path != _canonical_inside_allowed(safe_target):
