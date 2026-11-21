@@ -109,10 +109,45 @@ class _Posix:
             os.close(self.master)
 
 
+_console_lock = threading.Lock()
+
+
+def keep_a_hidden_console() -> bool:
+    """Give a process with no console (the logon task's pythonw.exe) a hidden one for good.
+
+    pywinpty's ConPTY backend (winpty-rs) calls `AllocConsole` when the process has no
+    console, which points the process's standard handles at it, and `FreeConsole` when
+    the session ends, which closes them. After the first terminal session every child
+    that inherits stdin (python-on-whales runs `docker` that way) failed with
+    `OSError: [WinError 6] The handle is invalid`, so `GET /api/containers` returned 500.
+    With a console of our own, winpty-rs's `AllocConsole` fails and it never frees one.
+    Returns whether a console was made (False when there already is one).
+    """
+    import ctypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    kernel32.GetConsoleWindow.restype = ctypes.c_void_p
+    user32.GetForegroundWindow.restype = ctypes.c_void_p
+    user32.ShowWindow.argtypes = [ctypes.c_void_p, ctypes.c_int]
+    user32.SetForegroundWindow.argtypes = [ctypes.c_void_p]
+    with _console_lock:
+        if kernel32.GetConsoleWindow():
+            return False
+        foreground = user32.GetForegroundWindow()
+        if not kernel32.AllocConsole():
+            return False
+        user32.ShowWindow(kernel32.GetConsoleWindow(), 0)  # SW_HIDE
+        if foreground:  # allocating took the focus; hand it back (as winpty-rs does)
+            user32.SetForegroundWindow(foreground)
+        return True
+
+
 class _Windows:
     def __init__(self, argv: list[str], cols: int, rows: int, cwd, env) -> None:
         from winpty import PtyProcess  # pyright: ignore[reportMissingImports]
 
+        keep_a_hidden_console()
         self.proc = PtyProcess.spawn(argv, cwd=cwd, env=env, dimensions=(rows, cols))
         self.pid = self.proc.pid
 

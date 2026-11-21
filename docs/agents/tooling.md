@@ -89,6 +89,7 @@ In the repo:
 
 Per person, so not committed:
 
+- **Cheaper subagents in Claude Code.** `ui-verify` and `reviewer` use `model: sonnet`, and `.claude/settings.json` sets `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` for the rest (e.g. Explore). Use `/model opusplan` in the main session for Opus planning and Sonnet execution.
 - **A cheaper model for browser checks.** Claude Code's generated `ui-verify` subagent uses `model: sonnet`; OpenCode's needs a per-provider id (see New machine → OpenCode).
 - **Token-saving tools (set up by `scripts/agents-setup.mjs`):**
   - [RTK](https://github.com/rtk-ai/rtk) (Apache-2.0): a hook that shortens the output of shell commands like `git`, `gh`, `pytest` and `pnpm` before the agent reads it. Works with Claude Code and OpenCode. It only covers shell commands (not built-in Read or Grep), and it runs your commands through a third-party binary. `scripts/check.sh` is already quiet without a terminal, so the gain here is mostly on `git`, `gh` and ad-hoc test runs.
