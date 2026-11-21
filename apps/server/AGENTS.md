@@ -36,9 +36,9 @@ Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI
 | `service/` | `athena service install` per OS (`platforms.py`, `plan.py`) |
 | `automation/` | `service.py`: durable triggers (cron, webhook), their job runs and the scheduler loop |
 | `mcp/` | Athena's own MCP server at `/api/mcp`: `server.py` (tools), `auth.py` (session cookie or `ATHENA_MCP_TOKEN` bearer) |
-| `https/` | HTTPS for Athena itself: `settings.py` (its own `system_settings` row), `local_ca.py` (local CA and server certificate), `manager.py` (`HttpsManager`: a second uvicorn server on the HTTPS port, run from the lifespan), `redirect.py` (HTTP → HTTPS, never for loopback, proxies or `/api/health`) |
+| `https/` | HTTPS for Athena itself: `settings.py` (the `https` section of athena.json), `local_ca.py` (local CA and server certificate), `manager.py` (`HttpsManager`: a second uvicorn server on the HTTPS port, run from the lifespan), `redirect.py` (HTTP → HTTPS, never for loopback, proxies or `/api/health`) |
 | `tunnel/` | Remote access: `base.py` (`TunnelProvider`), `cloudflare.py`, `tailscale.py`, `ngrok.py`; `get_provider` in `__init__.py` |
-| `jobs.py`, `audit.py`, `monitor.py`, `system_settings.py` | Jobs over SSE, the audit log, host stats, host-wide settings |
+| `jobs.py`, `audit.py`, `monitor.py`, `system_settings.py`, `settings_file.py` | Jobs over SSE, the audit log, host stats, host-wide settings, `<data-dir>/athena.json` |
 | `crypto.py` | `SecretBox`: Fernet encryption of stored secrets with `<data-dir>/secret.key` |
 | `logging_setup.py` | Logs to stderr and `<data-dir>/logs/athena.log` |
 
@@ -55,7 +55,7 @@ Python 3.13 (uv), FastAPI, SQLModel and Alembic on SQLite. Package `athena`, CLI
 - **Shares and WebDAV:** `api/shares.py` has the admin `router` plus the public `public_router`. `files/webdav.py` holds the wsgidav provider, sign-in and the `/dav` middleware. Location folders can never be deleted, moved or replaced over WebDAV (wsgidav would empty them).
 - **Cloud (rclone):** talk to rclone only through `app.state.rclone` (`Rclone.call`), never by running the `rclone` CLI. Check remote paths with `remotes.check_path` and build fs strings with `remotes.fs_of`. rclone itself lets `name:..` leave an alias's folder. Jobs that run rclone transfers use `transfers.run(job, rclone, steps)` and start with `cancellable=True`.
 - **Assistant:** tools are thin wrappers over Athena's own services, registered in `toolset_for(manifest)` only when their capability is ready. Anything that changes the host goes in `actions.py` (it's registered with `requires_approval=True` there), calls the route helper the UI uses, gets a sentence in `summarize()`, and waits for its job with `_follow`. Provider HTTP goes through `httpx2` with `app.state.ai_transport` (tests set an `httpx2.MockTransport`). Never return a stored secret from the API; empty secrets on edit keep the stored value.
-- **Settings:** per-user settings go in `users.appearance` (`api/settings.py`). Host-wide switches go in the `system_settings` JSON row (`athena/system_settings.py`), and only admins can change them.
+- **Settings:** per-user settings go in `users.appearance` (`api/settings.py`). Host-wide ones are sections of `<data-dir>/athena.json` (`settings_file.py`; routes take `SettingsStore`), editable by hand; only admins change them.
 - **Host access** always goes through a capability; never branch on `sys.platform` in a router. See the `athena-platform-feature` skill.
 
 ## Tests

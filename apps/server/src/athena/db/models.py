@@ -85,7 +85,8 @@ class Catalog(SQLModel, table=True):
 
 
 class SystemSetting(SQLModel, table=True):
-    """Host-wide settings, one JSON value per key (see athena.system_settings)."""
+    """Small markers, one value per key (`files_defaults_seeded`). Settings live in
+    `<data-dir>/athena.json` (`athena.settings_file`), not here."""
 
     __tablename__ = "system_settings"
 

@@ -149,8 +149,7 @@ class HttpsManager:
 
     async def start(self) -> None:
         """Start from the stored settings. Never raises: errors go to `last_error`."""
-        for db in self.app.state.db.session():
-            self.settings = https_settings.load(db)
+        self.settings = https_settings.load(self.app.state.settings_file)
         try:
             await self.apply(self.settings)
         except HttpsError as exc:
@@ -175,7 +174,7 @@ class HttpsManager:
         self, new: HttpsSettings, persist: Callable[[HttpsSettings], None] | None = None
     ) -> None:
         """Make the listener match `new`, then call `persist(new)`, under one lock so two
-        saves at once can't leave the database and the listener disagreeing.
+        saves at once can't leave athena.json and the listener disagreeing.
 
         On `HttpsError` nothing changes: the old listener keeps running and `persist`
         isn't called.
@@ -188,7 +187,7 @@ class HttpsManager:
                 raise
             self.last_error = None
             if persist is not None:
-                persist(new)
+                await asyncio.to_thread(persist, new)
 
     async def rotate_ca(self) -> None:
         """Make a new local CA and server certificate, and serve the new one."""
@@ -223,8 +222,9 @@ class HttpsManager:
     ) -> None:
         """Store new Let's Encrypt settings without touching the listener."""
         async with self._lock:
-            self.settings = self.settings.model_copy(update={"letsencrypt": le})
-            persist(self.settings)
+            new = self.settings.model_copy(update={"letsencrypt": le})
+            await asyncio.to_thread(persist, new)
+            self.settings = new
 
     @property
     def certificate_job_running(self) -> bool:

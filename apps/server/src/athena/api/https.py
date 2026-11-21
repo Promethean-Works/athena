@@ -15,7 +15,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 
 from athena import audit
-from athena.auth.deps import Authed, DbSession
+from athena.auth.deps import Authed, DbSession, SettingsStore
 from athena.crypto import SecretError
 from athena.https import letsencrypt, local_ca
 from athena.https import settings as https_settings
@@ -153,7 +153,7 @@ def get_https(request: Request, user: Authed) -> HttpsStatus:
 
 @router.put("", operation_id="setHttpsSettings")
 async def set_https(
-    body: HttpsSettings, request: Request, user: Authed, db: DbSession
+    body: HttpsSettings, request: Request, user: Authed, db: DbSession, settings_file: SettingsStore
 ) -> HttpsStatus:
     """Applied at once: the HTTPS listener starts, moves or stops before this returns.
 
@@ -169,7 +169,8 @@ async def set_https(
         # Clients that only know the other fields keep it as stored (already encrypted).
         body = body.model_copy(update={"letsencrypt": before.letsencrypt})
     try:
-        await manager.apply(body, persist=lambda new: https_settings.save(db, new))
+        settings_file.check()  # refuse before the listener moves, not after
+        await manager.apply(body, persist=lambda new: https_settings.save(settings_file, new))
     except HttpsError as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
     if (before.mode, before.port) != (body.mode, body.port):
@@ -185,7 +186,10 @@ async def set_https(
     "/certificate", operation_id="issueHttpsCertificate", status_code=status.HTTP_202_ACCEPTED
 )
 async def issue_certificate(
-    body: LetsEncryptSettings, request: Request, user: Authed, db: DbSession
+    body: LetsEncryptSettings,
+    request: Request,
+    user: Authed,
+    settings_file: SettingsStore,
 ) -> JobOut:
     """Save the Let's Encrypt settings and get (or renew) the certificate in a job.
 
@@ -213,7 +217,7 @@ async def issue_certificate(
             raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
-    await manager.save_letsencrypt(le, persist=lambda new: https_settings.save(db, new))
+    await manager.save_letsencrypt(le, persist=lambda new: https_settings.save(settings_file, new))
     if manager.certificate_job_running:  # the daily check started one meanwhile
         raise busy
     # Asked for by the admin: a new certificate even if the current one isn't due.

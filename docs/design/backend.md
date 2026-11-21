@@ -8,7 +8,7 @@ apps/server/
                             # (detection, monitor, scheduler, MCP, models.dev refresh)
     cli.py, config.py       # the CLI; settings (platformdirs data dir, ATHENA_* env)
     jobs.py                 # in-memory job runner, SSE events, cancel
-    audit.py, monitor.py, system_settings.py, crypto.py, logging_setup.py
+    audit.py, monitor.py, system_settings.py, settings_file.py, crypto.py, logging_setup.py
     api/                    # one thin router per area
     auth/                   # argon2 passwords, sessions, CSRF (deps.py)
     db/                     # models.py (SQLModel), engine.py, migrations/ (Alembic)

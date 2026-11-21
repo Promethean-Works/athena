@@ -10,16 +10,16 @@ server still work and are encrypted on the next save.
 """
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ValidationError
-from sqlmodel import Session
+from pydantic import BaseModel
 
 from athena.crypto import SecretBox
-from athena.db.models import SystemSetting
+
+if TYPE_CHECKING:
+    from athena.settings_file import SettingsFile
 
 log = logging.getLogger(__name__)
-KEY = "system"
 
 
 class SystemSettings(BaseModel):
@@ -47,22 +47,13 @@ class SystemSettings(BaseModel):
     """Which secret keys of `tunnel_config` have a stored value. Read only: ignored on save."""
 
 
-def load(db: Session) -> SystemSettings:
-    row = db.get(SystemSetting, KEY)
-    if row is None:
-        return SystemSettings()
-    try:
-        return SystemSettings.model_validate_json(row.value)
-    except ValidationError:
-        log.warning("ignoring invalid system settings")
-        return SystemSettings()
+def load(config: "SettingsFile") -> SystemSettings:
+    """A copy of the system settings this run uses (athena.json, read at startup)."""
+    return config.section("system")
 
 
-def save(db: Session, settings: SystemSettings) -> None:
-    row = db.get(SystemSetting, KEY) or SystemSetting(key=KEY, value="")
-    row.value = settings.model_dump_json(exclude={"tunnel_secrets_set"})
-    db.add(row)
-    db.commit()
+def save(config: "SettingsFile", settings: SystemSettings) -> None:
+    config.save("system", settings)
 
 
 ENCRYPTED = "enc:"

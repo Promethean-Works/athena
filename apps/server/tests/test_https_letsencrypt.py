@@ -26,7 +26,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import select
 from test_https import _app, _free_port
 
-from athena.db.models import AuditEntry, SystemSetting
+from athena.db.models import AuditEntry
 from athena.downloads import DownloadError, extract_member, fetch_verified
 from athena.https import lego, letsencrypt, local_ca
 from athena.https import manager as manager_mod
@@ -290,11 +290,9 @@ def test_get_a_certificate_serve_it_and_keep_it_when_renewal_fails(
         assert r.json()["listening"] is True
         assert r.json()["urls"] == [f"https://nas.example.com:{port}"]
         app = client.app
-        for db in app.state.db.session():  # type: ignore[attr-defined]
-            stored = db.get(SystemSetting, "https")
-            assert stored is not None
-            assert TOKEN not in stored.value
-            assert '"api_token":"enc:' in stored.value.replace(" ", "")
+        stored = app.state.settings_file.path.read_text(encoding="utf-8")  # type: ignore[attr-defined]
+        assert TOKEN not in stored
+        assert '"api_token":"enc:' in stored.replace(" ", "")
         first = _served(port)
         assert first.subject.rfc4514_string() == "CN=nas.example.com"
 

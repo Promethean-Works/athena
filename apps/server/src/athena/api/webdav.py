@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
 from athena import audit
-from athena.auth.deps import Authed, DbSession
+from athena.auth.deps import Authed, DbSession, SettingsStore
 from athena.files import webdav
 
 router = APIRouter(prefix="/webdav", tags=["webdav"])
@@ -45,26 +45,30 @@ def _out(config: webdav.WebDavConfig) -> WebDavOut:
 
 
 @router.get("", operation_id="getWebDav")
-def get_webdav(db: DbSession) -> WebDavOut:
-    return _out(webdav.load(db))
+def get_webdav(settings_file: SettingsStore) -> WebDavOut:
+    return _out(webdav.load(settings_file))
 
 
 @router.put("", operation_id="setWebDav")
-def set_webdav(body: WebDavIn, user: Authed, db: DbSession) -> WebDavOut:
+def set_webdav(
+    body: WebDavIn, user: Authed, db: DbSession, settings_file: SettingsStore
+) -> WebDavOut:
     _admin(user)
-    config = webdav.load(db)
+    config = webdav.load(settings_file)
     if body.enabled != config.enabled:
         config.enabled = body.enabled
-        webdav.save(db, config)
+        webdav.save(settings_file, config)
         audit.record(db, user.user.username, "settings.webdav", "on" if body.enabled else "off")
     return _out(config)
 
 
 @router.post("/password", operation_id="newWebDavPassword")
-def new_webdav_password(user: Authed, db: DbSession) -> WebDavPassword:
+def new_webdav_password(
+    user: Authed, db: DbSession, settings_file: SettingsStore
+) -> WebDavPassword:
     """A new random password for WebDAV, replacing the old one (clients using it have to
     sign in again)."""
     _admin(user)
-    password = webdav.new_password(db, user.user.username)
+    password = webdav.new_password(settings_file, user.user.username)
     audit.record(db, user.user.username, "settings.webdav", "new password")
     return WebDavPassword(username=user.user.username, password=password)
