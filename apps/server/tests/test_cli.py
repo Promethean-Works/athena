@@ -24,6 +24,14 @@ def test_openapi_export_does_not_touch_the_data_dir(
     assert not data_dir.exists()
 
 
+def test_openapi_export_pins_the_version(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # A release bump must not make packages/api-client stale (CI regenerates and diffs it).
+    monkeypatch.setattr("athena.main.__version__", "9.9.9")
+    out = tmp_path / "openapi.json"
+    assert main(["openapi", "--output", str(out)]) == 0
+    assert json.loads(out.read_text())["info"]["version"] == "0.0.0"
+
+
 NEW_PASSWORD = "a brand new password"
 
 
