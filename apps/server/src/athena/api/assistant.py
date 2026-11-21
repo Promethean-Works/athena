@@ -38,19 +38,9 @@ from athena.assistant.integrations import (
 from athena.assistant.integrations import (
     _out as integration_out,
 )
-from athena.assistant.kinds import (
-    NATIVE_KINDS as KINDS,
-)
-from athena.assistant.kinds import (
-    KindId,
-    ProviderKind,
-    secret_keys,
-)
-from athena.assistant.models_dev import (
-    get_models_dev_service,
-    refresh_models_dev_cache,
-    resolve_kind,
-)
+from athena.assistant.kinds import ProviderKind, secret_keys
+from athena.assistant.models_dev import list_kinds as list_provider_kinds
+from athena.assistant.models_dev import refresh_models_dev_cache, resolve_kind
 from athena.assistant.plans import PlanStep, delete_plan, plan_of
 from athena.assistant.providers import (
     ModelCache,
@@ -132,7 +122,7 @@ class ModelsOut(BaseModel):
 class ProviderModels(ModelsOut):
     provider_id: str
     provider_name: str
-    kind: KindId
+    kind: str
     lists_models: bool
 
 
@@ -191,14 +181,9 @@ def _store(row: AiProvider, kind: ProviderKind, values: dict[str, str], box: Sec
 
 
 @router.get("/kinds", operation_id="listAiProviderKinds")
-def list_kinds(request: Request) -> list[ProviderKind]:
-    """Return all provider kinds: native + dynamic from models.dev cache."""
-    kinds = list(KINDS)  # Native kinds
-    # Add dynamic kinds from models.dev cache
-    service = get_models_dev_service()
-    if service:
-        kinds.extend(service.get_dynamic_kinds())
-    return kinds
+async def list_kinds() -> list[ProviderKind]:
+    """Every models.dev provider pydantic-ai can use, plus local Ollama."""
+    return await list_provider_kinds()
 
 
 @router.post(
@@ -207,11 +192,7 @@ def list_kinds(request: Request) -> list[ProviderKind]:
 async def refresh_kinds(request: Request, user: Authed) -> dict[str, Any]:
     """Manually refresh the models.dev cache and return the updated kinds."""
     count = await refresh_models_dev_cache(force=True)
-    # Return updated kinds
-    kinds = list(KINDS)
-    service = get_models_dev_service()
-    if service:
-        kinds.extend(service.get_dynamic_kinds())
+    kinds = await list_provider_kinds()
     return {"refreshed": count, "kinds": [k.model_dump() for k in kinds]}
 
 
