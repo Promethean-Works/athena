@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   CpuIcon,
+  LockIcon,
   PaletteIcon,
   ServerCogIcon,
   UserIcon,
@@ -16,6 +17,7 @@ const SECTIONS: { title: string; url: string; icon: LucideIcon }[] = [
   { title: "Appearance", url: "/settings/appearance/", icon: PaletteIcon },
   { title: "Account", url: "/settings/account/", icon: UserIcon },
   { title: "System", url: "/settings/system/", icon: ServerCogIcon },
+  { title: "HTTPS", url: "/settings/https/", icon: LockIcon },
   { title: "AI", url: "/settings/ai/", icon: CpuIcon },
 ]
 
@@ -50,7 +52,7 @@ export default function SettingsLayout({
           )
         })}
       </nav>
-      <div className="min-w-0 max-w-3xl flex-1">{children}</div>
+      <div className="max-w-3xl min-w-0 flex-1">{children}</div>
     </div>
   )
 }
