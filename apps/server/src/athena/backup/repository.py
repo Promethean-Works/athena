@@ -101,8 +101,12 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
 def check_writable(folder: Path) -> None:
     """Create the folder if needed and prove Athena can write in it."""
     try:
+        expected = folder.resolve(strict=False)
         folder.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(dir=folder, prefix=".athena-write-test-"):
+        writable = folder.resolve(strict=True)
+        if folder.is_symlink() or writable != expected:
+            raise DestinationError("Symbolic links are not allowed; pick a real folder path")
+        with tempfile.NamedTemporaryFile(dir=writable, prefix=".athena-write-test-"):
             pass
     except OSError as exc:
         raise DestinationError(f"Athena can't write in {folder}: {exc.strerror or exc}") from exc
