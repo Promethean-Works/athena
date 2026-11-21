@@ -1,6 +1,6 @@
 # Spec: HTTPS for Athena (self-signed and Let's Encrypt)
 
-**Status:** Approved (2026-11-20) · **Milestone:** Backlog (competitor review, `docs/plans/improvements.md` → Phase 2 item 2, first half) · **Design:** `docs/design/security.md` (new section "HTTPS")
+**Status:** Approved (2026-11-20), part 1 done (#192) · **Milestone:** Backlog (competitor review, `docs/plans/improvements.md` → Phase 2 item 2, first half) · **Design:** `docs/design/security.md` (new section "HTTPS")
 
 ## Goal
 
@@ -28,14 +28,14 @@ Pure Python (`cryptography` is already a dependency, uvicorn serves TLS), so it 
 ### Listeners
 
 - HTTP stays on `port` (8420). HTTPS listens on a new `https_port` (default 8443) when a mode is on. Both are `uvicorn.Server` instances in one process serving the same app; the second runs with `lifespan="off"` so startup tasks (scheduler, job worker) run once.
-- **Redirect HTTP to HTTPS** (on by default when HTTPS is on). Requests from loopback are never redirected, so `curl http://127.0.0.1:8420` and the CLI keep working as a way back in. `/api/health` is never redirected (service checks).
+- **Redirect HTTP to HTTPS** (on by default when HTTPS is on), as a 307 (browsers cache 308 forever). Only browser page loads are redirected: GET/HEAD navigations outside `/api/` and `/dav`. API calls, WebDAV, MCP, webhooks, loopback and proxied (tunnel) requests never are, so a page open over HTTP, mounts and apps in containers keep working, and `curl http://127.0.0.1:8420` is a way back in.
 - Changing the mode or port restarts only the HTTPS listener, in process. A renewed certificate is loaded into the running `SSLContext` with `load_cert_chain` (new handshakes use it), so renewals need no restart.
 - Session cookies already set `Secure` when the request is HTTPS (`api/auth.py`, `api/shares.py`); nothing changes there.
 - Tunnels keep pointing at the HTTP port (they terminate TLS themselves).
 
 ### Storage
 
-- Settings go in `SystemSettings` (`system_settings.py`): `https_mode: "off" | "self_signed" | "letsencrypt"`, `https_port`, `https_redirect`, `https_extra_names: list[str]`, `letsencrypt: { domains, email, challenge: "http" | "dns", dns_provider, dns_config, staging }`. DNS provider tokens are secrets: encrypted with `SecretBox`, never returned (same pattern as `tunnel_config`). `athena serve` reads these from the DB before starting the listeners.
+- Settings are `HttpsSettings` in their own `https` row of `system_settings` (`athena/https/settings.py`), so saving Settings → System can't overwrite them: `mode: "off" | "self_signed"` (part 3 adds `"letsencrypt"`), `port`, `redirect`, `extra_names: list[str]`, and in part 3 `letsencrypt: { domains, email, challenge: "http" | "dns", dns_provider, dns_config, staging }`. DNS provider tokens are secrets: encrypted with `SecretBox`, never returned (same pattern as `tunnel_config`). The HTTPS listener reads them from the DB in the app's lifespan.
 - Files in `<data-dir>/tls/` (created 0700, keys 0600; on Windows the data dir is already per-user): `ca.key`, `ca.crt`, `server.key`, `server.crt` for self-signed; `lego/` (lego's account and certificates), `le.key`, `le.crt` (full chain) for Let's Encrypt. Private keys aren't encrypted with `SecretBox`, because uvicorn needs a plain file; file permissions protect them, like the SQLite DB and the secret key next to it.
 
 ### Self-signed (`athena/https/local_ca.py`)
@@ -56,7 +56,7 @@ Pure Python (`cryptography` is already a dependency, uvicorn serves TLS), so it 
 
 - `GET /api/https` (`getHttpsStatus`): mode, ports, redirect, URLs to open, current certificate (issuer, names, not-after, fingerprint), last renewal and last error, whether port 80 is free.
 - `PUT /api/https` (`setHttpsSettings`): saves settings; validates names, domains, email and port (not equal to `port`, 1–65535, bindable: the server binds it first and refuses with a clear error otherwise, so a bad port can't take the UI down).
-- `POST /api/https/certificate` (`issueHttpsCertificate`): get or renew now; returns a job id.
+- `POST /api/https/certificate` (`issueHttpsCertificate`, part 3): get or renew a Let's Encrypt certificate now; returns a job id.
 - `POST /api/https/ca/rotate` (`rotateHttpsCa`): new local CA.
 - `GET /api/https/ca.crt` (`downloadHttpsCa`): the CA certificate (public, but behind login anyway).
 
