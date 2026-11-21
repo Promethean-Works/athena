@@ -102,9 +102,10 @@ def check_local_path(raw: str, data_dir: Path, allowed_roots: list[Path] | None 
 
 def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> None:
     """Create the folder if needed and prove Athena can write in it."""
-    if not _is_absolute(str(folder)):
+    raw = str(folder).strip()
+    if "\x00" in raw or not _is_absolute(raw):
         raise DestinationError("Use a full path, like /mnt/backup or D:\\Backups")
-    target = folder.resolve(strict=False)
+    target = Path(os.path.normpath(raw)).resolve(strict=False)
     if not allowed_roots:
         raise DestinationError("No allowed backup locations are configured")
     roots = [Path(root).resolve(strict=False) for root in allowed_roots if Path(root).is_absolute()]
@@ -117,6 +118,8 @@ def check_writable(folder: Path, allowed_roots: list[Path] | None = None) -> Non
         writable = target.resolve(strict=True)
         if target.is_symlink() or writable != target:
             raise DestinationError("Symbolic links are not allowed; pick a real folder path")
+        if not any(_is_inside(writable, root) for root in roots):
+            raise DestinationError("Pick a folder inside an allowed backup location")
         with tempfile.NamedTemporaryFile(dir=writable, prefix=".athena-write-test-"):
             pass
     except OSError as exc:
