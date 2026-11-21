@@ -11,7 +11,7 @@ from athena import audit, system_settings
 from athena.api.terminal import close_all as close_terminals
 from athena.assistant import settings as ai_settings
 from athena.assistant.settings import AiSettings
-from athena.auth.deps import Authed, DbSession
+from athena.auth.deps import Authed, DbSession, SettingsStore
 from athena.db.models import AiProvider
 from athena.system_settings import SystemSettings
 
@@ -103,25 +103,29 @@ def set_dashboard(body: DashboardLayout, user: Authed, db: DbSession) -> Dashboa
 
 
 @router.get("/system", operation_id="getSystemSettings")
-def get_system(db: DbSession) -> SystemSettings:
+def get_system(settings_file: SettingsStore) -> SystemSettings:
     """Tunnel secrets are never returned; `tunnel_secrets_set` lists the stored ones."""
-    return system_settings.public(system_settings.load(db))
+    return system_settings.public(system_settings.load(settings_file))
 
 
 @router.put("/system", operation_id="setSystemSettings")
 def set_system(
-    body: SystemSettings, request: Request, user: Authed, db: DbSession
+    body: SystemSettings,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    settings_file: SettingsStore,
 ) -> SystemSettings:
     """Turning the terminal off also closes the terminals that are open.
 
     Tunnel secrets left empty or out of `tunnel_config` keep their stored value."""
     if not user.user.is_admin:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change system settings")
-    before = system_settings.load(db)
+    before = system_settings.load(settings_file)
     body.tunnel_config = system_settings.merge_tunnel_config(
         before.tunnel_config, body.tunnel_config, request.app.state.secret_box
     )
-    system_settings.save(db, body)
+    system_settings.save(settings_file, body)
     if before.terminal_enabled != body.terminal_enabled:
         state = "on" if body.terminal_enabled else "off"
         audit.record(db, user.user.username, "settings.terminal", state)
@@ -131,19 +135,21 @@ def set_system(
 
 
 @router.get("/ai", operation_id="getAiSettings")
-def get_ai(db: DbSession) -> AiSettings:
-    return ai_settings.load(db)
+def get_ai(settings_file: SettingsStore) -> AiSettings:
+    return ai_settings.load(settings_file)
 
 
 @router.put("/ai", operation_id="setAiSettings")
-def set_ai(body: AiSettings, user: Authed, db: DbSession) -> AiSettings:
+def set_ai(
+    body: AiSettings, user: Authed, db: DbSession, settings_file: SettingsStore
+) -> AiSettings:
     if not user.user.is_admin:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change AI settings")
     for ref in (body.default_model, body.title_model, body.advisor_model):
         if ref is not None and db.get(AiProvider, ref.provider_id) is None:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "No such provider")
-    before = ai_settings.load(db)
-    ai_settings.save(db, body)
+    before = ai_settings.load(settings_file)
+    ai_settings.save(settings_file, body)
     if before.shell_enabled != body.shell_enabled:
         state = "on" if body.shell_enabled else "off"
         audit.record(db, user.user.username, "settings.assistant_shell", state)

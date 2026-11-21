@@ -7,17 +7,17 @@ HTTPS values, and so `athena https off` can change them without the rest.
 import ipaddress
 import logging
 import re
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, Field, ValidationError, field_validator
-from sqlmodel import Session
+from pydantic import BaseModel, Field, field_validator
 
 from athena.crypto import SecretBox
-from athena.db.models import SystemSetting
 from athena.system_settings import ENCRYPTED, is_secret, merge_tunnel_config
 
+if TYPE_CHECKING:
+    from athena.settings_file import SettingsFile
+
 log = logging.getLogger(__name__)
-KEY = "https"
 DEFAULT_HTTPS_PORT = 8443
 MAX_EXTRA_NAMES = 20
 
@@ -142,22 +142,13 @@ class HttpsSettings(BaseModel):
         return out
 
 
-def load(db: Session) -> HttpsSettings:
-    row = db.get(SystemSetting, KEY)
-    if row is None:
-        return HttpsSettings()
-    try:
-        return HttpsSettings.model_validate_json(row.value)
-    except ValidationError:
-        log.warning("ignoring invalid HTTPS settings")
-        return HttpsSettings()
+def load(config: "SettingsFile") -> HttpsSettings:
+    """A copy of the https settings this run uses (athena.json, read at startup)."""
+    return config.section("https")
 
 
-def save(db: Session, settings: HttpsSettings) -> None:
-    row = db.get(SystemSetting, KEY) or SystemSetting(key=KEY, value="")
-    row.value = settings.model_dump_json(exclude={"letsencrypt": {"dns_secrets_set"}})
-    db.add(row)
-    db.commit()
+def save(config: "SettingsFile", settings: HttpsSettings) -> None:
+    config.save("https", settings)
 
 
 def public(settings: HttpsSettings) -> HttpsSettings:

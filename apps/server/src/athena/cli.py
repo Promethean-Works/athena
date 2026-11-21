@@ -30,6 +30,8 @@ def _serve(args: argparse.Namespace) -> int:
     os.environ["ATHENA_DATA_DIR"] = str(args.data_dir)
     os.environ["ATHENA_LOG_TO_FILE"] = "1"
     Path(args.data_dir).mkdir(parents=True, exist_ok=True)
+    if not _settings_file_ok(Path(args.data_dir)):
+        return 1
     uvicorn.run(
         "athena.main:create_app",
         factory=True,
@@ -42,6 +44,29 @@ def _serve(args: argparse.Namespace) -> int:
         timeout_graceful_shutdown=SHUTDOWN_GRACE_SECONDS,
     )
     return 0
+
+
+def _settings_file_ok(data_dir: Path, starting: bool = True) -> bool:
+    """Whether athena.json is valid; prints what's wrong with it if not."""
+    from athena.settings_file import SettingsFile, SettingsFileError
+
+    settings_file = SettingsFile(data_dir)
+    try:
+        settings_file.read()
+    except SettingsFileError as exc:
+        lead = "Athena can't start: " if starting else ""
+        print(f"error: {lead}{exc.path} is invalid.", file=sys.stderr)
+        for problem in exc.problems:
+            print(f"  {problem}", file=sys.stderr)
+        backup = settings_file.backup_path
+        hint = f" (the previous version is {backup.name})" if backup.is_file() else ""
+        print(f"Fix it in an editor{hint} and try again.", file=sys.stderr)
+        return False
+    except PermissionError as exc:
+        hint = " (run it with sudo, as the service runs as root)" if os.name == "posix" else ""
+        print(f"error: can't read {exc.filename}: {exc.strerror}{hint}", file=sys.stderr)
+        return False
+    return True
 
 
 def _openapi(args: argparse.Namespace) -> int:
@@ -420,36 +445,34 @@ def _config_set(args: argparse.Namespace) -> int:
 
 def _https(args: argparse.Namespace) -> int:
     """`athena https status|off`: the way back in if HTTPS settings lock you out."""
-    from sqlalchemy.exc import OperationalError
-    from sqlmodel import Session
-
-    from athena.db import Database
     from athena.https import local_ca
     from athena.https import settings as https_settings
+    from athena.settings_file import SettingsFile, SettingsFileError
 
     data_dir = Path(args.data_dir)
-    db_path = data_dir / "athena.db"
-    if not db_path.is_file():
-        print(f"error: no Athena database at {db_path}. Pass --data-dir.", file=sys.stderr)
+    settings_file = SettingsFile(data_dir)
+    if not settings_file.path.is_file():
+        print(
+            f"error: no Athena settings at {settings_file.path}. Pass --data-dir.", file=sys.stderr
+        )
         return 1
-    database = Database(db_path)
     try:
-        database.migrate()
-        with Session(database.engine) as db:
-            current = https_settings.load(db)
-            if args.https_command == "off":
-                https_settings.save(db, current.model_copy(update={"mode": "off"}))
-                print(
-                    "HTTPS is off. Restart Athena (athena service install, or stop and "
-                    "start it) to serve plain HTTP only."
-                )
-                return 0
-    except (OperationalError, PermissionError) as exc:
-        hint = " (run it with sudo, as the service runs as root)" if os.name == "posix" else ""
-        print(f"error: can't open {db_path}: {exc}{hint}", file=sys.stderr)
+        current = settings_file.read().https
+        if args.https_command == "off":
+            settings_file.load()
+            https_settings.save(settings_file, current.model_copy(update={"mode": "off"}))
+            print(
+                "HTTPS is off. Restart Athena (athena service install, or stop and "
+                "start it) to serve plain HTTP only."
+            )
+            return 0
+    except SettingsFileError:
+        _settings_file_ok(data_dir, starting=False)  # prints the problems
         return 1
-    finally:
-        database.engine.dispose()
+    except PermissionError as exc:
+        hint = " (run it with sudo, as the service runs as root)" if os.name == "posix" else ""
+        print(f"error: can't open {exc.filename}: {exc.strerror}{hint}", file=sys.stderr)
+        return 1
     print(f"mode:     {current.mode}")
     print(f"port:     {current.port}")
     print(f"redirect: {'on' if current.redirect else 'off'}")

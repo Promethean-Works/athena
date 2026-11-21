@@ -346,7 +346,7 @@ def test_cli_https_off(tmp_path, capsys):
         assert r.status_code != 307
 
 
-def test_cli_https_needs_a_database(tmp_path):
+def test_cli_https_needs_a_settings_file(tmp_path):
     assert cli_main(["https", "status", "--data-dir", str(tmp_path / "none")]) == 1
 
 

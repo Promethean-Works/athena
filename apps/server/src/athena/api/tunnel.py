@@ -1,12 +1,13 @@
 """Tunnel API endpoints."""
 
+import asyncio
 import logging
 
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
 
 from athena import system_settings
-from athena.auth.deps import Authed, DbSession, require_user
+from athena.auth.deps import Authed, DbSession, SettingsStore, require_user
 from athena.crypto import SecretBox, SecretError
 from athena.jobs import Job, JobManager
 from athena.platform.store import CapabilityStore
@@ -63,9 +64,9 @@ class TunnelConfigResponse(BaseModel):
 
 
 @router.get("/status", response_model=TunnelStatusResponse)
-async def get_tunnel_status(request: Request, db: DbSession) -> TunnelStatusResponse:
+async def get_tunnel_status(request: Request, settings_file: SettingsStore) -> TunnelStatusResponse:
     """Get current tunnel status."""
-    settings = load(db)
+    settings = load(settings_file)
 
     if not settings.tunnel_enabled or not settings.tunnel_provider:
         return TunnelStatusResponse(
@@ -114,12 +115,12 @@ async def get_tunnel_status(request: Request, db: DbSession) -> TunnelStatusResp
 @router.post("/start", response_model=TunnelStartResponse)
 async def start_tunnel(
     request: Request,
-    db: DbSession,
+    settings_file: SettingsStore,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Start the tunnel (admin only)."""
     _require_admin(current_user)
-    settings = load(db)
+    settings = load(settings_file)
 
     if not settings.tunnel_enabled:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tunnel not enabled")
@@ -163,12 +164,12 @@ async def start_tunnel(
 @router.post("/stop", response_model=TunnelStartResponse)
 async def stop_tunnel(
     request: Request,
-    db: DbSession,
+    settings_file: SettingsStore,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Stop the tunnel (admin only)."""
     _require_admin(current_user)
-    settings = load(db)
+    settings = load(settings_file)
 
     if not settings.tunnel_provider:
         raise HTTPException(
@@ -201,14 +202,14 @@ async def stop_tunnel(
 async def update_tunnel_config(
     request: Request,
     body: TunnelConfigRequest,
-    db: DbSession,
+    settings_file: SettingsStore,
     current_user: Authed,
 ) -> TunnelConfigResponse:
     """Update tunnel configuration (admin only).
 
     Secrets left empty or out of `config` keep their stored value; `null` clears one."""
     _require_admin(current_user)
-    settings = load(db)
+    settings = load(settings_file)
 
     if body.provider is not None:
         settings.tunnel_provider = body.provider
@@ -221,7 +222,7 @@ async def update_tunnel_config(
     if body.port is not None:
         settings.tunnel_port = body.port
 
-    save(db, settings)
+    await asyncio.to_thread(save, settings_file, settings)
 
     return TunnelConfigResponse(ok=True, settings=system_settings.public(settings))
 
@@ -261,12 +262,12 @@ async def install_tunnel_binary(
 async def configure_tunnel_service(
     request: Request,
     enabled: bool,
-    db: DbSession,
+    settings_file: SettingsStore,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Enable/disable auto-start service (admin only)."""
     _require_admin(current_user)
-    settings = load(db)
+    settings = load(settings_file)
 
     if not settings.tunnel_provider:
         raise HTTPException(

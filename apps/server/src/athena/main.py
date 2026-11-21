@@ -6,7 +6,7 @@ import logging
 from collections.abc import AsyncIterator
 from typing import TYPE_CHECKING
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -48,6 +48,7 @@ from athena.mcp.lazy import MCP_PATH, LazyMCPApp, MCPPathMiddleware
 from athena.monitor import HostMonitor
 from athena.packages.base import run_command
 from athena.platform.store import CapabilityStore
+from athena.settings_file import SettingsFile, SettingsFileError
 from athena.terminal import shells
 from athena.tunnel import get_all_providers
 
@@ -78,6 +79,10 @@ def create_app(
     if settings.log_to_file:
         setup_logging(settings.data_dir)
     store = capability_store or CapabilityStore()
+    # athena.json first: an invalid file stops the server here (`athena serve` checks it
+    # before this and prints the problems without a traceback).
+    settings_file = SettingsFile(settings.data_dir)
+    settings_file.load()
     db = Database(settings.data_dir / "athena.db")
     db.migrate()
     for session in db.session():
@@ -142,6 +147,7 @@ def create_app(
     app.state.settings = settings
     app.state.capabilities = store
     app.state.db = db
+    app.state.settings_file = settings_file
     app.state.login_throttle = LoginThrottle()
     app.state.share_throttle = LoginThrottle(limit=10)
     app.state.jobs = JobManager()
@@ -200,6 +206,13 @@ def create_app(
     mcp = LazyMCPApp(app)
     app.mount(MCP_PATH, MCPAuthMiddleware(mcp))
 
+    @app.exception_handler(SettingsFileError)
+    def settings_file_broken(request: Request, exc: SettingsFileError) -> JSONResponse:
+        # A hand edit left athena.json invalid; saving now would overwrite it.
+        detail = f"{exc.path.name} was edited and no longer parses, so nothing was saved. "
+        detail += "Fix it (athena config check) and try again: " + "; ".join(exc.problems)
+        return JSONResponse({"detail": detail}, status_code=status.HTTP_409_CONFLICT)
+
     # A share link opens the UI's /s/ page, which reads the token from the address.
     share_page = settings.web_dir / "s" / "index.html"
 
@@ -211,7 +224,7 @@ def create_app(
         # The token is the secret: don't send it to other sites as a Referer.
         return FileResponse(share_page, headers={"Referrer-Policy": "no-referrer"})
 
-    app.add_middleware(WebDavMiddleware, db=db)
+    app.add_middleware(WebDavMiddleware, db=db, settings=settings_file)
     app.add_middleware(MCPPathMiddleware)
     # Outermost, so a browser on the HTTP port is sent to HTTPS before anything else runs.
     app.add_middleware(HttpsRedirectMiddleware, port=lambda: app.state.https.redirect_port)

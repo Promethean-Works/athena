@@ -6,10 +6,8 @@ from pathlib import Path
 import pytest
 from conftest import make_app, signed_in
 from fastapi.testclient import TestClient
-from sqlmodel import Session
 
 from athena import system_settings
-from athena.db.models import SystemSetting
 from athena.system_settings import ENCRYPTED
 
 TOKEN = "cf-super-secret-token"
@@ -23,16 +21,18 @@ def client(tmp_path: Path):
 
 
 def _stored(client: TestClient) -> dict:
-    with Session(client.app.state.db.engine) as db:
-        row = db.get(SystemSetting, system_settings.KEY)
-        assert row is not None
-        return json.loads(row.value)
+    """The system section of athena.json as it is on disk."""
+    path = client.app.state.settings_file.path
+    return json.loads(path.read_text(encoding="utf-8"))["system"]
 
 
 def _write_raw(client: TestClient, value: dict) -> None:
-    with Session(client.app.state.db.engine) as db:
-        db.merge(SystemSetting(key=system_settings.KEY, value=json.dumps(value)))
-        db.commit()
+    """Hand-edit athena.json's system section, then restart (reload the file)."""
+    settings_file = client.app.state.settings_file
+    data = json.loads(settings_file.path.read_text(encoding="utf-8"))
+    data["system"] = value
+    settings_file.path.write_bytes(json.dumps(data).encode())
+    settings_file.load()
 
 
 def _demote(client: TestClient) -> None:
@@ -103,7 +103,7 @@ def test_system_settings_put_keeps_and_encrypts_secrets(client: TestClient) -> N
     assert "auth_token" not in _stored(client)["tunnel_config"]
 
 
-def test_plaintext_secrets_from_older_servers_still_work(client: TestClient) -> None:
+def test_plaintext_secrets_typed_into_the_file_work(client: TestClient) -> None:
     _write_raw(
         client,
         {"tunnel_provider": "ngrok", "tunnel_config": {"auth_token": NGROK, "domain": "a.dev"}},
@@ -113,8 +113,7 @@ def test_plaintext_secrets_from_older_servers_still_work(client: TestClient) -> 
     assert got.json()["tunnel_secrets_set"] == ["auth_token"]
 
     box = client.app.state.secret_box
-    with Session(client.app.state.db.engine) as db:
-        settings = system_settings.load(db)
+    settings = system_settings.load(client.app.state.settings_file)
     assert system_settings.provider_config(settings, box)["auth_token"] == NGROK
 
     # The next save encrypts it.
