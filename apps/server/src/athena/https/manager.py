@@ -15,6 +15,8 @@ import asyncio
 import contextlib
 import errno
 import logging
+import os
+import re
 import socket
 import ssl
 from collections.abc import Callable, Iterator
@@ -43,14 +45,40 @@ FIRST_CHECK_SECONDS = 60
 """The first check runs this soon after start, so a host that restarts daily still renews."""
 
 
+MAX_ERROR_CHARS = 300
+# lego logs `time=… level=ERROR msg=Error error="obtain certificate: …"`, quotes escaped.
+_LEGO_ERROR = re.compile(r'\berror="((?:[^"\\]|\\.)*)"')
+
+
 def _lego_failure(job: Job, code: int) -> str:
-    """lego's last error line (it stays on the page after the job log is closed)."""
+    """lego's last error (it stays on the page after the job log is closed)."""
     lines = [line.strip() for line in job.out().lines if line.strip()]
     errors = [line for line in lines if "error" in line.lower()]
-    detail = (errors or lines or [""])[-1][-300:]
+    detail = (errors or lines or [""])[-1]
+    if found := _LEGO_ERROR.search(detail):
+        detail = re.sub(r"\\(.)", r"\1", found.group(1))
+    if len(detail) > MAX_ERROR_CHARS:  # the cause is at the end
+        detail = "…" + detail[-MAX_ERROR_CHARS:].split(" ", 1)[-1]
     return (
         f"lego failed (exit code {code}): {detail}" if detail else f"lego failed (exit code {code})"
     )
+
+
+def port80_problem() -> str | None:
+    """Why lego's HTTP challenge can't open port 80 right now, or None."""
+    try:
+        bind("0.0.0.0", 80).close()
+    except HttpsError as exc:
+        if isinstance(exc.__cause__, PermissionError):
+            return (
+                "Athena isn't allowed to open port 80, which the HTTP challenge needs. "
+                "Use the DNS challenge instead."
+            )
+        return (
+            f"{exc} The HTTP challenge needs port 80: stop that program while the "
+            "certificate is requested, or use the DNS challenge."
+        )
+    return None
 
 
 class HttpsError(Exception):
@@ -227,6 +255,10 @@ class HttpsManager:
             force = force or await asyncio.to_thread(letsencrypt.must_force, self.paths, le)
             cmd = letsencrypt.build_command(binary, self.paths, le, values, force=force)
             if le.challenge == "http":
+                if not os.environ.get(letsencrypt.HTTP_ADDRESS_ENV):
+                    problem = await asyncio.to_thread(port80_problem)
+                    if problem:
+                        raise CommandFailedError(problem)
                 await job.log("Let's Encrypt will connect to port 80 on this host.")
             code = await job.run_command(cmd.argv, env=cmd.env)
             if code != 0:

@@ -27,7 +27,7 @@ One file per section; read only the ones your task touches. Section numbers (`§
 | 4.8 | [tunnels.md](tunnels.md) | Remote access (tunnels) |
 | 5 | [frontend.md](frontend.md) | Frontend |
 | 6 | [backend.md](backend.md) | Backend layout and API |
-| 7 | [security.md](security.md) | Security baseline |
+| 7 | [security.md](security.md) | Security baseline, HTTPS |
 | 8 | [distribution.md](distribution.md) | Distribution (MVP) |
 | 9 | [licenses.md](licenses.md) | Dependency / license inventory |
 | 10 | [milestones.md](milestones.md) | Milestones |
