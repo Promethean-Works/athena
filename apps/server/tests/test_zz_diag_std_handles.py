@@ -1,6 +1,6 @@
+# ruff: noqa: E501
 """TEMPORARY diagnostic (remove before merge): what happens to the std handles."""
 
-import json
 import subprocess
 import sys
 import time
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-CHILD = r'''
+CHILD = r"""
 import gc, json, subprocess, sys, time, traceback
 import _winapi
 out, mode = sys.argv[1], sys.argv[2]
@@ -60,7 +60,7 @@ try:
 except Exception:
     log.append(["exception", traceback.format_exc()])
     with open(out, "w") as f: json.dump({"exe": sys.executable, "log": log}, f, indent=1)
-'''
+"""
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="diag")
@@ -77,11 +77,28 @@ def test_diag(tmp_path, mode, how):
     if how == "pythonw-schtasks":
         name = f"athena-test-diag-{mode}"
         tr = " ".join(f'"{a}"' for a in argv)
-        subprocess.run(["schtasks", "/Create", "/TN", name, "/TR", tr, "/SC", "ONLOGON", "/RL", "LIMITED", "/F"], check=True)
+        subprocess.run(
+            [
+                "schtasks",
+                "/Create",
+                "/TN",
+                name,
+                "/TR",
+                tr,
+                "/SC",
+                "ONLOGON",
+                "/RL",
+                "LIMITED",
+                "/F",
+            ],
+            check=True,
+        )
         subprocess.run(["schtasks", "/Run", "/TN", name], check=True)
         deadline = time.monotonic() + 60
         while time.monotonic() < deadline:
-            if out.exists() and '"dropped"' in out.read_text() or (out.exists() and "exception" in out.read_text()):
+            if (out.exists() and '"dropped"' in out.read_text()) or (
+                out.exists() and "exception" in out.read_text()
+            ):
                 break
             time.sleep(1)
         subprocess.run(["schtasks", "/Delete", "/TN", name, "/F"])
