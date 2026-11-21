@@ -12,6 +12,7 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Docs name real things | `node scripts/check-docs.mjs` (`--list` prints everything it verified) |
 | Regenerate API client | `pnpm gen:api` (after any API change; CI fails on drift) |
 | Regenerate theme CSS | `pnpm gen:theme` (after shadcn upgrades; needs network) |
+| Check or find the settings file | `cd apps/server && uv run athena config check --data-dir "$DATA"` (`path`, `show`, `reset <section>`) |
 | Agent config sync | `node scripts/agents-sync.mjs` (after editing `.mcp.json`); `--check` is what CI runs |
 | Release server for UI checks | `pnpm build` then `cd apps/server && ATHENA_WEB_DIR=../web/out uv run athena serve --port 8421 --data-dir "$DATA"` |
 | Dev mode | `pnpm dev` (Next on :3000, proxies `/api` to :8420) plus `uv run athena serve` |

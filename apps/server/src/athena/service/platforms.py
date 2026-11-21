@@ -5,7 +5,7 @@ import plistlib
 import sys
 from pathlib import Path
 
-from athena.config import DEFAULT_PORT, default_data_dir
+from athena.config import default_data_dir
 from athena.service.plan import MakeDir, Plan, RemoveFile, Run, ServiceSpec, WriteFile
 
 SERVICE_NAME = "athena"
@@ -28,9 +28,9 @@ def _posix(path: Path) -> str:
 def _serve_args(
     spec: ServiceSpec, *, include_defaults: bool = True, posix: bool = False
 ) -> list[str]:
+    # No --port: the port lives in athena.json (`service install --port` saves it there),
+    # so editing the file is enough to change it.
     args = ["-m", "athena", "serve"]
-    if include_defaults or spec.port != DEFAULT_PORT:
-        args += ["--port", str(spec.port)]
     if include_defaults or spec.data_dir != default_data_dir():
         args += ["--data-dir", _posix(spec.data_dir) if posix else str(spec.data_dir)]
     return args

@@ -1744,6 +1744,28 @@
         }
       }
     },
+    "/api/settings/file": {
+      "get": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Get Settings File",
+        "description": "Where the host-wide settings are saved, so an admin can fix them in an editor if\na change keeps Athena from starting (docs/specs/settings-file.md). Admins only.",
+        "operationId": "getSettingsFile",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsFileOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settings/ai": {
       "get": {
         "tags": [
@@ -10259,6 +10281,24 @@
           "name"
         ],
         "title": "RenameIn"
+      },
+      "SettingsFileOut": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "backup_path": {
+            "type": "string",
+            "title": "Backup Path"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "backup_path"
+        ],
+        "title": "SettingsFileOut"
       },
       "SetupRequest": {
         "properties": {

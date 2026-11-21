@@ -732,6 +732,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Settings File
+         * @description Where the host-wide settings are saved, so an admin can fix them in an editor if
+         *     a change keeps Athena from starting (docs/specs/settings-file.md). Admins only.
+         */
+        get: operations["getSettingsFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/ai": {
         parameters: {
             query?: never;
@@ -3784,6 +3805,13 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** SettingsFileOut */
+        SettingsFileOut: {
+            /** Path */
+            path: string;
+            /** Backup Path */
+            backup_path: string;
+        };
         /** SetupRequest */
         SetupRequest: {
             /** Username */
@@ -5710,6 +5738,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getSettingsFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsFileOut"];
                 };
             };
         };
