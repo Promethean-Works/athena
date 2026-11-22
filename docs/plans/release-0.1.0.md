@@ -75,7 +75,7 @@ Things marked "not verified" in STATUS that a first user hits on day one.
 - [ ] **Memory on 1 GB boards:** measure RSS on a Pi after the lazy assistant imports (HISTORY); fix the next biggest eager import if it's still over ~200 MB idle.
 - [ ] **Own-certificate upload** for HTTPS.
 - [ ] **Phone fixes:** the assistant's question card sitting under the plan bar, dashboard touch dragging on a real phone.
-- [ ] **Vertex AI provider** (the one models.dev provider worth adding).
+- [x] **Vertex AI provider** (`google-vertex` kind: service-account JSON key and location, `GoogleCloudProvider`; models from models.dev).
 
 ## 8. Later (0.2.0+)
 

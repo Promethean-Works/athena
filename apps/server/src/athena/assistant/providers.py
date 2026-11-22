@@ -100,8 +100,25 @@ def check_values(kind: ProviderKind, values: dict[str, str]) -> None:
             parts = urlsplit(value)
             if parts.scheme not in ("http", "https") or not parts.netloc:
                 raise ValueError(f"{f.label} must be an http:// or https:// address")
+        if f.key == "service_account" and value:
+            _service_account(value)
         if f.key == "context_window" and value and not (value.isdigit() and int(value) >= 1024):
             raise ValueError(f"{f.label} must be a number of tokens, at least 1024")
+
+
+def _service_account(raw: str) -> dict[str, Any]:
+    """The parsed service-account key, or ValueError saying what's wrong."""
+    try:
+        info = json.loads(raw)
+    except ValueError:
+        raise ValueError("Service account key must be the JSON key file") from None
+    if (
+        not isinstance(info, dict)
+        or info.get("type") != "service_account"
+        or not all(info.get(k) for k in ("project_id", "private_key", "client_email"))
+    ):
+        raise ValueError("Service account key isn't a service account JSON key")
+    return info
 
 
 def _strip(url: str) -> str:
@@ -176,6 +193,19 @@ def _build_model(cfg: ProviderConfig, model_id: str) -> Model:
         from pydantic_ai.providers.google import GoogleProvider
 
         return GoogleModel(model_id, provider=GoogleProvider(api_key=key))
+    if kind == "google-vertex":
+        from google.oauth2 import service_account
+        from pydantic_ai.models.google import GoogleModel
+        from pydantic_ai.providers.google_cloud import GoogleCloudProvider
+
+        info = _service_account(cfg.get("service_account") or "")
+        creds = service_account.Credentials.from_service_account_info(info)
+        return GoogleModel(
+            model_id,
+            provider=GoogleCloudProvider(
+                credentials=creds, project=info["project_id"], location=cfg.get("location")
+            ),
+        )
     if kind == "openrouter":
         from pydantic_ai.models.openrouter import OpenRouterModel
         from pydantic_ai.providers.openrouter import OpenRouterProvider
@@ -481,6 +511,14 @@ async def fetch_models(
     # Native providers with special model listing
     if kind == "amazon-bedrock":
         return await asyncio.to_thread(_bedrock, cfg)
+    if kind == "google-vertex":
+        # Vertex has no cheap key-only list call; the models.dev list is what's offered.
+        cached = await _fetch_models_from_cache(kind)
+        if cached:
+            return cached
+        raise ProviderError(
+            "The Vertex AI model list comes from models.dev, which isn't loaded yet"
+        )
 
     # Try provider's own API first for native providers
     try:

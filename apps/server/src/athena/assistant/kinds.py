@@ -114,6 +114,29 @@ NATIVE_KINDS: list[ProviderKind] = [
         group="cloud",
         fields=[_key()],
     ),
+    ProviderKind(
+        id="google-vertex",
+        label="Google Vertex AI",
+        group="cloud",
+        fields=[
+            KindField(
+                key="service_account",
+                label="Service account key (JSON)",
+                secret=True,
+                required=True,
+                help="Paste the whole JSON key file. The service account needs the "
+                "Vertex AI User role; its project is used.",
+            ),
+            KindField(
+                key="location",
+                label="Location",
+                required=True,
+                default="us-central1",
+                placeholder="us-central1",
+                help="A region such as us-central1, or global.",
+            ),
+        ],
+    ),
 ]
 
 
