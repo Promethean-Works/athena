@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Backup and restore: spec `docs/specs/backup.md` approved 2026-11-21 (restic, versions page, Restart Athena in the user menu). Part 1 (Restart Athena, #215) still needs `athena-host-test`. Part 2 is split: 2a foundation (in review), 2b snapshots and plans, 2c retention and versions, 2d restore one app, 2e rclone.
+- Backup and restore: spec `docs/specs/backup.md` approved 2026-11-21 (restic, versions page, Restart Athena in the user menu). Part 1 (Restart Athena, #215) still needs `athena-host-test`. Part 2 is split: 2a foundation (#216, merged), 2b snapshots and plans, 2c retention and versions, 2d restore one app, 2e rclone.
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt or Cloudflare, trusting the CA on real devices. The last renewal/error live in memory only (a restart forgets them). Follow-up: own-certificate upload.
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.
 - Windows E2E flake (also on `main`, run 44856906030): `GET /api/containers` sometimes 500s under the service with `OSError: [WinError 6] The handle is invalid` in `subprocess._make_inheritable`: `pythonw.exe` has no console handles and python-on-whales starts `docker` without `stdin=DEVNULL`.

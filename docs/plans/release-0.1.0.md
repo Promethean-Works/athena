@@ -23,9 +23,9 @@ The installers download `athena_server-<version>-py3-none-any.whl` from `release
 
 ## 2. Backup and restore (Must)
 
-Spec `docs/specs/backup.md`, approved 2026-11-21. Part 1 (Restart Athena) merged in #215; part 2 is #216.
+Spec `docs/specs/backup.md`, approved 2026-11-21. Part 1 (Restart Athena) merged in #215; part 2 is split 2a–2e; 2a (foundation) merged in #216.
 
-- [ ] Part 2: destinations, restic download, Athena and app-folder backups, restore one app (#216).
+- [ ] Part 2: 2a foundation (destinations, restic download, `backup` capability) merged in #216; still open: 2b snapshots and plans, 2c retention and versions, 2d restore one app, 2e rclone.
 - [ ] Part 3: Backups page and the app's Backups tab.
 - [ ] Part 4: named volumes, bind mounts, schedule, `backup.run` automation action, assistant tools, dashboard card.
 - [ ] Part 5: restore from the first-run screen and `athena restore`, real-host back up → wipe → restore (Linux VM and Windows E2E).
