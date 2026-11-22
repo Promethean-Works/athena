@@ -89,14 +89,15 @@ def write_executable(path: Path, data: bytes) -> None:
     os.replace(tmp, path)
 
 
-async def fetch_verified(
+async def fetch_bytes(
     url: str,
-    sha256: str,
     *,
+    max_bytes: int = MAX_ARCHIVE_BYTES,
+    allowed: Callable[[str], bool] | None = None,
     log_line: Log = quiet,
     transport: httpx2.AsyncBaseTransport | None = None,
 ) -> bytes:
-    """The bytes at `url`, or `DownloadError` if they don't hash to `sha256`."""
+    """The bytes at `url`. `allowed` is asked about the URL and every redirect it went through."""
     await log_line(f"Downloading {url}")
     try:
         async with httpx2.AsyncClient(
@@ -105,10 +106,31 @@ async def fetch_verified(
             resp = await client.get(url)
             resp.raise_for_status()
             data = resp.content
+            hops = [str(r.url) for r in resp.history] + [str(resp.url)]
     except httpx2.HTTPError as exc:
         raise DownloadError(f"Couldn't download {url}: {exc}") from exc
-    if len(data) > MAX_ARCHIVE_BYTES:
+    if allowed is not None:
+        for hop in hops:
+            if not allowed(hop):
+                raise DownloadError(f"{url} redirected to {hop}, which isn't an allowed host")
+    if len(data) > max_bytes:
         raise DownloadError(f"{url} is larger than expected")
+    return data
+
+
+async def fetch_verified(
+    url: str,
+    sha256: str,
+    *,
+    max_bytes: int = MAX_ARCHIVE_BYTES,
+    allowed: Callable[[str], bool] | None = None,
+    log_line: Log = quiet,
+    transport: httpx2.AsyncBaseTransport | None = None,
+) -> bytes:
+    """The bytes at `url`, or `DownloadError` if they don't hash to `sha256`."""
+    data = await fetch_bytes(
+        url, max_bytes=max_bytes, allowed=allowed, log_line=log_line, transport=transport
+    )
     actual = hashlib.sha256(data).hexdigest()
     if actual != sha256.lower():
         log.error("checksum mismatch for %s: expected %s, got %s", url, sha256, actual)

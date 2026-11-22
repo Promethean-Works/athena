@@ -677,6 +677,27 @@ def _https(args: argparse.Namespace) -> int:
     return 0
 
 
+def _update(args: argparse.Namespace) -> int:
+    """Update Athena to a release (docs/specs/self-update.md)."""
+    from athena import self_update
+    from athena.config import Settings
+
+    data_dir = Path(args.data_dir)
+    opts = self_update.Options(
+        data_dir=data_dir,
+        version=args.version,
+        pre=args.pre,
+        allow_downgrade=args.allow_downgrade,
+        no_rollback=args.no_rollback,
+        yes=args.yes,
+        dry_run=args.dry_run,
+        check_url=Settings(data_dir=data_dir).update_check_url,
+    )
+    if args.check:
+        return self_update.check(opts, print)
+    return self_update.update(opts, print)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="athena", description="Athena home server")
     parser.add_argument("--version", action="version", version=f"athena {__version__}")
@@ -756,6 +777,21 @@ def build_parser() -> argparse.ArgumentParser:
         cmd = https_sub.add_parser(name, help=help_text)
         cmd.add_argument("--data-dir", type=Path, default=default_data_dir())
     https.set_defaults(func=_https)
+
+    update = sub.add_parser("update", help="update Athena to the latest release")
+    update.add_argument("--check", action="store_true", help="show current and latest, then stop")
+    update.add_argument("--version", dest="version", help="a specific release, like 0.2.0")
+    update.add_argument("--pre", action="store_true", help="the newest release, pre-releases too")
+    update.add_argument("--yes", "-y", action="store_true", help="don't ask for confirmation")
+    update.add_argument("--dry-run", action="store_true", help="print the plan, change nothing")
+    update.add_argument(
+        "--no-rollback", action="store_true", help="skip preparing a way back (not recommended)"
+    )
+    update.add_argument(
+        "--allow-downgrade", action="store_true", help="install an older release (CLI only)"
+    )
+    update.add_argument("--data-dir", type=Path, default=default_data_dir())
+    update.set_defaults(func=_update)
 
     return parser
 
