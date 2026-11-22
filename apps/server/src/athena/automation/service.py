@@ -135,6 +135,32 @@ def _now_naive() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
 
 
+def _collect_due(app: FastAPI) -> tuple[list[str], float]:
+    """Ids of the cron triggers that are due, and how long to sleep until the next one.
+
+    Blocking SQLite work: call it with `asyncio.to_thread`, never on the event loop."""
+    now = _now_naive()
+    due_ids: list[str] = []
+    sleep_for = 60.0
+    with Session(app.state.db.engine) as session:
+        triggers = session.exec(select(AutomationTrigger).where(AutomationTrigger.enabled)).all()
+        for trigger in triggers:
+            if trigger.kind != "cron" or not trigger.cron_expression:
+                continue
+            if trigger.next_run_at is None:
+                trigger.next_run_at = compute_next_run(trigger.cron_expression, now)
+                session.add(trigger)
+            # next_run_at is read back naive from SQLite; compare naive to naive.
+            if trigger.next_run_at <= now:
+                due_ids.append(trigger.id)
+            else:
+                wait = (trigger.next_run_at - now).total_seconds()
+                if 0 < wait < sleep_for:
+                    sleep_for = wait
+        session.commit()
+    return due_ids, sleep_for
+
+
 async def scheduler_loop(app: FastAPI) -> None:
     """Fire enabled cron triggers when their next_run_at is due.
 
@@ -143,27 +169,7 @@ async def scheduler_loop(app: FastAPI) -> None:
     """
     event: asyncio.Event = app.state.automation_event
     while True:
-        now = _now_naive()
-        due_ids: list[str] = []
-        sleep_for = 60.0
-        with Session(app.state.db.engine) as session:
-            triggers = session.exec(
-                select(AutomationTrigger).where(AutomationTrigger.enabled)
-            ).all()
-            for trigger in triggers:
-                if trigger.kind != "cron" or not trigger.cron_expression:
-                    continue
-                if trigger.next_run_at is None:
-                    trigger.next_run_at = compute_next_run(trigger.cron_expression, now)
-                    session.add(trigger)
-                # next_run_at is read back naive from SQLite; compare naive to naive.
-                if trigger.next_run_at is not None and trigger.next_run_at <= now:
-                    due_ids.append(trigger.id)
-                else:
-                    wait = (trigger.next_run_at - now).total_seconds()
-                    if 0 < wait < sleep_for:
-                        sleep_for = wait
-            session.commit()
+        due_ids, sleep_for = await asyncio.to_thread(_collect_due, app)
         for trigger_id in due_ids:
             try:
                 await fire_trigger(app, trigger_id)
@@ -177,53 +183,72 @@ async def scheduler_loop(app: FastAPI) -> None:
 # ---------------------------------------------------------------- running a trigger
 
 
-async def fire_trigger(app: FastAPI, trigger_id: str) -> str:
-    """Start one execution of `trigger`, recording a durable job run.
+def _claim_run(app: FastAPI, trigger_id: str) -> tuple[str, str, dict] | None:
+    """Record a "running" job run for an enabled trigger and advance a cron trigger's
+    schedule. Returns (run id, trigger name, action), or None if there is nothing to run.
 
-    Returns the job-run id. Re-fetches the trigger inside its own session so
-    detached objects from the scheduler's closed session never cause problems.
-    """
+    Blocking SQLite work: call it with `asyncio.to_thread`."""
     run_id = secrets.token_hex(8)
     started_at = _now_naive()
-
-    # Capture the fields we need inside the session; the trigger object becomes
-    # detached once the session closes, and the job body runs later.
     with Session(app.state.db.engine) as session:
         trigger = session.get(AutomationTrigger, trigger_id)
         if trigger is None or not trigger.enabled:
-            return
+            return None
         name = trigger.name
         action = dict(trigger.action)
-        run = AutomationJobRun(
-            id=run_id, trigger_id=trigger.id, status="running", started_at=started_at
+        session.add(
+            AutomationJobRun(
+                id=run_id, trigger_id=trigger.id, status="running", started_at=started_at
+            )
         )
-        session.add(run)
         if trigger.kind == "cron":
             trigger.last_run_at = started_at
             trigger.next_run_at = compute_next_run(trigger.cron_expression, started_at)
             trigger.updated_at = started_at
             session.add(trigger)
         session.commit()
+    return run_id, name, action
+
+
+def _finish_run(app: FastAPI, run_id: str, error: str | None, output: str) -> None:
+    """Close a job run's record. Blocking SQLite work: call it with `asyncio.to_thread`."""
+    with Session(app.state.db.engine) as session:
+        record = session.get(AutomationJobRun, run_id)
+        if record is not None:
+            record.status = "failed" if error else "succeeded"
+            record.finished_at = _now_naive()
+            record.output = output or None
+            record.error = error
+            session.add(record)
+            session.commit()
+
+
+async def fire_trigger(app: FastAPI, trigger_id: str) -> str:
+    """Start one execution of `trigger`, recording a durable job run.
+
+    Returns the job-run id, or "" when the trigger is gone or disabled. The database
+    work runs in a worker thread so a locked database never freezes the event loop.
+    """
+    claimed = await asyncio.to_thread(_claim_run, app, trigger_id)
+    if claimed is None:
+        return ""
+    run_id, name, action = claimed
 
     async def body(job: Job) -> None:
         error: str | None = None
         try:
             await run_trigger_action(app, action, job)
+        except asyncio.CancelledError:
+            error = "Cancelled"
+            raise
         except Exception as exc:
             error = str(exc) or exc.__class__.__name__
             raise
         finally:
-            finished_at = _now_naive()
-            output = "\n".join(job.lines)
-            with Session(app.state.db.engine) as session:
-                record = session.get(AutomationJobRun, run_id)
-                if record is not None:
-                    record.status = "failed" if error else "succeeded"
-                    record.finished_at = finished_at
-                    record.output = output or None
-                    record.error = error
-                    session.add(record)
-                    session.commit()
+            # Shielded and off the event loop: the write may wait on SQLite's lock.
+            await asyncio.shield(
+                asyncio.to_thread(_finish_run, app, run_id, error, "\n".join(job.lines))
+            )
 
     app.state.jobs.start(f"Automation: {name}", body)
     return run_id
