@@ -47,7 +47,7 @@ Add `!` after the type (`feat!: …`) or a `BREAKING CHANGE:` footer for breakin
 
 ## Releases
 
-[release-please](https://github.com/googleapis/release-please) keeps a release PR open that collects merged changes. Merging that PR tags a version and creates a draft GitHub release with the changelog; the release workflow then attaches the server wheel, the install scripts and a `SHA256SUMS` file covering them, and publishes it. The installers download `SHA256SUMS` and refuse to install a wheel that doesn't match it (a local `--wheel` / `-Wheel` build is not checked). If the upload fails the release stays a draft, so `releases/latest` never points at one the installers can't use.
+[release-please](https://github.com/googleapis/release-please) keeps a release PR open that collects merged changes. Merging that PR tags a version and creates a draft GitHub release with the changelog; the release workflow then attaches the server wheel, `install.sh`, `install.ps1` and a `SHA256SUMS` file covering them, and publishes it. A release is the wheel, the scripts and `SHA256SUMS`; there are no other packages. The installers download `SHA256SUMS` and refuse to install a wheel that doesn't match it (a local `--wheel` / `-Wheel` build is not checked). If the upload fails the release stays a draft, so `releases/latest` never points at one the installers can't use.
 
 ## Cross-platform rules
 
