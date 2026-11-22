@@ -34,7 +34,7 @@ Spec `docs/specs/backup.md`, approved 2026-11-21. Part 1 (Restart Athena) merged
 ## 3. Known bugs (Must)
 
 - [ ] **Windows `WinError 6`.** `GET /api/containers` sometimes 500s under the logon task: python-on-whales starts `docker` without `stdin=DEVNULL` under `pythonw.exe` (also on `main`, run 44856906030). Pass `stdin=DEVNULL` (or give every child process `DEVNULL` handles) and get three clean Windows E2E runs in a row.
-- [ ] **Tunnel auto-start does nothing.** `tunnel_auto_start` (default `True`) is saved but never read at startup, and the UI falls back to `false` (`tunnel-card.tsx`). Start the tunnel in the lifespan when it's on, and make the UI default match.
+- [x] **Tunnel auto-start does nothing.** `tunnel_auto_start` (default `True`) is saved but never read at startup, and the UI falls back to `false` (`tunnel-card.tsx`). Start the tunnel in the lifespan when it's on, and make the UI default match.
 - [ ] **ngrok service files** hold a literal `${NGROK_AUTHTOKEN}` placeholder, so the service can't authenticate. Write the real token (file mode 0600) or don't offer the service for ngrok. <!-- docs-check: ignore -->
 - [ ] **cloudflared named-tunnel service** points at `/etc/cloudflared/config.yml`, which nothing writes. Write it, or offer named-tunnel services only after it exists.
 - [ ] **Automation jobs hang.** A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile. Reproduce; a running job must never block reads.

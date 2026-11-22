@@ -22,7 +22,6 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - Catalog smoke test (#169, #172, fixes #173–#176): every store app was installed for real on macOS arm64 (Colima); 135/199 passed at first, the rest were fixed or honestly marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run the `Catalog smoke` workflow by hand for `--all` on amd64 and arm64 and fix what fails there. Logins and real use of each app aren't verified.
 - Tunnel follow-ups (#150):
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
-  - `tunnel_auto_start` is saved but nothing reads it at startup, so the tunnel doesn't start on boot.
   - Real-tested: a Cloudflare quick tunnel (macOS). Not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`, which nothing writes.
 
 - models.dev providers left out because pydantic-ai needs their own SDK: Google Vertex (service-account form for `GoogleProvider(vertexai=True)`), watsonx, GitLab, SAP AI Core and a few gateways. Vertex is the one worth adding.
