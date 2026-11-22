@@ -8,9 +8,10 @@ from sqlmodel import Session
 
 from athena import audit
 from athena.apps.store import AppStore
-from athena.backup import snapshots
-from athena.backup.plans import PlanItems, parse_items
+from athena.backup import retention, snapshots
+from athena.backup.plans import PlanItems, parse_items, parse_retention
 from athena.backup.restic import Repository, Restic, ensure_restic
+from athena.backup.settings import Retention
 from athena.backup.snapshots import DestinationNotConnectedError
 from athena.containers.runtime import Runtime
 from athena.crypto import SecretBox
@@ -65,10 +66,13 @@ class PlanRunner:
             if plan is None or dest is None:
                 raise RuntimeError("That plan or its destination no longer exists")
             items = parse_items(plan.items)
+            keep = parse_retention(plan.retention)
             plan_name, dest_id, location = plan.name, dest.id, dest.location
             repo = repository_of(dest, self.state.secret_box)
 
-        work = asyncio.ensure_future(self._locked(job, dest_id, repo, location, items, runtime))
+        work = asyncio.ensure_future(
+            self._locked(job, dest_id, repo, location, items, keep, runtime)
+        )
 
         async def cancel() -> None:
             work.cancel()
@@ -106,6 +110,7 @@ class PlanRunner:
         repo: Repository,
         location: str,
         items: PlanItems,
+        keep: Retention,
         runtime: Runtime | None,
     ) -> str | None:
         """Back everything up under the destination's lock. The error text, or None."""
@@ -130,8 +135,56 @@ class PlanRunner:
                 busy=state.app_jobs,
                 known_apps=snapshots.known_app_names(lambda: Session(engine)),
             )
-        failed = [r for r in results if r.error]
-        if failed:
-            return "; ".join(f"{r.item}: {r.error}" for r in failed)[:1000]
+        problems = [f"{r.item}: {r.error}" for r in results if r.error]
+        for r in results:
+            if r.error:
+                continue  # an item that wasn't backed up has nothing new to trim around
+            try:
+                removed = await retention.forget(tool, repo, r.item, keep)
+                if removed:
+                    await job.log(f"{r.item}: forgot {removed} old version(s)")
+            except Exception as exc:
+                message = str(exc) or exc.__class__.__name__
+                await job.log(f"error: {r.item}: retention: {message}")
+                problems.append(f"{r.item}: retention: {message}")
+        problems += await self._upkeep(job, tool, repo, dest_id)
+        if problems:
+            return "; ".join(problems)[:1000]
         await job.log(f"Backed up {len(results)} item(s)")
         return None
+
+    async def _upkeep(self, job: Job, tool: Restic, repo: Repository, dest_id: str) -> list[str]:
+        """Prune and check this destination when they're due. Returns the problems."""
+        state = self.state
+        cfg = state.settings_file.get().backup
+        engine = state.db.engine
+        with Session(engine) as db:
+            dest = db.get(BackupDestination, dest_id)
+            if dest is None:
+                return []
+            last_pruned, last_checked = dest.last_pruned_at, dest.last_checked_at
+        moment = snapshots.now()
+        problems: list[str] = []
+        for name, last, days, work in (
+            ("prune", last_pruned, cfg.prune_interval_days, retention.prune),
+            ("check", last_checked, cfg.check_interval_days, retention.check),
+        ):
+            if not retention.due(last, days, moment):
+                continue
+            await job.log(f"Running restic {name}")
+            try:
+                await work(tool, repo)
+            except Exception as exc:
+                message = str(exc) or exc.__class__.__name__
+                await job.log(f"error: {name}: {message}")
+                problems.append(f"{name}: {message}")
+                continue
+            with Session(engine) as db:
+                dest = db.get(BackupDestination, dest_id)
+                if dest is not None:
+                    setattr(
+                        dest, "last_pruned_at" if name == "prune" else "last_checked_at", moment
+                    )
+                    db.add(dest)
+                    db.commit()
+        return problems

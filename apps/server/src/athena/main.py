@@ -161,6 +161,7 @@ def create_app(
     app.state.jobs = JobManager()
     app.state.app_jobs = {}
     app.state.backup_locks = {}
+    app.state.backup_diffs = {}
     app.state.started_at = datetime.now(UTC)
     app.state.monitor = monitor or HostMonitor()
     app.state.updates = UpdateChecker()

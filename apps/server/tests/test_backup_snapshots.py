@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Awaitable, Callable, Iterator
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -17,11 +18,12 @@ from test_backup import PASSWORD, FakeProvider, FakeRestic, _real_restic, needs_
 from test_containers import SAMPLE, ready_store
 
 from athena.apps.store import AppStore
-from athena.backup import snapshots
-from athena.backup.restic import Result
+from athena.backup import retention, snapshots, versions
+from athena.backup.restic import ResticError, Result
 from athena.backup.service import ResticProvider
+from athena.backup.settings import Retention
 from athena.containers import service as containers_service
-from athena.db.models import App, AuditEntry, BackupPlan
+from athena.db.models import App, AuditEntry, BackupDestination, BackupPlan
 
 REAL_RESTIC = _real_restic()  # found now: the compose_log fixture patches `shutil.which`
 COMPOSE = "services:\n  web:\n    image: nginx:1.29\n"
@@ -496,6 +498,303 @@ def test_an_incomplete_snapshot_is_a_warning_not_a_failure(
     assert any("couldn't be read" in line for line in job["lines"])
 
 
+# ---------------------------------------------------------------- retention (fake restic)
+
+
+def commands(tool: FakeRestic) -> list[str]:
+    return [a[0] for a in tool.calls]
+
+
+def test_restic_path_matches_how_restic_lists_a_folder() -> None:
+    assert versions.restic_path("/data/apps/site/") == "/data/apps/site"
+    assert versions.restic_path("C:\\ProgramData\\Athena\\apps\\site") == (
+        "/C/ProgramData/Athena/apps/site"
+    )
+
+
+def test_forget_args_leave_out_rules_set_to_zero() -> None:
+    keep = Retention(keep_last=3, keep_daily=0, keep_weekly=2, keep_monthly=0)
+    assert retention.forget_args("app:site", keep) == [
+        "forget", "--tag", "app:site", "--group-by", "",
+        "--keep-last", "3", "--keep-weekly", "2",
+    ]  # fmt: skip
+    with pytest.raises(ResticError):
+        retention.forget_args(
+            "athena", Retention(keep_last=0, keep_daily=0, keep_weekly=0, keep_monthly=0)
+        )
+
+
+def test_due_when_never_done_or_old_enough() -> None:
+    moment = datetime(2026, 11, 22, tzinfo=UTC)
+    assert retention.due(None, 7, moment)
+    assert not retention.due(moment - timedelta(days=6), 7, moment)
+    assert retention.due(moment - timedelta(days=7), 7, moment)
+    assert retention.due(datetime(2026, 11, 1), 7, moment)  # naive, as SQLite returns it
+
+
+def test_a_run_forgets_per_item_with_the_plans_retention(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic, compose_log: Path
+) -> None:
+    add_app(api)
+    keep = {"keep_last": 2, "keep_daily": 0, "keep_weekly": 0, "keep_monthly": 1}
+    plan = add_plan(
+        api,
+        add_destination(api, tmp_path),
+        items={"athena": True, "apps": [{"name": "site"}]},
+        retention=keep,
+    )
+    assert run(api, plan)["status"] == "succeeded"
+    forgets = [a for a in fake_tool.calls if a[0] == "forget"]
+    assert [a[a.index("--tag") + 1] for a in forgets] == ["athena", "app:site"]
+    for args in forgets:
+        assert args[args.index("--keep-last") : args.index("--keep-last") + 2] == (
+            "--keep-last",
+            "2",
+        )
+        assert "--keep-monthly" in args and "--keep-daily" not in args
+        assert "--prune" not in args
+
+
+def test_a_failed_item_is_not_forgotten_and_a_failed_forget_fails_the_run(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic, compose_log: Path
+) -> None:
+    add_app(api)
+    plan = add_plan(api, add_destination(api, tmp_path))
+    fake_tool.results = [Result(1, "", "Fatal: repository is locked")]  # the first `run`: forget
+    job = run(api, plan)
+    assert job["status"] == "failed"
+    assert "athena: retention: Fatal: repository is locked" in job["error"]
+    assert "backup.run.failed" in {e.action for e in audit_entries(api)}
+
+    async def boom(args: tuple[str, ...]) -> Result:
+        return Result(1, "", "Fatal: disk full")
+
+    fake_tool.calls.clear()
+    fake_tool.on_stream = boom
+    assert run(api, plan)["status"] == "failed"
+    assert "forget" not in commands(fake_tool)
+
+
+def test_prune_and_check_run_only_when_due(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic
+) -> None:
+    dest = add_destination(api, tmp_path)
+    plan = add_plan(api, dest)
+    assert run(api, plan)["status"] == "succeeded"
+    assert commands(fake_tool).count("prune") == 1 and commands(fake_tool).count("check") == 1
+    assert "--read-data" not in " ".join(" ".join(a) for a in fake_tool.calls)
+
+    assert run(api, plan)["status"] == "succeeded"
+    assert commands(fake_tool).count("prune") == 1 and commands(fake_tool).count("check") == 1
+
+    with Session(api.app.state.db.engine) as db:  # type: ignore[attr-defined]
+        row = db.get(BackupDestination, dest["id"])
+        assert row is not None and row.last_pruned_at and row.last_checked_at
+        row.last_pruned_at = snapshots.now() - timedelta(days=8)  # check is only 0 days old
+        db.add(row)
+        db.commit()
+    assert run(api, plan)["status"] == "succeeded"
+    assert commands(fake_tool).count("prune") == 2 and commands(fake_tool).count("check") == 1
+
+
+def test_a_failed_check_fails_the_run_and_is_tried_again(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic
+) -> None:
+    plan = add_plan(api, add_destination(api, tmp_path))
+    # `run` calls in order: forget, prune, check.
+    fake_tool.results = [Result(0, "[]", ""), Result(0, "", ""), Result(1, "", "pack 1 damaged")]
+    job = run(api, plan)
+    assert job["status"] == "failed"
+    assert "check: The repository check failed: pack 1 damaged" in job["error"]
+    assert run(api, plan)["status"] == "succeeded"
+    assert commands(fake_tool).count("check") == 2
+
+
+def test_the_backup_settings_set_the_intervals(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic
+) -> None:
+    settings = api.app.state.settings_file  # type: ignore[attr-defined]
+    section = settings.section("backup")
+    section.prune_interval_days = 365
+    settings.save("backup", section)
+    plan = add_plan(api, add_destination(api, tmp_path))
+    run(api, plan)
+    run(api, plan)
+    assert commands(fake_tool).count("prune") == 1
+
+
+# ---------------------------------------------------------------- versions (fake restic)
+
+SNAPSHOTS = json.dumps(
+    [
+        {
+            "id": "a" * 64,
+            "time": "2026-11-20T03:00:00.123456789Z",
+            "paths": ["/data/apps/site"],
+            "tags": ["app:site", "athena-version:0.1.0", "os:linux"],
+            "summary": {"total_bytes_processed": 500, "data_added": 120},
+        },
+        {
+            "id": "b" * 64,
+            "parent": "a" * 64,
+            "time": "2026-11-21T03:00:00Z",
+            "paths": ["/data/apps/site"],
+            "tags": ["app:site", "athena-version:0.1.0", "os:darwin"],
+            "summary": {"total_bytes_processed": 600, "data_added": 10},
+        },
+        {"id": "c" * 64, "time": "2026-11-21T04:00:00Z", "tags": ["someone-elses"]},
+    ]
+)
+DIFF = (
+    '{"message_type":"change","path":"/site/x","modifier":"+"}\n'
+    '{"message_type":"statistics","changed_files":2,"added":{"files":3},'
+    '"removed":{"files":1}}\n'
+)
+
+
+class VersionsRestic(StreamingFakeRestic):
+    """Answers `snapshots`, `diff` and `ls` like restic would."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.ls_output = ""
+
+    async def run(self, repo, *args, timeout=0, stdin=None):  # type: ignore[no-untyped-def,override]
+        self.calls.append(args)
+        self.repos.append(repo)
+        match args[0]:
+            case "snapshots":
+                return Result(0, SNAPSHOTS, "")
+            case "diff":
+                return Result(0, DIFF, "")
+            case "ls":
+                return Result(0, self.ls_output, "")
+        return Result(0, "", "")
+
+
+@pytest.fixture
+def versions_api(tmp_path: Path, compose_log: Path) -> Iterator[tuple[TestClient, VersionsRestic]]:
+    tool = VersionsRestic()
+    for client in make_client(tmp_path, tool):
+        yield client, tool
+
+
+def test_versions_list_athenas_snapshots_newest_first(
+    versions_api: tuple[TestClient, VersionsRestic], tmp_path: Path
+) -> None:
+    api, tool = versions_api
+    dest = add_destination(api, tmp_path)
+    res = api.get("/api/backup/versions", params={"destination_id": dest["id"]})
+    assert res.status_code == 200, res.text
+    got = res.json()
+    assert [v["id"][0] for v in got] == ["b", "a"]  # the foreign snapshot is left out
+    newest = got[0]
+    assert newest["item"] == "app:site" and newest["destination_id"] == dest["id"]
+    assert (newest["size"], newest["new_bytes"]) == (600, 10)
+    assert (newest["files_added"], newest["files_changed"], newest["files_removed"]) == (3, 2, 1)
+    assert (newest["athena_version"], newest["os"]) == ("0.1.0", "darwin")
+    oldest = got[1]
+    assert oldest["files_added"] is None  # no parent to compare with
+    assert oldest["time"].startswith("2026-11-20T03:00:00")
+
+    # Diffs are cached: a second listing runs none.
+    diffs = [a for a in tool.calls if a[0] == "diff"]
+    assert len(diffs) == 1
+    api.get("/api/backup/versions")
+    assert len([a for a in tool.calls if a[0] == "diff"]) == 1
+
+
+def test_versions_filter_by_item_and_validate_it(
+    versions_api: tuple[TestClient, VersionsRestic], tmp_path: Path
+) -> None:
+    api, tool = versions_api
+    dest = add_destination(api, tmp_path)
+    api.get("/api/backup/versions", params={"destination_id": dest["id"], "item": "app:site"})
+    snaps = [a for a in tool.calls if a[0] == "snapshots"]
+    assert snaps[-1][-2:] == ("--tag", "app:site")
+    for bad in ("--help", "app:../x", "app:Site", "other"):
+        res = api.get("/api/backup/versions", params={"item": bad})
+        assert res.status_code == 400, bad
+    assert api.get("/api/backup/versions", params={"destination_id": "nope"}).status_code == 404
+
+
+def test_an_unplugged_destination_is_an_error_for_one_and_skipped_for_all(
+    versions_api: tuple[TestClient, VersionsRestic], tmp_path: Path
+) -> None:
+    api, _ = versions_api
+    dest = add_destination(api, tmp_path)
+    (tmp_path / "repo").rename(tmp_path / "unplugged")
+    res = api.get("/api/backup/versions", params={"destination_id": dest["id"]})
+    assert res.status_code == 409 and "isn't connected" in res.text
+    assert api.get("/api/backup/versions").json() == []
+
+
+def test_version_files_list_one_level(
+    versions_api: tuple[TestClient, VersionsRestic], tmp_path: Path
+) -> None:
+    api, tool = versions_api
+    dest = add_destination(api, tmp_path)
+    rows = [
+        {"message_type": "snapshot", "struct_type": "snapshot", "id": "b" * 64},
+        {"name": "site", "type": "dir", "path": "/data/apps/site"},
+        {"name": "b.txt", "type": "file", "path": "/data/apps/site/b.txt", "size": 4,
+         "mtime": "2026-11-21T03:00:00.5Z"},
+        {"name": "data", "type": "dir", "path": "/data/apps/site/data"},
+        {"name": "link", "type": "symlink", "path": "/data/apps/site/link"},
+    ]  # fmt: skip
+    tool.ls_output = "\n".join(json.dumps(r) for r in rows)
+    url = f"/api/backup/versions/{'b' * 64}/files"
+    res = api.get(url, params={"destination_id": dest["id"]})
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["path"] == body["root"] == "/data/apps/site"  # the folder that was backed up
+    assert [(e["name"], e["kind"]) for e in body["entries"]] == [
+        ("data", "dir"), ("b.txt", "file"), ("link", "symlink"),
+    ]  # fmt: skip
+    assert body["entries"][1]["size"] == 4
+    assert tool.calls[-1] == ("ls", "--json", "b" * 64, "/data/apps/site")
+
+    res = api.get(url, params={"destination_id": dest["id"], "path": "/data/apps/site/data/"})
+    assert res.status_code == 200 and res.json()["path"] == "/data/apps/site/data"
+
+
+@pytest.mark.parametrize(
+    "path", ["/", "/etc", "/site/../etc", "/sitex", "/site/..", "/site\\x", "site"]
+)
+def test_version_files_refuse_paths_outside_the_version(
+    versions_api: tuple[TestClient, VersionsRestic], tmp_path: Path, path: str
+) -> None:
+    api, tool = versions_api
+    dest = add_destination(api, tmp_path)
+    url = f"/api/backup/versions/{'b' * 64}/files"
+    res = api.get(url, params={"destination_id": dest["id"], "path": path})
+    assert res.status_code == 400, res.text
+    assert not [a for a in tool.calls if a[0] == "ls"]
+
+
+def test_version_ids_are_checked_before_restic_sees_them(
+    versions_api: tuple[TestClient, VersionsRestic], tmp_path: Path
+) -> None:
+    api, tool = versions_api
+    dest = add_destination(api, tmp_path)
+    for bad in ("--help", "latest", "ABCDEF12", "abc"):
+        res = api.get(f"/api/backup/versions/{bad}/files", params={"destination_id": dest["id"]})
+        assert res.status_code in (400, 404), bad
+    assert not [a for a in tool.calls if a[0] == "ls"]
+
+
+def test_version_routes_are_admin_only(
+    versions_api: tuple[TestClient, VersionsRestic], tmp_path: Path
+) -> None:
+    api, _ = versions_api
+    dest = add_destination(api, tmp_path)
+    with api.app.state.db.engine.begin() as conn:  # type: ignore[attr-defined]
+        conn.exec_driver_sql("UPDATE users SET is_admin = 0")
+    assert api.get("/api/backup/versions").status_code == 403
+    res = api.get(f"/api/backup/versions/{'b' * 64}/files", params={"destination_id": dest["id"]})
+    assert res.status_code == 403
+
+
 # ---------------------------------------------------------------- a real restic
 
 
@@ -567,3 +866,67 @@ def restic_json_lines(tmp_path: Path, *args: str) -> list[str]:
         check=True,
     ).stdout
     return [json.loads(line).get("path", "") for line in out.splitlines() if line.strip()]
+
+
+@needs_restic
+def test_real_restic_applies_retention_and_lists_versions(
+    tmp_path: Path, compose_log: Path
+) -> None:
+    for c in real_client(tmp_path):
+        folder = add_app(c)
+        dest = c.post(
+            "/api/backup/destinations",
+            json={
+                "name": "USB",
+                "path": str(tmp_path / "repo"),
+                "password": PASSWORD,
+                "recovery_kit_saved": True,
+            },
+        ).json()
+        keep = {"keep_last": 2, "keep_daily": 0, "keep_weekly": 0, "keep_monthly": 0}
+        plan = add_plan(c, dest, items={"athena": True, "apps": [{"name": "site"}]}, retention=keep)
+        for n in range(4):
+            (folder / "data" / f"file{n}.txt").write_text(f"version {n}")
+            job = run(c, plan)
+            assert job["status"] == "succeeded", job
+            time.sleep(1.1)  # versions with the same second sort unpredictably
+        # Two versions of each item are kept, so four snapshots in all.
+        snaps = restic_json(tmp_path, "snapshots")
+        assert isinstance(snaps, list) and len(snaps) == 4
+        assert (
+            any("Running restic prune" in line for line in job["lines"]) is False
+        )  # not due again
+        row = plan_row(c, plan["id"])
+        assert row.last_status == "ok"
+
+        res = c.get("/api/backup/versions", params={"destination_id": dest["id"]})
+        assert res.status_code == 200, res.text
+        got = res.json()
+        assert len(got) == 4
+        assert [v["time"] for v in got] == sorted((v["time"] for v in got), reverse=True)
+        site = c.get(
+            "/api/backup/versions", params={"destination_id": dest["id"], "item": "app:site"}
+        ).json()
+        assert len(site) == 2 and {v["item"] for v in site} == {"app:site"}
+        assert site[0]["files_added"] == 1  # file3.txt against the version before it
+        assert site[0]["files_removed"] == 0 and site[0]["size"] > 0
+        assert site[0]["os"] and site[0]["athena_version"]
+
+        url = f"/api/backup/versions/{site[0]['id']}/files"
+        root = c.get(url, params={"destination_id": dest["id"]}).json()
+        assert root["path"] == root["root"] and root["root"].endswith("/data/apps/site")
+        assert [e["name"] for e in root["entries"]] == ["data", "compose.yaml"]
+        files = c.get(
+            url, params={"destination_id": dest["id"], "path": root["root"] + "/data"}
+        ).json()
+        assert [e["name"] for e in files["entries"]] == [
+            "file.txt", "file0.txt", "file1.txt", "file2.txt", "file3.txt"
+        ]  # fmt: skip
+        assert files["entries"][0]["size"] == 5
+
+        # An older version has only the files it was taken with.
+        older = c.get(
+            f"/api/backup/versions/{site[1]['id']}/files",
+            params={"destination_id": dest["id"], "path": root["root"] + "/data"},
+        ).json()
+        assert "file3.txt" not in [e["name"] for e in older["entries"]]
