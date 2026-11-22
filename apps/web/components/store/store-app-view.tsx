@@ -68,7 +68,6 @@ import { storeAppHref, SupportBadge } from "@/components/store/store-browser"
 
 type Detail = Schemas["StoreAppDetail"]
 type StoreApp = Schemas["StoreApp"]
-type Variant = Schemas["VariantDetail"]
 
 export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
   const [app, setApp] = React.useState<Detail | null>(null)

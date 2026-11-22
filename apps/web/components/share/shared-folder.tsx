@@ -77,7 +77,7 @@ export function SharedFolder({
   function open(entry: FileEntry) {
     if (entry.kind === "dir") setPath(entry.path)
     else if (previewOf(entry) && previewOf(entry) !== "text") setPreview(entry)
-    else window.location.href = shareDownloadUrl(token, entry.path)
+    else window.location.assign(shareDownloadUrl(token, entry.path))
   }
 
   return (

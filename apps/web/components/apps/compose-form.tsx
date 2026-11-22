@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+
+import { useLatest } from "@/hooks/use-latest"
 import { PlusIcon, Trash2Icon, GripVerticalIcon } from "lucide-react"
 import * as yaml from "js-yaml"
 
@@ -290,15 +292,22 @@ function parseComposeToForm(text: string): ComposeFormData {
   }
 }
 
+/** A plain object about to be dumped as YAML. */
+type YamlObject = Record<string, unknown>
+
 function serializeFormToCompose(form: ComposeFormData): string {
-  const doc: Record<string, any> = {
+  const doc: {
+    services: Record<string, YamlObject>
+    networks: unknown
+    volumes: unknown
+  } = {
     services: {},
     networks: {},
     volumes: {},
   }
 
   for (const [name, svc] of Object.entries(form.services)) {
-    const service: Record<string, any> = { image: svc.image }
+    const service: YamlObject = { image: svc.image }
 
     if (svc.ports.length) {
       service.ports = svc.ports
@@ -336,19 +345,21 @@ function serializeFormToCompose(form: ComposeFormData): string {
     if (svc.working_dir) service.working_dir = svc.working_dir
     if (svc.user) service.user = svc.user
 
-    if (svc.deploy.resources.limits.cpus || svc.deploy.resources.limits.memory) {
-      service.deploy = {
-        resources: {
-          limits: {},
+    const { limits, reservations } = svc.deploy.resources
+    if (limits.cpus || limits.memory) {
+      const resources: YamlObject = {
+        limits: {
+          ...(limits.cpus ? { cpus: parseFloat(limits.cpus) } : {}),
+          ...(limits.memory ? { memory: limits.memory } : {}),
         },
       }
-      if (svc.deploy.resources.limits.cpus) service.deploy.resources.limits.cpus = parseFloat(svc.deploy.resources.limits.cpus)
-      if (svc.deploy.resources.limits.memory) service.deploy.resources.limits.memory = svc.deploy.resources.limits.memory
-      if (svc.deploy.resources.reservations.cpus || svc.deploy.resources.reservations.memory) {
-        service.deploy.resources.reservations = {}
-        if (svc.deploy.resources.reservations.cpus) service.deploy.resources.reservations.cpus = parseFloat(svc.deploy.resources.reservations.cpus)
-        if (svc.deploy.resources.reservations.memory) service.deploy.resources.reservations.memory = svc.deploy.resources.reservations.memory
+      if (reservations.cpus || reservations.memory) {
+        resources.reservations = {
+          ...(reservations.cpus ? { cpus: parseFloat(reservations.cpus) } : {}),
+          ...(reservations.memory ? { memory: reservations.memory } : {}),
+        }
       }
+      service.deploy = { resources }
     }
 
     if (svc.healthcheck && svc.healthcheck.test) {
@@ -494,13 +505,11 @@ function ServiceFormComponent({
   service,
   index,
   onChange,
-  serviceNames,
   allServiceNames,
 }: {
   service: ServiceForm
   index: number
   onChange: (service: ServiceForm) => void
-  serviceNames: string[]
   allServiceNames: string[]
 }) {
   const [expanded, setExpanded] = React.useState(true)
@@ -570,7 +579,7 @@ function ServiceFormComponent({
             <Field>
               <FieldLabel htmlFor={`service-${index}-restart`}>Restart policy</FieldLabel>
               <FieldContent>
-                <Select value={service.restart} onValueChange={(v) => updateService({ restart: v as any })} >
+                <Select value={service.restart} onValueChange={(v) => updateService({ restart: v as ServiceForm["restart"] })} >
                   <SelectTrigger id={`service-${index}-restart`}>
                     <SelectValue />
                   </SelectTrigger>
@@ -595,7 +604,7 @@ function ServiceFormComponent({
                 onChange={(items) => updateArrayField("ports", items)}
                 addItem={() => ({ host: "", container: "", protocol: "tcp", id: `port-${Date.now()}` })}
                 columns={["Host port", "Container port", "Protocol"]}
-                renderRow={(item, idx, moveUp, moveDown, remove) => (
+                renderRow={(item, idx) => (
                   <>
                     <TableCell>
                       <Input
@@ -617,7 +626,7 @@ function ServiceFormComponent({
                       />
                     </TableCell>
                     <TableCell>
-                      <Select value={item.protocol} onValueChange={(v) => updateArrayItem("ports", idx, { ...item, protocol: v as any })}>
+                      <Select value={item.protocol} onValueChange={(v) => updateArrayItem("ports", idx, { ...item, protocol: v as PortMapping["protocol"] })}>
                         <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
@@ -648,7 +657,7 @@ function ServiceFormComponent({
                 onChange={(items) => updateArrayField("volumes", items)}
                 addItem={() => ({ host: "", container: "", mode: "rw", id: `vol-${Date.now()}` })}
                 columns={["Host path / Volume name", "Container path", "Mode"]}
-                renderRow={(item, idx, moveUp, moveDown, remove) => (
+                renderRow={(item, idx) => (
                   <>
                     <TableCell>
                       <Input
@@ -670,7 +679,7 @@ function ServiceFormComponent({
                       />
                     </TableCell>
                     <TableCell>
-                      <Select value={item.mode || "rw"} onValueChange={(v) => updateArrayItem("volumes", idx, { ...item, mode: v as any })}>
+                      <Select value={item.mode || "rw"} onValueChange={(v) => updateArrayItem("volumes", idx, { ...item, mode: v as NonNullable<VolumeMapping["mode"]> })}>
                         <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
@@ -701,7 +710,7 @@ function ServiceFormComponent({
                 onChange={(items) => updateArrayField("environment", items)}
                 addItem={() => ({ key: "", value: "", id: `env-${Date.now()}` })}
                 columns={["Key", "Value"]}
-                renderRow={(item, idx, moveUp, moveDown, remove) => (
+                renderRow={(item, idx) => (
                   <>
                     <TableCell>
                       <Input
@@ -973,7 +982,7 @@ function ServiceFormComponent({
                 onChange={(items) => updateArrayField("labels", items)}
                 addItem={() => ({ key: "", value: "", id: `label-${Date.now()}` })}
                 columns={["Key", "Value"]}
-                renderRow={(item, idx, moveUp, moveDown, remove) => (
+                renderRow={(item, idx) => (
                   <>
                     <TableCell>
                       <Input
@@ -1075,7 +1084,7 @@ function NetworksTab({ form, onChange }: { form: ComposeFormData; onChange: (for
         onChange={setNetworks}
         addItem={() => ({ name: "", driver: "bridge", external: false, id: `net-${Date.now()}` })}
         columns={["Name", "Driver", "External"]}
-        renderRow={(item, idx, moveUp, moveDown, remove) => (
+        renderRow={(item, idx) => (
           <>
             <TableCell>
               <Input
@@ -1118,7 +1127,7 @@ function VolumesTab({ form, onChange }: { form: ComposeFormData; onChange: (form
         onChange={setVolumes}
         addItem={() => ({ name: "", driver: "local", external: false, id: `vol-${Date.now()}` })}
         columns={["Name", "Driver", "External"]}
-        renderRow={(item, idx, moveUp, moveDown, remove) => (
+        renderRow={(item, idx) => (
           <>
             <TableCell>
               <Input
@@ -1165,8 +1174,7 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
   // the YAML last exchanged with the parent: our own echo coming back through
   // `value` isn't re-parsed, and a form rebuilt from the Raw YAML tab isn't
   // serialized back (that would reformat the text while the user types).
-  const onChangeRef = React.useRef(onChange)
-  onChangeRef.current = onChange
+  const onChangeRef = useLatest(onChange)
   const lastValueRef = React.useRef(value)
   const formFromValueRef = React.useRef(true)
 
@@ -1185,7 +1193,7 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
     } catch (e) {
       setValidationError(e instanceof Error ? e.message : "Serialization failed")
     }
-  }, [form])
+  }, [form, onChangeRef])
 
   React.useEffect(() => {
     if (value === lastValueRef.current) return
@@ -1215,7 +1223,7 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
 
   return (
     <div className="flex flex-col h-full min-h-[20rem]">
-      <Tabs value={activeTab} onValueChange={setActiveTab as any} className="flex flex-col h-full">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="flex flex-col h-full">
         <TabsList>
           <TabsTrigger value="form">Settings</TabsTrigger>
           <TabsTrigger value="networks">Networks</TabsTrigger>
@@ -1236,7 +1244,6 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
                 key={name}
                 service={svc}
                 index={index}
-                serviceNames={serviceNames}
                 allServiceNames={allServiceNames}
                 onChange={(updated) =>
                   handleFormChange({

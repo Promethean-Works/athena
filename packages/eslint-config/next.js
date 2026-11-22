@@ -37,4 +37,14 @@ export const nextJsConfig = [
     },
   },
   pluginReactHooks.configs.flat.recommended,
+  {
+    rules: {
+      // Pages load their data in the browser (static export, no server
+      // components), so "set state from an effect after fetching" is the
+      // app's standard pattern (hooks/use-api.ts and every view). This rule
+      // flags every such load plus the "reset form when the dialog opens"
+      // effects, and the alternatives need a data library the app doesn't use.
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]

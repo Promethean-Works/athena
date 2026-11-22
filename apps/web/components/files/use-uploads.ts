@@ -2,6 +2,8 @@
 
 import * as React from "react"
 
+import { useLatest } from "@/hooks/use-latest"
+
 import { api, errorMessage } from "@workspace/api-client"
 
 import { isRemote, type Source } from "@/components/files/file-utils"
@@ -137,12 +139,9 @@ export function useUploads(
   const queue = React.useRef<Upload[]>([])
   const running = React.useRef(false)
   const cancelled = React.useRef(new Set<string>())
-  const onUploadedRef = React.useRef(onUploaded)
-  onUploadedRef.current = onUploaded
-  const transportRef = React.useRef(transport)
-  transportRef.current = transport
-  const listRef = React.useRef<Upload[]>([])
-  listRef.current = uploads
+  const onUploadedRef = useLatest(onUploaded)
+  const transportRef = useLatest(transport)
+  const listRef = useLatest(uploads)
 
   const update = React.useCallback((id: string, patch: Partial<Upload>) => {
     setUploads((list) =>
@@ -184,7 +183,7 @@ export function useUploads(
       update(u.id, { status: "done", sent: size })
       onUploadedRef.current(u.source, u.folder)
     },
-    [update]
+    [onUploadedRef, transportRef, update]
   )
 
   const pump = React.useCallback(async () => {
@@ -245,7 +244,7 @@ export function useUploads(
       setUploads((list) => list.map((u) => (u.id === id ? again : u)))
       void pump()
     },
-    [pump]
+    [listRef, pump]
   )
 
   const cancel = React.useCallback((id: string) => {

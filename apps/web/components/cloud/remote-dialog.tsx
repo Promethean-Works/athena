@@ -574,7 +574,6 @@ export function RemoteDialog({
             isNew={isNew}
             name={name}
             setName={setName}
-            type={type ?? ""}
             provider={provider!}
             values={values}
             setValues={setValues}
@@ -584,9 +583,6 @@ export function RemoteDialog({
             setAdvanced={setAdvanced}
             secrets={secrets}
             error={error}
-            pending={pending}
-            remoteName={remoteName}
-            onBack={() => setPhase("provider")}
             onSubmit={submit}
           />
         )}
@@ -645,7 +641,6 @@ function SettingsForm({
   isNew,
   name,
   setName,
-  type,
   provider,
   values,
   setValues,
@@ -655,15 +650,11 @@ function SettingsForm({
   setAdvanced,
   secrets,
   error,
-  pending,
-  remoteName,
-  onBack,
   onSubmit,
 }: {
   isNew: boolean
   name: string
   setName: (value: string) => void
-  type: string
   provider: Provider
   values: Record<string, string>
   setValues: React.Dispatch<React.SetStateAction<Record<string, string>>>
@@ -673,9 +664,6 @@ function SettingsForm({
   setAdvanced: (checked: boolean) => void
   secrets: Set<string>
   error: string | null
-  pending: boolean
-  remoteName: string
-  onBack: () => void
   onSubmit: (event: React.FormEvent) => void
 }) {
   return (

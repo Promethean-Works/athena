@@ -4,12 +4,10 @@ import * as React from "react"
 import Link from "next/link"
 import {
   EllipsisVerticalIcon,
-  ExternalLinkIcon,
   LayoutGridIcon,
   PlayIcon,
   RefreshCcwIcon,
   RotateCwIcon,
-  SettingsIcon,
   SquareIcon,
   StoreIcon,
   Trash2Icon,
@@ -45,7 +43,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 
 import { AppStatusBadge, DeleteAppDialog, OpenLinks } from "@/components/apps/app-bits"
 import { useAppJobs } from "@/components/apps/use-app-jobs"
-import { type AppOut, useAppsList } from "@/components/apps/use-apps-list"
+import { useAppsList } from "@/components/apps/use-apps-list"
 import { isAllowed, useCapabilities } from "@/components/capabilities-provider"
 import { RuntimeEmpty } from "@/components/containers/runtime-empty"
 import { AppIcon } from "@/components/store/app-icon"

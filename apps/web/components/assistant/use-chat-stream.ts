@@ -2,6 +2,8 @@
 
 import * as React from "react"
 
+import { useLatest } from "@/hooks/use-latest"
+
 import {
   api,
   errorMessage,
@@ -167,8 +169,17 @@ export function useChatStream(
   const [plan, setPlan] = React.useState<PlanStep[]>([])
   const [naming, setNaming] = React.useState(false)
   const sending = React.useRef(false)
-  const handlersRef = React.useRef(handlers)
-  handlersRef.current = handlers
+  const handlersRef = useLatest(handlers)
+
+  /** Answers to what the chat waits on, kept until every card has one; then they're
+   * sent together (a run resumes only with every call answered) and the reply goes on
+   * in the same message. */
+  const [decided, setDecided] = React.useState<Record<string, boolean>>({})
+  const [answered, setAnswered] = React.useState<Record<string, Answer>>({})
+  React.useEffect(() => {
+    setDecided({})
+    setAnswered({})
+  }, [conversationId])
 
   const load = React.useCallback(async () => {
     if (!conversationId) {
@@ -224,7 +235,7 @@ export function useChatStream(
       if (data) handlersRef.current.onTitle?.(data.title)
     }, 1500)
     return () => window.clearInterval(timer)
-  }, [naming, conversationId])
+  }, [naming, conversationId, handlersRef])
 
   /** POSTs to a streaming endpoint and applies its events to the last reply. */
   const run = React.useCallback(
@@ -293,7 +304,7 @@ export function useChatStream(
       handlersRef.current.onDone?.()
       return ok
     },
-    []
+    [handlersRef]
   )
 
   const send = React.useCallback(
@@ -340,16 +351,6 @@ export function useChatStream(
     },
     [conversationId, run]
   )
-
-  /** Answers to what the chat waits on, kept until every card has one; then they're
-   * sent together (a run resumes only with every call answered) and the reply goes on
-   * in the same message. */
-  const [decided, setDecided] = React.useState<Record<string, boolean>>({})
-  const [answered, setAnswered] = React.useState<Record<string, Answer>>({})
-  React.useEffect(() => {
-    setDecided({})
-    setAnswered({})
-  }, [conversationId])
 
   const submit = React.useCallback(
     (

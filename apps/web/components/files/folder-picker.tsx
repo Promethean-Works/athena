@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+
+import { useLatest } from "@/hooks/use-latest"
 import { ArrowUpIcon, CloudIcon, FolderIcon, HardDriveIcon } from "lucide-react"
 
 import { api, errorMessage } from "@workspace/api-client"
@@ -94,8 +96,7 @@ export function FolderPicker({
   const [folders, setFolders] = React.useState<string[] | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const key = sourceKey(value.source)
-  const onStatusRef = React.useRef(onStatus)
-  onStatusRef.current = onStatus
+  const onStatusRef = useLatest(onStatus)
 
   React.useEffect(() => {
     let live = true
@@ -115,7 +116,7 @@ export function FolderPicker({
     return () => {
       live = false
     }
-  }, [key, value.path])
+  }, [key, onStatusRef, value.path])
 
   const localItems = locations.map((l) => ({
     value: sourceKey({ location: l.id }),

@@ -10,6 +10,7 @@
 | cohere's dependencies: fastavro, filelock (MIT); tokenizers, huggingface-hub, hf-xet, types-requests (Apache-2.0); fsspec (BSD-3-Clause); tqdm | MIT / Apache-2.0 / BSD-3-Clause; tqdm is MPL-2.0 AND MIT |
 | boto3 (Bedrock, via pydantic-ai-slim) | Apache-2.0 |
 | xterm.js, CodeMirror 6, next-themes, openapi-typescript | MIT |
+| typescript-eslint (ESLint parser and rules for `.ts`/`.tsx`) | MIT |
 | shadcn CLI package (`shadcn/preset` used at runtime) | MIT |
 | Preset fonts via `next/font/google` (Inter, Geist, Lora, Roboto and the other 22) | SIL OFL 1.1 / Apache-2.0 |
 | Base UI (`@base-ui/react`), `cn`, Turborepo, openapi-fetch, lucide-react, sonner, zod | MIT / ISC |
