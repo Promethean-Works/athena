@@ -112,7 +112,9 @@ def prompts(messages: list[ModelMessage]) -> list[str]:
         str(p.content)
         for m in messages
         for p in m.parts
-        if isinstance(p, UserPromptPart) and isinstance(p.content, str)
+        if isinstance(p, UserPromptPart)
+        and isinstance(p.content, str)
+        and not p.content.startswith("<system>")  # a capability part's note, not the admin's
     ]
 
 

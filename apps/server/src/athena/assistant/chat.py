@@ -78,7 +78,7 @@ from athena.assistant.delegation import (
 from athena.assistant.docker_sandbox import docker_sandbox_capabilities
 from athena.assistant.durable_execution import durable_execution_capabilities
 from athena.assistant.integrations import integration_toolsets
-from athena.assistant.knowledge import is_memory_snapshot, knowledge_capabilities
+from athena.assistant.knowledge import knowledge_capabilities
 from athena.assistant.mcp import mcp_toolsets
 from athena.assistant.persistence import persistence_capabilities
 from athena.assistant.plans import PLAN_TOOL, plan_of, planning_capabilities
@@ -225,16 +225,6 @@ def ui_messages(
                         part.draft = True
             for part in msg.parts:
                 if isinstance(part, UserPromptPart):
-                    if is_memory_snapshot(part):
-                        continue
-                    if found := background_result(part):
-                        call_id, text, failed = found
-                        if (tool := tools.get(call_id)) is not None:
-                            tool.result = None if failed else _result_text(text)
-                            tool.error = _result_text(text) if failed else None
-                            tool.state = "error" if failed else "done"
-                            started.discard(call_id)
-                        continue
                     current = None
                     out.append(
                         ChatMessage(
@@ -243,6 +233,13 @@ def ui_messages(
                             parts=[ChatPart(type="text", text=_user_text(part))],
                         )
                     )
+                elif found := background_result(part):
+                    call_id, text, failed = found
+                    if (tool := tools.get(call_id)) is not None:
+                        tool.result = None if failed else _result_text(text)
+                        tool.error = _result_text(text) if failed else None
+                        tool.state = "error" if failed else "done"
+                        started.discard(call_id)
                 elif isinstance(part, ToolReturnPart) and part.tool_call_id in tools:
                     tool = tools[part.tool_call_id]
                     if is_started_notice(part.content):
