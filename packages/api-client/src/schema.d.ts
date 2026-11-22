@@ -58,6 +58,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/system/update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Update Info
+         * @description Whether a newer Athena release is out, from the daily check (no network call here).
+         */
+        get: operations["getUpdateInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/system/stats": {
         parameters: {
             query?: never;
@@ -3719,6 +3739,13 @@ export interface components {
              */
             active_form: string;
         };
+        /** PowerStatus */
+        PowerStatus: {
+            /** Now */
+            now: ("under_voltage" | "freq_capped" | "throttled" | "soft_temp_limit")[];
+            /** Since Boot */
+            since_boot: ("under_voltage" | "freq_capped" | "throttled" | "soft_temp_limit")[];
+        };
         /** Provider */
         Provider: {
             /** Name */
@@ -4142,6 +4169,7 @@ export interface components {
             temperatures: components["schemas"]["Temperature"][] | null;
             /** Gpus */
             gpus: components["schemas"]["GpuInfo"][];
+            power: components["schemas"]["PowerStatus"] | null;
             latest: components["schemas"]["StatsSample"] | null;
             /** History */
             history: components["schemas"]["StatsSample"][];
@@ -4279,6 +4307,11 @@ export interface components {
              * @default true
              */
             terminal_enabled: boolean;
+            /**
+             * Update Check
+             * @default true
+             */
+            update_check: boolean;
             /**
              * Tunnel Enabled
              * @default false
@@ -4482,6 +4515,23 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** UpdateInfo */
+        UpdateInfo: {
+            /** Enabled */
+            enabled: boolean;
+            /** Current */
+            current: string;
+            /** Latest */
+            latest: string | null;
+            /** Available */
+            available: boolean;
+            /** Checked At */
+            checked_at: string | null;
+            /** Release Url */
+            release_url: string | null;
+            /** Command */
+            command: string;
+        };
         /** UpgradablePackage */
         UpgradablePackage: {
             /** Name */
@@ -4659,6 +4709,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SystemInfo"];
+                };
+            };
+        };
+    };
+    getUpdateInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateInfo"];
                 };
             };
         };

@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from urllib.parse import urlsplit
 
+from athena.platform import power
 from athena.platform.capabilities import Capability, CapabilityManifest
 from athena.platform.probe import Probe, os_version
 
@@ -247,6 +248,23 @@ def detect_assistant_shell(probe: Probe) -> Capability:
         provider="powershell",
         detail="Runs in PowerShell (install a WSL distro for a Linux shell)",
     )
+
+
+def detect_power(probe: Probe) -> list[Capability]:
+    """Raspberry Pi under-voltage and throttling flags. Reported only on hosts that have
+    them, so no other host sees a "missing" row for hardware it doesn't have."""
+    source = power.find_source(probe)
+    if source is None:
+        return []
+    return [
+        Capability(
+            id="host.power",
+            label="Power and throttling",
+            status="ready",
+            provider=source.provider,
+            detail="Raspberry Pi firmware flags",
+        )
+    ]
 
 
 def detect_smb(probe: Probe) -> Capability:
@@ -580,6 +598,7 @@ def detectors_for(probe: Probe) -> list[Detector]:
         detect_terminal,
         detect_assistant_shell,
         detect_rclone,
+        detect_power,
         detect_smb,
         detect_ollama,
         detect_local_ai,

@@ -24,10 +24,13 @@ from typing import Any
 import psutil
 from pydantic import BaseModel
 
+from athena.platform.power import PowerReader, PowerStatus
+
 log = logging.getLogger(__name__)
 
 INTERVAL = 2.0
 HISTORY_SECONDS = 3600
+POWER_EVERY = 10.0  # the Pi firmware flags are slow to ask for (a vcgencmd call) and rarely change
 DISKS_EVERY = 30.0  # partitions and usage change slowly; listing them can be slow on Windows
 
 # Pseudo, image and snapshot filesystems that aren't storage a user manages.
@@ -97,6 +100,7 @@ class HostStats(BaseModel):
     disks: list[DiskUsage]
     temperatures: list[Temperature] | None  # None when the host can't report them
     gpus: list[GpuInfo]  # empty when no GPU tool reports (e.g. no nvidia-smi)
+    power: PowerStatus | None  # Raspberry Pi under-voltage and throttling; None elsewhere
     latest: StatsSample | None
 
 
@@ -209,8 +213,36 @@ def read_gpus() -> list[GpuInfo]:
     return gpus
 
 
+class _Lookup:
+    """Remembers that a tool is missing or failing, so the sampler doesn't start a process
+    that can't work every two seconds."""
+
+    FAILED_RETRY = 60.0  # seconds before trying a tool that is installed but failed again
+
+    def __init__(self) -> None:
+        self.skip_until = 0.0
+
+    def skipped(self) -> bool:
+        return time.monotonic() < self.skip_until
+
+    def missing(self) -> None:
+        self.skip_until = float("inf")  # not installed: look again after a restart
+
+    def failed(self) -> None:
+        self.skip_until = time.monotonic() + self.FAILED_RETRY
+
+
+NVIDIA_SMI = _Lookup()
+
+
 def read_gpus_nvidia() -> list[GpuInfo]:
-    """Read NVIDIA GPU stats via nvidia-smi. Empty when nvidia-smi is missing or fails."""
+    """Read NVIDIA GPU stats via nvidia-smi. Empty when nvidia-smi is missing or fails.
+
+    A missing binary is remembered until the next start and a failure (no driver loaded,
+    a timeout) for a minute, instead of spawning a process on every sample.
+    """
+    if NVIDIA_SMI.skipped():
+        return []
     try:
         out = subprocess.run(
             [
@@ -222,9 +254,14 @@ def read_gpus_nvidia() -> list[GpuInfo]:
             text=True,
             timeout=5,
         )
-    except (FileNotFoundError, OSError, subprocess.TimeoutExpired):
+    except FileNotFoundError:
+        NVIDIA_SMI.missing()
+        return []
+    except (OSError, subprocess.TimeoutExpired):
+        NVIDIA_SMI.failed()
         return []
     if out.returncode != 0:
+        NVIDIA_SMI.failed()
         return []
     gpus: list[GpuInfo] = []
     for line in out.stdout.splitlines():
@@ -426,11 +463,13 @@ class HostMonitor:
         reader: Callable[[], Readings] = read_host,
         disk_reader: Callable[[], list[DiskUsage]] = read_disks,
         interval: float = INTERVAL,
+        power_reader: Callable[[], PowerStatus | None] | None = None,
         clock: Callable[[], float] = time.time,
     ) -> None:
         self.interval = interval
         self._reader = reader
         self._disk_reader = disk_reader
+        self._power_reader = power_reader or PowerReader()
         self._clock = clock
         self.history: deque[StatsSample] = deque(maxlen=max(1, int(HISTORY_SECONDS / interval)))
         self._prev: Counters | None = None
@@ -439,6 +478,8 @@ class HostMonitor:
         self._temps: list[Temperature] | None = None
         self._load: list[float] | None = None
         self._gpus: list[GpuInfo] = []
+        self._power: PowerStatus | None = None
+        self._power_at = float("-inf")
         self._seq = 0  # bumped on every sample, so streams know when to send
         self._changed = asyncio.Condition()
         self._lock = asyncio.Lock()
@@ -452,6 +493,9 @@ class HostMonitor:
         if now - self._disks_at >= DISKS_EVERY:
             self._disks = self._disk_reader()
             self._disks_at = now
+        if now - self._power_at >= POWER_EVERY:
+            self._power = self._power_reader()
+            self._power_at = now
         prev, self._prev = (
             self._prev,
             Counters(now, r.net_rx, r.net_tx, r.disk_read, r.disk_write),
@@ -543,6 +587,7 @@ class HostMonitor:
             disks=self._disks,
             temperatures=self._temps,
             gpus=self._gpus,
+            power=self._power,
             latest=self.history[-1] if self.history else None,
         )
 

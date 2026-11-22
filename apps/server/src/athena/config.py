@@ -30,6 +30,7 @@ def default_data_dir() -> Path:
 
 
 DEFAULT_FEEDBACK_REPO = "https://github.com/Promethean-Works/athena"
+DEFAULT_UPDATE_CHECK_URL = "https://api.github.com/repos/Promethean-Works/athena/releases/latest"
 SETTINGS_FILE = "athena.json"
 SECTIONS = ("server", "system", "https", "ai", "webdav", "backup")
 """The sections of athena.json, in file order (`athena.settings_file.AthenaConfig`)."""
@@ -94,6 +95,9 @@ class Settings(BaseSettings):
     # Where "Send feedback" opens issues (docs/specs/feedback.md). Forks point it at their
     # own repository; GitHub gets the issue forms, Codeberg and GitLab a plain issue.
     feedback_repo: str = DEFAULT_FEEDBACK_REPO
+    # Where the update notice looks for the latest release (GitHub's API). Empty turns the
+    # check off for good (tests, air-gapped hosts); Settings → System turns it off per host.
+    update_check_url: str = DEFAULT_UPDATE_CHECK_URL
     # Folders a local backup destination may live in. Empty means the usual places for a
     # disk to be mounted (/mnt, /media, /Volumes, the home folders; every drive on Windows).
     backup_allowed_roots: list[Path] = []
