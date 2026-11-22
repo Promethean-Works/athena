@@ -53,6 +53,7 @@ from athena.packages.base import run_command
 from athena.platform.store import CapabilityStore
 from athena.settings_file import SettingsFile, SettingsFileError
 from athena.terminal import shells
+from athena.tunnel import autostart as tunnel_autostart
 from athena.tunnel import get_all_providers
 
 if TYPE_CHECKING:
@@ -110,6 +111,7 @@ def create_app(
         worker_task: asyncio.Task[None] | None = None
         # HTTPS: a second listener on the HTTPS port when it's turned on (never raises).
         await app.state.https.start()
+        tunnel_autostart.auto_start(app)
         if settings.durable_execution_database_url:
             from pgtask import Client, TaskRegistry
             from pgtask import Worker as PgWorker

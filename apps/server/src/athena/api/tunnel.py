@@ -13,7 +13,7 @@ from athena.jobs import Job, JobManager
 from athena.platform.store import CapabilityStore
 from athena.system_settings import SystemSettings, load, save
 from athena.tunnel import get_provider
-from athena.tunnel.base import TunnelConfig
+from athena.tunnel.autostart import start_job
 
 log = logging.getLogger(__name__)
 
@@ -135,28 +135,9 @@ async def start_tunnel(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown provider")
 
     try:
-        provider_config = system_settings.provider_config(settings, _box(request))
+        job = start_job(request.app, provider, settings)
     except SecretError as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
-    config = TunnelConfig(port=settings.tunnel_port, provider_config=provider_config)
-
-    jobs = _jobs(request)
-
-    # Create a job to start the tunnel
-    async def start_job(job: Job) -> None:
-        try:
-            url = await provider.start(job, config)
-            await job.log(f"Tunnel started: {url}")
-            # Store result in job lines for retrieval
-            await job.log(f"RESULT: {url}")
-        except Exception as e:
-            await job.log(f"Tunnel start failed: {e}")
-            raise
-
-    job = jobs.start(
-        f"Start {provider.label} tunnel",
-        start_job,
-    )
 
     return TunnelStartResponse(job_id=job.id)
 
