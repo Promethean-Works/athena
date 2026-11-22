@@ -256,6 +256,8 @@ def main() -> int:
 
     base = f"http://127.0.0.1:{args.port}"
     release = Release(wheels)
+    # The installer returns as soon as the service is registered; the server is still booting.
+    wait_for(f"Athena to answer on {base}", lambda: health(base) is not None)
     first = health(base)
     assert first is not None, f"no Athena answers on {base}"
     assert first["version"] == VERSIONS["a"], f"install wheel A first, found {first['version']}"
