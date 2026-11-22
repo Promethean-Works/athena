@@ -564,3 +564,63 @@ def test_the_plan_deletes_the_windows_task_when_it_ends(tmp_path: Path) -> None:
     windows = plan_for(tmp_path / "w", "win32")
     assert windows["cleanup"][0]["argv"][:3] == ["schtasks", "/Delete", "/TN"]
     assert plan_for(tmp_path / "l", "linux")["cleanup"] == []
+
+
+def audited(tmp_path: Path, state: dict[str, Any] | None, **kw: Any) -> list[tuple[str, str]]:
+    paths = Paths(tmp_path)
+    if state is not None:
+        paths.updates.mkdir(parents=True, exist_ok=True)
+        paths.state.write_text(json.dumps(state), encoding="utf-8")
+    rows: list[tuple[str, str]] = []
+    kw.setdefault("poll", 0.01)
+    asyncio.run(self_update.audit_outcome(paths, lambda a, d: rows.append((a, d)), **kw))
+    return rows
+
+
+def test_a_finished_update_is_audited_once(tmp_path: Path) -> None:
+    state = {"phase": "done", "from": "0.1.0", "to": "0.2.0"}
+    assert audited(tmp_path, state) == [("system.update.done", "0.1.0 -> 0.2.0")]
+    assert json.loads(Paths(tmp_path).state.read_text())["audited"] is True
+    assert audited(tmp_path, None) == []  # the next start says nothing more
+
+
+def test_a_rollback_is_audited_with_its_reason(tmp_path: Path) -> None:
+    state = {"phase": "rolled_back", "from": "0.1.0", "to": "0.2.0", "error": "timed out"}
+    assert audited(tmp_path, state) == [("system.update.rolled_back", "0.1.0 -> 0.2.0: timed out")]
+
+
+@pytest.mark.parametrize("state", [None, {"phase": "aborted", "from": "1", "to": "2"}])
+def test_nothing_is_audited_without_a_swap(tmp_path: Path, state: dict[str, Any] | None) -> None:
+    assert audited(tmp_path, state) == []
+
+
+def test_it_waits_for_the_helpers_last_word(tmp_path: Path) -> None:
+    paths = Paths(tmp_path)
+    paths.updates.mkdir(parents=True)
+    paths.lock.write_text(str(__import__("os").getpid()), encoding="utf-8")  # the helper is alive
+    paths.state.write_text(json.dumps({"phase": "checking", "from": "1", "to": "2"}))
+    rows: list[tuple[str, str]] = []
+
+    async def go() -> None:
+        task = asyncio.create_task(
+            self_update.audit_outcome(paths, lambda a, d: rows.append((a, d)), poll=0.01)
+        )
+        await asyncio.sleep(0.05)
+        assert rows == []
+        self_update.write_atomic(
+            paths.state, json.dumps({"phase": "done", "from": "1", "to": "2"}).encode()
+        )
+        await task
+
+    asyncio.run(go())
+    assert rows == [("system.update.done", "1 -> 2")]
+
+
+def test_an_interrupted_update_is_not_audited(tmp_path: Path) -> None:
+    state = {"phase": "installing", "from": "1", "to": "2"}  # no lock: the helper died
+    monkey = self_update.AUDIT_GRACE_SECONDS
+    self_update.AUDIT_GRACE_SECONDS = 0.05
+    try:
+        assert audited(tmp_path, state) == []
+    finally:
+        self_update.AUDIT_GRACE_SECONDS = monkey

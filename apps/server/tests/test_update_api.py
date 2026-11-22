@@ -159,3 +159,114 @@ def test_a_running_helper_blocks_a_start(tmp_path: Path) -> None:
     paths.updates.mkdir(parents=True)
     paths.lock.write_text(str(os.getpid()), encoding="utf-8")
     assert c.post("/api/system/update", json={}).status_code == 409
+
+
+def test_a_second_start_within_a_minute_is_rate_limited(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    async def quick(opts, say, handoff, **kw):
+        return "0.2.0"
+
+    monkeypatch.setattr(self_update, "run_from_server", quick)
+    with client(tmp_path) as c:
+        first = c.post("/api/system/update", json={})
+        assert first.status_code == 202
+        wait_job(c, first.json()["id"])
+        again = c.post("/api/system/update", json={})
+        assert again.status_code == 429 and int(again.headers["Retry-After"]) >= 1
+        c.app.state.update_started_at -= 61  # type: ignore[attr-defined]
+        assert c.post("/api/system/update", json={}).status_code == 202
+
+
+def test_a_refused_start_does_not_use_up_the_rate_limit(tmp_path: Path) -> None:
+    c = client(tmp_path, ready=False)
+    assert c.post("/api/system/update", json={}).status_code == 422
+    assert c.app.state.update_started_at is None  # type: ignore[attr-defined]
+
+
+def write_state(c: TestClient, **state: Any) -> None:
+    paths = self_update.Paths(c.app.state.settings.data_dir)  # type: ignore[attr-defined]
+    paths.updates.mkdir(parents=True, exist_ok=True)
+    import json
+
+    paths.state.write_text(json.dumps(state), encoding="utf-8")
+
+
+def test_the_status_is_idle_before_any_update(tmp_path: Path) -> None:
+    with client(tmp_path) as c:
+        body = c.get("/api/system/update/status").json()
+    assert body["phase"] == "idle" and body["running_jobs"] == [] and body["terminals"] == 0
+
+
+def test_the_status_reads_the_helpers_state_file(tmp_path: Path) -> None:
+    with client(tmp_path) as c:
+        write_state(
+            c,
+            phase="rolled_back",
+            step="Rolled back",
+            to="0.2.0",
+            error="the health check timed out",
+            started_at="2026-11-22T10:00:00+00:00",
+            log_tail=["==> Stopping Athena", "Update failed"],
+            **{"from": "0.1.4"},
+        )
+        body = c.get("/api/system/update/status").json()
+    assert body["phase"] == "rolled_back" and body["error"] == "the health check timed out"
+    assert (body["from_version"], body["to_version"]) == ("0.1.4", "0.2.0")
+    assert body["log_tail"] == ["==> Stopping Athena", "Update failed"]
+
+
+def test_the_status_lists_what_a_restart_would_stop(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import asyncio
+
+    async def slow(opts, say, handoff, **kw):
+        await asyncio.sleep(0.5)
+        return "0.2.0"
+
+    monkeypatch.setattr(self_update, "run_from_server", slow)
+    with client(tmp_path) as c:
+        manager = c.app.state.jobs  # type: ignore[attr-defined]
+        started = c.post("/api/system/update", json={})
+        assert started.status_code == 202
+        c.app.state.terminal_sessions[1] = asyncio.Event()  # type: ignore[attr-defined]
+        body = c.get("/api/system/update/status").json()
+        assert body["phase"] == "preparing" and body["job_id"] == started.json()["id"]
+        assert body["terminals"] == 1 and body["running_jobs"] == []
+        assert manager.running()[0].title == "Update Athena"
+
+
+def test_only_admins_see_the_status(tmp_path: Path) -> None:
+    assert (
+        TestClient(make_app(tmp_path / "a", store=store())).get("/api/system/update/status")
+    ).status_code == 401
+    c = client(tmp_path / "b")
+    with c.app.state.db.engine.begin() as conn:  # type: ignore[attr-defined]
+        conn.exec_driver_sql("UPDATE users SET is_admin = 0")
+    assert c.get("/api/system/update/status").status_code == 403
+
+
+def test_the_new_server_audits_how_the_update_ended(tmp_path: Path) -> None:
+    import json
+
+    c = client(tmp_path)
+    paths = self_update.Paths(c.app.state.settings.data_dir)  # type: ignore[attr-defined]
+    paths.updates.mkdir(parents=True)
+    paths.state.write_text(
+        json.dumps({"phase": "done", "from": "0.1.4", "to": "0.2.0", "error": None}),
+        encoding="utf-8",
+    )
+    with c:  # the lifespan starts the audit task
+        for _ in range(100):
+            rows = c.get("/api/audit").json()
+            if any(r["action"] == "system.update.done" for r in rows):
+                break
+            time.sleep(0.05)
+        row = next(r for r in rows if r["action"] == "system.update.done")
+    assert row["username"] == "system" and row["target"] == "athena"
+    with c.app.state.db.engine.begin() as conn:  # type: ignore[attr-defined]
+        detail = conn.exec_driver_sql(
+            "SELECT detail FROM audit_log WHERE action = 'system.update.done'"
+        ).scalar_one()
+    assert detail == "0.1.4 -> 0.2.0"

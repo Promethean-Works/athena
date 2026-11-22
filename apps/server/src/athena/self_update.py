@@ -473,6 +473,69 @@ def save_for_rollback(paths: Paths, current: str) -> None:
             path.chmod(0o700 if path.is_dir() else 0o600)
 
 
+TERMINAL_PHASES = ("done", "rolled_back", "failed", "aborted")
+AUDIT_ACTIONS = {
+    "done": "system.update.done",
+    "rolled_back": "system.update.rolled_back",
+    "failed": "system.update.failed",
+}
+AUDIT_WAIT_SECONDS = 300.0
+AUDIT_POLL_SECONDS = 2.0
+AUDIT_GRACE_SECONDS = 10.0
+
+
+def read_state(paths: Paths) -> dict[str, Any] | None:
+    """The helper's `state.json`, or None when there is none or it can't be read."""
+    try:
+        data = json.loads(paths.state.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def audit_entry(state: dict[str, Any]) -> tuple[str, str] | None:
+    """(action, detail) to audit for a finished update; None while it still runs, for
+    one that stopped before the swap, or one that was already audited."""
+    action = AUDIT_ACTIONS.get(str(state.get("phase")))
+    if action is None or state.get("audited"):
+        return None
+    detail = f"{state.get('from')} -> {state.get('to')}"
+    if state.get("error"):
+        detail += f": {state['error']}"
+    return action, detail[:500]
+
+
+async def audit_outcome(
+    paths: Paths,
+    record: Callable[[str, str], None],
+    *,
+    wait: float = AUDIT_WAIT_SECONDS,
+    poll: float = AUDIT_POLL_SECONDS,
+) -> bool:
+    """Audit how the last update ended, once. The helper that did the swap outlives the old
+    server, so the server that comes up afterwards writes the entry. It may start a second
+    before the helper writes the final phase, so wait for it while the helper still holds
+    the lock. Returns whether an entry was written."""
+    clock = asyncio.get_running_loop().time
+    began = clock()
+    while True:
+        state = await asyncio.to_thread(read_state, paths)
+        if state is None or state.get("audited"):
+            return False
+        entry = audit_entry(state)
+        if entry is not None:
+            record(*entry)
+            state["audited"] = True
+            await asyncio.to_thread(write_atomic, paths.state, json.dumps(state, indent=2).encode())
+            return True
+        if state.get("phase") in TERMINAL_PHASES:
+            return False  # aborted before the swap: nothing to audit
+        helper_gone = await asyncio.to_thread(lock_holder, paths) is None
+        if clock() - began > (AUDIT_GRACE_SECONDS if helper_gone else wait):
+            return False  # an interrupted update (the next start says so), or the wait ran out
+        await asyncio.sleep(poll)
+
+
 def lock_holder(paths: Paths) -> int | None:
     """The PID of a running update, ignoring a stale lock from a dead process."""
     try:

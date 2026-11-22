@@ -4,6 +4,7 @@ import asyncio
 import platform
 import socket
 import sys
+import time
 from datetime import datetime
 from typing import Literal
 
@@ -112,6 +113,68 @@ class StartUpdate(BaseModel):
 
 
 EXIT_DELAY_SECONDS = 0.5
+START_INTERVAL_SECONDS = 60.0
+"""One accepted update start per minute: it interrupts service, so don't let it be hammered."""
+
+
+class UpdateStatus(BaseModel):
+    phase: str
+    """`idle` (no update yet), `preparing` (the server is downloading and checking), then the
+    helper's phases while Athena is swapped (`stopping`, `installing`, `starting`, `checking`,
+    `rolling_back`) and its last word: `done`, `rolled_back`, `failed` or `aborted`."""
+    step: str | None = None
+    from_version: str | None = None
+    to_version: str | None = None
+    started_at: datetime | None = None
+    error: str | None = None
+    log_tail: list[str] = Field(default_factory=list)
+    job_id: str | None = None
+    """The job that downloads and checks the release, while it runs."""
+    running_jobs: list[str] = Field(default_factory=list)
+    """Titles of the jobs a restart would stop (the update job itself is left out)."""
+    terminals: int = 0
+    """Open web terminal sessions, which a restart closes."""
+
+
+def _parse_time(value: object) -> datetime | None:
+    try:
+        return datetime.fromisoformat(str(value)) if value else None
+    except ValueError:
+        return None
+
+
+@router.get(
+    "/system/update/status",
+    operation_id="getUpdateStatus",
+    dependencies=[require_user],
+)
+def update_status(request: Request, user: Authed) -> UpdateStatus:
+    """What the last update did, from the helper's state file (admins only). The helper
+    outlives the server, so this is what the page reads once Athena is back."""
+    if not user.user.is_admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can see the update status")
+    app = request.app
+    paths = self_update.Paths(app.state.settings.data_dir)
+    state = self_update.read_state(paths) or {}
+    job: Job | None = getattr(app.state, "update_job", None)
+    preparing = job is not None and job.status == "running"
+    phase = str(state.get("phase") or "idle")
+    if preparing:
+        phase = "preparing"
+    tail = state.get("log_tail")
+    others = [j.title for j in app.state.jobs.running() if j is not job]
+    return UpdateStatus(
+        phase=phase,
+        step=state.get("step") if not preparing else None,
+        from_version=state.get("from"),
+        to_version=state.get("to"),
+        started_at=_parse_time(state.get("started_at")),
+        error=state.get("error") or None,
+        log_tail=[str(line) for line in tail] if isinstance(tail, list) else [],
+        job_id=job.id if preparing and job is not None else None,
+        running_jobs=others,
+        terminals=len(app.state.terminal_sessions),
+    )
 
 
 @router.post(
@@ -141,6 +204,15 @@ async def start_update(body: StartUpdate, request: Request, user: Authed, db: Db
         or self_update.lock_holder(self_update.Paths(data_dir)) is not None
     ):
         raise HTTPException(status.HTTP_409_CONFLICT, "An update is already running")
+    last: float | None = app.state.update_started_at
+    if last is not None and time.monotonic() - last < START_INTERVAL_SECONDS:
+        wait = max(1, round(START_INTERVAL_SECONDS - (time.monotonic() - last)))
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            f"An update was just started. Try again in {wait} seconds.",
+            headers={"Retry-After": str(wait)},
+        )
+    app.state.update_started_at = time.monotonic()
     opts = self_update.Options(
         data_dir=data_dir, version=body.version, check_url=app.state.settings.update_check_url
     )
@@ -171,7 +243,13 @@ async def start_update(body: StartUpdate, request: Request, user: Authed, db: Db
 
     job = app.state.jobs.start("Update Athena", run)
     app.state.update_job = job
-    audit.record(db, user.user.username, "system.update.start", body.version or "latest")
+    audit.record(
+        db,
+        user.user.username,
+        "system.update.start",
+        "athena",
+        f"{body.version or 'latest'} via ui",
+    )
     return job.out()
 
 
