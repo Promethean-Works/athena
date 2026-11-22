@@ -20,7 +20,7 @@ Same on Linux, macOS and Windows; no capability. The container runtime line come
 
 - **GitHub (`.github/ISSUE_TEMPLATE/`):** keep `bug_report.yml` and `feature_request.yml`, add `change_request.yml` (change how something already works) and `app_report.yml` (a store app that doesn't work). Labels `change`, `catalog` and `triage`. Every field Athena fills in has an `id`, so the form can be filled from the URL query (`?template=<file>&<id>=<value>`).
 - **Server:**
-  - `athena/feedback.py`: builds issue URLs. Athena's own repo comes from `Settings.feedback_repo` (`ATHENA_FEEDBACK_REPO`, default `https://github.com/tiagozaccaro/athena`) so forks can point elsewhere.
+  - `athena/feedback.py`: builds issue URLs. Athena's own repo comes from `Settings.feedback_repo` (`ATHENA_FEEDBACK_REPO`, default `https://github.com/Promethean-Works/athena`) so forks can point elsewhere.
   - `GET /api/feedback` (`getFeedbackInfo`): the diagnostics shown before anything opens (version, OS and version, arch, container runtime, repo URL). No hostname, IPs, paths or secrets.
   - `POST /api/feedback/issue-url` (`buildIssueUrl`): takes the kind (`bug`, `change`, `feature`, `app`), an optional title, and for apps the catalog, app id and optional logs. Returns the URL and where it goes.
   - Where app reports go: built-in catalog → Athena's `app_report.yml`. A remote catalog whose URL is a GitHub, Codeberg or GitLab repo → that repo's new-issue page with a title and a Markdown body. Any other catalog URL (an archive link) → Athena's `app_report.yml` with the catalog URL in the form.

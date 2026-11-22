@@ -3,10 +3,10 @@
     Athena installer for Windows.
 
 .DESCRIPTION
-    irm https://github.com/tiagozaccaro/athena/releases/latest/download/install.ps1 | iex
+    irm https://github.com/Promethean-Works/athena/releases/latest/download/install.ps1 | iex
 
     With options:
-    & ([scriptblock]::Create((irm https://github.com/tiagozaccaro/athena/releases/latest/download/install.ps1))) -Version 0.2.0
+    & ([scriptblock]::Create((irm https://github.com/Promethean-Works/athena/releases/latest/download/install.ps1))) -Version 0.2.0
 
     What it does:
       1. Detects a container runtime (Docker Engine in WSL2, Podman, Rancher Desktop).
@@ -44,7 +44,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-$Repo = 'tiagozaccaro/athena'
+$Repo = 'Promethean-Works/athena'
 $Port = 8420
 $InstallRoot = Join-Path $env:LOCALAPPDATA 'Athena\app'
 $DataDir = Join-Path $env:LOCALAPPDATA 'Athena\data'

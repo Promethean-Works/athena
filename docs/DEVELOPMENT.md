@@ -16,7 +16,7 @@ How to set up a machine to work on Athena, with or without AI coding agents, and
 ### Steps
 
 ```bash
-git clone https://github.com/tiagozaccaro/athena.git
+git clone https://github.com/Promethean-Works/athena.git
 cd athena
 pnpm install
 (cd apps/server && uv sync)

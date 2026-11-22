@@ -20,7 +20,7 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Build the wheel | `scripts/build-wheel.sh` (also used by `release.yml` and the E2E workflow) |
 | Store apps start for real | `cd apps/server && uv run python -m athena.catalog.smoke --changed` (or `<id>…`, or `--all --jobs 3`); report in `catalog-smoke-report/` |
 | Installer dry run | `scripts/install.sh --dry-run`; `athena service install --dry-run` |
-| PR status | `gh pr checks <n>`, `gh run view <run-id> --log-failed`, `gh api repos/tiagozaccaro/athena/code-scanning/alerts?state=open` |
+| PR status | `gh pr checks <n>`, `gh run view <run-id> --log-failed`, `gh api repos/Promethean-Works/athena/code-scanning/alerts?state=open` |
 
 Per-app commands (tests, lint, real-engine tests, adding a shadcn component) are in `apps/server/AGENTS.md` and `apps/web/AGENTS.md`.
 
