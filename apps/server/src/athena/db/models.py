@@ -296,6 +296,10 @@ class BackupDestination(SQLModel, table=True):
     """The folder, or `<remote>:<path>` for rclone."""
     password: str
     """The repository password, encrypted with athena.crypto.SecretBox. Never returned."""
+    last_pruned_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    """When `restic prune` last succeeded here (it runs at most every `prune_interval_days`)."""
+    last_checked_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    """When `restic check` last succeeded here (at most every `check_interval_days`)."""
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
 
 

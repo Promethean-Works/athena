@@ -13,11 +13,11 @@ from sqlmodel import select
 from athena import audit
 from athena.auth.deps import Authed, DbSession
 from athena.automation import service as automation_service
-from athena.backup import repository
+from athena.backup import repository, snapshots, versions
 from athena.backup.plans import PlanItems, parse_items, parse_retention
 from athena.backup.repository import DestinationError
 from athena.backup.restic import Repository, ResticError
-from athena.backup.service import PlanRunner, ResticProvider
+from athena.backup.service import PlanRunner, ResticProvider, repository_of
 from athena.backup.settings import Retention
 from athena.containers.runtime import Runtime, RuntimeUnavailableError, runtime_from
 from athena.crypto import SecretBox
@@ -403,3 +403,152 @@ async def run_plan(plan_id: str, request: Request, user: Authed, db: DbSession) 
     job = jobs.start(f"Back up {row.name}", body, cancellable=True)
     audit.record(db, username, "backup.plan.run", row.name)
     return job.out()
+
+
+# ---------------------------------------------------------------- versions
+
+
+class VersionOut(BaseModel):
+    id: str
+    destination_id: str
+    item: str
+    """`athena`, or `app:<name>`."""
+    time: datetime
+    size: int
+    """Bytes the item held when it was backed up."""
+    new_bytes: int
+    """Bytes this version added to the repository, after deduplication."""
+    files_added: int | None
+    files_changed: int | None
+    files_removed: int | None
+    """Against the version before it; null for the first one or when restic couldn't say."""
+    athena_version: str | None
+    os: str | None
+    """`linux`, `darwin` or `windows`: where the version came from."""
+
+
+class VersionFileOut(BaseModel):
+    name: str
+    path: str
+    kind: Literal["dir", "file", "symlink", "other"]
+    size: int | None
+    modified: datetime | None
+
+
+class VersionFilesOut(BaseModel):
+    root: str
+    """Where the version's files start (the folder that was backed up); `path` is inside it."""
+    path: str
+    """The folder listed."""
+    entries: list[VersionFileOut]
+
+
+def _destination(db: DbSession, destination_id: str) -> BackupDestination:
+    row = db.get(BackupDestination, destination_id)
+    if row is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such destination")
+    return row
+
+
+async def _readable(request: Request, row: BackupDestination) -> tuple[ResticProvider, Repository]:
+    """The destination's repository, after checking it's connected."""
+    if not await asyncio.to_thread(snapshots.destination_connected, row.location):
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"The destination isn't connected: {row.location} is missing or isn't a backup "
+            "repository",
+        )
+    return _provider(request), repository_of(row, _box(request))
+
+
+@router.get("/versions", operation_id="listBackupVersions")
+async def list_versions(
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    destination_id: str | None = None,
+    item: str | None = None,
+) -> list[VersionOut]:
+    """Every version of Athena and the apps, newest first. `destination_id` limits it to one
+    destination (a destination that isn't connected is then an error; otherwise it's
+    skipped), `item` to `athena` or `app:<name>`."""
+    _require_admin(user)
+    if item is not None and not versions.ITEM.match(item):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "item is `athena` or `app:<name>`")
+    if destination_id is not None:
+        rows = [_destination(db, destination_id)]
+    else:
+        rows = list(db.exec(select(BackupDestination).order_by(BackupDestination.name)).all())
+    out: list[VersionOut] = []
+    for row in rows:
+        try:
+            provider, repo = await _readable(request, row)
+            tool = await provider.get()
+            found = await versions.list_versions(tool, repo, item)
+            await versions.add_diffs(tool, repo, found, request.app.state.backup_diffs, row.id)
+        except HTTPException:
+            if destination_id is not None:
+                raise
+            continue
+        except DownloadError as exc:
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(exc)) from exc
+        except ResticError as exc:
+            if destination_id is not None:
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+            continue
+        out += [
+            VersionOut(
+                id=v.id,
+                destination_id=row.id,
+                item=v.item,
+                time=v.time,
+                size=v.size,
+                new_bytes=v.new_bytes,
+                files_added=v.files_added,
+                files_changed=v.files_changed,
+                files_removed=v.files_removed,
+                athena_version=v.athena_version,
+                os=v.os,
+            )
+            for v in found
+        ]
+    out.sort(key=lambda v: v.time, reverse=True)
+    return out
+
+
+@router.get("/versions/{version_id}/files", operation_id="listBackupVersionFiles")
+async def list_version_files(
+    version_id: str,
+    destination_id: str,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    path: str | None = None,
+) -> VersionFilesOut:
+    """One folder level of a version, read-only. Without `path` it's the version's own folder."""
+    _require_admin(user)
+    row = _destination(db, destination_id)
+    provider, repo = await _readable(request, row)
+    try:
+        tool = await provider.get()
+        root = await versions.snapshot_root(tool, repo, version_id)
+        folder = versions.check_path(root, path)
+        entries = await versions.list_files(tool, repo, version_id, folder)
+    except DownloadError as exc:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(exc)) from exc
+    except ResticError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+    return VersionFilesOut(
+        root=root,
+        path=folder,
+        entries=[
+            VersionFileOut(
+                name=e.name,
+                path=e.path,
+                kind=e.kind,  # type: ignore[arg-type]
+                size=e.size,
+                modified=e.modified,
+            )
+            for e in entries
+        ],
+    )
