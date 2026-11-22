@@ -1,7 +1,7 @@
 """Host-wide settings that only admins change (docs/design/security.md).
 
-Stored as one JSON row in `system_settings`. Unknown or invalid stored values fall back
-to the defaults, so an older or newer server never fails on them.
+Stored as the `system` section of `athena.json` (settings_file.py). Unknown or invalid
+stored values fall back to the defaults, so an older or newer server never fails on them.
 
 Secret values in `tunnel_config` (API and auth tokens) are encrypted with `SecretBox`
 before they're stored, and never leave the server: `public()` drops them and lists the
