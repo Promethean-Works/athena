@@ -260,10 +260,16 @@ async def configure_tunnel_service(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown provider")
 
     jobs = _jobs(request)
+    try:
+        provider_config = system_settings.provider_config(settings, _box(request))
+    except SecretError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
 
     async def service_job(job: Job) -> None:
         try:
-            await provider.configure_service(job, enabled, port=settings.tunnel_port)
+            await provider.configure_service(
+                job, enabled, port=settings.tunnel_port, provider_config=provider_config
+            )
             await job.log(f"Auto-start service {'enabled' if enabled else 'disabled'}")
         except Exception as e:
             await job.log(f"Service config failed: {e}")

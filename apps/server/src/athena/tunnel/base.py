@@ -68,8 +68,15 @@ class TunnelProvider(ABC):
         pass
 
     @abstractmethod
-    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
+    async def configure_service(
+        self,
+        job: Any,
+        enabled: bool,
+        port: int = 8420,
+        provider_config: dict | None = None,
+    ) -> None:
         """Enable/disable auto-start service (systemd/launchd/Task Scheduler).
 
-        `port` is the local port the service exposes (the `tunnel_port` setting)."""
+        `port` is the local port the service exposes (the `tunnel_port` setting).
+        `provider_config` has the decrypted settings (tokens) the service needs."""
         pass

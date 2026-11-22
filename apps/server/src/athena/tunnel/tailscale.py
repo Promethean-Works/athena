@@ -172,7 +172,13 @@ class TailscaleTunnelProvider(TunnelProvider):
 
         await job.log("Tailscale installed. Run 'tailscale up' to authenticate.")
 
-    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
+    async def configure_service(
+        self,
+        job: Any,
+        enabled: bool,
+        port: int = 8420,
+        provider_config: dict | None = None,
+    ) -> None:
         """Configure auto-start. Tailscale runs as a system daemon (tailscaled)."""
         import platform
 
