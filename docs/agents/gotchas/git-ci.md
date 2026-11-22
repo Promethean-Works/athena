@@ -3,9 +3,10 @@
 CI jobs (`.github/workflows/ci.yml`):
 
 - `repo checks`: agent config sync, the docs check (`check-docs.mjs`), the `.claude/skills` symlink, actionlint, shellcheck.
-- `install script` on 3 OSes: dry runs plus PSScriptAnalyzer.
+- `changes`: on a PR, diffs the PR against its base and skips `install script`, `web` and `server` when their files didn't change (`ci-ok` accepts skipped). Pushes to main and the merge queue run everything.
+- `install script` on 3 OSes: dry runs plus PSScriptAnalyzer. Pull requests run Linux only; main runs all.
 - `web`: API client drift, lint, typecheck, build.
-- `server` on 3 OSes: ruff, pytest, service dry run.
+- `server` on 4 OSes (incl. arm64): ruff, pytest, service dry run. Pull requests run Ubuntu only, so macOS/Windows/arm64 failures appear on `main` after the merge. Watch the `main` run.
 - `ci-ok`: the single required check.
 
 Other workflows: `pr-title`, CodeQL (separate; it can block merges), and `E2E` (`e2e.yml`). E2E is slow and not part of `ci-ok`. It runs on pushes to main, on installer or service changes, and on demand.
