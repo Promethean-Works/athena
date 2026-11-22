@@ -963,13 +963,7 @@ function ReviewCard({
   )
 }
 
-function IntegrationsCard({
-  settings,
-  save,
-}: {
-  settings: AiSettings | null
-  save: SaveAi
-}) {
+function IntegrationsCard() {
   const [kinds, setKinds] = React.useState<IntegrationKind[]>([])
   const [integrations, setIntegrations] = React.useState<Integration[] | null>(
     null
@@ -990,7 +984,7 @@ function IntegrationsCard({
       setKinds(k.data ?? [])
       setIntegrations(i.data ?? [])
     })()
-  }, [])
+  }, [version])
 
   async function remove(integration: Integration) {
     setRemoving(null)
@@ -1011,7 +1005,7 @@ function IntegrationsCard({
     setVersion((v) => v + 1)
   }
 
-  function saved(integration: Integration) {
+  function saved() {
     setEditing(null)
     setVersion((v) => v + 1)
   }
@@ -1201,7 +1195,7 @@ export function AiSettingsView() {
         description="What the assistant can do besides managing apps, packages and files."
       >
         <ToolsCard settings={settings} save={save} />
-        <IntegrationsCard settings={settings} save={save} />
+        <IntegrationsCard />
         <ShellCard settings={settings} save={save} />
       </Section>
       <Section

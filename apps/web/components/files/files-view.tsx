@@ -667,7 +667,9 @@ export function FilesView() {
               setShowHidden(on)
               try {
                 localStorage.setItem(HIDDEN_KEY, on ? "1" : "0")
-              } catch {}
+              } catch {
+                // Storage can be blocked; the toggle still works for this visit.
+              }
             }}
             aria-label="Show hidden files"
           >

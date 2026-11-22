@@ -477,8 +477,11 @@ function PackageFields({
   errors: { manager: string | null; packageName: string | null }
 }) {
   const managers = useApi<Manager[]>(() => api.GET("/api/packages"))
-  const ready =
-    managers.status === "ok" ? managers.data.filter((m) => m.available) : []
+  const ready = React.useMemo(
+    () =>
+      managers.status === "ok" ? managers.data.filter((m) => m.available) : [],
+    [managers]
+  )
   const items = ready.map((m) => ({ value: m.id, label: m.label }))
   const current = ready.find((m) => m.id === manager)
   const verbs = PACKAGE_VERBS.filter(

@@ -202,6 +202,8 @@ function SharedFile({ token, share }: { token: string; share: PublicShare }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex min-w-0 items-center gap-2">
+          {/* iconOf returns one of a fixed set of module-level icons, not a new component. */}
+          {/* eslint-disable-next-line react-hooks/static-components */}
           <Icon className="size-4 shrink-0 text-muted-foreground" />
           <span className="truncate">{entry.name}</span>
         </CardTitle>

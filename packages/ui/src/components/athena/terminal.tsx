@@ -132,7 +132,9 @@ function Terminal({
   const boxRef = React.useRef<HTMLDivElement>(null)
   const termRef = React.useRef<XTerm | null>(null)
   const handlers = React.useRef({ onData, onResize, onReady })
-  handlers.current = { onData, onResize, onReady }
+  React.useLayoutEffect(() => {
+    handlers.current = { onData, onResize, onReady }
+  })
 
   React.useImperativeHandle(
     ref,

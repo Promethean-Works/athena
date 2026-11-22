@@ -11,7 +11,6 @@ import {
 } from "lucide-react"
 
 import { api, errorMessage } from "@workspace/api-client"
-import { CodeEditor } from "@workspace/ui/components/athena/code-editor"
 import { ComposeForm } from "@/components/apps/compose-form"
 import {
   Alert,

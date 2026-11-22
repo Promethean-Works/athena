@@ -59,6 +59,20 @@ export function IntegrationDialog({
   onSaved: (integration: Integration) => void
 }) {
   if (!editing) return null
+  return (
+    <IntegrationForm editing={editing} onClose={onClose} onSaved={onSaved} />
+  )
+}
+
+function IntegrationForm({
+  editing,
+  onClose,
+  onSaved,
+}: {
+  editing: NonNullable<IntegrationEditing>
+  onClose: () => void
+  onSaved: (integration: Integration) => void
+}) {
   const { integration: existing, kinds } = editing
   const isHttp = React.useMemo(
     () =>

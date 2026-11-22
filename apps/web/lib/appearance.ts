@@ -137,7 +137,7 @@ const INLINE_SCRIPT_ESCAPE_MAP: Record<string, string> = {
 }
 
 function escapeForInlineScript(str: string): string {
-  return str.replace(/[<>\/\\\b\f\n\r\t\0\u2028\u2029]/g, (x) => INLINE_SCRIPT_ESCAPE_MAP[x] ?? x)
+  return str.replace(/[<>/\\\b\f\n\r\t\0\u2028\u2029]/g, (x) => INLINE_SCRIPT_ESCAPE_MAP[x] ?? x)
 }
 
 /** Set the attributes on <html> and remember them for the next page load. */

@@ -2,6 +2,8 @@
 
 import * as React from "react"
 
+import { useLatest } from "@/hooks/use-latest"
+
 import { getCsrfToken } from "@workspace/api-client"
 import {
   Terminal,
@@ -40,8 +42,7 @@ export function TerminalSession({
 }) {
   const termRef = React.useRef<TerminalHandle>(null)
   const wsRef = React.useRef<WebSocket | null>(null)
-  const notify = React.useRef(onStateChange)
-  notify.current = onStateChange
+  const notify = useLatest(onStateChange)
 
   React.useEffect(() => () => wsRef.current?.close(1000), [])
 
@@ -99,7 +100,7 @@ export function TerminalSession({
         notify.current?.({ phase: "closed", reason })
       }
     },
-    [target]
+    [notify, target]
   )
 
   return (

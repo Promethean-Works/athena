@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2Icon, CpuIcon, TriangleAlertIcon } from "lucide-react"
+import { CheckCircle2Icon, TriangleAlertIcon } from "lucide-react"
 
 import { api, errorMessage } from "@workspace/api-client"
 import {

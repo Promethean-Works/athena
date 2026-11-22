@@ -19,4 +19,10 @@ export const config = [
     },
   },
   pluginReactHooks.configs.flat.recommended,
+  {
+    rules: {
+      // Same reason as in next.js: effects that sync state are the pattern here.
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]

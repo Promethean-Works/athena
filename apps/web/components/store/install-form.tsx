@@ -110,9 +110,11 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
     Object.fromEntries(variant.fields.map((f) => [f.key, f.default]))
   )
   // Reset the form values when the variant (and thus its fields) changes.
-  React.useEffect(() => {
+  const [valuesSlug, setValuesSlug] = React.useState(variant.slug)
+  if (valuesSlug !== variant.slug) {
+    setValuesSlug(variant.slug)
     setValues(Object.fromEntries(variant.fields.map((f) => [f.key, f.default])))
-  }, [variant.slug])
+  }
   const [errors, setErrors] = React.useState<Record<string, string>>({})
   const [installing, setInstalling] = React.useState(false)
   const installedName = React.useRef(name)

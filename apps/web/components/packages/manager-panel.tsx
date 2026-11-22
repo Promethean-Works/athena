@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+
+import { useLatest } from "@/hooks/use-latest"
 import {
   ArrowUpCircleIcon,
   CircleAlertIcon,
@@ -71,8 +73,7 @@ function useList<T>(fetcher: () => Promise<{ data?: T; error?: unknown }>) {
     error: null,
     loading: true,
   })
-  const ref = React.useRef(fetcher)
-  ref.current = fetcher
+  const ref = useLatest(fetcher)
   const load = React.useCallback(async () => {
     setState((s) => ({ ...s, loading: true }))
     const { data, error } = await ref.current()
@@ -81,7 +82,7 @@ function useList<T>(fetcher: () => Promise<{ data?: T; error?: unknown }>) {
       error: data ? null : errorMessage(error),
       loading: false,
     })
-  }, [])
+  }, [ref])
   React.useEffect(() => {
     void load()
   }, [load])
@@ -178,7 +179,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
   const [results, setResults] = React.useState<Found[] | null>(null)
   const [searching, setSearching] = React.useState(false)
   const [searchError, setSearchError] = React.useState<string | null>(null)
-  const lastQuery = React.useRef("")
+  const [lastQuery, setLastQuery] = React.useState("")
 
   const started = (result: { data?: Job; error?: unknown }, what: string) => {
     if (result.data) setJob(result.data)
@@ -193,7 +194,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
   async function runSearch(q: string) {
     setSearching(true)
     setSearchError(null)
-    lastQuery.current = q
+    setLastQuery(q)
     const { data, error } = await api.GET("/api/packages/{manager}/search", {
       params: { path: { manager: id }, query: { q } },
     })
@@ -238,7 +239,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
   const afterJob = React.useCallback(() => {
     void installed.load()
     void updates.load()
-    if (lastQuery.current) void runSearch(lastQuery.current)
+    if (lastQuery) void runSearch(lastQuery)
     // runSearch only reads state setters and the stable manager id.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [installed.load, updates.load])
@@ -490,7 +491,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
             <Skeleton className="h-40 w-full" />
           ) : results === null ? null : results.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No packages match &ldquo;{lastQuery.current}&rdquo;.
+              No packages match &ldquo;{lastQuery}&rdquo;.
             </p>
           ) : (
             <Table>

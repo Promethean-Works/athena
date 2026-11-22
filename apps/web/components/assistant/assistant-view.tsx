@@ -259,7 +259,7 @@ export function AssistantChat({
   const currentConv = conversations?.find((c) => c.id === current)
   React.useEffect(() => {
     setModel(currentConv?.model ?? defaultModel)
-  }, [currentConv?.id, currentConv?.model, defaultModel]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentConv?.id, currentConv?.model, defaultModel])
 
   function open(id: string | null) {
     setListOpen(false)

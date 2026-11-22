@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "generate": "openapi-typescript openapi.json -o src/schema.d.ts",
-    "lint": "eslint",
+    "lint": "eslint --max-warnings 0",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

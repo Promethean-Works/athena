@@ -63,7 +63,6 @@ export function SmbSharesView() {
   const [locations, setLocations] = React.useState<Location[] | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [pending, setPending] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
 
   // create form
   const [locationId, setLocationId] = React.useState<number | null>(null)
@@ -323,7 +322,6 @@ export function SmbSharesView() {
                   </FieldContent>
                 </Field>
               </div>
-              {error ? <FieldError>{error}</FieldError> : null}
             </FieldGroup>
 
             <DialogFooter>
