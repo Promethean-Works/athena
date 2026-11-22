@@ -14,7 +14,7 @@ import logging
 import os
 import platform
 import sys
-from collections.abc import Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -77,6 +77,8 @@ _ARCH = {
 # restic's exit codes (https://restic.readthedocs.io/en/stable/075_scripting.html).
 EXIT_NO_REPOSITORY = 10
 EXIT_WRONG_PASSWORD = 12
+EXIT_INCOMPLETE = 3
+"""`backup` made a snapshot but couldn't read some files (still a usable version)."""
 
 RUN_TIMEOUT = 6 * 3600.0
 """Upper bound for one restic command; a first backup of a big folder can take hours."""
@@ -206,6 +208,45 @@ class Restic:
         return Result(
             proc.returncode if proc.returncode is not None else -1,
             out.decode("utf-8", errors="replace"),
+            err.decode("utf-8", errors="replace"),
+        )
+
+    async def stream(
+        self,
+        repo: Repository,
+        *args: str,
+        on_line: Callable[[str], Awaitable[None]],
+        timeout: float = RUN_TIMEOUT,
+    ) -> Result:
+        """Run `restic <args>`, handing each stdout line to `on_line` (for `--json` progress).
+
+        The result holds stderr only. Killed on timeout or cancel, like `run`.
+        """
+        proc = await asyncio.create_subprocess_exec(
+            str(self.binary),
+            *args,
+            env=_environment(repo, self.cache_dir),
+            stdin=asyncio.subprocess.DEVNULL,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        assert proc.stdout is not None and proc.stderr is not None
+
+        async def lines() -> None:
+            async for raw in proc.stdout:  # type: ignore[union-attr]
+                await on_line(raw.decode("utf-8", errors="replace").rstrip("\r\n"))
+
+        try:
+            async with asyncio.timeout(timeout):
+                _, err, _ = await asyncio.gather(lines(), proc.stderr.read(), proc.wait())
+        except BaseException:
+            with contextlib.suppress(ProcessLookupError):
+                proc.kill()
+            await proc.wait()
+            raise
+        return Result(
+            proc.returncode if proc.returncode is not None else -1,
+            "",
             err.decode("utf-8", errors="replace"),
         )
 
