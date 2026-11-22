@@ -31,7 +31,7 @@ def test_missing_file_means_defaults_and_gets_written(tmp_path: Path) -> None:
     assert f.load() == AthenaConfig()
     data = _on_disk(f)
     assert data["$schema"] == "./athena.schema.json"
-    assert list(data)[1:] == ["server", "system", "https", "ai", "webdav"]
+    assert list(data)[1:] == ["server", "system", "https", "ai", "webdav", "backup"]
     assert data["server"]["port"] == 8420
     assert data["system"]["terminal_enabled"] is True
     assert "tunnel_secrets_set" not in data["system"]

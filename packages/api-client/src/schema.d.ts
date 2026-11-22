@@ -2279,6 +2279,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/backup/destinations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Destinations */
+        get: operations["listBackupDestinations"];
+        put?: never;
+        /**
+         * Create Destination
+         * @description Create the repository (or open an existing one, which is how a new host finds old
+         *     backups) and keep its password, encrypted, for scheduled runs.
+         */
+        post: operations["createBackupDestination"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup/destinations/recovery-kit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Recovery Kit
+         * @description Check a destination and make its recovery kit, without creating anything yet.
+         */
+        post: operations["createBackupRecoveryKit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup/destinations/{destination_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Destination
+         * @description Forget a destination. The backups stay where they are unless `delete_backups`.
+         */
+        delete: operations["deleteBackupDestination"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2904,6 +2966,60 @@ export interface components {
             deleted: string[];
             /** Errors */
             errors: components["schemas"]["ItemError"][];
+        };
+        /**
+         * DestinationDraft
+         * @description What the admin typed; the recovery kit is made from it before anything is created.
+         */
+        DestinationDraft: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @default local
+             * @constant
+             */
+            kind: "local";
+            /** Path */
+            path: string;
+            /** Password */
+            password?: string | null;
+        };
+        /** DestinationIn */
+        DestinationIn: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @default local
+             * @constant
+             */
+            kind: "local";
+            /** Path */
+            path: string;
+            /** Password */
+            password: string;
+            /** Recovery Kit Saved */
+            recovery_kit_saved: boolean;
+        };
+        /** DestinationOut */
+        DestinationOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "local" | "rclone";
+            /** Location */
+            location: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** DiskUsage */
         DiskUsage: {
@@ -3772,6 +3888,19 @@ export interface components {
             selected?: string[];
             /** Custom */
             custom?: string | null;
+        };
+        /** RecoveryKit */
+        RecoveryKit: {
+            /** Name */
+            name: string;
+            /** Location */
+            location: string;
+            /** Password */
+            password: string;
+            /** Kit */
+            kit: string;
+            /** Filename */
+            filename: string;
         };
         /** RemoteDetail */
         RemoteDetail: {
@@ -8852,6 +8981,123 @@ export interface operations {
                 };
                 content: {
                     "application/x-x509-ca-cert": unknown;
+                };
+            };
+        };
+    };
+    listBackupDestinations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DestinationOut"][];
+                };
+            };
+        };
+    };
+    createBackupDestination: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DestinationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DestinationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    createBackupRecoveryKit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DestinationDraft"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecoveryKit"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deleteBackupDestination: {
+        parameters: {
+            query?: {
+                delete_backups?: boolean;
+            };
+            header?: never;
+            path: {
+                destination_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

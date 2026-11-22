@@ -281,3 +281,41 @@ class AutomationJobRun(SQLModel, table=True):
     output: str | None = None
     """Joined job log lines."""
     error: str | None = None
+
+
+class BackupDestination(SQLModel, table=True):
+    """A restic repository that backups go to (docs/specs/backup.md). Admin only."""
+
+    __tablename__ = "backup_destinations"
+
+    id: str = Field(primary_key=True, max_length=32)
+    name: str = Field(max_length=64, unique=True)
+    kind: str = Field(max_length=16)
+    """"local" (a folder or disk) or "rclone" (an rclone remote, `cloud` capability)."""
+    location: str
+    """The folder, or `<remote>:<path>` for rclone."""
+    password: str
+    """The repository password, encrypted with athena.crypto.SecretBox. Never returned."""
+    created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+
+
+class BackupPlan(SQLModel, table=True):
+    """What to back up, where and when (docs/specs/backup.md)."""
+
+    __tablename__ = "backup_plans"
+
+    id: str = Field(primary_key=True, max_length=32)
+    name: str = Field(max_length=64, unique=True)
+    destination_id: str = Field(foreign_key="backup_destinations.id", max_length=32)
+    items: str = "{}"
+    """JSON: the Athena flag and the apps with their opt-in bind mounts and running switch."""
+    schedule: str | None = None
+    """A cron expression, or null for manual runs only."""
+    retention: str = "{}"
+    """JSON `Retention` (keep last / daily / weekly / monthly)."""
+    enabled: bool = True
+    last_run_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    last_status: str | None = Field(default=None, max_length=16)
+    """"ok", "failed" or "skipped"."""
+    last_error: str | None = None
+    created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
