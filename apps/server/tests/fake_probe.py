@@ -25,6 +25,8 @@ class FakeProbe(Probe):
     env: dict[str, str] = field(default_factory=dict)
     files: dict[str, str] = field(default_factory=dict)
     """path -> text, for `read_text`."""
+    processes: list[tuple[int, str]] = field(default_factory=lambda: [(100, "python")])
+    """(pid, name) of the process and its parents, for `ancestry`."""
 
     def which(self, name: str) -> str | None:
         return self.binaries.get(name)
@@ -44,6 +46,9 @@ class FakeProbe(Probe):
 
     def is_root(self) -> bool:
         return self.root
+
+    def ancestry(self) -> list[tuple[int, str]]:
+        return list(self.processes)
 
     def windows_build(self) -> int:
         return self.build

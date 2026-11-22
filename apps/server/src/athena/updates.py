@@ -21,6 +21,7 @@ import urllib.request
 from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel
 
@@ -48,6 +49,11 @@ INSTALL_PS1 = (
 )
 
 Fetch = Callable[[str], dict[str, Any]]
+FetchList = Callable[[str], list[Any]]
+
+REPO_FILES_HOSTS = ("github.com", "objects.githubusercontent.com")
+RELEASE_VERSION = re.compile(r"(\d+\.\d+\.\d+)(?:[-.]?(a|b|rc)\.?(\d+))?")
+SUMS_NAME = "SHA256SUMS"
 
 
 class UpdateInfo(BaseModel):
@@ -83,15 +89,27 @@ def upgrade_command() -> str:
     return INSTALL_PS1 if current_os() == "windows" else INSTALL_SH
 
 
-def fetch_json(url: str) -> dict[str, Any]:
-    """GET `url` and parse the JSON object. Raises on any failure."""
+def _get_json(url: str, limit: int = 1024 * 1024) -> Any:
     request = urllib.request.Request(
         url, headers={"User-Agent": USER_AGENT, "Accept": "application/vnd.github+json"}
     )
     with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
-        data = json.loads(response.read(1024 * 1024))
+        return json.loads(response.read(limit))
+
+
+def fetch_json(url: str) -> dict[str, Any]:
+    """GET `url` and parse the JSON object. Raises on any failure."""
+    data = _get_json(url)
     if not isinstance(data, dict):
         raise ValueError("not a release")
+    return data
+
+
+def fetch_json_list(url: str) -> list[Any]:
+    """GET `url` and parse the JSON array (the releases list). Raises on any failure."""
+    data = _get_json(url, 4 * 1024 * 1024)
+    if not isinstance(data, list):
+        raise ValueError("not a list of releases")
     return data
 
 
@@ -156,3 +174,142 @@ async def check_loop(app: "FastAPI") -> None:
         with contextlib.suppress(TimeoutError):
             await asyncio.wait_for(wake.wait(), wait)
         wake.clear()
+
+
+# ---------------------------------------------------------------- self-update: the assets
+
+
+class ReleaseError(Exception):
+    """A readable reason a release can't be used (shown as is)."""
+
+
+class Release(BaseModel):
+    tag: str
+    version: str
+    """The wheel's PEP 440 version: tag `v0.2.0-rc.1` is `0.2.0rc1`."""
+    wheel_name: str
+    wheel_url: str
+    sums_url: str
+    html_url: str | None
+
+
+def wheel_version(text: str) -> str | None:
+    """`0.2.0`, `v0.2.0-rc.1` or `0.2.0rc1` as the wheel's PEP 440 version; None if invalid."""
+    match = RELEASE_VERSION.fullmatch(text.strip().removeprefix("v"))
+    if match is None:
+        return None
+    base, kind, number = match.groups()
+    return f"{base}{kind}{number}" if kind else base
+
+
+def version_key(version: str) -> tuple[tuple[int, ...], int, str, int] | None:
+    """Sort key for `wheel_version` strings: a pre-release sorts before its final."""
+    match = RELEASE_VERSION.fullmatch(version)
+    if match is None:
+        return None
+    base, kind, number = match.groups()
+    numbers = tuple(int(p) for p in base.split("."))
+    return (numbers, 0, kind, int(number)) if kind else (numbers, 1, "", 0)
+
+
+def release_wheel_name(version: str) -> str:
+    return f"athena_server-{version}-py3-none-any.whl"
+
+
+def _releases_root(check_url: str) -> str:
+    url = check_url.rstrip("/")
+    return url.removesuffix("/latest")
+
+
+def host_allowed(url: str, check_url: str) -> bool:
+    """HTTPS to GitHub (and its release CDN), or the host the update source setting names.
+
+    The setting is the server's own (forks, tests, mirrors), never a request field.
+    """
+    parts = urlsplit(url)
+    host = parts.hostname or ""
+    if parts.scheme == "https" and (
+        host in REPO_FILES_HOSTS
+        or host.endswith(".githubusercontent.com")
+        or host.endswith(".github.com")
+    ):
+        return True
+    source = urlsplit(check_url)
+    return (parts.scheme, parts.netloc) == (source.scheme, source.netloc) and parts.scheme in (
+        "http",
+        "https",
+    )
+
+
+def _release_from(data: dict[str, Any], check_url: str) -> Release:
+    tag = data.get("tag_name")
+    version = wheel_version(tag) if isinstance(tag, str) else None
+    if not isinstance(tag, str) or version is None:
+        raise ReleaseError("The release has no usable version")
+    wheel = release_wheel_name(version)
+    urls: dict[str, str] = {}
+    for asset in data.get("assets") or []:
+        if isinstance(asset, dict) and asset.get("name") in (wheel, SUMS_NAME):
+            link = asset.get("browser_download_url")
+            if isinstance(link, str):
+                urls[asset["name"]] = link
+    if wheel not in urls or SUMS_NAME not in urls:
+        raise ReleaseError(f"Release {tag} has no {wheel} and {SUMS_NAME}")
+    for link in urls.values():
+        if not host_allowed(link, check_url):
+            raise ReleaseError(f"Release {tag} points at {link}, which isn't an allowed host")
+    html_url = data.get("html_url")
+    return Release(
+        tag=tag,
+        version=version,
+        wheel_name=wheel,
+        wheel_url=urls[wheel],
+        sums_url=urls[SUMS_NAME],
+        html_url=html_url if isinstance(html_url, str) else None,
+    )
+
+
+def resolve(
+    check_url: str,
+    version: str | None = None,
+    *,
+    pre: bool = False,
+    fetch: Fetch = fetch_json,
+    fetch_list: FetchList = fetch_json_list,
+) -> Release:
+    """Find the wheel and checksum URLs of a release, when the admin starts an update.
+
+    Uses the notice's source (`update_check_url`), so forks and tests redirect both. With no
+    `version` it asks for the latest stable release (or, with `pre`, the newest of any kind).
+    The version is validated before it becomes part of a URL. Raises `ReleaseError`.
+    """
+    if not check_url:
+        raise ReleaseError("The update source is turned off (update_check_url is empty)")
+    root = _releases_root(check_url)
+    try:
+        if version is not None:
+            wanted = wheel_version(version)
+            if wanted is None:
+                raise ReleaseError(
+                    f"{version!r} isn't a release version (like 0.2.0 or 0.2.0-rc.1)"
+                )
+            tag = "v" + version.strip().removeprefix("v")
+            data = fetch(f"{root}/tags/{tag}")
+        elif pre:
+            listing = fetch_list(f"{root}?per_page=10")
+            found = next(
+                (r for r in listing if isinstance(r, dict) and not r.get("draft")),
+                None,
+            )
+            if found is None:
+                raise ReleaseError("No release found")
+            data = found
+        else:
+            data = fetch(f"{root}/latest")
+    except (OSError, ValueError) as exc:
+        raise ReleaseError(f"Couldn't read the release: {exc}") from exc
+    if data.get("draft"):
+        raise ReleaseError("That release is a draft")
+    if version is None and not pre and data.get("prerelease"):
+        raise ReleaseError("The latest release is a pre-release")
+    return _release_from(data, check_url)

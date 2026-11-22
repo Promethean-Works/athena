@@ -169,3 +169,48 @@ def test_execute_runs_steps_and_stops_on_failure(tmp_path: Path) -> None:
     assert (tmp_path / "d").is_dir()
     assert not (tmp_path / "never").exists()
     assert calls == [["ignored"], ["fail"]]
+
+
+# ---------------------------------------------------------------- stop and start (self-update)
+
+
+def argvs(plan: Plan) -> list[list[str]]:
+    return [s.argv for s in plan.steps if isinstance(s, Run)]
+
+
+def test_linux_stop_and_start() -> None:
+    from athena.service import build_start, build_stop
+
+    assert argvs(build_stop("linux")) == [["systemctl", "stop", "athena"]]
+    assert argvs(build_start("linux")) == [["systemctl", "start", "athena"]]
+
+
+def test_macos_stop_waits_for_launchd_and_start_bootstraps() -> None:
+    from athena.service import build_start, build_stop
+
+    stop = argvs(build_stop("darwin"))
+    assert (
+        len(stop) == 1 and "launchctl bootout" in stop[0][-1] and "launchctl print" in stop[0][-1]
+    )
+    start = argvs(build_start("darwin"))
+    assert start[0] == stop[0]
+    assert start[1][:2] == ["launchctl", "bootstrap"]
+    assert start[1][-1].endswith("io.github.tiagozaccaro.athena.plist")
+
+
+def test_windows_stop_ends_the_task_and_the_real_interpreter() -> None:
+    from athena.service import build_start, build_stop
+    from athena.service.platforms import WINDOWS_STOP_SERVER
+
+    stop = argvs(build_stop("win32"))
+    assert stop[0] == ["schtasks", "/End", "/TN", "Athena"]
+    assert stop[1][-1] == WINDOWS_STOP_SERVER
+    assert argvs(build_start("win32")) == [["schtasks", "/Run", "/TN", "Athena"]]
+
+
+def test_stop_and_start_reject_other_platforms() -> None:
+    from athena.service import build_start, build_stop
+
+    for build in (build_stop, build_start):
+        with pytest.raises(UnsupportedPlatformError):
+            build("freebsd14")

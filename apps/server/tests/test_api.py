@@ -137,3 +137,17 @@ def test_logging_writes_to_data_dir(tmp_path: Path) -> None:
     for handler in list(logging.getLogger().handlers):
         logging.getLogger().removeHandler(handler)
         handler.close()
+
+
+def test_request_exit_stops_without_asking_for_a_restart() -> None:
+    server = FakeServer()
+    restart.register(None)
+    assert restart.request_exit() is False
+    restart.register(server)
+    try:
+        assert restart.request_exit() is True
+        assert server.should_exit is True
+        assert restart.exit_requested() and not restart.requested()
+    finally:
+        restart.register(None)
+    assert not restart.exit_requested()

@@ -9,10 +9,11 @@ from typing import Literal
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from athena import __version__, audit, restart
+from athena import __version__, audit, restart, self_update
 from athena.auth.deps import Authed, DbSession, require_user
+from athena.jobs import Job, JobOut
 from athena.monitor import HostMonitor, StatsSnapshot
 from athena.updates import UpdateInfo, enabled
 
@@ -103,6 +104,75 @@ def update_info(request: Request) -> UpdateInfo:
     """Whether a newer Athena release is out, from the daily check (no network call here)."""
     app = request.app
     return app.state.updates.info(enabled(app) and bool(app.state.settings.update_check_url))
+
+
+class StartUpdate(BaseModel):
+    version: str | None = Field(default=None, pattern=r"^\d+\.\d+\.\d+([-.]?(a|b|rc)\.?\d+)?$")
+    """A specific release; the latest stable one when omitted."""
+
+
+EXIT_DELAY_SECONDS = 0.5
+
+
+@router.post(
+    "/system/update",
+    operation_id="startUpdate",
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[require_user],
+)
+async def start_update(body: StartUpdate, request: Request, user: Authed, db: DbSession) -> JobOut:
+    """Download and check a release, then hand over to the helper, which swaps Athena while
+    the server is stopped (admins only). Follow the job at /api/jobs/{id}/events."""
+    if not user.user.is_admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can update Athena")
+    app = request.app
+    capability = (await app.state.capabilities.get()).get("self_update")
+    if capability is None or not capability.available:
+        reason = capability.detail if capability else None
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            reason or "This Athena can't update itself",
+        )
+    data_dir = app.state.settings.data_dir
+    running: Job | None = getattr(app.state, "update_job", None)
+    if (
+        (running is not None and running.status == "running")
+        or restart.exit_requested()
+        or self_update.lock_holder(self_update.Paths(data_dir)) is not None
+    ):
+        raise HTTPException(status.HTTP_409_CONFLICT, "An update is already running")
+    opts = self_update.Options(
+        data_dir=data_dir, version=body.version, check_url=app.state.settings.update_check_url
+    )
+    loop = asyncio.get_running_loop()
+
+    async def run(job: Job) -> None:
+        pending: set[asyncio.Task[None]] = set()
+
+        def say(line: str) -> None:  # also called from worker threads
+            def add() -> None:
+                task = loop.create_task(job.log(line))
+                pending.add(task)
+                task.add_done_callback(pending.discard)
+
+            loop.call_soon_threadsafe(add)
+
+        def handoff() -> None:
+            loop.call_later(EXIT_DELAY_SECONDS, restart.request_exit)
+
+        try:
+            await self_update.run_from_server(opts, say, handoff)
+        except self_update.UpdateError as exc:
+            raise RuntimeError(str(exc)) from exc
+        finally:
+            await asyncio.sleep(0)  # let the queued log lines land before the job ends
+            if pending:
+                await asyncio.gather(*pending)
+
+    job = app.state.jobs.start("Update Athena", run)
+    app.state.update_job = job
+    audit.record(db, user.user.username, "system.update.start", body.version or "latest")
+    return job.out()
 
 
 def _monitor(request: Request) -> HostMonitor:

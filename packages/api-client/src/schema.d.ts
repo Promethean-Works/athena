@@ -71,7 +71,12 @@ export interface paths {
          */
         get: operations["getUpdateInfo"];
         put?: never;
-        post?: never;
+        /**
+         * Start Update
+         * @description Download and check a release, then hand over to the helper, which swaps Athena while
+         *     the server is stopped (admins only). Follow the job at /api/jobs/{id}/events.
+         */
+        post: operations["startUpdate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4312,6 +4317,11 @@ export interface components {
              */
             created_at: string;
         };
+        /** StartUpdate */
+        StartUpdate: {
+            /** Version */
+            version?: string | null;
+        };
         /**
          * StatsSample
          * @description One sample of the fast-changing metrics. Rates are per second since the last sample.
@@ -4977,6 +4987,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UpdateInfo"];
+                };
+            };
+        };
+    };
+    startUpdate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -19,6 +19,7 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Dev mode | `pnpm dev` (Next on :3000, proxies `/api` to :8420) plus `uv run athena serve` |
 | Build the wheel | `scripts/build-wheel.sh` (also used by `release.yml` and the E2E workflow) |
 | Store apps start for real | `cd apps/server && uv run python -m athena.catalog.smoke --changed` (or `<id>…`, or `--all --jobs 3`); report in `catalog-smoke-report/` |
+| Self-update on a Lima VM | `python3 scripts/e2e/update_check.py --wheel dist/athena_server-*.whl --build-only`, install the printed A wheel with `install.sh --wheel`, then the same command without `--build-only` plus `--athena`, `--data-dir`, `--port`, `--sudo` (what the E2E `update` job runs) |
 | Installer dry run | `scripts/install.sh --dry-run`; `athena service install --dry-run` |
 | PR status | `gh pr checks <n>`, `gh run view <run-id> --log-failed`, `gh api repos/Promethean-Works/athena/code-scanning/alerts?state=open` |
 

@@ -122,7 +122,7 @@ def launchd_plist(spec: ServiceSpec) -> str:
     return plistlib.dumps(data).decode()
 
 
-def _launchd_domain() -> str:
+def launchd_domain() -> str:
     getuid = getattr(os, "getuid", None)  # POSIX only; plans are also built in tests on Windows
     return f"gui/{getuid() if getuid else 0}"
 
@@ -137,7 +137,7 @@ def _launchd_bootout() -> Run:
     to shut down), and a `bootstrap` right after fails with "5: Input/output error".
     That broke every reinstall over a running agent: upgrades and service restarts.
     """
-    target = f"{_launchd_domain()}/{LAUNCHD_LABEL}"
+    target = f"{launchd_domain()}/{LAUNCHD_LABEL}"
     tries = LAUNCHD_BOOTOUT_WAIT_SECONDS * 2
     script = (
         f"launchctl bootout {target} 2>/dev/null; i=0; "
@@ -156,7 +156,7 @@ def _darwin_install(spec: ServiceSpec) -> Plan:
             WriteFile(plist, launchd_plist(spec)),
             # Replace a previously loaded agent (fails harmlessly if none is loaded).
             _launchd_bootout(),
-            Run(["launchctl", "bootstrap", _launchd_domain(), str(plist)]),
+            Run(["launchctl", "bootstrap", launchd_domain(), str(plist)]),
         ],
     )
 
@@ -174,7 +174,7 @@ def _darwin_uninstall() -> Plan:
 def _darwin_status() -> Plan:
     return Plan(
         "launchd agent status",
-        [Run(["launchctl", "print", f"{_launchd_domain()}/{LAUNCHD_LABEL}"])],
+        [Run(["launchctl", "print", f"{launchd_domain()}/{LAUNCHD_LABEL}"])],
     )
 
 
@@ -262,6 +262,46 @@ def _windows_status() -> Plan:
     )
 
 
+# ---------------------------------------------------------------- stop and start (self-update)
+#
+# The self-update helper stops the service, swaps the install and starts it again. These
+# are the same commands `service install` uses, kept here so the per-OS logic lives in one
+# tested place and the helper (which never imports athena) just runs the argv lists.
+
+
+def _linux_stop() -> Plan:
+    return Plan("Stopping the systemd service", [Run(["systemctl", "stop", SERVICE_NAME])])
+
+
+def _linux_start() -> Plan:
+    return Plan("Starting the systemd service", [Run(["systemctl", "start", SERVICE_NAME])])
+
+
+def _darwin_stop() -> Plan:
+    return Plan("Stopping the launchd agent", [_launchd_bootout()])
+
+
+def _darwin_start() -> Plan:
+    return Plan(
+        "Starting the launchd agent",
+        [
+            _launchd_bootout(),  # a loaded agent has to go first, or bootstrap fails
+            Run(["launchctl", "bootstrap", launchd_domain(), str(launchd_plist_path())]),
+        ],
+    )
+
+
+def _windows_stop_plan() -> Plan:
+    return Plan(f"Stopping Scheduled Task '{WINDOWS_TASK}'", list(_windows_stop()))
+
+
+def _windows_start() -> Plan:
+    return Plan(
+        f"Starting Scheduled Task '{WINDOWS_TASK}'",
+        [Run(["schtasks", "/Run", "/TN", WINDOWS_TASK])],
+    )
+
+
 # ---------------------------------------------------------------- dispatch
 
 
@@ -288,5 +328,17 @@ def build_uninstall(platform: str | None = None) -> Plan:
 
 def build_status(platform: str | None = None) -> Plan:
     return {"linux": _linux_status, "darwin": _darwin_status, "win32": _windows_status}[
+        _platform(platform)
+    ]()
+
+
+def build_stop(platform: str | None = None) -> Plan:
+    return {"linux": _linux_stop, "darwin": _darwin_stop, "win32": _windows_stop_plan}[
+        _platform(platform)
+    ]()
+
+
+def build_start(platform: str | None = None) -> Plan:
+    return {"linux": _linux_start, "darwin": _darwin_start, "win32": _windows_start}[
         _platform(platform)
     ]()
