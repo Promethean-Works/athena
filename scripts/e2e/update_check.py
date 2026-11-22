@@ -178,6 +178,7 @@ def api(
     body: dict | None = None,
     cookie: str | None = None,
     csrf: str | None = None,
+    timeout: float = 10,
 ):
     data = json.dumps(body).encode() if body is not None else None
     request = urllib.request.Request(base + path, data=data, method="POST" if data else "GET")
@@ -186,7 +187,7 @@ def api(
         request.add_header("Cookie", cookie)
     if csrf:
         request.add_header("X-CSRF-Token", csrf)
-    with urllib.request.urlopen(request, timeout=10) as response:
+    with urllib.request.urlopen(request, timeout=timeout) as response:
         raw = response.read()
         return json.loads(raw) if raw else None, response.headers.get("Set-Cookie")
 
@@ -357,7 +358,10 @@ def server_update(args: argparse.Namespace, base: str, release: "Release") -> No
     body, set_cookie = api(base, "/api/auth/login", {"username": "admin", "password": PASSWORD})
     assert set_cookie, "sign-in set no cookie"
     cookie, csrf = set_cookie.split(";")[0], body["csrf_token"]
-    capabilities = api(base, "/api/system/capabilities", cookie=cookie)[0]["capabilities"]
+    # The first detection after a start can take a while on Windows (WSL and Docker probes).
+    capabilities = api(base, "/api/system/capabilities", cookie=cookie, timeout=180)[0][
+        "capabilities"
+    ]
     capability = next(c for c in capabilities if c["id"] == "self_update")
     assert capability["status"] == "ready", f"self_update isn't ready: {capability}"
     before = health(base)
@@ -379,8 +383,6 @@ def server_update(args: argparse.Namespace, base: str, release: "Release") -> No
 
     wait_for("the server to hand the update over", job_done, timeout=300)
     print("\n".join(f"  job: {line}" for line in lines), flush=True)
-    launched = next((line for line in lines if "without the server" in line), "")
-    print(f"helper started by: {launched or '(not seen)'}", flush=True)
     state = settle(args, began, ("done", "failed", "rolled_back"))
     assert state["phase"] == "done", state
     wait_for("E to answer", lambda: (health(base) or {}).get("version") == VERSIONS["e"])
@@ -390,8 +392,12 @@ def server_update(args: argparse.Namespace, base: str, release: "Release") -> No
     assert path_exists(args.data_dir / "update-e2e-marker.txt")
     wait_for("the helper to exit", lambda: not leftover_helpers(), timeout=60)
     assert not leftover_update_jobs(), leftover_update_jobs()
+    server_log = read_log(args.data_dir, "athena.log")
+    started = [ln for ln in server_log.splitlines() if "update helper started" in ln]
+    print(f"helper started by: {started[-1] if started else '(not logged)'}", flush=True)
+    assert started, "the server never logged how it started the helper"
     if sys.platform.startswith("linux"):
-        assert "systemd-run" in launched, "the helper must run as a transient unit on Linux"
+        assert "systemd-run" in started[-1], "the helper must run as a transient unit on Linux"
     for name in ("update.log", "athena.log"):
         assert "WinError 6" not in read_log(args.data_dir, name), f"WinError 6 in {name}"
 

@@ -11,6 +11,7 @@ branches on `sys.platform` except where the helper must outlive this process (Wi
 
 import asyncio
 import json
+import logging
 import os
 import shutil
 import sqlite3
@@ -36,6 +37,8 @@ from athena.service.platforms import (
     launchd_plist_path,
 )
 from athena.updates import Release, ReleaseError
+
+log = logging.getLogger(__name__)
 
 TOOL_NAME = "athena-server"
 PYTHON = "3.13"
@@ -651,9 +654,11 @@ def start_detached(
     """Start the helper from the server so that it outlives it (`update_launch`)."""
     argv = helper_argv(plan, paths, tools, uv, gui=True)
     try:
-        return update_launch.launch(argv, {**os.environ, **tools.env()})
+        launched = update_launch.launch(argv, {**os.environ, **tools.env()})
     except update_launch.LaunchError as exc:
         raise UpdateError(str(exc)) from exc
+    log.info("update helper started: %s", launched.how)  # the E2E reads this from athena.log
+    return launched
 
 
 async def run_from_server(
