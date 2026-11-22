@@ -64,8 +64,8 @@ Things marked "not verified" in STATUS that a first user hits on day one.
 
 ## 6. Docs and first impression (Must)
 
-- [ ] **README:** drop "pre-alpha" and "Planned features"; say what 0.1.0 does, supported OSes and CPUs (64-bit only), requirements (RAM, disk, Docker/Colima/WSL), install, upgrade, uninstall (`--uninstall [--purge]`), screenshots of the dashboard, store and assistant, and the full CLI list (`https`, `config`, `restore`).
-- [ ] **CONTRIBUTING:** the release section says "install scripts and packages"; it's the wheel, the scripts and `SHA256SUMS`.
+- [x] **README:** drop "pre-alpha" and "Planned features"; say what 0.1.0 does, supported OSes and CPUs (64-bit only), requirements (RAM, disk, Docker/Colima/WSL), install, upgrade, uninstall (`--uninstall [--purge]`), screenshots of the dashboard, store and assistant, and the full CLI list (`https`, `config`, `restore`).
+- [x] **CONTRIBUTING:** the release section says "install scripts and packages"; it's the wheel, the scripts and `SHA256SUMS`.
 - [ ] **Post-release policy in AGENTS.md:** once 0.1.0 is out, data and settings changes need real migrations (Alembic and `athena.json`) instead of "convert the dev data once". Update the rule in the same PR that merges #3.
 
 ## 7. Should (in if ready, else 0.1.x)

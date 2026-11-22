@@ -4,9 +4,7 @@
 
 Athena manages containers, apps, host packages, files and cloud storage from one web dashboard, and includes an AI assistant that can operate it all. It's in the spirit of [CasaOS](https://github.com/IceWhaleTech/CasaOS), but cross-platform: it detects what your machine has and only shows what works there.
 
-> **Status: pre-alpha.** Nothing has been released yet. The current milestone is in [docs/STATUS.md](docs/STATUS.md).
-
-## Planned features (MVP)
+## What 0.1.0 does
 
 - **Apps**: an app store plus custom apps from `docker run` commands or `compose.yaml`. Uses Docker Engine on Linux, [Colima](https://github.com/abiosoft/colima) on macOS, and Docker Engine in WSL2 or Podman on Windows.
 - **Packages**: install and update host software with apt, dnf, pacman, zypper, apk, flatpak, snap, Homebrew, winget, Scoop or Chocolatey, whichever your system has.
@@ -15,11 +13,21 @@ Athena manages containers, apps, host packages, files and cloud storage from one
 - **Files and sharing**: a file manager, share links and WebDAV shares.
 - **Cloud storage**: Google Drive, OneDrive, Dropbox, S3 and more through [rclone](https://rclone.org).
 - **AI assistant**: built on [Pydantic AI](https://ai.pydantic.dev). It works with cloud models or local Ollama, and asks for your approval before changing anything.
+- **Automation**: cron and webhook triggers, and an MCP server.
+- **Remote access and HTTPS**: tunnels, and HTTPS with a local CA or Let's Encrypt.
 - **Appearance**: switch base color, theme, chart colors, fonts and radius live.
+
+## Supported systems and requirements
+
+- **Systems:** Linux (systemd), macOS (launchd, Homebrew) and Windows (start at logon).
+- **CPUs:** 64-bit only, amd64 and arm64 (including a Raspberry Pi 4 or 5 running 64-bit Raspberry Pi OS). The installer refuses a 32-bit system.
+- **Container runtime:** the installer sets up Docker Engine on Linux (skip with `--no-runtime`) and Colima with Homebrew on macOS. On Windows it doesn't install one: bring Docker Engine in WSL2, Podman or Rancher Desktop, and the installer prints the steps when none is found.
+- **Python and uv:** the installer installs [uv](https://docs.astral.sh/uv/) if missing, and uv provides Python.
+- On macOS, run the installer as your normal user, not root.
 
 Athena uses open-source dependencies only. See the full design in [docs/design/README.md](docs/design/README.md).
 
-## Install (once the first release is out)
+## Install
 
 **Linux / macOS**
 
@@ -33,7 +41,44 @@ curl -fsSL https://github.com/Promethean-Works/athena/releases/latest/download/i
 irm https://github.com/Promethean-Works/athena/releases/latest/download/install.ps1 | iex
 ```
 
-Then open `http://<your-server-ip>:8420`. The first visit asks you to create the administrator account. Run the script with `--help` (or `-Help` on Windows) to see options such as a specific version, a dry run, or uninstall.
+Then open `http://<your-server-ip>:8420`. The first visit asks you to create the administrator account. Run the script with `--help` (or `-Help` on Windows) to see options such as a specific version, a dry run, or uninstall. The installer checks the wheel against the release's `SHA256SUMS` before installing it.
+
+**Upgrade:** run the install command again. It installs the latest release over the old one (or pass `--version <x.y.z>`; `-Version` on Windows) and keeps your data.
+
+**Uninstall:** `--uninstall` removes Athena and keeps its data; add `--purge` to delete the data folder too.
+
+```bash
+curl -fsSL https://github.com/Promethean-Works/athena/releases/latest/download/install.sh | bash -s -- --uninstall [--purge]
+```
+
+On Windows, use `-Uninstall [-Purge]` with the PowerShell form that takes options (see `-Help`).
+
+## Command line
+
+The `athena` command (`athena --help`):
+
+| Command | What it does |
+|---|---|
+| `serve` | run the server |
+| `start`, `stop` | start or stop the server in the background |
+| `service install\|uninstall\|status` | register Athena to start automatically, or remove it |
+| `doctor` | host and server diagnostics |
+| `admin reset-password` | set a new password for an account |
+| `config path\|show\|check\|reset` | find, check or reset `athena.json` |
+| `https status\|off` | show HTTPS settings, or turn HTTPS off |
+| `openapi` | print or write the OpenAPI schema |
+
+## Known limitations
+
+- Linux install and uninstall of packages was checked with apt only; dnf, pacman, zypper and apk, and every Windows package manager, are not yet tested on real hosts.
+- The Windows terminal (ConPTY and PowerShell) and the container shell through Docker in WSL are tested in CI only.
+- HTTPS with Let's Encrypt or Cloudflare, and trusting the local CA on real devices, are not yet verified. The last renewal result is kept in memory only.
+- Tunnels: a Cloudflare quick tunnel is tested for real; named tunnels, ngrok, Tailscale and Windows are not.
+- The assistant's browser tool is blocked by an upstream dependency conflict and is off.
+- Durable execution of assistant turns is experimental.
+- Store apps were install-tested on macOS arm64; logins and real use of each app are not verified, and a few heavy apps are marked as skipped.
+
+
 
 **Forgot the admin password?** Run this on the server (with `sudo` on Linux), then sign in with the new password. All existing sessions are signed out.
 
@@ -87,7 +132,7 @@ Open http://localhost:3000. `next dev` proxies `/api` to the server on port 8420
 | `apps/web` | Next.js app (static export), app shell from the shadcn `dashboard-01` block |
 | `packages/ui` | shadcn/ui components shared by the app |
 | `packages/api-client` | Typed API client generated from the server's OpenAPI schema |
-| `apps/server` | FastAPI server and the `athena` CLI (`serve`, `start`, `stop`, `openapi`, `service install\|uninstall\|status`, `doctor`, `config path\|show\|check\|reset`, `admin reset-password`) |
+| `apps/server` | FastAPI server and the `athena` CLI (`serve`, `start`, `stop`, `openapi`, `service install\|uninstall\|status`, `doctor`, `config path\|show\|check\|reset`, `https status\|off`, `admin reset-password`) |
 
 More reading:
 
