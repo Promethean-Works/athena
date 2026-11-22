@@ -157,6 +157,7 @@ def create_app(
     app.state.share_throttle = LoginThrottle(limit=10)
     app.state.jobs = JobManager()
     app.state.app_jobs = {}
+    app.state.backup_locks = {}
     app.state.started_at = datetime.now(UTC)
     app.state.monitor = monitor or HostMonitor()
     app.state.package_runner = run_command

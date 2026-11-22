@@ -2341,6 +2341,65 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/backup/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Plans */
+        get: operations["listBackupPlans"];
+        put?: never;
+        /** Create Plan */
+        post: operations["createBackupPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup/plans/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Plan */
+        put: operations["updateBackupPlan"];
+        post?: never;
+        /**
+         * Delete Plan
+         * @description Forget a plan. Its backups stay in the destination.
+         */
+        delete: operations["deleteBackupPlan"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup/plans/{plan_id}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Plan
+         * @description Back up every item of the plan now. Follow progress at /api/jobs/{id}/events.
+         */
+        post: operations["runBackupPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3702,6 +3761,74 @@ export interface components {
              */
             path: string;
         };
+        /**
+         * PlanApp
+         * @description One app in a plan.
+         */
+        PlanApp: {
+            /** Name */
+            name: string;
+            /**
+             * While Running
+             * @default false
+             */
+            while_running: boolean;
+        };
+        /** PlanIn */
+        PlanIn: {
+            /** Name */
+            name: string;
+            /** Destination Id */
+            destination_id: string;
+            items: components["schemas"]["PlanItems"];
+            /** Schedule */
+            schedule?: string | null;
+            retention?: components["schemas"]["Retention"];
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+        };
+        /**
+         * PlanItems
+         * @description Athena itself and the apps a plan backs up. Each becomes its own restic snapshot.
+         */
+        PlanItems: {
+            /**
+             * Athena
+             * @default true
+             */
+            athena: boolean;
+            /** Apps */
+            apps?: components["schemas"]["PlanApp"][];
+        };
+        /** PlanOut */
+        PlanOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Destination Id */
+            destination_id: string;
+            items: components["schemas"]["PlanItems"];
+            /** Schedule */
+            schedule: string | null;
+            retention: components["schemas"]["Retention"];
+            /** Enabled */
+            enabled: boolean;
+            /** Last Run At */
+            last_run_at: string | null;
+            /** Last Status */
+            last_status: ("ok" | "failed" | "skipped") | null;
+            /** Last Error */
+            last_error: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** PlanStep */
         PlanStep: {
             /** Id */
@@ -3958,6 +4085,32 @@ export interface components {
             path: string;
             /** Name */
             name: string;
+        };
+        /**
+         * Retention
+         * @description How many versions of each item a plan keeps (`restic forget --keep-…`).
+         */
+        Retention: {
+            /**
+             * Keep Last
+             * @default 7
+             */
+            keep_last: number;
+            /**
+             * Keep Daily
+             * @default 7
+             */
+            keep_daily: number;
+            /**
+             * Keep Weekly
+             * @default 4
+             */
+            keep_weekly: number;
+            /**
+             * Keep Monthly
+             * @default 6
+             */
+            keep_monthly: number;
         };
         /** SettingsFileOut */
         SettingsFileOut: {
@@ -9090,6 +9243,154 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listBackupPlans: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOut"][];
+                };
+            };
+        };
+    };
+    createBackupPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    updateBackupPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deleteBackupPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    runBackupPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
             };
             /** @description Validation Error */
             422: {

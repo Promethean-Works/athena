@@ -6239,6 +6239,199 @@
           }
         }
       }
+    },
+    "/api/backup/plans": {
+      "get": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "List Plans",
+        "operationId": "listBackupPlans",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlanOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listbackupplans"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Create Plan",
+        "operationId": "createBackupPlan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/backup/plans/{plan_id}": {
+      "put": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Update Plan",
+        "operationId": "updateBackupPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Delete Plan",
+        "description": "Forget a plan. Its backups stay in the destination.",
+        "operationId": "deleteBackupPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/backup/plans/{plan_id}/run": {
+      "post": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Run Plan",
+        "description": "Back up every item of the plan now. Follow progress at /api/jobs/{id}/events.",
+        "operationId": "runBackupPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -9996,6 +10189,189 @@
         "title": "Place",
         "description": "A folder in a location or on a remote: exactly one of `location` and `remote`."
       },
+      "PlanApp": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 63,
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+            "title": "Name"
+          },
+          "while_running": {
+            "type": "boolean",
+            "title": "While Running",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "PlanApp",
+        "description": "One app in a plan."
+      },
+      "PlanIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "destination_id": {
+            "type": "string",
+            "title": "Destination Id"
+          },
+          "items": {
+            "$ref": "#/components/schemas/PlanItems"
+          },
+          "schedule": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schedule"
+          },
+          "retention": {
+            "$ref": "#/components/schemas/Retention"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "destination_id",
+          "items"
+        ],
+        "title": "PlanIn"
+      },
+      "PlanItems": {
+        "properties": {
+          "athena": {
+            "type": "boolean",
+            "title": "Athena",
+            "default": true
+          },
+          "apps": {
+            "items": {
+              "$ref": "#/components/schemas/PlanApp"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Apps"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PlanItems",
+        "description": "Athena itself and the apps a plan backs up. Each becomes its own restic snapshot."
+      },
+      "PlanOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "destination_id": {
+            "type": "string",
+            "title": "Destination Id"
+          },
+          "items": {
+            "$ref": "#/components/schemas/PlanItems"
+          },
+          "schedule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schedule"
+          },
+          "retention": {
+            "$ref": "#/components/schemas/Retention"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "last_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run At"
+          },
+          "last_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "failed",
+                  "skipped"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Status"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "destination_id",
+          "items",
+          "schedule",
+          "retention",
+          "enabled",
+          "last_run_at",
+          "last_status",
+          "last_error",
+          "created_at"
+        ],
+        "title": "PlanOut"
+      },
       "PlanStep": {
         "properties": {
           "id": {
@@ -10605,6 +10981,42 @@
           "name"
         ],
         "title": "RenameIn"
+      },
+      "Retention": {
+        "properties": {
+          "keep_last": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Keep Last",
+            "default": 7
+          },
+          "keep_daily": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Keep Daily",
+            "default": 7
+          },
+          "keep_weekly": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Keep Weekly",
+            "default": 4
+          },
+          "keep_monthly": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Keep Monthly",
+            "default": 6
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Retention",
+        "description": "How many versions of each item a plan keeps (`restic forget --keep-\u2026`)."
       },
       "SettingsFileOut": {
         "properties": {
