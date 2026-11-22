@@ -61,7 +61,7 @@ gh pr merge <n> --squash --auto --delete-branch      # always, without asking
 ```bash
 gh pr checks <n>                                   # summary; re-run until nothing is pending
 gh run view <run-id> --log-failed | tail -80       # the failing step's output
-gh api 'repos/tiagozaccaro/athena/code-scanning/alerts?state=open&ref=refs/pull/<n>/merge' \
+gh api 'repos/Promethean-Works/athena/code-scanning/alerts?state=open&ref=refs/pull/<n>/merge' \
   --jq '.[] | "\(.rule.id) \(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line) \(.rule.description)"'
 gh pr view <n> --json state,mergeStateStatus,mergedAt
 ```

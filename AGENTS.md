@@ -1,6 +1,6 @@
 # Athena
 
-Self-hosted home server control panel (CasaOS-style) for **Linux, macOS and Windows**. Public repo: `github.com/tiagozaccaro/athena`.
+Self-hosted home server control panel (CasaOS-style) for **Linux, macOS and Windows**. Public repo: `github.com/Promethean-Works/athena`.
 
 This file is the single source of instructions for every coding agent (Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, Copilot, oh-my-pi). Other agents' files only point here. Every session loads this file, so it stays short: **read the rest only when the task needs it** (see [Read when](#read-when)).
 

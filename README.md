@@ -24,13 +24,13 @@ Athena uses open-source dependencies only. See the full design in [docs/design/R
 **Linux / macOS**
 
 ```bash
-curl -fsSL https://github.com/tiagozaccaro/athena/releases/latest/download/install.sh | bash
+curl -fsSL https://github.com/Promethean-Works/athena/releases/latest/download/install.sh | bash
 ```
 
 **Windows** (PowerShell)
 
 ```powershell
-irm https://github.com/tiagozaccaro/athena/releases/latest/download/install.ps1 | iex
+irm https://github.com/Promethean-Works/athena/releases/latest/download/install.ps1 | iex
 ```
 
 Then open `http://<your-server-ip>:8420`. The first visit asks you to create the administrator account. Run the script with `--help` (or `-Help` on Windows) to see options such as a specific version, a dry run, or uninstall.

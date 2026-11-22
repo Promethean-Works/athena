@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Athena installer for Linux and macOS.
 #
-#   curl -fsSL https://github.com/tiagozaccaro/athena/releases/latest/download/install.sh | bash
+#   curl -fsSL https://github.com/Promethean-Works/athena/releases/latest/download/install.sh | bash
 #   curl -fsSL …/install.sh | bash -s -- --version 0.2.0
 #   sudo bash install.sh --wheel dist/athena_server-0.2.0-py3-none-any.whl   # unreleased build
 #
@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-REPO="tiagozaccaro/athena"
+REPO="Promethean-Works/athena"
 PORT=8420
 
 VERSION=""

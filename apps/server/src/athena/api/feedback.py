@@ -48,7 +48,7 @@ class IssueUrl(BaseModel):
     target: Literal["athena", "catalog"]
     """Athena's own repository, or the app's catalog repository."""
     target_name: str
-    """Human name of where it goes, e.g. "tiagozaccaro/athena" or "Big Bear catalog"."""
+    """Human name of where it goes, e.g. "Promethean-Works/athena" or "Big Bear catalog"."""
     logs_truncated: bool
 
 

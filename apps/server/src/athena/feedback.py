@@ -96,7 +96,7 @@ def app_report_body(
     """The Markdown body of a report sent to a third-party catalog's repository."""
     lines = [
         f"The app **{title}** (`{app_id}`) doesn't work when installed with "
-        "[Athena](https://github.com/tiagozaccaro/athena).",
+        "[Athena](https://github.com/Promethean-Works/athena).",
         "",
         "**What happened:** <!-- what you did, what you expected, what happened -->",
         "",

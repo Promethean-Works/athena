@@ -29,7 +29,7 @@ def default_data_dir() -> Path:
     return Path(user_data_dir("Athena", appauthor=False)) / "data"
 
 
-DEFAULT_FEEDBACK_REPO = "https://github.com/tiagozaccaro/athena"
+DEFAULT_FEEDBACK_REPO = "https://github.com/Promethean-Works/athena"
 SETTINGS_FILE = "athena.json"
 SECTIONS = ("server", "system", "https", "ai", "webdav", "backup")
 """The sections of athena.json, in file order (`athena.settings_file.AthenaConfig`)."""
