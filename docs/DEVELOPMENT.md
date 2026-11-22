@@ -77,7 +77,7 @@ Many of these files are generated from one source by `node scripts/agents-sync.m
 | Everything CI checks | `scripts/check.sh` (`--quick` skips the web build) |
 | After changing an API route | `pnpm gen:api` (CI fails if the client is stale) |
 
-Port 8420 is the default for an installed Athena, so use another one (8421) when you already run Athena on the same machine. VS Code launch and task configurations are in `.vscode/`. More commands are in `docs/agents/commands.md`.
+Port 8420 is the default for an installed Athena, so use another one (8421) when you already run Athena on the same machine. VS Code launch and task configurations are in `.vscode/`. To run CodeQL locally, install the CodeQL extension (recommended in `.vscode/extensions.json`), run `scripts/codeql.sh` (or the "codeql" task), then pick a database under `.codeql/databases/` in the extension. More commands are in `docs/agents/commands.md`.
 
 ## 3. Day-to-day work
 

@@ -1,0 +1,2 @@
+# Lets the VS Code CodeQL extension find query packs. Add paths here if the repo gets its own.
+provide: []

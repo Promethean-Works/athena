@@ -116,6 +116,13 @@
       "problemMatcher": []
     },
     {
+      "label": "codeql: create databases and analyze",
+      "detail": "scripts/codeql.sh: python, javascript-typescript, actions; SARIF in .codeql/results",
+      "type": "shell",
+      "command": "scripts/codeql.sh",
+      "problemMatcher": []
+    },
+    {
       "label": "gen: api client",
       "detail": "pnpm gen:api (after any API change)",
       "type": "shell",
