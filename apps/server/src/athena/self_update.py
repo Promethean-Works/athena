@@ -11,6 +11,7 @@ branches on `sys.platform` except where the helper must outlive this process (Wi
 
 import asyncio
 import json
+import logging
 import os
 import shutil
 import sqlite3
@@ -25,7 +26,7 @@ from typing import Any
 
 import psutil
 
-from athena import __version__, update_helper
+from athena import __version__, update_helper, update_launch
 from athena import updates as updates_module
 from athena.downloads import DownloadError, fetch_bytes, fetch_verified
 from athena.service import build_start, build_stop
@@ -36,6 +37,8 @@ from athena.service.platforms import (
     launchd_plist_path,
 )
 from athena.updates import Release, ReleaseError
+
+log = logging.getLogger(__name__)
 
 TOOL_NAME = "athena-server"
 PYTHON = "3.13"
@@ -133,21 +136,31 @@ def writable(path: Path) -> bool:
     return os.access(path, os.W_OK) if path.exists() else os.access(path.parent, os.W_OK)
 
 
-def not_ready_reason(data_dir: Path, *, uv: str | None = None) -> str | None:
-    """Why this host can't update itself (None when it can). Never raises."""
+def readiness(data_dir: Path, *, uv: str | None = None) -> tuple[str, str] | None:
+    """Why this host can't update itself, as (`unsupported` | `needs_privilege`, reason), or
+    None when it can. Never raises."""
     try:
         tools = tool_env()
     except UpdateError as exc:
-        return str(exc)
+        return "unsupported", str(exc)
     if (uv or find_uv(tools)) is None:
-        return "uv wasn't found. Re-run the installer to update."
+        return "unsupported", "uv wasn't found. Re-run the installer to update."
     if not writable(tools.tool_dir):
-        return f"{tools.tool_dir} isn't writable by this user (run it with sudo?)"
+        return (
+            "needs_privilege",
+            f"{tools.tool_dir} isn't writable by this user (run it with sudo?)",
+        )
     if not writable(data_dir):
-        return f"{data_dir} isn't writable by this user (run it with sudo?)"
+        return "needs_privilege", f"{data_dir} isn't writable by this user (run it with sudo?)"
     if __version__ == "0.0.0":
-        return "This is a source build, which has no release to go back to"
+        return "unsupported", "This is a source build, which has no release to go back to"
     return None
+
+
+def not_ready_reason(data_dir: Path, *, uv: str | None = None) -> str | None:
+    """Why this host can't update itself (None when it can). Never raises."""
+    found = readiness(data_dir, uv=uv)
+    return found[1] if found else None
 
 
 def service_installed(platform: str | None = None) -> bool:
@@ -302,6 +315,7 @@ def build_plan(
         "start": start,
         "fallback_start": steps_of(build_start(platform)) if manage_service else [],
         "rollback": rollback,
+        "cleanup": update_launch.cleanup_steps(platform),
     }
 
 
@@ -607,31 +621,72 @@ def base_python(uv: str, tools: ToolEnv) -> str:
     return path
 
 
-def start_helper(plan: dict[str, Any], paths: Paths, tools: ToolEnv, uv: str) -> int | None:
-    """Run the helper. Foreground (its output and exit code) everywhere but Windows, where
-    this process holds the venv open, so the helper is started detached and we exit."""
+def helper_argv(
+    plan: dict[str, Any], paths: Paths, tools: ToolEnv, uv: str, *, gui: bool
+) -> list[str]:
+    """Write the plan and build the helper's command. `gui` picks `pythonw.exe` on Windows (a
+    scheduled task must not open a console window). No plan argument: the helper finds
+    `plan.json` itself, which keeps the command short enough for `schtasks /TR`."""
     write_atomic(paths.plan, json.dumps(plan, indent=2).encode("utf-8"))
     if os.name != "nt":
         paths.plan.chmod(0o600)
-    argv = [base_python(uv, tools), "-I", *helper_command(paths), str(paths.plan)]
+    python = Path(base_python(uv, tools))
+    if gui and os.name == "nt" and python.with_name("pythonw.exe").is_file():
+        python = python.with_name("pythonw.exe")
+    return [str(python), "-I", *helper_command(paths)]
+
+
+def start_helper(plan: dict[str, Any], paths: Paths, tools: ToolEnv, uv: str) -> int | None:
+    """Run the helper for the CLI. Foreground (its output and exit code) everywhere but
+    Windows, where this process holds the venv open, so the helper is started detached and we
+    exit."""
+    argv = helper_argv(plan, paths, tools, uv, gui=False)
     env = {**os.environ, **tools.env()}
     if os.name == "nt":
-        flags = (
-            getattr(subprocess, "DETACHED_PROCESS", 0)
-            | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
-            | getattr(subprocess, "CREATE_NO_WINDOW", 0)
-        )
-        subprocess.Popen(
-            argv,
-            env=env,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            close_fds=True,
-            creationflags=flags,
-        )
+        update_launch.popen_detached(argv, env, windows=True)
         return None
-    return subprocess.run(argv, env=env, check=False).returncode
+    return subprocess.run([*argv, str(paths.plan)], env=env, check=False).returncode
+
+
+def start_detached(
+    plan: dict[str, Any], paths: Paths, tools: ToolEnv, uv: str
+) -> update_launch.Launched:
+    """Start the helper from the server so that it outlives it (`update_launch`)."""
+    argv = helper_argv(plan, paths, tools, uv, gui=True)
+    try:
+        launched = update_launch.launch(argv, {**os.environ, **tools.env()})
+    except update_launch.LaunchError as exc:
+        raise UpdateError(str(exc)) from exc
+    log.info("update helper started: %s", launched.how)  # the E2E reads this from athena.log
+    return launched
+
+
+async def run_from_server(
+    opts: Options,
+    say: Say,
+    handoff: Callable[[], None],
+    *,
+    transport: Any = None,
+    **resolve_kw: Any,
+) -> str:
+    """The server's side of `POST /api/system/update` (steps 1-5, then the hand-over).
+
+    Resolves, downloads, verifies and pre-flights while this server still serves, starts the
+    helper detached and calls `handoff()`, which makes the server exit (the helper stops the
+    service itself). Raises `UpdateError` before anything is stopped. Returns the new version.
+    """
+    release = await asyncio.to_thread(lookup, opts, **resolve_kw)
+    if is_current(release, __version__):
+        raise UpdateError(f"Athena {__version__} is the latest version")
+    if not is_newer_release(release, __version__) and not opts.allow_downgrade:
+        raise UpdateError(f"{release.version} isn't newer than {__version__}")
+    plan = await prepare(opts, release, say, transport=transport, **resolve_kw)
+    paths = Paths(opts.data_dir)
+    uv = plan["install"][0]["argv"][0]
+    launched = await asyncio.to_thread(start_detached, plan, paths, tool_env(), uv)
+    say(f"The update continues without the server ({launched.how}); Athena restarts shortly")
+    handoff()
+    return release.version
 
 
 def confirm(question: str, yes: bool) -> bool:

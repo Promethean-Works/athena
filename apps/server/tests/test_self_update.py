@@ -478,3 +478,89 @@ def test_the_helper_is_copied_out_of_the_venv(tmp_path: Path) -> None:
     [helper] = self_update.helper_command(paths)
     assert Path(helper).parent == tmp_path / "updates" / "run"
     assert Path(helper).read_text(encoding="utf-8").startswith('"""The self-update helper')
+
+
+# ---------------------------------------------------------------- started from the server
+
+
+class ServerFlow:
+    def __init__(self, flow: Flow, monkeypatch: pytest.MonkeyPatch) -> None:
+        self.flow = flow
+        self.launched: list[dict] = []
+        self.handed_over = 0
+        self.lines: list[str] = []
+        monkeypatch.setattr(
+            self_update,
+            "start_detached",
+            lambda plan, *a: (
+                self.launched.append(plan) or self_update.update_launch.Launched("systemd-run")
+            ),
+        )
+
+    def run(self, **over: Any) -> str:
+        opts = Options(data_dir=self.flow.data, check_url=CHECK_URL, **over)
+
+        def handoff() -> None:
+            self.handed_over += 1
+
+        return asyncio.run(self_update.run_from_server(opts, self.lines.append, handoff))
+
+
+@pytest.fixture
+def server_flow(flow: Flow, monkeypatch: pytest.MonkeyPatch) -> ServerFlow:
+    return ServerFlow(flow, monkeypatch)
+
+
+def test_the_server_prepares_starts_the_helper_then_hands_over(server_flow: ServerFlow) -> None:
+    assert server_flow.run() == "0.2.0"
+    assert len(server_flow.launched) == 1
+    assert server_flow.handed_over == 1
+    plan = server_flow.launched[0]
+    assert (plan["from"], plan["to"]) == ("0.1.0", "0.2.0")
+    assert Path(plan["wheel"]["path"]).read_bytes() == WHEEL
+    assert any("without the server" in line for line in server_flow.lines)
+
+
+def test_the_server_does_not_hand_over_when_the_helper_cant_start(
+    server_flow: ServerFlow, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def broken(*a: Any) -> None:
+        raise UpdateError("Can't start the update: no systemd-run")
+
+    monkeypatch.setattr(self_update, "start_detached", broken)
+    with pytest.raises(UpdateError, match="no systemd-run"):
+        server_flow.run()
+    assert server_flow.handed_over == 0
+
+
+def test_the_server_stops_before_the_swap_on_a_bad_checksum(server_flow: ServerFlow) -> None:
+    server_flow.flow.files[f"{BASE}/SHA256SUMS"] = f"{sha(b'x')}  {WHEEL_NAME}\n".encode()
+    with pytest.raises(UpdateError, match="checksum"):
+        server_flow.run()
+    assert server_flow.launched == [] and server_flow.handed_over == 0
+
+
+def test_the_server_refuses_the_current_version_and_a_downgrade(server_flow: ServerFlow) -> None:
+    server_flow.flow.latest = "0.1.0"
+    with pytest.raises(UpdateError, match="latest version"):
+        server_flow.run()
+    server_flow.flow.latest = "0.0.5"
+    with pytest.raises(UpdateError, match="isn't newer"):
+        server_flow.run()
+    assert server_flow.launched == []
+
+
+def test_the_helper_command_has_no_plan_argument_so_a_windows_task_stays_short(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(self_update, "base_python", lambda uv, tools: "/py/python")
+    paths = Paths(tmp_path / "data")
+    argv = self_update.helper_argv({"x": 1}, paths, tools_for(tmp_path), "/bin/uv", gui=True)
+    assert argv[:2] == ["/py/python", "-I"] and len(argv) == 3
+    assert json.loads(paths.plan.read_text(encoding="utf-8")) == {"x": 1}
+
+
+def test_the_plan_deletes_the_windows_task_when_it_ends(tmp_path: Path) -> None:
+    windows = plan_for(tmp_path / "w", "win32")
+    assert windows["cleanup"][0]["argv"][:3] == ["schtasks", "/Delete", "/TN"]
+    assert plan_for(tmp_path / "l", "linux")["cleanup"] == []

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fake_probe import FakeProbe
@@ -315,3 +316,85 @@ def test_every_local_server_is_a_kind_with_a_default_url():
         assert _kind_url(server.kind)[1].startswith("http://127.0.0.1:")
     # Every local kind but Ollama (which has ai.ollama) is detected.
     assert kinds - {s.kind for s in LOCAL_AI_SERVERS} == {"ollama"}
+
+
+# ---------------------------------------------------------------- self-update
+
+
+def _uv_tool(monkeypatch, tmp_path: Path, version: str = "0.1.0") -> None:
+    from athena import self_update
+
+    tools = self_update.ToolEnv(tmp_path / "t" / "athena-server", tmp_path / "t", None, None)
+    (tmp_path / "t").mkdir(exist_ok=True)
+    monkeypatch.setattr(self_update, "tool_env", lambda prefix=None: tools)
+    monkeypatch.setattr(self_update, "__version__", version)
+    monkeypatch.setenv("ATHENA_DATA_DIR", str(tmp_path))
+
+
+def _service_probe(os_name: str, **over) -> FakeProbe:
+    from athena.service.platforms import LAUNCHD_LABEL, launchd_domain
+
+    probe = FakeProbe(os=os_name, binaries={"uv": "/bin/uv"}, **over)
+    probe.env = {"ATHENA_DATA_DIR": os.environ.get("ATHENA_DATA_DIR", "")}
+    probe.processes = [(300, "python"), (200, "python"), (1, "init")]
+    probe.commands = {
+        ("systemctl", "show", "athena", "--property=MainPID", "--value"): RunResult(0, "200\n"),
+        ("launchctl", "print", f"{launchd_domain()}/{LAUNCHD_LABEL}"): RunResult(
+            0, "x = {\n\tpid = 200\n}\n"
+        ),
+        ("schtasks", "/Query", "/TN", "Athena"): RunResult(0, "ok"),
+    }
+    return probe
+
+
+def test_self_update_is_ready_for_the_service_process(monkeypatch, tmp_path: Path) -> None:
+    _uv_tool(monkeypatch, tmp_path)
+    for os_name in ("linux", "darwin"):
+        c = caps(_service_probe(os_name))["self_update"]
+        assert (c.status, c.provider) == ("ready", "uv-tool"), (os_name, c.detail)
+    windows = _service_probe("windows")
+    windows.processes = [(300, "pythonw.exe"), (200, "pythonw.exe")]
+    assert caps(windows)["self_update"].available
+
+
+def test_self_update_needs_to_be_the_service_process(monkeypatch, tmp_path: Path) -> None:
+    _uv_tool(monkeypatch, tmp_path)
+    for os_name in ("linux", "darwin"):
+        probe = _service_probe(os_name)
+        probe.processes = [(300, "python"), (50, "zsh")]  # started from a terminal
+        c = caps(probe)["self_update"]
+        assert c.status == "unsupported" and "terminal" in (c.detail or "")
+    windows = _service_probe("windows")  # python.exe, not the task's pythonw.exe
+    assert "terminal" in (caps(windows)["self_update"].detail or "")
+    stopped = _service_probe("linux")
+    stopped.commands = {}  # no unit
+    assert not caps(stopped)["self_update"].available
+
+
+def test_self_update_says_why_a_pip_install_or_missing_uv_cannot_update(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from athena import self_update
+
+    monkeypatch.setenv("ATHENA_DATA_DIR", str(tmp_path))
+    c = caps(_service_probe("linux"))["self_update"]  # the test run isn't a uv tool install
+    assert c.status == "unsupported" and "installer" in (c.detail or "")
+    _uv_tool(monkeypatch, tmp_path)
+    monkeypatch.setattr(self_update, "find_uv", lambda tools: None)
+    probe = _service_probe("linux")
+    probe.binaries = {}
+    assert "uv wasn't found" in (caps(probe)["self_update"].detail or "")
+
+
+def test_self_update_is_off_for_a_source_build_and_a_read_only_data_dir(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from athena import self_update
+
+    _uv_tool(monkeypatch, tmp_path, version="0.0.0")
+    c = caps(_service_probe("linux"))["self_update"]
+    assert c.status == "unsupported" and "source build" in (c.detail or "")
+    _uv_tool(monkeypatch, tmp_path)
+    monkeypatch.setattr(self_update, "writable", lambda path: path != tmp_path)
+    c = caps(_service_probe("linux"))["self_update"]
+    assert c.status == "needs_privilege" and "isn't writable" in (c.detail or "")

@@ -122,7 +122,7 @@ def launchd_plist(spec: ServiceSpec) -> str:
     return plistlib.dumps(data).decode()
 
 
-def _launchd_domain() -> str:
+def launchd_domain() -> str:
     getuid = getattr(os, "getuid", None)  # POSIX only; plans are also built in tests on Windows
     return f"gui/{getuid() if getuid else 0}"
 
@@ -137,7 +137,7 @@ def _launchd_bootout() -> Run:
     to shut down), and a `bootstrap` right after fails with "5: Input/output error".
     That broke every reinstall over a running agent: upgrades and service restarts.
     """
-    target = f"{_launchd_domain()}/{LAUNCHD_LABEL}"
+    target = f"{launchd_domain()}/{LAUNCHD_LABEL}"
     tries = LAUNCHD_BOOTOUT_WAIT_SECONDS * 2
     script = (
         f"launchctl bootout {target} 2>/dev/null; i=0; "
@@ -156,7 +156,7 @@ def _darwin_install(spec: ServiceSpec) -> Plan:
             WriteFile(plist, launchd_plist(spec)),
             # Replace a previously loaded agent (fails harmlessly if none is loaded).
             _launchd_bootout(),
-            Run(["launchctl", "bootstrap", _launchd_domain(), str(plist)]),
+            Run(["launchctl", "bootstrap", launchd_domain(), str(plist)]),
         ],
     )
 
@@ -174,7 +174,7 @@ def _darwin_uninstall() -> Plan:
 def _darwin_status() -> Plan:
     return Plan(
         "launchd agent status",
-        [Run(["launchctl", "print", f"{_launchd_domain()}/{LAUNCHD_LABEL}"])],
+        [Run(["launchctl", "print", f"{launchd_domain()}/{LAUNCHD_LABEL}"])],
     )
 
 
@@ -286,7 +286,7 @@ def _darwin_start() -> Plan:
         "Starting the launchd agent",
         [
             _launchd_bootout(),  # a loaded agent has to go first, or bootstrap fails
-            Run(["launchctl", "bootstrap", _launchd_domain(), str(launchd_plist_path())]),
+            Run(["launchctl", "bootstrap", launchd_domain(), str(launchd_plist_path())]),
         ],
     )
 

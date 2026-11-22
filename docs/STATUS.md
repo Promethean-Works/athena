@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Self-update (`docs/specs/self-update.md`): part 1 done (`feat/self-update-1`). **Next part 2**: start the helper detached from the server per OS, and the exit-not-restart path in `restart.py`; verify on real hosts before any UI. Not verified: macOS, Windows (only the E2E `update` job), Fedora, the hand failure cases.
+- Self-update (`docs/specs/self-update.md`): parts 1, 2 done (2 also added the `self_update` capability, a minimal `POST /api/system/update` and `server.update_check_url`). **Next part 3**: status endpoint, notice button, Settings card, progress dialog, audit, rate limit. Not verified: Fedora, hand failure cases, the route in a browser.
 - Backup and restore: spec `docs/specs/backup.md` approved 2026-11-21 (restic, versions page, Restart Athena in the user menu). Part 1 (Restart Athena, #215) still needs `athena-host-test`. Part 2 is split: 2a foundation (#216, merged), 2b snapshots and plans (#244; stopped there, retention is stored but not applied, `schedule` is validated but nothing runs it until part 4), **next 2c**: `restic forget` per item with the plan's retention, weekly prune, monthly check, `GET /api/backup/versions` and `.../files`. Then 2d restore one app, 2e rclone.
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt or Cloudflare, trusting the CA on real devices. The last renewal/error live in memory only (a restart forgets them). Follow-up: own-certificate upload.
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.

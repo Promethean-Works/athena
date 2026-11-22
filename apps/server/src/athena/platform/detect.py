@@ -11,11 +11,19 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from urllib.parse import urlsplit
 
+from athena import __version__
 from athena.platform import power
-from athena.platform.capabilities import Capability, CapabilityManifest
+from athena.platform.capabilities import Capability, CapabilityManifest, Status
 from athena.platform.probe import Probe, os_version
+from athena.service.platforms import (
+    LAUNCHD_LABEL,
+    SERVICE_NAME,
+    WINDOWS_TASK,
+    launchd_domain,
+)
 
 log = logging.getLogger(__name__)
 
@@ -557,6 +565,62 @@ def detect_tunnel_ngrok(probe: Probe) -> Capability:
     )
 
 
+# ---------------------------------------------------------------- self-update
+
+
+SELF_UPDATE = "self_update"
+SELF_UPDATE_LABEL = "Update Athena"
+
+
+def _not_ready(status: Status, detail: str) -> Capability:
+    return Capability(id=SELF_UPDATE, label=SELF_UPDATE_LABEL, status=status, detail=detail)
+
+
+def _service_pid_linux(probe: Probe) -> int | None:
+    out = probe.run(["systemctl", "show", SERVICE_NAME, "--property=MainPID", "--value"])
+    return int(out.first_line) if out.ok and out.first_line.isdigit() else None
+
+
+def _service_pid_darwin(probe: Probe) -> int | None:
+    out = probe.run(["launchctl", "print", f"{launchd_domain()}/{LAUNCHD_LABEL}"])
+    for line in out.stdout.splitlines() if out.ok else []:
+        key, _, value = line.strip().partition(" = ")
+        if key == "pid" and value.isdigit():
+            return int(value)
+    return None
+
+
+def _runs_as_service(probe: Probe) -> bool:
+    """Whether this process is the one the installed service started (so the helper's stop
+    and start replace it). Linux and macOS: the manager's main pid is one of our parents;
+    Windows: the logon task exists and we run under `pythonw.exe`, as the task does."""
+    chain = probe.ancestry()
+    if probe.os == "windows":
+        task = probe.run(["schtasks", "/Query", "/TN", WINDOWS_TASK])
+        return task.ok and any(name.lower() == "pythonw.exe" for _, name in chain)
+    pid = _service_pid_linux(probe) if probe.os == "linux" else _service_pid_darwin(probe)
+    return pid is not None and pid in {p for p, _ in chain}
+
+
+def detect_self_update(probe: Probe) -> Capability:
+    from athena import self_update
+    from athena.config import default_data_dir
+
+    data_dir = Path(probe.getenv("ATHENA_DATA_DIR") or default_data_dir())
+    problem = self_update.readiness(data_dir, uv=probe.which("uv"))
+    if problem is not None:
+        return _not_ready(problem[0], problem[1])  # type: ignore[arg-type]
+    if not _runs_as_service(probe):
+        return _not_ready("unsupported", "Athena was started from a terminal, not as a service")
+    return Capability(
+        id=SELF_UPDATE,
+        label=SELF_UPDATE_LABEL,
+        status="ready",
+        provider="uv-tool",
+        detail=f"Athena {__version__} was installed with uv",
+    )
+
+
 def _restic_detail() -> str:
     from athena.backup.restic import VERSION
 
@@ -605,6 +669,7 @@ def detectors_for(probe: Probe) -> list[Detector]:
         detect_tunnel_cloudflare,
         detect_tunnel_tailscale,
         detect_tunnel_ngrok,
+        detect_self_update,
     ]
 
 

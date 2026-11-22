@@ -104,6 +104,16 @@ class Probe:
         geteuid = getattr(os, "geteuid", None)
         return bool(geteuid and geteuid() == 0)
 
+    def ancestry(self) -> list[tuple[int, str]]:
+        """(pid, process name) of this process and its parents, nearest first."""
+        import psutil
+
+        try:
+            me = psutil.Process()
+            return [(p.pid, p.name()) for p in (me, *me.parents())]
+        except psutil.Error:
+            return []
+
     def windows_build(self) -> int:
         try:
             return int(platform.version().split(".")[-1])
