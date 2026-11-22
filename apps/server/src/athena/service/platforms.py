@@ -262,6 +262,46 @@ def _windows_status() -> Plan:
     )
 
 
+# ---------------------------------------------------------------- stop and start (self-update)
+#
+# The self-update helper stops the service, swaps the install and starts it again. These
+# are the same commands `service install` uses, kept here so the per-OS logic lives in one
+# tested place and the helper (which never imports athena) just runs the argv lists.
+
+
+def _linux_stop() -> Plan:
+    return Plan("Stopping the systemd service", [Run(["systemctl", "stop", SERVICE_NAME])])
+
+
+def _linux_start() -> Plan:
+    return Plan("Starting the systemd service", [Run(["systemctl", "start", SERVICE_NAME])])
+
+
+def _darwin_stop() -> Plan:
+    return Plan("Stopping the launchd agent", [_launchd_bootout()])
+
+
+def _darwin_start() -> Plan:
+    return Plan(
+        "Starting the launchd agent",
+        [
+            _launchd_bootout(),  # a loaded agent has to go first, or bootstrap fails
+            Run(["launchctl", "bootstrap", _launchd_domain(), str(launchd_plist_path())]),
+        ],
+    )
+
+
+def _windows_stop_plan() -> Plan:
+    return Plan(f"Stopping Scheduled Task '{WINDOWS_TASK}'", list(_windows_stop()))
+
+
+def _windows_start() -> Plan:
+    return Plan(
+        f"Starting Scheduled Task '{WINDOWS_TASK}'",
+        [Run(["schtasks", "/Run", "/TN", WINDOWS_TASK])],
+    )
+
+
 # ---------------------------------------------------------------- dispatch
 
 
@@ -288,5 +328,17 @@ def build_uninstall(platform: str | None = None) -> Plan:
 
 def build_status(platform: str | None = None) -> Plan:
     return {"linux": _linux_status, "darwin": _darwin_status, "win32": _windows_status}[
+        _platform(platform)
+    ]()
+
+
+def build_stop(platform: str | None = None) -> Plan:
+    return {"linux": _linux_stop, "darwin": _darwin_stop, "win32": _windows_stop_plan}[
+        _platform(platform)
+    ]()
+
+
+def build_start(platform: str | None = None) -> Plan:
+    return {"linux": _linux_start, "darwin": _darwin_start, "win32": _windows_start}[
         _platform(platform)
     ]()
