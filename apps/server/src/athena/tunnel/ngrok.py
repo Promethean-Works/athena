@@ -6,12 +6,15 @@ import logging
 import os
 import platform
 import re
+import shlex
 import shutil
 import subprocess
 import urllib.request
 from pathlib import Path
 from typing import Any
+from xml.sax.saxutils import escape
 
+from athena.tunnel import servicefiles
 from athena.tunnel.base import TunnelConfig, TunnelProvider, TunnelStatus
 from athena.tunnel.process import TunnelProcess, find_binary
 
@@ -21,6 +24,12 @@ log = logging.getLogger(__name__)
 # logfmt line: `... msg="started tunnel" obj=tunnels name=command_line addr=... url=https://x`
 _STARTED = re.compile(r'msg="started tunnel".*?\burl=(https://\S+)')
 _START_TIMEOUT = 60.0
+
+
+def _config_file(token: str) -> str:
+    """ngrok agent config (v3) with the auth token. The token is JSON-quoted, which is
+    valid YAML, so odd characters can't break the file."""
+    return f"version: 3\nagent:\n  authtoken: {json.dumps(token)}\n"
 
 
 def _api_url() -> str | None:
@@ -222,43 +231,63 @@ class NgrokTunnelProvider(TunnelProvider):
 
             await job.log(f"Installed ngrok to {dest}")
 
-    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
-        """Configure systemd/launchd/Task Scheduler for auto-start."""
+    async def configure_service(
+        self,
+        job: Any,
+        enabled: bool,
+        port: int = 8420,
+        provider_config: dict | None = None,
+    ) -> None:
+        """Configure systemd/launchd/Task Scheduler for auto-start.
+
+        The service runs `ngrok http <port> --config <file>`; the file holds the auth
+        token and is readable by its owner only. Enabling needs the saved auth token."""
 
         system = platform.system().lower()
+        config_path = servicefiles.private_dir() / "ngrok.yml"
+        if enabled:
+            token = (provider_config or {}).get("auth_token")
+            if not token:
+                raise ValueError("Save the ngrok auth token before enabling auto-start")
+            binary = find_binary("ngrok")
+            if binary is None:
+                raise RuntimeError("ngrok isn't installed")
+            servicefiles.write_private(config_path, _config_file(token))
+            argv = [binary, "http", str(port), "--config", str(config_path)]
+        else:
+            argv = []
 
         if system == "linux":
-            await self._configure_systemd(job, enabled, port)
+            await self._configure_systemd(job, enabled, argv)
         elif system == "darwin":
-            await self._configure_launchd(job, enabled, port)
+            await self._configure_launchd(job, enabled, argv)
         elif system == "windows":
-            await self._configure_windows_task(job, enabled, port)
+            await self._configure_windows_task(job, enabled, argv)
+        if not enabled:
+            servicefiles.remove_private(config_path)
 
-    async def _configure_systemd(self, job: Any, enabled: bool, port: int) -> None:
+    async def _configure_systemd(self, job: Any, enabled: bool, argv: list[str]) -> None:
         """Configure systemd service."""
-        # Need auth token from config - this would come from settings
         service_content = f"""[Unit]
 Description=Ngrok Tunnel
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/ngrok http {port} --authtoken=${{NGROK_AUTHTOKEN}}
+ExecStart={shlex.join(argv)}
 Restart=on-failure
 RestartSec=5
-Environment=NGROK_AUTHTOKEN=${{NGROK_AUTHTOKEN}}
 
 [Install]
 WantedBy=multi-user.target
 """
         service_path = Path("/etc/systemd/system/ngrok.service")
         if enabled:
-            # Note: The auth token would need to be set in the environment
             service_path.write_text(service_content)
             subprocess.run(["systemctl", "daemon-reload"], check=False)
             subprocess.run(["systemctl", "enable", "ngrok"], check=False)
             subprocess.run(["systemctl", "start", "ngrok"], check=False)
-            await job.log("Enabled ngrok systemd service (auth token must be configured)")
+            await job.log("Enabled ngrok systemd service")
         else:
             subprocess.run(["systemctl", "stop", "ngrok"], check=False)
             subprocess.run(["systemctl", "disable", "ngrok"], check=False)
@@ -267,8 +296,9 @@ WantedBy=multi-user.target
             subprocess.run(["systemctl", "daemon-reload"], check=False)
             await job.log("Disabled ngrok systemd service")
 
-    async def _configure_launchd(self, job: Any, enabled: bool, port: int) -> None:
+    async def _configure_launchd(self, job: Any, enabled: bool, argv: list[str]) -> None:
         """Configure launchd agent."""
+        args = "\n".join(f"        <string>{escape(a)}</string>" for a in argv)
         plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -277,25 +307,12 @@ WantedBy=multi-user.target
     <string>com.athena.tunnel.ngrok</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/ngrok</string>
-        <string>http</string>
-        <string>{port}</string>
-        <string>--authtoken</string>
-        <string>${{NGROK_AUTHTOKEN}}</string>
+{args}
     </array>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
-    <key>EnvironmentVariables</key>
-    <dict>
-        <key>NGROK_AUTHTOKEN</key>
-        <string>${{NGROK_AUTHTOKEN}}</string>
-    </dict>
-    <key>StandardOutPath</key>
-    <string>/var/log/ngrok.log</string>
-    <key>StandardErrorPath</key>
-    <string>/var/log/ngrok.error.log</string>
 </dict>
 </plist>
 """
@@ -304,14 +321,14 @@ WantedBy=multi-user.target
             plist_path.parent.mkdir(parents=True, exist_ok=True)
             plist_path.write_text(plist_content)
             subprocess.run(["launchctl", "load", str(plist_path)], check=False)
-            await job.log("Enabled ngrok launchd agent (auth token must be configured)")
+            await job.log("Enabled ngrok launchd agent")
         else:
             subprocess.run(["launchctl", "unload", str(plist_path)], check=False)
             if plist_path.exists():
                 plist_path.unlink()
             await job.log("Disabled ngrok launchd agent")
 
-    async def _configure_windows_task(self, job: Any, enabled: bool, port: int) -> None:
+    async def _configure_windows_task(self, job: Any, enabled: bool, argv: list[str]) -> None:
         """Configure Windows Task Scheduler."""
         if enabled:
             cmd = [
@@ -320,10 +337,7 @@ WantedBy=multi-user.target
                 "/TN",
                 "Athena Ngrok Tunnel",
                 "/TR",
-                (
-                    "C:\\Users\\%USERNAME%\\scoop\\shims\\ngrok.exe "
-                    f"http {port} --authtoken=${{NGROK_AUTHTOKEN}}"
-                ),
+                servicefiles.windows_command(argv),
                 "/SC",
                 "ONLOGON",
                 "/RL",
@@ -331,7 +345,7 @@ WantedBy=multi-user.target
                 "/F",
             ]
             subprocess.run(cmd, check=False)
-            await job.log("Enabled ngrok Windows scheduled task (auth token must be configured)")
+            await job.log("Enabled ngrok Windows scheduled task")
         else:
             subprocess.run(
                 ["schtasks", "/Delete", "/TN", "Athena Ngrok Tunnel", "/F"],

@@ -4,12 +4,15 @@ import asyncio
 import logging
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from xml.sax.saxutils import escape
 
+from athena.tunnel import servicefiles
 from athena.tunnel.base import TunnelConfig, TunnelProvider, TunnelStatus
 from athena.tunnel.process import TunnelProcess, find_binary
 
@@ -246,28 +249,55 @@ class CloudflareTunnelProvider(TunnelProvider):
 
             await job.log(f"Installed cloudflared to {dest}")
 
-    async def configure_service(self, job: Any, enabled: bool, port: int = 8420) -> None:
-        """Configure systemd/launchd service for auto-start."""
+    async def configure_service(
+        self,
+        job: Any,
+        enabled: bool,
+        port: int = 8420,
+        provider_config: dict | None = None,
+    ) -> None:
+        """Configure systemd/launchd/Task Scheduler for auto-start.
+
+        Only a named tunnel can run as a service (a quick tunnel's URL changes on each
+        start). The service runs `cloudflared tunnel run --token-file <file>`; the file
+        holds the tunnel token and is readable by its owner only."""
         import platform
 
         system = platform.system().lower()
+        token_path = servicefiles.private_dir() / "cloudflared.token"
+        if enabled:
+            config = provider_config or {}
+            token = config.get("api_token")
+            if config.get("quick_tunnel", True) or not token:
+                raise ValueError(
+                    "Auto-start needs a named tunnel: turn off quick tunnel and save its token"
+                )
+            binary = find_binary("cloudflared")
+            if binary is None:
+                raise RuntimeError("cloudflared isn't installed")
+            servicefiles.write_private(token_path, token)
+            argv = [binary, "tunnel", "--no-autoupdate", "run", "--token-file", str(token_path)]
+        else:
+            argv = []
 
         if system == "linux":
-            await self._configure_systemd(job, enabled)
+            await self._configure_systemd(job, enabled, argv)
         elif system == "darwin":
-            await self._configure_launchd(job, enabled)
+            await self._configure_launchd(job, enabled, argv)
         elif system == "windows":
-            await self._configure_windows_task(job, enabled)
+            await self._configure_windows_task(job, enabled, argv)
+        if not enabled:
+            servicefiles.remove_private(token_path)
 
-    async def _configure_systemd(self, job: Any, enabled: bool) -> None:
+    async def _configure_systemd(self, job: Any, enabled: bool, argv: list[str]) -> None:
         """Configure systemd service."""
-        service_content = """[Unit]
+        service_content = f"""[Unit]
 Description=Cloudflare Tunnel
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/cloudflared tunnel run --config /etc/cloudflared/config.yml
+ExecStart={shlex.join(argv)}
 Restart=on-failure
 RestartSec=5
 
@@ -289,9 +319,10 @@ WantedBy=multi-user.target
             subprocess.run(["systemctl", "daemon-reload"], check=False)
             await job.log("Disabled cloudflared systemd service")
 
-    async def _configure_launchd(self, job: Any, enabled: bool) -> None:
+    async def _configure_launchd(self, job: Any, enabled: bool, argv: list[str]) -> None:
         """Configure launchd agent."""
-        plist_content = """<?xml version="1.0" encoding="UTF-8"?>
+        args = "\n".join(f"        <string>{escape(a)}</string>" for a in argv)
+        plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -299,20 +330,12 @@ WantedBy=multi-user.target
     <string>com.athena.tunnel.cloudflare</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/cloudflared</string>
-        <string>tunnel</string>
-        <string>run</string>
-        <string>--config</string>
-        <string>/etc/cloudflared/config.yml</string>
+{args}
     </array>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
-    <key>StandardOutPath</key>
-    <string>/var/log/cloudflared.log</string>
-    <key>StandardErrorPath</key>
-    <string>/var/log/cloudflared.error.log</string>
 </dict>
 </plist>
 """
@@ -328,7 +351,7 @@ WantedBy=multi-user.target
                 plist_path.unlink()
             await job.log("Disabled cloudflared launchd agent")
 
-    async def _configure_windows_task(self, job: Any, enabled: bool) -> None:
+    async def _configure_windows_task(self, job: Any, enabled: bool, argv: list[str]) -> None:
         """Configure Windows Task Scheduler."""
         if enabled:
             cmd = [
@@ -337,10 +360,7 @@ WantedBy=multi-user.target
                 "/TN",
                 "Athena Cloudflare Tunnel",
                 "/TR",
-                (
-                    "C:\\Users\\%USERNAME%\\scoop\\shims\\cloudflared.exe "
-                    "tunnel run --config C:\\cloudflared\\config.yml"
-                ),
+                servicefiles.windows_command(argv),
                 "/SC",
                 "ONLOGON",
                 "/RL",
