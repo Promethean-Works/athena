@@ -16,7 +16,7 @@ The installers download `athena_server-<version>-py3-none-any.whl` from `release
 
 - [x] **uv.lock version bump.** _Done: CI on #3 failed on the lock and on `packages/api-client/openapi.json`; fixed with a release-please `extra-files` entry for the lock and a pinned spec version._ release-please bumps `apps/server/pyproject.toml` but not `apps/server/uv.lock` (`athena-server` stays `0.0.0`), and CI runs `uv sync --locked`. Check CI on #3; if it fails, have the release workflow (or a release-please `extra-files` entry for the lock's `version`) keep the lock in step.
 - [x] **No half-published release.** _Done: `draft` + `force-tag-creation`; the assets job publishes after the upload._ `release.yml` publishes the release first and uploads the wheel after; if the upload fails, `releases/latest` points at a release with no wheel and the installers 404. Create the release as a draft (release-please `draft: true` or `force-tag-creation`), upload the assets, then publish.
-- [ ] **Checksums.** Upload `SHA256SUMS` with the wheel and scripts; `install.sh` and `install.ps1` check the wheel against it before `uv tool install`.
+- [x] **Checksums.** _Done in #226 (not yet run against a published release; see the smoke item)._ Upload `SHA256SUMS` with the wheel and scripts; `install.sh` and `install.ps1` check the wheel against it before `uv tool install`.
 - [ ] **Smoke the published release.** After publishing, run the `E2E` install + smoke on Ubuntu, Ubuntu arm64, macOS and Windows against the real release URL (not a local wheel).
 - [ ] **Dry run before the real tag.** Run the asset job on a throwaway tag in a fork (or with `workflow_dispatch` and a `0.1.0-rc.1` pre-release) so the first real release isn't the first time the job runs.
 - [ ] **Upgrade path.** Re-running the installer (`uv tool install --force`) must stop the service, replace the wheel, run migrations and start it again, on all three OSes. Test 0.1.0-rc.1 → 0.1.0-rc.2 with real data. Document it in the README.
@@ -33,14 +33,14 @@ Spec `docs/specs/backup.md`, approved 2026-11-21. Part 1 (Restart Athena) merged
 
 ## 3. Known bugs (Must)
 
-- [ ] **Windows `WinError 6`.** `GET /api/containers` sometimes 500s under the logon task: python-on-whales starts `docker` without `stdin=DEVNULL` under `pythonw.exe` (also on `main`, run 44856906030). Pass `stdin=DEVNULL` (or give every child process `DEVNULL` handles) and get three clean Windows E2E runs in a row.
-- [ ] **Tunnel auto-start does nothing.** _(UI default now matches; the lifespan start is still to do.)_ `tunnel_auto_start` (default `True`) is saved but never read at startup, and the UI falls back to `false` (`tunnel-card.tsx`). Start the tunnel in the lifespan when it's on, and make the UI default match.
-- [ ] **ngrok service files** hold a literal `${NGROK_AUTHTOKEN}` placeholder, so the service can't authenticate. Write the real token (file mode 0600) or don't offer the service for ngrok. <!-- docs-check: ignore -->
-- [ ] **cloudflared named-tunnel service** points at `/etc/cloudflared/config.yml`, which nothing writes. Write it, or offer named-tunnel services only after it exists.
-- [ ] **Automation jobs hang.** A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile. Reproduce; a running job must never block reads.
-- [ ] **ESLint skips `apps/web` `.tsx`** (`docs/agents/gotchas/web.md`). Fix the config and fix what it then reports, so CI lints the UI.
-- [ ] **Flaky macOS test** `test_terminal.py::test_pty_output_and_exit_code` (`docs/agents/gotchas/git-ci.md`). Fix it; don't skip it.
-- [ ] **HTTPS renewal state is in memory**, so after a restart Settings → HTTPS forgets the last renewal and its error. Persist it (the data dir or `athena.json`'s runtime state).
+- [x] **Windows `WinError 6`.** _Fixed in #224; still to confirm with three clean Windows E2E runs in a row._ `GET /api/containers` sometimes 500s under the logon task: python-on-whales starts `docker` without `stdin=DEVNULL` under `pythonw.exe` (also on `main`, run 44856906030). Pass `stdin=DEVNULL` (or give every child process `DEVNULL` handles) and get three clean Windows E2E runs in a row.
+- [x] **Tunnel auto-start does nothing.** _Done in #223 (UI default) and #225 (lifespan start)._ `tunnel_auto_start` (default `True`) is saved but never read at startup, and the UI falls back to `false` (`tunnel-card.tsx`). Start the tunnel in the lifespan when it's on, and make the UI default match.
+- [x] **ngrok service files** _(#230: token in a 0600 file, not tested with a real account)_ hold a literal `${NGROK_AUTHTOKEN}` placeholder, so the service can't authenticate. Write the real token (file mode 0600) or don't offer the service for ngrok. <!-- docs-check: ignore -->
+- [x] **cloudflared named-tunnel service** _(#230: runs with `--token-file`; quick tunnels are refused)_ points at `/etc/cloudflared/config.yml`, which nothing writes. Write it, or offer named-tunnel services only after it exists.
+- [x] **Automation jobs hang.** _Fixed in #229 (SQLite writes moved off the event loop); the 10 min Colima restart itself wasn't reproduced._ A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile. Reproduce; a running job must never block reads.
+- [x] **ESLint skips `apps/web` `.tsx`** _(#233)_ (`docs/agents/gotchas/web.md`). Fix the config and fix what it then reports, so CI lints the UI.
+- [x] **Flaky macOS test** _(#232)_ `test_terminal.py::test_pty_output_and_exit_code` (`docs/agents/gotchas/git-ci.md`). Fix it; don't skip it.
+- [x] **HTTPS renewal state is in memory** _(#228)_, so after a restart Settings → HTTPS forgets the last renewal and its error. Persist it (the data dir or `athena.json`'s runtime state).
 
 ## 4. No dead switches (Must)
 
