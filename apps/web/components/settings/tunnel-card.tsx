@@ -457,6 +457,23 @@ export function TunnelCard() {
 
             {settings.tunnel_enabled && (
               <>
+                <Alert variant="destructive">
+                  <AlertTriangleIcon />
+                  <AlertTitle>Reachable from the internet</AlertTitle>
+                  <AlertDescription>
+                    While this is on, the web terminal, package installs and
+                    the AI assistant are one password away from anyone who
+                    finds the address. Turn off{" "}
+                    <a className="underline" href="#terminal-enabled">
+                      the terminal
+                    </a>{" "}
+                    or the{" "}
+                    <a className="underline" href="/settings/ai/">
+                      assistant
+                    </a>{" "}
+                    if you don&apos;t need them remotely.
+                  </AlertDescription>
+                </Alert>
                 <FieldSeparator />
                 <Field orientation="horizontal">
                   <FieldContent>
@@ -548,7 +565,7 @@ export function TunnelCard() {
                     id="tunnel-auto-start"
                     // Nothing can start on boot before the tool is installed.
                     checked={
-                      !needsInstall && (settings.tunnel_auto_start ?? false)
+                      !needsInstall && (settings.tunnel_auto_start ?? true)
                     }
                     disabled={!canEdit || needsInstall}
                     onCheckedChange={(checked) => void changeAutoStart(checked)}

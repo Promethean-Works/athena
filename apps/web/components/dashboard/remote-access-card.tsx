@@ -65,6 +65,14 @@ function RemoteBody() {
           {PROVIDERS[provider ?? ""] ?? provider ?? "No provider"}
         </span>
       </div>
+      <p className="text-xs text-muted-foreground">
+        The terminal, package installs and the assistant are reachable from the
+        internet with one password.{" "}
+        <a className="underline" href="/settings/system/">
+          Turn them off
+        </a>{" "}
+        if you don&apos;t need them remotely.
+      </p>
       {url ? (
         <InputGroup>
           <InputGroupInput

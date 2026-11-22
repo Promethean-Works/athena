@@ -34,7 +34,7 @@ Spec `docs/specs/backup.md`, approved 2026-11-21. Part 1 (Restart Athena) merged
 ## 3. Known bugs (Must)
 
 - [ ] **Windows `WinError 6`.** `GET /api/containers` sometimes 500s under the logon task: python-on-whales starts `docker` without `stdin=DEVNULL` under `pythonw.exe` (also on `main`, run 44856906030). Pass `stdin=DEVNULL` (or give every child process `DEVNULL` handles) and get three clean Windows E2E runs in a row.
-- [ ] **Tunnel auto-start does nothing.** `tunnel_auto_start` (default `True`) is saved but never read at startup, and the UI falls back to `false` (`tunnel-card.tsx`). Start the tunnel in the lifespan when it's on, and make the UI default match.
+- [ ] **Tunnel auto-start does nothing.** _(UI default now matches; the lifespan start is still to do.)_ `tunnel_auto_start` (default `True`) is saved but never read at startup, and the UI falls back to `false` (`tunnel-card.tsx`). Start the tunnel in the lifespan when it's on, and make the UI default match.
 - [ ] **ngrok service files** hold a literal `${NGROK_AUTHTOKEN}` placeholder, so the service can't authenticate. Write the real token (file mode 0600) or don't offer the service for ngrok. <!-- docs-check: ignore -->
 - [ ] **cloudflared named-tunnel service** points at `/etc/cloudflared/config.yml`, which nothing writes. Write it, or offer named-tunnel services only after it exists.
 - [ ] **Automation jobs hang.** A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile. Reproduce; a running job must never block reads.
@@ -44,10 +44,10 @@ Spec `docs/specs/backup.md`, approved 2026-11-21. Part 1 (Restart Athena) merged
 
 ## 4. No dead switches (Must)
 
-- [ ] **Browser tool toggle** (`browser_use_enabled`) does nothing while #89 is blocked on the pydantic-ai-harness / google-genai conflict. Hide it until it works.
-- [ ] **Drop the `coder` extra** of pydantic-ai-harness from `apps/server/pyproject.toml`: `Coder` isn't used on purpose (its shell bypasses `ShellGuard`), and the extra adds install weight. Settles the STATUS open question.
-- [ ] **Tunnel warning** (instead of 2FA, decision 2): while a tunnel is on, Settings → System and the dashboard's remote-access card say the terminal, package installs and the assistant are reachable from the internet with one password, and link to turning them off.
-- [ ] **Durable execution:** label it "Experimental" in Settings → AI unless the crash/kill/resume flow is tested before the release.
+- [x] **Browser tool toggle** (`browser_use_enabled`) does nothing while #89 is blocked on the pydantic-ai-harness / google-genai conflict. Hide it until it works. _Done: hidden unless an old setting left it on._
+- [x] **Drop the `coder` extra** of pydantic-ai-harness from `apps/server/pyproject.toml`: `Coder` isn't used on purpose (its shell bypasses `ShellGuard`), and the extra adds install weight. Settles the STATUS open question. _Done._
+- [x] **Tunnel warning** (instead of 2FA, decision 2): while a tunnel is on, Settings → System and the dashboard's remote-access card say the terminal, package installs and the assistant are reachable from the internet with one password, and link to turning them off. _Done (Settings → System card and dashboard card)._
+- [x] **Durable execution:** label it "Experimental" in Settings → AI unless the crash/kill/resume flow is tested before the release. _Done: labelled experimental._
 
 ## 5. Verification on real hosts (Must)
 
