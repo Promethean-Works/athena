@@ -500,6 +500,7 @@ def test_an_incomplete_snapshot_is_a_warning_not_a_failure(
 
 
 def real_client(tmp_path: Path) -> Iterator[TestClient]:
+    real = REAL_RESTIC
     assert real is not None
     app = make_app(tmp_path, store=ready_store(), backup_allowed_roots=[tmp_path])
     app.state.restic = ResticProvider(tmp_path / "data", binary=real)
