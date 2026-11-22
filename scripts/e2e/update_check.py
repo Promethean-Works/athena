@@ -199,8 +199,8 @@ def sign_in(base: str) -> str:
 
 
 def run_update(args: argparse.Namespace, check_url: str, *extra: str) -> int:
-    env = {**os.environ, "ATHENA_UPDATE_CHECK_URL": check_url}
-    prefix = ["sudo", "env", f"ATHENA_UPDATE_CHECK_URL={check_url}"] if args.sudo else []
+    env = {**os.environ, "ATHENA_UPDATE_CHECK_URL": check_url, "PYTHONUNBUFFERED": "1"}
+    prefix = ["sudo", "env", f"ATHENA_UPDATE_CHECK_URL={check_url}", "PYTHONUNBUFFERED=1"] if args.sudo else []
     argv = [*prefix, *args.athena, "update", "--yes", "--data-dir", str(args.data_dir), *extra]
     print("$", " ".join(argv), flush=True)
     return subprocess.run(argv, env=env, check=False).returncode
@@ -286,6 +286,7 @@ def main() -> int:
     release.latest = VERSIONS["c"]
     began = time.time()
     code = run_update(args, release.check_url)
+    print(f"athena update exited {code}; state {update_state(args.data_dir)}", flush=True)
     state = settle(args, began, ("done", "failed", "rolled_back"))
     assert state["phase"] == "rolled_back", state
     if os.name != "nt":  # on Windows `athena update` returns before the helper ends
