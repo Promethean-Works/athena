@@ -840,7 +840,7 @@ function AdvancedCard({
             </ToggleRow>
             <ToggleRow
               id="durable-execution-enabled"
-              label="Durable execution"
+              label="Durable execution (experimental)"
               checked={settings.durable_execution_enabled}
               onChange={toggle(
                 "durable_execution_enabled",
@@ -851,21 +851,23 @@ function AdvancedCard({
               chat resumes instead of repeating paid work. Needs pgtask and a
               Postgres database (
               <code>ATHENA_DURABLE_EXECUTION_DATABASE_URL</code>
-              ); without them it changes nothing.
+              ); without them it changes nothing. Experimental: a crash and resume
+              hasn&apos;t been tested end to end yet.
             </ToggleRow>
-            <ToggleRow
-              id="browser-use-enabled"
-              label="Browser agent"
-              checked={settings.browser_use_enabled}
-              // Nothing provides the browser tool yet (docs/STATUS.md → Next),
-              // so it can only be turned off.
-              disabled={!settings.browser_use_enabled}
-              onChange={toggle("browser_use_enabled", "Browser agent")}
-            >
-              Hands open-ended web tasks to an autonomous browser. Not available
-              yet: it waits for a browser-use release that installs alongside
-              the rest of the server.
-            </ToggleRow>
+            {/* Hidden until it works (docs/plans/release-0.1.0.md §4): nothing
+                provides the browser tool yet, so the switch only shows when an
+                old setting left it on, to let you turn it off. */}
+            {settings.browser_use_enabled && (
+              <ToggleRow
+                id="browser-use-enabled"
+                label="Browser agent"
+                checked
+                onChange={toggle("browser_use_enabled", "Browser agent")}
+              >
+                Not available yet: it waits for a browser-use release that
+                installs alongside the rest of the server. Turn it off.
+              </ToggleRow>
+            )}
           </FieldGroup>
         )}
       </CardContent>
