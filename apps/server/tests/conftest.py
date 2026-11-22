@@ -21,6 +21,12 @@ def _no_models_dev(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(models_dev.ModelsDevService, "_fetch_models_dev", empty)
 
 
+@pytest.fixture(autouse=True)
+def _no_update_check(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The update notice checks GitHub on every app start; tests never reach it."""
+    monkeypatch.setenv("ATHENA_UPDATE_CHECK_URL", "")
+
+
 ADMIN = {"username": "admin", "password": "correct horse battery"}
 
 

@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from athena import __version__
+from athena import __version__, updates
 from athena.api import apps, auth, automation, capabilities, containers, jobs, system
 from athena.api import assistant as assistant_api
 from athena.api import audit as audit_api
@@ -55,6 +55,7 @@ from athena.settings_file import SettingsFile, SettingsFileError
 from athena.terminal import shells
 from athena.tunnel import autostart as tunnel_autostart
 from athena.tunnel import get_all_providers
+from athena.updates import UpdateChecker
 
 if TYPE_CHECKING:
     from pgtask import Worker
@@ -102,6 +103,7 @@ def create_app(
         # GET /api/system/capabilities waits for it if it isn't done yet.
         task = asyncio.create_task(store.get())
         app.state.monitor.start()
+        update_task = asyncio.create_task(updates.check_loop(app))
         # Automation scheduler: fires enabled cron triggers on their schedule.
         scheduler_task = asyncio.create_task(automation_service.scheduler_loop(app))
         # Durable execution: run assistant turns inside pgtask tasks against Postgres so
@@ -128,6 +130,7 @@ def create_app(
         await app.state.https.stop()
         task.cancel()
         scheduler_task.cancel()
+        update_task.cancel()
         refresh_task.cancel()
         if worker is not None:
             worker.shutdown()
@@ -159,6 +162,8 @@ def create_app(
     app.state.app_jobs = {}
     app.state.started_at = datetime.now(UTC)
     app.state.monitor = monitor or HostMonitor()
+    app.state.updates = UpdateChecker()
+    app.state.update_event = asyncio.Event()  # wakes the check loop when the setting turns on
     app.state.package_runner = run_command
     app.state.package_jobs = {}
     app.state.terminal_shell = shells.host_shell

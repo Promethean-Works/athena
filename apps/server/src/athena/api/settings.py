@@ -126,6 +126,12 @@ def set_system(
         before.tunnel_config, body.tunnel_config, request.app.state.secret_box
     )
     system_settings.save(settings_file, body)
+    if before.update_check != body.update_check:
+        audit.record(
+            db, user.user.username, "settings.update_check", "on" if body.update_check else "off"
+        )
+        if body.update_check:
+            request.app.state.update_event.set()
     if before.terminal_enabled != body.terminal_enabled:
         state = "on" if body.terminal_enabled else "off"
         audit.record(db, user.user.username, "settings.terminal", state)

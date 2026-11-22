@@ -70,7 +70,7 @@ Things marked "not verified" in STATUS that a first user hits on day one.
 
 ## 7. Should (in if ready, else 0.1.x)
 
-- [ ] **Update notice:** the server checks the latest GitHub release once a day (a Settings → System switch, on by default, nothing sent but the request) and the UI shows "Athena x.y.z is available" with the upgrade command.
+- [x] **Update notice:** _Done: `athena/updates.py`, `GET /api/system/update`, `UpdateNotice` in the app shell, Settings → System switch._ The server checks the latest GitHub release once a day (a Settings → System switch, on by default, nothing sent but the request) and the UI shows "Athena x.y.z is available" with the upgrade command.
 - [ ] **Pi health:** under-voltage and throttling on the dashboard (`vcgencmd get_throttled` or the sysfs file); cache the `nvidia-smi` lookup in `monitor.py`.
 - [ ] **Memory on 1 GB boards:** measure RSS on a Pi after the lazy assistant imports (HISTORY); fix the next biggest eager import if it's still over ~200 MB idle.
 - [ ] **Own-certificate upload** for HTTPS.

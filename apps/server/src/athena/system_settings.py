@@ -26,6 +26,10 @@ class SystemSettings(BaseModel):
     terminal_enabled: bool = True
     """The web terminal (host shell and container shells). Admins can turn it off."""
 
+    update_check: bool = True
+    """Look for a newer Athena release once a day (a plain request to GitHub, nothing
+    about this host is sent). The UI shows a notice when one is out."""
+
     tunnel_enabled: bool = False
     """Master toggle for tunnel feature."""
 

@@ -67,6 +67,28 @@
         }
       }
     },
+    "/api/system/update": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Update Info",
+        "description": "Whether a newer Athena release is out, from the daily check (no network call here).",
+        "operationId": "getUpdateInfo",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/system/stats": {
       "get": {
         "tags": [
@@ -11589,6 +11611,11 @@
             "title": "Terminal Enabled",
             "default": true
           },
+          "update_check": {
+            "type": "boolean",
+            "title": "Update Check",
+            "default": true
+          },
           "tunnel_enabled": {
             "type": "boolean",
             "title": "Tunnel Enabled",
@@ -12171,6 +12198,71 @@
           "password"
         ],
         "title": "UnlockIn"
+      },
+      "UpdateInfo": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "current": {
+            "type": "string",
+            "title": "Current"
+          },
+          "latest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "checked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checked At"
+          },
+          "release_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release Url"
+          },
+          "command": {
+            "type": "string",
+            "title": "Command"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "current",
+          "latest",
+          "available",
+          "checked_at",
+          "release_url",
+          "command"
+        ],
+        "title": "UpdateInfo"
       },
       "UpgradablePackage": {
         "properties": {

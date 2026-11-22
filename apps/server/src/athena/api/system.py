@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from athena import __version__, audit, restart
 from athena.auth.deps import Authed, DbSession, require_user
 from athena.monitor import HostMonitor, StatsSnapshot
+from athena.updates import UpdateInfo, enabled
 
 router = APIRouter(tags=["system"])
 
@@ -95,6 +96,13 @@ def system_info() -> SystemInfo:
         hostname=socket.gethostname(),
         python=platform.python_version(),
     )
+
+
+@router.get("/system/update", operation_id="getUpdateInfo", dependencies=[require_user])
+def update_info(request: Request) -> UpdateInfo:
+    """Whether a newer Athena release is out, from the daily check (no network call here)."""
+    app = request.app
+    return app.state.updates.info(enabled(app) and bool(app.state.settings.update_check_url))
 
 
 def _monitor(request: Request) -> HostMonitor:
