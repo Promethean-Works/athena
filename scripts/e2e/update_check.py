@@ -8,14 +8,20 @@ Standard library only. Run it against an Athena installed with the installer fro
         --athena /usr/local/bin/athena --data-dir /var/lib/athena [--sudo]
 
 It builds variants of the wheel with other versions (A 0.1.0, B 0.2.0, a broken C 0.3.0 whose
-server exits at start, D 0.4.0 whose checksum is wrong), serves them as a fake GitHub release
-through ATHENA_UPDATE_CHECK_URL, then asserts:
+server exits at start, D 0.4.0 whose checksum is wrong, E 0.5.0 for the server's own route),
+serves them as a fake GitHub release through ATHENA_UPDATE_CHECK_URL (for the CLI) and
+`server.update_check_url` in athena.json (for the service), then asserts:
 
 1. A is running; an admin and a marker file exist. `athena update` moves it to B on the same
    port, with the data intact.
 2. Updating to the broken C rolls back to B with the database as it was (exit code 2).
 3. Updating to D (wrong checksum) fails before anything is stopped: the running server's
    start time never changes (exit code 1).
+4. Updating to E from the running server (`POST /api/system/update`, as the Update button
+   will) starts the helper detached, so it survives the service stop (systemd-run on Linux,
+   a new session on macOS, a one-shot scheduled task on Windows, where the server runs under
+   `pythonw.exe`): the same port answers as E, the data is intact, nothing is left running and
+   no `WinError 6` shows in the logs.
 
 Wheel A must be what is installed first: run with `--build-only` (it prints the variants'
 paths), install A with `install.sh --wheel <A>`, then run the full check.
@@ -37,7 +43,7 @@ import zipfile
 from pathlib import Path
 
 PASSWORD = "e2e-test-pass-1234"  # throwaway; the data dir is deleted afterwards
-VERSIONS = {"a": "0.1.0", "b": "0.2.0", "c": "0.3.0", "d": "0.4.0"}
+VERSIONS = {"a": "0.1.0", "b": "0.2.0", "c": "0.3.0", "d": "0.4.0", "e": "0.5.0"}
 
 
 # ---------------------------------------------------------------- building the variants
@@ -165,12 +171,20 @@ class Release:
 # ---------------------------------------------------------------- driving Athena
 
 
-def api(base: str, path: str, body: dict | None = None, cookie: str | None = None):
+def api(
+    base: str,
+    path: str,
+    body: dict | None = None,
+    cookie: str | None = None,
+    csrf: str | None = None,
+):
     data = json.dumps(body).encode() if body is not None else None
     request = urllib.request.Request(base + path, data=data, method="POST" if data else "GET")
     request.add_header("Content-Type", "application/json")
     if cookie:
         request.add_header("Cookie", cookie)
+    if csrf:
+        request.add_header("X-CSRF-Token", csrf)
     with urllib.request.urlopen(request, timeout=10) as response:
         raw = response.read()
         return json.loads(raw) if raw else None, response.headers.get("Set-Cookie")
@@ -255,9 +269,128 @@ def started_iso(timestamp: float) -> str:
 
 def leftover_helpers() -> list[str]:
     if os.name == "nt":
-        return []
+        script = (
+            "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "
+            "'*update_helper.py*' } | ForEach-Object { $_.ProcessId }"
+        )
+        out = subprocess.run(
+            ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return out.stdout.split()
     out = subprocess.run(["pgrep", "-fl", "update_helper.py"], capture_output=True, text=True)
     return out.stdout.splitlines()
+
+
+def leftover_update_jobs() -> list[str]:
+    """The one-shot Windows task or the transient systemd unit the helper ran in."""
+    if os.name == "nt":
+        task = subprocess.run(
+            ["schtasks", "/Query", "/TN", "AthenaUpdate"], capture_output=True, check=False
+        )
+        return ["scheduled task AthenaUpdate"] if task.returncode == 0 else []
+    if sys.platform.startswith("linux"):
+        out = subprocess.run(
+            ["systemctl", "list-units", "--all", "--no-legend", "athena-update*"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return out.stdout.splitlines()
+    return []
+
+
+def read_log(data_dir: Path, name: str) -> str:
+    path = data_dir / "logs" / name
+    try:
+        if SUDO:
+            return subprocess.run(
+                [*SUDO, "cat", str(path)], capture_output=True, text=True, check=True
+            ).stdout
+        return path.read_text(encoding="utf-8", errors="replace")
+    except (OSError, subprocess.CalledProcessError):
+        return ""
+
+
+def read_text(path: Path) -> str:
+    if SUDO:
+        return subprocess.run(
+            [*SUDO, "cat", str(path)], capture_output=True, text=True, check=True
+        ).stdout
+    return path.read_text(encoding="utf-8")
+
+
+def point_service_at(args: argparse.Namespace, base: str, check_url: str) -> None:
+    """The service reads the update source from athena.json (`server.update_check_url`), so a
+    service started by the installer can be pointed at the fake release on every OS."""
+    path = args.data_dir / "athena.json"
+    try:
+        config = json.loads(read_text(path))
+    except (OSError, ValueError, subprocess.CalledProcessError):
+        config = {}
+    config.setdefault("server", {})["update_check_url"] = check_url
+    text = json.dumps(config, indent=2)
+    if SUDO:
+        subprocess.run(
+            [*SUDO, "tee", str(path)], input=text, text=True, stdout=subprocess.DEVNULL, check=True
+        )
+    else:
+        path.write_text(text, encoding="utf-8")
+    before = health(base)
+    argv = [*SUDO, *args.athena, "service", "install", "--data-dir", str(args.data_dir)]
+    print("$", " ".join(argv), flush=True)
+    subprocess.run(argv, check=True)
+    wait_for(
+        "the service to restart with the update source",
+        lambda: (
+            (h := health(base)) is not None and h["started_at"] != (before or {}).get("started_at")
+        ),
+    )
+
+
+def server_update(args: argparse.Namespace, base: str, release: "Release") -> None:
+    """Start the update from the running server and check it ends as the new version."""
+    point_service_at(args, base, release.check_url)
+    cookie = sign_in(base)
+    csrf = api(base, "/api/auth/login", {"username": "admin", "password": PASSWORD})[0][
+        "csrf_token"
+    ]
+    capabilities = api(base, "/api/system/capabilities", cookie=cookie)[0]["capabilities"]
+    capability = next(c for c in capabilities if c["id"] == "self_update")
+    assert capability["status"] == "ready", f"self_update isn't ready: {capability}"
+    before = health(base)
+    assert before is not None
+    began = time.time()
+    job, _ = api(base, "/api/system/update", {}, cookie=cookie, csrf=csrf)
+    lines: list[str] = []
+
+    def job_done() -> bool:
+        try:
+            found = api(base, f"/api/jobs/{job['id']}", cookie=cookie)[0]
+        except OSError:  # the server already stopped for the swap
+            return True
+        lines[:] = found["lines"]
+        return found["status"] != "running"
+
+    wait_for("the server to hand the update over", job_done, timeout=300)
+    print("\n".join(f"  job: {line}" for line in lines), flush=True)
+    launched = next((line for line in lines if "without the server" in line), "")
+    print(f"helper started by: {launched or '(not seen)'}", flush=True)
+    state = settle(args, began, ("done", "failed", "rolled_back"))
+    assert state["phase"] == "done", state
+    wait_for("E to answer", lambda: (health(base) or {}).get("version") == VERSIONS["e"])
+    after = health(base)
+    assert after and after["started_at"] != before["started_at"]
+    sign_in(base)  # the account survived
+    assert path_exists(args.data_dir / "update-e2e-marker.txt")
+    wait_for("the helper to exit", lambda: not leftover_helpers(), timeout=60)
+    assert not leftover_update_jobs(), leftover_update_jobs()
+    if sys.platform.startswith("linux"):
+        assert "systemd-run" in launched, "the helper must run as a transient unit on Linux"
+    for name in ("update.log", "athena.log"):
+        assert "WinError 6" not in read_log(args.data_dir, name), f"WinError 6 in {name}"
 
 
 def main() -> int:
@@ -329,6 +462,10 @@ def main() -> int:
     again = health(base)
     assert again and again["started_at"] == before["started_at"], "the service was restarted"
     assert not path_exists(args.data_dir / "updates" / VERSIONS["d"]), "the bad wheel was kept"
+
+    print("--> the same update, started from the server (POST /api/system/update)")
+    release.latest = VERSIONS["e"]
+    server_update(args, base, release)
 
     print("update e2e: all good")
     shutil.rmtree(args.out, ignore_errors=True)

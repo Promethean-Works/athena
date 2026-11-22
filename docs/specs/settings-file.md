@@ -52,7 +52,7 @@ The same on Linux, macOS and Windows; no capability. The file lives in the data 
 
 ### Server section and precedence
 
-`ServerSettings` holds `host`, `port`, `feedback_repo` and `durable_execution_database_url`. The precedence is CLI flag > `ATHENA_*` env var > file > default, implemented as a pydantic-settings source in `config.py`. `data_dir` can't be in the file, because the file is inside it. `web_dir` and `log_to_file` are internals and stay env-only.
+`ServerSettings` holds `host`, `port`, `feedback_repo`, `durable_execution_database_url` and `update_check_url` (added by self-update, so the E2E can point a service at a fake release). The precedence is CLI flag > `ATHENA_*` env var > file > default, implemented as a pydantic-settings source in `config.py`. `data_dir` can't be in the file, because the file is inside it. `web_dir` and `log_to_file` are internals and stay env-only.
 
 ### CLI
 

@@ -338,3 +338,20 @@ def test_allowed_hosts() -> None:
     local = "http://127.0.0.1:9000/releases/latest"  # a fork or a test names its own source
     assert ok("http://127.0.0.1:9000/files/x.whl", local)
     assert not ok("http://127.0.0.1:9001/files/x.whl", local)
+
+
+def test_the_update_source_can_be_set_in_athena_json(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import json
+
+    from athena.config import Settings
+
+    (tmp_path / "athena.json").write_text(
+        json.dumps({"server": {"update_check_url": "http://127.0.0.1:9/releases/latest"}}),
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("ATHENA_UPDATE_CHECK_URL")
+    assert Settings(data_dir=tmp_path).update_check_url == "http://127.0.0.1:9/releases/latest"
+    monkeypatch.setenv("ATHENA_UPDATE_CHECK_URL", "")  # the environment still wins
+    assert Settings(data_dir=tmp_path).update_check_url == ""

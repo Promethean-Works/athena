@@ -23,13 +23,15 @@ class Stoppable(Protocol):
 
 _server: Stoppable | None = None
 _requested = False
+_exit_requested = False
 
 
 def register(server: Stoppable | None) -> None:
     """Tell this module which server to stop (None forgets it, for tests)."""
-    global _server, _requested
+    global _server, _requested, _exit_requested
     _server = server
     _requested = False
+    _exit_requested = False
 
 
 def available() -> bool:
@@ -47,5 +49,21 @@ def request() -> bool:
     return True
 
 
+def request_exit() -> bool:
+    """Stop the server and the supervisor with it (no new server). The self-update helper
+    does the stopping and starting of the service itself, so nothing may restart the server
+    behind its back. False if there is no server to stop."""
+    global _exit_requested
+    if _server is None:
+        return False
+    _exit_requested = True
+    _server.should_exit = True
+    return True
+
+
 def requested() -> bool:
     return _requested
+
+
+def exit_requested() -> bool:
+    return _exit_requested

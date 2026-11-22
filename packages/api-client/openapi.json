@@ -87,6 +87,46 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Start Update",
+        "description": "Download and check a release, then hand over to the helper, which swaps Athena while\nthe server is stopped (admins only). Follow the job at /api/jobs/{id}/events.",
+        "operationId": "startUpdate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/system/stats": {
@@ -11404,6 +11444,24 @@
           "created_at"
         ],
         "title": "SmbShareOut"
+      },
+      "StartUpdate": {
+        "properties": {
+          "version": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d+\\.\\d+([-.]?(a|b|rc)\\.?\\d+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "title": "StartUpdate"
       },
       "StatsSample": {
         "properties": {

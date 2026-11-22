@@ -22,6 +22,10 @@ on:
       - apps/server/src/athena/cli.py
       - apps/server/src/athena/self_update.py
       - apps/server/src/athena/update_helper.py
+      - apps/server/src/athena/update_launch.py
+      - apps/server/src/athena/restart.py
+      - apps/server/src/athena/api/system.py
+      - apps/server/src/athena/platform/**
       - apps/server/src/athena/updates.py
       - apps/server/src/athena/downloads.py
       - apps/server/src/athena/https/**
@@ -218,7 +222,8 @@ jobs:
   # docs/specs/self-update.md: `athena update` against a local fake release. Wheel A is
   # installed with the installer; the script builds B (newer), a broken C (the server
   # exits at start) and D (wrong checksum), then checks the swap, the rollback with the
-  # database restored, and that a bad checksum never stops the service.
+  # database restored, and that a bad checksum never stops the service. Last, E is installed
+  # from the running service (POST /api/system/update), which proves the helper survives it.
   update:
     name: self-update (${{ matrix.os }})
     needs: wheel

@@ -9,6 +9,8 @@ The helper is dumb on purpose: `athena` writes `plan.json` (argv lists for stop,
 start, the health URL, the expected version, the rollback steps) and the helper only runs it.
 Progress goes to `state.json` (written atomically), the log file and stdout.
 
+Started by the server it outlives (see `athena/update_launch.py`) or by `athena update`.
+
 Exit codes: 0 updated, 1 aborted before anything was stopped, 2 rolled back to the old
 version, 3 failed and not running.
 See docs/specs/self-update.md.
@@ -245,7 +247,15 @@ class Helper:
             return EXIT_DONE
         finally:
             self.lock_file.unlink(missing_ok=True)
+            self.cleanup()
             self._log.close()
+
+    def cleanup(self) -> None:
+        """Last of all: on Windows this deletes the one-shot task that started the helper."""
+        try:
+            self.run_steps(self.plan.get("cleanup", []))
+        except StepFailed as exc:
+            self.say(f"Cleanup failed: {exc}")
 
     def prune(self) -> None:
         """Keep the last two downloaded versions; drop the old version's wheel after a week."""
@@ -264,10 +274,13 @@ class Helper:
 
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
-    if len(args) != 1:
-        print("usage: update_helper.py <plan.json>", file=sys.stderr)
+    if len(args) > 1:
+        print("usage: update_helper.py [plan.json]", file=sys.stderr)
         return 1
-    plan = json.loads(Path(args[0]).read_text(encoding="utf-8"))
+    # Started with no argument (a Windows scheduled task has a 261 character command line),
+    # the plan is `plan.json` next to the `run/` folder this file was copied to.
+    plan_path = Path(args[0]) if args else Path(__file__).resolve().parent.parent / "plan.json"
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
     return Helper(plan).finish()
 
 

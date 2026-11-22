@@ -269,3 +269,33 @@ def test_the_helper_imports_only_the_standard_library() -> None:
         if isinstance(n, ast.Import | ast.ImportFrom)
     }
     assert names <= set(sys.stdlib_module_names), names - set(sys.stdlib_module_names)
+
+
+def test_cleanup_runs_last_even_after_a_rollback(world: World) -> None:
+    marker = world.dir / "cleaned.txt"
+    code = f"open({str(marker)!r}, 'w').write('x')"
+    cleanup = [{"argv": write_file(code), "ignore_errors": True}]
+    run(world.plan(install=world.install("0.2.0", ok=False), cleanup=cleanup))
+    assert marker.read_text() == "x"
+    assert not (world.updates / "lock").exists()
+
+
+def test_a_failing_cleanup_does_not_change_the_result(world: World) -> None:
+    cleanup = [{"argv": write_file("raise SystemExit(1)"), "ignore_errors": False}]
+    assert run(world.plan(cleanup=cleanup)) == update_helper.EXIT_DONE
+    assert world.state()["phase"] == "done"
+
+
+def test_with_no_argument_the_plan_is_next_to_the_run_folder(
+    world: World, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A Windows scheduled task's command line is limited to 261 characters, so the helper
+    # (copied to <updates>/run/) finds <updates>/plan.json itself.
+    run_dir = world.updates / "run"
+    run_dir.mkdir()
+    script = run_dir / "update_helper.py"
+    script.write_bytes(Path(update_helper.__file__).read_bytes())
+    (world.updates / "plan.json").write_text(json.dumps(world.plan()), encoding="utf-8")
+    monkeypatch.setattr(update_helper, "__file__", str(script))
+    assert update_helper.main([]) == update_helper.EXIT_DONE
+    assert world.state()["phase"] == "done"

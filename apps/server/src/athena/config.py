@@ -49,6 +49,9 @@ class ServerSettings(BaseModel):
     """Where "Send feedback" opens issues (forks point it at their own repository)."""
     durable_execution_database_url: str | None = None
     """Postgres URL for the assistant's durable execution (pgtask). Unset: off."""
+    update_check_url: str = DEFAULT_UPDATE_CHECK_URL
+    """Where the update notice and Update Athena look for releases (GitHub's API; forks and
+    mirrors point it elsewhere). Empty turns both off."""
 
 
 class _ServerSection(PydanticBaseSettingsSource):
