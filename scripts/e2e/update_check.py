@@ -199,17 +199,39 @@ def sign_in(base: str) -> str:
 
 
 def run_update(args: argparse.Namespace, check_url: str, *extra: str) -> int:
-    env = {**os.environ, "ATHENA_UPDATE_CHECK_URL": check_url}
-    prefix = ["sudo", "env", f"ATHENA_UPDATE_CHECK_URL={check_url}"] if args.sudo else []
+    env = {**os.environ, "ATHENA_UPDATE_CHECK_URL": check_url, "PYTHONUNBUFFERED": "1"}
+    prefix = (
+        ["sudo", "env", f"ATHENA_UPDATE_CHECK_URL={check_url}", "PYTHONUNBUFFERED=1"]
+        if args.sudo
+        else []
+    )
     argv = [*prefix, *args.athena, "update", "--yes", "--data-dir", str(args.data_dir), *extra]
     print("$", " ".join(argv), flush=True)
     return subprocess.run(argv, env=env, check=False).returncode
 
 
+SUDO: list[str] = []  # ["sudo"] when the data dir belongs to root (the Linux service)
+
+
+def path_exists(path: Path) -> bool:
+    return (
+        subprocess.run([*SUDO, "test", "-e", str(path)], check=False).returncode == 0
+        if SUDO
+        else path.exists()
+    )
+
+
 def update_state(data_dir: Path) -> dict:
+    path = data_dir / "updates" / "state.json"
     try:
-        return json.loads((data_dir / "updates" / "state.json").read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+        if SUDO:  # the runner user can't read root's data dir
+            return json.loads(
+                subprocess.run(
+                    [*SUDO, "cat", str(path)], capture_output=True, text=True, check=True
+                ).stdout
+            )
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, subprocess.CalledProcessError):
         return {}
 
 
@@ -220,7 +242,8 @@ def settle(args: argparse.Namespace, started: float, phases: tuple[str, ...]) ->
         state = update_state(args.data_dir)
         return state.get("phase") in phases and state.get("started_at", "") >= started_iso(started)
 
-    wait_for(f"the update to end as {phases}", finished)
+    # A rollback on a CI Windows runner: two uv installs (~35 s each) plus the 90 s health wait.
+    wait_for(f"the update to end as {phases}", finished, timeout=480)
     return update_state(args.data_dir)
 
 
@@ -248,6 +271,8 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=Path("dist") / "update-wheels")
     args = parser.parse_args()
     args.athena = [args.athena]
+    if args.sudo:
+        SUDO.append("sudo")
     wheels = build_variants(args.wheel, args.out)
     if args.build_only:
         for key, path in wheels.items():
@@ -279,13 +304,14 @@ def main() -> int:
     after = health(base)
     assert after["started_at"] != first["started_at"]
     sign_in(base)  # the account survived
-    assert marker.exists()
+    assert path_exists(marker)
     assert not leftover_helpers(), leftover_helpers()
 
     print("--> update to the broken C rolls back to B")
     release.latest = VERSIONS["c"]
     began = time.time()
     code = run_update(args, release.check_url)
+    print(f"athena update exited {code}; state {update_state(args.data_dir)}", flush=True)
     state = settle(args, began, ("done", "failed", "rolled_back"))
     assert state["phase"] == "rolled_back", state
     if os.name != "nt":  # on Windows `athena update` returns before the helper ends
@@ -302,7 +328,7 @@ def main() -> int:
     assert code == 1, f"athena update exited {code}, expected 1"
     again = health(base)
     assert again and again["started_at"] == before["started_at"], "the service was restarted"
-    assert not (args.data_dir / "updates" / VERSIONS["d"]).exists(), "the bad wheel was kept"
+    assert not path_exists(args.data_dir / "updates" / VERSIONS["d"]), "the bad wheel was kept"
 
     print("update e2e: all good")
     shutil.rmtree(args.out, ignore_errors=True)
