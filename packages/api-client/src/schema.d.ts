@@ -2488,6 +2488,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/backup/restore/app": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore App
+         * @description Restore one app from a version. Follow progress at /api/jobs/{id}/events.
+         */
+        post: operations["restoreBackupApp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup/apps/{name}/before-restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Before Restore
+         * @description Delete the folders a restore of this app moved aside, without waiting for the days
+         *     set in `backup.before_restore_keep_days`.
+         */
+        delete: operations["deleteBackupBeforeRestore"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4180,6 +4221,15 @@ export interface components {
             path: string;
             /** Name */
             name: string;
+        };
+        /** RestoreAppIn */
+        RestoreAppIn: {
+            /** Destination Id */
+            destination_id: string;
+            /** Version Id */
+            version_id: string;
+            /** Name */
+            name?: string | null;
         };
         /**
          * Retention
@@ -9732,6 +9782,68 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["VersionFilesOut"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restoreBackupApp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestoreAppIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deleteBackupBeforeRestore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

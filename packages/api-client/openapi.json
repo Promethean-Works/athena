@@ -6654,6 +6654,84 @@
           }
         }
       }
+    },
+    "/api/backup/restore/app": {
+      "post": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Restore App",
+        "description": "Restore one app from a version. Follow progress at /api/jobs/{id}/events.",
+        "operationId": "restoreBackupApp",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreAppIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/backup/apps/{name}/before-restore": {
+      "delete": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Delete Before Restore",
+        "description": "Delete the folders a restore of this app moved aside, without waiting for the days\nset in `backup.before_restore_keep_days`.",
+        "operationId": "deleteBackupBeforeRestore",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -11239,6 +11317,35 @@
           "name"
         ],
         "title": "RenameIn"
+      },
+      "RestoreAppIn": {
+        "properties": {
+          "destination_id": {
+            "type": "string",
+            "title": "Destination Id"
+          },
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "destination_id",
+          "version_id"
+        ],
+        "title": "RestoreAppIn"
       },
       "Retention": {
         "properties": {
