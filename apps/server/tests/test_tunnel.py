@@ -125,3 +125,84 @@ def test_plaintext_secrets_typed_into_the_file_work(client: TestClient) -> None:
     assert NGROK not in json.dumps(stored)
     assert stored["tunnel_port"] == 9000
     assert box.decrypt(stored["tunnel_config"]["auth_token"].removeprefix(ENCRYPTED)) == NGROK
+
+
+class FakeProvider:
+    label = "Fake"
+
+    def __init__(self, running: bool = False) -> None:
+        self.running = running
+        self.started: list = []
+
+    def status(self):
+        from athena.tunnel.base import TunnelStatus
+
+        return TunnelStatus(running=self.running)
+
+    async def start(self, job, config) -> str:
+        self.started.append(config)
+        return "https://fake.example"
+
+    def shutdown(self) -> None:
+        pass
+
+
+def _boot(
+    tmp_path: Path, monkeypatch, system: dict, provider: FakeProvider, wait: bool = False
+) -> list:
+    """Start the server (its lifespan runs the auto-start) and return the fake's starts."""
+    from athena.tunnel import TUNNEL_PROVIDERS
+
+    monkeypatch.setitem(TUNNEL_PROVIDERS, "tunnel.cloudflare", provider)
+    app = make_app(tmp_path)
+    settings_file = app.state.settings_file
+    data = json.loads(settings_file.path.read_text(encoding="utf-8"))
+    data["system"] = system
+    settings_file.path.write_bytes(json.dumps(data).encode())
+    settings_file.load()
+    with TestClient(app) as c:
+        signed_in(c)
+        import time
+
+        for _ in range(50 if wait else 0):
+            if provider.started:
+                break
+            time.sleep(0.1)
+    return provider.started
+
+
+def test_tunnel_starts_at_boot_when_enabled(tmp_path: Path, monkeypatch) -> None:
+    fake = FakeProvider()
+    started = _boot(
+        tmp_path,
+        monkeypatch,
+        {"tunnel_enabled": True, "tunnel_provider": "cloudflare", "tunnel_port": 9001},
+        fake,
+        wait=True,
+    )
+    assert [c.port for c in started] == [9001]
+
+
+@pytest.mark.parametrize(
+    "system",
+    [
+        {"tunnel_enabled": False, "tunnel_provider": "cloudflare"},
+        {"tunnel_enabled": True, "tunnel_provider": "cloudflare", "tunnel_auto_start": False},
+        {"tunnel_enabled": True, "tunnel_provider": None},
+        {"tunnel_enabled": True, "tunnel_provider": "nope"},
+    ],
+)
+def test_tunnel_does_not_start_at_boot_unless_asked(tmp_path: Path, monkeypatch, system) -> None:
+    from athena.tunnel import autostart
+
+    monkeypatch.setattr(autostart, "start_job", lambda *a: pytest.fail("started"))
+    assert _boot(tmp_path, monkeypatch, system, FakeProvider()) == []
+
+
+def test_boot_survives_an_unreadable_secret(tmp_path: Path, monkeypatch) -> None:
+    system = {
+        "tunnel_enabled": True,
+        "tunnel_provider": "cloudflare",
+        "tunnel_config": {"api_token": ENCRYPTED + "garbage"},
+    }
+    assert _boot(tmp_path, monkeypatch, system, FakeProvider()) == []
