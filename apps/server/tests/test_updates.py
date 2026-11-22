@@ -185,3 +185,156 @@ def test_no_url_means_no_check(tmp_path) -> None:
         body = client.get("/api/system/update").json()
         assert body["enabled"] is False
         assert body["available"] is False
+
+
+# ---------------------------------------------------------------- self-update: the assets
+
+SOURCE = "https://api.github.com/repos/Promethean-Works/athena/releases/latest"
+
+
+def assets(
+    version: str, host: str = "https://github.com/Promethean-Works/athena/releases/download"
+):
+    tag = f"v{version}"
+    return [
+        {
+            "name": f"athena_server-{version}-py3-none-any.whl",
+            "browser_download_url": f"{host}/{tag}/athena_server-{version}-py3-none-any.whl",
+        },
+        {"name": "SHA256SUMS", "browser_download_url": f"{host}/{tag}/SHA256SUMS"},
+    ]
+
+
+def full_release(tag: str, version: str, **extra: Any) -> dict[str, Any]:
+    return {
+        "tag_name": tag,
+        "html_url": f"https://github.com/x/y/releases/tag/{tag}",
+        "assets": assets(version),
+        **extra,
+    }
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("0.2.0", "0.2.0"),
+        ("v0.2.0", "0.2.0"),
+        ("0.2.0-rc.1", "0.2.0rc1"),
+        ("v0.2.0-rc1", "0.2.0rc1"),
+        ("0.2.0rc1", "0.2.0rc1"),
+        ("1.0.0-a.3", "1.0.0a3"),
+        ("0.2.0-beta1", None),
+        ("0.2", None),
+        ("../../etc/passwd", None),
+        ("0.2.0/../x", None),
+        ("0.2.0 --index-url x", None),
+        ("", None),
+    ],
+)
+def test_wheel_versions(text: str, expected: str | None) -> None:
+    assert updates.wheel_version(text) == expected
+
+
+def test_a_prerelease_sorts_before_its_final() -> None:
+    key = updates.version_key
+    assert key("0.2.0rc1") < key("0.2.0") < key("0.2.1")
+    assert key("0.2.0a1") < key("0.2.0b1") < key("0.2.0rc1")
+    assert key("0.10.0") > key("0.9.0")
+
+
+def test_resolve_latest_finds_the_wheel_and_sums() -> None:
+    seen: list[str] = []
+
+    def fetch(url: str) -> dict[str, Any]:
+        seen.append(url)
+        return full_release("v0.2.0", "0.2.0")
+
+    release = updates.resolve(SOURCE, fetch=fetch)
+    assert seen == [SOURCE]
+    assert release.version == "0.2.0"
+    assert release.wheel_name == "athena_server-0.2.0-py3-none-any.whl"
+    assert release.wheel_url.endswith("/v0.2.0/athena_server-0.2.0-py3-none-any.whl")
+    assert release.sums_url.endswith("/v0.2.0/SHA256SUMS")
+
+
+def test_resolve_a_version_asks_for_its_tag_and_maps_prereleases() -> None:
+    seen: list[str] = []
+
+    def fetch(url: str) -> dict[str, Any]:
+        seen.append(url)
+        return full_release("v0.2.0-rc.1", "0.2.0rc1", prerelease=True)
+
+    release = updates.resolve(SOURCE, "0.2.0-rc.1", fetch=fetch)
+    assert seen == [SOURCE.removesuffix("/latest") + "/tags/v0.2.0-rc.1"]
+    assert release.version == "0.2.0rc1"
+    assert release.wheel_name == "athena_server-0.2.0rc1-py3-none-any.whl"
+
+
+def test_resolve_never_lets_a_bad_version_reach_a_url() -> None:
+    def fetch(url: str) -> dict[str, Any]:
+        raise AssertionError("no request for an invalid version")
+
+    with pytest.raises(updates.ReleaseError, match="isn't a release version"):
+        updates.resolve(SOURCE, "0.2.0/../../x", fetch=fetch)
+
+
+def test_resolve_pre_takes_the_newest_non_draft() -> None:
+    listing = [
+        {"tag_name": "v0.3.0", "draft": True, "assets": []},
+        full_release("v0.3.0-rc.1", "0.3.0rc1", prerelease=True),
+        full_release("v0.2.0", "0.2.0"),
+    ]
+    seen: list[str] = []
+
+    def fetch_list(url: str) -> list[Any]:
+        seen.append(url)
+        return listing
+
+    release = updates.resolve(SOURCE, pre=True, fetch_list=fetch_list)
+    assert release.version == "0.3.0rc1"
+    assert seen[0].startswith(SOURCE.removesuffix("/latest") + "?")
+
+
+def test_resolve_refuses_drafts_and_prereleases_without_asking_for_one() -> None:
+    with pytest.raises(updates.ReleaseError, match="pre-release"):
+        updates.resolve(
+            SOURCE, fetch=lambda u: full_release("v0.3.0-rc.1", "0.3.0rc1", prerelease=True)
+        )
+    with pytest.raises(updates.ReleaseError, match="draft"):
+        updates.resolve(SOURCE, fetch=lambda u: full_release("v0.3.0", "0.3.0", draft=True))
+
+
+def test_resolve_needs_both_assets() -> None:
+    release = full_release("v0.2.0", "0.2.0")
+    release["assets"] = release["assets"][:1]
+    with pytest.raises(updates.ReleaseError, match="SHA256SUMS"):
+        updates.resolve(SOURCE, fetch=lambda u: release)
+
+
+def test_resolve_refuses_assets_on_other_hosts() -> None:
+    release = full_release("v0.2.0", "0.2.0")
+    release["assets"] = assets("0.2.0", "https://evil.example/download")
+    with pytest.raises(updates.ReleaseError, match="allowed host"):
+        updates.resolve(SOURCE, fetch=lambda u: release)
+
+
+def test_resolve_wraps_network_errors() -> None:
+    def fail(url: str) -> dict[str, Any]:
+        raise OSError("HTTP Error 404")
+
+    with pytest.raises(updates.ReleaseError, match="Couldn't read the release"):
+        updates.resolve(SOURCE, "0.2.0", fetch=fail)
+    with pytest.raises(updates.ReleaseError, match="turned off"):
+        updates.resolve("", fetch=fail)
+
+
+def test_allowed_hosts() -> None:
+    ok = updates.host_allowed
+    assert ok("https://github.com/a/b/releases/download/v1/x.whl", SOURCE)
+    assert ok("https://release-assets.githubusercontent.com/x", SOURCE)
+    assert not ok("http://github.com/a/b/x.whl", SOURCE)  # HTTPS only
+    assert not ok("https://github.com.evil.example/x", SOURCE)
+    assert not ok("https://evil.example/x", SOURCE)
+    local = "http://127.0.0.1:9000/releases/latest"  # a fork or a test names its own source
+    assert ok("http://127.0.0.1:9000/files/x.whl", local)
+    assert not ok("http://127.0.0.1:9001/files/x.whl", local)

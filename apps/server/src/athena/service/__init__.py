@@ -9,6 +9,21 @@ Each backend turns a request into a plan of steps, so the same code drives real 
 """
 
 from athena.service.plan import Plan, ServiceSpec, execute
-from athena.service.platforms import build_install, build_status, build_uninstall
+from athena.service.platforms import (
+    build_install,
+    build_start,
+    build_status,
+    build_stop,
+    build_uninstall,
+)
 
-__all__ = ["Plan", "ServiceSpec", "build_install", "build_status", "build_uninstall", "execute"]
+__all__ = [
+    "Plan",
+    "ServiceSpec",
+    "build_install",
+    "build_start",
+    "build_status",
+    "build_stop",
+    "build_uninstall",
+    "execute",
+]
