@@ -73,6 +73,20 @@ async def _refresh_models_dev_cache(app: FastAPI) -> None:
         log.warning("Failed to refresh models.dev cache: %s", e)
 
 
+async def audit_update_outcome(app: FastAPI) -> None:
+    """Audit how the last self-update ended (the old server is gone, so this one does)."""
+    from athena import audit, self_update
+
+    def record(action: str, detail: str) -> None:
+        for session in app.state.db.session():
+            audit.record(session, "system", action, "athena", detail)
+
+    try:
+        await self_update.audit_outcome(self_update.Paths(app.state.settings.data_dir), record)
+    except Exception as e:
+        log.warning("Couldn't audit the last update: %s", e)
+
+
 def create_app(
     settings: Settings | None = None,
     capability_store: CapabilityStore | None = None,
@@ -104,6 +118,7 @@ def create_app(
         task = asyncio.create_task(store.get())
         app.state.monitor.start()
         update_task = asyncio.create_task(updates.check_loop(app))
+        update_audit_task = asyncio.create_task(audit_update_outcome(app))
         # Automation scheduler: fires enabled cron triggers on their schedule.
         scheduler_task = asyncio.create_task(automation_service.scheduler_loop(app))
         # Durable execution: run assistant turns inside pgtask tasks against Postgres so
@@ -131,6 +146,7 @@ def create_app(
         task.cancel()
         scheduler_task.cancel()
         update_task.cancel()
+        update_audit_task.cancel()
         refresh_task.cancel()
         if worker is not None:
             worker.shutdown()
@@ -165,6 +181,7 @@ def create_app(
     app.state.started_at = datetime.now(UTC)
     app.state.monitor = monitor or HostMonitor()
     app.state.updates = UpdateChecker()
+    app.state.update_started_at = None  # monotonic time of the last accepted update start
     app.state.update_event = asyncio.Event()  # wakes the check loop when the setting turns on
     app.state.package_runner = run_command
     app.state.package_jobs = {}

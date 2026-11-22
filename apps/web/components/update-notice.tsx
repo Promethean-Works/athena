@@ -9,18 +9,18 @@ import {
   AlertTitle,
 } from "@workspace/ui/components/alert"
 
-import { CopyField } from "@/components/settings/copy-field"
+import { UpdateAction } from "@/components/update-action"
 import { useApi } from "@/hooks/use-api"
 
 /**
- * "Athena x.y.z is available" with the upgrade command. The server checks GitHub once
+ * "Athena x.y.z is available" with an Update now button (or the upgrade command). The server checks GitHub once
  * a day (Settings → System turns it off), so this only reads its answer; it renders
  * nothing when there's no newer release, the check is off or it couldn't run.
  */
 export function UpdateNotice() {
   const update = useApi(() => api.GET("/api/system/update"))
   if (update.status !== "ok" || !update.data.available) return null
-  const { latest, current, command, release_url } = update.data
+  const { latest, current, release_url } = update.data
   return (
     <Alert>
       <ArrowUpCircleIcon />
@@ -39,15 +39,7 @@ export function UpdateNotice() {
             </a>
           )}
         </p>
-        <p>
-          To upgrade, run this on the server (it installs the new version and
-          restarts Athena; your data and settings stay):
-        </p>
-        <CopyField
-          id="update-command"
-          label="Upgrade command"
-          value={command}
-        />
+        <UpdateAction info={update.data} />
       </AlertDescription>
     </Alert>
   )

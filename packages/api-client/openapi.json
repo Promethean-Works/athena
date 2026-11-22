@@ -129,6 +129,28 @@
         }
       }
     },
+    "/api/system/update/status": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Update Status",
+        "description": "What the last update did, from the helper's state file (admins only). The helper\noutlives the server, so this is what the page reads once Athena is back.",
+        "operationId": "getUpdateStatus",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/system/stats": {
       "get": {
         "tags": [
@@ -12918,6 +12940,105 @@
           "command"
         ],
         "title": "UpdateInfo"
+      },
+      "UpdateStatus": {
+        "properties": {
+          "phase": {
+            "type": "string",
+            "title": "Phase"
+          },
+          "step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step"
+          },
+          "from_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Version"
+          },
+          "to_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Version"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "log_tail": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Log Tail"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "running_jobs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Running Jobs"
+          },
+          "terminals": {
+            "type": "integer",
+            "title": "Terminals",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "phase"
+        ],
+        "title": "UpdateStatus"
       },
       "UpgradablePackage": {
         "properties": {

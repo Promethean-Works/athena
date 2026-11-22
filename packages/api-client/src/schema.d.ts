@@ -83,6 +83,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/system/update/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Update Status
+         * @description What the last update did, from the helper's state file (admins only). The helper
+         *     outlives the server, so this is what the page reads once Athena is back.
+         */
+        get: operations["getUpdateStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/system/stats": {
         parameters: {
             query?: never;
@@ -4737,6 +4758,32 @@ export interface components {
             /** Command */
             command: string;
         };
+        /** UpdateStatus */
+        UpdateStatus: {
+            /** Phase */
+            phase: string;
+            /** Step */
+            step?: string | null;
+            /** From Version */
+            from_version?: string | null;
+            /** To Version */
+            to_version?: string | null;
+            /** Started At */
+            started_at?: string | null;
+            /** Error */
+            error?: string | null;
+            /** Log Tail */
+            log_tail?: string[];
+            /** Job Id */
+            job_id?: string | null;
+            /** Running Jobs */
+            running_jobs?: string[];
+            /**
+             * Terminals
+             * @default 0
+             */
+            terminals: number;
+        };
         /** UpgradablePackage */
         UpgradablePackage: {
             /** Name */
@@ -5020,6 +5067,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getUpdateStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateStatus"];
                 };
             };
         };

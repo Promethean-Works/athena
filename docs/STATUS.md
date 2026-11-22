@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Self-update (`docs/specs/self-update.md`): parts 1, 2 done. **Next part 3**: status endpoint, notice button, Settings card, progress dialog, audit, rate limit. Not verified: Fedora, hand failure cases, the route in a browser.
+- Self-update (`docs/specs/self-update.md`): parts 1-3 done. **Next part 4**: backup first, interrupted-update banner (`state.json` phase not final), design doc, spec Done. Not verified: Fedora, hand failure cases, a real UI update (E2E smoke).
 - Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a (#216), 2b (#244), 2c (#247) merged; `schedule` is validated but nothing runs it until part 4. **Next 2d** restore one app, then 2e rclone.
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt or Cloudflare, trusting the CA on real devices. The last renewal/error live in memory only (a restart forgets them). Follow-up: own-certificate upload.
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.

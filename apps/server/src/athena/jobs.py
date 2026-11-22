@@ -190,6 +190,9 @@ class JobManager:
     def get(self, job_id: str) -> Job | None:
         return self._jobs.get(job_id)
 
+    def running(self) -> list[Job]:
+        return [j for j in self._jobs.values() if j.status == "running"]
+
     def _prune(self) -> None:
         finished = [j for j in self._jobs.values() if j.status != "running"]
         for job in sorted(finished, key=lambda j: j.started_at)[:-KEEP_FINISHED]:
