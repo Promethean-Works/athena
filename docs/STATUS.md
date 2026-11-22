@@ -43,9 +43,7 @@ Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 
 ## Open questions
 
-- `apps/server/pyproject.toml` installs the `coder` extra of pydantic-ai-harness, but `assistant/coding_stack.py` (and §4.5) say `Coder` isn't used (its shell bypasses `ShellGuard`). Drop the extra, or say why it stays?
-
-
+- None.
 
 ## Blockers
 
