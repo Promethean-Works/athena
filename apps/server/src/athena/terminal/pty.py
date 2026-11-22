@@ -44,7 +44,12 @@ class _Posix:
         import pty
         import termios
 
-        self.master, slave = pty.openpty()
+        # We keep the slave open until `close_fd`. On macOS a program that exits blocks
+        # in its tty close until the output is read and then drops it after about a
+        # second if the last slave fd is closed first; with ours open the output waits
+        # for the reader however late it comes (an empty terminal in CI otherwise).
+        self.master, self.slave = pty.openpty()
+        slave = self.slave
         try:
             termios.tcsetwinsize(slave, (rows, cols))
             self.proc = subprocess.Popen(
@@ -59,17 +64,24 @@ class _Posix:
             )
         except BaseException:
             os.close(self.master)
-            raise
-        finally:
             os.close(slave)
+            raise
         self.pid = self.proc.pid
 
     def read(self) -> bytes | None:
-        """A chunk, b"" when nothing is ready yet, or None at the end."""
+        """A chunk, b"" when nothing is ready yet, or None at the end.
+
+        The end is the program exiting with its output drained: we hold a slave fd
+        ourselves (see `__init__`), so the pty never hangs up (no EOF, no EIO).
+        """
         ready, _, _ = select.select([self.master], [], [], POLL_SECONDS)
         if not ready:
-            # A background job can keep the pty open after the shell exits.
-            return None if self.proc.poll() is not None else b""
+            if self.proc.poll() is None:
+                return b""
+            # It may have written and exited between the select and the poll.
+            ready, _, _ = select.select([self.master], [], [], 0)
+            if not ready:
+                return None
         try:
             data = os.read(self.master, READ_SIZE)
         except OSError:  # EIO on Linux once every slave fd is closed
@@ -105,8 +117,9 @@ class _Posix:
                 self.proc.wait(grace)
 
     def close_fd(self) -> None:
-        with contextlib.suppress(OSError):
-            os.close(self.master)
+        for fd in (self.master, self.slave):
+            with contextlib.suppress(OSError):
+                os.close(fd)
 
 
 _console_lock = threading.Lock()
