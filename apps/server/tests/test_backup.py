@@ -629,10 +629,12 @@ def test_real_restic_creates_then_opens_a_repository(tmp_path: Path) -> None:
 def test_real_restic_through_the_routes(tmp_path: Path) -> None:
     real = _real_restic()
     assert real is not None
-    app = make_app(tmp_path)
+    app = make_app(tmp_path, backup_allowed_roots=[tmp_path])
     app.state.restic = ResticProvider(tmp_path / "data", binary=real)
     c = signed_in(TestClient(app))
-    dest = create(c, folder(tmp_path)).json()
+    res = create(c, folder(tmp_path))
+    assert res.status_code == 201, res.text
+    dest = res.json()
     repo = Path(dest["location"])
     assert repository.looks_like_repository(repo)
     # Creating it again elsewhere with the same folder opens, not recreates: 409 by location.
