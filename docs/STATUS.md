@@ -24,7 +24,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
   - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
   - Real-tested: a Cloudflare quick tunnel (macOS). Not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`, which nothing writes.
 
-- models.dev providers left out because pydantic-ai needs their own SDK: Google Vertex (service-account form for `GoogleProvider(vertexai=True)`), watsonx, GitLab, SAP AI Core and a few gateways. Vertex is the one worth adding.
+- models.dev providers left out because pydantic-ai needs their own SDK: watsonx, GitLab, SAP AI Core and a few gateways. Google Vertex is in (`google-vertex`, service-account key; not tried against real Vertex credentials).
 
 
 ## Next

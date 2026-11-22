@@ -89,11 +89,88 @@ def test_every_kind_builds_a_model(kind, monkeypatch):
         monkeypatch.delenv(var, raising=False)
     spec = next(k for k in KINDS if k.id == kind)
     values = {f.key: f.default or "x" for f in spec.fields}
+    if kind == "google-vertex":
+        values["service_account"] = SERVICE_ACCOUNT
     if "base_url" in values:
         values["base_url"] = "http://127.0.0.1:9999"
     model_id = "openai/m1" if kind == "openrouter" else "m1"
     model = build_model(ProviderConfig(id="p", kind=spec, name=spec.label, values=values), model_id)
     assert model.model_name == model_id
+
+
+def _service_account_json(**over) -> str:
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+
+    pem = (
+        rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        .private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.PKCS8,
+            serialization.NoEncryption(),
+        )
+        .decode()
+    )
+    info = {
+        "type": "service_account",
+        "project_id": "demo-project",
+        "private_key_id": "abc",
+        "private_key": pem,
+        "client_email": "athena@demo-project.iam.gserviceaccount.com",
+        "token_uri": "https://oauth2.googleapis.com/token",
+    }
+    return json.dumps({**info, **over})
+
+
+SERVICE_ACCOUNT = _service_account_json()
+
+
+def test_vertex_builds_a_google_model_from_the_service_account_key():
+    spec = BY_ID["google-vertex"]
+    cfg = ProviderConfig(
+        id="p",
+        kind=spec,
+        name="Vertex",
+        values={"service_account": SERVICE_ACCOUNT, "location": "europe-west4"},
+    )
+    model = build_model(cfg, "gemini-2.5-pro")
+    client = model.client  # type: ignore[attr-defined]
+    assert client.vertexai
+    assert client._api_client.project == "demo-project"
+    assert client._api_client.location == "europe-west4"
+    assert client._api_client._credentials.service_account_email.startswith("athena@")
+
+
+def test_vertex_rejects_a_key_that_is_not_a_service_account():
+    spec = BY_ID["google-vertex"]
+    for bad in (
+        "not json",
+        "[]",
+        json.dumps({"type": "authorized_user"}),
+        '{"type":"service_account"}',
+    ):
+        with pytest.raises(ValueError, match="Service account key"):
+            providers.check_values(spec, {"service_account": bad, "location": "global"})
+    providers.check_values(spec, {"service_account": SERVICE_ACCOUNT})
+    with pytest.raises(ValueError, match="required"):
+        providers.check_values(spec, {})
+
+
+def test_vertex_key_is_stored_encrypted_and_models_come_from_models_dev(tmp_path, monkeypatch):
+    spec = BY_ID["google-vertex"]
+    plain, secret = providers.split_values(
+        spec, {"service_account": SERVICE_ACCOUNT, "location": "global"}
+    )
+    assert plain == {"location": "global"} and "service_account" in secret
+
+    class Service:
+        def get_models(self, kind):
+            return [{"id": "gemini-2.5-pro", "name": "Gemini 2.5 Pro", "tool_call": True}]
+
+    monkeypatch.setattr(providers, "get_models_dev_service", lambda: Service())
+    cfg = ProviderConfig(id="p", kind=spec, name="Vertex", values=secret | plain)
+    models = asyncio.run(providers.fetch_models(cfg))
+    assert [m.id for m in models] == ["gemini-2.5-pro"]
 
 
 @pytest.mark.parametrize(
