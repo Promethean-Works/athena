@@ -7,6 +7,7 @@ from collections.abc import AsyncIterator
 from pydantic_ai.messages import (
     ModelMessage,
     ModelResponse,
+    TextContent,
     TextPart,
     ToolCallPart,
     ToolReturnPart,
@@ -16,7 +17,19 @@ from pydantic_ai.models.function import AgentInfo, DeltaToolCall, FunctionModel
 from test_assistant_actions import audit_rows, detail, send, setup, use
 from test_assistant_safety import GITHUB_TOKEN, INJECTION
 
-from athena.assistant.delegation import INVESTIGATOR_INSTRUCTIONS, background_result
+from athena.assistant.delegation import INVESTIGATOR_INSTRUCTIONS
+
+
+def completion_text(part: object) -> str | None:
+    """The result of a background call as the model sees it: a `<tool_result>` frame on the
+    user channel (the harness's `BackgroundToolResultPart`, rendered), else None."""
+    content = getattr(part, "content", None)
+    if not isinstance(part, UserPromptPart) or isinstance(content, str) or not content:
+        return None
+    texts = [c.content for c in content if isinstance(c, TextContent)]
+    if not texts or not texts[0].startswith("<tool_result "):
+        return None
+    return "\n".join(texts[1:-1])
 
 
 def is_child(info: AgentInfo) -> bool:
@@ -40,17 +53,16 @@ def delegating(loc: int, path: str, seen: dict, *, background: bool = False) -> 
         last = messages[-1]
         returns = [p for p in last.parts if p.part_kind in ("tool-return", "retry-prompt")]
         seen.setdefault("parent_tools", {t.name for t in info.function_tools})
-        completions = [
-            found
-            for p in last.parts
-            if isinstance(p, UserPromptPart) and (found := background_result(p))
-        ]
+        completions = [text for p in last.parts if (text := completion_text(p)) is not None]
         for p in returns:
             seen.setdefault("parent", []).append(str(p.content))
-        for _, text, _ in completions:
+        for text in completions:
             seen.setdefault("parent", []).append(text)
         prompted = any(
-            isinstance(p, UserPromptPart) and not background_result(p) for p in last.parts
+            isinstance(p, UserPromptPart)
+            and isinstance(p.content, str)
+            and not p.content.startswith("<system>")
+            for p in last.parts
         )
         if prompted and not returns:
             args = {"agent_name": "investigator", "task": f"Read {path} in location {loc}"}

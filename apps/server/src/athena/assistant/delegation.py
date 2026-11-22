@@ -36,10 +36,10 @@ from pydantic_ai.messages import (
     ModelMessage,
     ModelRequest,
     TextContent,
-    UserPromptPart,
 )
 from pydantic_ai.models import Model, ModelRequestContext
 from pydantic_ai_harness import Advisor, BackgroundTools, DynamicWorkflow, SubAgent, SubAgents
+from pydantic_ai_harness.background_tools import BackgroundToolResultPart
 
 from athena.assistant.mcp import mcp_toolsets
 from athena.assistant.robustness import robustness_capabilities
@@ -58,8 +58,6 @@ CHILD_LIMITS = UsageLimits(request_limit=10, tool_calls_limit=20)
 CHILD_TIMEOUT = 300
 """Seconds before a delegation is stopped and the chat's model is told it timed out."""
 
-BACKGROUND_ORIGIN = "pydantic-ai-harness.background_tools.result.v1"
-"""How the harness tags the user-prompt part that carries a background result."""
 RESULT_CHARS = 4000
 """Like `chat.RESULT_CHARS`: what the UI shows of a result."""
 STARTED = "is running in background (task "
@@ -190,36 +188,21 @@ def background_capabilities() -> list[AbstractCapability[Any]]:
 # ---------------------------------------------------------------- results in the chat
 
 
-def is_background_result(part: UserPromptPart) -> bool:
-    """A user-prompt part the harness added with a background tool's result, not the admin's
-    own message (the chat UI shows it on the tool's row instead)."""
-    return background_result(part) is not None
-
-
-def background_result(part: UserPromptPart) -> tuple[str, str, bool] | None:
-    """(tool call id, result text, failed) of a background result part, else None."""
-    if isinstance(part.content, str):
+def background_result(part: object) -> tuple[str, str, bool] | None:
+    """(tool call id, result text, failed) of a background call's result, else None. The
+    harness adds it to the history as a `BackgroundToolResultPart`, not as an admin prompt."""
+    if not isinstance(part, BackgroundToolResultPart):
         return None
-    for item in part.content:
-        if (
-            isinstance(item, TextContent)
-            and (item.metadata or {}).get("origin") == BACKGROUND_ORIGIN
-        ):
-            call_id = str((item.metadata or {}).get("tool_call_id", ""))
-            text, failed = _unframe(item.content)
-            return call_id, text, failed
-    return None
-
-
-def _unframe(text: str) -> tuple[str, bool]:
-    """The tool's own output, without the `<pyai:tool_result …>` tags around it."""
-    lines = text.split("\n")
-    failed = bool(lines) and 'outcome="failed"' in lines[0]
-    if lines and lines[0].startswith("<"):
-        lines = lines[1:]
-    if lines and lines[-1].startswith("</"):
-        lines = lines[:-1]
-    return "\n".join(lines), failed
+    content = part.content
+    if isinstance(content, str):
+        text = content
+    else:
+        text = "\n".join(
+            c if isinstance(c, str) else c.content
+            for c in content
+            if isinstance(c, str | TextContent)
+        )
+    return part.tool_call_id, text, part.outcome == "failed"
 
 
 def is_started_notice(content: Any) -> bool:
@@ -233,7 +216,7 @@ def background_results(messages: list[ModelMessage]) -> list[tuple[str, str, boo
         for msg in messages
         if isinstance(msg, ModelRequest)
         for part in msg.parts
-        if isinstance(part, UserPromptPart) and (found := background_result(part))
+        if (found := background_result(part))
     ]
 
 

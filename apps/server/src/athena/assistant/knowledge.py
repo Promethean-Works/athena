@@ -23,12 +23,10 @@ from pathlib import Path
 from typing import Any
 
 from pydantic_ai.capabilities import AbstractCapability
-from pydantic_ai.messages import TextContent, UserPromptPart
 from pydantic_ai.workspaces import FileEntry, WorkspaceRef
 from pydantic_ai_harness import ArtifactScanner, Memory, Skills
 from pydantic_ai_harness.artifact_scanning import ArtifactScanResult
 from pydantic_ai_harness.memory import SqliteMemoryStore
-from pydantic_ai_harness.memory._toolset import MEMORY_ORIGIN  # the harness version is pinned
 
 log = logging.getLogger(__name__)
 
@@ -36,20 +34,6 @@ MAX_AUDITED = 1_000
 """Findings remembered so the same one isn't audited twice (cleared when full)."""
 
 _audited: set[str] = set()
-
-
-def is_memory_snapshot(part: UserPromptPart) -> bool:
-    """Whether `part` is the notes excerpt `Memory` adds to history, not something the admin
-    typed. The chat UI leaves it out."""
-    content = part.content
-    return (
-        not isinstance(content, str)
-        and bool(content)
-        and all(
-            isinstance(c, TextContent) and (c.metadata or {}).get("origin") == MEMORY_ORIGIN
-            for c in content
-        )
-    )
 
 
 def memory_db(data_dir: Path) -> Path:

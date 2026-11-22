@@ -17,13 +17,11 @@ from typing import Any
 
 from pydantic_ai import RunContext
 from pydantic_ai.capabilities import AbstractCapability, AgentNode, NodeResult
-from pydantic_ai.messages import ModelRequest, SystemPromptPart
+from pydantic_ai.messages import ModelRequest
 from pydantic_ai_harness import RefineOutput
+from pydantic_ai_harness.refine_output import ReviewRoundPart
 
 from athena.assistant.tools import Deps
-
-REVIEW_ORIGIN = "pydantic-ai-harness.refine_output.v1"
-"""How the harness tags the system prompt part that starts a review round."""
 
 REVIEW_INSTRUCTIONS = (
     "Review your last answer against the admin's request. Look for mistakes, gaps, guesses "
@@ -53,7 +51,4 @@ def review_capabilities(enabled: bool) -> list[AbstractCapability[Any]]:
 
 def starts_review(msg: ModelRequest) -> bool:
     """A request carrying the review instruction: the reply's text before it is a draft."""
-    return any(
-        isinstance(part, SystemPromptPart) and (part.metadata or {}).get("origin") == REVIEW_ORIGIN
-        for part in msg.parts
-    )
+    return any(isinstance(part, ReviewRoundPart) for part in msg.parts)
