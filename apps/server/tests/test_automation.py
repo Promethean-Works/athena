@@ -277,3 +277,82 @@ def test_updating_http_trigger_keeps_webhook_token(tmp_path):
     assert r.status_code == 200, r.text
     assert r.json()["enabled"] is False
     assert r.json()["webhook_token"] == trigger["webhook_token"]
+
+
+def test_running_automation_job_does_not_block_reads(tmp_path, monkeypatch):
+    import asyncio
+    import threading
+    import time
+
+    from athena.automation import service
+
+    started = threading.Event()
+
+    async def slow_action(app, action, job):
+        await job.log("working")
+        started.set()
+        await asyncio.sleep(3)
+
+    monkeypatch.setattr(service, "run_trigger_action", slow_action)
+    client, _ = _client(tmp_path)
+    r = client.post(
+        "/api/automation/triggers",
+        json={
+            "kind": "http",
+            "name": "slow",
+            "action": {"kind": "app", "name": "x", "verb": "restart"},
+        },
+    )
+    token = r.json()["webhook_token"]
+    t0 = time.monotonic()
+    fired = client.post(f"/api/automation/webhook/{token}")
+    assert fired.status_code == 202
+    assert time.monotonic() - t0 < 1.5, "the webhook must return without waiting for the action"
+    assert started.wait(2)
+    t0 = time.monotonic()
+    r = client.get("/api/automation/jobs")
+    assert r.status_code == 200
+    assert time.monotonic() - t0 < 1.0
+    assert r.json()[0]["status"] == "running"
+
+
+def test_locked_database_does_not_freeze_the_event_loop_while_a_trigger_fires(tmp_path):
+    """fire_trigger writes the run row. While another connection holds SQLite's write lock,
+    that write waits; it must wait in a worker thread, not on the event loop, so reads
+    (here /api/health, which needs no database) keep answering."""
+    import sqlite3
+    import threading
+    import time
+
+    client, app = _client(tmp_path)
+    r = client.post(
+        "/api/automation/triggers",
+        json={
+            "kind": "http",
+            "name": "locked",
+            "action": {"kind": "app", "name": "x", "verb": "restart"},
+        },
+    )
+    token = r.json()["webhook_token"]
+    db_path = app.state.db.engine.url.database
+    blocker = sqlite3.connect(db_path, isolation_level=None)
+    blocker.execute("BEGIN IMMEDIATE")  # take the write lock
+
+    result = {}
+
+    def fire():
+        result["r"] = client.post(f"/api/automation/webhook/{token}")
+
+    # (the write may time out with 500 if the lock outlasts SQLite's busy timeout)
+
+    thread = threading.Thread(target=fire)
+    thread.start()
+    time.sleep(0.5)  # let the webhook reach its write
+    t0 = time.monotonic()
+    assert client.get("/api/health").status_code == 200
+    health_took = time.monotonic() - t0
+    blocker.execute("ROLLBACK")
+    blocker.close()
+    thread.join(10)
+    assert health_took < 1.0, f"the event loop was frozen for {health_took:.1f}s"
+    assert result["r"].status_code == 202

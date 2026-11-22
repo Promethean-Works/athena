@@ -7,13 +7,14 @@ trigger's secret token, so external automation (n8n, MCP clients) can call it
 without a browser session.
 """
 
+import asyncio
 import secrets
 from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Path, Query, Request, status
 from pydantic import BaseModel
-from sqlmodel import select
+from sqlmodel import Session, select
 
 from athena import audit
 from athena.auth.deps import Authed, DbSession
@@ -206,6 +207,17 @@ class WebhookOut(BaseModel):
     status: str
 
 
+def _find_webhook(app, token: str) -> tuple[str, bool] | None:
+    """(trigger id, whether it can fire) for a webhook token. Blocking: use a worker thread."""
+    with Session(app.state.db.engine) as session:
+        trigger = session.exec(
+            select(AutomationTrigger).where(AutomationTrigger.webhook_token == token)
+        ).first()
+        if trigger is None:
+            return None
+        return str(trigger.id), trigger.kind == "http" and trigger.enabled
+
+
 @public_router.post(
     "/webhook/{webhook_token}",
     operation_id="fireAutomationWebhook",
@@ -214,16 +226,16 @@ class WebhookOut(BaseModel):
 async def fire_webhook(
     webhook_token: Annotated[str, Path(max_length=64)],
     request: Request,
-    db: DbSession,
 ) -> WebhookOut:
     """Fire the HTTP trigger with this secret token. No session required; the
     token itself is the credential (an n8n HTTP Request node, for example)."""
-    trigger = db.exec(
-        select(AutomationTrigger).where(AutomationTrigger.webhook_token == webhook_token)
-    ).first()
-    if trigger is None:
+    found = await asyncio.to_thread(_find_webhook, request.app, webhook_token)
+    if found is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such webhook")
-    if trigger.kind != "http" or not trigger.enabled:
+    trigger_id, usable = found
+    if not usable:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "This webhook is not enabled")
-    run_id = await automation.fire_trigger(request.app, str(trigger.id))
+    run_id = await automation.fire_trigger(request.app, trigger_id)
+    if not run_id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "This webhook is not enabled")
     return WebhookOut(job_run_id=run_id, status="started")
