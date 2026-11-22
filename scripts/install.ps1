@@ -150,19 +150,65 @@ function Use-UvEnvironment {
     $env:UV_PYTHON_INSTALL_DIR = Join-Path $InstallRoot 'python'
 }
 
-function Install-Athena {
-    $source = if ($Wheel) { $Wheel } else {
-        "https://github.com/$Repo/releases/download/v$Version/athena_server-$Version-py3-none-any.whl"
+# Downloads the release wheel and SHA256SUMS into $Dir and verifies the wheel. Returns the wheel path.
+function Get-VerifiedReleaseWheel([string]$Dir) {
+    $base = "https://github.com/$Repo/releases/download/v$Version"
+    $name = "athena_server-$Version-py3-none-any.whl"
+    $wheelPath = Join-Path $Dir $name
+    $sumsPath = Join-Path $Dir 'SHA256SUMS'
+    Write-Step "Downloading Athena $Version and its checksums"
+    Invoke-WebRequest "$base/$name" -OutFile $wheelPath -UseBasicParsing
+    try { Invoke-WebRequest "$base/SHA256SUMS" -OutFile $sumsPath -UseBasicParsing }
+    catch { throw "Could not download $base/SHA256SUMS; refusing to install an unverified wheel" }
+    Confirm-Checksum $wheelPath $sumsPath
+    return $wheelPath
+}
+
+# Checks a file against its entry in a SHA256SUMS file; throws on a missing entry or a mismatch.
+function Confirm-Checksum([string]$File, [string]$Sums) {
+    $name = Split-Path $File -Leaf
+    $expected = $null
+    foreach ($line in Get-Content $Sums) {
+        if ($line -match '^([0-9a-fA-F]{64})\s+\*?(.+?)\s*$' -and $Matches[2] -eq $name) { $expected = $Matches[1]; break }
     }
-    if ($source -match '^https?://') { $source = "athena-server @ $source" }
+    if (-not $expected) { throw "SHA256SUMS has no entry for $name; refusing to install" }
+    $actual = (Get-FileHash -Algorithm SHA256 -Path $File).Hash
+    if ($actual -ne $expected) {
+        throw "Checksum mismatch for $name (expected $expected, got $actual); refusing to install"
+    }
+    Write-Step "Checksum OK: $name"
+}
+
+function Install-Athena {
     $athena = Join-Path $BinDir 'athena.exe'
     Write-Step "Installing Athena $Version"
     Use-UvEnvironment
     Invoke-Step "mkdir $BinDir, $DataDir" {
         New-Item -ItemType Directory -Force -Path $BinDir, $DataDir | Out-Null
     }
-    Invoke-Step "uv tool install --force --python 3.13 `"$source`"" {
-        & $script:Uv tool install --force --python 3.13 $source
+    $tmp = $null
+    try {
+        # A release wheel is downloaded and checked against the release's SHA256SUMS first.
+        # A -Wheel path or URL is the caller's own build and is installed as given.
+        if ($Wheel) {
+            $source = $Wheel
+            if ($source -match '^https?://') { $source = "athena-server @ $source" }
+        }
+        elseif ($DryRun) {
+            Write-Host "  [dry-run] download and verify athena_server-$Version-py3-none-any.whl against SHA256SUMS"
+            $source = "athena_server-$Version-py3-none-any.whl"
+        }
+        else {
+            $tmp = Join-Path ([IO.Path]::GetTempPath()) "athena-install-$([guid]::NewGuid().ToString('N'))"
+            New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+            $source = Get-VerifiedReleaseWheel $tmp
+        }
+        Invoke-Step "uv tool install --force --python 3.13 `"$source`"" {
+            & $script:Uv tool install --force --python 3.13 $source
+        }
+    }
+    finally {
+        if ($tmp) { Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue }
     }
     Write-Step 'Registering Athena to start at logon'
     Invoke-Step "athena service install --data-dir `"$DataDir`"" {

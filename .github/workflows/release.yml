@@ -64,11 +64,21 @@ jobs:
       - name: Build the server wheel
         run: bash scripts/build-wheel.sh
 
+      # The installers download SHA256SUMS and verify the wheel against it before
+      # installing. It lists the exact files uploaded below, by bare file name.
+      - name: Generate SHA256SUMS
+        run: |
+          mkdir release-assets
+          cp dist/*.whl scripts/install.sh scripts/install.ps1 release-assets/
+          cd release-assets
+          sha256sum -- * > SHA256SUMS
+          cat SHA256SUMS
+
       - name: Upload release assets
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.release-please.outputs.tag_name }}
-        run: gh release upload "$TAG" dist/*.whl scripts/install.sh scripts/install.ps1 --clobber
+        run: gh release upload "$TAG" release-assets/* --clobber
 
       # Only now does the release become public and `releases/latest`. If a step above
       # fails, it stays a draft: fix it and re-run this job.
