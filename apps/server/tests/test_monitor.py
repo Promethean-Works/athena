@@ -1,4 +1,5 @@
 import asyncio
+import subprocess
 import sys
 from collections import namedtuple
 from pathlib import Path
@@ -23,6 +24,13 @@ from athena.monitor import (
     read_gpus_nvidia,
     read_host,
 )
+from athena.platform.power import PowerStatus
+
+
+@pytest.fixture(autouse=True)
+def _fresh_nvidia_lookup() -> None:
+    monitor.NVIDIA_SMI.skip_until = 0.0  # one test's "not installed" must not leak into the next
+
 
 Part = namedtuple("Part", "device mountpoint fstype opts")
 Usage = namedtuple("Usage", "total used free percent")
@@ -412,3 +420,66 @@ def test_stats_snapshot(tmp_path: Path) -> None:
 def test_stats_routes_are_in_openapi(tmp_path: Path, path: str) -> None:
     schema = TestClient(make_app(tmp_path)).get("/api/openapi.json").json()
     assert path in schema["paths"]
+
+
+# ------------------------------------------------------------------ nvidia-smi cache
+
+
+class Spawns:
+    def __init__(self, error: Exception | None = None, code: int = 0) -> None:
+        self.count = 0
+        self.error = error
+        self.code = code
+
+    def __call__(self, *args, **kwargs):
+        self.count += 1
+        if self.error:
+            raise self.error
+        return subprocess.CompletedProcess(args, self.code, stdout="", stderr="")
+
+
+def test_a_missing_nvidia_smi_is_looked_up_once(monkeypatch) -> None:
+    spawns = Spawns(FileNotFoundError("nvidia-smi"))
+    monkeypatch.setattr(monitor.subprocess, "run", spawns)
+    for _ in range(5):
+        assert read_gpus_nvidia() == []
+    assert spawns.count == 1
+
+
+@pytest.mark.parametrize("failure", [dict(code=9), dict(error=subprocess.TimeoutExpired("x", 5))])
+def test_a_failing_nvidia_smi_is_retried_after_a_minute(monkeypatch, failure) -> None:
+    spawns = Spawns(**failure)
+    monkeypatch.setattr(monitor.subprocess, "run", spawns)
+    now = [1000.0]
+    monkeypatch.setattr(monitor.time, "monotonic", lambda: now[0])
+    read_gpus_nvidia()
+    now[0] += 30
+    read_gpus_nvidia()
+    assert spawns.count == 1
+    now[0] += 31
+    read_gpus_nvidia()
+    assert spawns.count == 2
+
+
+# ------------------------------------------------------------------ power flags
+
+
+def test_the_monitor_reports_power_and_asks_only_every_few_seconds() -> None:
+    calls: list[int] = []
+
+    def power() -> PowerStatus:
+        calls.append(1)
+        return PowerStatus(now=["under_voltage"], since_boot=["under_voltage"])
+
+    feed = Feed((0.0, readings()), (2.0, readings()), (12.0, readings()))
+    mon = HostMonitor(reader=feed.read, disk_reader=list, clock=feed.clock, power_reader=power)
+    for _ in range(3):
+        asyncio.run(mon.sample_once())
+    assert len(calls) == 2  # at t=0 and t=12, not at t=2
+    assert mon.host().power == PowerStatus(now=["under_voltage"], since_boot=["under_voltage"])
+
+
+def test_hosts_without_the_flags_report_none() -> None:
+    mon = HostMonitor(reader=lambda: readings(), disk_reader=list, power_reader=lambda: None)
+    asyncio.run(mon.sample_once())
+    assert mon.host().power is None

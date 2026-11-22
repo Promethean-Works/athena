@@ -23,6 +23,8 @@ class FakeProbe(Probe):
     http: dict[str, object] = field(default_factory=dict)
     """URL -> parsed JSON answer, for `http_json`."""
     env: dict[str, str] = field(default_factory=dict)
+    files: dict[str, str] = field(default_factory=dict)
+    """path -> text, for `read_text`."""
 
     def which(self, name: str) -> str | None:
         return self.binaries.get(name)
@@ -32,6 +34,10 @@ class FakeProbe(Probe):
 
     def exists(self, path: str | Path) -> bool:
         return str(path) in self.paths
+
+    def read_text(self, path: str | Path, limit: int = 4096) -> str | None:
+        text = self.files.get(str(path))
+        return None if text is None else text[:limit]
 
     def home(self) -> Path:
         return self.home_dir

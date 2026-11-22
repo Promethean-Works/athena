@@ -10053,6 +10053,42 @@
         ],
         "title": "PlanStep"
       },
+      "PowerStatus": {
+        "properties": {
+          "now": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "under_voltage",
+                "freq_capped",
+                "throttled",
+                "soft_temp_limit"
+              ]
+            },
+            "type": "array",
+            "title": "Now"
+          },
+          "since_boot": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "under_voltage",
+                "freq_capped",
+                "throttled",
+                "soft_temp_limit"
+              ]
+            },
+            "type": "array",
+            "title": "Since Boot"
+          }
+        },
+        "type": "object",
+        "required": [
+          "now",
+          "since_boot"
+        ],
+        "title": "PowerStatus"
+      },
       "Provider": {
         "properties": {
           "name": {
@@ -11145,6 +11181,16 @@
             "type": "array",
             "title": "Gpus"
           },
+          "power": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PowerStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "latest": {
             "anyOf": [
               {
@@ -11173,6 +11219,7 @@
           "disks",
           "temperatures",
           "gpus",
+          "power",
           "latest",
           "history"
         ],

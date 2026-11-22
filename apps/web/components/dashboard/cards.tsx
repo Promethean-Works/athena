@@ -8,6 +8,7 @@ import {
   HardDriveIcon,
   HistoryIcon,
   LayoutGridIcon,
+  PlugZapIcon,
   ServerIcon,
   ShieldCheckIcon,
   ThermometerIcon,
@@ -24,6 +25,7 @@ import {
   StorageCard,
   TemperaturesCard,
 } from "@/components/dashboard/storage-card"
+import { PowerCard } from "@/components/dashboard/power-card"
 import { RemoteAccessCard } from "@/components/dashboard/remote-access-card"
 import { HostCapabilities } from "@/components/host-capabilities"
 import { ServerOverview } from "@/components/server-overview"
@@ -109,6 +111,15 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
     icon: ThermometerIcon,
     defaultSize: "half",
     render: () => <TemperaturesCard />,
+  },
+  {
+    id: "power",
+    title: "Power",
+    description: "Under-voltage and throttling on a Raspberry Pi.",
+    icon: PlugZapIcon,
+    defaultSize: "half",
+    capability: "host.power",
+    render: () => <PowerCard />,
   },
   {
     id: "activity",

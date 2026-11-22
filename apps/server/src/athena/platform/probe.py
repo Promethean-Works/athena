@@ -89,6 +89,14 @@ class Probe:
         except OSError:
             return False
 
+    def read_text(self, path: str | Path, limit: int = 4096) -> str | None:
+        """The start of a small text file (sysfs, /proc), or None when it can't be read."""
+        try:
+            with open(path, encoding="utf-8", errors="replace") as f:
+                return f.read(limit)
+        except OSError:
+            return None
+
     def home(self) -> Path:
         return Path.home()
 

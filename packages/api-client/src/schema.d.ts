@@ -3739,6 +3739,13 @@ export interface components {
              */
             active_form: string;
         };
+        /** PowerStatus */
+        PowerStatus: {
+            /** Now */
+            now: ("under_voltage" | "freq_capped" | "throttled" | "soft_temp_limit")[];
+            /** Since Boot */
+            since_boot: ("under_voltage" | "freq_capped" | "throttled" | "soft_temp_limit")[];
+        };
         /** Provider */
         Provider: {
             /** Name */
@@ -4162,6 +4169,7 @@ export interface components {
             temperatures: components["schemas"]["Temperature"][] | null;
             /** Gpus */
             gpus: components["schemas"]["GpuInfo"][];
+            power: components["schemas"]["PowerStatus"] | null;
             latest: components["schemas"]["StatsSample"] | null;
             /** History */
             history: components["schemas"]["StatsSample"][];
