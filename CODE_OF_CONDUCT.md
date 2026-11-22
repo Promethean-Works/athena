@@ -6,6 +6,6 @@ In short: be respectful and welcoming. Assume good intent, give constructive fee
 
 ## Reporting
 
-Report unacceptable behavior privately to the maintainers by opening a [private security advisory](https://github.com/tiagozaccaro/athena/security/advisories/new) titled "Code of Conduct report", or by contacting a maintainer directly on GitHub. Reports are handled confidentially.
+Report unacceptable behavior privately to the maintainers by opening a [private security advisory](https://github.com/Promethean-Works/athena/security/advisories/new) titled "Code of Conduct report", or by contacting a maintainer directly on GitHub. Reports are handled confidentially.
 
 Maintainers may remove, edit or reject contributions, and may temporarily or permanently ban contributors, following the enforcement guidelines of the Contributor Covenant.

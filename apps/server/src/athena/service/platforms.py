@@ -50,7 +50,7 @@ def systemd_unit(spec: ServiceSpec) -> str:
     exec_start = " ".join(_systemd_quote(a) for a in argv)
     return f"""[Unit]
 Description=Athena home server
-Documentation=https://github.com/tiagozaccaro/athena
+Documentation=https://github.com/Promethean-Works/athena
 After=network-online.target docker.service
 Wants=network-online.target
 

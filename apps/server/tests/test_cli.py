@@ -355,7 +355,7 @@ def test_config_show_says_where_each_value_comes_from(
     out = capsys.readouterr().out
     assert "port = 8500  (file)" in out
     assert "host = 127.0.0.1  (env ATHENA_HOST)" in out
-    assert "feedback_repo = https://github.com/tiagozaccaro/athena  (default)" in out
+    assert "feedback_repo = https://github.com/Promethean-Works/athena  (default)" in out
     assert "hunter2" not in out
     assert "athena:***@db" in out
 

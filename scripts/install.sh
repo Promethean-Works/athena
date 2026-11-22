@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Athena installer for Linux and macOS.
 #
-#   curl -fsSL https://github.com/tiagozaccaro/athena/releases/latest/download/install.sh | bash
+#   curl -fsSL https://github.com/Promethean-Works/athena/releases/latest/download/install.sh | bash
 #   curl -fsSL …/install.sh | bash -s -- --version 0.2.0
 #   sudo bash install.sh --wheel dist/athena_server-0.2.0-py3-none-any.whl   # unreleased build
 #
@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-REPO="tiagozaccaro/athena"
+REPO="Promethean-Works/athena"
 PORT=8420
 
 VERSION=""
@@ -232,14 +232,59 @@ uv_env() {
   export UV_PYTHON_INSTALL_DIR="$INSTALL_ROOT/python"
 }
 
+# Prints the SHA-256 of a file.
+sha256_of() {
+  if has sha256sum; then sha256sum "$1" | awk '{print $1}'
+  elif has shasum; then shasum -a 256 "$1" | awk '{print $1}'
+  else die "sha256sum or shasum is required to verify the download"
+  fi
+}
+
+# Checks <file> against its entry in a SHA256SUMS file; aborts on a missing entry or a mismatch.
+verify_checksum() {
+  local file="$1" sums="$2" name expected actual
+  name="$(basename "$file")"
+  expected="$(awk -v n="$name" '{f=$2; sub(/^\*/, "", f)} f == n {print $1; exit}' "$sums")"
+  [ -n "$expected" ] || die "SHA256SUMS has no entry for $name; refusing to install"
+  actual="$(sha256_of "$file")"
+  [ "$actual" = "$expected" ] || die "checksum mismatch for $name (expected $expected, got $actual); refusing to install"
+  say "Checksum OK: $name"
+}
+
+# Downloads the release wheel and SHA256SUMS into $1 and verifies the wheel.
+download_release_wheel() {
+  local dir="$1" base="https://github.com/$REPO/releases/download/v$VERSION"
+  local name="athena_server-$VERSION-py3-none-any.whl"
+  has curl || die "curl is required"
+  say "Downloading Athena $VERSION and its checksums"
+  curl -fsSL -o "$dir/$name" "$base/$name" || die "could not download $base/$name"
+  curl -fsSL -o "$dir/SHA256SUMS" "$base/SHA256SUMS" || die "could not download $base/SHA256SUMS; refusing to install an unverified wheel"
+  verify_checksum "$dir/$name" "$dir/SHA256SUMS"
+  VERIFIED_WHEEL="$dir/$name"
+}
+
 install_athena() {
-  local source="${WHEEL:-https://github.com/$REPO/releases/download/v$VERSION/athena_server-$VERSION-py3-none-any.whl}"
-  case "$source" in
-    http://*|https://*) source="athena-server @ $source" ;;
-  esac
+  local source="$WHEEL" tmp=""
   say "Installing Athena $VERSION"
   uv_env
   run mkdir -p "$BIN_DIR" "$DATA_DIR"
+  if [ -z "$source" ]; then
+    # A release wheel is downloaded and checked against the release's SHA256SUMS first.
+    # A --wheel path or URL is the caller's own build and is installed as given.
+    if [ "$DRY_RUN" -eq 1 ]; then
+      printf '  [dry-run] download and verify athena_server-%s-py3-none-any.whl against SHA256SUMS\n' "$VERSION"
+      source="athena_server-$VERSION-py3-none-any.whl"
+    else
+      tmp="$(mktemp -d)"
+      trap 'rm -rf "$tmp"' EXIT
+      download_release_wheel "$tmp"
+      source="$VERIFIED_WHEEL"
+    fi
+  else
+    case "$source" in
+      http://*|https://*) source="athena-server @ $source" ;;
+    esac
+  fi
   run "$UV" tool install --force --python 3.13 "$source"
   say "Registering the Athena service"
   run "$BIN_DIR/athena" service install --data-dir "$DATA_DIR"

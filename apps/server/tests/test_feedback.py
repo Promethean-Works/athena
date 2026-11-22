@@ -42,7 +42,7 @@ def add_remote_catalog(api: TestClient, catalog_id: str, url: str) -> None:
 def test_info_has_diagnostics_but_no_hostname(api: TestClient) -> None:
     info = api.get("/api/feedback").json()
     assert info["version"] == __version__
-    assert info["repo_url"] == "https://github.com/tiagozaccaro/athena"
+    assert info["repo_url"] == "https://github.com/Promethean-Works/athena"
     assert info["arch"] and info["os_version"] and info["runtime"]
     assert "hostname" not in info
 
@@ -65,8 +65,8 @@ def test_athena_reports_open_the_issue_form(api: TestClient, kind: str, template
     assert res.status_code == 200, res.text
     out = res.json()
     assert out["target"] == "athena"
-    assert out["target_name"] == "tiagozaccaro/athena"
-    assert out["url"].startswith("https://github.com/tiagozaccaro/athena/issues/new?")
+    assert out["target_name"] == "Promethean-Works/athena"
+    assert out["url"].startswith("https://github.com/Promethean-Works/athena/issues/new?")
     q = query(out["url"])
     assert q["template"] == template
     assert q["title"] == "Dark mode flickers"
