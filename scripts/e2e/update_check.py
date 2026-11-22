@@ -38,6 +38,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -271,7 +272,7 @@ def leftover_helpers() -> list[str]:
     if os.name == "nt":
         script = (
             "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "
-            "'*update_helper.py*' } | ForEach-Object { $_.ProcessId }"
+            "'*update_helper.py*' -and $_.ProcessId -ne $PID } | ForEach-Object { $_.ProcessId }"
         )
         out = subprocess.run(
             ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
@@ -353,17 +354,19 @@ def point_service_at(args: argparse.Namespace, base: str, check_url: str) -> Non
 def server_update(args: argparse.Namespace, base: str, release: "Release") -> None:
     """Start the update from the running server and check it ends as the new version."""
     point_service_at(args, base, release.check_url)
-    cookie = sign_in(base)
-    csrf = api(base, "/api/auth/login", {"username": "admin", "password": PASSWORD})[0][
-        "csrf_token"
-    ]
+    body, set_cookie = api(base, "/api/auth/login", {"username": "admin", "password": PASSWORD})
+    assert set_cookie, "sign-in set no cookie"
+    cookie, csrf = set_cookie.split(";")[0], body["csrf_token"]
     capabilities = api(base, "/api/system/capabilities", cookie=cookie)[0]["capabilities"]
     capability = next(c for c in capabilities if c["id"] == "self_update")
     assert capability["status"] == "ready", f"self_update isn't ready: {capability}"
     before = health(base)
     assert before is not None
     began = time.time()
-    job, _ = api(base, "/api/system/update", {}, cookie=cookie, csrf=csrf)
+    try:
+        job, _ = api(base, "/api/system/update", {}, cookie=cookie, csrf=csrf)
+    except urllib.error.HTTPError as exc:
+        sys.exit(f"POST /api/system/update answered {exc.code}: {exc.read()[:300]!r}")
     lines: list[str] = []
 
     def job_done() -> bool:
