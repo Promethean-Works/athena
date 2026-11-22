@@ -1,5 +1,5 @@
-"""Assistant settings (Settings → AI). Host-wide, admins only; one JSON row in
-`system_settings` under the key "ai". Invalid stored values fall back to defaults."""
+"""Assistant settings (Settings → AI). Host-wide, admins only; the `ai`
+section of `athena.json`. Invalid stored values fall back to defaults."""
 
 import logging
 from typing import TYPE_CHECKING, Annotated, Literal

@@ -1,4 +1,4 @@
-"""HTTPS settings (docs/specs/https.md), stored as their own `system_settings` row.
+"""HTTPS settings (docs/specs/https.md), stored as the `https` section of `athena.json`.
 
 They live apart from `SystemSettings` so saving Settings → System never sends back stale
 HTTPS values, and so `athena https off` can change them without the rest.
