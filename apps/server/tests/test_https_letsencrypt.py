@@ -20,7 +20,7 @@ from pathlib import Path
 
 import httpx2
 import pytest
-from conftest import signed_in
+from conftest import ADMIN, signed_in
 from cryptography import x509
 from fastapi.testclient import TestClient
 from sqlmodel import select
@@ -314,6 +314,53 @@ def test_get_a_certificate_serve_it_and_keep_it_when_renewal_fails(
             assert "https.renewal_failed" in actions
 
         client.put("/api/https", json={"mode": "off", "port": port})
+
+
+def _log_in(client: TestClient) -> None:
+    res = client.post("/api/auth/login", json=ADMIN)
+    assert res.is_success, res.text
+    client.headers["X-CSRF-Token"] = res.json()["csrf_token"]
+
+
+def test_renewal_result_and_error_survive_a_restart(tmp_path, fake_lego, monkeypatch):
+    with TestClient(_app(tmp_path)) as client:
+        signed_in(client)
+        r = client.post("/api/https/certificate", json=LE_BODY)
+        job = _wait_job(client, r.json()["id"])
+        assert job["status"] == "succeeded", job
+        issued = client.get("/api/https").json()["last_renewal"]
+        assert issued is not None
+
+    with TestClient(_app(tmp_path)) as client:  # same data dir: a restart
+        _log_in(client)
+        status = client.get("/api/https").json()
+        assert status["last_renewal"] == issued
+        assert status["renewal_error"] is None
+
+        monkeypatch.setenv("FAKE_LEGO_EXIT", "1")
+        r = client.post("/api/https/certificate", json={**LE_BODY, "dns_config": {}})
+        assert _wait_job(client, r.json()["id"])["status"] == "failed"
+        error = client.get("/api/https").json()["renewal_error"]
+        assert "exit code 1" in error
+
+    state = tmp_path / "data" / manager_mod.RENEWAL_STATE_FILE
+    assert TOKEN not in state.read_text(encoding="utf-8")
+    with TestClient(_app(tmp_path)) as client:
+        _log_in(client)
+        status = client.get("/api/https").json()
+        assert status["renewal_error"] == error
+        assert status["last_renewal"] == issued  # the failure keeps the last success
+
+
+def test_a_damaged_renewal_state_file_is_ignored(tmp_path):
+    data = tmp_path / "data"
+    data.mkdir()
+    (data / manager_mod.RENEWAL_STATE_FILE).write_text("{not json", encoding="utf-8")
+    with TestClient(_app(tmp_path)) as client:
+        signed_in(client)
+        status = client.get("/api/https").json()
+        assert status["last_renewal"] is None
+        assert status["renewal_error"] is None
 
 
 def test_the_daily_check_renews_a_certificate_close_to_expiry(tmp_path, fake_lego, monkeypatch):

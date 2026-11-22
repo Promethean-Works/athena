@@ -14,6 +14,7 @@ bind, and a port that's in use must be a readable error, not a dead server.
 import asyncio
 import contextlib
 import errno
+import json
 import logging
 import os
 import re
@@ -44,6 +45,9 @@ STARTUP_TIMEOUT_SECONDS = 10
 FIRST_CHECK_SECONDS = 60
 """The first check runs this soon after start, so a host that restarts daily still renews."""
 
+
+RENEWAL_STATE_FILE = "https-renewal.json"
+"""Last renewal time and error, kept in the data dir so a restart doesn't forget them."""
 
 MAX_ERROR_CHARS = 300
 # lego logs `time=… level=ERROR msg=Error error="obtain certificate: …"`, quotes escaped.
@@ -120,10 +124,11 @@ class HttpsManager:
         self.settings = HttpsSettings()
         self.last_error: str | None = None
         self.last_renewal: datetime | None = None
-        """When Let's Encrypt last issued or renewed the certificate (this run)."""
+        """When Let's Encrypt last issued or renewed the certificate (kept across restarts)."""
         self.renewal_error: str | None = None
         """Why the last Let's Encrypt attempt failed; cleared by the next success."""
         self.renewal_job: Job | None = None
+        self._state_path = data_dir / RENEWAL_STATE_FILE
         self._server: _Server | None = None
         self._task: asyncio.Task[None] | None = None
         self._port: int | None = None
@@ -150,6 +155,7 @@ class HttpsManager:
     async def start(self) -> None:
         """Start from the stored settings. Never raises: errors go to `last_error`."""
         self.settings = https_settings.load(self.app.state.settings_file)
+        self._load_renewal_state()
         try:
             await self.apply(self.settings)
         except HttpsError as exc:
@@ -269,10 +275,12 @@ class HttpsManager:
                 await self._serve_new_certificate()
         except Exception as exc:
             self.renewal_error = str(exc) or exc.__class__.__name__
+            self._save_renewal_state()
             self._audit("https.renewal_failed", f"{by}: {self.renewal_error}")
             raise
         self.renewal_error = None
         self.last_renewal = datetime.now(UTC)
+        self._save_renewal_state()
         expires = cert.not_valid_after_utc.date().isoformat()
         await job.log(f"Certificate for {', '.join(le.domains)} valid until {expires}")
         self._audit("https.certificate_issued", f"{', '.join(le.domains)} ({by})")
@@ -290,6 +298,29 @@ class HttpsManager:
             self.last_error = None
         except HttpsError as exc:
             self.last_error = str(exc)
+
+    def _load_renewal_state(self) -> None:
+        """Read the saved renewal result. A missing or damaged file means no history."""
+        try:
+            data = json.loads(self._state_path.read_text(encoding="utf-8"))
+            when = data.get("last_renewal")
+            error = data.get("renewal_error")
+            self.last_renewal = datetime.fromisoformat(when) if isinstance(when, str) else None
+            self.renewal_error = error if isinstance(error, str) else None
+        except FileNotFoundError:
+            pass
+        except (OSError, ValueError, AttributeError):
+            log.warning("Ignoring unreadable %s", self._state_path.name)
+
+    def _save_renewal_state(self) -> None:
+        data = {
+            "last_renewal": self.last_renewal.isoformat() if self.last_renewal else None,
+            "renewal_error": self.renewal_error,
+        }
+        try:
+            local_ca.write_file(self._state_path, json.dumps(data).encode(), private=True)
+        except OSError:
+            log.warning("Couldn't save %s", self._state_path.name, exc_info=True)
 
     def _audit(self, action: str, target: str) -> None:
         for db in self.app.state.db.session():
