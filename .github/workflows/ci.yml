@@ -14,6 +14,40 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Decides which jobs a pull request needs. Pushes to main and the merge queue always
+  # run everything. The diff is the PR merge commit against its first parent (the base).
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    outputs:
+      install: ${{ steps.diff.outputs.install }}
+      web: ${{ steps.diff.outputs.web }}
+      server: ${{ steps.diff.outputs.server }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Which parts changed
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" != "pull_request" ]; then
+            printf '%s\n' install=true web=true server=true >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files=$(git diff --name-only HEAD^1 HEAD)
+          echo "$files"
+          # Each job also reruns when this workflow changes.
+          match() { echo "$files" | grep -qE "$1" && echo true || echo false; }
+          {
+            echo "install=$(match '^(scripts/install\.(sh|ps1)|\.github/workflows/ci\.yml)$')"
+            echo "web=$(match '^(apps/web/|apps/server/|packages/|package\.json|pnpm-|\.github/workflows/ci\.yml)')"
+            echo "server=$(match '^(apps/server/|catalog/|\.github/workflows/ci\.yml)')"
+          } >> "$GITHUB_OUTPUT"
+
   repo:
     name: repo checks
     runs-on: ubuntu-latest
@@ -58,10 +92,13 @@ jobs:
 
   install-scripts:
     name: install script (${{ matrix.os }})
+    needs: changes
+    if: needs.changes.outputs.install == 'true'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # Pull requests test Linux only; main and the merge queue run every OS.
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-latest"]' || '["ubuntu-latest","macos-latest","windows-latest"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -92,6 +129,8 @@ jobs:
 
   web:
     name: web
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -131,11 +170,15 @@ jobs:
 
   server:
     name: server (${{ matrix.os }})
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
     strategy:
       fail-fast: false
       matrix:
+        # Pull requests test Linux only; main and the merge queue run every OS, so a
+        # macOS or Windows failure shows up after the merge (see gotchas/windows.md).
         # ubuntu-24.04-arm: Linux arm64 (Raspberry Pi and other ARM boards).
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-latest"]' || '["ubuntu-latest","ubuntu-24.04-arm","macos-latest","windows-latest"]') }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -220,7 +263,7 @@ jobs:
   ci-ok:
     name: ci-ok
     if: always()
-    needs: [repo, install-scripts, web, server]
+    needs: [changes, repo, install-scripts, web, server]
     runs-on: ubuntu-latest
     steps:
       - name: All CI jobs passed
