@@ -1,14 +1,40 @@
 """Builds a client for the detected container runtime, and knows how to start one."""
 
 import shutil
+import subprocess
+import types
 from collections.abc import Callable
 from dataclasses import dataclass
 
 from python_on_whales import DockerClient
+from python_on_whales import utils as whales_utils
 
 from athena.platform.capabilities import Capability
 
 Which = Callable[[str], str | None]
+
+
+def _run_without_inherited_stdin(*args, **kwargs):
+    if kwargs.get("input") is None:
+        kwargs.setdefault("stdin", subprocess.DEVNULL)
+    return subprocess.run(*args, **kwargs)
+
+
+def close_inherited_stdin() -> None:
+    """Start python-on-whales' `docker` with stdin=DEVNULL.
+
+    It calls `subprocess.run` without a stdin, so the child inherits ours. Under the
+    Windows service (`pythonw.exe`, no console) that handle can be invalid, and
+    `subprocess._make_inheritable` fails with `OSError: [WinError 6]`, so
+    `GET /api/containers` sometimes returned 500. Only its module-level `subprocess`
+    name is replaced, not the global one.
+    """
+    shim = types.SimpleNamespace(**vars(subprocess))
+    shim.run = _run_without_inherited_stdin
+    whales_utils.subprocess = shim  # pyright: ignore[reportAttributeAccessIssue]
+
+
+close_inherited_stdin()
 
 
 class RuntimeUnavailableError(RuntimeError):
