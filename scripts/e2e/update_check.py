@@ -242,7 +242,8 @@ def settle(args: argparse.Namespace, started: float, phases: tuple[str, ...]) ->
         state = update_state(args.data_dir)
         return state.get("phase") in phases and state.get("started_at", "") >= started_iso(started)
 
-    wait_for(f"the update to end as {phases}", finished)
+    # A rollback on a CI Windows runner: two uv installs (~35 s each) plus the 90 s health wait.
+    wait_for(f"the update to end as {phases}", finished, timeout=480)
     return update_state(args.data_dir)
 
 
