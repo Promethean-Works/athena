@@ -6,7 +6,7 @@ Athena runs with high privileges: root on Linux, and it can control containers, 
 
 **Please don't open public issues for security problems.**
 
-Report privately through GitHub: [**Report a vulnerability**](https://github.com/tiagozaccaro/athena/security/advisories/new). Include:
+Report privately through GitHub: [**Report a vulnerability**](https://github.com/Promethean-Works/athena/security/advisories/new). Include:
 
 - the affected version or commit, and the OS;
 - steps to reproduce, or a proof of concept;

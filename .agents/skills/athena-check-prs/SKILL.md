@@ -11,6 +11,6 @@ description: Checks Athena's open pull requests - CI, CodeQL, auto-merge, merge 
    - Fix it in that PR's worktree (`git worktree list`; create one from the PR branch if needed: `git worktree add ../worktrees/athena-<topic> <branch>`). Never fix on `main`.
    - Behind `main` or conflicting: `git merge origin/main` (no rebase; force pushes are blocked). Generated files (`packages/api-client`) are regenerated, not hand-merged.
    - Auto-merge off on a PR to `main`: turn it on (`gh pr merge <n> --squash --auto --delete-branch`).
-   - Also look at CodeQL: `gh api "repos/tiagozaccaro/athena/code-scanning/alerts?state=open&ref=refs/pull/<n>/merge"`. Fix alerts in code; dismissing is the maintainer's call.
+   - Also look at CodeQL: `gh api "repos/Promethean-Works/athena/code-scanning/alerts?state=open&ref=refs/pull/<n>/merge"`. Fix alerts in code; dismissing is the maintainer's call.
 3. To keep watching, wait on the checks (`gh pr checks <n> --watch`) instead of polling in a loop.
 4. Report per PR: merged / waiting (on what) / failing (why, what you pushed). Never say a PR merged without seeing `MERGED` in `gh pr view <n> --json state`. After a merge, remove its worktree and move its STATUS item to HISTORY (`athena-handoff`).

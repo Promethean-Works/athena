@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Thanks for reporting! For security problems, don't open an issue: use
-        [private vulnerability reporting](https://github.com/tiagozaccaro/athena/security/advisories/new).
+        [private vulnerability reporting](https://github.com/Promethean-Works/athena/security/advisories/new).
   - type: textarea
     id: what-happened
     attributes:

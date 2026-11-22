@@ -6,7 +6,7 @@
   2. builds the `athena_server-<version>-py3-none-any.whl` wheel;
   3. attaches the wheel and the install scripts to the GitHub release.
 - **One-line install, CasaOS-style:**
-  - Linux/macOS: `curl -fsSL https://github.com/tiagozaccaro/athena/releases/latest/download/install.sh | bash`. It needs `sudo` on Linux.
+  - Linux/macOS: `curl -fsSL https://github.com/Promethean-Works/athena/releases/latest/download/install.sh | bash`. It needs `sudo` on Linux.
   - Windows: `irm …/install.ps1 | iex`.
   - The scripts install the runtime where the decisions allow it (Docker Engine on Linux, Colima on macOS; Windows is detect only), plus uv and the wheel through `uv tool install`, in Athena-owned directories.
   - They support `--version`, `--dry-run`, `--no-runtime`, and `--uninstall [--purge]`, plus `--wheel <path|url>` (`-Wheel` on Windows) to install an unreleased build from `scripts/build-wheel.sh`.

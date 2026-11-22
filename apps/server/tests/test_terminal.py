@@ -57,6 +57,26 @@ def test_pty_output_and_exit_code() -> None:
     assert code == 3
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX pty reader")
+def test_pty_output_survives_exit_before_first_read() -> None:
+    """macOS drops unread pty output about a second after a program exits, so a reader
+    thread starved on a busy CI runner saw an empty terminal (the flaky failure of
+    `test_pty_output_and_exit_code`). The output has to wait for the reader."""
+    import time
+
+    from athena.terminal.pty import _Posix
+
+    backend = _Posix(py("print('last words')"), 80, 24, None, None)
+    try:
+        time.sleep(1.5)  # the program has printed and exited, a starved reader hasn't read
+        out = b""
+        while (chunk := backend.read()) is not None:
+            out += chunk
+        assert b"last words" in out
+    finally:
+        backend.close_fd()
+
+
 def test_pty_input_and_resize() -> None:
     script = (
         "import os; name = input('name? '); s = os.get_terminal_size(); "

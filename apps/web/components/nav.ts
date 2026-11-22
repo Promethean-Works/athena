@@ -114,7 +114,7 @@ export const navSecondary: NavItem[] = [
   { title: "Settings", url: "/settings/", icon: Settings2Icon },
   {
     title: "Help",
-    url: "https://github.com/tiagozaccaro/athena#readme",
+    url: "https://github.com/Promethean-Works/athena#readme",
     icon: CircleHelpIcon,
     external: true,
   },
