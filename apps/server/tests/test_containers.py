@@ -249,3 +249,26 @@ def test_real_container_lifecycle() -> None:
     finally:
         service.remove(rt, name, force=True)
     assert name not in [c.name for c in service.list_containers(rt)]
+
+
+def test_docker_cli_is_started_without_inherited_stdin(monkeypatch):
+    """python-on-whales runs `docker` without a stdin; under pythonw.exe that is an invalid
+    handle (WinError 6), so Athena passes DEVNULL."""
+    import subprocess
+
+    from python_on_whales import utils
+
+    from athena.containers import runtime  # noqa: F401  (installs the shim)
+
+    seen = {}
+
+    def fake_run(*args, **kwargs):
+        seen.update(kwargs)
+        return subprocess.CompletedProcess(args, 0, b"ok", b"")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    utils.run(["docker", "ps"])
+    assert seen["stdin"] is subprocess.DEVNULL
+    seen.clear()
+    utils.run(["docker", "load"], input=b"data")
+    assert "stdin" not in seen  # piped input keeps its own stdin
