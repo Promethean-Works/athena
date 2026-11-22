@@ -92,7 +92,8 @@ def _confine(raw: str, allowed_roots: list[Path] | None) -> str:
     full = _real(raw)
     for base in _bases(allowed_roots):
         if full.startswith(base) and _on_boundary(full, base):
-            return full
+            # `full` is lowercased on Windows for the comparison; keep the real case to store.
+            return os.path.normpath(os.path.realpath(raw))
     raise DestinationError("Pick a folder inside an allowed backup location")
 
 
