@@ -8,12 +8,13 @@ from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, Field
-from sqlmodel import select
+from sqlmodel import Session, select
 
 from athena import audit
+from athena.apps.store import AppStore, check_name
 from athena.auth.deps import Authed, DbSession
 from athena.automation import service as automation_service
-from athena.backup import repository, snapshots, versions
+from athena.backup import repository, restore, snapshots, versions
 from athena.backup.plans import PlanItems, parse_items, parse_retention
 from athena.backup.repository import DestinationError
 from athena.backup.restic import Repository, ResticError
@@ -552,3 +553,129 @@ async def list_version_files(
             for e in entries
         ],
     )
+
+
+# ---------------------------------------------------------------- restore
+
+
+class RestoreAppIn(BaseModel):
+    destination_id: str
+    version_id: str
+    """A version of an app (an `app:<name>` item)."""
+    name: str | None = None
+    """Restore as this new app. Empty restores into the app the version came from: replacing
+    it if it exists (the current folder is moved aside), or bringing back a deleted one."""
+
+
+@router.post("/restore/app", operation_id="restoreBackupApp", status_code=status.HTTP_202_ACCEPTED)
+async def restore_app(body: RestoreAppIn, request: Request, user: Authed, db: DbSession) -> JobOut:
+    """Restore one app from a version. Follow progress at /api/jobs/{id}/events."""
+    _require_admin(user)
+    row = _destination(db, body.destination_id)
+    runtime = await _runtime_or_none(request)
+    if runtime is None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "Apps can't be restored without a container runtime to stop and start them",
+        )
+    provider, repo = await _readable(request, row)
+    try:
+        if body.name:
+            check_name(body.name)
+        tool = await provider.get()
+        plan = await restore.plan_for(tool, repo, body.version_id)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+    except DownloadError as exc:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(exc)) from exc
+    except ResticError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+
+    target = body.name or plan.source
+    existing = db.exec(select(App).where(App.name == target)).first()
+    data_dir: Path = request.app.state.settings.data_dir
+    store = AppStore(data_dir)
+    if target != plan.source and (existing is not None or store.dir(target).exists()):
+        raise HTTPException(status.HTTP_409_CONFLICT, f"There is already an app named {target}")
+    if existing is None and store.dir(target).exists():
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, f"{target} has a folder but isn't an app; remove it first"
+        )
+    busy: dict[str, str] = request.app.state.app_jobs
+    if target in busy:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"{target} is busy with another job")
+
+    keep_days = request.app.state.settings_file.get().backup.before_restore_keep_days
+    username = user.user.username
+    engine = request.app.state.db.engine
+    source_row = db.exec(select(App).where(App.name == plan.source)).first()
+    source, catalog_id = (
+        (source_row.source, source_row.catalog_id) if source_row else ("compose", None)
+    )
+    version_id = plan.version_id
+    jobs: JobManager = request.app.state.jobs
+
+    def register() -> None:
+        if existing is not None:
+            return
+        with Session(engine) as session:
+            session.add(App(name=target, source=source, catalog_id=catalog_id))
+            session.commit()
+
+    async def job_body(job):  # type: ignore[no-untyped-def]
+        work = asyncio.ensure_future(
+            restore.restore_app(
+                tool=tool,
+                repo=repo,
+                job=job,
+                store=store,
+                data_dir=data_dir,
+                runtime=runtime,
+                plan=plan,
+                target=target,
+                replace=existing is not None,
+                keep_days=keep_days,
+                on_placed=register,
+            )
+        )
+
+        async def cancel() -> None:
+            work.cancel()
+
+        job.cancel_hook = cancel
+        try:
+            await work
+        except asyncio.CancelledError:
+            if not job.cancelled:
+                raise
+            raise RuntimeError("Cancelled") from None
+        finally:
+            if busy.get(target) == job.id:
+                busy.pop(target, None)
+
+    job = jobs.start(f"Restore {target}", job_body, cancellable=True)
+    busy[target] = job.id
+    audit.record(
+        db, username, "backup.restore", target, f"version {version_id[:8]} of {plan.source}"
+    )
+    return job.out()
+
+
+@router.delete(
+    "/apps/{name}/before-restore",
+    operation_id="deleteBackupBeforeRestore",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_before_restore(name: str, request: Request, user: Authed, db: DbSession) -> None:
+    """Delete the folders a restore of this app moved aside, without waiting for the days
+    set in `backup.before_restore_keep_days`."""
+    _require_admin(user)
+    try:
+        check_name(name)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+    if name in request.app.state.app_jobs:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"{name} is busy with another job")
+    store = AppStore(request.app.state.settings.data_dir)
+    removed = await asyncio.to_thread(restore.sweep_aside, store, -1, snapshots.now(), name)
+    audit.record(db, user.user.username, "backup.restore.cleanup", name, f"{removed} folder(s)")
