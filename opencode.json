@@ -44,6 +44,13 @@
           "-y",
           "@upstash/context7-mcp@latest"
         ]
+      },
+      "github": {
+        "type": "remote",
+        "url": "https://api.githubcopilot.com/mcp/",
+        "headers": {
+          "Authorization": "Bearer ${GITHUB_TOKEN}"
+        }
       }
     }
   },
