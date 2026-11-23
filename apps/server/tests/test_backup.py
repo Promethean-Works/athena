@@ -14,15 +14,19 @@ from pathlib import Path
 import httpx2
 import pytest
 from conftest import make_app, signed_in
+from fake_probe import FakeProbe, RunResult
 from fastapi.testclient import TestClient
 
 from athena.backup import repository, restic
 from athena.backup.repository import DestinationError
 from athena.backup.restic import Repository, Restic, ResticError, Result
 from athena.backup.service import ResticProvider
+from athena.cloud.rclone import Rclone
 from athena.crypto import SecretBox
 from athena.db.models import BackupDestination, BackupPlan
 from athena.downloads import DownloadError, extract_single
+from athena.platform.detect import detect
+from athena.platform.store import CapabilityStore
 from athena.settings_file import SettingsFile, SettingsFileError
 
 PASSWORD = "correct horse battery staple"
@@ -645,4 +649,128 @@ def test_real_restic_through_the_routes(tmp_path: Path) -> None:
         ).status_code
         == 204
     )
-    assert not repo.exists()
+
+
+RCLONE = shutil.which("rclone")
+needs_rclone = pytest.mark.skipif(RCLONE is None, reason="rclone isn't installed")
+
+
+class FakeRclone(Rclone):
+    """Scripted answers per rclone method for cloud/destination validation."""
+
+    def __init__(self, data_dir: Path) -> None:
+        super().__init__(data_dir, binary=lambda: None)
+        self.calls: list[tuple[str, dict[str, object]]] = []
+        self.remotes_dump: dict[str, object] = {}
+
+    async def call(  # type: ignore[override]
+        self, method: str, params: dict[str, object] | None = None, timeout: float = 0
+    ) -> object:
+        self.calls.append((method, params or {}))
+        if method == "config/dump":
+            return self.remotes_dump
+        return {}
+
+
+def _app_with_rclone(
+    tmp_path: Path,
+    tool: Restic | None = None,
+    ready: bool = True,
+) -> TestClient:
+    probe = FakeProbe(os="darwin")
+    if ready:
+        probe.binaries["rclone"] = "/usr/bin/rclone"
+        probe.commands[("/usr/bin/rclone", "version")] = RunResult(0, "rclone v1.76.0\n")
+    store = CapabilityStore(detector=lambda: detect(probe))
+    app = make_app(tmp_path, store=store)
+    app.state.rclone = FakeRclone(tmp_path / "data")
+    app.state.restic = FakeProvider(tool or FakeRestic())
+    return signed_in(TestClient(app))
+
+
+def rclone_create_body(
+    remote: str = "gd",
+    path: str = "backup",
+    name: str = "Cloud",
+    password: str | None = PASSWORD,
+    saved: bool = True,
+) -> dict:
+    body: dict = {
+        "name": name,
+        "kind": "rclone",
+        "remote": remote,
+        "path": path,
+        "recovery_kit_saved": saved,
+    }
+    if password is not None:
+        body["password"] = password
+    return body
+
+
+@needs_rclone
+def test_rclone_destination_needs_ready_cloud(tmp_path: Path) -> None:
+    c = _app_with_rclone(tmp_path, ready=False)
+    body = rclone_create_body()
+    assert body["remote"] == "gd" and body["path"] == "backup"
+    assert c.post("/api/backup/destinations", json=body).status_code == 400
+
+
+# ---------------------------------------------------------------- rclone destinations
+
+
+@needs_rclone
+def test_rclone_destination_creates_opens_and_lists(tmp_path: Path) -> None:
+    c = _app_with_rclone(tmp_path)
+    f = c.app.state.rclone
+    f.remotes_dump = {"gd": {"type": "webdav"}}
+    tool = FakeRestic([Result(restic.EXIT_NO_REPOSITORY, "", ""), ok()])
+    c.app.state.restic = FakeProvider(tool)
+    body = rclone_create_body()
+    assert body["remote"] == "gd" and body["path"] == "backup"
+    res = c.post("/api/backup/destinations", json=body)
+    assert res.status_code == 201, res.text
+    dest = res.json()
+    assert dest["kind"] == "rclone"
+    assert dest["location"] == "gd:backup"
+    assert tool.calls[:2] == [("cat", "config"), ("init",)]
+    assert tool.repos[0].env == {"RCLONE_CONFIG": str(tmp_path / "data" / "rclone" / "rclone.conf")}
+
+    # Opening the same location again is a 409.
+    assert c.post("/api/backup/destinations", json=body).status_code == 409
+
+    listed = c.get("/api/backup/destinations").json()
+    assert [d["kind"] for d in listed] == ["rclone"]
+
+
+@needs_rclone
+def test_rclone_destination_connection_check_probe(tmp_path: Path) -> None:
+    c = _app_with_rclone(tmp_path)
+    f = c.app.state.rclone
+    f.remotes_dump = {"gd": {"type": "webdav"}}
+    tool = FakeRestic(
+        [
+            Result(restic.EXIT_NO_REPOSITORY, "", ""),
+            ok(),
+            Result(1, "", "gone"),
+        ]
+    )
+    c.app.state.restic = FakeProvider(tool)
+    body = rclone_create_body()
+    res = c.post("/api/backup/destinations", json=body)
+    assert res.status_code == 201
+    versions = c.get("/api/backup/versions", params={"destination_id": res.json()["id"]})
+    assert versions.status_code == 409
+
+
+@needs_rclone
+def test_rclone_delete_refuses_delete_backups(tmp_path: Path) -> None:
+    c = _app_with_rclone(tmp_path)
+    f = c.app.state.rclone
+    f.remotes_dump = {"gd": {"type": "webdav"}}
+    tool = FakeRestic()
+    c.app.state.restic = FakeProvider(tool)
+    body = rclone_create_body()
+    dest = c.post("/api/backup/destinations", json=body).json()
+    res = c.delete(f"/api/backup/destinations/{dest['id']}", params={"delete_backups": True})
+    assert res.status_code == 400
+    assert "rclone" in res.json()["detail"].lower()
