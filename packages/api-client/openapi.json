@@ -8417,13 +8417,22 @@
           },
           "kind": {
             "type": "string",
-            "const": "local",
+            "enum": [
+              "local",
+              "rclone"
+            ],
             "title": "Kind",
             "default": "local"
           },
           "path": {
             "type": "string",
-            "title": "Path"
+            "title": "Path",
+            "default": ""
+          },
+          "remote": {
+            "type": "string",
+            "title": "Remote",
+            "default": ""
           },
           "password": {
             "anyOf": [
@@ -8439,8 +8448,7 @@
         },
         "type": "object",
         "required": [
-          "name",
-          "path"
+          "name"
         ],
         "title": "DestinationDraft",
         "description": "What the admin typed; the recovery kit is made from it before anything is created."
@@ -8455,13 +8463,22 @@
           },
           "kind": {
             "type": "string",
-            "const": "local",
+            "enum": [
+              "local",
+              "rclone"
+            ],
             "title": "Kind",
             "default": "local"
           },
           "path": {
             "type": "string",
-            "title": "Path"
+            "title": "Path",
+            "default": ""
+          },
+          "remote": {
+            "type": "string",
+            "title": "Remote",
+            "default": ""
           },
           "password": {
             "type": "string",
@@ -8475,7 +8492,6 @@
         "type": "object",
         "required": [
           "name",
-          "path",
           "password",
           "recovery_kit_saved"
         ],

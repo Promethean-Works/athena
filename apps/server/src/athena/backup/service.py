@@ -40,9 +40,13 @@ class ResticProvider:
         return Restic(path, cache_dir=self.data_dir / "cache" / "restic")
 
 
-def repository_of(row: BackupDestination, box: SecretBox) -> Repository:
+def repository_of(
+    row: BackupDestination,
+    box: SecretBox,
+    env: dict[str, str] | None = None,
+) -> Repository:
     """The repository a destination row points at, with its decrypted password."""
-    return Repository(location=row.location, password=box.decrypt(row.password))
+    return Repository(location=row.location, password=box.decrypt(row.password), env=env)
 
 
 class PlanRunner:
@@ -68,7 +72,12 @@ class PlanRunner:
             items = parse_items(plan.items)
             keep = parse_retention(plan.retention)
             plan_name, dest_id, location = plan.name, dest.id, dest.location
-            repo = repository_of(dest, self.state.secret_box)
+            env = (
+                {"RCLONE_CONFIG": str(self.state.settings.data_dir / "rclone" / "rclone.conf")}
+                if dest.kind == "rclone"
+                else None
+            )
+            repo = repository_of(dest, self.state.secret_box, env=env)
 
         work = asyncio.ensure_future(
             self._locked(job, dest_id, repo, location, items, keep, runtime)
@@ -116,12 +125,17 @@ class PlanRunner:
         """Back everything up under the destination's lock. The error text, or None."""
         state = self.state
         async with state.backup_locks.setdefault(dest_id, asyncio.Lock()):
-            if not await asyncio.to_thread(snapshots.destination_connected, location):
+            tool = await state.restic.get(job.log)
+            if snapshots._is_rclone_location(location):
+                if not await snapshots.destination_reachable(tool, repo):
+                    raise DestinationNotConnectedError(
+                        f"The destination isn't connected: {location} is unreachable"
+                    )
+            elif not await asyncio.to_thread(snapshots.destination_connected, location):
                 raise DestinationNotConnectedError(
                     f"The destination isn't connected: {location} is missing or isn't a "
                     "backup repository"
                 )
-            tool = await state.restic.get(job.log)
             data_dir: Path = state.settings.data_dir
             engine = state.db.engine
             results = await snapshots.run_items(

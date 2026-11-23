@@ -20,6 +20,8 @@ from athena.backup.repository import DestinationError
 from athena.backup.restic import Repository, ResticError
 from athena.backup.service import PlanRunner, ResticProvider, repository_of
 from athena.backup.settings import Retention
+from athena.cloud.rclone import RcloneUnavailable
+from athena.cloud.remotes import check_path, check_remote_name, remotes
 from athena.containers.runtime import Runtime, RuntimeUnavailableError, runtime_from
 from athena.crypto import SecretBox
 from athena.db.models import App, BackupDestination, BackupPlan
@@ -56,9 +58,11 @@ class DestinationDraft(BaseModel):
     """What the admin typed; the recovery kit is made from it before anything is created."""
 
     name: str = Field(min_length=1, max_length=64)
-    kind: Literal["local"] = "local"
-    path: str
-    """The folder or disk to keep the repository in."""
+    kind: Literal["local", "rclone"] = "local"
+    path: str = ""
+    """The folder or disk to keep the repository in (local kind)."""
+    remote: str = ""
+    """The rclone remote the repository lives on (rclone kind)."""
     password: str | None = None
     """Their own repository password; empty means Athena generates a strong one."""
 
@@ -89,8 +93,39 @@ def _out(row: BackupDestination) -> DestinationOut:
     )
 
 
-def _location(request: Request, draft: DestinationDraft) -> str:
-    """The checked, writable folder for a draft, as the text stored in the database."""
+async def _cloud_ready(request: Request) -> None:
+    """Raise 400 unless the cloud capability is ready (rclone installed and detected)."""
+    store: CapabilityStore = request.app.state.capabilities
+    manifest = await store.get()
+    cloud = manifest.get("cloud.rclone")
+    if cloud is None or cloud.status != "ready":
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "rclone isn't ready on this host: install it and re-detect in Cloud settings",
+        )
+
+
+async def _rclone_remote_exists(request: Request, remote: str) -> None:
+    """Raise 400 unless `remote` is one of the configured rclone remotes."""
+    try:
+        known = {r.name for r in await remotes(request.app.state.rclone)}
+    except RcloneUnavailable as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc)) from exc
+    if remote not in known:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            f"No rclone remote called {remote}; add it on the Cloud page first",
+        )
+
+
+async def _location(request: Request, draft: DestinationDraft) -> str:
+    """The checked destination for a draft, as the text stored in the database."""
+    if draft.kind == "rclone":
+        await _cloud_ready(request)
+        check_remote_name(draft.remote)
+        check_path(draft.path)
+        await _rclone_remote_exists(request, draft.remote)
+        return f"{draft.remote}:{draft.path}"
     settings = request.app.state.settings
     data_dir: Path = settings.data_dir
     allowed_roots = list(settings.backup_allowed_roots)
@@ -100,6 +135,14 @@ def _location(request: Request, draft: DestinationDraft) -> str:
     except DestinationError as exc:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
     return str(folder)
+
+
+def _repository_env(request: Request, kind: str) -> dict[str, str] | None:
+    """Extra environment restic needs to reach an rclone destination."""
+    if kind != "rclone":
+        return None
+    settings = request.app.state.settings
+    return {"RCLONE_CONFIG": str(settings.data_dir / "rclone" / "rclone.conf")}
 
 
 def _password(draft: DestinationDraft) -> str:
@@ -119,10 +162,10 @@ def list_destinations(user: Authed, db: DbSession) -> list[DestinationOut]:
 
 
 @router.post("/destinations/recovery-kit", operation_id="createBackupRecoveryKit")
-def recovery_kit(draft: DestinationDraft, request: Request, user: Authed) -> RecoveryKit:
+async def recovery_kit(draft: DestinationDraft, request: Request, user: Authed) -> RecoveryKit:
     """Check a destination and make its recovery kit, without creating anything yet."""
     _require_admin(user)
-    location = _location(request, draft)
+    location = await _location(request, draft)
     password = _password(draft)
     return RecoveryKit(
         name=draft.name.strip(),
@@ -150,15 +193,16 @@ async def create_destination(
             "Save the recovery kit first: without it a lost server means unreadable backups",
         )
     name = body.name.strip()
-    location = _location(request, body)
+    location = await _location(request, body)
     password = _password(body)
+    env = _repository_env(request, body.kind)
     if db.exec(select(BackupDestination).where(BackupDestination.name == name)).first():
         raise HTTPException(status.HTTP_409_CONFLICT, f"A destination called {name} exists")
     if db.exec(select(BackupDestination).where(BackupDestination.location == location)).first():
         raise HTTPException(status.HTTP_409_CONFLICT, "That folder is already a destination")
     try:
         tool = await _provider(request).get()
-        created = await repository.init_or_open(tool, Repository(location, password))
+        created = await repository.init_or_open(tool, Repository(location, password, env=env))
     except DownloadError as exc:
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(exc)) from exc
     except ResticError as exc:
@@ -166,7 +210,7 @@ async def create_destination(
     row = BackupDestination(
         id=uuid.uuid4().hex,
         name=name,
-        kind="local",
+        kind=body.kind,
         location=location,
         password=_box(request).encrypt(password),
     )
@@ -205,6 +249,11 @@ async def delete_destination(
             status.HTTP_409_CONFLICT, f"The plan {in_use.name} uses this destination"
         )
     if delete_backups:
+        if row.kind != "local":
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Deleting backups isn't supported on a {row.kind} destination",
+            )
         try:
             await asyncio.to_thread(repository.delete_repository, Path(row.location))
         except DestinationError as exc:
@@ -453,6 +502,22 @@ def _destination(db: DbSession, destination_id: str) -> BackupDestination:
 
 async def _readable(request: Request, row: BackupDestination) -> tuple[ResticProvider, Repository]:
     """The destination's repository, after checking it's connected."""
+    kind = row.kind
+    if kind == "rclone" or snapshots._is_rclone_location(row.location):
+        provider = _provider(request)
+        try:
+            repo = repository_of(row, _box(request))
+            if not await snapshots.destination_reachable(await provider.get(), repo):
+                raise DestinationError(
+                    f"{row.location} isn't reachable or isn't a backup repository"
+                )
+        except HTTPException:
+            raise
+        except DestinationError as exc:
+            raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+        except ResticError as exc:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+        return provider, repo
     if not await asyncio.to_thread(snapshots.destination_connected, row.location):
         raise HTTPException(
             status.HTTP_409_CONFLICT,

@@ -9,7 +9,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 ## In progress
 
 - Self-update (`docs/specs/self-update.md`): parts 1-3 done (#252 merged part 3). **Next part 4**: backup first, interrupted-update banner (`state.json` phase not final), design doc, spec Done. Not verified: Fedora, hand failure cases, a real UI update (E2E smoke).
-- Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d (restore one app) done; `schedule` isn't run until part 4. **Next 2e** rclone. 2d not run against a real runtime or volumes (backups hold the folder only).
+- Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d (restore one app) done; `schedule` isn't run until part 4. **Next 4** volumes/bind mounts/schedule/automation/dashboard card. 2d not run against a real runtime or volumes (backups hold the folder only).
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt or Cloudflare, trusting the CA on real devices. The last renewal/error live in memory only (a restart forgets them). Follow-up: own-certificate upload.
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.
 - Windows E2E flake: `GET /api/containers` sometimes 500s under the service (`WinError 6`, see gotchas/windows.md).

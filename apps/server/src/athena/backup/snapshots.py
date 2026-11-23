@@ -299,3 +299,17 @@ def now() -> datetime:
 def destination_connected(location: str) -> bool:
     """A local repository's folder is there and still looks like a repository."""
     return os.path.isdir(location) and looks_like_repository(Path(location))
+
+
+def _is_rclone_location(location: str) -> bool:
+    """`destination:path` style (rclone), not a local folder or Windows drive letter."""
+    if ":" not in location:
+        return False
+    head = location.split(":", 1)[0]
+    return "/" not in head and "\\" not in head and len(head) > 1
+
+
+async def destination_reachable(tool: Restic, repo: Repository) -> bool:
+    """The destination still holds a repository we can open (`restic cat config`)."""
+    probe = await tool.run(repo, "cat", "config")
+    return probe.code == 0

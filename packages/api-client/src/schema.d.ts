@@ -3165,11 +3165,19 @@ export interface components {
             /**
              * Kind
              * @default local
-             * @constant
+             * @enum {string}
              */
-            kind: "local";
-            /** Path */
+            kind: "local" | "rclone";
+            /**
+             * Path
+             * @default
+             */
             path: string;
+            /**
+             * Remote
+             * @default
+             */
+            remote: string;
             /** Password */
             password?: string | null;
         };
@@ -3180,11 +3188,19 @@ export interface components {
             /**
              * Kind
              * @default local
-             * @constant
+             * @enum {string}
              */
-            kind: "local";
-            /** Path */
+            kind: "local" | "rclone";
+            /**
+             * Path
+             * @default
+             */
             path: string;
+            /**
+             * Remote
+             * @default
+             */
+            remote: string;
             /** Password */
             password: string;
             /** Recovery Kit Saved */
