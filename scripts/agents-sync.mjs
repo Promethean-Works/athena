@@ -136,6 +136,7 @@ if (args.has("--hermes")) {
   };
   const syncKeys = (name, s) => {
     if (!s.url) setKey(name, "args", s.args ?? []);
+    if (s.headers) setKey(name, "headers", s.headers);
     if (UNUSED_TOOLS[name]) setKey(name, "tools", { exclude: UNUSED_TOOLS[name] });
   };
   for (const [name, s] of Object.entries(servers)) {
@@ -373,6 +374,7 @@ const codexToml = [
     `[mcp_servers.${toml(n)}]`,
     ...(s.url ? [`url = ${toml(s.url)}`] : [`command = ${toml(s.command)}`, `args = ${toml(s.args ?? [])}`]),
     ...(s.env ? [`env = { ${Object.entries(s.env).map(([k, v]) => `${toml(k)} = ${toml(v)}`).join(", ")} }`] : []),
+    ...(s.headers ? [`headers = { ${Object.entries(s.headers).map(([k, v]) => `${toml(k)} = ${toml(v)}`).join(", ")} }`] : []),
   ]),
   "",
 ].join("\n");
