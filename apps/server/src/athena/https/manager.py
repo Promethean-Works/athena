@@ -338,11 +338,23 @@ class HttpsManager:
         if new.mode == "custom":
             # Write custom certificate and key to disk
             try:
-                await asyncio.to_thread(local_ca.write_file, self.paths.custom_cert, new.custom_cert.encode(), private=False)
-                await asyncio.to_thread(local_ca.write_file, self.paths.custom_key, new.custom_key.encode(), private=True)
+                await asyncio.to_thread(
+                    local_ca.write_file,
+                    self.paths.custom_cert,
+                    new.custom_cert.encode(),
+                    private=False,
+                )
+                await asyncio.to_thread(
+                    local_ca.write_file,
+                    self.paths.custom_key,
+                    new.custom_key.encode(),
+                    private=True,
+                )
             except (OSError, ValueError, TypeError) as exc:
                 log.exception("HTTPS custom certificate write")
-                raise HttpsError("Couldn't write the custom certificate; see the server log.") from exc
+                raise HttpsError(
+                    "Couldn't write the custom certificate; see the server log."
+                ) from exc
         try:
             await asyncio.to_thread(self._ensure_cert, new)
         except (OSError, ValueError, TypeError) as exc:
