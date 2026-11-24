@@ -18,6 +18,7 @@ import { CodeEditor } from "@workspace/ui/components/athena/code-editor"
 import { ComposeForm } from "@/components/apps/compose-form"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
+import { VersionsCard } from "@/components/backup/versions-card"
 import {
   Empty,
   EmptyDescription,
@@ -188,6 +189,7 @@ export function AppDetail({ name }: { name: string }) {
           {app.env !== null ? (
             <TabsTrigger value="settings">Settings</TabsTrigger>
           ) : null}
+          <TabsTrigger value="backups">Backups</TabsTrigger>
         </TabsList>
 
         <TabsContent value="containers" className="pt-2">
@@ -301,6 +303,10 @@ export function AppDetail({ name }: { name: string }) {
             </div>
           </TabsContent>
         ) : null}
+
+        <TabsContent value="backups" className="flex flex-col gap-3 pt-2">
+          <VersionsCard item={`app:${app.name}`} />
+        </TabsContent>
       </Tabs>
 
       <LogsSheet container={logsFor} onClose={() => setLogsFor(null)} />
