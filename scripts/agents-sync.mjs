@@ -215,7 +215,17 @@ if (args.has("--hermes")) {
     const text = r.status === 0 ? r.stdout.trim() : "";
     return ["", "null", "None", "{}", "[]", "''"].includes(text) ? "" : text;
   };
-  const getList = (key) => get(key).split("\n").map((l) => l.match(/^\s*-\s+(.*)$/)?.[1]?.replace(/^(['"])(.*)\1$/, "$2")).filter(Boolean);
+  // A YAML block list of plain strings, or null when it's anything else (then we don't touch it).
+  const getList = (key) => {
+    const lines = get(key).split("\n").filter((l) => l.trim());
+    const items = lines.map((l) => {
+      const item = l.match(/^\s*-\s+(.*?)\s*$/)?.[1];
+      if (item && /^(['"]).*\1$/.test(item)) return item; // quoted string
+      return item && !/^[{[]|:(\s|$)|\s#/.test(item) ? item : undefined; // not a mapping, flow or comment
+    });
+    if (items.some((i) => i === undefined)) return null;
+    return items.map((i) => (i.startsWith("'") ? i.slice(1, -1).replaceAll("''", "'") : i.startsWith('"') ? JSON.parse(i) : i));
+  };
   const set = (key, value, what) => {
     const r = hermes("config", "set", key, JSON.stringify(value));
     if (r.status === 0) console.log(`hermes: ${what}`);
@@ -226,6 +236,10 @@ if (args.has("--hermes")) {
   };
   const mergeList = (key, items, what) => {
     const have = getList(key);
+    if (!have) {
+      console.log(`hermes: ${key} isn't a plain list; add these to it in ~/.hermes/config.yaml by hand:\n${items.map((i) => `  - ${JSON.stringify(i)}`).join("\n")}`);
+      return;
+    }
     const missing = items.filter((i) => !have.includes(i));
     if (missing.length) set(key, [...have, ...missing], what);
   };
@@ -237,12 +251,11 @@ if (args.has("--hermes")) {
   const guard = `node ${JSON.stringify(join(mainRoot, "scripts", "agent-guard.mjs"))} hermes`;
   const hooks = get("hooks.pre_tool_call");
   if (!existsSync(join(mainRoot, "scripts", "agent-guard.mjs"))) {
-    // fail_closed: a hook whose script is missing would block every file tool.
     console.log("hermes: guard hook skipped, the base checkout has no scripts/agent-guard.mjs yet (re-run after it reaches main)");
   } else if (!hooks) {
-    set("hooks.pre_tool_call", [{ matcher: "write_file|patch|read_file", command: guard, timeout: 10, fail_closed: true }], "guard hook added (hooks.pre_tool_call; approve it once when Hermes asks)");
+    set("hooks.pre_tool_call", [{ matcher: "write_file|patch|read_file", command: guard, timeout: 10 }], "guard hook added (hooks.pre_tool_call; approve it once when Hermes asks)");
   } else if (!hooks.includes("agent-guard.mjs")) {
-    console.log(`hermes: you have your own pre_tool_call hooks; add this one to hooks.pre_tool_call in ~/.hermes/config.yaml by hand:\n  - matcher: "write_file|patch|read_file"\n    command: ${JSON.stringify(guard)}\n    timeout: 10\n    fail_closed: true`);
+    console.log(`hermes: you have your own pre_tool_call hooks; add this one to hooks.pre_tool_call in ~/.hermes/config.yaml by hand:\n  - matcher: "write_file|patch|read_file"\n    command: ${JSON.stringify(guard)}\n    timeout: 10`);
   }
   // The shared commands as aliases of their skills (/next runs /athena-next).
   for (const [name, c] of Object.entries(COMMANDS)) {
@@ -282,7 +295,7 @@ for (const a of allSubagents) {
   if (!existsSync(join(root, ".agents", "skills", a.skill, "SKILL.md"))) throw new Error(`subagent ${a.name}: skill ${a.skill} doesn't exist`);
 }
 
-const agents = { ...existing.agents };
+const agents = {};
 for (const a of allSubagents) {
   agents[a.name] = {
     description: a.description,
@@ -291,7 +304,7 @@ for (const a of allSubagents) {
     ...(a.openCodePermissions.length && { permissions: a.openCodePermissions }),
   };
 }
-const commands = { ...existing.commands };
+const commands = {};
 for (const [name, c] of Object.entries(COMMANDS)) {
   commands[name] = {
     description: c.description,
@@ -451,9 +464,9 @@ for (const [area, globs] of Object.entries(AREA_RULES)) {
 // Claude Code project settings: the guard deny rules and the guard hook are managed here.
 const claudeSettingsPath = join(root, ".claude", "settings.json");
 const claudeSettings = JSON.parse(readFileSync(claudeSettingsPath, "utf8"));
-const isGuardDeny = (d) => /^(Read|Edit|Bash)\(/.test(d) && (claudeGuardDenies.includes(d) || /^Read\(\*\*\/|^Read\(\.\/\.dev-data/.test(d));
+const isGuardDeny = (d) => claudeGuardDenies.includes(d);
 const otherDenies = (claudeSettings.permissions?.deny ?? []).filter((d) => !isGuardDeny(d));
-const GUARD_HOOK = { matcher: "Edit|Write|NotebookEdit|MultiEdit", hooks: [{ type: "command", command: 'node "$CLAUDE_PROJECT_DIR/scripts/agent-guard.mjs" claude' }] };
+const GUARD_HOOK = { matcher: "Read|Grep|Glob|Edit|Write|NotebookEdit|MultiEdit", hooks: [{ type: "command", command: 'node "$CLAUDE_PROJECT_DIR/scripts/agent-guard.mjs" claude' }] };
 const otherPreToolUse = (claudeSettings.hooks?.PreToolUse ?? []).filter((h) => !JSON.stringify(h).includes("agent-guard.mjs"));
 const claudeSettingsOut = JSON.stringify(
   {

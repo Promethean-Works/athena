@@ -11,8 +11,9 @@
 //                 node <base checkout>/scripts/agent-guard.mjs hermes
 //   oh-my-pi      .omp/extensions/athena.ts imports verdict() from this file
 // Both hooks pass a JSON event on stdin ({tool_name, tool_input, cwd}); the answer goes to
-// stdout in that agent's format. Any error lets the call through: the guard must never
-// break a session (Claude's permission rules and the pre-commit hook still apply).
+// stdout in that agent's format. Any error lets the call through, and both hooks are set to
+// fail open: the guard must never break a session (each agent's deny rules, the pre-commit
+// hook and GitHub's branch protection still apply).
 //
 // Edit in the base checkout on purpose (the maintainer, by hand): ATHENA_ALLOW_BASE_EDIT=1.
 //   node scripts/agent-guard.mjs --self-test     checks the path rules (CI runs it)
@@ -29,9 +30,7 @@ export const PROTECTED_FILES = ["CHANGELOG.md", "version.txt"]
 // GitHub too; these stop the attempt before it reaches the remote.
 export const DENIED_COMMANDS = [
   "git push * main",
-  "git push * main *",
   "git push * HEAD:main",
-  "git push * HEAD:main *",
   "git push * +main",
   "git push * :main",
   "git push --force*",
@@ -87,7 +86,7 @@ export function checkoutKind(file) {
 
 // Why the call must be refused, or null to let it through.
 export function verdict(tool, input, cwd = process.cwd()) {
-  const paths = toolPaths(input).map((p) => (isAbsolute(p) ? p : resolve(cwd, p.replace(/^~(?=$|[\\/])/, process.env.HOME ?? "~"))))
+  const paths = toolPaths(input).map((p) => (isAbsolute(p) ? p : resolve(cwd, p.replace(/^~(?=$|[\\/])/, process.env.HOME ?? process.env.USERPROFILE ?? "~"))))
   if (READ_TOOLS.has(tool)) {
     const secret = paths.find(isSecret)
     return secret ? `Athena: ${secret} is a secret file (keys, .env, .dev-data); agents may not read it.` : null

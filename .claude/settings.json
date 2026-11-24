@@ -53,6 +53,8 @@
       "Bash(node scripts/agents-setup.mjs --dry-run*)"
     ],
     "deny": [
+      "Bash(git push * main *)",
+      "Bash(git push * HEAD:main *)",
       "Read(**/.env)",
       "Read(**/.env.*)",
       "Read(**/secret.key)",
@@ -64,9 +66,7 @@
       "Edit(**/CHANGELOG.md)",
       "Edit(**/version.txt)",
       "Bash(git push * main)",
-      "Bash(git push * main *)",
       "Bash(git push * HEAD:main)",
-      "Bash(git push * HEAD:main *)",
       "Bash(git push * +main)",
       "Bash(git push * :main)",
       "Bash(git push --force*)",
@@ -88,7 +88,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|NotebookEdit|MultiEdit",
+        "matcher": "Read|Grep|Glob|Edit|Write|NotebookEdit|MultiEdit",
         "hooks": [
           {
             "type": "command",

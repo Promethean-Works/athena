@@ -8,11 +8,7 @@ bash:
   patterns:
     - match: "git push * main"
       approval: deny
-    - match: "git push * main *"
-      approval: deny
     - match: "git push * HEAD:main"
-      approval: deny
-    - match: "git push * HEAD:main *"
       approval: deny
     - match: "git push * +main"
       approval: deny
