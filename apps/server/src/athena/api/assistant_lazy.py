@@ -50,18 +50,17 @@ class LazyAssistantRouter:
 
     async def _start(self) -> ASGIApp:
         # Importing the assistant module takes ~1 s (longer on a Pi): not on the event loop.
-        module = await asyncio.to_thread(
-            importlib.import_module, "athena.api.assistant"
-        )
+        module = await asyncio.to_thread(importlib.import_module, "athena.api.assistant")
         # The real router has prefix="/assistant"; we mount at /api/assistant so strip it.
         # Create a new router and copy all routes with the "/assistant" prefix removed.
         from fastapi import APIRouter, FastAPI
+
         inner_router = APIRouter(prefix="")
         for route in module.router.routes:
             # Create a copy of the route with the "/assistant" prefix stripped
             new_path = route.path
             if new_path.startswith("/assistant"):
-                new_path = new_path[len("/assistant"):] or "/"
+                new_path = new_path[len("/assistant") :] or "/"
             inner_router.add_api_route(
                 new_path,
                 route.endpoint,

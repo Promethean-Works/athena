@@ -108,6 +108,7 @@ def create_app(
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Initialize models.dev service for dynamic provider loading
         from athena.assistant.models_dev import init_models_dev_service
+
         init_models_dev_service(db.session)
         # Refresh models.dev cache in background (non-blocking)
         refresh_task = asyncio.create_task(_refresh_models_dev_cache(app))
@@ -190,9 +191,11 @@ def create_app(
     app.state.secret_box = SecretBox(settings.data_dir)
     app.state.restic = ResticProvider(settings.data_dir)
     from athena.assistant.providers import ModelCache
+
     app.state.model_cache = ModelCache()
     app.state.ai_transport = None  # tests swap in an httpx2.MockTransport
     from athena.assistant.turns import Turns
+
     app.state.assistant_turns = Turns()
     app.state.catalogs = catalogs or CatalogRegistry(remote_root=settings.data_dir / "catalogs")
     # Wakes the automation scheduler when a trigger is created, enabled or edited.
