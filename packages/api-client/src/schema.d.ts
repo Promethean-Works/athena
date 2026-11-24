@@ -2508,6 +2508,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/backup/restore/athena": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore Athena Route
+         * @description Restore all of Athena from a version. Only works before the first admin account
+         *     exists (the first-run screen). Follow progress at /api/jobs/{id}/events.
+         */
+        post: operations["restoreBackupAthena"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/backup/apps/{name}/before-restore": {
         parameters: {
             query?: never;
@@ -4251,6 +4272,15 @@ export interface components {
             version_id: string;
             /** Name */
             name?: string | null;
+        };
+        /** RestoreAthenaIn */
+        RestoreAthenaIn: {
+            /** Location */
+            location: string;
+            /** Password */
+            password: string;
+            /** Version Id */
+            version_id: string;
         };
         /**
          * Retention
@@ -9825,6 +9855,39 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["RestoreAppIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restoreBackupAthena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestoreAthenaIn"];
             };
         };
         responses: {

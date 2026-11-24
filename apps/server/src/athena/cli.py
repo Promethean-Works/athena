@@ -278,6 +278,73 @@ def _reset_password(args: argparse.Namespace) -> int:
         database.engine.dispose()
 
 
+def _restore(args: argparse.Namespace) -> int:
+    """Restore Athena from a backup repository (the first-run fallback)."""
+    import asyncio
+    import getpass
+
+    from athena.backup import versions
+    from athena.backup.restic import Repository
+    from athena.backup.service import ResticProvider
+
+    data_dir = Path(args.data_dir)
+    if not (data_dir / "athena.db").exists():
+        print("error: no Athena database at", data_dir / "athena.db", file=sys.stderr)
+        return 1
+    repo_spec = (
+        args.repo or input("Backup repository (local folder or `<remote>:<path>`): ").strip()
+    )
+    if not repo_spec:
+        print("error: no repository given", file=sys.stderr)
+        return 1
+    if args.password_stdin:
+        password = sys.stdin.readline().rstrip("\r\n")
+    else:
+        password = getpass.getpass("Repository password: ")
+    if len(password) < 12:
+        print("error: password must be at least 12 characters", file=sys.stderr)
+        return 1
+
+    async def main() -> int:
+        provider = ResticProvider(data_dir)
+        tool = await provider.get()
+        repo = Repository(location=repo_spec, password=password)
+        try:
+            found = await versions.list_versions(tool, repo, "athena")
+        except Exception as exc:
+            print("error: cannot read repository:", exc, file=sys.stderr)
+            return 1
+        if not found:
+            print("error: no Athena versions in this repository", file=sys.stderr)
+            return 1
+        snap_id = args.snapshot
+        if snap_id is None:
+            snap_id = found[0].id
+            print("Using newest Athena version", snap_id[:8], "(", found[0].time, ")")
+        job = type(
+            "Job",
+            (),
+            {
+                "log": print,
+                "set_progress": lambda *a, **k: None,
+                "cancelled": False,
+            },
+        )()
+        from athena.backup import restore as restore_mod
+
+        try:
+            await restore_mod.restore_athena(
+                tool=tool, repo=repo, job=job, data_dir=data_dir, version_id=snap_id
+            )
+        except Exception as exc:
+            print("error: restore failed:", exc, file=sys.stderr)
+            return 1
+        print("Athena restored. Restart the server (or re-run `athena serve`) to use it.")
+        return 0
+
+    return asyncio.run(main())
+
+
 # ---------------------------------------------------------------- background server (start/stop)
 
 
@@ -777,6 +844,24 @@ def build_parser() -> argparse.ArgumentParser:
         cmd = https_sub.add_parser(name, help=help_text)
         cmd.add_argument("--data-dir", type=Path, default=default_data_dir())
     https.set_defaults(func=_https)
+
+    restore = sub.add_parser("restore", help="restore Athena from a backup")
+    restore.add_argument("--data-dir", type=Path, default=default_data_dir())
+
+    restore.add_argument(
+        "--repo",
+        help="local folder or `<remote>:<path>` of the backup repository",
+    )
+
+    restore.add_argument(
+        "--snapshot",
+        help="version id (restic snapshot id) to restore; newest athena version if omitted",
+    )
+
+    restore.add_argument(
+        "--password-stdin", action="store_true", help="read the repository password from stdin"
+    )
+    restore.set_defaults(func=_restore)
 
     update = sub.add_parser("update", help="update Athena to the latest release")
     update.add_argument("--check", action="store_true", help="show current and latest, then stop")

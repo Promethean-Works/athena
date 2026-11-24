@@ -6697,6 +6697,48 @@
         }
       }
     },
+    "/api/backup/restore/athena": {
+      "post": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Restore Athena Route",
+        "description": "Restore all of Athena from a version. Only works before the first admin account\nexists (the first-run screen). Follow progress at /api/jobs/{id}/events.",
+        "operationId": "restoreBackupAthena",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreAthenaIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/backup/apps/{name}/before-restore": {
       "delete": {
         "tags": [
@@ -11382,6 +11424,29 @@
           "version_id"
         ],
         "title": "RestoreAppIn"
+      },
+      "RestoreAthenaIn": {
+        "properties": {
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "location",
+          "password",
+          "version_id"
+        ],
+        "title": "RestoreAthenaIn"
       },
       "Retention": {
         "properties": {

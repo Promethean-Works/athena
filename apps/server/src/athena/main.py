@@ -229,7 +229,7 @@ def create_app(
     app.include_router(feedback_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(audit_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(https_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(backup_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(backup_api.router, prefix="/api")
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
     # MCP server: streamable-HTTP endpoint for external agents (n8n, Claude Desktop, …).

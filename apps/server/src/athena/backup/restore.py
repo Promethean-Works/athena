@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from athena import restart
 from athena.apps.store import (
     APP_NAME,
     AppStore,
@@ -28,6 +29,8 @@ from athena.apps.store import (
 )
 from athena.backup import snapshots, versions
 from athena.backup.restic import Repository, Restic, ResticError, failure_message
+from athena.config import SETTINGS_FILE
+from athena.crypto import KEY_FILE
 from athena.jobs import Job, run_or_fail
 
 log = logging.getLogger(__name__)
@@ -248,3 +251,49 @@ async def restore_app(
     removed = await asyncio.to_thread(sweep_aside, store, keep_days, snapshots.now())
     if removed:
         await job.log(f"Deleted {removed} old moved-aside folder(s)")
+
+
+async def restore_athena(
+    *,
+    tool: Restic,
+    repo: Repository,
+    job: Job,
+    data_dir: Path,
+    version_id: str,
+) -> None:
+    """Restore all of Athena from an `athena` version.
+
+    Stages the snapshot into a temporary folder, checks it holds what a restore needs,
+    then stops the server (so the supervisor restarts it), moves the current data folder
+    aside and the restored one into place. The restored DB is migrated by Alembic on the
+    next start; the server's `server` section is replaced by this host's own settings.
+    """
+    staging = staging_dir(data_dir, version_id[:16])
+    await job.log(f"Restoring Athena from version {version_id[:8]}")
+    await asyncio.to_thread(shutil.rmtree, staging, True)
+    staging.mkdir(parents=True)
+    await _restic_restore(tool, repo, job, version_id, staging)
+    staged = _staged_folder(staging, "athena")
+    if not staged.is_dir():
+        raise ResticError("The version doesn't hold Athena's data folder")
+    for name in (SETTINGS_FILE, KEY_FILE):
+        if not (staged / name).is_file():
+            raise ResticError(f"The version has no {name}")
+    # Stop the server so the supervisor starts a fresh one after the swap.
+    if not restart.request():
+        await job.log("warning: server won't restart automatically; restart it after the restore")
+    aside = data_dir / f"athena.before-restore-{snapshots.now().strftime(STAMP)}"
+    await asyncio.to_thread(shutil.rmtree, aside, ignore_errors=True)
+    current = data_dir
+    await job.log("Moving the current data folder aside")
+    os.replace(current, aside)
+    try:
+        await job.log("Moving the restored data into place")
+        os.replace(staged, current)
+        staging = None  # already moved; skip cleanup
+    except BaseException:
+        os.replace(aside, current)
+        raise
+    finally:
+        if staging is not None:
+            await asyncio.shield(asyncio.to_thread(shutil.rmtree, staging, True))
