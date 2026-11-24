@@ -44,6 +44,9 @@ Thumbs.db
 
 # Agent-local files (shared agent config is committed; see AGENTS.md)
 .claude/settings.local.json
+# Each agent's own worktree folder inside the repo: Claude Code (`claude -w`), Hermes (`hermes -w`)
+.claude/worktrees/
+.worktrees/
 .opencode/
 .playwright-mcp/
 CLAUDE.local.md

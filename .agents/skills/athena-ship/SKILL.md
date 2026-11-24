@@ -13,8 +13,7 @@ Follow these steps in order. Each step says what "done" looks like. Don't skip o
 git status -sb          # where am I, is anything uncommitted?
 ```
 
-- **Always work in your own worktree, never in the base checkout** (it stays on `main`; the pre-commit hook rejects commits there). If you're in the base checkout, or in a worktree for a different task, create one:
-  `git fetch origin && git worktree add ../worktrees/athena-<topic> -b <type>/<topic> origin/main` (or `scripts/new-worktree.sh <type>/<topic>`, which does the same), then work in `../worktrees/athena-<topic>`. Remove it after the merge: `git worktree remove ../worktrees/athena-<topic>`.
+- **Always work in your own worktree, never in the base checkout** (it stays on `main`; `scripts/agent-guard.mjs` refuses edits there and the pre-commit hook rejects commits). Start the session in one your agent's native way (AGENTS.md → Git workflow) and name the branch `<type>/<topic>`. If you're in the base checkout, or in a worktree for a different task, create one with `scripts/new-worktree.sh <type>/<topic>` and work in the folder it prints. Remove it after the merge: `git worktree remove <path>`.
 - If you already edited files in the base checkout by mistake: `git stash`, create the worktree, then `git -C ../worktrees/athena-<topic> stash pop`.
 - Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`.
 

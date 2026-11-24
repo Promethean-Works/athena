@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {
     "BASH_MAX_OUTPUT_LENGTH": "20000",
     "MAX_MCP_OUTPUT_TOKENS": "20000",
@@ -59,7 +60,19 @@
       "Read(**/*.pem)",
       "Read(**/id_rsa*)",
       "Read(**/id_ed25519*)",
-      "Read(./.dev-data/**)"
+      "Read(./.dev-data/**)",
+      "Edit(**/CHANGELOG.md)",
+      "Edit(**/version.txt)",
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push * HEAD:main)",
+      "Bash(git push * HEAD:main *)",
+      "Bash(git push * +main)",
+      "Bash(git push * :main)",
+      "Bash(git push --force*)",
+      "Bash(git push * --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * -f*)"
     ]
   },
   "hooks": {
@@ -69,6 +82,17 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/scripts/session-start.mjs\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-guard.mjs\" claude"
           }
         ]
       }

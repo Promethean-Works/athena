@@ -16,5 +16,13 @@ bash:
       approval: deny
     - match: "git push * +main"
       approval: deny
-    - match: "git push * +HEAD:main"
+    - match: "git push * :main"
+      approval: deny
+    - match: "git push --force*"
+      approval: deny
+    - match: "git push * --force*"
+      approval: deny
+    - match: "git push -f*"
+      approval: deny
+    - match: "git push * -f*"
       approval: deny

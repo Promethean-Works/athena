@@ -66,6 +66,9 @@ jobs:
       - name: Agent setup script parses and runs (scripts/agents-setup.mjs)
         run: node scripts/agents-setup.mjs --check --quiet
 
+      - name: Agent guard rules (scripts/agent-guard.mjs)
+        run: node scripts/agent-guard.mjs --self-test
+
       - name: Agent docs point at real files and names
         run: node scripts/check-docs.mjs
 
