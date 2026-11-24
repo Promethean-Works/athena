@@ -11,7 +11,7 @@ How to set up a machine to work on Athena, with or without AI coding agents, and
 | git, Node.js (LTS) with pnpm, Python 3.13 with [uv](https://docs.astral.sh/uv/) | Building and running Athena |
 | [GitHub CLI](https://cli.github.com/) (`gh auth login`) | PRs, CI and auto-merge |
 | Docker or another container engine (optional) | Apps and container features; tests that need it are skipped without it |
-| One or more coding agents (optional) | Claude Code, OpenCode, Hermes Agent, Codex, Antigravity, GitHub Copilot or oh-my-pi (`omp`) |
+| One or more coding agents (optional) | Claude Code, OpenCode, Hermes Agent or oh-my-pi (`omp`) |
 
 ### Steps
 
@@ -50,9 +50,6 @@ Everything else is in the repo and needs no setup:
 | **Claude Code** | `CLAUDE.md` files import `AGENTS.md`; area rules in `.claude/rules/` | `.claude/skills` (a link to `.agents/skills`) | `.mcp.json` | `.claude/commands/`, `.claude/agents/` |
 | **OpenCode** | `AGENTS.md` | `.agents/skills` | `opencode.json` | `opencode.json` |
 | **Hermes Agent** | `AGENTS.md` | `.agents/skills` (once trusted) | Set up by `agents-setup.mjs` | Skills as `/athena-…` |
-| **Codex** | `AGENTS.md` | `.agents/skills` | `.codex/config.toml` (trust the project when asked) | `.codex/agents/`, skills |
-| **Antigravity** | `AGENTS.md` | `.agents/skills` | `.agents/mcp_config.json` | Skills |
-| **GitHub Copilot** | `AGENTS.md`, `.github/instructions/` | `.agents/skills` | `.mcp.json` | Skills |
 | **oh-my-pi** | `.omp/AGENTS.md` (imports `AGENTS.md` and STATUS), `.github/instructions/` as rules | `.agents/skills` | `.mcp.json` (Playwright replaced by omp's own browser) | `.claude/commands/`, `.omp/agents/` |
 
 The MCP servers are `shadcn` (component registry), `next-devtools` (Next.js docs and diagnostics), `playwright` (a headless browser for UI checks) and `context7` (current library docs; set `CONTEXT7_API_KEY` for higher rate limits).
@@ -63,7 +60,6 @@ Many of these files are generated from one source by `node scripts/agents-sync.m
 
 - **Windows:** turn on Developer Mode and `git config core.symlinks true` before cloning, so `.claude/skills` is a real link. Where a link can't be made, `agents-setup.mjs` copies the file instead; re-run it after updating TokenEconomizer.
 - **macOS:** the system `python3` is 3.9, too old for TokenEconomizer; `agents-setup.mjs` finds or installs (through uv) a 3.10+ and points `TE_PYTHON` at it.
-- **Codex and Antigravity:** RTK and TokenEconomizer aren't wired up automatically; the script prints the steps.
 - **oh-my-pi:** `agents-setup.mjs` installs the RTK extension; TokenEconomizer has no omp integration.
 
 ## 2. Run Athena
@@ -100,7 +96,7 @@ PR titles are Conventional Commits; they become the squash commit and the change
 
 ### Working with an agent
 
-Agents read `AGENTS.md` first. It's a short router: it tells them which few files to read for the task at hand, so a session doesn't start by loading every document. The shared commands below work in every agent: as slash commands in Claude Code and OpenCode, and as skills (`/athena-next` in Hermes, `$athena-next` in Codex) elsewhere.
+Agents read `AGENTS.md` first. It's a short router: it tells them which few files to read for the task at hand, so a session doesn't start by loading every document. The shared commands below work in every agent: as slash commands in Claude Code, OpenCode and oh-my-pi, and as skills (`/athena-next`) in Hermes.
 
 | Say or type | What happens |
 |---|---|
@@ -136,7 +132,7 @@ Nothing an agent needs later should live only in a chat or in an agent's private
 | CI fails on "generated agent config is in sync" | Run `node scripts/agents-sync.mjs` and commit the result |
 | CI fails on "docs point at real files" | A doc names something you renamed or removed; fix the doc. To mention something absent on purpose, end the line with an HTML comment `docs-check: ignore` |
 | CI fails only on Windows | Usually paths, encoding or line endings; see `docs/agents/gotchas/windows.md` |
-| An agent doesn't see the skills or MCP servers | Run `node scripts/agents-setup.mjs --check` and restart the agent. Hermes: `/reload-mcp`; Codex: trust the project |
+| An agent doesn't see the skills or MCP servers | Run `node scripts/agents-setup.mjs --check` and restart the agent. Hermes: `/reload-mcp` |
 | Hermes hides a skill | Its scanner rated it unsafe; see `docs/agents/tooling.md` → Changing tooling |
 | RTK or TokenEconomizer misbehaves | `rtk gain` shows what RTK does; `~/.tokeneconomizer/bin/te doctor` checks TokenEconomizer. Remove a hook from the agent's user config to turn it off |
 | Claude Code says setup is missing at start-up | Run `node scripts/agents-setup.mjs` and restart |

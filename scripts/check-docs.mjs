@@ -43,7 +43,7 @@ const EXTERNAL = new Set([
 const EXTERNAL_PREFIXES = ["browser_", "mcp__"]
 
 const DOCS = [
-  ...git(["ls-files", "--cached", "--others", "--exclude-standard", "AGENTS.md", "CLAUDE.md", "GEMINI.md", "**/AGENTS.md", "**/CLAUDE.md", "**/GEMINI.md", "docs/agents/**.md"]),
+  ...git(["ls-files", "--cached", "--others", "--exclude-standard", "AGENTS.md", "CLAUDE.md", "**/AGENTS.md", "**/CLAUDE.md", "docs/agents/**.md"]),
   "catalog/README.md",
   "docs/DEVELOPMENT.md",
   ...projectSkills(),

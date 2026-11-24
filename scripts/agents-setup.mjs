@@ -20,7 +20,7 @@
 //   node scripts/agents-setup.mjs --yes        fix without asking (agents: ask the user first)
 //   --with-models                              also apply .agents/user/*.models.json
 //   --only <a,b>                               only these groups: repo, tools, claude,
-//                                              opencode, hermes, codex, antigravity, omp
+//                                              opencode, hermes, omp
 //
 // Only agents whose CLI is on PATH are set up. Fixes are idempotent and merge into
 // existing configs; nothing is overwritten.
@@ -153,7 +153,7 @@ const hermesPluginEnabled = (name) => {
 }
 const mcpServers = Object.keys(readJson(join(ROOT, ".mcp.json"))?.mcpServers ?? {})
 const rtkHook = readJson(join(ROOT, ".agents/user/claude.settings.json"))
-const has = { claude: !!which("claude"), opencode: !!which("opencode"), hermes: !!which("hermes"), codex: !!which("codex"), antigravity: !!which("agy"), omp: !!which("omp") }
+const has = { claude: !!which("claude"), opencode: !!which("opencode"), hermes: !!which("hermes"), omp: !!which("omp") }
 let python = null
 const pythonOnce = () => (python ??= findPython() ?? "")
 
@@ -328,23 +328,6 @@ const steps = [
     },
   },
 
-  // Agents without a verified automatic setup here: say what to do.
-  {
-    group: "codex",
-    when: has.codex,
-    optional: true,
-    title: "Codex: project MCP config (.codex/config.toml) needs the project trusted",
-    ok: () => readText(join(HOME, ".codex/config.toml")).includes(MAIN_ROOT),
-    manual: `Trust ${MAIN_ROOT} when Codex asks (or add [projects."${MAIN_ROOT}"] trust_level = "trusted" to ~/.codex/config.toml). TokenEconomizer: see its README → Codex.`,
-  },
-  {
-    group: "antigravity",
-    when: has.antigravity,
-    optional: true,
-    title: "Antigravity: RTK hook",
-    ok: () => false,
-    manual: "Run `rtk init --agent antigravity --hook-only`. TokenEconomizer: see its README → Antigravity CLI (macOS/Linux only).",
-  },
   // oh-my-pi reads the repo's AGENTS.md, skills, commands and .mcp.json by itself.
   {
     group: "omp",
