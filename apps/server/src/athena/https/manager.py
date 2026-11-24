@@ -335,6 +335,14 @@ class HttpsManager:
             return
         if new.port == self.http_port:
             raise HttpsError(f"Port {new.port} is Athena's HTTP port. Pick another one.")
+        if new.mode == "custom":
+            # Write custom certificate and key to disk
+            try:
+                await asyncio.to_thread(local_ca.write_file, self.paths.custom_cert, new.custom_cert.encode(), private=False)
+                await asyncio.to_thread(local_ca.write_file, self.paths.custom_key, new.custom_key.encode(), private=True)
+            except (OSError, ValueError, TypeError) as exc:
+                log.exception("HTTPS custom certificate write")
+                raise HttpsError("Couldn't write the custom certificate; see the server log.") from exc
         try:
             await asyncio.to_thread(self._ensure_cert, new)
         except (OSError, ValueError, TypeError) as exc:
@@ -400,6 +408,8 @@ class HttpsManager:
         """(certificate, key) served in `settings.mode`."""
         if settings.mode == "letsencrypt":
             return letsencrypt.le_paths(self.paths)
+        if settings.mode == "custom":
+            return self.paths.custom_cert, self.paths.custom_key
         return self.paths.cert, self.paths.key
 
     def _ensure_cert(self, settings: HttpsSettings) -> bool:
@@ -410,6 +420,17 @@ class HttpsManager:
             issued = letsencrypt.issued_for(self.paths)  # None: placed by hand, unknown
             if issued is not None and issued != settings.letsencrypt.domains:
                 raise HttpsError("Get a new certificate for these domains first.")
+            return False
+        if settings.mode == "custom":
+            cert, key = self.paths.custom_cert, self.paths.custom_key
+            if not cert.is_file() or not key.is_file():
+                raise HttpsError("Upload a certificate and key for custom mode first.")
+            # Validate the certificate and key match
+            cert_obj = local_ca.load_cert(cert)
+            if cert_obj is None:
+                raise HttpsError("The custom certificate file is invalid.")
+            if not local_ca._key_matches(key, cert_obj):
+                raise HttpsError("The custom certificate and key don't match.")
             return False
         return local_ca.ensure_server_cert(self.paths, settings.extra_names)
 
