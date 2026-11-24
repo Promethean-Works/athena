@@ -65,7 +65,10 @@ export function toolPaths(input) {
   return paths.filter((p) => typeof p === "string" && p)
 }
 
-const git = (cwd, ...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim()
+// Without GIT_* variables: inside a git hook (pre-push runs --self-test) GIT_DIR would
+// point every lookup at the hook's repository instead of the path's.
+const gitEnv = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")))
+const git = (cwd, ...args) => execFileSync("git", args, { cwd, env: gitEnv, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim()
 const HERE = dirname(fileURLToPath(import.meta.url))
 let ownCommonDir
 const commonDir = (dir) => git(dir, "rev-parse", "--path-format=absolute", "--git-common-dir")
