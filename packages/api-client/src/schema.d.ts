@@ -3405,7 +3405,7 @@ export interface components {
              * @default off
              * @enum {string}
              */
-            mode: "off" | "self_signed" | "letsencrypt";
+            mode: "off" | "self_signed" | "letsencrypt" | "custom";
             /**
              * Port
              * @default 8443
@@ -3419,6 +3419,16 @@ export interface components {
             /** Extra Names */
             extra_names?: string[];
             letsencrypt?: components["schemas"]["LetsEncryptSettings"];
+            /**
+             * Custom Cert
+             * @default
+             */
+            custom_cert: string;
+            /**
+             * Custom Key
+             * @default
+             */
+            custom_key: string;
         };
         /** HttpsStatus */
         HttpsStatus: {
