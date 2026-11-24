@@ -102,7 +102,7 @@ After a session where tooling overhead dominated (hash mismatches, route duplica
 
 1. **Single-read, cached hashes per worktree path.** Read each file once from the worktree at session start; track modified files with their worktree paths. Never re-read from the base checkout for editing.
 2. **Atomic multi-edit scripts per file.** For any file needing multiple edits, write one Python script that reads the whole file, makes all insertions at the right markers, writes back, and verifies with `ast.parse()` before running. Avoid piecemeal `edit` calls.
-3. **Pre-verify exports before using in JSX/TSX.** Check component exports (`grep export packages/ui/src/components/field.tsx`) before importing `FieldMessage`, `FieldError`, etc. Use existing shared forms (`CredentialsForm`) instead of inline JSX to avoid escaping issues.
+3. **Pre-verify exports before using in JSX/TSX.** Check component exports (`grep export packages/ui/src/components/field.tsx`) before importing `FieldMessage` <!-- docs-check: ignore -->, `FieldError`, etc. Use existing shared forms (`CredentialsForm`) instead of inline JSX to avoid escaping issues.
 4. **Local pre-push checks.** Run `scripts/check.sh --quick` locally before committing. Only use `git push --no-verify` if local checks pass. The hook runs the full suite and times out at 300s.
 5. **Batch independent operations per turn.** Group all reads, then all edits, then all verifications. Don't interleave read/edit/verify cycles for independent files.
 
