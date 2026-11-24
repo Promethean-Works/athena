@@ -29,6 +29,20 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 - models.dev providers left out because pydantic-ai needs their own SDK: watsonx, GitLab, SAP AI Core and a few gateways. Google Vertex is in (`google-vertex`, service-account key; not tried against real Vertex credentials).
 
+- **Raspberry Pi phase-1 memory fix**: lazy-load assistant stack (PR #265). Assistant imports (pydantic-ai, ~200 MB) moved to on-demand; startup RSS ~191 MB vs ~293 MB with full stack. All 376 tests pass.
+- A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
+- Agent tooling (see HISTORY): after it merges, run `node scripts/agents-setup.mjs` (Hermes guard hook, denies, aliases) and `hermes mcp remove github`; approve the Hermes hook once.
+- Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
+- Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
+- Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
+- Not yet verified in a browser: `/files/smb` (#104), the compose variant picker (#109), and the cloud wizard (#97) and remote cards (#92) with a real rclone remote.
+- Catalog smoke test (#169, #172, fixes #173–#176): every store app was installed for real on macOS arm64 (Colima); 135/199 passed at first, the rest were fixed or honestly marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run the `Catalog smoke` workflow by hand for `--all` on amd64 and arm64 and fix what fails there. Logins and real use of each app aren't verified.
+- Tunnel follow-ups (#150):
+  - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
+  - Real-tested: a Cloudflare quick tunnel (macOS). Not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`, which nothing writes.
+
+- models.dev providers left out because pydantic-ai needs their own SDK: watsonx, GitLab, SAP AI Core and a few gateways. Google Vertex is in (`google-vertex`, service-account key; not tried against real Vertex credentials).
+
 
 ## Next
 
