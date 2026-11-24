@@ -28,6 +28,18 @@ class LazyAssistantRouter:
         self._app = app
         self._real_router = None
         self._starting: asyncio.Task[ASGIApp] | None = None
+        self._openapi_routes = None
+
+    @property
+    def routes(self):
+        """Return inner routes for OpenAPI schema generation.
+
+        This synchronously builds the routes if not already loaded, so the CLI
+        can generate the schema without making an actual request.
+        """
+        if self._openapi_routes is not None:
+            return self._openapi_routes
+        return self.get_openapi_routes()
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         inner = await self._ensure()
@@ -76,3 +88,33 @@ class LazyAssistantRouter:
         inner_app.include_router(inner_router)
         inner_app.state = self._app.state
         return inner_app
+
+    def get_openapi_routes(self):
+        """Synchronously build and return the inner routes for OpenAPI schema generation.
+
+        This blocks on the import (unlike the async version) so the CLI can generate
+        the schema without making an actual request.
+        """
+        if self._openapi_routes is not None:
+            return self._openapi_routes
+        # Synchronous import for schema generation
+        module = importlib.import_module("athena.api.assistant")
+        from fastapi import APIRouter
+
+        inner_router = APIRouter(prefix="")
+        for route in module.router.routes:
+            new_path = route.path
+            if new_path.startswith("/assistant"):
+                new_path = new_path[len("/assistant") :] or "/"
+            inner_router.add_api_route(
+                new_path,
+                route.endpoint,
+                methods=route.methods,
+                name=route.name,
+                include_in_schema=route.include_in_schema,
+                status_code=route.status_code,
+                response_model=route.response_model,
+                dependencies=route.dependencies,
+            )
+        self._openapi_routes = inner_router.routes
+        return self._openapi_routes

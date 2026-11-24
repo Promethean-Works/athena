@@ -221,9 +221,28 @@ def create_app(
     app.include_router(smb_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(cloud_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(webdav_api.router, prefix="/api", dependencies=[require_user])
-    # Mount the lazy assistant router at /api/assistant;
-    # the real router has prefix="/assistant" stripped.
-    app.mount("/api/assistant", LazyAssistantRouter(app))
+    app.include_router(shares_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(shares_api.public_router, prefix="/api")
+    # The lazy assistant router wraps its routes in an included router so OpenAPI
+    # sees them. The real router has prefix="/assistant" stripped by LazyAssistantRouter.
+    lazy_assistant = LazyAssistantRouter(app)
+    from fastapi import APIRouter
+
+    assistant_router = APIRouter(prefix="/api/assistant")
+    for route in lazy_assistant.routes:
+        assistant_router.add_api_route(
+            route.path,
+            route.endpoint,
+            methods=route.methods,
+            name=route.name,
+            include_in_schema=route.include_in_schema,
+            status_code=route.status_code,
+            response_model=route.response_model,
+            dependencies=route.dependencies,
+        )
+    app.include_router(assistant_router, dependencies=[require_user])
+    # Also mount for runtime (first request still lazy-loads via LazyAssistantRouter)
+    app.mount("/api/assistant", lazy_assistant)
     app.include_router(automation.router, prefix="/api", dependencies=[require_user])
     app.include_router(automation.public_router, prefix="/api")
     app.include_router(tunnel_api.router, prefix="/api", dependencies=[require_user])
