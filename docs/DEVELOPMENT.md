@@ -48,9 +48,9 @@ Everything else is in the repo and needs no setup:
 | | Instructions | Skills | MCP servers | Commands and subagents |
 |---|---|---|---|---|
 | **Claude Code** | `CLAUDE.md` files import `AGENTS.md`; area rules in `.claude/rules/` | `.claude/skills` (a link to `.agents/skills`) | `.mcp.json` | `.claude/commands/`, `.claude/agents/` |
-| **OpenCode** | `AGENTS.md` | `.agents/skills` | `opencode.json` | `opencode.json` |
-| **Hermes Agent** | `AGENTS.md` | `.agents/skills` (once trusted) | Set up by `agents-setup.mjs` | Skills as `/athena-…` |
-| **oh-my-pi** | `.omp/AGENTS.md` (imports `AGENTS.md` and STATUS), `.github/instructions/` as rules | `.agents/skills` | `.mcp.json` (Playwright replaced by omp's own browser) | `.claude/commands/`, `.omp/agents/` |
+| **OpenCode** | `AGENTS.md`, STATUS (`instructions`) | `.agents/skills` | `opencode.json` | `opencode.json` |
+| **Hermes Agent** | `AGENTS.md` | `.agents/skills` (once trusted) | Set up by `agents-setup.mjs` | `quick_commands` aliases and skills as `/athena-…` |
+| **oh-my-pi** | `.omp/AGENTS.md` (imports `AGENTS.md` and STATUS), `.omp/rules/` | `.agents/skills` | `.mcp.json` (Playwright replaced by omp's own browser) | `.claude/commands/`, `.omp/agents/` |
 
 The MCP servers are `shadcn` (component registry), `next-devtools` (Next.js docs and diagnostics), `playwright` (a headless browser for UI checks) and `context7` (current library docs; set `CONTEXT7_API_KEY` for higher rate limits).
 
@@ -96,7 +96,7 @@ PR titles are Conventional Commits; they become the squash commit and the change
 
 ### Working with an agent
 
-Agents read `AGENTS.md` first. It's a short router: it tells them which few files to read for the task at hand, so a session doesn't start by loading every document. The shared commands below work in every agent: as slash commands in Claude Code, OpenCode and oh-my-pi, and as skills (`/athena-next`) in Hermes.
+Agents read `AGENTS.md` first. It's a short router: it tells them which few files to read for the task at hand, so a session doesn't start by loading every document. The shared commands below work in every agent: as slash commands in Claude Code, OpenCode, oh-my-pi and Hermes (where `agents-setup.mjs` adds them), and every agent can run the skill itself (`/athena-next`).
 
 | Say or type | What happens |
 |---|---|

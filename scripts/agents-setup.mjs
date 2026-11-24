@@ -279,10 +279,10 @@ const steps = [
   {
     group: "hermes",
     when: has.hermes,
-    title: `Hermes: repo skills trusted and MCP servers registered (${mcpServers.join(", ")})`,
+    title: `Hermes: repo skills (also in worktrees), guard hook, command denies, /next-style aliases and MCP servers (${mcpServers.join(", ")})`,
     ok: () => {
       const c = hermesConfig()
-      return c.includes(`- ${MAIN_ROOT}`) && mcpServers.every((n) => new RegExp(`^  ${n}:`, "m").test(c))
+      return c.includes(`- ${MAIN_ROOT}`) && mcpServers.every((n) => new RegExp(`^  ${n}:`, "m").test(c)) && c.includes(join(MAIN_ROOT, ".agents", "skills")) && c.includes("agent-guard.mjs")
     },
     fix: { show: "node scripts/agents-sync.mjs --hermes", run: () => run(process.execPath, [join(ROOT, "scripts/agents-sync.mjs"), "--hermes"], { stdio: "inherit", cwd: MAIN_ROOT, shell: false }) },
   },

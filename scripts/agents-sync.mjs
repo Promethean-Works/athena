@@ -1,32 +1,37 @@
 #!/usr/bin/env node
-// Syncs MCP servers from .mcp.json (the single source of truth) to other agents.
+// Generates every agent's native config from one source: MCP servers from .mcp.json, the
+// guard lists from scripts/agent-guard.mjs, and the subagents, commands and area rules below.
 //
-//   node scripts/agents-sync.mjs           write the generated files (see GENERATED below):
-//                                          the "mcp" block of opencode.json, Claude Code
-//                                          and oh-my-pi subagents and settings, and the
-//                                          per-area rules
-//   node scripts/agents-sync.mjs --check   exit 1 if either is out of date (for CI)
-//   node scripts/agents-sync.mjs --hermes  trust this repo's skills in Hermes and register
-//                                          any missing MCP servers (via the hermes CLI)
+//   node scripts/agents-sync.mjs           write the generated files (see GENERATED below)
+//   node scripts/agents-sync.mjs --check   exit 1 if any is out of date or orphaned (for CI)
+//   node scripts/agents-sync.mjs --hermes  configure Hermes (user level, ~/.hermes/config.yaml,
+//                                          through its CLI): trust the repo's skills, register
+//                                          missing MCP servers, and merge in the guard hook,
+//                                          command denies, worktree skills dir and /next-style
+//                                          aliases
 //   node scripts/agents-sync.mjs --hermes-print
 //                                          only print the mcp_servers block for ~/.hermes/config.yaml
 //
-// Hermes Agent only reads MCP servers from its user-level config (~/.hermes/config.yaml),
-// so --hermes changes that file through the official CLI: it adds missing servers, then
-// brings every server's args and tool filter in line with this repo (other keys, such as
-// `enabled`, are left alone).
+// Hermes Agent has no project-level config, so --hermes changes the user's file through the
+// official CLI: it adds what's missing and never removes the user's own entries.
 //
 // Token budget: OpenCode and Hermes put MCP tool definitions in every request (Claude Code
 // loads them on demand). Playwright alone is ~21k characters, so OpenCode only gives it to
 // a `ui-verify` subagent, and Hermes leaves out tools Athena never uses. The same subagent
 // is written for Claude Code (which needs no tool scoping) so it can run on a cheaper model.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { DENIED_COMMANDS, PROTECTED_FILES, SECRET_DIRS, SECRET_GLOBS } from "./agent-guard.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+// The base checkout, even when this runs in a linked worktree (user-level config points there).
+const mainRoot = (() => {
+  const r = spawnSync("git", ["rev-parse", "--path-format=absolute", "--git-common-dir"], { cwd: root, encoding: "utf8" });
+  return r.status === 0 ? dirname(r.stdout.trim()) : root;
+})();
 const args = new Set(process.argv.slice(2));
 
 const servers = JSON.parse(readFileSync(join(root, ".mcp.json"), "utf8")).mcpServers ?? {};
@@ -45,24 +50,28 @@ const OPENCODE_SUBAGENT_ONLY = {
       "Verifies an Athena UI or API change in a real browser (release build, Playwright). Use after changing apps/web or an API the UI calls.",
     claudeModel: "sonnet", // many small, repetitive browser steps; an alias, so always valid
     ompModel: "@smol", // oh-my-pi's cheap-model role (falls back to the default model)
-    system:
-      "Follow the athena-ui-verify skill (.agents/skills/athena-ui-verify/SKILL.md) exactly. Report what you verified, what you couldn't and why, and any bugs you found.",
+    skill: "athena-ui-verify",
+    task: "Report what you verified, what you couldn't and why, and any bugs you found.",
   },
 };
-// Files no agent may read: keys and the dev data dir (which holds secret.key and the
-// encrypted provider keys). Claude Code: `Read(...)` deny rules merged into
-// .claude/settings.json; OpenCode: `read` deny rules (its `*` also matches `/`).
-const SECRET_GLOBS = [".env", ".env.*", "secret.key", ".credentials*", "*.pem", "id_rsa*", "id_ed25519*"];
-const SECRET_DIRS = [".dev-data"];
-const claudeSecretDenies = [
+// Secret files no agent may read, files only release-please writes, and shell commands
+// no agent may run: the lists live in scripts/agent-guard.mjs (which is also the hook that
+// enforces them where an agent has no native rule). Claude Code: `Read`/`Edit`/`Bash` deny
+// rules merged into .claude/settings.json; OpenCode: `read`/`edit`/`shell` deny rules (its
+// `*` also matches `/`); oh-my-pi: bash patterns plus the extension; Hermes: --hermes.
+const claudeGuardDenies = [
   ...SECRET_GLOBS.map((g) => `Read(**/${g})`),
   ...SECRET_DIRS.map((d) => `Read(./${d}/**)`),
+  ...PROTECTED_FILES.map((f) => `Edit(**/${f})`),
+  ...DENIED_COMMANDS.map((c) => `Bash(${c})`),
 ];
-const openCodeSecretRules = [
-  ...SECRET_GLOBS.map((g) => ({ action: "read", resource: `*${g.startsWith("*") ? g.slice(1) : `/${g}`}`, effect: "deny" })),
-  ...SECRET_GLOBS.map((g) => ({ action: "read", resource: g, effect: "deny" })),
-  ...SECRET_DIRS.map((d) => ({ action: "read", resource: `${d}/*`, effect: "deny" })),
-].filter((r, i, all) => all.findIndex((x) => x.resource === r.resource) === i);
+const anyDir = (g) => (g.startsWith("*") ? [g] : [g, `*/${g}`]);
+const openCodeGuardRules = [
+  ...SECRET_GLOBS.flatMap(anyDir).map((r) => ({ action: "read", resource: r, effect: "deny" })),
+  ...SECRET_DIRS.flatMap((d) => [`${d}/*`, `*/${d}/*`]).map((r) => ({ action: "read", resource: r, effect: "deny" })),
+  ...PROTECTED_FILES.flatMap(anyDir).map((r) => ({ action: "edit", resource: r, effect: "deny" })),
+  ...DENIED_COMMANDS.map((c) => ({ action: "shell", resource: c, effect: "deny" })),
+];
 
 // OpenCode names MCP tools <server>_<tool>, with unsupported characters turned into _.
 const openCodeToolGlob = (server) => `${server.replace(/[^A-Za-z0-9_]/g, "_")}_*`;
@@ -78,6 +87,44 @@ function toOpenCode(s) {
     ...(s.env && { environment: s.env }),
   };
 }
+
+// Subagents: the MCP-scoped ones above plus SUBAGENTS, written for Claude Code
+// (.claude/agents/), OpenCode (opencode.json agents) and oh-my-pi
+// (.omp/agents/; `omp: false` leaves a subagent out there, so omp's bundled one of that
+// name is used instead).
+// Claude Code and OpenCode also have a built-in explorer (Explore / explore) for
+// read-only searches, so there's no custom one; give it a cheap model per machine.
+const SUBAGENTS = {
+  reviewer: {
+    description:
+      "Reviews a diff against Athena's rules (AGENTS.md, the app rules, gotchas) and reports bugs and rule breaks without editing. Use before opening a PR, or when asked to review.",
+    claudeModel: "sonnet", // chosen by the maintainer to save usage (was "inherit")
+    claudeTools: "Read, Grep, Glob, Bash",
+    omp: false, // oh-my-pi uses its bundled `reviewer` (read-only, reviews the diff)
+    readOnly: true,
+    skill: "athena-review",
+    task: "Never edit files. Report findings ordered by severity, each with file:line, why it's wrong and a suggested fix.",
+  },
+};
+// Shared slash commands: thin aliases for project skills, so the procedure lives in one
+// place. Claude Code gets .claude/commands/<name>.md, OpenCode a `commands` entry; Hermes
+// runs the skills themselves (/athena-next).
+const COMMANDS = {
+  next: { skill: "athena-next", description: "Read STATUS and propose the next concrete step" },
+  "check-prs": { skill: "athena-check-prs", description: "Check open PRs: CI, CodeQL, merges; fix failures" },
+  ship: { skill: "athena-ship", description: "Commit, open the PR with auto-merge, watch CI" },
+  handoff: { skill: "athena-handoff", description: "Update STATUS, HISTORY and gotchas before ending the session" },
+  "review-diff": { skill: "athena-review", description: "Review the current diff against the project rules", agent: "reviewer" },
+};
+for (const c of Object.values(COMMANDS)) {
+  if (!existsSync(join(root, ".agents", "skills", c.skill, "SKILL.md"))) throw new Error(`COMMANDS: skill ${c.skill} doesn't exist`);
+}
+// A subagent's prompt. Claude Code (`skills:`) and oh-my-pi (`autoload-skills:`) preload the
+// skill into the subagent; OpenCode has no such field, so its prompt points at the file.
+const subagentPrompt = (a, preloaded) =>
+  `Follow the ${a.skill} skill (${preloaded ? "loaded into your context" : `.agents/skills/${a.skill}/SKILL.md`}) exactly. ${a.task}`;
+const commandPrompt = (c) =>
+  `Use the ${c.skill} skill (.agents/skills/${c.skill}/SKILL.md) and follow it.`;
 
 function yamlValue(v) {
   return JSON.stringify(v); // JSON scalars, arrays and objects are valid YAML flow syntax
@@ -162,6 +209,58 @@ if (args.has("--hermes")) {
       console.error(`hermes: failed to add "${name}":\n${r.stdout}${r.stderr}`);
     }
   }
+  // Everything below is merged into what the user already has; nothing of theirs is removed.
+  const get = (key) => {
+    const r = hermes("config", "get", key);
+    const text = r.status === 0 ? r.stdout.trim() : "";
+    return ["", "null", "None", "{}", "[]", "''"].includes(text) ? "" : text;
+  };
+  // A YAML block list of plain strings, or null when it's anything else (then we don't touch it).
+  const getList = (key) => {
+    const lines = get(key).split("\n").filter((l) => l.trim());
+    const items = lines.map((l) => {
+      const item = l.match(/^\s*-\s+(.*?)\s*$/)?.[1];
+      if (item && /^(['"]).*\1$/.test(item)) return item; // quoted string
+      return item && !/^[{[]|:(\s|$)|\s#/.test(item) ? item : undefined; // not a mapping, flow or comment
+    });
+    if (items.some((i) => i === undefined)) return null;
+    return items.map((i) => (i.startsWith("'") ? i.slice(1, -1).replaceAll("''", "'") : i.startsWith('"') ? JSON.parse(i) : i));
+  };
+  const set = (key, value, what) => {
+    const r = hermes("config", "set", key, JSON.stringify(value));
+    if (r.status === 0) console.log(`hermes: ${what}`);
+    else {
+      failed = true;
+      console.error(`hermes: failed to set ${key}:\n${r.stdout}${r.stderr}`);
+    }
+  };
+  const mergeList = (key, items, what) => {
+    const have = getList(key);
+    if (!have) {
+      console.log(`hermes: ${key} isn't a plain list; add these to it in ~/.hermes/config.yaml by hand:\n${items.map((i) => `  - ${JSON.stringify(i)}`).join("\n")}`);
+      return;
+    }
+    const missing = items.filter((i) => !have.includes(i));
+    if (missing.length) set(key, [...have, ...missing], what);
+  };
+  // Worktrees (`hermes -w`, .worktrees/<name>) are their own project root, which isn't
+  // trusted, so they'd get no project skills: the base checkout's skills are read from there.
+  mergeList("skills.external_dirs", [join(mainRoot, ".agents", "skills")], "project skills available in worktrees (skills.external_dirs)");
+  mergeList("approvals.deny", DENIED_COMMANDS, "denied pushes to main and force pushes (approvals.deny)");
+  // The file-tool guard (scripts/agent-guard.mjs): secrets, release files, base checkout.
+  const guard = `node ${JSON.stringify(join(mainRoot, "scripts", "agent-guard.mjs"))} hermes`;
+  const hooks = get("hooks.pre_tool_call");
+  if (!existsSync(join(mainRoot, "scripts", "agent-guard.mjs"))) {
+    console.log("hermes: guard hook skipped, the base checkout has no scripts/agent-guard.mjs yet (re-run after it reaches main)");
+  } else if (!hooks) {
+    set("hooks.pre_tool_call", [{ matcher: "write_file|patch|read_file", command: guard, timeout: 10 }], "guard hook added (hooks.pre_tool_call; approve it once when Hermes asks)");
+  } else if (!hooks.includes("agent-guard.mjs")) {
+    console.log(`hermes: you have your own pre_tool_call hooks; add this one to hooks.pre_tool_call in ~/.hermes/config.yaml by hand:\n  - matcher: "write_file|patch|read_file"\n    command: ${JSON.stringify(guard)}\n    timeout: 10`);
+  }
+  // The shared commands as aliases of their skills (/next runs /athena-next).
+  for (const [name, c] of Object.entries(COMMANDS)) {
+    if (!get(`quick_commands.${name}`)) set(`quick_commands.${name}`, { type: "alias", target: c.skill }, `/${name} runs /${c.skill} (quick_commands)`);
+  }
   console.log("Restart Hermes or run /reload-mcp in a running session.");
   process.exit(failed ? 1 : 0);
 }
@@ -171,34 +270,16 @@ const existing = existsSync(opencodePath)
   ? JSON.parse(readFileSync(opencodePath, "utf8"))
   : { $schema: "https://opencode.ai/config.json" };
 
-// The generated parts: deny rules for subagent-only servers (rules for anything else are
-// kept, in order) and the subagents themselves.
+// The generated parts: deny rules for subagent-only servers and the guard rules (rules for
+// anything else are kept, in order), the subagents and the commands.
 const subagentOnly = Object.entries(OPENCODE_SUBAGENT_ONLY).filter(([n]) => servers[n]);
 const generatedActions = new Set(Object.keys(OPENCODE_SUBAGENT_ONLY).map(openCodeToolGlob));
-const isGeneratedRead = (r) => r.action === "read" && r.effect === "deny" && openCodeSecretRules.some((g) => g.resource === r.resource);
+const isGuardRule = (r) => r.effect === "deny" && ["read", "edit", "shell"].includes(r.action);
 const permissions = [
-  ...(existing.permissions ?? []).filter((r) => !generatedActions.has(r.action) && !isGeneratedRead(r)),
+  ...(existing.permissions ?? []).filter((r) => !generatedActions.has(r.action) && !isGuardRule(r)),
   ...subagentOnly.map(([n]) => ({ action: openCodeToolGlob(n), resource: "*", effect: "deny" })),
-  ...openCodeSecretRules, // last, so a broad allow earlier can't override them
+  ...openCodeGuardRules, // last, so a broad allow earlier can't override them
 ];
-// Subagents: the MCP-scoped ones above plus SUBAGENTS, written for Claude Code
-// (.claude/agents/), OpenCode (opencode.json agents) and oh-my-pi
-// (.omp/agents/; `omp: false` leaves a subagent out there, so omp's bundled one of that
-// name is used instead).
-// Claude Code and OpenCode also have a built-in explorer (Explore / explore) for
-// read-only searches, so there's no custom one; give it a cheap model per machine.
-const SUBAGENTS = {
-  reviewer: {
-    description:
-      "Reviews a diff against Athena's rules (AGENTS.md, the app rules, gotchas) and reports bugs and rule breaks without editing. Use before opening a PR, or when asked to review.",
-    claudeModel: "sonnet", // chosen by the maintainer to save usage (was "inherit")
-    claudeTools: "Read, Grep, Glob, Bash",
-    omp: false, // oh-my-pi uses its bundled `reviewer` (read-only, reviews the diff)
-    readOnly: true,
-    system:
-      "Follow the athena-review skill (.agents/skills/athena-review/SKILL.md) exactly. Never edit files. Report findings ordered by severity, each with file:line, why it's wrong and a suggested fix.",
-  },
-};
 const allSubagents = [
   ...subagentOnly.map(([n, a]) => ({
     name: a.agent, ...a, source: "OPENCODE_SUBAGENT_ONLY",
@@ -210,33 +291,20 @@ const allSubagents = [
     openCodePermissions: a.readOnly ? [{ action: "edit", resource: "*", effect: "deny" }] : [],
   })),
 ];
-
-// Shared slash commands: thin aliases for project skills, so the procedure lives in one
-// place. Claude Code gets .claude/commands/<name>.md, OpenCode a `commands` entry; Hermes
-// runs the skills themselves (/athena-next).
-const COMMANDS = {
-  next: { skill: "athena-next", description: "Read STATUS and propose the next concrete step" },
-  "check-prs": { skill: "athena-check-prs", description: "Check open PRs: CI, CodeQL, merges; fix failures" },
-  ship: { skill: "athena-ship", description: "Commit, open the PR with auto-merge, watch CI" },
-  handoff: { skill: "athena-handoff", description: "Update STATUS, HISTORY and gotchas before ending the session" },
-  "review-diff": { skill: "athena-review", description: "Review the current diff against the project rules", agent: "reviewer" },
-};
-for (const c of Object.values(COMMANDS)) {
-  if (!existsSync(join(root, ".agents", "skills", c.skill, "SKILL.md"))) throw new Error(`COMMANDS: skill ${c.skill} doesn't exist`);
+for (const a of allSubagents) {
+  if (!existsSync(join(root, ".agents", "skills", a.skill, "SKILL.md"))) throw new Error(`subagent ${a.name}: skill ${a.skill} doesn't exist`);
 }
-const commandPrompt = (c) =>
-  `Use the ${c.skill} skill (.agents/skills/${c.skill}/SKILL.md) and follow it.`;
 
-const agents = { ...existing.agents };
+const agents = {};
 for (const a of allSubagents) {
   agents[a.name] = {
     description: a.description,
     mode: "subagent",
-    system: a.system,
+    system: subagentPrompt(a, false),
     ...(a.openCodePermissions.length && { permissions: a.openCodePermissions }),
   };
 }
-const commands = { ...existing.commands };
+const commands = {};
 for (const [name, c] of Object.entries(COMMANDS)) {
   commands[name] = {
     description: c.description,
@@ -245,8 +313,16 @@ for (const [name, c] of Object.entries(COMMANDS)) {
   };
 }
 
+// OpenCode settings that do natively what AGENTS.md asks: STATUS in every session
+// (`instructions` load after AGENTS.md), no session sharing (a public link to the
+// transcript), and no file watching of build output. Worktrees use OpenCode's default
+// location (its data dir), so there's no `worktree` block.
+const { worktree: _defaultWorktrees, ...kept } = existing;
 const next = {
-  ...existing,
+  ...kept,
+  instructions: ["docs/STATUS.md"],
+  share: "disabled",
+  watcher: { ignore: ["**/node_modules/**", "**/.next/**", "**/.venv/**", "**/.turbo/**", "apps/web/out/**", ".dev-data/**", ".playwright-mcp/**", ".claude/worktrees/**", ".worktrees/**"] },
   mcp: {
     ...existing.mcp,
     servers: Object.fromEntries(Object.entries(servers).map(([n, s]) => [n, toOpenCode(s)])),
@@ -267,26 +343,31 @@ const claudeAgents = Object.fromEntries(
       `description: ${JSON.stringify(a.description)}`,
       `model: ${a.claudeModel}`,
       ...(a.claudeTools ? [`tools: ${a.claudeTools}`] : []),
+      "skills:",
+      `  - ${a.skill}`,
       "---",
       "",
       generatedNote(a.source),
       "",
-      a.system,
+      subagentPrompt(a, true),
       "",
     ].join("\n"),
   ]),
 );
+// Commands are short aliases for skills (the skills are also /athena-<name> by themselves).
+// A command with an agent runs forked in that subagent (`context: fork`).
 const claudeCommands = Object.fromEntries(
   Object.entries(COMMANDS).map(([name, c]) => [
     join(".claude", "commands", `${name}.md`),
     [
       "---",
       `description: ${JSON.stringify(c.description)}`,
+      ...(c.agent ? ["context: fork", `agent: ${c.agent}`] : []),
       "---",
       "",
       generatedNote("COMMANDS"),
       "",
-      c.agent ? `Run this in the ${c.agent} subagent. ${commandPrompt(c)}` : commandPrompt(c),
+      commandPrompt(c),
       "",
       "$ARGUMENTS",
       "",
@@ -295,7 +376,7 @@ const claudeCommands = Object.fromEntries(
 );
 // oh-my-pi skips .claude/agents (different frontmatter) and reads only .omp/agents/*.md.
 // No model means the session's model; omp gives MCP tools to every agent, so the
-// playwright scoping above doesn't apply there.
+// playwright scoping above doesn't apply there. It reads .claude/commands by itself.
 const ompAgents = Object.fromEntries(
   allSubagents.filter((a) => a.omp !== false).map((a) => [
     join(".omp", "agents", `${a.name}.md`),
@@ -305,19 +386,18 @@ const ompAgents = Object.fromEntries(
       `description: ${JSON.stringify(a.description)}`,
       ...(a.ompModel ? [`model: ${JSON.stringify(a.ompModel)}`] : []),
       ...(a.ompTools ? ["tools:", ...a.ompTools.map((t) => `  - ${t}`)] : []),
+      `autoload-skills: ${a.skill}`,
       "---",
       "",
       generatedNote(a.source),
       "",
-      a.system,
+      subagentPrompt(a, true),
       "",
     ].join("\n"),
   ]),
 );
-// oh-my-pi has no setting for path read denies or a start-up script, so a project
-// extension blocks secret reads and .omp/AGENTS.md imports STATUS. (Playwright needs no
-// scoping there: omp drops browser MCP servers in favour of its own browser.)
-// A native .omp/AGENTS.md shadows the root AGENTS.md at the same depth, hence the import.
+// .omp/AGENTS.md imports STATUS so it's in every omp session. A native .omp/AGENTS.md
+// shadows the root AGENTS.md at the same depth, hence the import of that too.
 const ompContext = [
   "<!-- Generated by scripts/agents-sync.mjs. Don't edit by hand. -->",
   "",
@@ -328,10 +408,9 @@ const ompContext = [
 ].join("\n");
 // oh-my-pi project settings (.omp/config.yml) that do natively what AGENTS.md asks for:
 // every session in its own worktree (Git workflow step 2), Git Guard (no stash/reset/checkout
-// that discards work in the base checkout), no pushes to main, and secret redaction before
-// anything reaches the model. Path-level edit denies aren't possible: `tools.approval` is
-// per tool, and the `edit` tool's input is a patch with no path field.
-const OMP_BASH_DENIES = ["git push * main", "git push * main *", "git push * HEAD:main", "git push * HEAD:main *", "git push * +main", "git push * +HEAD:main"];
+// that discards work in the base checkout), the denied commands, and secret redaction before
+// anything reaches the model. Per-path rules (secrets, release files, base checkout) are in
+// the extension: omp's approval settings are per tool, not per path.
 const ompConfig = [
   "# Generated by scripts/agents-sync.mjs. Don't edit by hand.",
   "worktree:",
@@ -341,38 +420,28 @@ const ompConfig = [
   "bash:",
   "  gitGuard: true",
   "  patterns:",
-  ...OMP_BASH_DENIES.flatMap((m) => [`    - match: ${JSON.stringify(m)}`, "      approval: deny"]),
+  ...DENIED_COMMANDS.flatMap((m) => [`    - match: ${JSON.stringify(m)}`, "      approval: deny"]),
   "",
 ].join("\n");
-const ompExtension = `// Generated by scripts/agents-sync.mjs (SECRET_GLOBS, SECRET_DIRS).
-// Don't edit by hand. oh-my-pi loads every file in .omp/extensions/ by itself.
+const ompExtension = `// Generated by scripts/agents-sync.mjs. Don't edit by hand.
+// oh-my-pi loads every file in .omp/extensions/ by itself. The rules (secret reads, release
+// files, edits in the base checkout) are in scripts/agent-guard.mjs, shared with the
+// Claude Code and Hermes hooks.
 import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
-
-const SECRET_GLOBS: string[] = ${JSON.stringify(SECRET_GLOBS)};
-const SECRET_DIRS: string[] = ${JSON.stringify(SECRET_DIRS)};
-
-const globToRegExp = (g: string) =>
-  new RegExp("^" + g.replace(/[.+^\${}()|[\\]\\\\]/g, "\\\\$&").replace(/\\*/g, ".*").replace(/\\?/g, ".") + "$");
-const secretNames = SECRET_GLOBS.map(globToRegExp);
-
-function isSecret(path: unknown): boolean {
-  if (typeof path !== "string" || /^[a-z][a-z0-9+.-]*:\\/\\//i.test(path)) return false; // URLs, internal URIs
-  const parts = path.replace(/:\\d[\\d,+-]*$/, "").split(/[\\\\/]+/).filter(Boolean);
-  return parts.some((p) => SECRET_DIRS.includes(p)) || secretNames.some((r) => r.test(parts.at(-1) ?? ""));
-}
+// @ts-ignore: a plain .mjs module, resolved by omp's Bun runtime
+import { verdict } from "../../scripts/agent-guard.mjs";
 
 export default function athena(pi: ExtensionAPI) {
   pi.setLabel("Athena");
-  pi.on("tool_call", async (event) => {
-    const input = event.input as { path?: unknown };
-    if (["read", "grep", "glob", "find"].includes(event.toolName) && isSecret(input.path)) {
-      return { block: true, reason: "Athena: secret files (keys, .env, .dev-data) are off limits to agents." };
-    }
+  pi.on("tool_call", async (event, ctx) => {
+    const cwd = (ctx as { cwd?: string } | undefined)?.cwd ?? process.cwd();
+    const reason = verdict(event.toolName, event.input, cwd);
+    if (reason) return { block: true, reason };
   });
 }
 `;
 // Gotchas that load by themselves when an agent touches matching files: Claude Code rules
-// (`paths:`) and `.github/instructions` (`applyTo`), which oh-my-pi reads as rules. Other
+// (`paths:`) and oh-my-pi rules (`globs:` + `description:`, listed in its rulebook). Other
 // agents follow the AGENTS.md router.
 const AREA_RULES = {
   server: ["apps/server/**"],
@@ -387,16 +456,28 @@ for (const [area, globs] of Object.entries(AREA_RULES)) {
   const gotchas = `docs/agents/gotchas/${area}.md`;
   if (!existsSync(join(root, gotchas))) throw new Error(`AREA_RULES: ${gotchas} doesn't exist`);
   const body = (header) => [header, "", `<!-- Generated by scripts/agents-sync.mjs (AREA_RULES). Don't edit by hand. -->`, "", `Before changing these files, read \`${gotchas}\`: traps that already cost earlier agents time in this area.`, ""].join("\n");
-  areaRules[join(".claude", "rules", `${area}.md`)] = body(["---", "paths:", ...globs.map((g) => `  - ${JSON.stringify(g)}`), "---"].join("\n"));
-  areaRules[join(".github", "instructions", `${area}.instructions.md`)] = body(["---", `applyTo: ${JSON.stringify(globs.join(","))}`, "---"].join("\n"));
+  const list = (key) => [`${key}:`, ...globs.map((g) => `  - ${JSON.stringify(g)}`)];
+  areaRules[join(".claude", "rules", `${area}.md`)] = body(["---", ...list("paths"), "---"].join("\n"));
+  areaRules[join(".omp", "rules", `${area}.md`)] = body(["---", `description: ${JSON.stringify(`Athena ${area} gotchas: read before changing ${globs.join(", ")}`)}`, ...list("globs"), "---"].join("\n"));
 }
 
-// Claude Code project settings: only the secret Read denies are managed here.
+// Claude Code project settings: the guard deny rules and the guard hook are managed here.
 const claudeSettingsPath = join(root, ".claude", "settings.json");
 const claudeSettings = JSON.parse(readFileSync(claudeSettingsPath, "utf8"));
-const otherDenies = (claudeSettings.permissions?.deny ?? []).filter((d) => !claudeSecretDenies.includes(d));
-claudeSettings.permissions = { ...claudeSettings.permissions, deny: [...otherDenies, ...claudeSecretDenies] };
-const claudeSettingsOut = JSON.stringify(claudeSettings, null, 2) + "\n";
+const isGuardDeny = (d) => claudeGuardDenies.includes(d);
+const otherDenies = (claudeSettings.permissions?.deny ?? []).filter((d) => !isGuardDeny(d));
+const GUARD_HOOK = { matcher: "Read|Grep|Glob|Edit|Write|NotebookEdit|MultiEdit", hooks: [{ type: "command", command: 'node "$CLAUDE_PROJECT_DIR/scripts/agent-guard.mjs" claude' }] };
+const otherPreToolUse = (claudeSettings.hooks?.PreToolUse ?? []).filter((h) => !JSON.stringify(h).includes("agent-guard.mjs"));
+const claudeSettingsOut = JSON.stringify(
+  {
+    $schema: "https://json.schemastore.org/claude-code-settings.json",
+    ...claudeSettings,
+    permissions: { ...claudeSettings.permissions, deny: [...otherDenies, ...claudeGuardDenies] },
+    hooks: { ...claudeSettings.hooks, PreToolUse: [...otherPreToolUse, GUARD_HOOK] },
+  },
+  null,
+  2,
+) + "\n";
 
 // GENERATED: every file this script owns (fully, or the parts described above).
 const outputs = {
@@ -410,14 +491,24 @@ const outputs = {
   [join(".omp", "extensions", "athena.ts")]: ompExtension,
   ...areaRules,
 };
+// Folders whose every file is generated: anything else there is left over from a rename.
+const OWNED_DIRS = [join(".claude", "agents"), join(".claude", "commands"), join(".claude", "rules"), join(".omp", "agents"), join(".omp", "rules"), join(".omp", "extensions")];
+const orphans = OWNED_DIRS.flatMap((d) => (existsSync(join(root, d)) ? readdirSync(join(root, d)).map((f) => join(d, f)) : [])).filter((f) => !(f in outputs));
 
 if (args.has("--check")) {
+  // The guard's own rules are checked here too, so CI's sync step covers them.
+  const selfTest = spawnSync(process.execPath, [join(root, "scripts", "agent-guard.mjs"), "--self-test"], { encoding: "utf8" });
+  if (selfTest.status !== 0) {
+    console.error(selfTest.stdout + selfTest.stderr);
+    process.exit(1);
+  }
   const stale = Object.entries(outputs).filter(([file, text]) => {
     const path = join(root, file);
     return !existsSync(path) || readFileSync(path, "utf8") !== text;
   });
-  if (stale.length) {
-    console.error(`Out of date: ${stale.map(([f]) => f).join(", ")}. Run: node scripts/agents-sync.mjs`);
+  if (stale.length || orphans.length) {
+    if (stale.length) console.error(`Out of date: ${stale.map(([f]) => f).join(", ")}. Run: node scripts/agents-sync.mjs`);
+    if (orphans.length) console.error(`Not generated any more (delete them): ${orphans.join(", ")}`);
     process.exit(1);
   }
   console.log(`${Object.keys(outputs).length} generated agent files are in sync`);
@@ -426,5 +517,6 @@ if (args.has("--check")) {
     mkdirSync(dirname(join(root, file)), { recursive: true });
     writeFileSync(join(root, file), text);
   }
-  console.log(`synced ${Object.keys(servers).length} MCP server(s) from .mcp.json to ${Object.keys(outputs).join(", ")}`);
+  console.log(`synced ${Object.keys(servers).length} MCP server(s) from .mcp.json to ${Object.keys(outputs).length} files`);
+  if (orphans.length) console.log(`Not generated any more, delete them: ${orphans.join(", ")}`);
 }
