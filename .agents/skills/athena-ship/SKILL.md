@@ -31,19 +31,23 @@ If `git config core.hooksPath` doesn't print `.githooks`, run `git config core.h
 If the docs check fails, you renamed or removed something that an `AGENTS.md`, a file in `docs/agents/` or a skill still names. Fix the doc in the same commit; don't silence it.
 
 Also, depending on what changed:
-- **Anything in `apps/web`, or an API the UI uses:** browser verification with the `athena-ui-verify` skill. This is required before saying "done".
+- **Anything in `apps/web`, or an API the UI uses:** browser verification with the `athena-ui-verify` skill, in the `ui-verify` subagent where your agent has one (`docs/agents/subagents.md`). This is required before saying "done".
 - **A database model:** a new migration (see the `athena-recipes` skill). `tests/test_db.py` fails without one.
 - **A new dependency:** add its license to `docs/design/licenses.md`. Open-source only.
 - **A design change:** update its section in `docs/design/` and add a row to `docs/design/decisions.md`.
 
-## 3. Commit
+## 3. Review
+
+Have the diff reviewed before the PR: the `reviewer` subagent (`/review-diff`; oh-my-pi's bundled `reviewer` and Hermes's `delegate_task` need "follow `.agents/skills/athena-review/SKILL.md`, read-only" in the brief). Give it the diff, not your conclusions. Fix what it finds that's real, and say in the PR body what you didn't fix and why.
+
+## 4. Commit
 
 - Use Conventional Commit messages (`feat(files): add folder upload`), and explain _why_ in the body.
 - Don't touch `CHANGELOG.md` or `version.txt`.
 - Never commit to `main`, and never force-push (it's blocked). To bring in `main`: `git merge origin/main`, not a rebase.
 - Merge conflict in `packages/api-client/*`: don't hand-merge it. Take either side, run `pnpm gen:api`, and commit. Search for leftover markers before committing: `git grep -n '^<<<<<<< '`.
 
-## 4. Open the PR and turn on auto-merge
+## 5. Open the PR and turn on auto-merge
 
 ```bash
 git push -u origin HEAD
@@ -55,7 +59,7 @@ gh pr merge <n> --squash --auto --delete-branch      # always, without asking
 - In the body, state what was verified and how (tests, browser, real host), and what wasn't verified. End it with the attribution line your tool requires, if any.
 - Auto-merge exceptions: release-please PRs (the maintainer merges those), and PRs whose base isn't `main`. Turn it on for those only after GitHub retargets them to `main`.
 
-## 5. Watch CI until it's green
+## 6. Watch CI until it's green
 
 ```bash
 gh pr checks <n>                                   # summary; re-run until nothing is pending
@@ -80,7 +84,7 @@ Triage table:
 
 Done when `gh pr view` says `MERGED`. Auto-merge waits only for the required checks (`ci-ok`, `pr-title`), so make sure CodeQL is green too. Never say "merged" without checking.
 
-## 6. Hand off
+## 7. Hand off
 
 Before ending the session, on the branch (or in a follow-up docs PR):
 - `docs/STATUS.md`: take finished items out and add one short bullet each to the end of `docs/HISTORY.md` with the PR number. Under In progress, say exactly where you stopped and the next concrete step. Keep STATUS under 6 KB (the docs check enforces it; ideas go to `docs/design/milestones.md` → Backlog).
