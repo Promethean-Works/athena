@@ -1174,48 +1174,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/shares": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Shares
-         * @description All links, newest first, or only those for one location (and path).
-         */
-        get: operations["listShares"];
-        put?: never;
-        /** Create Share */
-        post: operations["createShare"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/shares/{share_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Update Share
-         * @description Changing or removing the password signs out everyone who unlocked the link.
-         */
-        put: operations["updateShare"];
-        post?: never;
-        /** Remove Share */
-        delete: operations["removeShare"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/public/shares/{token}": {
         parameters: {
             query?: never;
@@ -1356,45 +1314,6 @@ export interface paths {
          * @description Remove an SMB share: drop its smb.conf section and the tracking row.
          */
         delete: operations["removeSmbShare"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/webdav": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Webdav */
-        get: operations["getWebDav"];
-        /** Set Webdav */
-        put: operations["setWebDav"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/webdav/password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * New Webdav Password
-         * @description A new random password for WebDAV, replacing the old one (clients using it have to
-         *     sign in again).
-         */
-        post: operations["newWebDavPassword"];
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1654,19 +1573,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/assistant/kinds": {
+    "/api/webdav": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * List Kinds
-         * @description Every models.dev provider pydantic-ai can use, plus local Ollama.
-         */
-        get: operations["listAiProviderKinds"];
-        put?: never;
+        /** Get Webdav */
+        get: operations["getWebDav"];
+        /** Set Webdav */
+        put: operations["setWebDav"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1674,7 +1591,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/assistant/kinds/refresh": {
+    "/api/webdav/password": {
         parameters: {
             query?: never;
             header?: never;
@@ -1684,264 +1601,11 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Refresh Kinds
-         * @description Manually refresh the models.dev cache and return the updated kinds.
+         * New Webdav Password
+         * @description A new random password for WebDAV, replacing the old one (clients using it have to
+         *     sign in again).
          */
-        post: operations["refreshAiProviderKinds"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/providers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Providers */
-        get: operations["listAiProviders"];
-        put?: never;
-        /** Create Provider */
-        post: operations["createAiProvider"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/providers/{provider_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update Provider */
-        put: operations["updateAiProvider"];
-        post?: never;
-        /** Delete Provider */
-        delete: operations["deleteAiProvider"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/integrations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Integrations */
-        get: operations["listAiIntegrations"];
-        put?: never;
-        /** Create Integration */
-        post: operations["createAiIntegration"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/integrations/kinds": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Integration Kinds
-         * @description The curated integration kinds, for the add form.
-         */
-        get: operations["listAiIntegrationKinds"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/integrations/{integration_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update Integration */
-        put: operations["updateAiIntegration"];
-        post?: never;
-        /** Delete Integration */
-        delete: operations["deleteAiIntegration"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/providers/{provider_id}/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Test Provider
-         * @description Lists the provider's models, which proves the address and key work.
-         */
-        post: operations["testAiProvider"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/providers/{provider_id}/models": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Provider Models */
-        get: operations["listAiProviderModels"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/models": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * All Models
-         * @description Every provider's models, for the model picker. A provider that fails still shows,
-         *     with its error, so its model ids can be typed.
-         */
-        get: operations["listAiModels"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/conversations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Conversations */
-        get: operations["listConversations"];
-        put?: never;
-        /** Create Conversation */
-        post: operations["createConversation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/conversations/{conversation_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Conversation */
-        get: operations["getConversation"];
-        put?: never;
-        post?: never;
-        /** Delete Conversation */
-        delete: operations["deleteConversation"];
-        options?: never;
-        head?: never;
-        /** Update Conversation */
-        patch: operations["updateConversation"];
-        trace?: never;
-    };
-    "/api/assistant/conversations/{conversation_id}/messages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Send Message
-         * @description Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a
-         *     new block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,
-         *     `error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,
-         *     `name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`
-         *     calls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant
-         *     changed it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action
-         *     started), `title` (the first message's line; a title model renames the chat after
-         *     `done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While
-         *     actions or questions wait, a new message denies and declines them.
-         */
-        post: operations["sendMessage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/conversations/{conversation_id}/approvals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Answer Approvals
-         * @description Answer everything a paused chat is waiting on, and continue it: Approve or Deny each
-         *     action (approved actions run as you, and each decision is audited) and answer or decline
-         *     each question. Streams the same events as sendMessage.
-         */
-        post: operations["answerApprovals"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/assistant/conversations/{conversation_id}/stop": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Stop Conversation */
-        post: operations["stopConversation"];
+        post: operations["newWebDavPassword"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2617,18 +2281,6 @@ export interface components {
              */
             browser_use_enabled: boolean;
         };
-        /** Answer */
-        Answer: {
-            /** Id */
-            id: string;
-            /**
-             * Declined
-             * @default false
-             */
-            declined: boolean;
-            /** Answers */
-            answers?: components["schemas"]["QuestionAnswer"][];
-        };
         /** AnswerIn */
         AnswerIn: {
             /** State */
@@ -2768,13 +2420,6 @@ export interface components {
              */
             radius: string;
         };
-        /** ApprovalsIn */
-        ApprovalsIn: {
-            /** Decisions */
-            decisions?: components["schemas"]["Decision"][];
-            /** Answers */
-            answers?: components["schemas"]["Answer"][];
-        };
         /**
          * AuditEntryOut
          * @description `detail` is left out on purpose: it can hold a shell command or a path the
@@ -2896,69 +2541,6 @@ export interface components {
             /** Sha256 */
             sha256: string;
         };
-        /** ChatMessage */
-        ChatMessage: {
-            /** Id */
-            id: string;
-            /**
-             * Role
-             * @enum {string}
-             */
-            role: "user" | "assistant";
-            /** Parts */
-            parts: components["schemas"]["ChatPart"][];
-        };
-        /** ChatPart */
-        ChatPart: {
-            /**
-             * Type
-             * @enum {string}
-             */
-            type: "text" | "reasoning" | "tool";
-            /** Text */
-            text?: string | null;
-            /** Tool Call Id */
-            tool_call_id?: string | null;
-            /** Tool Name */
-            tool_name?: string | null;
-            /** Args */
-            args?: unknown;
-            /** Result */
-            result?: string | null;
-            /** Error */
-            error?: string | null;
-            /** State */
-            state?: ("running" | "done" | "error" | "approval" | "question" | "denied") | null;
-            /** Summary */
-            summary?: string | null;
-            /**
-             * Destructive
-             * @default false
-             */
-            destructive: boolean;
-            /** Job Id */
-            job_id?: string | null;
-            /**
-             * Draft
-             * @default false
-             */
-            draft: boolean;
-        };
-        /** ChatUsage */
-        ChatUsage: {
-            /**
-             * Input Tokens
-             * @default 0
-             */
-            input_tokens: number;
-            /**
-             * Output Tokens
-             * @default 0
-             */
-            output_tokens: number;
-            /** Cost */
-            cost?: number | null;
-        };
         /** CloudDeleteIn */
         CloudDeleteIn: {
             /** Remote */
@@ -3051,66 +2633,6 @@ export interface components {
             /** Service */
             service: string | null;
         };
-        /** ConversationDetail */
-        ConversationDetail: {
-            /** Id */
-            id: string;
-            /** Title */
-            title: string;
-            model: components["schemas"]["ModelRef"] | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
-            /** Messages */
-            messages: components["schemas"]["ChatMessage"][];
-            /** Running */
-            running: boolean;
-            /**
-             * Naming
-             * @default false
-             */
-            naming: boolean;
-            usage: components["schemas"]["ChatUsage"];
-            /** Spend Limit Usd */
-            spend_limit_usd: number | null;
-            /** Plan */
-            plan: components["schemas"]["PlanStep"][];
-        };
-        /** ConversationIn */
-        ConversationIn: {
-            model?: components["schemas"]["ModelRef"] | null;
-        };
-        /** ConversationOut */
-        ConversationOut: {
-            /** Id */
-            id: string;
-            /** Title */
-            title: string;
-            model: components["schemas"]["ModelRef"] | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
-        };
-        /** ConversationPatch */
-        ConversationPatch: {
-            /** Title */
-            title?: string | null;
-            model?: components["schemas"]["ModelRef"] | null;
-        };
         /** ConvertIn */
         ConvertIn: {
             /** Command */
@@ -3147,15 +2669,6 @@ export interface components {
         DashboardLayout: {
             /** Cards */
             cards?: components["schemas"]["DashboardCard"][] | null;
-        };
-        /** Decision */
-        Decision: {
-            /** Id */
-            id: string;
-            /** Approve */
-            approve: boolean;
-            /** Reason */
-            reason?: string | null;
         };
         /** DeleteIn */
         DeleteIn: {
@@ -3468,70 +2981,6 @@ export interface components {
             /** Source */
             source?: string | null;
         };
-        /**
-         * IntegrationIn
-         * @description Create or update a hosted integration: the token value is encrypted on write.
-         */
-        IntegrationIn: {
-            /** Id */
-            id: string;
-            /** Kind */
-            kind: string;
-            /** Name */
-            name: string;
-            /** Transport */
-            transport: components["schemas"]["McpStdio"] | components["schemas"]["McpHttp"];
-            /** Token Env */
-            token_env?: string | null;
-            /** Token Header */
-            token_header?: string | null;
-            /** Token */
-            token?: string | null;
-        };
-        /** IntegrationKindOut */
-        IntegrationKindOut: {
-            /** Id */
-            id: string;
-            /** Label */
-            label: string;
-            /** Description */
-            description: string;
-        };
-        /**
-         * IntegrationOut
-         * @description What the API returns: everything except the secret token.
-         */
-        IntegrationOut: {
-            /** Id */
-            id: string;
-            /** Kind */
-            kind: string;
-            /** Name */
-            name: string;
-            /** Transport */
-            transport: components["schemas"]["McpStdio"] | components["schemas"]["McpHttp"];
-            /** Token Env */
-            token_env?: string | null;
-            /** Token Header */
-            token_header?: string | null;
-            /** Secrets Set */
-            secrets_set?: string[];
-        };
-        /** IntegrationUpdate */
-        IntegrationUpdate: {
-            /** Kind */
-            kind: string;
-            /** Name */
-            name: string;
-            /** Transport */
-            transport: components["schemas"]["McpStdio"] | components["schemas"]["McpHttp"];
-            /** Token Env */
-            token_env?: string | null;
-            /** Token Header */
-            token_header?: string | null;
-            /** Token */
-            token?: string | null;
-        };
         /** IssueIn */
         IssueIn: {
             /**
@@ -3633,29 +3082,6 @@ export interface components {
             output: string | null;
             /** Error */
             error: string | null;
-        };
-        /** KindField */
-        KindField: {
-            /** Key */
-            key: string;
-            /** Label */
-            label: string;
-            /**
-             * Secret
-             * @default false
-             */
-            secret: boolean;
-            /**
-             * Required
-             * @default false
-             */
-            required: boolean;
-            /** Default */
-            default?: string | null;
-            /** Placeholder */
-            placeholder?: string | null;
-            /** Help */
-            help?: string | null;
         };
         /** LetsEncryptSettings */
         LetsEncryptSettings: {
@@ -3791,36 +3217,12 @@ export interface components {
                 [key: string]: string;
             };
         };
-        /** MessageIn */
-        MessageIn: {
-            /** Text */
-            text: string;
-            model?: components["schemas"]["ModelRef"] | null;
-        };
-        /** ModelInfo */
-        ModelInfo: {
-            /** Id */
-            id: string;
-            /** Name */
-            name?: string | null;
-            /** Tools */
-            tools?: boolean | null;
-            /** Context Window */
-            context_window?: number | null;
-        };
         /** ModelRef */
         ModelRef: {
             /** Provider Id */
             provider_id: string;
             /** Model */
             model: string;
-        };
-        /** ModelsOut */
-        ModelsOut: {
-            /** Models */
-            models: components["schemas"]["ModelInfo"][];
-            /** Error */
-            error?: string | null;
         };
         /** NameIn */
         NameIn: {
@@ -4010,23 +3412,6 @@ export interface components {
              */
             created_at: string;
         };
-        /** PlanStep */
-        PlanStep: {
-            /** Id */
-            id: string;
-            /** Content */
-            content: string;
-            /**
-             * Status
-             * @enum {string}
-             */
-            status: "pending" | "in_progress" | "completed" | "cancelled" | "blocked";
-            /**
-             * Active Form
-             * @default
-             */
-            active_form: string;
-        };
         /** PowerStatus */
         PowerStatus: {
             /** Now */
@@ -4042,54 +3427,6 @@ export interface components {
             description: string;
             /** Options */
             options: components["schemas"]["ProviderOption"][];
-        };
-        /** ProviderIn */
-        ProviderIn: {
-            /** Kind */
-            kind: string;
-            /** Name */
-            name: string;
-            /**
-             * Values
-             * @default {}
-             */
-            values: {
-                [key: string]: string;
-            };
-        };
-        /** ProviderKind */
-        ProviderKind: {
-            /** Id */
-            id: string;
-            /** Label */
-            label: string;
-            /**
-             * Group
-             * @enum {string}
-             */
-            group: "cloud" | "local" | "custom";
-            /** Fields */
-            fields: components["schemas"]["KindField"][];
-            /**
-             * Lists Models
-             * @default true
-             */
-            lists_models: boolean;
-        };
-        /** ProviderModels */
-        ProviderModels: {
-            /** Models */
-            models: components["schemas"]["ModelInfo"][];
-            /** Error */
-            error?: string | null;
-            /** Provider Id */
-            provider_id: string;
-            /** Provider Name */
-            provider_name: string;
-            /** Kind */
-            kind: string;
-            /** Lists Models */
-            lists_models: boolean;
         };
         /** ProviderOption */
         ProviderOption: {
@@ -4143,38 +3480,6 @@ export interface components {
             /** Provider */
             provider?: string | null;
         };
-        /** ProviderOut */
-        ProviderOut: {
-            /** Id */
-            id: string;
-            /** Kind */
-            kind: string;
-            /** Name */
-            name: string;
-            /** Values */
-            values: {
-                [key: string]: string;
-            };
-            /** Secrets Set */
-            secrets_set: string[];
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-        };
-        /** ProviderUpdate */
-        ProviderUpdate: {
-            /** Name */
-            name: string;
-            /**
-             * Values
-             * @default {}
-             */
-            values: {
-                [key: string]: string;
-            };
-        };
         /** PublicShare */
         PublicShare: {
             /**
@@ -4194,15 +3499,6 @@ export interface components {
             modified?: string | null;
             /** Expires At */
             expires_at?: string | null;
-        };
-        /** QuestionAnswer */
-        QuestionAnswer: {
-            /** Header */
-            header: string;
-            /** Selected */
-            selected?: string[];
-            /** Custom */
-            custom?: string | null;
         };
         /** RecoveryKit */
         RecoveryKit: {
@@ -4331,84 +3627,6 @@ export interface components {
             username: string;
             /** Password */
             password: string;
-        };
-        /** ShareIn */
-        ShareIn: {
-            /** Location */
-            location: number;
-            /**
-             * Path
-             * @default
-             */
-            path: string;
-            /**
-             * Mode
-             * @default read
-             * @enum {string}
-             */
-            mode: "read" | "upload";
-            /** Password */
-            password?: string | null;
-            /** Expires At */
-            expires_at?: string | null;
-        };
-        /** ShareOut */
-        ShareOut: {
-            /** Id */
-            id: number;
-            /** Token */
-            token: string;
-            /** Url Path */
-            url_path: string;
-            /** Location */
-            location: number;
-            /** Location Name */
-            location_name: string;
-            /** Path */
-            path: string;
-            /** Name */
-            name: string;
-            /** Kind */
-            kind: ("dir" | "file" | "other") | null;
-            /**
-             * Mode
-             * @enum {string}
-             */
-            mode: "read" | "upload";
-            /** Has Password */
-            has_password: boolean;
-            /** Expires At */
-            expires_at: string | null;
-            /** Expired */
-            expired: boolean;
-            /** Created By */
-            created_by: string;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Downloads */
-            downloads: number;
-            /** Uploads */
-            uploads: number;
-        };
-        /** ShareUpdate */
-        ShareUpdate: {
-            /**
-             * Mode
-             * @enum {string}
-             */
-            mode: "read" | "upload";
-            /** Expires At */
-            expires_at?: string | null;
-            /** Password */
-            password?: string | null;
-            /**
-             * Remove Password
-             * @default false
-             */
-            remove_password: boolean;
         };
         /** SmbShareIn */
         SmbShareIn: {
@@ -4689,13 +3907,6 @@ export interface components {
             high?: number | null;
             /** Critical */
             critical?: number | null;
-        };
-        /** TestOut */
-        TestOut: {
-            /** Ok */
-            ok: boolean;
-            /** Message */
-            message: string;
         };
         /** TextFile */
         TextFile: {
@@ -7231,135 +6442,6 @@ export interface operations {
             };
         };
     };
-    listShares: {
-        parameters: {
-            query?: {
-                location?: number | null;
-                path?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShareOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    createShare: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ShareIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShareOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    updateShare: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                share_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ShareUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShareOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    removeShare: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                share_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     getPublicShare: {
         parameters: {
             query?: never;
@@ -7641,79 +6723,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    getWebDav: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WebDavOut"];
-                };
-            };
-        };
-    };
-    setWebDav: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["WebDavIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WebDavOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    newWebDavPassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WebDavPassword"];
                 };
             };
         };
@@ -8254,7 +7263,7 @@ export interface operations {
             };
         };
     };
-    listAiProviderKinds: {
+    getWebDav: {
         parameters: {
             query?: never;
             header?: never;
@@ -8269,54 +7278,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProviderKind"][];
+                    "application/json": components["schemas"]["WebDavOut"];
                 };
             };
         };
     };
-    refreshAiProviderKinds: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
-    listAiProviders: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProviderOut"][];
-                };
-            };
-        };
-    };
-    createAiProvider: {
+    setWebDav: {
         parameters: {
             query?: never;
             header?: never;
@@ -8325,42 +7292,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ProviderIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProviderOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    updateAiProvider: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                provider_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProviderUpdate"];
+                "application/json": components["schemas"]["WebDavIn"];
             };
         };
         responses: {
@@ -8370,7 +7302,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProviderOut"];
+                    "application/json": components["schemas"]["WebDavOut"];
                 };
             };
             /** @description Validation Error */
@@ -8384,36 +7316,7 @@ export interface operations {
             };
         };
     };
-    deleteAiProvider: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                provider_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    listAiIntegrations: {
+    newWebDavPassword: {
         parameters: {
             query?: never;
             header?: never;
@@ -8428,455 +7331,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["IntegrationOut"][];
-                };
-            };
-        };
-    };
-    createAiIntegration: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IntegrationIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IntegrationOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    listAiIntegrationKinds: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IntegrationKindOut"][];
-                };
-            };
-        };
-    };
-    updateAiIntegration: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                integration_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IntegrationUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IntegrationOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    deleteAiIntegration: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                integration_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    testAiProvider: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                provider_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TestOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    listAiProviderModels: {
-        parameters: {
-            query?: {
-                refresh?: boolean;
-            };
-            header?: never;
-            path: {
-                provider_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ModelsOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    listAiModels: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProviderModels"][];
-                };
-            };
-        };
-    };
-    listConversations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ConversationOut"][];
-                };
-            };
-        };
-    };
-    createConversation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ConversationIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ConversationOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    getConversation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                conversation_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ConversationDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    deleteConversation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                conversation_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    updateConversation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                conversation_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ConversationPatch"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ConversationOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    sendMessage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                conversation_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MessageIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/event-stream": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    answerApprovals: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                conversation_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApprovalsIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/event-stream": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    stopConversation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                conversation_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["WebDavPassword"];
                 };
             };
         };
