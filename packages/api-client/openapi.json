@@ -4318,6 +4318,970 @@
         }
       }
     },
+    "/api/shares": {
+      "get": {
+        "tags": [
+          "shares"
+        ],
+        "summary": "List Shares",
+        "description": "All links, newest first, or only those for one location (and path).",
+        "operationId": "listShares",
+        "parameters": [
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Location"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Path"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ShareOut"
+                  },
+                  "title": "Response Listshares"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "shares"
+        ],
+        "summary": "Create Share",
+        "operationId": "createShare",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shares/{share_id}": {
+      "put": {
+        "tags": [
+          "shares"
+        ],
+        "summary": "Update Share",
+        "description": "Changing or removing the password signs out everyone who unlocked the link.",
+        "operationId": "updateShare",
+        "parameters": [
+          {
+            "name": "share_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Share Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "shares"
+        ],
+        "summary": "Remove Share",
+        "operationId": "removeShare",
+        "parameters": [
+          {
+            "name": "share_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Share Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/kinds": {
+      "get": {
+        "summary": "List Kinds",
+        "description": "Every models.dev provider pydantic-ai can use, plus local Ollama.",
+        "operationId": "list_kinds_api_assistant_kinds_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProviderKind"
+                  },
+                  "type": "array",
+                  "title": "Response List Kinds Api Assistant Kinds Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/kinds/refresh": {
+      "post": {
+        "summary": "Refresh Kinds",
+        "description": "Manually refresh the models.dev cache and return the updated kinds.",
+        "operationId": "refresh_kinds_api_assistant_kinds_refresh_post",
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Refresh Kinds Api Assistant Kinds Refresh Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/providers": {
+      "get": {
+        "summary": "List Providers",
+        "operationId": "list_providers_api_assistant_providers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProviderOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Providers Api Assistant Providers Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Provider",
+        "operationId": "create_provider_api_assistant_providers_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/providers/{provider_id}": {
+      "put": {
+        "summary": "Update Provider",
+        "operationId": "update_provider_api_assistant_providers__provider_id__put",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Provider",
+        "operationId": "delete_provider_api_assistant_providers__provider_id__delete",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/integrations": {
+      "get": {
+        "summary": "List Integrations",
+        "operationId": "list_integrations_api_assistant_integrations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Integrations Api Assistant Integrations Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Integration",
+        "operationId": "create_integration_api_assistant_integrations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/integrations/kinds": {
+      "get": {
+        "summary": "List Integration Kinds",
+        "description": "The curated integration kinds, for the add form.",
+        "operationId": "list_integration_kinds_api_assistant_integrations_kinds_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationKindOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Integration Kinds Api Assistant Integrations Kinds Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/integrations/{integration_id}": {
+      "put": {
+        "summary": "Update Integration",
+        "operationId": "update_integration_api_assistant_integrations__integration_id__put",
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Integration Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Integration",
+        "operationId": "delete_integration_api_assistant_integrations__integration_id__delete",
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+              "title": "Integration Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/providers/{provider_id}/test": {
+      "post": {
+        "summary": "Test Provider",
+        "description": "Lists the provider's models, which proves the address and key work.",
+        "operationId": "test_provider_api_assistant_providers__provider_id__test_post",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/providers/{provider_id}/models": {
+      "get": {
+        "summary": "Provider Models",
+        "operationId": "provider_models_api_assistant_providers__provider_id__models_get",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Provider Id"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Refresh"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/models": {
+      "get": {
+        "summary": "All Models",
+        "description": "Every provider's models, for the model picker. A provider that fails still shows,\nwith its error, so its model ids can be typed.",
+        "operationId": "all_models_api_assistant_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProviderModels"
+                  },
+                  "type": "array",
+                  "title": "Response All Models Api Assistant Models Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/conversations": {
+      "get": {
+        "summary": "List Conversations",
+        "operationId": "list_conversations_api_assistant_conversations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Conversations Api Assistant Conversations Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Conversation",
+        "operationId": "create_conversation_api_assistant_conversations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/conversations/{conversation_id}": {
+      "get": {
+        "summary": "Get Conversation",
+        "operationId": "get_conversation_api_assistant_conversations__conversation_id__get",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update Conversation",
+        "operationId": "update_conversation_api_assistant_conversations__conversation_id__patch",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Conversation",
+        "operationId": "delete_conversation_api_assistant_conversations__conversation_id__delete",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/conversations/{conversation_id}/messages": {
+      "post": {
+        "summary": "Send Message",
+        "description": "Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a\nnew block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,\n`error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,\n`name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`\ncalls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant\nchanged it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action\nstarted), `title` (the first message's line; a title model renames the chat after\n`done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While\nactions or questions wait, a new message denies and declines them.",
+        "operationId": "send_message_api_assistant_conversations__conversation_id__messages_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/conversations/{conversation_id}/approvals": {
+      "post": {
+        "summary": "Answer Approvals",
+        "description": "Answer everything a paused chat is waiting on, and continue it: Approve or Deny each\naction (approved actions run as you, and each decision is audited) and answer or decline\neach question. Streams the same events as sendMessage.",
+        "operationId": "answer_approvals_api_assistant_conversations__conversation_id__approvals_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalsIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/conversations/{conversation_id}/stop": {
+      "post": {
+        "summary": "Stop Conversation",
+        "operationId": "stop_conversation_api_assistant_conversations__conversation_id__stop_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{16}$",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/automation/triggers": {
       "get": {
         "tags": [
@@ -5880,6 +6844,34 @@
         "type": "object",
         "title": "AiSettings"
       },
+      "Answer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "declined": {
+            "type": "boolean",
+            "title": "Declined",
+            "default": false
+          },
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionAnswer"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Answers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "Answer"
+      },
       "AnswerIn": {
         "properties": {
           "state": {
@@ -6215,6 +7207,28 @@
         },
         "type": "object",
         "title": "Appearance"
+      },
+      "ApprovalsIn": {
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/Decision"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Decisions"
+          },
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/Answer"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Answers"
+          }
+        },
+        "type": "object",
+        "title": "ApprovalsIn"
       },
       "AuditEntryOut": {
         "properties": {
@@ -6553,6 +7567,190 @@
         ],
         "title": "CertificateInfo"
       },
+      "ChatMessage": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role"
+          },
+          "parts": {
+            "items": {
+              "$ref": "#/components/schemas/ChatPart"
+            },
+            "type": "array",
+            "title": "Parts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "parts"
+        ],
+        "title": "ChatMessage"
+      },
+      "ChatPart": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "reasoning",
+              "tool"
+            ],
+            "title": "Type"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "tool_call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Call Id"
+          },
+          "tool_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Name"
+          },
+          "args": {
+            "title": "Args"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "running",
+                  "done",
+                  "error",
+                  "approval",
+                  "question",
+                  "denied"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "destructive": {
+            "type": "boolean",
+            "title": "Destructive",
+            "default": false
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "draft": {
+            "type": "boolean",
+            "title": "Draft",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "ChatPart"
+      },
+      "ChatUsage": {
+        "properties": {
+          "input_tokens": {
+            "type": "integer",
+            "title": "Input Tokens",
+            "default": 0
+          },
+          "output_tokens": {
+            "type": "integer",
+            "title": "Output Tokens",
+            "default": 0
+          },
+          "cost": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost"
+          }
+        },
+        "type": "object",
+        "title": "ChatUsage"
+      },
       "CloudDeleteIn": {
         "properties": {
           "remote": {
@@ -6831,6 +8029,175 @@
         ],
         "title": "ContainerOut"
       },
+      "ConversationDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessage"
+            },
+            "type": "array",
+            "title": "Messages"
+          },
+          "running": {
+            "type": "boolean",
+            "title": "Running"
+          },
+          "naming": {
+            "type": "boolean",
+            "title": "Naming",
+            "default": false
+          },
+          "usage": {
+            "$ref": "#/components/schemas/ChatUsage"
+          },
+          "spend_limit_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spend Limit Usd"
+          },
+          "plan": {
+            "items": {
+              "$ref": "#/components/schemas/PlanStep"
+            },
+            "type": "array",
+            "title": "Plan"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "model",
+          "created_at",
+          "updated_at",
+          "messages",
+          "running",
+          "usage",
+          "spend_limit_usd",
+          "plan"
+        ],
+        "title": "ConversationDetail"
+      },
+      "ConversationIn": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ConversationIn"
+      },
+      "ConversationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "model",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ConversationOut"
+      },
+      "ConversationPatch": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ConversationPatch"
+      },
       "ConvertIn": {
         "properties": {
           "command": {
@@ -6933,6 +8300,38 @@
         },
         "type": "object",
         "title": "DashboardLayout"
+      },
+      "Decision": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "approve": {
+            "type": "boolean",
+            "title": "Approve"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "approve"
+        ],
+        "title": "Decision"
       },
       "DeleteIn": {
         "properties": {
@@ -7760,6 +9159,264 @@
         ],
         "title": "InstalledPackage"
       },
+      "IntegrationIn": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "transport": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/McpStdio"
+              },
+              {
+                "$ref": "#/components/schemas/McpHttp"
+              }
+            ],
+            "title": "Transport",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "http": "#/components/schemas/McpHttp",
+                "stdio": "#/components/schemas/McpStdio"
+              }
+            }
+          },
+          "token_env": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Env"
+          },
+          "token_header": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Header"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4096
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "transport"
+        ],
+        "title": "IntegrationIn",
+        "description": "Create or update a hosted integration: the token value is encrypted on write."
+      },
+      "IntegrationKindOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "description"
+        ],
+        "title": "IntegrationKindOut"
+      },
+      "IntegrationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "transport": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/McpStdio"
+              },
+              {
+                "$ref": "#/components/schemas/McpHttp"
+              }
+            ],
+            "title": "Transport",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "http": "#/components/schemas/McpHttp",
+                "stdio": "#/components/schemas/McpStdio"
+              }
+            }
+          },
+          "token_env": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Env"
+          },
+          "token_header": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Header"
+          },
+          "secrets_set": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Secrets Set"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "transport"
+        ],
+        "title": "IntegrationOut",
+        "description": "What the API returns: everything except the secret token."
+      },
+      "IntegrationUpdate": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "transport": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/McpStdio"
+              },
+              {
+                "$ref": "#/components/schemas/McpHttp"
+              }
+            ],
+            "title": "Transport",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "http": "#/components/schemas/McpHttp",
+                "stdio": "#/components/schemas/McpStdio"
+              }
+            }
+          },
+          "token_env": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Env"
+          },
+          "token_header": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Header"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4096
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "name",
+          "transport"
+        ],
+        "title": "IntegrationUpdate"
+      },
       "IssueIn": {
         "properties": {
           "kind": {
@@ -8038,6 +9695,67 @@
           "error"
         ],
         "title": "JobRunOut"
+      },
+      "KindField": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "secret": {
+            "type": "boolean",
+            "title": "Secret",
+            "default": false
+          },
+          "required": {
+            "type": "boolean",
+            "title": "Required",
+            "default": false
+          },
+          "default": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default"
+          },
+          "placeholder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Placeholder"
+          },
+          "help": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Help"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "KindField"
       },
       "LetsEncryptSettings": {
         "properties": {
@@ -8373,6 +10091,77 @@
         "title": "McpStdio",
         "description": "An MCP server launched with a local command (stdio transport)."
       },
+      "MessageIn": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 32000,
+            "minLength": 1,
+            "title": "Text"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "MessageIn"
+      },
+      "ModelInfo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "tools": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tools"
+          },
+          "context_window": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Window"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "ModelInfo"
+      },
       "ModelRef": {
         "properties": {
           "provider_id": {
@@ -8394,6 +10183,33 @@
           "model"
         ],
         "title": "ModelRef"
+      },
+      "ModelsOut": {
+        "properties": {
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelInfo"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "models"
+        ],
+        "title": "ModelsOut"
       },
       "NameIn": {
         "properties": {
@@ -8885,6 +10701,41 @@
         ],
         "title": "PlanOut"
       },
+      "PlanStep": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed",
+              "cancelled",
+              "blocked"
+            ],
+            "title": "Status"
+          },
+          "active_form": {
+            "type": "string",
+            "title": "Active Form",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "content",
+          "status"
+        ],
+        "title": "PlanStep"
+      },
       "PowerStatus": {
         "properties": {
           "now": {
@@ -8946,6 +10797,126 @@
           "options"
         ],
         "title": "Provider"
+      },
+      "ProviderIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "values": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 4096
+            },
+            "propertyNames": {
+              "maxLength": 64
+            },
+            "type": "object",
+            "title": "Values",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "name"
+        ],
+        "title": "ProviderIn"
+      },
+      "ProviderKind": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "cloud",
+              "local",
+              "custom"
+            ],
+            "title": "Group"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/KindField"
+            },
+            "type": "array",
+            "title": "Fields"
+          },
+          "lists_models": {
+            "type": "boolean",
+            "title": "Lists Models",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "group",
+          "fields"
+        ],
+        "title": "ProviderKind"
+      },
+      "ProviderModels": {
+        "properties": {
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelInfo"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "provider_id": {
+            "type": "string",
+            "title": "Provider Id"
+          },
+          "provider_name": {
+            "type": "string",
+            "title": "Provider Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "lists_models": {
+            "type": "boolean",
+            "title": "Lists Models"
+          }
+        },
+        "type": "object",
+        "required": [
+          "models",
+          "provider_id",
+          "provider_name",
+          "kind",
+          "lists_models"
+        ],
+        "title": "ProviderModels"
       },
       "ProviderOption": {
         "properties": {
@@ -9018,6 +10989,78 @@
           "name"
         ],
         "title": "ProviderOption"
+      },
+      "ProviderOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "values": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Values"
+          },
+          "secrets_set": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Secrets Set"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "values",
+          "secrets_set",
+          "created_at"
+        ],
+        "title": "ProviderOut"
+      },
+      "ProviderUpdate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "values": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 4096
+            },
+            "propertyNames": {
+              "maxLength": 64
+            },
+            "type": "object",
+            "title": "Values",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "ProviderUpdate"
       },
       "PublicShare": {
         "properties": {
@@ -9102,6 +11145,41 @@
           "locked"
         ],
         "title": "PublicShare"
+      },
+      "QuestionAnswer": {
+        "properties": {
+          "header": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Header"
+          },
+          "selected": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Selected"
+          },
+          "custom": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom"
+          }
+        },
+        "type": "object",
+        "required": [
+          "header"
+        ],
+        "title": "QuestionAnswer"
       },
       "RecoveryKit": {
         "properties": {
@@ -9394,6 +11472,219 @@
           "password"
         ],
         "title": "SetupRequest"
+      },
+      "ShareIn": {
+        "properties": {
+          "location": {
+            "type": "integer",
+            "title": "Location"
+          },
+          "path": {
+            "type": "string",
+            "maxLength": 4096,
+            "title": "Path",
+            "default": ""
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "read",
+              "upload"
+            ],
+            "title": "Mode",
+            "default": "read"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "location"
+        ],
+        "title": "ShareIn"
+      },
+      "ShareOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "url_path": {
+            "type": "string",
+            "title": "Url Path"
+          },
+          "location": {
+            "type": "integer",
+            "title": "Location"
+          },
+          "location_name": {
+            "type": "string",
+            "title": "Location Name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "dir",
+                  "file",
+                  "other"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "read",
+              "upload"
+            ],
+            "title": "Mode"
+          },
+          "has_password": {
+            "type": "boolean",
+            "title": "Has Password"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "expired": {
+            "type": "boolean",
+            "title": "Expired"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "downloads": {
+            "type": "integer",
+            "title": "Downloads"
+          },
+          "uploads": {
+            "type": "integer",
+            "title": "Uploads"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "token",
+          "url_path",
+          "location",
+          "location_name",
+          "path",
+          "name",
+          "kind",
+          "mode",
+          "has_password",
+          "expires_at",
+          "expired",
+          "created_by",
+          "created_at",
+          "downloads",
+          "uploads"
+        ],
+        "title": "ShareOut"
+      },
+      "ShareUpdate": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "read",
+              "upload"
+            ],
+            "title": "Mode"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "remove_password": {
+            "type": "boolean",
+            "title": "Remove Password",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode"
+        ],
+        "title": "ShareUpdate"
       },
       "SmbShareIn": {
         "properties": {
@@ -10244,6 +12535,24 @@
           "current"
         ],
         "title": "Temperature"
+      },
+      "TestOut": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "message"
+        ],
+        "title": "TestOut"
       },
       "TextFile": {
         "properties": {
