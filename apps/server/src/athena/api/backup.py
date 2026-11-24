@@ -786,6 +786,54 @@ async def restore_app(body: RestoreAppIn, request: Request, user: Authed, db: Db
     return job.out()
 
 
+class RestoreAthenaIn(BaseModel):
+    location: str
+    password: str
+    version_id: str
+    """An `athena` version."""
+
+
+@router.post(
+    "/restore/athena", operation_id="restoreBackupAthena", status_code=status.HTTP_202_ACCEPTED
+)
+async def restore_athena_route(body: RestoreAthenaIn, request: Request, db: DbSession) -> JobOut:
+    """Restore all of Athena from a version. Only works before the first admin account
+    exists (the first-run screen). Follow progress at /api/jobs/{id}/events."""
+    from athena.auth.service import user_count
+
+    if user_count(db) > 0:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Athena is already set up")
+
+    repo = Repository(location=body.location, password=body.password)
+    try:
+        tool = await request.app.state.restic.get()
+        found = await versions.list_versions(tool, repo, versions.ATHENA_TAG)
+        ids = {v.id for v in found}
+        if body.version_id not in ids:
+            raise ResticError("That isn't an Athena version")
+    except DownloadError as exc:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(exc)) from exc
+    except ResticError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+
+    data_dir: Path = request.app.state.settings.data_dir
+    jobs: JobManager = request.app.state.jobs
+    version_id = body.version_id
+
+    async def job_body(job):  # type: ignore[no-untyped-def]
+        await restore.restore_athena(
+            tool=tool,
+            repo=repo,
+            job=job,
+            data_dir=data_dir,
+            version_id=version_id,
+        )
+
+    job = jobs.start("Restore Athena", job_body, cancellable=True)
+    audit.record(db, "admin-to-be", "backup.restore", "athena", f"version {version_id[:8]}")
+    return job.out()
+
+
 @router.delete(
     "/apps/{name}/before-restore",
     operation_id="deleteBackupBeforeRestore",
