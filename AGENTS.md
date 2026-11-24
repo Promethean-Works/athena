@@ -2,13 +2,13 @@
 
 Self-hosted home server control panel (CasaOS-style) for **Linux, macOS and Windows**. Public repo: `github.com/Promethean-Works/athena`.
 
-This file is the single source of instructions for every coding agent (Claude Code, OpenCode, Hermes Agent, oh-my-pi). Other agents' files only point here. Every session loads this file, so it stays short: **read the rest only when the task needs it** (see [Read when](#read-when)).
+The single source of instructions for every coding agent (Claude Code, OpenCode, Hermes Agent, oh-my-pi); other agents' files point here. Loaded every session, so it stays short: **read the rest only when the task needs it** ([Read when](#read-when)).
 
 Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 16 static export, shadcn on Base UI, served by the server), `packages/ui` (shadcn components; Athena-made ones in `packages/ui/src/components/athena/`), `packages/api-client` (generated), `catalog/` (store apps), `scripts/` (installers, `check.sh`, git hooks, agent sync), `docs/`, `.agents/skills/`.
 
 ## Every session
 
-1. Read `docs/STATUS.md` (current milestone, in progress, next, open questions). Claude Code gets it at start-up from `scripts/session-start.mjs`.
+1. Read `docs/STATUS.md` (milestone, in progress, next, questions); Claude Code, OpenCode and oh-my-pi load it at start-up.
 2. Pick the rows of [Read when](#read-when) that match the task and read only those files.
 3. First session on a machine (or when the start-up message says setup is missing): run `node scripts/agents-setup.mjs --check`. If it reports missing items, tell the maintainer and offer to run it with `--yes`; it installs tools and edits the home folder, so ask first.
 4. Before ending, do the [Handoff](#handoff). The next agent may be a different tool with no memory of yours.
@@ -19,15 +19,16 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 - "Check" / "keep observing the PRs": read the checks (`gh pr checks <n>`, `gh run view <id> --log-failed`), fix failures on the PR branch, report what merged and what didn't. Never claim a merge without checking.
 - **Short replies.** Lead with the answer; skip preamble and recaps. Reports of what was and wasn't verified stay complete: final reports list "Fixed along the way" and "Not tested yet".
 - They can't see your private memory (Claude memory, Hermes memory, OpenCode sessions). Anything the next agent needs goes in the repo ([Where things go](#where-things-go)).
+- **Use subagents** (`docs/agents/subagents.md`) for wide searches, parallel independent research and the `reviewer`/`ui-verify` roles; do small lookups yourself. Brief them fully; check what they report.
 
 ## Git workflow (mandatory)
 
 `main` is protected: no direct or force pushes. Details in `CONTRIBUTING.md`.
 
 1. **Never edit, branch or commit in the base checkout** (where the repo was cloned). It stays on `main`, clean.
-2. Every task, however small, starts in its own worktree before any file is touched, made the agent's native way: Claude Code `claude -w <topic>`, Hermes `hermes -w`, OpenCode its worktree tools, oh-my-pi by itself. Name the branch `<type>/<topic>` (`git branch -m`; OpenCode's is detached: `git switch -c`). Already in the base checkout: `scripts/new-worktree.sh <type>/<topic>`. Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. Several agents work at once; `scripts/agent-guard.mjs` refuses edits in the base checkout. After the merge: `git worktree remove <path>`.
+2. Every task, however small, starts in its own worktree before any file is touched, made the agent's native way: Claude Code `claude -w <topic>`, Hermes `hermes -w`, OpenCode its worktree tools, oh-my-pi by itself. Name the branch `<type>/<topic>` (`git branch -m`; OpenCode's is detached: `git switch -c`). Already in the base checkout: `scripts/new-worktree.sh <type>/<topic>`. Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. `scripts/agent-guard.mjs` refuses edits in the base checkout. After the merge: `git worktree remove <path>`.
 3. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`); it becomes the squash commit and changelog entry.
-4. Turn on auto-merge right away, without asking: `gh pr merge <n> --squash --auto --delete-branch`. Not for release-please PRs (the maintainer merges those) or PRs whose base isn't `main`. Also check CodeQL is green before calling a PR done.
+4. Turn on auto-merge right away, without asking: `gh pr merge <n> --squash --auto --delete-branch`. Not for release-please PRs (the maintainer merges those) or PRs whose base isn't `main`. Check CodeQL is green before calling a PR done.
 5. Never edit `CHANGELOG.md` or `version.txt`; release-please does.
 
 ## Rules
@@ -54,14 +55,14 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 | Finish UI work (any `apps/web` change or API the UI uses) | skill `athena-ui-verify` and `docs/agents/gotchas/browser.md` |
 | Change installers, `athena service` or platform detection | skill `athena-host-test`, `docs/agents/gotchas/installers.md` |
 | Commit, push, open a PR or fix CI | skill `athena-ship`, `docs/agents/gotchas/git-ci.md` |
-| Hear "next", "check", "review" or "wrap up" | skills `athena-next`, `athena-check-prs`, `athena-review` (the `reviewer` subagent), `athena-handoff`; Claude Code and OpenCode also have them as `/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship` |
+| Hear "next", "check", "review" or "wrap up" | skills `athena-next`, `athena-check-prs`, `athena-review` (the `reviewer` subagent), `athena-handoff`; also `/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship` |
 | Need a command | `docs/agents/commands.md` |
 | Need the design of a feature, or a past decision | `docs/design/README.md` (index), then one section |
 | Need a feature's history | `docs/HISTORY.md` (search it; don't read it whole) |
 | Hit a shell, sandbox or agent quirk | `docs/agents/gotchas/environment.md` |
 | Change agent tooling (MCP, skills, rules, hooks, machine settings) or set up a machine | `docs/agents/tooling.md` (people: `docs/DEVELOPMENT.md`; update it when setup changes) |
 
-Skills live in `.agents/skills/<name>/SKILL.md`; if your agent doesn't load skills, read the file. MCP servers (`.mcp.json`): `shadcn`, `next-devtools`, `playwright` (call `browser_snapshot` when you need the page), `context7`.
+Skills live in `.agents/skills/<name>/SKILL.md`; if your agent doesn't load skills, read the file. MCP servers: `.mcp.json` (`shadcn`, `next-devtools`, `playwright`, `context7`).
 
 ## Definition of done
 
@@ -69,7 +70,7 @@ Skills live in `.agents/skills/<name>/SKILL.md`; if your agent doesn't load skil
 - Before pushing: `scripts/check.sh` (what CI runs; `--quick` skips the web build). Windows-only failures show up only in CI.
 - Turn on the git hooks once per clone: `git config core.hooksPath .githooks` (pre-commit refuses `main` and the base checkout; pre-push runs the parts of `scripts/check.sh` the push touches).
 - UI changes are verified in a real browser with `athena-ui-verify` before they're reported done.
-- `node scripts/check-docs.mjs` fails when an agent doc (every `AGENTS.md`/`CLAUDE.md`, `docs/agents/`, skills, `catalog/README.md`) names a file, function or constant that doesn't exist, or a file read every session grows past its size limit. Fix docs in the same PR as a rename; end a line with `<!-- docs-check: ignore -->` to mention something absent on purpose.
+- `node scripts/check-docs.mjs` fails when an agent doc (`AGENTS.md`/`CLAUDE.md`, `docs/agents/`, skills, `catalog/README.md`) names something that doesn't exist, or a file read every session outgrows its size limit. Fix docs in the same PR as a rename; end a line with `<!-- docs-check: ignore -->` to mention something absent on purpose.
 
 ## Handoff
 
@@ -82,7 +83,7 @@ At the end of every session, in your branch or a docs PR:
 
 | What | Where |
 |---|---|
-| Rules for every task | This file. Keep it short; link to detail |
+| Rules for every task | This file (short; link to detail) |
 | Rules for one app | `apps/server/AGENTS.md`, `apps/web/AGENTS.md` |
 | A repeatable procedure | A project skill (`.agents/skills/<name>/SKILL.md`, see `docs/agents/tooling.md`) |
 | Design and decisions | The section in `docs/design/`, plus a row in `docs/design/decisions.md` |
