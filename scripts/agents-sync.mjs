@@ -496,6 +496,12 @@ const OWNED_DIRS = [join(".claude", "agents"), join(".claude", "commands"), join
 const orphans = OWNED_DIRS.flatMap((d) => (existsSync(join(root, d)) ? readdirSync(join(root, d)).map((f) => join(d, f)) : [])).filter((f) => !(f in outputs));
 
 if (args.has("--check")) {
+  // The guard's own rules are checked here too, so CI's sync step covers them.
+  const selfTest = spawnSync(process.execPath, [join(root, "scripts", "agent-guard.mjs"), "--self-test"], { encoding: "utf8" });
+  if (selfTest.status !== 0) {
+    console.error(selfTest.stdout + selfTest.stderr);
+    process.exit(1);
+  }
   const stale = Object.entries(outputs).filter(([file, text]) => {
     const path = join(root, file);
     return !existsSync(path) || readFileSync(path, "utf8") !== text;

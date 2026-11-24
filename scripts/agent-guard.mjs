@@ -16,7 +16,7 @@
 // hook and GitHub's branch protection still apply).
 //
 // Edit in the base checkout on purpose (the maintainer, by hand): ATHENA_ALLOW_BASE_EDIT=1.
-//   node scripts/agent-guard.mjs --self-test     checks the path rules (CI runs it)
+//   node scripts/agent-guard.mjs --self-test     checks the path rules (agents-sync.mjs --check runs it)
 import { execFileSync } from "node:child_process"
 import { existsSync, readFileSync } from "node:fs"
 import { basename, dirname, isAbsolute, resolve } from "node:path"

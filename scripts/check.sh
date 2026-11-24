@@ -90,7 +90,6 @@ for part in "${PARTS[@]}"; do
     repo)
       step "generated agent config in sync (agents-sync)" node scripts/agents-sync.mjs --check
       step "agent setup script runs (agents-setup --quiet)" node scripts/agents-setup.mjs --check --quiet
-      step "agent guard rules (agent-guard --self-test)" node scripts/agent-guard.mjs --self-test
       step "docs point at real files and names" node scripts/check-docs.mjs
       if has gitleaks; then step "no secrets in the tree (gitleaks)" gitleaks dir . --redact --no-banner --log-level warn; else skip "gitleaks" "not installed"; fi
       step ".claude/skills points at .agents/skills" test "$(readlink .claude/skills)" = "../.agents/skills"
