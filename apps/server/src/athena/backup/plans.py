@@ -7,11 +7,15 @@ from athena.backup.settings import Retention
 
 
 class PlanApp(BaseModel):
-    """One app in a plan."""
+    """One app in a plan: its name, the bind mounts to include, and whether to back
+    it up while it's still running."""
 
     model_config = ConfigDict(extra="forbid")
 
     name: str = Field(pattern=APP_NAME, max_length=63)
+    bind_mounts: list[str] = Field(default_factory=list, max_length=50)
+    """Host paths outside the app folder to back up too, opted in per path.
+    Device and socket mounts are never offered (docs/specs/backup.md)."""
     while_running: bool = False
     """Back it up without stopping it ("Back up while running"), for apps that can't stop."""
 

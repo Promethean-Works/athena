@@ -178,7 +178,9 @@ def test_plan_crud(api: TestClient, tmp_path: Path) -> None:
     assert res.status_code == 200, res.text
     assert res.json()["name"] == "Weekly"
     assert res.json()["schedule"] is None
-    assert res.json()["items"]["apps"] == [{"name": "site", "while_running": False}]
+    assert res.json()["items"]["apps"] == [
+        {"name": "site", "bind_mounts": [], "while_running": False}
+    ]
 
     assert api.delete(f"/api/backup/plans/{plan['id']}").status_code == 204
     assert api.get("/api/backup/plans").json() == []

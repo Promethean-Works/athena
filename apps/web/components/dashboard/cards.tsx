@@ -28,6 +28,7 @@ import {
 import { PowerCard } from "@/components/dashboard/power-card"
 import { RemoteAccessCard } from "@/components/dashboard/remote-access-card"
 import { HostCapabilities } from "@/components/host-capabilities"
+import { BackupCard } from "@/components/dashboard/backup-card"
 import { ServerOverview } from "@/components/server-overview"
 
 export type CardSize = "half" | "full"
@@ -146,6 +147,15 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
     icon: ShieldCheckIcon,
     defaultSize: "half",
     render: () => <HostCapabilities />,
+  },
+  {
+    id: "backups",
+    title: "Backups",
+    description: "Backup plans, last runs and the next scheduled run.",
+    icon: ShieldCheckIcon,
+    defaultSize: "half",
+    capability: "backup",
+    render: () => <BackupCard />,
   },
 ]
 

@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, FastAPI, HTTPException, Request, status
 from pydantic import BaseModel, Field
 from sqlmodel import Session, select
 
@@ -14,6 +14,7 @@ from athena import audit
 from athena.apps.store import AppStore, check_name
 from athena.auth.deps import Authed, DbSession
 from athena.automation import service as automation_service
+from athena.automation.service import AutomationTrigger, compute_next_run
 from athena.backup import repository, restore, snapshots, versions
 from athena.backup.plans import PlanItems, parse_items, parse_retention
 from athena.backup.repository import DestinationError
@@ -296,6 +297,8 @@ class PlanOut(BaseModel):
     enabled: bool
     last_run_at: datetime | None
     last_status: Literal["ok", "failed", "skipped"] | None
+    next_run_at: datetime | None = None
+    """When the next scheduled run is due, or null for manual plans."""
     last_error: str | None
     created_at: datetime
 
@@ -312,6 +315,7 @@ def _plan_out(row: BackupPlan) -> PlanOut:
         enabled=row.enabled,
         last_run_at=_aware(row.last_run_at),
         last_status=status_,  # type: ignore[arg-type]
+        next_run_at=_aware(row.next_run_at),
         last_error=row.last_error,
         created_at=_aware(row.created_at) or row.created_at,
     )
@@ -367,7 +371,7 @@ def list_plans(user: Authed, db: DbSession) -> list[PlanOut]:
 
 
 @router.post("/plans", operation_id="createBackupPlan", status_code=status.HTTP_201_CREATED)
-def create_plan(body: PlanIn, user: Authed, db: DbSession) -> PlanOut:
+def create_plan(body: PlanIn, request: Request, user: Authed, db: DbSession) -> PlanOut:
     _require_admin(user)
     schedule = _check_plan(body, db)
     row = BackupPlan(
@@ -383,11 +387,14 @@ def create_plan(body: PlanIn, user: Authed, db: DbSession) -> PlanOut:
     db.commit()
     db.refresh(row)
     audit.record(db, user.user.username, "backup.plan.create", row.name)
+    _create_or_update_trigger(request.app, row, db)
     return _plan_out(row)
 
 
 @router.put("/plans/{plan_id}", operation_id="updateBackupPlan")
-def update_plan(plan_id: str, body: PlanIn, user: Authed, db: DbSession) -> PlanOut:
+def update_plan(
+    plan_id: str, body: PlanIn, request: Request, user: Authed, db: DbSession
+) -> PlanOut:
     _require_admin(user)
     row = _get_plan(db, plan_id)
     schedule = _check_plan(body, db, plan_id)
@@ -401,19 +408,21 @@ def update_plan(plan_id: str, body: PlanIn, user: Authed, db: DbSession) -> Plan
     db.commit()
     db.refresh(row)
     audit.record(db, user.user.username, "backup.plan.update", row.name)
+    _create_or_update_trigger(request.app, row, db)
     return _plan_out(row)
 
 
 @router.delete(
     "/plans/{plan_id}", operation_id="deleteBackupPlan", status_code=status.HTTP_204_NO_CONTENT
 )
-def delete_plan(plan_id: str, user: Authed, db: DbSession) -> None:
+def delete_plan(plan_id: str, request: Request, user: Authed, db: DbSession) -> None:
     """Forget a plan. Its backups stay in the destination."""
     _require_admin(user)
     row = _get_plan(db, plan_id)
     db.delete(row)
     db.commit()
     audit.record(db, user.user.username, "backup.plan.delete", row.name)
+    _delete_trigger(request.app, row, db)
 
 
 async def _runtime_or_none(request: Request) -> Runtime | None:
@@ -453,6 +462,57 @@ async def run_plan(plan_id: str, request: Request, user: Authed, db: DbSession) 
     job = jobs.start(f"Back up {row.name}", body, cancellable=True)
     audit.record(db, username, "backup.plan.run", row.name)
     return job.out()
+
+
+def _plan_trigger_name(plan_id: str) -> str:
+    return f"backup-plan:{plan_id}"
+
+
+def _create_or_update_trigger(app: FastAPI, plan: BackupPlan, db: Session) -> None:
+    """Create or update the automation trigger that fires a scheduled plan."""
+    if not plan.schedule or not plan.enabled:
+        _delete_trigger(app, plan, db)
+        return
+
+    existing = db.exec(
+        select(AutomationTrigger).where(AutomationTrigger.name == _plan_trigger_name(plan.id))
+    ).first()
+
+    action = {"kind": "backup.run", "plan_id": plan.id}
+    cron = compute_next_run(plan.schedule, datetime.now(UTC))
+
+    if existing is None:
+        trigger = AutomationTrigger(
+            id=uuid.uuid4().hex,
+            kind="cron",
+            name=_plan_trigger_name(plan.id),
+            cron_expression=plan.schedule,
+            action=action,
+            enabled=True,
+            next_run_at=cron,
+        )
+        db.add(trigger)
+    else:
+        existing.cron_expression = plan.schedule
+        existing.action = action
+        existing.enabled = True
+        existing.next_run_at = cron
+        existing.updated_at = cron
+        db.add(existing)
+
+    plan.next_run_at = cron
+    db.add(plan)
+    db.commit()
+
+
+def _delete_trigger(app: FastAPI, plan: BackupPlan, db: Session) -> None:
+    """Remove the automation trigger for a plan, if any."""
+    trigger = db.exec(
+        select(AutomationTrigger).where(AutomationTrigger.name == _plan_trigger_name(plan.id))
+    ).first()
+    if trigger is not None:
+        db.delete(trigger)
+        db.commit()
 
 
 # ---------------------------------------------------------------- versions

@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+import yaml
 from sqlmodel import Session, select
 
 from athena import __version__
@@ -27,7 +28,7 @@ from athena.apps.store import AppStore, compose
 from athena.backup import restic
 from athena.backup.plans import PlanApp, PlanItems
 from athena.backup.repository import looks_like_repository
-from athena.backup.restic import Repository, Restic, ResticError
+from athena.backup.restic import Repository, Restic, ResticError, _environment
 from athena.config import SETTINGS_FILE
 from athena.containers import service as containers
 from athena.containers.runtime import Runtime
@@ -174,7 +175,10 @@ async def backup_app(
     runtime: Runtime | None,
     item: PlanApp,
 ) -> ItemResult:
-    """Snapshot one app's folder, stopping it for the duration unless `while_running`."""
+    """Snapshot one app's folder, stopping it for the duration unless `while_running`.
+    Also backs up named volumes declared in the app's compose file through a short-lived
+    helper container, plus any bind mounts the admin opted into.
+    """
     label = app_tag(item.name)
     folder = store.dir(item.name)
     if not folder.is_dir():
@@ -190,22 +194,27 @@ async def backup_app(
         if stop:
             assert runtime is not None
             await job.log(f"Stopping {item.name}")
-            stopped = True  # even a failed stop may have stopped some of its containers
+            stopped = True
             await run_or_fail(
                 job, compose(runtime, item.name, path, "stop"), "docker compose stop",
                 env=store.env(item.name),
             )  # fmt: skip
         result = await backup_folder(tool, repo, job, folder, snapshot_tags(label), label)
+        volumes = _named_volumes(path)
+        if volumes and runtime is not None:
+            await _backup_volumes(tool, repo, job, runtime, item.name, volumes)
+        if item.bind_mounts:
+            await _backup_bind_mounts(tool, repo, job, item.bind_mounts, label)
     except BaseException as exc:
         failure = exc
     if stopped:
         assert runtime is not None
         await job.log(f"Starting {item.name} again")
         try:
-            # Shielded: a cancelled job still starts every app it stopped.
             await asyncio.shield(
                 run_or_fail(
-                    job, compose(runtime, item.name, path, "up", "--detach", "--remove-orphans"),
+                    job,
+                    compose(runtime, item.name, path, "up", "--detach", "--remove-orphans"),
                     "docker compose up", env=store.env(item.name),
                 )
             )  # fmt: skip
@@ -220,6 +229,110 @@ async def backup_app(
         raise failure
     assert result is not None
     return result
+
+
+def _named_volumes(compose_path: Path) -> list[str]:
+    """Named volumes declared under top-level `volumes:` and referenced by a service."""
+    try:
+        doc = yaml.safe_load(compose_path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    if not isinstance(doc, dict):
+        return []
+    services = doc.get("services") or {}
+    top_level = doc.get("volumes") or {}
+    if not isinstance(top_level, dict):
+        return []
+    declared: set[str] = set()
+    for service in services.values():
+        if not isinstance(service, dict):
+            continue
+        for vol in service.get("volumes") or []:
+            if isinstance(vol, str) and ":" in vol:
+                name = vol.split(":", 1)[0]
+                if name in top_level:
+                    declared.add(name)
+    return sorted(declared)
+
+
+async def _backup_volumes(
+    tool: Restic,
+    repo: Repository,
+    job: Job,
+    runtime: Runtime,
+    app_name: str,
+    volumes: list[str],
+) -> None:
+    """Stream each named volume through a helper container into restic --stdin."""
+    helper = "busybox@sha256:8b7fe2f5e985f8509e2a342cf38889e2fe6e00bf3d7c7c3e49b5a9e8e1f8e4a1"
+    for vol in volumes:
+        await job.log(f"Backing up volume {vol}")
+        docker_args = [
+            *runtime.cli,
+            "run",
+            "--rm",
+            "--network",
+            "none",
+            "-v",
+            f"{vol}:/v:ro",
+            helper,
+            "tar",
+            "-C",
+            "/v",
+            "-cf",
+            "-",
+        ]
+        proc = await asyncio.create_subprocess_exec(
+            *docker_args,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            stdin=asyncio.subprocess.DEVNULL,
+        )
+        assert proc.stdout is not None
+        restic_args = [
+            "backup",
+            "--stdin",
+            "--stdin-filename",
+            f"volumes/{vol}.tar",
+            "--host",
+            SNAPSHOT_HOST,
+            *snapshot_tags(app_tag(app_name)),
+        ]
+        restic_proc = await asyncio.create_subprocess_exec(
+            str(tool.binary),
+            *restic_args,
+            stdin=proc.stdout,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            env=_environment(repo, tool.cache_dir),
+        )
+        proc.stdout.close()
+        _, restic_err = await restic_proc.communicate()
+        docker_code = await proc.wait()
+        if docker_code != 0 or restic_proc.returncode != 0:
+            msg = (
+                f"volume {vol}: docker exit {docker_code}, "
+                f"restic exit {restic_proc.returncode}: {restic_err.decode(errors='replace')}"
+            )
+            raise ResticError(msg, restic_proc.returncode or docker_code)
+        await job.log(f"Volume {vol}: snapshotted")
+
+
+async def _backup_bind_mounts(
+    tool: Restic,
+    repo: Repository,
+    job: Job,
+    bind_mounts: list[str],
+    label: str,
+) -> None:
+    """Back up each opted-in bind mount path."""
+    for mount in bind_mounts:
+        p = Path(mount)
+        if not p.is_dir():
+            await job.log(f"Bind mount {mount} not found, skipping")
+            continue
+        await job.log(f"Backing up bind mount {mount}")
+        await backup_folder(tool, repo, job, p, snapshot_tags(f"{label}:{mount}"), f"bind:{mount}")
 
 
 async def run_items(
