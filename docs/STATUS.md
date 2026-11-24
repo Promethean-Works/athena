@@ -8,41 +8,24 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Self-update (`docs/specs/self-update.md`): parts 1-3 done (#252 merged part 3). **Next part 4**: backup first, interrupted-update banner (`state.json` phase not final), design doc, spec Done. Not verified: Fedora, hand failure cases, a real UI update (E2E smoke).
-- Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d (restore one app) done; `schedule` isn't run until part 4. **Part 4 (volumes/bind mounts/schedule/automation/dashboard card)** done in #256. 2d not run against a real runtime or volumes (backups hold the folder only).
-- HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt or Cloudflare, trusting the CA on real devices. The last renewal/error live in memory only (a restart forgets them). Follow-up: own-certificate upload.
+- Self-update (`docs/specs/self-update.md`): parts 1-3 done (#252). **Next part 4**: backup first, interrupted-update banner, design doc, spec done. Not verified: Fedora, hand failure cases, real UI update (E2E smoke).
+- Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d done; `schedule` runs in part 4. Part 4 (#256) done. 2d not run against real runtime/volumes.
+- HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt/Cloudflare, trusting CA on real devices. Renewal/error live in memory only (restart forgets). Follow-up: own-certificate upload.
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.
 - Agent orchestration (`docs/specs/agent-orchestration.md`): parts 1–2 done. Next: a happy-path trial from `main` (`/orchestrate`, `start --issue-file`), then part 3 (PR, CI watch).
 - Windows E2E flake: `GET /api/containers` sometimes 500s under the service (`WinError 6`, see gotchas/windows.md).
-- M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
-- Dashboard follow-ups: touch dragging on a real phone; an app "update available" badge (`AppOut` has no such field).
-- A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
-- Agent tooling (see HISTORY): after it merges, run `node scripts/agents-setup.mjs` (Hermes guard hook, denies, aliases) and `hermes mcp remove github`; approve the Hermes hook once.
+- M7 D stage 2 follow-up ideas: show delegate tool calls nested; Settings → AI page; warn on small Ollama context; phone waiting question card below plan bar.
+- Dashboard follow-ups: touch dragging on phone; app "update available" badge (`AppOut` has no such field).
+- Webhook app restart took 10 min, `GET /api/automation/jobs` hung (Colima slow; rerun 10 s): does a run block the DB?
+- Agent tooling: after merge, run `node scripts/agents-setup.mjs` (Hermes guard hook, denies, aliases) and `hermes mcp remove github`; approve Hermes hook once.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
-- Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
-- Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
-- Not yet verified in a browser: `/files/smb` (#104), the compose variant picker (#109), and the cloud wizard (#97) and remote cards (#92) with a real rclone remote.
-- Catalog smoke test (#169, #172, fixes #173–#176): every store app was installed for real on macOS arm64 (Colima); 135/199 passed at first, the rest were fixed or honestly marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run the `Catalog smoke` workflow by hand for `--all` on amd64 and arm64 and fix what fails there. Logins and real use of each app aren't verified.
-- Tunnel follow-ups (#150):
-  - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
-  - Real-tested: a Cloudflare quick tunnel (macOS). Not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`, which nothing writes.
-
-- models.dev providers left out because pydantic-ai needs their own SDK: watsonx, GitLab, SAP AI Core and a few gateways. Google Vertex is in (`google-vertex`, service-account key; not tried against real Vertex credentials).
-
+- Not yet verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell through Docker in WSL.
+- Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
+- Not yet verified in browser: `/files/smb` (#104), compose variant picker (#109), cloud wizard (#97) and remote cards (#92) with real rclone remote.
+- Catalog smoke test (#169, #172, fixes #173–#176): every store app installed for real on macOS arm64 (Colima); 135/199 passed at first, rest fixed or marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run `Catalog smoke` workflow for `--all` on amd64/arm64. Logins/real use not verified.
+- Tunnel follow-ups (#150): ngrok service files hold `${NGROK_AUTHTOKEN}` placeholder; Cloudflare quick tunnel tested (macOS); not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`.
+- models.dev providers left out (pydantic-ai needs their SDK): watsonx, GitLab, SAP AI Core, gateways. Google Vertex in (`google-vertex`, service-account key; not tried against real Vertex).
 - **Raspberry Pi phase-1 memory fix**: lazy-load assistant stack (PR #265). Assistant imports (pydantic-ai, ~200 MB) moved to on-demand; startup RSS ~191 MB vs ~293 MB with full stack. All 376 tests pass.
-- A webhook app restart once took 10 min and `GET /api/automation/jobs` hung meanwhile (Colima slow; rerun 10 s): does a run block the DB?
-- Agent tooling (see HISTORY): after it merges, run `node scripts/agents-setup.mjs` (Hermes guard hook, denies, aliases) and `hermes mcp remove github`; approve the Hermes hook once.
-- Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
-- Not yet verified for real: the Windows terminal (ConPTY plus PowerShell) beyond CI's pty tests, and the container shell through Docker in WSL.
-- Not yet verified for real: the other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt was checked in a Lima VM, see #26 in HISTORY) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
-- Not yet verified in a browser: `/files/smb` (#104), the compose variant picker (#109), and the cloud wizard (#97) and remote cards (#92) with a real rclone remote.
-- Catalog smoke test (#169, #172, fixes #173–#176): every store app was installed for real on macOS arm64 (Colima); 135/199 passed at first, the rest were fixed or honestly marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run the `Catalog smoke` workflow by hand for `--all` on amd64 and arm64 and fix what fails there. Logins and real use of each app aren't verified.
-- Tunnel follow-ups (#150):
-  - ngrok service files still hold a literal `${NGROK_AUTHTOKEN}` placeholder, so auto-start can't authenticate. <!-- docs-check: ignore -->
-  - Real-tested: a Cloudflare quick tunnel (macOS). Not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`, which nothing writes.
-
-- models.dev providers left out because pydantic-ai needs their own SDK: watsonx, GitLab, SAP AI Core and a few gateways. Google Vertex is in (`google-vertex`, service-account key; not tried against real Vertex credentials).
-
 
 ## Next
 
