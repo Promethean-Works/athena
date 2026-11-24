@@ -3908,11 +3908,14 @@ export interface components {
         };
         /**
          * PlanApp
-         * @description One app in a plan.
+         * @description One app in a plan: its name, the bind mounts to include, and whether to back
+         *     it up while it's still running.
          */
         PlanApp: {
             /** Name */
             name: string;
+            /** Bind Mounts */
+            bind_mounts?: string[];
             /**
              * While Running
              * @default false
@@ -3966,6 +3969,8 @@ export interface components {
             last_run_at: string | null;
             /** Last Status */
             last_status: ("ok" | "failed" | "skipped") | null;
+            /** Next Run At */
+            next_run_at?: string | null;
             /** Last Error */
             last_error: string | null;
             /**

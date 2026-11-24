@@ -315,6 +315,8 @@ class BackupPlan(SQLModel, table=True):
     """JSON: the Athena flag and the apps with their opt-in bind mounts and running switch."""
     schedule: str | None = None
     """A cron expression, or null for manual runs only."""
+    next_run_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True), index=True)
+    """When the next scheduled run is due, or null for manual plans."""
     retention: str = "{}"
     """JSON `Retention` (keep last / daily / weekly / monthly)."""
     enabled: bool = True

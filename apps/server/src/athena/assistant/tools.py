@@ -124,6 +124,43 @@ async def https_status(ctx: Ctx) -> dict[str, Any]:
 
 # ---------------------------------------------------------------- containers
 
+# ---------------------------------------------------------------- backup
+
+
+async def backup_status(ctx: Ctx) -> dict[str, Any]:
+    """Backup plans, destinations and latest runs: last run time/status, next run, items."""
+    from athena.backup.plans import parse_items, parse_retention
+
+    db = ctx.deps.db
+    from athena.db.models import BackupDestination, BackupPlan
+
+    plans = db.exec(select(BackupPlan).order_by(BackupPlan.name)).all()
+    dests = db.exec(select(BackupDestination).order_by(BackupDestination.name)).all()
+
+    def _plan_out(row: BackupPlan) -> dict[str, Any]:
+        items = parse_items(row.items)
+        names = [a.name for a in items.apps]
+        if items.athena:
+            names.insert(0, "athena")
+        retention = parse_retention(row.retention)
+        return {
+            "id": row.id,
+            "name": row.name,
+            "enabled": row.enabled,
+            "schedule": row.schedule,
+            "next_run_at": row.next_run_at.isoformat() if row.next_run_at else None,
+            "last_run_at": row.last_run_at.isoformat() if row.last_run_at else None,
+            "last_status": row.last_status,
+            "last_error": row.last_error,
+            "items": names,
+            "retention": retention.model_dump(mode="json"),
+        }
+
+    return {
+        "plans": [_plan_out(p) for p in plans],
+        "destinations": [{"id": d.id, "name": d.name, "kind": d.kind} for d in dests],
+    }
+
 
 async def list_apps(ctx: Ctx) -> list[dict[str, Any]]:
     """The apps Athena manages (compose projects), with status, running/total containers

@@ -10513,6 +10513,14 @@
             "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
             "title": "Name"
           },
+          "bind_mounts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Bind Mounts"
+          },
           "while_running": {
             "type": "boolean",
             "title": "While Running",
@@ -10525,7 +10533,7 @@
           "name"
         ],
         "title": "PlanApp",
-        "description": "One app in a plan."
+        "description": "One app in a plan: its name, the bind mounts to include, and whether to back\nit up while it's still running."
       },
       "PlanIn": {
         "properties": {
@@ -10654,6 +10662,18 @@
               }
             ],
             "title": "Last Status"
+          },
+          "next_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Run At"
           },
           "last_error": {
             "anyOf": [
