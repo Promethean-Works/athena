@@ -7,6 +7,7 @@ import {
   FolderIcon,
   LayoutDashboardIcon,
   LayoutGridIcon,
+  LayoutListIcon,
   PackageIcon,
   Settings2Icon,
   Share2Icon,
@@ -102,6 +103,12 @@ export const navMain: NavItem[] = [
     capability: "terminal.host",
   },
   { title: "Assistant", url: "/assistant/", icon: SparklesIcon },
+  {
+    title: "Backups",
+    url: "/backups/",
+    icon: LayoutListIcon,
+    capability: "backup",
+  },
 ]
 
 /** True when `pathname` is the item's page or below it ("/" only matches itself). */
