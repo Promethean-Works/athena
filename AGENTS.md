@@ -55,7 +55,7 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 | Start a big feature (new part, area, or more than one PR) | `docs/specs/README.md`: write a spec and get a yes before code |
 | Add an endpoint, migration, page, job or setting | skill `athena-recipes` (start here when unsure how something is done) |
 | Add or update a store app | skill `athena-catalog-app`, `catalog/README.md` |
-| Finish UI work (any `apps/web` change or API the UI uses) | skill `athena-ui-verify` and `docs/agents/gotchas/browser.md` |
+| Finish UI work (a change users see or do, or an API the UI uses) | skill `athena-ui-verify` and `docs/agents/gotchas/browser.md` |
 | Change installers, `athena service` or platform detection | skill `athena-host-test`, `docs/agents/gotchas/installers.md` |
 | Commit, push, open a PR or fix CI | skill `athena-ship`, `docs/agents/gotchas/git-ci.md` |
 | Hear "next", "check", "review" or "wrap up" | skills `athena-next`, `athena-check-prs`, `athena-review` (the `reviewer` subagent), `athena-handoff`, `athena-orchestrate`; also `/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship`, `/orchestrate` |
@@ -70,16 +70,16 @@ Skills live in `.agents/skills/<name>/SKILL.md`; if your agent doesn't load skil
 ## Definition of done
 
 - While iterating, run focused checks: `cd apps/server && uv run pytest -q -k <name>`, `uv run ruff check`, `pnpm lint && pnpm typecheck`.
-- Before pushing: `scripts/check.sh` (what CI runs; `--quick` skips the web build, `--strict` fails on skips). Windows-only failures show up only in CI.
+- Before pushing: `scripts/check.sh` for the parts you touched (`repo` for docs; `--strict` fails on skips). Windows-only failures show up only in CI.
 - Turn on the git hooks once per clone: `git config core.hooksPath .githooks` (pre-commit refuses `main` and the base checkout; pre-push runs the touched parts of `scripts/check.sh`).
-- UI changes are verified in a real browser with `athena-ui-verify` before they're reported done.
+- UI changes users see or do are browser-verified with `athena-ui-verify`.
 - `node scripts/check-docs.mjs` fails when an agent doc names something that doesn't exist, or a file read every session outgrows its size limit. Fix docs in the same PR as a rename; end a line with `<!-- docs-check: ignore -->` to mention something absent on purpose.
 
 ## Handoff
 
-At the end of every session, in your branch or a docs PR:
+At the end of a session that changed the repo, on the task's branch (no PR just for this):
 
-- `docs/STATUS.md`: move finished items to one short bullet at the end of `docs/HISTORY.md` (what, PR, what was and wasn't verified). Under **In progress**, say where you stopped and the next concrete step. Add **Open questions** and **Blockers**. Keep it short (size-checked).
+- `docs/STATUS.md`: move finished items to one bullet in `docs/HISTORY.md`; append with `cat >>`, never open it whole. Under **In progress**, say where you stopped and the next concrete step. Add **Open questions** and **Blockers**. Keep it short (size-checked).
 - Add anything non-obvious you learned to [the right place](#where-things-go).
 
 ## Where things go

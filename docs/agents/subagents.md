@@ -8,7 +8,7 @@ A subagent starts with only the brief you give it and returns only its final rep
 
 - **Wide searches:** "where is X handled", "every caller of Y", "which store apps use Z" across many files. You keep the answer, not the dumps.
 - **Independent research in parallel:** several questions that don't depend on each other (current docs of two libraries, how three agents configure the same thing). Start them all in one turn, keep working, and combine the reports.
-- **Fixed roles:** the `reviewer` before every PR (`athena-review`), and `ui-verify` for browser checks (`athena-ui-verify`). They keep long, repetitive steps out of the main session (and run on a cheaper model in Claude Code and oh-my-pi; in OpenCode set one, see `docs/agents/tooling.md`).
+- **Fixed roles:** the `reviewer` before a PR that changes code or is over ~100 lines (`athena-review`; it costs 30–40k tokens, so not for small docs-only diffs), and `ui-verify` for browser checks (`athena-ui-verify`). They keep long, repetitive steps out of the main session (and run on a cheaper model in Claude Code and oh-my-pi; in OpenCode set one, see `docs/agents/tooling.md`).
 - **A second opinion that isn't yours:** give the reviewer the diff, not your conclusion. A subagent handed a hypothesis tends to return it confirmed.
 
 Do it yourself when it's a handful of tool calls, a file you already know the path of, or something you need to see line by line to edit. Never delegate a step and also do it yourself.
