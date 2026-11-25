@@ -38,6 +38,8 @@ const EXTERNAL = new Set([
   // GitHub / tooling
   "workflow_dispatch", "BasicAuthLevel", "mcp__ccd_pr__set_monitor", "LASTEXITCODE",
   "CONTEXT7_API_KEY", "RELEASE_PLEASE_TOKEN", "PSAvoidUsingWriteHost", "mount_webdav",
+  // Runtime files (not in source)
+  "athena.json", "secret.key",
 ])
 // Tool names of MCP servers (Playwright's browser_*, Claude's mcp__*).
 const EXTERNAL_PREFIXES = ["browser_", "mcp__"]
