@@ -24,7 +24,15 @@
       "PSScriptAnalyzer"
     ],
     "$allow_missing": "Steps whose tool may be absent on the maintainer's Mac; CI runs them (PSScriptAnalyzer: the Windows job).",
-    "timeout_minutes": 40
+    "timeout_minutes": 40,
+    "full_when_paths": [
+      "apps/web/**",
+      "packages/**",
+      "pnpm-lock.yaml",
+      "**/package.json",
+      "turbo.json"
+    ],
+    "$full_when_paths": "A diff touching none of these is verified with --quick (no web build; the build downloads fonts and fails offline)."
   },
   "max_repairs": 2,
   "sensitive_paths": [

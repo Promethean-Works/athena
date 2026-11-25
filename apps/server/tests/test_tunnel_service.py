@@ -2,7 +2,9 @@
 
 import asyncio
 import stat
+import subprocess
 import sys
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +27,13 @@ class _Job:
 
 @pytest.fixture
 def host(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
-    """Fake host: secrets dir and home under tmp_path, subprocess.run recorded."""
+    """Fake host: secrets dir and home under tmp_path, subprocess.run recorded.
+
+    `ngrok.subprocess` is the shared `subprocess` module, so the patch is process-wide.
+    Only calls from the test's own thread are recorded; any other thread (a background
+    stats sampler left from an earlier test runs `powermetrics` on macOS) gets the real
+    `subprocess.run`, so it neither lands in `calls` nor gets `None` back.
+    """
     secrets = tmp_path / "secrets"
     secrets.mkdir()
     monkeypatch.setattr(servicefiles, "private_dir", lambda: secrets)
@@ -33,9 +41,29 @@ def host(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
     monkeypatch.setattr(ngrok, "find_binary", lambda name: f"/bin/{name}")
     monkeypatch.setattr(cloudflare, "find_binary", lambda name: f"/bin/{name}")
     calls: list[list[str]] = []
-    monkeypatch.setattr(ngrok.subprocess, "run", lambda cmd, **kw: calls.append(cmd))
-    monkeypatch.setattr(cloudflare.subprocess, "run", lambda cmd, **kw: calls.append(cmd))
+    real_run = subprocess.run
+    test_thread = threading.get_ident()
+
+    def fake_run(cmd: list[str], **kw: Any) -> Any:
+        if threading.get_ident() != test_thread:
+            return real_run(cmd, **kw)
+        calls.append(cmd)
+        return None
+
+    monkeypatch.setattr(ngrok.subprocess, "run", fake_run)
+    monkeypatch.setattr(cloudflare.subprocess, "run", fake_run)
     return {"secrets": secrets, "home": tmp_path, "calls": calls, "mp": monkeypatch}
+
+
+def test_fake_host_ignores_other_threads(host: dict[str, Any]) -> None:
+    """Regression: a background thread's subprocess.run once landed in `calls` (macOS)."""
+    results: list[Any] = []
+    cmd = [sys.executable, "-c", "pass"]
+    t = threading.Thread(target=lambda: results.append(subprocess.run(cmd)))
+    t.start()
+    t.join()
+    assert host["calls"] == []
+    assert results[0].returncode == 0
 
 
 def _system(host: dict[str, Any], name: str) -> None:

@@ -23,6 +23,7 @@
 // the same state. Policy: .agents/orchestration.json. Headless flags and output formats:
 // docs/agents/tooling.md → Running agents headless.
 import { spawnSync } from "node:child_process"
+import { createHash } from "node:crypto"
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -417,6 +418,105 @@ function cmdImplement(n, findingsFile) {
   out({ ok: true, state: task.state, candidate: task.candidate_commit, files, cost: parsed.cost, models: parsed.models, log, report, next: "verify <issue#>" })
 }
 
+// The failures in a check.sh run, as tokens that can be compared with the base commit's:
+//   pytest::<test id>       one per failing test (from the pytest step's full log)
+//   <step>@<hash>           any other step, with a hash of its log after removing paths,
+//                           temp dirs and timings, so the same step failing for a different
+//                           reason doesn't match
+//   <step>!unmaskable       never treated as pre-existing: a pytest crash with no test ids,
+//                           a --strict missing tool, a failed `pnpm install`, a step whose
+//                           log is gone
+// Step names come from check.sh's `Failed (N): a,b` line (no step name has a comma).
+export const UNMASKABLE = "!unmaskable"
+export function normaliseLog(text, roots = []) {
+  let t = text
+  for (const r of roots.filter(Boolean)) t = t.split(r).join("<root>")
+  return t
+    .replace(/\x1b\[[0-9;]*m/g, "")
+    .replace(/\/(?:private\/)?(?:var\/folders|tmp)\/[^\s:'")]+/g, "<tmp>")
+    .replace(/athena-(?:check|baseline|review)[-.][\w.-]+/g, "<tmp>")
+    .replace(/\b\d+(?:\.\d+)?\s?(?:ms|s|sec|seconds|m|min)\b/g, "<t>")
+    .replace(/\(\d+:\d+:\d+\)/g, "(<t>)")
+    .replace(/\b\d{2}:\d{2}:\d{2}(?:\.\d+)?\b/g, "<t>")
+    .replace(/[ \t]+$/gm, "")
+}
+export function checkFailures(output, { readLog = (p) => (existsSync(p) ? readFileSync(p, "utf8") : null), roots = [] } = {}) {
+  const clean = output.replace(/\x1b\[[0-9;]*m/g, "")
+  const line = clean.split("\n").find((l) => /^Failed \(\d+\): /.test(l))
+  if (!line) return null // no summary: the run crashed or was killed, so nothing can be compared
+  const steps = line.replace(/^Failed \(\d+\): /, "").split(",").map((x) => x.trim()).filter(Boolean)
+  const logOf = (step) => {
+    const esc = step.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    const m = clean.match(new RegExp(`^FAIL ${esc} \\(last \\d+ lines; full log: ([^)]+)\\)`, "m"))
+    return m ? readLog(m[1]) : null
+  }
+  const failures = []
+  for (const step of steps) {
+    const log = logOf(step)
+    if (step === "pytest") {
+      const ids = log ? [...log.matchAll(/^(?:FAILED|ERROR) (\S+)/gm)].map((x) => `pytest::${x[1]}`) : []
+      failures.push(...(ids.length ? [...new Set(ids)] : [`pytest${UNMASKABLE}`]))
+    } else if (log === null || step === "pnpm install") {
+      failures.push(`${step}${UNMASKABLE}`)
+    } else {
+      failures.push(`${step}@${createHash("sha256").update(normaliseLog(log, roots)).digest("hex").slice(0, 12)}`)
+    }
+  }
+  return failures
+}
+
+// Whether the diff needs the web build; without it verify runs --quick (the build also
+// downloads fonts, which fails offline). Paths: policy verify.full_when_paths.
+export function needsFullCheck(files, globs) {
+  return sensitiveFiles(files, globs).length > 0
+}
+
+function verifyRun(policy, cwd, quick, logFile) {
+  const [cmd, ...args] = policy.verify.command
+  const env = { ATHENA_CHECK_STRICT: "1", ATHENA_CHECK_ALLOW_MISSING: (policy.verify.allow_missing ?? []).join(",") }
+  const r = run(cmd, quick ? [...args, "--quick"] : args, { cwd, timeoutMin: policy.verify.timeout_minutes, logFile, env })
+  // check.sh keeps a failing run's step logs in a temp dir; read them now, before anything else runs.
+  const failures = r.status === 0 && !r.timedOut ? [] : r.timedOut ? null : checkFailures(r.stdout, { roots: [cwd] })
+  return { ...r, failures }
+}
+
+// The same check on the base commit, once per commit and mode, so failures that were
+// already there are reported but don't block (AGENTS.md: report them apart from new ones).
+function baselineFailures(policy, baseCommit, quick) {
+  const file = join(stateDir(), "baselines", `${baseCommit}-${quick ? "quick" : "full"}.json`)
+  if (existsSync(file)) {
+    const cached = JSON.parse(readFileSync(file, "utf8"))
+    // A cached baseline expires, so a transient failure (network) doesn't mask forever.
+    if (Date.now() - Date.parse(cached.at) < 12 * 3600_000) return { ...cached, cached: true }
+  }
+  const base = baseCheckout()
+  const wt = join(dirname(base), "worktrees", `athena-baseline-${baseCommit.slice(0, 12)}`)
+  const drop = () => {
+    try {
+      git(base, "worktree", "remove", "--force", wt)
+    } catch {
+      rmSync(wt, { recursive: true, force: true })
+      git(base, "worktree", "prune")
+    }
+  }
+  if (existsSync(wt)) drop()
+  git(base, "worktree", "add", "--detach", wt, baseCommit)
+  let r
+  try {
+    r = verifyRun(policy, wt, quick, join(stateDir(), "baselines", `${baseCommit}-${quick ? "quick" : "full"}.log`))
+  } finally {
+    drop()
+  }
+  // A baseline whose dependencies didn't install proves nothing about the code: unusable.
+  const usable = r.failures && !r.failures.some((f) => f.startsWith("pnpm install"))
+  const result = { commit: baseCommit, quick, exit: r.status, failures: usable ? r.failures : null, at: new Date().toISOString() }
+  if (result.failures) {
+    mkdirSync(dirname(file), { recursive: true })
+    writeFileSync(file, JSON.stringify(result, null, 2) + "\n") // an unreadable run isn't cached
+  }
+  return { ...result, cached: false }
+}
+
 function cmdVerify(n) {
   const task = loadTask(n)
   needState(task, "verifying")
@@ -427,22 +527,57 @@ function cmdVerify(n) {
   if ((task.runs[vkey] ?? 0) >= (policy.max_verify_runs_per_commit ?? 2))
     fail("verify already ran the allowed number of times on this commit; repair it (implement --repair) or block", 1)
   task.runs[vkey] = (task.runs[vkey] ?? 0) + 1
+  saveTask(task)
+  const files = git(task.worktree, "diff", "--name-only", "--no-renames", `${task.base_commit}..HEAD`).split("\n").filter(Boolean)
+  const quick = !needsFullCheck(files, policy.verify.full_when_paths ?? ["**"])
   const log = join(logDir(n), `verify-${task.repairs}-${task.runs[vkey]}.log`)
-  const [cmd, ...args] = policy.verify.command
-  const r = run(cmd, args, { cwd: task.worktree, timeoutMin: policy.verify.timeout_minutes, logFile: log, env: { ATHENA_CHECK_STRICT: "1", ATHENA_CHECK_ALLOW_MISSING: (policy.verify.allow_missing ?? []).join(",") } })
-  const passed = r.status === 0 && !r.timedOut
-  task.last_verify = { commit: task.candidate_commit, passed, exit: r.status, timed_out: r.timedOut, log, at: new Date().toISOString() }
-  event(task, "verify", { passed, exit: r.status })
+  const r = verifyRun(policy, task.worktree, quick, log)
+  let passed = r.status === 0 && !r.timedOut
+  let preExisting = []
+  let newFailures = r.failures ?? []
+  let baseline = null
+  if (!passed && r.failures) {
+    // Compare with the base commit: only failures the change brought in count.
+    const b = baselineFailures(policy, task.base_commit, quick)
+    baseline = { exit: b.exit, cached: b.cached, failures: b.failures }
+    if (b.failures) {
+      const masked = (f) => !f.endsWith(UNMASKABLE) && b.failures.includes(f)
+      preExisting = r.failures.filter(masked)
+      newFailures = r.failures.filter((f) => !masked(f))
+      passed = newFailures.length === 0
+    }
+  }
+  task.last_verify = {
+    commit: task.candidate_commit,
+    passed,
+    quick,
+    exit: r.status,
+    timed_out: r.timedOut,
+    new_failures: newFailures,
+    pre_existing: preExisting,
+    baseline,
+    log,
+    at: new Date().toISOString(),
+  }
+  event(task, "verify", { passed, exit: r.status, quick, new_failures: newFailures, pre_existing: preExisting })
   if (passed) task.state = "reviewing"
   saveTask(task)
   out({
     ok: passed,
     state: task.state,
     commit: task.candidate_commit,
+    quick,
+    new_failures: newFailures,
+    pre_existing: preExisting,
+    baseline_unreadable: Boolean(baseline && !baseline.failures),
     log,
     output: tail(r.stdout + r.stderr, passed ? 3 : 60),
     repairs_left: policy.max_repairs - task.repairs,
-    next: passed ? "review <issue#>" : "write the failures to a file, then: implement <issue#> --repair <file>",
+    next: passed
+      ? `review <issue#>${preExisting.length ? " (report the pre-existing failures to the maintainer)" : ""}`
+      : r.timedOut || !r.failures
+        ? "the check didn't finish: run verify once more, then block"
+        : "write the new failures to a file, then: implement <issue#> --repair <file>",
   })
 }
 
@@ -606,6 +741,16 @@ function selfTest() {
     [suppressions("+@pytest.mark.skip(reason='x')\n+// eslint-disable-next-line\n+// @ts-expect-error\n+it.skip('a', f)").length, 4],
     [deletedTests("D\tapps/server/tests/test_api.py\nD\tdocs/x.md\nM\tapps/web/src/a.test.ts\nD\tapps/web/src/b.spec.tsx").length, 2],
     [sensitiveFiles(["apps/web/package.json", "apps/server/pyproject.toml", "apps/server/tests/conftest.py", "AGENTS.md", "apps/web/AGENTS.md"], globs).length, 5],
+    [JSON.stringify(checkFailures("ok  a\nFAIL web build (static export) (last 40 lines; full log: /x/web.log)\nFAIL pytest (last 40 lines; full log: /x/pytest.log)\n\nFailed (2): web build (static export),pytest", { readLog: (p) => (p.endsWith("pytest.log") ? "FAILED tests/test_a.py::test_x - boom\nFAILED tests/test_b.py::test_y\nERROR tests/test_c.py" : "Module not found") }).slice(1)), JSON.stringify(["pytest::tests/test_a.py::test_x", "pytest::tests/test_b.py::test_y", "pytest::tests/test_c.py"])],
+    [checkFailures("FAIL ruff check (last 40 lines; full log: /x/r.log)\nFailed (1): ruff check", { readLog: () => "E501 a.py" })[0] === checkFailures("FAIL ruff check (last 40 lines; full log: /y/r.log)\nFailed (1): ruff check", { readLog: () => "E501 a.py" })[0], true],
+    [checkFailures("FAIL ruff check (last 40 lines; full log: /x/r.log)\nFailed (1): ruff check", { readLog: () => "E501 a.py" })[0] === checkFailures("FAIL ruff check (last 40 lines; full log: /x/r.log)\nFailed (1): ruff check", { readLog: () => "F401 b.py" })[0], false],
+    [checkFailures("FAIL web lint (last 40 lines; full log: /x/l.log)\nFailed (1): web lint", { readLog: () => "x at /wt/a/apps/web/f.ts in 2.3s", roots: ["/wt/a"] })[0] === checkFailures("FAIL web lint (last 40 lines; full log: /x/l.log)\nFailed (1): web lint", { readLog: () => "x at /wt/b/apps/web/f.ts in 9.1s", roots: ["/wt/b"] })[0], true],
+    [JSON.stringify(checkFailures("\x1b[31mFailed (1): pytest\x1b[0m", { readLog: () => null })), JSON.stringify(["pytest!unmaskable"])],
+    [JSON.stringify(checkFailures("FAIL gitleaks (not installed; --strict)\nFailed (1): gitleaks", { readLog: () => null })), JSON.stringify(["gitleaks!unmaskable"])],
+    [JSON.stringify(checkFailures("FAIL pnpm install (last 40 lines; full log: /x/p.log)\nFailed (1): pnpm install", { readLog: () => "ENOTFOUND" })), JSON.stringify(["pnpm install!unmaskable"])],
+    [checkFailures("All checks passed."), null],
+    [needsFullCheck(["docs/agents/commands.md"], ["apps/web/**", "packages/**", "pnpm-lock.yaml", "**/package.json"]), false],
+    [needsFullCheck(["apps/web/components/x.tsx"], ["apps/web/**"]), true],
     [canRepair({ repairs: 1 }, 2), true],
     [canRepair({ repairs: 2 }, 2), false],
     [STATES.includes("ready_for_pr"), true],
