@@ -12,7 +12,7 @@ Thanks for helping out! This guide covers how changes get into Athena. Set up yo
    git worktree add ../worktrees/athena-install-form -b feat/app-store-install-form origin/main
    cd ../worktrees/athena-install-form
    ```
-   `scripts/new-worktree.sh <type>/<topic>` does the same (creates `../worktrees/athena-<topic>` from `origin/main`, next to the base checkout). Branch names are `<type>/<short-description>`, using the same types as commits (below).
+   `scripts/new-worktree.sh <type>/<topic>` does the same (creates `../worktrees/athena-<topic>` from `origin/main`, next to the base checkout). After merges, `scripts/clean-worktrees.sh` lists worktrees whose PR merged and `--yes` removes them with their local and remote branches. Branch names are `<type>/<short-description>`, using the same types as commits (below).
 2. **Commit** in small, focused steps. Individual commit messages are free-form, because the PR is squashed.
 3. **Check before pushing.** Run `scripts/check.sh` (the same checks as CI). Turn on the git hooks once per clone with `git config core.hooksPath .githooks` (required for agents): pre-commit refuses commits on `main` or in the base checkout, and pre-push runs the parts of `scripts/check.sh` the push touches.
    - Skip once: `git commit --no-verify` or `ATHENA_ALLOW_MAIN_COMMIT=1 git commit …` (emergencies only), and `git push --no-verify` or `ATHENA_SKIP_CHECKS=1 git push`.
