@@ -83,6 +83,31 @@ Clicking tips:
 - Base UI checkboxes and switches render a hidden `<input>` next to the visible control. Click the visible element, then confirm the state in a fresh snapshot.
 - Positions change after dialogs close or the layout shifts. Take a new snapshot before clicking.
 
+## Common E2E failure patterns
+
+### Duplicate element strict mode violation
+
+**Symptom:** Playwright error: `get_by_role("button", name="X") resolved to N elements` (N > 1)
+
+**Cause:** A React component renders multiple steps' UI simultaneously because conditional returns are nested inside a parent's JSX instead of being top-level early returns. Both the "navigate to step" button and the step's own submit button exist in the DOM at once.
+
+**Fix:** Restructure so each step is an early return at the component top level:
+
+```tsx
+export default function Page() {
+  const [step, setStep] = useState("choose")
+  
+  if (step === "step1") return <Step1View />
+  if (step === "step2") return <Step2View />
+  // step === "choose"
+  return <ChooseView />
+}
+```
+
+**Check:** In browser snapshots, verify only ONE element matches the role/name before clicking. If `browser_snapshot` shows multiple, the DOM has duplicates — fix the component structure.
+
+**Seen in:** Athena setup page (`apps/web/app/(auth)/setup/page.tsx`) where `"account"` step was nested inside `"choose"` step's `CardContent`, creating two "Create account" buttons.
+
 ## 4. Check side effects outside the browser
 
 The UI saying "done" isn't proof. Verify the real effect:
