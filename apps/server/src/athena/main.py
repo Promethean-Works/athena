@@ -186,6 +186,7 @@ def create_app(
     app.state.package_jobs = {}
     app.state.terminal_shell = shells.host_shell
     app.state.terminal_sessions = {}
+    app.state.terminal_session_check = terminal_api.SESSION_CHECK_SECONDS
     # Started on the first cloud call, so hosts that never use it don't run rclone.
     app.state.rclone = rclone or Rclone(settings.data_dir)
     app.state.secret_box = SecretBox(settings.data_dir)
@@ -222,7 +223,6 @@ def create_app(
     app.include_router(cloud_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(webdav_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(shares_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(shares_api.public_router, prefix="/api")
     # The lazy assistant router wraps its routes in an included router so OpenAPI
     # sees them. The real router has prefix="/assistant" stripped by LazyAssistantRouter.
     lazy_assistant = LazyAssistantRouter(app)
@@ -244,6 +244,8 @@ def create_app(
     # Also mount for runtime (first request still lazy-loads via LazyAssistantRouter)
     app.mount("/api/assistant", lazy_assistant)
     app.include_router(automation.router, prefix="/api", dependencies=[require_user])
+    # The webhook is public: the trigger's secret token is the credential, so no
+    # session is required (n8n, external agents).
     app.include_router(automation.public_router, prefix="/api")
     app.include_router(tunnel_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(feedback_api.router, prefix="/api", dependencies=[require_user])
