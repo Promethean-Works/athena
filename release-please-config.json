@@ -32,7 +32,9 @@
           "jsonpath": "$.version"
         }
       ],
-      "initial-version": "0.1.0"
+      "initial-version": "0.1.0",
+      "release-as": "0.1.0-rc.1",
+      "prerelease": true
     }
   }
 }
