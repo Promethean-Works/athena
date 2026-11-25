@@ -1,6 +1,6 @@
 ---
 name: athena-ship
-description: Takes an Athena change from "code written" to "merged" - branch, local checks, commit, PR with auto-merge, CI and CodeQL watching, fixing failures, and the STATUS handoff. Use whenever you are about to commit, push, open or update a pull request, when asked to "check" a PR or CI, when a check failed, or when finishing a task or session.
+description: Takes an Athena change from "code written" to an open PR with auto-merge - branch, local checks, commit, PR, the CI triage table for later checks, and the STATUS handoff. Never waits for CI. Use whenever you are about to commit, push, open or update a pull request, when asked to "check" a PR or CI, when a check failed, or when finishing a task or session.
 ---
 
 # Ship an Athena change
@@ -59,10 +59,12 @@ gh pr merge <n> --squash --auto --delete-branch      # always, without asking
 - In the body, state what was verified and how (tests, browser, real host), and what wasn't verified. End it with the attribution line your tool requires, if any.
 - Auto-merge exceptions: release-please PRs (the maintainer merges those), and PRs whose base isn't `main`. Turn it on for those only after GitHub retargets them to `main`.
 
-## 6. Watch CI until it's green
+## 6. Don't wait for CI
+
+Once the PR is open with auto-merge on, stop: don't watch or poll its checks (`gh pr checks --watch`, sleep loops, re-running `gh pr checks` until nothing is pending). Waiting costs tokens and auto-merge doesn't need you. Report the PR as open with auto-merge on, and say merged only if `gh pr view` already showed `MERGED`. CI failures and CodeQL alerts are handled when the maintainer says "check" (`athena-check-prs`), one pass at a time, with the commands and table below.
 
 ```bash
-gh pr checks <n>                                   # summary; re-run until nothing is pending
+gh pr checks <n>                                   # summary, read once
 gh run view <run-id> --log-failed | tail -80       # the failing step's output
 gh api 'repos/Promethean-Works/athena/code-scanning/alerts?state=open&ref=refs/pull/<n>/merge' \
   --jq '.[] | "\(.rule.id) \(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line) \(.rule.description)"'
@@ -82,11 +84,11 @@ Triage table:
 | `pr-title` fails | Title isn't `type(scope): summary` | `gh pr edit <n> --title "..."` |
 | Merge state `BEHIND` / `DIRTY` | `main` moved (often STATUS.md) | `git merge origin/main`, resolve, push |
 
-Done when `gh pr view` says `MERGED`. Auto-merge waits only for the required checks (`ci-ok`, `pr-title`), so make sure CodeQL is green too. Never say "merged" without checking.
+Done when the PR is open with auto-merge on. Auto-merge waits only for the required checks (`ci-ok`, `pr-title`); CodeQL alerts are looked at in the next "check". Never say "merged" without seeing `MERGED`.
 
 ## 7. Hand off
 
 Before ending the session, on the branch (or in a follow-up docs PR):
 - `docs/STATUS.md`: take finished items out and add one short bullet each to the end of `docs/HISTORY.md` with the PR number. Under In progress, say exactly where you stopped and the next concrete step. Keep STATUS under 6 KB (the docs check enforces it; ideas go to `docs/design/milestones.md` → Backlog).
 - `docs/agents/gotchas/<area>.md`: add anything non-obvious you learned (a surprising failure, a tool quirk, a pattern).
-- Report to the maintainer: what merged (with links), what's still running, what was verified and what wasn't, and the bugs fixed along the way.
+- Report to the maintainer: the PRs opened (with links, auto-merge on), what merged if you saw it, what was verified and what wasn't, and the bugs fixed along the way.

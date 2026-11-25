@@ -112,7 +112,7 @@ const SUBAGENTS = {
 const COMMANDS = {
   next: { skill: "athena-next", description: "Read STATUS and propose the next concrete step" },
   "check-prs": { skill: "athena-check-prs", description: "Check open PRs: CI, CodeQL, merges; fix failures" },
-  ship: { skill: "athena-ship", description: "Commit, open the PR with auto-merge, watch CI" },
+  ship: { skill: "athena-ship", description: "Commit, open the PR with auto-merge (never waits for CI)" },
   handoff: { skill: "athena-handoff", description: "Update STATUS, HISTORY and gotchas before ending the session" },
   "review-diff": { skill: "athena-review", description: "Review the current diff against the project rules", agent: "reviewer" },
   orchestrate: { skill: "athena-orchestrate", description: "Take an issue through worker, checks and review (stops before the PR)" },

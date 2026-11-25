@@ -16,7 +16,7 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 ## Working with the maintainer
 
 - They work through `docs/design/milestones.md` with short prompts. "Next": propose the next concrete step with a recommendation; wait for a yes before a new milestone or part. "Discuss questions first": list the open questions with a recommendation each before writing code. Big milestones: one branch and PR per part.
-- "Check" / "keep observing the PRs": read the checks (`gh pr checks <n>`, `gh run view <id> --log-failed`), fix failures on the PR branch, report what merged and what didn't. Never claim a merge without checking.
+- "Check": one pass over the PRs (`athena-check-prs`): fix failures, report what merged. Never claim a merge without checking.
 - **Short replies.** Lead with the answer; skip preamble and recaps. Reports of what was and wasn't verified stay complete: final reports list "Fixed along the way" and "Not tested yet".
 - They can't see your private memory. Anything the next agent needs goes in the repo ([Where things go](#where-things-go)).
 - **Use subagents** (`docs/agents/subagents.md`) for wide searches, parallel independent research and the `reviewer`/`ui-verify` roles, not small lookups. Brief them fully; check what they report.
@@ -28,7 +28,7 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 1. **Never edit, branch or commit in the base checkout** (where the repo was cloned). It stays on `main`, clean.
 2. Every task, even a small one, starts in its own worktree before any edit, made the agent's native way: Claude Code `claude -w <topic>`, Hermes `hermes -w`, OpenCode its worktree tools, oh-my-pi by itself. Name the branch `<type>/<topic>` (`git branch -m`; OpenCode's is detached: `git switch -c`). Already in the base checkout: `scripts/new-worktree.sh <type>/<topic>`. Types: `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `revert`. `scripts/agent-guard.mjs` refuses edits in the base checkout. After the merge: `git worktree remove <path>`.
 3. Open a PR to `main` with a Conventional Commit title (`feat(store): add install form`); it becomes the squash commit and changelog entry.
-4. Turn on auto-merge right away, without asking: `gh pr merge <n> --squash --auto --delete-branch`. Not for release-please PRs (the maintainer merges those) or PRs whose base isn't `main`. Check CodeQL is green before calling a PR done.
+4. Turn on auto-merge right away, without asking: `gh pr merge <n> --squash --auto --delete-branch`. Not for release-please PRs (the maintainer merges those) or PRs whose base isn't `main`. Then stop: **never wait for a PR** (no `--watch`, polling or sleep loops; it burns tokens). Report it open with auto-merge on.
 5. Never edit `CHANGELOG.md` or `version.txt`; release-please does.
 
 ## Rules
