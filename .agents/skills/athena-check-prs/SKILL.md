@@ -1,6 +1,6 @@
 ---
 name: athena-check-prs
-description: Checks Athena's open pull requests - CI, CodeQL, auto-merge, merge conflicts - fixes failures on the PR branch and reports what merged and what didn't. Use when the maintainer says "check", "check now", "check the PRs" or "keep observing the PRs".
+description: Checks Athena's open pull requests - CI, CodeQL, auto-merge, merge conflicts - fixes failures on the PR branch and reports what merged and what didn't. One pass, never waiting on running checks. Use when the maintainer says "check", "check now", "check the PRs" or "keep observing the PRs".
 ---
 
 # Check the PRs
@@ -12,5 +12,5 @@ description: Checks Athena's open pull requests - CI, CodeQL, auto-merge, merge 
    - Behind `main` or conflicting: `git merge origin/main` (no rebase; force pushes are blocked). Generated files (`packages/api-client`) are regenerated, not hand-merged.
    - Auto-merge off on a PR to `main`: turn it on (`gh pr merge <n> --squash --auto --delete-branch`).
    - Also look at CodeQL: `gh api "repos/Promethean-Works/athena/code-scanning/alerts?state=open&ref=refs/pull/<n>/merge"`. Fix alerts in code; dismissing is the maintainer's call.
-3. To keep watching, wait on the checks (`gh pr checks <n> --watch`) instead of polling in a loop.
+3. One pass only: read each PR's state as it is now, fix what failed, and report. Never wait for running checks (`gh pr checks --watch`, sleep or polling loops), even when asked to "keep observing": report them as pending, and the maintainer checks again later.
 4. Report per PR: merged / waiting (on what) / failing (why, what you pushed). Never say a PR merged without seeing `MERGED` in `gh pr view <n> --json state`. After a merge, remove its worktree and move its STATUS item to HISTORY (`athena-handoff`).
