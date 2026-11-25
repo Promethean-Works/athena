@@ -1,0 +1,74 @@
+{
+  "$comment": "Policy for scripts/orchestrate.mjs (docs/specs/agent-orchestration.md). Only free or local models: orchestrate.mjs refuses any model that isn't kilo/...:free, kilo/kilo-auto/free or ollama/..., whatever this list says. Interactive sessions keep their own models.",
+  "approved_models": [
+    "kilo/kilo-auto/free"
+  ],
+  "worker": {
+    "tool": "omp",
+    "model": "kilo/kilo-auto/free",
+    "max_cost_usd": 0.01,
+    "timeout_minutes": 40
+  },
+  "reviewer": {
+    "tool": "opencode",
+    "agent": "reviewer",
+    "model": "kilo/kilo-auto/free",
+    "timeout_minutes": 20
+  },
+  "verify": {
+    "command": [
+      "scripts/check.sh",
+      "--strict"
+    ],
+    "allow_missing": [
+      "PSScriptAnalyzer"
+    ],
+    "$allow_missing": "Steps whose tool may be absent on the maintainer's Mac; CI runs them (PSScriptAnalyzer: the Windows job).",
+    "timeout_minutes": 40
+  },
+  "max_repairs": 2,
+  "sensitive_paths": [
+    "apps/server/src/athena/db/migrations/**",
+    "apps/server/src/athena/auth/**",
+    "apps/server/src/athena/service/**",
+    "apps/server/src/athena/crypto.py",
+    ".github/**",
+    ".githooks/**",
+    ".agents/**",
+    ".claude/**",
+    ".omp/**",
+    "opencode.json",
+    ".mcp.json",
+    ".gitleaks.toml",
+    "CHANGELOG.md",
+    "version.txt",
+    "release-please-config.json",
+    ".release-please-manifest.json",
+    "scripts/**",
+    "AGENTS.md",
+    "**/AGENTS.md",
+    "CLAUDE.md",
+    "**/CLAUDE.md",
+    "**/package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "apps/server/pyproject.toml",
+    "apps/server/uv.lock",
+    "**/conftest.py",
+    "**/tsconfig*.json",
+    "**/eslint.config.*",
+    ".eslintrc.js",
+    "turbo.json",
+    ".npmrc",
+    ".gitattributes",
+    ".editorconfig",
+    ".prettierrc",
+    ".prettierignore",
+    "codeql-workspace.yml",
+    "skills-lock.json",
+    "SECURITY.md"
+  ],
+  "$sensitive_paths": "A diff touching any of these needs a person: what the checks enforce lives here (lint, test and type configs, lockfiles, scripts, agent rules), so a worker could otherwise pass by weakening it. orchestrate.mjs also blocks added suppressions (noqa, skip, xfail, eslint-disable, ts-ignore, type: ignore) and deleted test files.",
+  "max_verify_runs_per_commit": 2,
+  "max_review_runs_per_commit": 2
+}

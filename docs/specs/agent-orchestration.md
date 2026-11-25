@@ -1,6 +1,6 @@
 # Spec: agent orchestration (issue to merge)
 
-**Status:** Approved (2026-11-25), part 1 done · **Milestone:** none (agent tooling) · **Design:** `docs/agents/tooling.md`, `docs/agents/subagents.md`
+**Status:** Approved (2026-11-25), parts 1–2 done · **Milestone:** none (agent tooling) · **Design:** `docs/agents/tooling.md`, `docs/agents/subagents.md`
 
 ## Goal
 
@@ -52,7 +52,7 @@ Hermes runs the workers through its shell tool, not `delegate_task` (its childre
 ## Parts
 
 1. **Headless runs proven** (done, this PR) — `docs/agents/tooling.md` → Running agents headless: flags, output, where the model is reported, exit codes. Proven by hand in a throwaway worktree (local commits only, no issue): omp edited and committed there, its guard refused a base-checkout write, `worktree.onStart` doesn't fire under `-p`, both tools exit 1 on an unknown model. Found: the OpenCode reviewer can write through `shell`/`execute`, hence the review worktree above.
-2. **The skill, run by hand** — `.agents/skills/athena-orchestrate/SKILL.md`, `.agents/orchestration.json`, the task file, the repair budget and the blocked path. The maintainer starts it with `/orchestrate <issue#>` (added to `COMMANDS`); it stops before the PR is created, for a human look.
+2. **The skill, run by hand** (this PR) — `.agents/skills/athena-orchestrate/SKILL.md` for the judgement (intake, criteria, findings triage, report) and `scripts/orchestrate.mjs` for every mechanical step, so a weak model can't skip a check: `preflight`, `start` (`--issue-file` for local trials without a GitHub issue), `criteria`, `worktree`, `implement [--repair]`, `verify`, `review`, `block`, `status`, `--self-test` (run by `agents-sync.mjs --check`). Policy in `.agents/orchestration.json`: the free-only rule is in code (`isFreeModel`), so listing a paid model fails preflight; `verify.allow_missing` names the steps strict mode may skip on the maintainer's Mac (`ATHENA_CHECK_ALLOW_MISSING`, PSScriptAnalyzer). `scripts/check.sh`, the hooks' scripts and `new-worktree.sh` count as sensitive, so a worker can't pass by weakening a check. Lint, test and type configs, lockfiles, `package.json`, all of `scripts/` and the agent rules count as sensitive too; added suppressions and deleted tests block; renames are seen as delete plus add; verify and review run at most twice per commit; a repair needs a new commit. `/orchestrate` runs the skill. Stops at `ready_for_pr`; nothing is written to GitHub. Known limits: the script's own `.agents/state/` isn't covered by the checkout snapshots, and models used by omp's own subagents don't appear in its `message_end` events (the free-only check covers the models omp reports).
 3. **End to end** — PR creation, auto-merge and the CI watch, plus the three acceptance tasks below. Then optional: a Hermes cron that picks up `agent:ready` issues one at a time.
 
 ## Acceptance checks

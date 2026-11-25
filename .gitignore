@@ -46,6 +46,7 @@ Thumbs.db
 .claude/settings.local.json
 # Each agent's own worktree folder inside the repo: Claude Code (`claude -w`), Hermes (`hermes -w`)
 .claude/worktrees/
+.agents/state/
 .worktrees/
 .opencode/
 .playwright-mcp/
