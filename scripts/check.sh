@@ -8,6 +8,10 @@
 #   --quiet / --verbose         print only ok/FAIL per step plus the end of a failing step's
 #                               output, or everything. Default: quiet when stdout isn't a
 #                               terminal (agents), so passing steps cost no tokens.
+#   --strict                    a step skipped because its tool isn't installed fails the run
+#                               (a missing check is not a pass; for unattended runs). Also
+#                               ATHENA_CHECK_STRICT=1. --quick's skip stays a skip. Missing
+#                               uv/pnpm/node fail in both modes.
 #
 # What CI runs that this can't: the other two operating systems. Windows-only failures
 # (paths, CRLF, PowerShell lint without pwsh) still show up only in CI. See
@@ -18,6 +22,8 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 
 QUICK=0
 QUIET=0
+STRICT=0
+case "${ATHENA_CHECK_STRICT:-0}" in "" | 0 | false | no) ;; *) STRICT=1 ;; esac
 [ -t 1 ] || QUIET=1
 PARTS=()
 for arg in "$@"; do
@@ -26,7 +32,8 @@ for arg in "$@"; do
     --quiet) QUIET=1 ;;
     --verbose) QUIET=0 ;;
     web | server | repo) PARTS+=("$arg") ;;
-    -h | --help) sed -n '2,14p' "$0"; exit 0 ;;
+    --strict) STRICT=1 ;;
+    -h | --help) sed -n '2,18p' "$0"; exit 0 ;;
     *) echo "unknown argument: $arg (see --help)" >&2; exit 2 ;;
   esac
 done
@@ -72,6 +79,15 @@ skip() { # skip <name> <reason>
   SKIPPED+=("$1")
 }
 
+missing() { # missing <name> <reason>: a step whose tool isn't installed; fails under --strict
+  if [ "$STRICT" = 1 ]; then
+    printf '%sFAIL%s %s (%s; --strict)\n' "$R" "$N" "$1" "$2"
+    FAILED+=("$1")
+  else
+    skip "$1" "$2"
+  fi
+}
+
 api_client_up_to_date() {
   local before after
   before=$(git diff -- packages/api-client | git hash-object --stdin)
@@ -91,16 +107,16 @@ for part in "${PARTS[@]}"; do
       step "generated agent config in sync (agents-sync)" node scripts/agents-sync.mjs --check
       step "agent setup script runs (agents-setup --quiet)" node scripts/agents-setup.mjs --check --quiet
       step "docs point at real files and names" node scripts/check-docs.mjs
-      if has gitleaks; then step "no secrets in the tree (gitleaks)" gitleaks dir . --redact --no-banner --log-level warn; else skip "gitleaks" "not installed"; fi
+      if has gitleaks; then step "no secrets in the tree (gitleaks)" gitleaks dir . --redact --no-banner --log-level warn; else missing "gitleaks" "not installed"; fi
       step ".claude/skills points at .agents/skills" test "$(readlink .claude/skills)" = "../.agents/skills"
-      if has shellcheck; then step "shellcheck" shellcheck scripts/*.sh; else skip "shellcheck" "not installed"; fi
-      if has actionlint; then step "actionlint" actionlint; else skip "actionlint" "not installed"; fi
+      if has shellcheck; then step "shellcheck" shellcheck scripts/*.sh; else missing "shellcheck" "not installed"; fi
+      if has actionlint; then step "actionlint" actionlint; else missing "actionlint" "not installed"; fi
       if has pwsh; then
         # shellcheck disable=SC2016 # PowerShell code: $i must reach pwsh unexpanded.
         step "PSScriptAnalyzer" pwsh -NoProfile -Command \
           'if (-not (Get-Module -ListAvailable PSScriptAnalyzer)) { Install-Module PSScriptAnalyzer -Force -Scope CurrentUser }; $i = Invoke-ScriptAnalyzer -Path scripts/install.ps1 -Severity Warning,Error; $i | Format-Table -AutoSize; if ($i) { exit 1 }'
       else
-        skip "PSScriptAnalyzer" "pwsh not installed; CI's Windows job is the first check"
+        missing "PSScriptAnalyzer" "pwsh not installed; CI's Windows job is the first check"
       fi
       step "install.sh dry run" bash -c 'bash scripts/install.sh --dry-run --version 0.0.0 >/dev/null && bash scripts/install.sh --dry-run --uninstall --purge >/dev/null'
       ;;
