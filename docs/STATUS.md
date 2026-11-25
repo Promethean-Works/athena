@@ -29,6 +29,8 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## Next
 
+**0.1.0 dry run (in progress):** installers now fetch pre-release wheels (`fix/installer-prerelease-wheel-name`). Still to do, by the maintainer: `prerelease: true` in `release-please-config.json` plus a `Release-As: 0.1.0-rc.1` footer (remove the flag before the real 0.1.0), merge the release PR, then `gh workflow run e2e.yml -f release_version=0.1.0-rc.1`.
+
 **Release 0.1.0:** `docs/plans/release-0.1.0.md` lists every Must/Should item and the release checklist; decisions are recorded at its end (backup in, no 2FA, rc first). Work the Must items before new features.
 
 M7 part D stage 3 (design §4.5 Parts): extras with outside services.

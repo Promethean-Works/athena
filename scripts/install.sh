@@ -251,10 +251,17 @@ verify_checksum() {
   say "Checksum OK: $name"
 }
 
+# The wheel's file name uses the PEP 440 version: the release tag v0.1.0-rc.1 holds
+# athena_server-0.1.0rc1-py3-none-any.whl. A final version is unchanged.
+wheel_version() {
+  printf '%s' "$1" | sed -E 's/([0-9])[-.]?(a|b|rc)\.?([0-9]+)$/\1\2\3/'
+}
+
 # Downloads the release wheel and SHA256SUMS into $1 and verifies the wheel.
 download_release_wheel() {
   local dir="$1" base="https://github.com/$REPO/releases/download/v$VERSION"
-  local name="athena_server-$VERSION-py3-none-any.whl"
+  local name
+  name="athena_server-$(wheel_version "$VERSION")-py3-none-any.whl"
   has curl || die "curl is required"
   say "Downloading Athena $VERSION and its checksums"
   curl -fsSL -o "$dir/$name" "$base/$name" || die "could not download $base/$name"
@@ -272,8 +279,8 @@ install_athena() {
     # A release wheel is downloaded and checked against the release's SHA256SUMS first.
     # A --wheel path or URL is the caller's own build and is installed as given.
     if [ "$DRY_RUN" -eq 1 ]; then
-      printf '  [dry-run] download and verify athena_server-%s-py3-none-any.whl against SHA256SUMS\n' "$VERSION"
-      source="athena_server-$VERSION-py3-none-any.whl"
+      printf '  [dry-run] download and verify athena_server-%s-py3-none-any.whl against SHA256SUMS\n' "$(wheel_version "$VERSION")"
+      source="athena_server-$(wheel_version "$VERSION")-py3-none-any.whl"
     else
       tmp="$(mktemp -d)"
       trap 'rm -rf "$tmp"' EXIT

@@ -109,6 +109,8 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           bash scripts/install.sh --dry-run --version 0.0.0
+          # A pre-release tag v0.1.0-rc.1 holds the wheel athena_server-0.1.0rc1-...
+          bash scripts/install.sh --dry-run --version 0.1.0-rc.1 | grep -F 'athena_server-0.1.0rc1-py3-none-any.whl'
           bash scripts/install.sh --dry-run --uninstall --purge
 
       - name: Lint (PSScriptAnalyzer)
@@ -125,6 +127,9 @@ jobs:
         shell: pwsh
         run: |
           ./scripts/install.ps1 -DryRun -Version 0.0.0
+          # A pre-release tag v0.1.0-rc.1 holds the wheel athena_server-0.1.0rc1-...
+          $out = ./scripts/install.ps1 -DryRun -Version 0.1.0-rc.1 | Out-String
+          if ($out -notmatch [regex]::Escape('athena_server-0.1.0rc1-py3-none-any.whl')) { Write-Error "wrong pre-release wheel name: $out" }
           ./scripts/install.ps1 -DryRun -Uninstall -Purge
 
   web:

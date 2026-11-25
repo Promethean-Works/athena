@@ -7,9 +7,19 @@ name: E2E
 # Not part of `ci-ok`: it's slower and touches the runner's service manager. It runs on
 # pushes to main, on PRs that change the installers or the service code, and on demand
 # (Actions > E2E > Run workflow, or `gh workflow run e2e.yml --ref <branch>`).
+#
+# To smoke a *published* release instead (the installers download its wheel and check
+# SHA256SUMS), run it with the release tag: `gh workflow run e2e.yml -f release_version=0.1.0-rc.1`.
+# Only the install jobs use it; the update job always builds its own wheels.
 
 on:
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Install this published release (tag without the v, e.g. 0.1.0-rc.1) instead of a wheel built from the commit'
+        required: false
+        default: ''
+        type: string
   push:
     branches: [main]
   pull_request:
@@ -94,6 +104,8 @@ jobs:
           - os: windows-latest
             expect: terminal.host files
     runs-on: ${{ matrix.os }}
+    env:
+      RELEASE_VERSION: ${{ inputs.release_version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -108,16 +120,28 @@ jobs:
       # user's machine.
       - name: Install (Linux)
         if: runner.os == 'Linux'
-        run: sudo bash scripts/install.sh --wheel "$(ls dist/athena_server-*.whl)"
+        run: |
+          if [ -n "$RELEASE_VERSION" ]; then
+            sudo bash scripts/install.sh --version "$RELEASE_VERSION"
+          else
+            sudo bash scripts/install.sh --wheel "$(ls dist/athena_server-*.whl)"
+          fi
 
       - name: Install (macOS)
         if: runner.os == 'macOS'
-        run: bash scripts/install.sh --no-runtime --wheel "$(ls dist/athena_server-*.whl)"
+        run: |
+          if [ -n "$RELEASE_VERSION" ]; then
+            bash scripts/install.sh --no-runtime --version "$RELEASE_VERSION"
+          else
+            bash scripts/install.sh --no-runtime --wheel "$(ls dist/athena_server-*.whl)"
+          fi
 
       - name: Install (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./scripts/install.ps1 -Wheel (Get-Item dist/athena_server-*.whl).FullName
+        run: |
+          if ($env:RELEASE_VERSION) { ./scripts/install.ps1 -Version $env:RELEASE_VERSION }
+          else { ./scripts/install.ps1 -Wheel (Get-Item dist/athena_server-*.whl).FullName }
 
       - name: Service status
         shell: bash

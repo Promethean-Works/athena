@@ -150,10 +150,16 @@ function Use-UvEnvironment {
     $env:UV_PYTHON_INSTALL_DIR = Join-Path $InstallRoot 'python'
 }
 
+# The wheel's file name uses the PEP 440 version: the release tag v0.1.0-rc.1 holds
+# athena_server-0.1.0rc1-py3-none-any.whl. A final version is unchanged.
+function Get-WheelVersion([string]$Tag) {
+    return $Tag -replace '(\d)[-.]?(a|b|rc)\.?(\d+)$', '$1$2$3'
+}
+
 # Downloads the release wheel and SHA256SUMS into $Dir and verifies the wheel. Returns the wheel path.
 function Get-VerifiedReleaseWheel([string]$Dir) {
     $base = "https://github.com/$Repo/releases/download/v$Version"
-    $name = "athena_server-$Version-py3-none-any.whl"
+    $name = "athena_server-$(Get-WheelVersion $Version)-py3-none-any.whl"
     $wheelPath = Join-Path $Dir $name
     $sumsPath = Join-Path $Dir 'SHA256SUMS'
     Write-Step "Downloading Athena $Version and its checksums"
@@ -195,8 +201,8 @@ function Install-Athena {
             if ($source -match '^https?://') { $source = "athena-server @ $source" }
         }
         elseif ($DryRun) {
-            Write-Host "  [dry-run] download and verify athena_server-$Version-py3-none-any.whl against SHA256SUMS"
-            $source = "athena_server-$Version-py3-none-any.whl"
+            Write-Host "  [dry-run] download and verify athena_server-$(Get-WheelVersion $Version)-py3-none-any.whl against SHA256SUMS"
+            $source = "athena_server-$(Get-WheelVersion $Version)-py3-none-any.whl"
         }
         else {
             $tmp = Join-Path ([IO.Path]::GetTempPath()) "athena-install-$([guid]::NewGuid().ToString('N'))"
