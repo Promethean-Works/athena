@@ -1,6 +1,6 @@
 # Spec: Self-update
 
-**Status:** Draft · **Milestone:** Backlog (after the 0.1.0 release: the update notice, release plan §7) · **Design:** `docs/design/distribution.md` (new bullet)
+**Status:** Done (parts 1-4; CLI "back up first" is a follow-up, see Part 4) · **Milestone:** Backlog (after the 0.1.0 release: the update notice, release plan §7) · **Design:** `docs/design/distribution.md` (new bullet)
 
 ## Goal
 
@@ -120,7 +120,7 @@ None new. `uv` (Apache-2.0/MIT) is already required by the installers.
 1. **Core, CLI-first** (waits for `feat/update-notice` to merge): `updates.resolve`, download and verify, `build_stop`/`build_start`, `update_helper.py`, plan and state files, `athena update` (`--check`, `--dry-run`, `--version`, rollback). Verified with unit tests plus a Lima VM and the CI E2E on three OSes against a local fake release.
 2. **Detached start from the server per OS:** `systemd-run`, macOS session or `launchctl submit`, Windows one-shot task vs `DETACHED_PROCESS`; the exit-not-restart path in `restart.py`. Verified on real hosts (this is the risky part, so it ships before any UI).
 3. **API, capability and UI:** `self_update` capability, `startUpdate`/`getUpdateStatus`, the notice button, Settings card, progress dialog, audit entries, `pnpm gen:api`. Verified in a browser and E2E smoke.
-4. **Backup integration and polish** (after the backup feature): "Back up first", interrupted-update banner, docs move to `docs/design/distribution.md` plus a decisions row, spec marked Done.
+4. **Backup integration and polish** (after the backup feature): "Back up first", interrupted-update banner, docs move to `docs/design/distribution.md` plus a decisions row, spec marked Done. Shipped: the UI route backs up with the first enabled plan that includes Athena (`PlanRunner.run(only_athena=True)`: no app is stopped, the plan's last-run fields stay untouched), a failed backup fails the job before anything is downloaded and the dialog offers "Update anyway", and `GET /api/system/update/status` reports `interrupted` (non-final `state.json` phase, no live helper) which the app shell shows as a dismissible warning. **Not done:** the CLI's backup step and `--no-backup`: `athena update` runs without the server, and the backup needs its database, restic and jobs. It needs a CLI path into the backup code first.
 
 ## Acceptance checks
 
