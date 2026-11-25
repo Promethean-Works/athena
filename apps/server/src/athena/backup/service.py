@@ -4,7 +4,7 @@ import asyncio
 from pathlib import Path
 from typing import Any
 
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from athena import audit
 from athena.apps.store import AppStore
@@ -49,6 +49,15 @@ def repository_of(
     return Repository(location=row.location, password=box.decrypt(row.password), env=env)
 
 
+def athena_plan(db: Session) -> BackupPlan | None:
+    """The plan "Back up Athena first" uses before an update: the first enabled plan that
+    includes Athena itself and whose destination still exists (docs/specs/self-update.md)."""
+    for plan in db.exec(select(BackupPlan).where(BackupPlan.enabled).order_by(BackupPlan.name)):
+        if parse_items(plan.items).athena and db.get(BackupDestination, plan.destination_id):
+            return plan
+    return None
+
+
 class PlanRunner:
     """Runs a backup plan as one job: for each item in turn, snapshot it (docs/specs/backup.md)."""
 
@@ -60,9 +69,19 @@ class PlanRunner:
         lock = self.state.backup_locks.get(destination_id)
         return lock is not None and lock.locked()
 
-    async def run(self, job: Job, plan_id: str, username: str, runtime: Runtime | None) -> None:
+    async def run(
+        self,
+        job: Job,
+        plan_id: str,
+        username: str,
+        runtime: Runtime | None,
+        *,
+        only_athena: bool = False,
+    ) -> None:
         """The job body. Raises (so the job fails) when any item failed or the run was
-        skipped or cancelled; the plan's last-run fields say which."""
+        skipped or cancelled; the plan's last-run fields say which. `only_athena` backs up
+        just Athena's own item (no app is stopped) and leaves the plan's last-run fields
+        alone, since the plan wasn't run in full."""
         engine = self.state.db.engine
         with Session(engine) as db:
             plan = db.get(BackupPlan, plan_id)
@@ -70,6 +89,8 @@ class PlanRunner:
             if plan is None or dest is None:
                 raise RuntimeError("That plan or its destination no longer exists")
             items = parse_items(plan.items)
+            if only_athena:
+                items = PlanItems(athena=items.athena, apps=[])
             keep = parse_retention(plan.retention)
             plan_name, dest_id, location = plan.name, dest.id, dest.location
             env = (
@@ -102,7 +123,7 @@ class PlanRunner:
             status, error = "failed", str(exc) or exc.__class__.__name__
         with Session(engine) as db:
             plan = db.get(BackupPlan, plan_id)
-            if plan is not None:
+            if plan is not None and not only_athena:
                 plan.last_run_at = snapshots.now()
                 plan.last_status, plan.last_error = status, error
                 db.add(plan)

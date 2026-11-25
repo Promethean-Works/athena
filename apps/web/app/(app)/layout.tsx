@@ -3,6 +3,7 @@ import { AuthProvider } from "@/components/auth-provider"
 import { CapabilitiesProvider } from "@/components/capabilities-provider"
 import { AppearanceProvider } from "@/components/settings/appearance-provider"
 import { SiteHeader } from "@/components/site-header"
+import { UpdateInterrupted } from "@/components/update-interrupted"
 import { UpdateNotice } from "@/components/update-notice"
 import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
 
@@ -25,6 +26,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarInset>
               <SiteHeader />
               <div className="@container/main flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+                <UpdateInterrupted />
                 <UpdateNotice />
                 {children}
               </div>

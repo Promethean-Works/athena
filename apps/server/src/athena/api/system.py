@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from athena import __version__, audit, restart, self_update
 from athena.auth.deps import Authed, DbSession, require_user
+from athena.backup.service import PlanRunner, athena_plan
 from athena.jobs import Job, JobOut
 from athena.monitor import HostMonitor, StatsSnapshot
 from athena.updates import UpdateInfo, enabled
@@ -110,9 +111,14 @@ def update_info(request: Request) -> UpdateInfo:
 class StartUpdate(BaseModel):
     version: str | None = Field(default=None, pattern=r"^\d+\.\d+\.\d+([-.]?(a|b|rc)\.?\d+)?$")
     """A specific release; the latest stable one when omitted."""
+    backup: bool = False
+    """Back up Athena first, with the first enabled backup plan that includes it. When the
+    backup fails the job fails before anything is downloaded; ask again without it to go on."""
 
 
 EXIT_DELAY_SECONDS = 0.5
+BACKUP_FAILED = "The backup failed"
+"""Starts the error of a job whose backup failed; the UI offers to update anyway."""
 START_INTERVAL_SECONDS = 60.0
 """One accepted update start per minute: it interrupts service, so don't let it be hammered."""
 
@@ -121,7 +127,8 @@ class UpdateStatus(BaseModel):
     phase: str
     """`idle` (no update yet), `preparing` (the server is downloading and checking), then the
     helper's phases while Athena is swapped (`stopping`, `installing`, `starting`, `checking`,
-    `rolling_back`) and its last word: `done`, `rolled_back`, `failed` or `aborted`."""
+    `rolling_back`) and its last word: `done`, `rolled_back`, `failed` or `aborted`. `interrupted`
+    is an update that began, whose helper is gone without a last word (killed, power cut)."""
     step: str | None = None
     from_version: str | None = None
     to_version: str | None = None
@@ -134,6 +141,9 @@ class UpdateStatus(BaseModel):
     """Titles of the jobs a restart would stop (the update job itself is left out)."""
     terminals: int = 0
     """Open web terminal sessions, which a restart closes."""
+    backup_plan: str | None = None
+    """Name of the backup plan "Back up Athena first" would run; None when backup isn't ready
+    or no enabled plan includes Athena."""
 
 
 def _parse_time(value: object) -> datetime | None:
@@ -148,7 +158,7 @@ def _parse_time(value: object) -> datetime | None:
     operation_id="getUpdateStatus",
     dependencies=[require_user],
 )
-def update_status(request: Request, user: Authed) -> UpdateStatus:
+async def update_status(request: Request, user: Authed, db: DbSession) -> UpdateStatus:
     """What the last update did, from the helper's state file (admins only). The helper
     outlives the server, so this is what the page reads once Athena is back."""
     if not user.user.is_admin:
@@ -161,6 +171,13 @@ def update_status(request: Request, user: Authed) -> UpdateStatus:
     phase = str(state.get("phase") or "idle")
     if preparing:
         phase = "preparing"
+    elif (
+        phase not in ("idle", *self_update.TERMINAL_PHASES)
+        and self_update.lock_holder(paths) is None
+    ):
+        phase = "interrupted"  # the helper died mid-swap, or the host lost power
+    backup = (await app.state.capabilities.get()).get("backup")
+    plan = athena_plan(db) if backup is not None and backup.available else None
     tail = state.get("log_tail")
     others = [j.title for j in app.state.jobs.running() if j is not job]
     return UpdateStatus(
@@ -174,6 +191,7 @@ def update_status(request: Request, user: Authed) -> UpdateStatus:
         job_id=job.id if preparing and job is not None else None,
         running_jobs=others,
         terminals=len(app.state.terminal_sessions),
+        backup_plan=plan.name if plan is not None else None,
     )
 
 
@@ -196,6 +214,21 @@ async def start_update(body: StartUpdate, request: Request, user: Authed, db: Db
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             reason or "This Athena can't update itself",
         )
+    plan = None
+    if body.backup:
+        backup = (await app.state.capabilities.get()).get("backup")
+        plan = athena_plan(db) if backup is not None and backup.available else None
+        if plan is None:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                "There's no backup plan that includes Athena to back up first",
+            )
+        runner = PlanRunner(app.state)
+        if runner.busy_destination(plan.destination_id):
+            raise HTTPException(
+                status.HTTP_409_CONFLICT, "Another backup to this destination is running"
+            )
+    backup_plan_id = plan.id if plan is not None else None
     data_dir = app.state.settings.data_dir
     running: Job | None = getattr(app.state, "update_job", None)
     if (
@@ -217,6 +250,7 @@ async def start_update(body: StartUpdate, request: Request, user: Authed, db: Db
         data_dir=data_dir, version=body.version, check_url=app.state.settings.update_check_url
     )
     loop = asyncio.get_running_loop()
+    username = user.user.username
 
     async def run(job: Job) -> None:
         pending: set[asyncio.Task[None]] = set()
@@ -233,6 +267,15 @@ async def start_update(body: StartUpdate, request: Request, user: Authed, db: Db
             loop.call_later(EXIT_DELAY_SECONDS, restart.request_exit)
 
         try:
+            if backup_plan_id is not None:
+                await job.log("Backing up Athena first")
+                try:
+                    await PlanRunner(app.state).run(
+                        job, backup_plan_id, username, None, only_athena=True
+                    )
+                except Exception as exc:
+                    app.state.update_started_at = None  # a retry without the backup is allowed
+                    raise RuntimeError(f"{BACKUP_FAILED}: {exc}") from exc
             await self_update.run_from_server(opts, say, handoff)
         except self_update.UpdateError as exc:
             raise RuntimeError(str(exc)) from exc
@@ -248,7 +291,7 @@ async def start_update(body: StartUpdate, request: Request, user: Authed, db: Db
         user.user.username,
         "system.update.start",
         "athena",
-        f"{body.version or 'latest'} via ui",
+        f"{body.version or 'latest'} via ui" + (" (backup first)" if plan is not None else ""),
     )
     return job.out()
 

@@ -11777,6 +11777,11 @@
               }
             ],
             "title": "Version"
+          },
+          "backup": {
+            "type": "boolean",
+            "title": "Backup",
+            "default": false
           }
         },
         "type": "object",
@@ -13191,6 +13196,17 @@
             "type": "integer",
             "title": "Terminals",
             "default": 0
+          },
+          "backup_plan": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backup Plan"
           }
         },
         "type": "object",

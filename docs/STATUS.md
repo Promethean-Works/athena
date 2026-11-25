@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Self-update (`docs/specs/self-update.md`): parts 1-3 done (#252). **Next part 4**: backup first, interrupted-update banner, design doc, spec done. Not verified: Fedora, hand failure cases, real UI update (E2E smoke).
+- Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).
 - Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d done; `schedule` runs in part 4. Part 4 (#256) done. 2d not run against real runtime/volumes.
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt/Cloudflare, trusting CA on real devices. Renewal/error live in memory only (restart forgets). Follow-up: own-certificate upload.
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.

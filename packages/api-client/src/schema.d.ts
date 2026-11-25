@@ -4453,6 +4453,11 @@ export interface components {
         StartUpdate: {
             /** Version */
             version?: string | null;
+            /**
+             * Backup
+             * @default false
+             */
+            backup: boolean;
         };
         /**
          * StatsSample
@@ -4894,6 +4899,8 @@ export interface components {
              * @default 0
              */
             terminals: number;
+            /** Backup Plan */
+            backup_plan?: string | null;
         };
         /** UpgradablePackage */
         UpgradablePackage: {

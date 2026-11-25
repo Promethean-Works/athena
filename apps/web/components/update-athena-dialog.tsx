@@ -26,7 +26,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog"
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldLabel,
+} from "@workspace/ui/components/field"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { Switch } from "@workspace/ui/components/switch"
 import { toast } from "@workspace/ui/components/toast"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -40,6 +47,8 @@ const POLL_MS = 1500
 const GIVE_UP_MS = 4 * 60 * 1000
 const RESULT_WAIT_MS = 90 * 1000
 const FINISHED = ["done", "rolled_back", "failed", "aborted"]
+/** How the server starts the error of an update job whose backup failed. */
+const BACKUP_FAILED = "The backup failed"
 
 type Stage = "confirm" | "preparing" | "waiting" | "result" | "late"
 type Step = "prepare" | "swap" | "check"
@@ -209,6 +218,7 @@ export function UpdateAthenaDialog({
   const [error, setError] = React.useState<string | null>(null)
   const [result, setResult] = React.useState<Status | null>(null)
   const [back, setBack] = React.useState(false)
+  const [backup, setBackup] = React.useState(true)
   const bootId = React.useRef<string | null>(null)
   const stream = useEventStream(jobId ? `/api/jobs/${jobId}/events` : null)
 
@@ -282,12 +292,12 @@ export function UpdateAthenaDialog({
     }
   }, [stage, result])
 
-  async function start() {
+  async function start(withBackup: boolean) {
     setStarting(true)
     setError(null)
     bootId.current = await serverStart()
     const { data, error: failure } = await api.POST("/api/system/update", {
-      body: {},
+      body: { backup: withBackup },
     })
     setStarting(false)
     if (!data) {
@@ -298,6 +308,8 @@ export function UpdateAthenaDialog({
     setStage("preparing")
   }
 
+  const backupPlan = before?.backup_plan ?? null
+  const backupFailed = error?.startsWith(BACKUP_FAILED) ?? false
   const stops = before?.running_jobs ?? []
   const terminals = before?.terminals ?? 0
   const overlay = stage === "waiting" || stage === "result" || stage === "late"
@@ -362,6 +374,25 @@ export function UpdateAthenaDialog({
                   </AlertDescription>
                 </Alert>
               ) : null}
+              {backupPlan ? (
+                <Field orientation="horizontal">
+                  <FieldContent>
+                    <FieldLabel htmlFor="backup-first">
+                      Back up Athena first
+                    </FieldLabel>
+                    <FieldDescription>
+                      Saves Athena&apos;s settings and data with the backup plan
+                      &ldquo;{backupPlan}&rdquo; before anything is stopped.
+                      Your apps aren&apos;t touched.
+                    </FieldDescription>
+                  </FieldContent>
+                  <Switch
+                    id="backup-first"
+                    checked={backup}
+                    onCheckedChange={setBackup}
+                  />
+                </Field>
+              ) : null}
               {error ? (
                 <Alert variant="destructive">
                   <CircleXIcon />
@@ -376,7 +407,8 @@ export function UpdateAthenaDialog({
                 <Alert variant="destructive">
                   <CircleXIcon />
                   <AlertDescription>
-                    {error}. Nothing was changed; Athena still runs {current}.
+                    {error.replace(/\.$/, "")}. Nothing was changed; Athena
+                    still runs {current}.
                   </AlertDescription>
                 </Alert>
               ) : null}
@@ -389,8 +421,21 @@ export function UpdateAthenaDialog({
                 {error && stage === "preparing" ? "Close" : "Cancel"}
               </Button>
             ) : null}
+            {backupFailed ? (
+              <Button
+                variant="destructive"
+                onClick={() => void start(false)}
+                disabled={starting}
+              >
+                {starting ? <Spinner data-icon="inline-start" /> : null}
+                Update anyway
+              </Button>
+            ) : null}
             {stage === "confirm" ? (
-              <Button onClick={() => void start()} disabled={starting}>
+              <Button
+                onClick={() => void start(backupPlan !== null && backup)}
+                disabled={starting}
+              >
                 {starting ? <Spinner data-icon="inline-start" /> : null}
                 Update
               </Button>
