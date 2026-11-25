@@ -120,7 +120,7 @@ for part in "${PARTS[@]}"; do
       else
         missing "PSScriptAnalyzer" "pwsh not installed; CI's Windows job is the first check"
       fi
-      step "install.sh dry run" bash -c 'bash scripts/install.sh --dry-run --version 0.0.0 >/dev/null && bash scripts/install.sh --dry-run --uninstall --purge >/dev/null'
+      step "install.sh dry run" bash -c 'bash scripts/install.sh --dry-run --version 0.0.0 >/dev/null && bash scripts/install.sh --dry-run --version 0.1.0-rc.1 | grep -qF athena_server-0.1.0rc1-py3-none-any.whl && bash scripts/install.sh --dry-run --uninstall --purge >/dev/null'
       ;;
     web)
       [ -d node_modules ] || step "pnpm install" pnpm install --frozen-lockfile
