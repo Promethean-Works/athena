@@ -11,7 +11,8 @@
 #   --strict                    a step skipped because its tool isn't installed fails the run
 #                               (a missing check is not a pass; for unattended runs). Also
 #                               ATHENA_CHECK_STRICT=1. --quick's skip stays a skip. Missing
-#                               uv/pnpm/node fail in both modes.
+#                               uv/pnpm/node fail in both modes. ATHENA_CHECK_ALLOW_MISSING=a,b
+#                               names steps --strict may still skip.
 #
 # What CI runs that this can't: the other two operating systems. Windows-only failures
 # (paths, CRLF, PowerShell lint without pwsh) still show up only in CI. See
@@ -33,7 +34,7 @@ for arg in "$@"; do
     --verbose) QUIET=0 ;;
     web | server | repo) PARTS+=("$arg") ;;
     --strict) STRICT=1 ;;
-    -h | --help) sed -n '2,18p' "$0"; exit 0 ;;
+    -h | --help) sed -n '2,19p' "$0"; exit 0 ;;
     *) echo "unknown argument: $arg (see --help)" >&2; exit 2 ;;
   esac
 done
@@ -80,7 +81,8 @@ skip() { # skip <name> <reason>
 }
 
 missing() { # missing <name> <reason>: a step whose tool isn't installed; fails under --strict
-  if [ "$STRICT" = 1 ]; then
+  # unless named in ATHENA_CHECK_ALLOW_MISSING (comma-separated, e.g. PSScriptAnalyzer).
+  if [ "$STRICT" = 1 ] && [[ ",${ATHENA_CHECK_ALLOW_MISSING:-}," != *",$1,"* ]]; then
     printf '%sFAIL%s %s (%s; --strict)\n' "$R" "$N" "$1" "$2"
     FAILED+=("$1")
   else

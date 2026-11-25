@@ -14,6 +14,7 @@ Run pnpm from the repo root and Python with `uv run` inside `apps/server`.
 | Regenerate API client | `pnpm gen:api` (after any API change; CI fails on drift) |
 | Regenerate theme CSS | `pnpm gen:theme` (after shadcn upgrades; needs network) |
 | Check or find the settings file | `cd apps/server && uv run athena config check --data-dir "$DATA"` (`path`, `show`, `reset <section>`) |
+| Issue through worker, checks and review | `node scripts/orchestrate.mjs <step> <issue#>` (skill `athena-orchestrate`, `/orchestrate`; `status <issue#>` shows the task). Policy: `.agents/orchestration.json`; state: `.agents/state/` |
 | Agent config sync | `node scripts/agents-sync.mjs` (after editing `.mcp.json`); `--check` is what CI runs |
 | Release server for UI checks | `pnpm build` then `cd apps/server && ATHENA_WEB_DIR=../web/out uv run athena serve --port 8421 --data-dir "$DATA"` |
 | Dev mode | `pnpm dev` (Next on :3000, proxies `/api` to :8420) plus `uv run athena serve` |

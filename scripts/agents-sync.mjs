@@ -115,6 +115,7 @@ const COMMANDS = {
   ship: { skill: "athena-ship", description: "Commit, open the PR with auto-merge, watch CI" },
   handoff: { skill: "athena-handoff", description: "Update STATUS, HISTORY and gotchas before ending the session" },
   "review-diff": { skill: "athena-review", description: "Review the current diff against the project rules", agent: "reviewer" },
+  orchestrate: { skill: "athena-orchestrate", description: "Take an issue through worker, checks and review (stops before the PR)" },
 };
 for (const c of Object.values(COMMANDS)) {
   if (!existsSync(join(root, ".agents", "skills", c.skill, "SKILL.md"))) throw new Error(`COMMANDS: skill ${c.skill} doesn't exist`);
@@ -496,11 +497,13 @@ const OWNED_DIRS = [join(".claude", "agents"), join(".claude", "commands"), join
 const orphans = OWNED_DIRS.flatMap((d) => (existsSync(join(root, d)) ? readdirSync(join(root, d)).map((f) => join(d, f)) : [])).filter((f) => !(f in outputs));
 
 if (args.has("--check")) {
-  // The guard's own rules are checked here too, so CI's sync step covers them.
-  const selfTest = spawnSync(process.execPath, [join(root, "scripts", "agent-guard.mjs"), "--self-test"], { encoding: "utf8" });
-  if (selfTest.status !== 0) {
-    console.error(selfTest.stdout + selfTest.stderr);
-    process.exit(1);
+  // The guard's and the orchestrator's own rules are checked here too, so CI's sync step covers them.
+  for (const script of ["agent-guard.mjs", "orchestrate.mjs"]) {
+    const selfTest = spawnSync(process.execPath, [join(root, "scripts", script), "--self-test"], { encoding: "utf8" });
+    if (selfTest.status !== 0) {
+      console.error(selfTest.stdout + selfTest.stderr);
+      process.exit(1);
+    }
   }
   const stale = Object.entries(outputs).filter(([file, text]) => {
     const path = join(root, file);
