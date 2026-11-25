@@ -155,3 +155,15 @@ A **Backups** page in the sidebar (gated by `backup`), with three tabs:
 - A missing local destination (unplugged USB disk) skips the run with "destination not connected".
 - Restart Athena goes in the user menu, through a supervisor in `athena serve`.
 - Destinations and plans live in SQLite; host-wide backup knobs in `athena.json` → `backup`.
+- **Disaster recovery refuses a newer Athena version.** A snapshot tagged with an `athena-version` newer than the installed version is rejected with a message to upgrade first. This prevents a broken restore where the DB schema is ahead of the code.
+- **The `server` section of `athena.json` is replaced on full restore.** The old host/port may clash with the new install; the current host's settings are kept so Athena starts on the expected address. The HTTPS certificate is reissued by the daily check (or manually with `athena https status`).
+- **Cross-OS restores warn about bind mounts.** If the backup's `os:` tag differs from the current host, the job logs a warning listing the bind-mount paths that may not exist.
+
+## Gotchas
+
+- **The recovery kit is essential.** Without it, a dead host means unreadable backups because the repository password is encrypted with `secret.key`, which is inside the backup itself. The kit is shown once at destination creation and must be saved externally.
+- **Full restore replaces `athena.json`'s `server` section.** Hand-edited host/port settings from the backup are discarded in favour of the new host's settings. Other sections (`system`, `https`, `ai`, `webdav`, `backup`) are kept from the backup.
+- **Alembic migrations run on the first start after restore.** If the restored DB is from an older Athena, migrations upgrade it. If it's from a newer Athena (which is blocked), the server would fail to start.
+- **Cross-OS bind mounts are not rewritten.** A backup from Linux with `/srv/media:/media` will restore that path on macOS or Windows, where it likely doesn't exist. The app will fail to start until the bind mount is edited or removed.
+- **The `athena restore` CLI requires an existing data dir with `athena.db`.** It's designed for the first-run fallback where the install created a fresh data dir. To restore onto a truly empty host, run the installer first (it creates the data dir and DB), then run `athena restore`.
+- **Restic's `--host` is fixed to `athena`.** This ensures a snapshot's parent is found after the host is renamed or the data is restored onto new hardware. Changing it would break incremental backups after a restore.

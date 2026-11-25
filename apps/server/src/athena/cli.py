@@ -317,10 +317,15 @@ def _restore(args: argparse.Namespace) -> int:
         if not found:
             print("error: no Athena versions in this repository", file=sys.stderr)
             return 1
+        print("Available Athena snapshots:")
+        for v in found:
+            ver = f" (Athena {v.athena_version})" if v.athena_version else ""
+            os_info = f" [{v.os}]" if v.os else ""
+            print(f"  {v.id[:8]}  {v.time}{ver}{os_info}")
         snap_id = args.snapshot
         if snap_id is None:
             snap_id = found[0].id
-            print("Using newest Athena version", snap_id[:8], "(", found[0].time, ")")
+            print(f"Using newest Athena version {snap_id[:8]} ({found[0].time})")
         job = type(
             "Job",
             (),
