@@ -158,8 +158,12 @@ export function canRepair(task, maxRepairs) {
 
 // ---------------------------------------------------------------------------------------
 
+// Git with no GIT_* variables: inside a git hook (pre-push runs agents-sync --check, which
+// runs --self-test) GIT_DIR would point every call at the hook's repository.
+const GIT_ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")))
+
 function git(cwd, ...args) {
-  const r = spawnSync("git", args, { cwd, encoding: "utf8" })
+  const r = spawnSync("git", args, { cwd, encoding: "utf8", env: GIT_ENV })
   if (r.status !== 0) throw new Error(`git ${args.join(" ")}: ${(r.stderr || r.stdout).trim()}`)
   return r.stdout.trim()
 }
@@ -228,11 +232,11 @@ export function unchanged(before, after, { fastForwardOk = false, isAncestor = (
   if (after.head === before.head) return true
   return fastForwardOk && isAncestor(before.head, after.head) && onRemote(after.head)
 }
-const isAncestorIn = (dir) => (a, b) => spawnSync("git", ["merge-base", "--is-ancestor", a, b], { cwd: dir }).status === 0
+const isAncestorIn = (dir) => (a, b) => spawnSync("git", ["merge-base", "--is-ancestor", a, b], { cwd: dir, env: GIT_ENV }).status === 0
 // Fetch first, so a moved local origin/main ref can't vouch for a local commit; on a failed
 // fetch nothing counts as on the remote (stay strict).
 const onRemoteIn = (dir) => (sha) => {
-  if (spawnSync("git", ["fetch", "-q", "origin", "main"], { cwd: dir, timeout: 120_000 }).status !== 0) return false
+  if (spawnSync("git", ["fetch", "-q", "origin", "main"], { cwd: dir, timeout: 120_000, env: GIT_ENV }).status !== 0) return false
   return isAncestorIn(dir)(sha, "origin/main")
 }
 const baseGuard = (base, fastForwardOk = true) => ({ fastForwardOk, isAncestor: isAncestorIn(base), onRemote: onRemoteIn(base) })
@@ -835,7 +839,7 @@ function cmdStatus(n) {
 // on main doesn't (the hole a mocked test can't show).
 function realGitCases() {
   const dir = mkdtempSync(join(tmpdir(), "orchestrate-selftest-"))
-  const g = (cwd, ...a) => spawnSync("git", ["-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", ...a], { cwd, encoding: "utf8" })
+  const g = (cwd, ...a) => spawnSync("git", ["-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", ...a], { cwd, encoding: "utf8", env: GIT_ENV })
   try {
     g(dir, "init", "-q", "--bare", "-b", "main", "remote.git")
     g(dir, "clone", "-q", join(dir, "remote.git"), "base")
