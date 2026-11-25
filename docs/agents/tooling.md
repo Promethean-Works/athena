@@ -82,6 +82,26 @@ Per agent, what the script doesn't do:
 - **Hermes Agent:** its skill scanner rates `pydantic-ai-harness` "dangerous" (a false positive from docs mentioning `~/.ssh` and `os.environ`) and hides it; read `.agents/skills/pydantic-ai-harness/SKILL.md` directly when working on the assistant. Skills in worktrees come from the base checkout (`skills.external_dirs`), so a skill changed on a branch is seen as on `main`. `quick_commands` work in the CLI.
 - **oh-my-pi:** nothing beyond RTK's extension. Generated for it: `.omp/config.yml` (`worktree.onStart: create` starts each session in a new linked worktree; `bash.gitGuard` refuses stash/reset/checkout that discard work in the base checkout; `bash.patterns` from `DENIED_COMMANDS`; `secrets.enabled` redacts secrets before they reach the model), `.omp/agents/` (it ignores `.claude/agents`), `.omp/rules/`, `.omp/AGENTS.md` and `.omp/extensions/athena.ts`. omp drops the Playwright MCP server on purpose in favour of its own headless browser (`athena-ui-verify` says how to use it). Not covered: the setup check at start-up and TokenEconomizer (no omp plugin upstream). Point `ui-verify` at a cheap model with omp's `smol` role (`/model` → Roles).
 
+## Running agents headless
+
+For scripted runs, such as the orchestration in `docs/specs/agent-orchestration.md`: one agent starting another as a child process in a given worktree. Checked by hand on 2026-11-25 (omp 19.1.1, OpenCode 2.3.2, model `kilo/kilo-auto/free`), with throwaway commits in a throwaway worktree.
+
+| | oh-my-pi (worker) | OpenCode (reviewer) |
+|---|---|---|
+| Command | `omp -p --no-session --mode json --model <provider>/<id> --max-cost 0.01 --cwd <worktree> "<prompt>"` | `opencode run --agent reviewer --model <provider>/<id> --format json --archived --title <task> "<prompt>"`, started with `cd <worktree>` |
+| Output | JSON lines on stdout: `session` (with `cwd`), `message_start`/`message_end`, `tool_execution_start`/`_end`, `turn_end`, `agent_end` (`isTerminal`) | JSON lines: `step_start`, `tool_use` (`part.tool`, `part.state`), `text`, `step_finish` (`part.cost`), `error` | <!-- docs-check: ignore -->
+| Model used | Every assistant `message_end`: `.message.provider`, `.message.model`, `.message.upstreamProvider`, `.message.usage.cost.total` | Not in the stream. `opencode session export <sessionID>` (the id is in every event): `.messages[].model.providerID` / `.id`, `.info.agent` | <!-- docs-check: ignore -->
+| Exit codes | 0 done; 1 model not found (`Model "…" not found` on stderr); 2 bad flag; 3 `--max-cost` reached | 0 done; 1 on an error event (`provider.no-route` for an unknown model) |
+| Worktree | `--cwd` is honoured. `worktree.onStart: create` (`.omp/config.yml`) doesn't fire under `-p`, even from the base checkout: no second worktree | Runs in the current folder. Don't pass `-w`: it makes another worktree |
+| Guards | `.omp/extensions/athena.ts` is loaded under `-p`: a write to the base checkout was refused | Only the deny rules in `opencode.json` (no guard hook) |
+| Cleanup | `--no-session` saves nothing | `--archived` keeps it out of lists; `opencode session delete <id>` removes it |
+
+Rules for scripted runs:
+
+- **Pass exact model ids and check the model afterwards.** omp's `--model` fuzzy-matches, so a typo can pick a different (possibly paid) model; compare the reported provider/model with the approved list after every run. `--max-cost` won't take `0`; use a small positive cap (`0.01`) as a backstop on free models.
+- **The reviewer isn't read-only.** OpenCode's `edit` deny doesn't cover `shell` or Code Mode's `execute`: told to try, the reviewer appended to a file with `echo >>` and reported it as allowed. Give a scripted reviewer its own detached worktree at the candidate commit and check afterwards that `git status --porcelain` is empty and `HEAD` didn't move; otherwise discard the review. The same holds for Claude Code's `reviewer` (it has Bash).
+- A run of a few tool calls took 10–60 s on `kilo-auto/free`; nothing hung waiting for a permission prompt.
+
 ## Token budget
 
 In the repo:
