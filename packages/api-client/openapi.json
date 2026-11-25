@@ -8994,7 +8994,8 @@
             "enum": [
               "off",
               "self_signed",
-              "letsencrypt"
+              "letsencrypt",
+              "custom"
             ],
             "title": "Mode",
             "default": "off"
@@ -9021,6 +9022,18 @@
           },
           "letsencrypt": {
             "$ref": "#/components/schemas/LetsEncryptSettings"
+          },
+          "custom_cert": {
+            "type": "string",
+            "maxLength": 10000,
+            "title": "Custom Cert",
+            "default": ""
+          },
+          "custom_key": {
+            "type": "string",
+            "maxLength": 10000,
+            "title": "Custom Key",
+            "default": ""
           }
         },
         "type": "object",

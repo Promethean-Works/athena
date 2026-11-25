@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 DEFAULT_HTTPS_PORT = 8443
 MAX_EXTRA_NAMES = 20
 
-Mode = Literal["off", "self_signed", "letsencrypt"]
+Mode = Literal["off", "self_signed", "letsencrypt", "custom"]
 Challenge = Literal["http", "dns"]
 MAX_DOMAINS = 10
 
@@ -116,7 +116,8 @@ class LetsEncryptSettings(BaseModel):
 class HttpsSettings(BaseModel):
     mode: Mode = "off"
     """`off` serves plain HTTP only; `self_signed` adds HTTPS with Athena's local CA;
-    `letsencrypt` serves the certificate from Let's Encrypt (get one first)."""
+    `letsencrypt` serves the certificate from Let's Encrypt (get one first);
+    `custom` serves a user-provided certificate and key."""
 
     port: int = Field(DEFAULT_HTTPS_PORT, ge=1, le=65535)
     """The HTTPS port. The HTTP port keeps working (and redirects, see `redirect`)."""
@@ -131,6 +132,12 @@ class HttpsSettings(BaseModel):
     letsencrypt: LetsEncryptSettings = Field(default_factory=LetsEncryptSettings)
     """Kept when another mode is picked, so switching back needs no retyping."""
 
+    custom_cert: str = Field("", max_length=10000)
+    """The PEM-encoded certificate (or certificate chain) for custom mode."""
+
+    custom_key: str = Field("", max_length=10000)
+    """The PEM-encoded private key for custom mode. Never returned by the API."""
+
     @field_validator("extra_names")
     @classmethod
     def _names(cls, names: list[str]) -> list[str]:
@@ -140,6 +147,20 @@ class HttpsSettings(BaseModel):
             if name not in out:
                 out.append(name)
         return out
+
+    @field_validator("custom_cert")
+    @classmethod
+    def _validate_cert(cls, cert: str) -> str:
+        if cert and not cert.strip().startswith("-----BEGIN CERTIFICATE-----"):
+            raise ValueError("Certificate must be a PEM-encoded certificate")
+        return cert
+
+    @field_validator("custom_key")
+    @classmethod
+    def _validate_key(cls, key: str) -> str:
+        if key and not key.strip().startswith("-----BEGIN "):
+            raise ValueError("Private key must be a PEM-encoded key")
+        return key
 
 
 def load(config: "SettingsFile") -> HttpsSettings:
@@ -162,7 +183,8 @@ def public(settings: HttpsSettings) -> HttpsSettings:
                     "dns_config": {k: v for k, v in config.items() if not is_secret(k)},
                     "dns_secrets_set": sorted(k for k, v in config.items() if is_secret(k) and v),
                 }
-            )
+            ),
+            "custom_key": "",
         }
     )
 
@@ -177,7 +199,15 @@ def with_secrets(stored: HttpsSettings, incoming: HttpsSettings, box: SecretBox)
     kept = {k: v for k, v in stored.letsencrypt.dns_config.items() if k in known}
     config = merge_tunnel_config(kept, wanted, box)
     le = incoming.letsencrypt.model_copy(update={"dns_config": config, "dns_secrets_set": []})
-    return incoming.model_copy(update={"letsencrypt": le})
+
+    # Handle custom_key: empty keeps stored, new value gets encrypted
+    custom_key = incoming.custom_key
+    if custom_key == "":
+        custom_key = stored.custom_key
+    elif custom_key and not custom_key.startswith(ENCRYPTED):
+        custom_key = box.encrypt(custom_key)
+
+    return incoming.model_copy(update={"letsencrypt": le, "custom_key": custom_key})
 
 
 def dns_values(settings: LetsEncryptSettings, box: SecretBox) -> dict[str, str]:

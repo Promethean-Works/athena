@@ -53,6 +53,14 @@ class TlsPaths:
     def cert(self) -> Path:
         return self.dir / "server.crt"
 
+    @property
+    def custom_key(self) -> Path:
+        return self.dir / "custom.key"
+
+    @property
+    def custom_cert(self) -> Path:
+        return self.dir / "custom.crt"
+
 
 def tls_paths(data_dir: Path) -> TlsPaths:
     return TlsPaths(data_dir / "tls")

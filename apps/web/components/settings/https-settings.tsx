@@ -103,6 +103,10 @@ type Draft = {
   /** The DNS provider's fields. Secrets start empty: an empty one keeps the stored value. */
   dns: Record<string, string>
   staging: boolean
+  /** The PEM-encoded certificate for custom mode. */
+  custom_cert: string
+  /** The PEM-encoded private key for custom mode. */
+  custom_key: string
 }
 
 function toDraft(s: Settings): Draft {
@@ -122,6 +126,8 @@ function toDraft(s: Settings): Draft {
     provider: le?.dns_provider ?? "cloudflare",
     dns,
     staging: le?.staging ?? false,
+    custom_cert: s.custom_cert ?? "",
+    custom_key: s.custom_key ?? "",
   }
 }
 
@@ -341,6 +347,8 @@ function StatusCard({ status }: { status: Status }) {
             ? `Athena encrypts the connection with ${
                 status.settings.mode === "letsencrypt"
                   ? "a certificate from Let's Encrypt"
+                  : status.settings.mode === "custom"
+                  ? "your custom certificate"
                   : "its own certificate"
               }. Plain HTTP stays on port ${status.http_port}.`
             : `Athena is served over plain HTTP on port ${status.http_port}, so passwords and files cross the network unencrypted.`}
@@ -456,7 +464,8 @@ function SettingsCard({
         ? `Port ${port} is Athena's HTTP port. Pick another one.`
         : null
   const needsCertificate =
-    draft.mode === "letsencrypt" && !status.letsencrypt_certificate
+    (draft.mode === "letsencrypt" && !status.letsencrypt_certificate) ||
+    (draft.mode === "custom" && (!draft.custom_cert.trim() || !draft.custom_key.trim()))
 
   function next(): Settings {
     return {
@@ -465,6 +474,8 @@ function SettingsCard({
       redirect: draft.redirect,
       extra_names: parseNames(draft.names),
       letsencrypt: toLetsEncrypt(draft),
+      custom_cert: draft.custom_cert,
+      custom_key: draft.custom_key,
     }
   }
 
@@ -607,6 +618,21 @@ function SettingsCard({
                     </FieldDescription>
                   </FieldContent>
                 </Field>
+                <Field orientation="horizontal">
+                  <RadioGroupItem value="custom" id="https-mode-custom" />
+                  <FieldContent>
+                    <FieldLabel
+                      htmlFor="https-mode-custom"
+                      className="font-normal"
+                    >
+                      Custom
+                    </FieldLabel>
+                    <FieldDescription>
+                      Upload your own certificate and private key (PEM format).
+                      Athena serves them as-is; no automatic renewal.
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
               </RadioGroup>
             </FieldSet>
 
@@ -679,6 +705,13 @@ function SettingsCard({
                     </FieldDescription>
                   </Field>
                 ) : null}
+
+                {draft.mode === "custom" ? (
+                  <CustomFields
+                    draft={draft}
+                    setDraft={setDraft}
+                  />
+                ) : null}
               </>
             ) : null}
 
@@ -730,6 +763,8 @@ function SettingsCard({
               to <span className="font-mono break-all">{newUrl}</span>.{" "}
               {draft.mode === "letsencrypt"
                 ? "Open Athena by its domain name there; other names get a certificate warning."
+                : draft.mode === "custom"
+                ? "Your custom certificate is served; browsers trust it if it's from a known CA."
                 : "Until you trust Athena's CA on a device, its browser shows a warning there."}{" "}
               If you can&apos;t get back in, run{" "}
               <span className="font-mono">{RECOVERY_COMMAND}</span> on the
@@ -942,6 +977,48 @@ function LetsEncryptFields({
         {status.renewal_error ? (
           <FieldError>Last attempt failed: {status.renewal_error}</FieldError>
         ) : null}
+      </FieldGroup>
+    </FieldSet>
+  )
+}
+
+function CustomFields({
+  draft,
+  setDraft,
+}: {
+  draft: Draft
+  setDraft: (d: Draft) => void
+}) {
+  return (
+    <FieldSet>
+      <FieldLegend variant="label">Custom Certificate</FieldLegend>
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="custom-cert">Certificate (PEM)</FieldLabel>
+          <textarea
+            id="custom-cert"
+            className="w-full h-40 font-mono text-sm p-2 border rounded-md bg-background"
+            placeholder="-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+            value={draft.custom_cert}
+            onChange={(e) => setDraft({ ...draft, custom_cert: e.target.value })}
+          />
+          <FieldDescription>
+            Paste the full PEM-encoded certificate or certificate chain.
+          </FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="custom-key">Private Key (PEM)</FieldLabel>
+          <textarea
+            id="custom-key"
+            className="w-full h-40 font-mono text-sm p-2 border rounded-md bg-background"
+            placeholder="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+            value={draft.custom_key}
+            onChange={(e) => setDraft({ ...draft, custom_key: e.target.value })}
+          />
+          <FieldDescription>
+            Paste the PEM-encoded private key. It will be stored encrypted.
+          </FieldDescription>
+        </Field>
       </FieldGroup>
     </FieldSet>
   )
