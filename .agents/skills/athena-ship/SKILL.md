@@ -5,7 +5,7 @@ description: Takes an Athena change from "code written" to an open PR with auto-
 
 # Ship an Athena change
 
-Follow these steps in order. Each step says what "done" looks like. Don't skip one because the change looks small; docs-only PRs still need the title check and auto-merge.
+Follow these steps in order. Each step says what "done" looks like and when it applies: run what the diff needs, not everything. Every PR still needs the title check and auto-merge.
 
 ## 1. Be on the right branch
 
@@ -20,25 +20,26 @@ git status -sb          # where am I, is anything uncommitted?
 ## 2. Run the local checks
 
 ```bash
-scripts/check.sh            # what CI runs: repo, web (lint, types, build, API client drift), server (ruff, pytest)
-scripts/check.sh --quick    # same without the web build, while iterating
+scripts/check.sh repo       # docs, skills, agent config, scripts only
+scripts/check.sh --quick    # code: repo, web (lint, types, API client drift), server (ruff, pytest), no web build
+scripts/check.sh            # everything CI runs, web build included: before pushing web changes
 ```
 
-Done when it prints "All checks passed". If it regenerated `packages/api-client`, commit those files.
+Run the parts the diff touches, once. The pre-push hook runs them again by itself, so don't run a full check just before pushing a docs change. Done when it prints "All checks passed". If it regenerated `packages/api-client`, commit those files.
 
 If `git config core.hooksPath` doesn't print `.githooks`, run `git config core.hooksPath .githooks` (required for agents): it turns on both the pre-commit guard (no commits on `main` or in the base checkout) and the pre-push checks.
 
 If the docs check fails, you renamed or removed something that an `AGENTS.md`, a file in `docs/agents/` or a skill still names. Fix the doc in the same commit; don't silence it.
 
 Also, depending on what changed:
-- **Anything in `apps/web`, or an API the UI uses:** browser verification with the `athena-ui-verify` skill, in the `ui-verify` subagent where your agent has one (`docs/agents/subagents.md`). This is required before saying "done".
+- **Something users see or do** (a page, component, style, or an API the UI calls): browser verification with the `athena-ui-verify` skill, in the `ui-verify` subagent where your agent has one (`docs/agents/subagents.md`). Required before saying "done". Not for docs, comments, `apps/web/AGENTS.md` or test-only changes.
 - **A database model:** a new migration (see the `athena-recipes` skill). `tests/test_db.py` fails without one.
 - **A new dependency:** add its license to `docs/design/licenses.md`. Open-source only.
 - **A design change:** update its section in `docs/design/` and add a row to `docs/design/decisions.md`.
 
 ## 3. Review
 
-Have the diff reviewed before the PR: the `reviewer` subagent (`/review-diff`; oh-my-pi's bundled `reviewer` and Hermes's `delegate_task` need "follow `.agents/skills/athena-review/SKILL.md`, read-only" in the brief). Give it the diff, not your conclusions. Fix what it finds that's real, and say in the PR body what you didn't fix and why.
+When the diff changes code (`apps/`, `packages/`, `scripts/`, `catalog/`, workflows) or is over about 100 lines, have it reviewed before the PR. Skip it for small docs-only diffs (a review costs 30–40k tokens): the `reviewer` subagent (`/review-diff`; oh-my-pi's bundled `reviewer` and Hermes's `delegate_task` need "follow `.agents/skills/athena-review/SKILL.md`, read-only" in the brief). Give it the diff, not your conclusions. Fix what it finds that's real, and say in the PR body what you didn't fix and why.
 
 ## 4. Commit
 
@@ -89,6 +90,6 @@ Done when the PR is open with auto-merge on. Auto-merge waits only for the requi
 ## 7. Hand off
 
 Before ending the session, on the branch (or in a follow-up docs PR):
-- `docs/STATUS.md`: take finished items out and add one short bullet each to the end of `docs/HISTORY.md` with the PR number. Under In progress, say exactly where you stopped and the next concrete step. Keep STATUS under 6 KB (the docs check enforces it; ideas go to `docs/design/milestones.md` → Backlog).
+- `docs/STATUS.md`: take finished items out and add one short bullet each to `docs/HISTORY.md` with the PR number: append with the shell (`cat >> docs/HISTORY.md <<'EOF'`), never by opening it (100 KB). Under In progress, say exactly where you stopped and the next concrete step. Keep STATUS under 6 KB (the docs check enforces it; ideas go to `docs/design/milestones.md` → Backlog).
 - `docs/agents/gotchas/<area>.md`: add anything non-obvious you learned (a surprising failure, a tool quirk, a pattern).
 - Report to the maintainer: the PRs opened (with links, auto-merge on), what merged if you saw it, what was verified and what wasn't, and the bugs fixed along the way.
