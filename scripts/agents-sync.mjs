@@ -115,7 +115,7 @@ const COMMANDS = {
   ship: { skill: "athena-ship", description: "Commit, open the PR with auto-merge (never waits for CI)" },
   handoff: { skill: "athena-handoff", description: "Update STATUS, HISTORY and gotchas before ending the session" },
   "review-diff": { skill: "athena-review", description: "Review the current diff against the project rules", agent: "reviewer" },
-  orchestrate: { skill: "athena-orchestrate", description: "Take an issue through worker, checks and review (stops before the PR)" },
+  orchestrate: { skill: "athena-orchestrate", description: "Take an issue through worker, checks and review to a PR with auto-merge" },
 };
 for (const c of Object.values(COMMANDS)) {
   if (!existsSync(join(root, ".agents", "skills", c.skill, "SKILL.md"))) throw new Error(`COMMANDS: skill ${c.skill} doesn't exist`);

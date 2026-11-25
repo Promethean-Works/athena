@@ -1,6 +1,6 @@
 ---
 name: athena-orchestrate
-description: Coordinates one GitHub issue from intake to a reviewed, verified commit - oh-my-pi implements it in its own worktree, scripts/check.sh --strict verifies it, the OpenCode reviewer reviews it, with at most 2 repair rounds - using free or local models only, and stops before the PR. Use when the maintainer says "/orchestrate <issue#>" or asks to hand an issue to the agent pipeline. Meant for Hermes as coordinator.
+description: Coordinates one GitHub issue from intake to an open PR with auto-merge - oh-my-pi implements it in its own worktree, scripts/check.sh --strict verifies it, the OpenCode reviewer reviews it, with at most 2 repair rounds - using free or local models only, then opens the PR with auto-merge and never waits for CI. Use when the maintainer says "/orchestrate <issue#>" or asks to hand an issue to the agent pipeline. Meant for Hermes as coordinator.
 ---
 
 # Orchestrate an issue
@@ -27,12 +27,16 @@ Run the script from the base checkout: `node scripts/orchestrate.mjs <step> <iss
    - The script allows `max_repairs` (2) rounds and then blocks.
    - When the verdict is `unknown` (no final `VERDICT:` line), run `review` once more. The script allows two reviews per commit and then blocks.
    - A repair needs a candidate whose verify failed or whose review asked for changes.
-9. **Stop at `ready_for_pr`.** Don't push or open the PR; that comes in part 3. Report to the maintainer.
+9. **PR:** at `ready_for_pr`, `pr <issue#>`. It pushes (the pre-push hook reruns the touched checks), opens the PR with a body built from the task's evidence (`Closes #<issue>`), and turns on auto-merge. The title is the first commit's subject; if that isn't a Conventional Commit, pass `--title "<type>(<scope>): <summary>"`. Local trial tasks (`--issue-file`) can't open a PR.
+10. **Stop. Never wait for CI.** Report the PR as open with auto-merge on and end the run. Later, when the maintainer says "check" (or the next time you look at this task), run `ci <issue#>` once:
+    - `merged`: the script removes the worktree; add the HISTORY bullet (append with `cat >>`).
+    - `pending`: report it and stop. Don't poll, sleep or `--watch`.
+    - `fail`: read each failing job's log once (`gh run view <run-id> --log-failed | tail -80`), write the real failures to a file, and go back to step 8 (`implement --repair`, then verify, review, `pr` again, which pushes to the same PR). CI repairs use the same 2-round budget.
 
 ## Report
 
 Keep it short:
-- the issue, the branch and worktree, the state, and the candidate commit;
+- the issue, the PR link (or the branch and worktree), the state, and the candidate commit;
 - the criteria and how each is met;
 - the repair rounds used, and the findings you dropped and why;
 - the models used and their cost, from `status <issue#>`;

@@ -2,7 +2,7 @@
 // Runs the mechanical steps of the issue-to-PR pipeline (docs/specs/agent-orchestration.md)
 // so the coordinator (Hermes, following .agents/skills/athena-orchestrate/SKILL.md) can't
 // skip a check by misreading the procedure. Every step re-checks what it depends on and
-// records the evidence in a task file; nothing here writes to GitHub (part 3 adds the PR).
+// records the evidence in a task file.
 //
 //   node scripts/orchestrate.mjs preflight                 tools, policy, models (no task)
 //   node scripts/orchestrate.mjs start <issue#> [--issue-file <json>]
@@ -14,11 +14,14 @@
 //   node scripts/orchestrate.mjs verify <issue#>
 //   node scripts/orchestrate.mjs review <issue#>
 //   node scripts/orchestrate.mjs block <issue#> <reason>
+//   node scripts/orchestrate.mjs pr <issue#> [--title <conventional title>]
+//   node scripts/orchestrate.mjs ci <issue#>                one pass over the PR's checks; never waits
 //   node scripts/orchestrate.mjs status <issue#>
 //   node scripts/orchestrate.mjs --self-test
 //
 // Output: one JSON object on stdout ({ok, state, ...}). Exit 0 when the step passed, 1 when
-// it failed or the task is blocked, 2 on bad usage. Task files and run logs live in the
+// it failed or the task is blocked, 2 on bad usage. Only `pr` and `ci` talk to GitHub (push,
+// open the PR, turn on auto-merge, read its checks); neither ever waits on CI. Task files and run logs live in the
 // base checkout's git-ignored .agents/state/ (one JSON file per issue), so any worktree sees
 // the same state. Policy: .agents/orchestration.json. Headless flags and output formats:
 // docs/agents/tooling.md → Running agents headless.
@@ -29,7 +32,8 @@ import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const HERE = dirname(fileURLToPath(import.meta.url))
-const STATES = ["queued", "implementing", "verifying", "reviewing", "ready_for_pr", "blocked"]
+const STATES = ["queued", "implementing", "verifying", "reviewing", "ready_for_pr", "pr_open", "ci_failed", "merged", "blocked"]
+const CONVENTIONAL = /^(feat|fix|perf|docs|refactor|test|build|ci|chore|revert)(\([a-z0-9-]+\))?!?: \S.{0,90}$/
 
 // Free-only, whatever the policy file says: Kilo's free routes and local Ollama.
 export function isFreeModel(id) {
@@ -189,6 +193,10 @@ function fail(error, code = 1) {
 }
 
 function block(task, reason) {
+  if (task.pr && task.state !== "blocked") {
+    // Nobody should merge it while it's blocked: auto-merge off (best effort; `ci` still sees a merge).
+    spawnSync("gh", ["pr", "merge", String(task.pr.number), "--disable-auto"], { cwd: baseCheckout(), encoding: "utf8", timeout: 60_000 })
+  }
   task.state = "blocked"
   task.blocked_reason = reason
   task.history.push({ at: new Date().toISOString(), event: "blocked", reason })
@@ -359,10 +367,11 @@ function cmdImplement(n, findingsFile) {
   let findings = null
   const previous = task.candidate_commit
   if (findingsFile) {
-    needState(task, "verifying", "reviewing")
+    needState(task, "verifying", "reviewing", "ci_failed")
     const failedVerify = task.state === "verifying" && task.last_verify?.commit === previous && !task.last_verify.passed
     const reviewWantsChanges = task.state === "reviewing" && task.last_review?.commit === previous && task.last_review.verdict !== "clean"
-    if (!previous || !(failedVerify || reviewWantsChanges)) fail("a repair needs a candidate whose verify failed or whose review asked for changes", 2)
+    const ciFailed = task.state === "ci_failed" && task.last_ci?.commit === previous
+    if (!previous || !(failedVerify || reviewWantsChanges || ciFailed)) fail("a repair needs a candidate whose verify or CI failed or whose review asked for changes", 2)
     if (!canRepair(task, policy.max_repairs)) block(task, `repair budget used up (${task.repairs}/${policy.max_repairs})`)
     findings = readFileSync(resolve(findingsFile), "utf8").trim()
     if (!findings) fail("the findings file is empty", 2)
@@ -673,8 +682,120 @@ function cmdReview(n) {
     repairs_left: policy.max_repairs - task.repairs,
     next:
       verdict === "clean"
-        ? "stop: report to the maintainer (part 2 ends before the PR)"
+        ? "pr <issue#>"
         : "read the findings; put the real blockers and should-fix items in a file, then: implement <issue#> --repair <file> (or review again if the verdict is unknown)",
+  })
+}
+
+// The PR body: what a reviewer of the PR needs, from the task's evidence only.
+export function prBody(task) {
+  const v = task.last_verify ?? {}
+  const lines = [
+    `Closes #${task.issue}`,
+    "",
+    "Opened by the agent pipeline (`athena-orchestrate`): oh-my-pi implemented it, `scripts/orchestrate.mjs` verified it, the OpenCode reviewer reviewed it.",
+    "",
+    "**Acceptance criteria**",
+    task.criteria,
+    "",
+    `**Verified** on ${task.reviewed_commit}: \`scripts/check.sh --strict${v.quick ? " --quick" : ""}\` passed${v.pre_existing?.length ? `; failures already on the base commit (not caused by this change): ${v.pre_existing.join(", ")}` : ""}. Review verdict: clean (${task.repairs} repair round${task.repairs === 1 ? "" : "s"}).`,
+    `**Models:** ${task.models_used.join(", ")} (cost 0).`,
+    "",
+    `**Not verified:** anything outside the checks above${v.quick ? ", including the web build (no web files changed)" : ""}; Windows and macOS CI jobs run only on \`main\`.`,
+  ]
+  return lines.join("\n")
+}
+
+function cmdPr(n, titleArg) {
+  const task = loadTask(n)
+  needState(task, "ready_for_pr")
+  if (String(task.url).startsWith("local:")) fail("a local trial task (--issue-file) can't open a PR", 2)
+  const head = git(task.worktree, "rev-parse", "HEAD")
+  if (head !== task.reviewed_commit) block(task, "HEAD isn't the reviewed commit; verify and review it again")
+  if (task.last_verify?.commit !== head || !task.last_verify.passed) block(task, "verify didn't pass on the reviewed commit")
+  const pf = preflight()
+  if (!pf.ok) block(task, `preflight: ${pf.problems.join("; ")}`)
+  const title = task.pr?.title ?? titleArg ?? git(task.worktree, "log", "--reverse", "--format=%s", `${task.base_commit}..HEAD`).split("\n")[0]
+  if (!CONVENTIONAL.test(title)) fail(`the PR title isn't a Conventional Commit: "${title}"; pass --title "<type>(<scope>): <summary>"`, 2)
+  const push = run("git", ["push", "-u", "origin", task.branch], { cwd: task.worktree, timeoutMin: 45, logFile: join(logDir(n), `push-${task.repairs}.log`) })
+  if (push.status !== 0) block(task, `git push failed (the pre-push hook runs the touched checks): ${tail(push.stderr || push.stdout, 15)}`)
+  if (!task.pr) {
+    const bodyFile = join(logDir(n), "pr-body.md")
+    writeFileSync(bodyFile, prBody(task) + "\n")
+    const c = run("gh", ["pr", "create", "--base", "main", "--head", task.branch, "--title", title, "--body-file", bodyFile], { cwd: task.worktree, timeoutMin: 3 })
+    if (c.status !== 0) block(task, `gh pr create: ${tail(c.stderr, 5)}`)
+    const url = c.stdout.trim().split("\n").find((l) => /\/pull\/\d+/.test(l))
+    if (!url) block(task, "gh pr create printed no PR URL")
+    task.pr = { number: Number(url.match(/\/pull\/(\d+)/)[1]), url, title }
+    event(task, "pr", task.pr)
+    saveTask(task)
+  }
+  const m = run("gh", ["pr", "merge", String(task.pr.number), "--squash", "--auto", "--delete-branch"], { cwd: task.worktree, timeoutMin: 2 })
+  if (m.status !== 0) block(task, `gh pr merge --auto: ${tail(m.stderr, 5)}`)
+  task.pushed_commit = head
+  task.state = "pr_open"
+  event(task, "pushed", { commit: head })
+  saveTask(task)
+  out({ ok: true, state: task.state, pr: task.pr, commit: head, next: "stop here; don't wait for CI. Later, one pass: ci <issue#>" })
+}
+
+// The PR's checks right now: merged, failing, or pending. One read, never a wait.
+export function ciSummary(checks) {
+  const failed = checks.filter((c) => c.bucket === "fail" || c.bucket === "cancel")
+  const pending = checks.filter((c) => c.bucket === "pending")
+  // No checks yet (just pushed) is pending, never a pass.
+  return { failed, pending, verdict: failed.length ? "fail" : pending.length || !checks.length ? "pending" : "pass" }
+}
+
+function cmdCi(n) {
+  const task = loadTask(n)
+  const blocked = task.state === "blocked"
+  if (blocked && !task.pr) fail(`task is blocked: ${task.blocked_reason}`)
+  if (!blocked) needState(task, "pr_open", "ci_failed")
+  const v = run("gh", ["pr", "view", String(task.pr.number), "--json", "state,headRefOid"], { cwd: baseCheckout(), timeoutMin: 2 })
+  if (v.status !== 0) fail(`gh pr view: ${tail(v.stderr, 5)}`)
+  const pr = JSON.parse(v.stdout)
+  if (pr.state === "MERGED") {
+    // Recorded either way, but a merge of a head the pipeline didn't push is flagged.
+    const foreign = pr.headRefOid !== task.pushed_commit
+    task.state = "merged"
+    event(task, "merged", { pr: task.pr.number, head: pr.headRefOid, foreign_head: foreign })
+    try {
+      git(baseCheckout(), "worktree", "remove", "--force", task.worktree)
+    } catch {}
+    saveTask(task)
+    out({ ok: true, state: "merged", pr: task.pr, foreign_head: foreign, next: foreign ? "report it: the merged head isn't the commit the pipeline pushed" : "report it; add the HISTORY bullet (append with cat >>)" })
+  }
+  if (pr.state === "CLOSED") block(task, `PR #${task.pr.number} was closed without merging`)
+  if (blocked) out({ ok: false, state: "blocked", pr: task.pr, pr_state: pr.state, reason: task.blocked_reason, next: "a person decides; auto-merge is off" })
+  if (pr.headRefOid !== task.pushed_commit) block(task, `the PR's head (${pr.headRefOid}) isn't the commit the pipeline pushed`)
+  const c = run("gh", ["pr", "checks", String(task.pr.number), "--json", "name,bucket,link"], { cwd: baseCheckout(), timeoutMin: 2 })
+  // Exit 1 (failed) and 8 (pending) still print the JSON; empty or unparsable output is an error.
+  let checks = null
+  try {
+    checks = JSON.parse(c.stdout)
+  } catch {}
+  if (!Array.isArray(checks)) {
+    if (/no checks reported/i.test(c.stderr)) checks = []
+    else fail(`gh pr checks (exit ${c.status}): ${tail(c.stderr, 5)}`)
+  }
+  const sum = ciSummary(checks)
+  task.last_ci = { commit: task.pushed_commit, verdict: sum.verdict, failed: sum.failed, at: new Date().toISOString() }
+  event(task, "ci", { verdict: sum.verdict, failed: sum.failed.map((f) => f.name) })
+  task.state = sum.verdict === "fail" ? "ci_failed" : "pr_open"
+  saveTask(task)
+  const policy = loadPolicy()
+  out({
+    ok: sum.verdict !== "fail",
+    state: task.state,
+    ci: sum.verdict,
+    failed: sum.failed,
+    pending: sum.pending.map((p) => p.name),
+    repairs_left: policy.max_repairs - task.repairs,
+    next:
+      sum.verdict === "fail"
+        ? "read each failing job's log once (gh run view <run-id> --log-failed | tail -80), write the real failures to a file, then: implement <issue#> --repair <file>"
+        : "stop; auto-merge does the rest. Check again later with one ci <issue#> pass (never wait)",
   })
 }
 
@@ -751,6 +872,14 @@ function selfTest() {
     [checkFailures("All checks passed."), null],
     [needsFullCheck(["docs/agents/commands.md"], ["apps/web/**", "packages/**", "pnpm-lock.yaml", "**/package.json"]), false],
     [needsFullCheck(["apps/web/components/x.tsx"], ["apps/web/**"]), true],
+    [ciSummary([{ name: "a", bucket: "pass" }, { name: "b", bucket: "pending" }]).verdict, "pending"],
+    [ciSummary([{ name: "a", bucket: "fail" }, { name: "b", bucket: "pending" }]).verdict, "fail"],
+    [ciSummary([{ name: "a", bucket: "pass" }, { name: "b", bucket: "skipping" }]).verdict, "pass"],
+    [ciSummary([{ name: "a", bucket: "cancel" }]).failed.length, 1],
+    [ciSummary([]).verdict, "pending"],
+    [CONVENTIONAL.test("docs(agents): add the self-test row"), true],
+    [CONVENTIONAL.test("Add the self-test row"), false],
+    [prBody({ issue: 7, criteria: "- x", reviewed_commit: "abc", repairs: 1, models_used: ["kilo/kilo-auto/free"], last_verify: { quick: true, pre_existing: ["pytest::t"] } }).includes("Closes #7"), true],
     [canRepair({ repairs: 1 }, 2), true],
     [canRepair({ repairs: 2 }, 2), false],
     [STATES.includes("ready_for_pr"), true],
@@ -798,11 +927,17 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       case "block":
         cmdBlock(issue(), process.argv.slice(4).join(" "))
         break
+      case "pr":
+        cmdPr(issue(), b === "--title" ? (c ?? fail("give the title", 2)) : null)
+        break
+      case "ci":
+        cmdCi(issue())
+        break
       case "status":
         cmdStatus(issue())
         break
       default:
-        console.error(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 25).join("\n"))
+        console.error(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 27).join("\n"))
         process.exit(2)
     }
   } catch (e) {
