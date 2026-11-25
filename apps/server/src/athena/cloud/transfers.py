@@ -44,9 +44,12 @@ class SyncPreview(BaseModel):
 
 def size(n: float) -> str:
     for unit in ("B", "KB", "MB", "GB", "TB"):
-        if abs(n) < 1000 or unit == "TB":
-            return f"{n:.0f} {unit}" if unit == "B" else f"{n:.1f} {unit}"
-        n /= 1000
+        if unit == "TB":
+            return f"{n:.1f} {unit}"
+        rounded = round(n, 1) if unit != "B" else round(n)
+        if rounded < 1000:
+            return f"{rounded:.0f} {unit}" if unit == "B" else f"{rounded:.1f} {unit}"
+        n = rounded / 1000
     return f"{n:.1f} TB"
 
 

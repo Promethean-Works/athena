@@ -114,6 +114,19 @@ def test_progress_line() -> None:
     assert transfers.progress_of({})[0] is None
 
 
+def test_size_unit_boundaries() -> None:
+    # Value rounds to 1000 B -> should show as 1.0 KB
+    assert transfers.size(999.6) == "1.0 KB"
+    # Value rounds to 1000 KB -> should show as 1.0 MB
+    assert transfers.size(999_950) == "1.0 MB"
+    # Values away from boundaries format as before
+    assert transfers.size(512) == "512 B"
+    assert transfers.size(1_500_000) == "1.5 MB"
+    # TB stays the largest unit
+    assert transfers.size(5_000_000_000_000) == "5.0 TB"
+    assert transfers.size(9_999_500_000_000) == "10.0 TB"
+
+
 # --- Without rclone --------------------------------------------------------------------
 
 
