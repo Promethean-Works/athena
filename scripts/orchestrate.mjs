@@ -27,7 +27,8 @@
 // docs/agents/tooling.md → Running agents headless.
 import { spawnSync } from "node:child_process"
 import { createHash } from "node:crypto"
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -157,8 +158,12 @@ export function canRepair(task, maxRepairs) {
 
 // ---------------------------------------------------------------------------------------
 
+// Git with no GIT_* variables: inside a git hook (pre-push runs agents-sync --check, which
+// runs --self-test) GIT_DIR would point every call at the hook's repository.
+const GIT_ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")))
+
 function git(cwd, ...args) {
-  const r = spawnSync("git", args, { cwd, encoding: "utf8" })
+  const r = spawnSync("git", args, { cwd, encoding: "utf8", env: GIT_ENV })
   if (r.status !== 0) throw new Error(`git ${args.join(" ")}: ${(r.stderr || r.stdout).trim()}`)
   return r.stdout.trim()
 }
@@ -218,8 +223,26 @@ const has = (cmd) => spawnSync(process.platform === "win32" ? "where" : "which",
 // A snapshot of a checkout, to prove a run didn't touch it.
 // The script's own state dir is left out, whether or not .gitignore covers it yet.
 const statusOf = (dir) => git(dir, "status", "--porcelain", "--", ".", ":(exclude).agents/state")
+// Whether a checkout is as it was. The base checkout may fast-forward meanwhile (an editor's
+// git sync or the maintainer pulling main), so there a new HEAD is fine when it contains the
+// old one AND is already on the remote's main (a commit made locally, by a worker or anyone,
+// isn't). Same branch, same uncommitted changes. Worktrees must not move at all.
+export function unchanged(before, after, { fastForwardOk = false, isAncestor = () => false, onRemote = () => false } = {}) {
+  if (after.status !== before.status || after.branch !== before.branch) return false
+  if (after.head === before.head) return true
+  return fastForwardOk && isAncestor(before.head, after.head) && onRemote(after.head)
+}
+const isAncestorIn = (dir) => (a, b) => spawnSync("git", ["merge-base", "--is-ancestor", a, b], { cwd: dir, env: GIT_ENV }).status === 0
+// Fetch first, so a moved local origin/main ref can't vouch for a local commit; on a failed
+// fetch nothing counts as on the remote (stay strict).
+const onRemoteIn = (dir) => (sha) => {
+  if (spawnSync("git", ["fetch", "-q", "origin", "main"], { cwd: dir, timeout: 120_000, env: GIT_ENV }).status !== 0) return false
+  return isAncestorIn(dir)(sha, "origin/main")
+}
+const baseGuard = (base, fastForwardOk = true) => ({ fastForwardOk, isAncestor: isAncestorIn(base), onRemote: onRemoteIn(base) })
+
 function snapshot(dir) {
-  return { head: git(dir, "rev-parse", "HEAD"), status: statusOf(dir) }
+  return { head: git(dir, "rev-parse", "HEAD"), branch: git(dir, "rev-parse", "--abbrev-ref", "HEAD"), status: statusOf(dir) }
 }
 
 function run(cmd, args, { cwd, timeoutMin, logFile, env }) {
@@ -403,7 +426,7 @@ function cmdImplement(n, findingsFile) {
   if (r.status !== 0) block(task, `omp exited ${r.status}: ${tail(r.stderr, 5)}`)
   if (!parsed.messages) block(task, "the worker produced no model output")
   const after = snapshot(base)
-  if (after.head !== before.head || after.status !== before.status) block(task, "the base checkout changed during the worker's run")
+  if (!unchanged(before, after, baseGuard(base))) block(task, "the base checkout changed during the worker's run (uncommitted changes, or HEAD moved other than a fast-forward)")
   const head = git(task.worktree, "rev-parse", "HEAD")
   if (head === task.base_commit || head === previous) block(task, findingsFile ? "the repair round made no new commit" : "the worker made no commit")
   if (git(task.worktree, "rev-parse", "--abbrev-ref", "HEAD") !== task.branch) block(task, `the worker switched away from ${task.branch}`)
@@ -656,7 +679,7 @@ function cmdReview(n) {
   if (!exported.agents.includes(rv.agent)) block(task, `the review didn't run as the ${rv.agent} agent (${exported.agents.join(", ")})`)
   if (parsed.cost > 0) block(task, `the review cost ${parsed.cost} USD; only free models are allowed`)
   for (const k of ["base", "impl", "review"]) {
-    if (after[k].head !== before[k].head || after[k].status !== before[k].status) {
+    if (!unchanged(before[k], after[k], baseGuard(base, k === "base"))) {
       task.review_discards = (task.review_discards ?? 0) + 1
       if (task.review_discards > 1) block(task, `the reviewer changed the ${k} checkout again; reviews discarded twice`)
       saveTask(task)
@@ -812,6 +835,38 @@ function cmdStatus(n) {
   out({ ok: task.state !== "blocked", ...rest, repairs_left: policy.max_repairs - task.repairs, review_stale: Boolean(stale), last_events: history.slice(-5) }, 0)
 }
 
+// The base-checkout guard against real git: a pull from the remote passes, a local commit
+// on main doesn't (the hole a mocked test can't show).
+function realGitCases() {
+  const dir = mkdtempSync(join(tmpdir(), "orchestrate-selftest-"))
+  const g = (cwd, ...a) => spawnSync("git", ["-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", ...a], { cwd, encoding: "utf8", env: GIT_ENV })
+  try {
+    g(dir, "init", "-q", "--bare", "-b", "main", "remote.git")
+    g(dir, "clone", "-q", join(dir, "remote.git"), "base")
+    g(dir, "clone", "-q", join(dir, "remote.git"), "other")
+    const base = join(dir, "base")
+    const other = join(dir, "other")
+    g(other, "commit", "-q", "--allow-empty", "-m", "one")
+    g(other, "push", "-q", "origin", "HEAD:main")
+    g(base, "pull", "-q", "origin", "main")
+    const before = snapshot(base)
+    g(other, "commit", "-q", "--allow-empty", "-m", "two")
+    g(other, "push", "-q", "origin", "HEAD:main")
+    g(base, "pull", "-q", "origin", "main")
+    const pulled = snapshot(base)
+    g(base, "commit", "-q", "--allow-empty", "-m", "local")
+    const local = snapshot(base)
+    return [
+      [pulled.head !== before.head, true],
+      [unchanged(before, pulled, baseGuard(base)), true],
+      [unchanged(before, local, baseGuard(base)), false],
+      [unchanged(before, pulled, baseGuard(base, false)), false],
+    ]
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+}
+
 function selfTest() {
   const omp = [
     JSON.stringify({ type: "message_end", message: { role: "user" } }),
@@ -880,6 +935,12 @@ function selfTest() {
     [CONVENTIONAL.test("docs(agents): add the self-test row"), true],
     [CONVENTIONAL.test("Add the self-test row"), false],
     [prBody({ issue: 7, criteria: "- x", reviewed_commit: "abc", repairs: 1, models_used: ["kilo/kilo-auto/free"], last_verify: { quick: true, pre_existing: ["pytest::t"] } }).includes("Closes #7"), true],
+    [unchanged({ head: "a", branch: "main", status: "" }, { head: "b", branch: "main", status: "" }, { fastForwardOk: true, isAncestor: () => true, onRemote: () => true }), true],
+    [unchanged({ head: "a", branch: "main", status: "" }, { head: "b", branch: "main", status: "" }, { fastForwardOk: true, isAncestor: () => true, onRemote: () => false }), false],
+    [unchanged({ head: "a", branch: "main", status: "" }, { head: "b", branch: "main", status: "" }, { fastForwardOk: false, isAncestor: () => true, onRemote: () => true }), false],
+    [unchanged({ head: "a", branch: "main", status: "" }, { head: "a", branch: "x", status: "" }, { fastForwardOk: true }), false],
+    [unchanged({ head: "a", branch: "main", status: "" }, { head: "a", branch: "main", status: " M x" }, { fastForwardOk: true }), false],
+    ...realGitCases(),
     [canRepair({ repairs: 1 }, 2), true],
     [canRepair({ repairs: 2 }, 2), false],
     [STATES.includes("ready_for_pr"), true],
