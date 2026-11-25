@@ -98,7 +98,7 @@ export default function SetupPage() {
                 required
                 value={location}
                 onChange={(event) => setLocation(event.target.value)}
-                placeholder="Local folder or &lt;remote&gt;:&lt;path&gt;"
+                placeholder="Local folder or <remote>:<path>"
               />
               <FieldDescription>
                 The local folder where the backup repository lives.
@@ -146,6 +146,35 @@ export default function SetupPage() {
       </Card>
     )
 
+  if (step === "account")
+    return (
+      <Card>
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">Welcome to Athena</CardTitle>
+          <CardDescription>
+            Create the administrator account for this server.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {error && <FieldError>{error}</FieldError>}
+          <CredentialsForm
+            mode="setup"
+            submitLabel="Create account"
+            onSubmit={async (credentials) => {
+              const { data, error } = await api.POST("/api/auth/setup", {
+                body: credentials,
+              })
+              if (!data) return errorMessage(error, "Couldn't create the account")
+              setCsrfToken(null)
+              setStep("ai")
+              return null
+            }}
+          />
+        </CardContent>
+      </Card>
+    )
+
+  // step === "choose"
   return (
     <Card>
       <CardHeader className="text-center">
@@ -188,34 +217,6 @@ export default function SetupPage() {
         </div>
         {error && <FieldError>{error}</FieldError>}
         {pending && <Spinner />}
-  if (step === "account")
-    return (
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome to Athena</CardTitle>
-          <CardDescription>
-            Create the administrator account for this server.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error && <FieldError>{error}</FieldError>}
-          <CredentialsForm
-            mode="setup"
-            submitLabel="Create account"
-            onSubmit={async (credentials) => {
-              const { data, error } = await api.POST("/api/auth/setup", {
-                body: credentials,
-              })
-              if (!data) return errorMessage(error, "Couldn't create the account")
-              setCsrfToken(null)
-              setStep("ai")
-              return null
-            }}
-          />
-        </CardContent>
-      </Card>
-    )
-
       </CardContent>
     </Card>
   )

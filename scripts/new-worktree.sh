@@ -43,4 +43,4 @@ echo
 echo "==> work in $worktree_dir. OpenCode: opencode session_move --directory \"$worktree_dir\""
 echo
 echo "==> after the PR merges, clean up:"
-echo "    git worktree remove $worktree_dir"
+echo "    git worktree remove $worktree_dir   (or scripts/clean-worktrees.sh --yes)"

@@ -100,6 +100,17 @@ Stop and use the `athena-platform-feature` skill: capability id, detection, prov
 2. Get the maintainer's yes (a `docs:` PR or in chat) before writing code.
 3. One PR per part; each PR body names the spec part. Afterwards fold what stays true into `docs/design/` and mark the spec Done (see `docs/specs/README.md`).
 
+## J. Backup & restore (disaster recovery)
+
+See `.agents/skills/athena-recipes/references/backup-restore.md` for:
+- Schema version check on full restore (refuses newer Athena versions)
+- Cross-OS bind-mount warning
+- `server` section replacement in `athena.json` <!-- docs-check: ignore -->
+- Recovery kit handling
+- CLI snapshot listing with version/OS tags
+- Restic tag conventions
+- Acceptance checks and gotchas
+
 ## I. Before you say "done"
 
 - [ ] `scripts/check.sh` passes, and `packages/api-client` is regenerated and committed if the API changed.

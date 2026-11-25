@@ -116,6 +116,8 @@ def main() -> int:
 
         def setup() -> None:
             page.goto(f"{base}/setup/")
+            # First choice: a new account or a restore from a backup.
+            page.get_by_role("button", name="Create account").click()
             page.get_by_label("Username").fill(USER)
             page.get_by_label("Password", exact=True).fill(PASSWORD)
             page.get_by_label("Confirm password").fill(PASSWORD)
