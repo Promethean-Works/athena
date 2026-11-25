@@ -240,7 +240,7 @@
       "subagent": true
     },
     "orchestrate": {
-      "description": "Take an issue through worker, checks and review (stops before the PR)",
+      "description": "Take an issue through worker, checks and review to a PR with auto-merge",
       "template": "Use the athena-orchestrate skill (.agents/skills/athena-orchestrate/SKILL.md) and follow it. $ARGUMENTS"
     }
   },
