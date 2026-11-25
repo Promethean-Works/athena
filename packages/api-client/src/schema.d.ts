@@ -1174,48 +1174,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/shares": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Shares
-         * @description All links, newest first, or only those for one location (and path).
-         */
-        get: operations["listShares"];
-        put?: never;
-        /** Create Share */
-        post: operations["createShare"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/shares/{share_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Update Share
-         * @description Changing or removing the password signs out everyone who unlocked the link.
-         */
-        put: operations["updateShare"];
-        post?: never;
-        /** Remove Share */
-        delete: operations["removeShare"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/public/shares/{token}": {
         parameters: {
             query?: never;
@@ -1356,45 +1314,6 @@ export interface paths {
          * @description Remove an SMB share: drop its smb.conf section and the tracking row.
          */
         delete: operations["removeSmbShare"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/webdav": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Webdav */
-        get: operations["getWebDav"];
-        /** Set Webdav */
-        put: operations["setWebDav"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/webdav/password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * New Webdav Password
-         * @description A new random password for WebDAV, replacing the old one (clients using it have to
-         *     sign in again).
-         */
-        post: operations["newWebDavPassword"];
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1654,6 +1573,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/webdav": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Webdav */
+        get: operations["getWebDav"];
+        /** Set Webdav */
+        put: operations["setWebDav"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/webdav/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New Webdav Password
+         * @description A new random password for WebDAV, replacing the old one (clients using it have to
+         *     sign in again).
+         */
+        post: operations["newWebDavPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Shares
+         * @description All links, newest first, or only those for one location (and path).
+         */
+        get: operations["listShares"];
+        put?: never;
+        /** Create Share */
+        post: operations["createShare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shares/{share_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Share
+         * @description Changing or removing the password signs out everyone who unlocked the link.
+         */
+        put: operations["updateShare"];
+        post?: never;
+        /** Remove Share */
+        delete: operations["removeShare"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/assistant/kinds": {
         parameters: {
             query?: never;
@@ -1665,7 +1665,7 @@ export interface paths {
          * List Kinds
          * @description Every models.dev provider pydantic-ai can use, plus local Ollama.
          */
-        get: operations["listAiProviderKinds"];
+        get: operations["list_kinds_api_assistant_kinds_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1687,7 +1687,7 @@ export interface paths {
          * Refresh Kinds
          * @description Manually refresh the models.dev cache and return the updated kinds.
          */
-        post: operations["refreshAiProviderKinds"];
+        post: operations["refresh_kinds_api_assistant_kinds_refresh_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1702,10 +1702,10 @@ export interface paths {
             cookie?: never;
         };
         /** List Providers */
-        get: operations["listAiProviders"];
+        get: operations["list_providers_api_assistant_providers_get"];
         put?: never;
         /** Create Provider */
-        post: operations["createAiProvider"];
+        post: operations["create_provider_api_assistant_providers_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1721,10 +1721,10 @@ export interface paths {
         };
         get?: never;
         /** Update Provider */
-        put: operations["updateAiProvider"];
+        put: operations["update_provider_api_assistant_providers__provider_id__put"];
         post?: never;
         /** Delete Provider */
-        delete: operations["deleteAiProvider"];
+        delete: operations["delete_provider_api_assistant_providers__provider_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1738,10 +1738,10 @@ export interface paths {
             cookie?: never;
         };
         /** List Integrations */
-        get: operations["listAiIntegrations"];
+        get: operations["list_integrations_api_assistant_integrations_get"];
         put?: never;
         /** Create Integration */
-        post: operations["createAiIntegration"];
+        post: operations["create_integration_api_assistant_integrations_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1759,7 +1759,7 @@ export interface paths {
          * List Integration Kinds
          * @description The curated integration kinds, for the add form.
          */
-        get: operations["listAiIntegrationKinds"];
+        get: operations["list_integration_kinds_api_assistant_integrations_kinds_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1777,10 +1777,10 @@ export interface paths {
         };
         get?: never;
         /** Update Integration */
-        put: operations["updateAiIntegration"];
+        put: operations["update_integration_api_assistant_integrations__integration_id__put"];
         post?: never;
         /** Delete Integration */
-        delete: operations["deleteAiIntegration"];
+        delete: operations["delete_integration_api_assistant_integrations__integration_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1799,7 +1799,7 @@ export interface paths {
          * Test Provider
          * @description Lists the provider's models, which proves the address and key work.
          */
-        post: operations["testAiProvider"];
+        post: operations["test_provider_api_assistant_providers__provider_id__test_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1814,7 +1814,7 @@ export interface paths {
             cookie?: never;
         };
         /** Provider Models */
-        get: operations["listAiProviderModels"];
+        get: operations["provider_models_api_assistant_providers__provider_id__models_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1835,7 +1835,7 @@ export interface paths {
          * @description Every provider's models, for the model picker. A provider that fails still shows,
          *     with its error, so its model ids can be typed.
          */
-        get: operations["listAiModels"];
+        get: operations["all_models_api_assistant_models_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1852,10 +1852,10 @@ export interface paths {
             cookie?: never;
         };
         /** List Conversations */
-        get: operations["listConversations"];
+        get: operations["list_conversations_api_assistant_conversations_get"];
         put?: never;
         /** Create Conversation */
-        post: operations["createConversation"];
+        post: operations["create_conversation_api_assistant_conversations_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1870,15 +1870,15 @@ export interface paths {
             cookie?: never;
         };
         /** Get Conversation */
-        get: operations["getConversation"];
+        get: operations["get_conversation_api_assistant_conversations__conversation_id__get"];
         put?: never;
         post?: never;
         /** Delete Conversation */
-        delete: operations["deleteConversation"];
+        delete: operations["delete_conversation_api_assistant_conversations__conversation_id__delete"];
         options?: never;
         head?: never;
         /** Update Conversation */
-        patch: operations["updateConversation"];
+        patch: operations["update_conversation_api_assistant_conversations__conversation_id__patch"];
         trace?: never;
     };
     "/api/assistant/conversations/{conversation_id}/messages": {
@@ -1902,7 +1902,7 @@ export interface paths {
          *     `done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While
          *     actions or questions wait, a new message denies and declines them.
          */
-        post: operations["sendMessage"];
+        post: operations["send_message_api_assistant_conversations__conversation_id__messages_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1924,7 +1924,7 @@ export interface paths {
          *     action (approved actions run as you, and each decision is audited) and answer or decline
          *     each question. Streams the same events as sendMessage.
          */
-        post: operations["answerApprovals"];
+        post: operations["answer_approvals_api_assistant_conversations__conversation_id__approvals_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1941,7 +1941,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Stop Conversation */
-        post: operations["stopConversation"];
+        post: operations["stop_conversation_api_assistant_conversations__conversation_id__stop_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7231,135 +7231,6 @@ export interface operations {
             };
         };
     };
-    listShares: {
-        parameters: {
-            query?: {
-                location?: number | null;
-                path?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShareOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    createShare: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ShareIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShareOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    updateShare: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                share_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ShareUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShareOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    removeShare: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                share_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     getPublicShare: {
         parameters: {
             query?: never;
@@ -7641,79 +7512,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    getWebDav: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WebDavOut"];
-                };
-            };
-        };
-    };
-    setWebDav: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["WebDavIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WebDavOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    newWebDavPassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WebDavPassword"];
                 };
             };
         };
@@ -8254,7 +8052,209 @@ export interface operations {
             };
         };
     };
-    listAiProviderKinds: {
+    getWebDav: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebDavOut"];
+                };
+            };
+        };
+    };
+    setWebDav: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WebDavIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebDavOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    newWebDavPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebDavPassword"];
+                };
+            };
+        };
+    };
+    listShares: {
+        parameters: {
+            query?: {
+                location?: number | null;
+                path?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    createShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShareIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    updateShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShareUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    removeShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_kinds_api_assistant_kinds_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -8274,7 +8274,7 @@ export interface operations {
             };
         };
     };
-    refreshAiProviderKinds: {
+    refresh_kinds_api_assistant_kinds_refresh_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -8296,7 +8296,7 @@ export interface operations {
             };
         };
     };
-    listAiProviders: {
+    list_providers_api_assistant_providers_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -8316,7 +8316,7 @@ export interface operations {
             };
         };
     };
-    createAiProvider: {
+    create_provider_api_assistant_providers_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -8349,7 +8349,7 @@ export interface operations {
             };
         };
     };
-    updateAiProvider: {
+    update_provider_api_assistant_providers__provider_id__put: {
         parameters: {
             query?: never;
             header?: never;
@@ -8384,7 +8384,7 @@ export interface operations {
             };
         };
     };
-    deleteAiProvider: {
+    delete_provider_api_assistant_providers__provider_id__delete: {
         parameters: {
             query?: never;
             header?: never;
@@ -8413,7 +8413,7 @@ export interface operations {
             };
         };
     };
-    listAiIntegrations: {
+    list_integrations_api_assistant_integrations_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -8433,7 +8433,7 @@ export interface operations {
             };
         };
     };
-    createAiIntegration: {
+    create_integration_api_assistant_integrations_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -8466,7 +8466,7 @@ export interface operations {
             };
         };
     };
-    listAiIntegrationKinds: {
+    list_integration_kinds_api_assistant_integrations_kinds_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -8486,7 +8486,7 @@ export interface operations {
             };
         };
     };
-    updateAiIntegration: {
+    update_integration_api_assistant_integrations__integration_id__put: {
         parameters: {
             query?: never;
             header?: never;
@@ -8521,7 +8521,7 @@ export interface operations {
             };
         };
     };
-    deleteAiIntegration: {
+    delete_integration_api_assistant_integrations__integration_id__delete: {
         parameters: {
             query?: never;
             header?: never;
@@ -8550,7 +8550,7 @@ export interface operations {
             };
         };
     };
-    testAiProvider: {
+    test_provider_api_assistant_providers__provider_id__test_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -8581,7 +8581,7 @@ export interface operations {
             };
         };
     };
-    listAiProviderModels: {
+    provider_models_api_assistant_providers__provider_id__models_get: {
         parameters: {
             query?: {
                 refresh?: boolean;
@@ -8614,7 +8614,7 @@ export interface operations {
             };
         };
     };
-    listAiModels: {
+    all_models_api_assistant_models_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -8634,7 +8634,7 @@ export interface operations {
             };
         };
     };
-    listConversations: {
+    list_conversations_api_assistant_conversations_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -8654,7 +8654,7 @@ export interface operations {
             };
         };
     };
-    createConversation: {
+    create_conversation_api_assistant_conversations_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -8687,7 +8687,7 @@ export interface operations {
             };
         };
     };
-    getConversation: {
+    get_conversation_api_assistant_conversations__conversation_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -8718,7 +8718,7 @@ export interface operations {
             };
         };
     };
-    deleteConversation: {
+    delete_conversation_api_assistant_conversations__conversation_id__delete: {
         parameters: {
             query?: never;
             header?: never;
@@ -8747,7 +8747,7 @@ export interface operations {
             };
         };
     };
-    updateConversation: {
+    update_conversation_api_assistant_conversations__conversation_id__patch: {
         parameters: {
             query?: never;
             header?: never;
@@ -8782,7 +8782,7 @@ export interface operations {
             };
         };
     };
-    sendMessage: {
+    send_message_api_assistant_conversations__conversation_id__messages_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -8803,7 +8803,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "text/event-stream": unknown;
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -8817,7 +8817,7 @@ export interface operations {
             };
         };
     };
-    answerApprovals: {
+    answer_approvals_api_assistant_conversations__conversation_id__approvals_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -8838,7 +8838,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "text/event-stream": unknown;
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -8852,7 +8852,7 @@ export interface operations {
             };
         };
     };
-    stopConversation: {
+    stop_conversation_api_assistant_conversations__conversation_id__stop_post: {
         parameters: {
             query?: never;
             header?: never;

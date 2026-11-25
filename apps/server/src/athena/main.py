@@ -13,7 +13,6 @@ from fastapi.staticfiles import StaticFiles
 
 from athena import __version__, updates
 from athena.api import apps, auth, automation, capabilities, containers, jobs, system
-from athena.api import assistant as assistant_api
 from athena.api import audit as audit_api
 from athena.api import backup as backup_api
 from athena.api import cloud as cloud_api
@@ -28,9 +27,7 @@ from athena.api import store as store_api
 from athena.api import terminal as terminal_api
 from athena.api import tunnel as tunnel_api
 from athena.api import webdav as webdav_api
-from athena.assistant.models_dev import init_models_dev_service
-from athena.assistant.providers import ModelCache
-from athena.assistant.turns import Turns
+from athena.api.assistant_lazy import LazyAssistantRouter
 from athena.auth.deps import require_user
 from athena.auth.service import LoginThrottle
 from athena.automation import service as automation_service
@@ -110,6 +107,8 @@ def create_app(
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Initialize models.dev service for dynamic provider loading
+        from athena.assistant.models_dev import init_models_dev_service
+
         init_models_dev_service(db.session)
         # Refresh models.dev cache in background (non-blocking)
         refresh_task = asyncio.create_task(_refresh_models_dev_cache(app))
@@ -192,8 +191,12 @@ def create_app(
     app.state.rclone = rclone or Rclone(settings.data_dir)
     app.state.secret_box = SecretBox(settings.data_dir)
     app.state.restic = ResticProvider(settings.data_dir)
+    from athena.assistant.providers import ModelCache
+
     app.state.model_cache = ModelCache()
     app.state.ai_transport = None  # tests swap in an httpx2.MockTransport
+    from athena.assistant.turns import Turns
+
     app.state.assistant_turns = Turns()
     app.state.catalogs = catalogs or CatalogRegistry(remote_root=settings.data_dir / "catalogs")
     # Wakes the automation scheduler when a trigger is created, enabled or edited.
@@ -215,12 +218,31 @@ def create_app(
     app.include_router(settings_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(packages_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(files_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(shares_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(shares_api.public_router, prefix="/api")
     app.include_router(smb_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(webdav_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(cloud_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(assistant_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(webdav_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(shares_api.router, prefix="/api", dependencies=[require_user])
+    # The lazy assistant router wraps its routes in an included router so OpenAPI
+    # sees them. The real router has prefix="/assistant" stripped by LazyAssistantRouter.
+    lazy_assistant = LazyAssistantRouter(app)
+    from fastapi import APIRouter
+
+    assistant_router = APIRouter(prefix="/api/assistant")
+    for route in lazy_assistant.routes:
+        assistant_router.add_api_route(
+            route.path,
+            route.endpoint,
+            methods=route.methods,
+            name=route.name,
+            include_in_schema=route.include_in_schema,
+            status_code=route.status_code,
+            response_model=route.response_model,
+            dependencies=route.dependencies,
+        )
+    app.include_router(assistant_router, dependencies=[require_user])
+    # Also mount for runtime (first request still lazy-loads via LazyAssistantRouter)
+    app.mount("/api/assistant", lazy_assistant)
     app.include_router(automation.router, prefix="/api", dependencies=[require_user])
     # The webhook is public: the trigger's secret token is the credential, so no
     # session is required (n8n, external agents).

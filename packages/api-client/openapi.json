@@ -3007,203 +3007,6 @@
         }
       }
     },
-    "/api/shares": {
-      "get": {
-        "tags": [
-          "shares"
-        ],
-        "summary": "List Shares",
-        "description": "All links, newest first, or only those for one location (and path).",
-        "operationId": "listShares",
-        "parameters": [
-          {
-            "name": "location",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Location"
-            }
-          },
-          {
-            "name": "path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "maxLength": 4096
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ShareOut"
-                  },
-                  "title": "Response Listshares"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "shares"
-        ],
-        "summary": "Create Share",
-        "operationId": "createShare",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShareIn"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShareOut"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/shares/{share_id}": {
-      "put": {
-        "tags": [
-          "shares"
-        ],
-        "summary": "Update Share",
-        "description": "Changing or removing the password signs out everyone who unlocked the link.",
-        "operationId": "updateShare",
-        "parameters": [
-          {
-            "name": "share_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Share Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShareUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShareOut"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "shares"
-        ],
-        "summary": "Remove Share",
-        "operationId": "removeShare",
-        "parameters": [
-          {
-            "name": "share_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Share Id"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/public/shares/{token}": {
       "get": {
         "tags": [
@@ -3640,88 +3443,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/webdav": {
-      "get": {
-        "tags": [
-          "webdav"
-        ],
-        "summary": "Get Webdav",
-        "operationId": "getWebDav",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WebDavOut"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "webdav"
-        ],
-        "summary": "Set Webdav",
-        "operationId": "setWebDav",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WebDavIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WebDavOut"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/webdav/password": {
-      "post": {
-        "tags": [
-          "webdav"
-        ],
-        "summary": "New Webdav Password",
-        "description": "A new random password for WebDAV, replacing the old one (clients using it have to\nsign in again).",
-        "operationId": "newWebDavPassword",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WebDavPassword"
                 }
               }
             }
@@ -4515,14 +4236,290 @@
         }
       }
     },
-    "/api/assistant/kinds": {
+    "/api/webdav": {
       "get": {
         "tags": [
-          "assistant"
+          "webdav"
         ],
+        "summary": "Get Webdav",
+        "operationId": "getWebDav",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebDavOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "webdav"
+        ],
+        "summary": "Set Webdav",
+        "operationId": "setWebDav",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebDavIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebDavOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/webdav/password": {
+      "post": {
+        "tags": [
+          "webdav"
+        ],
+        "summary": "New Webdav Password",
+        "description": "A new random password for WebDAV, replacing the old one (clients using it have to\nsign in again).",
+        "operationId": "newWebDavPassword",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebDavPassword"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shares": {
+      "get": {
+        "tags": [
+          "shares"
+        ],
+        "summary": "List Shares",
+        "description": "All links, newest first, or only those for one location (and path).",
+        "operationId": "listShares",
+        "parameters": [
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Location"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Path"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ShareOut"
+                  },
+                  "title": "Response Listshares"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "shares"
+        ],
+        "summary": "Create Share",
+        "operationId": "createShare",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shares/{share_id}": {
+      "put": {
+        "tags": [
+          "shares"
+        ],
+        "summary": "Update Share",
+        "description": "Changing or removing the password signs out everyone who unlocked the link.",
+        "operationId": "updateShare",
+        "parameters": [
+          {
+            "name": "share_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Share Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "shares"
+        ],
+        "summary": "Remove Share",
+        "operationId": "removeShare",
+        "parameters": [
+          {
+            "name": "share_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Share Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/kinds": {
+      "get": {
         "summary": "List Kinds",
         "description": "Every models.dev provider pydantic-ai can use, plus local Ollama.",
-        "operationId": "listAiProviderKinds",
+        "operationId": "list_kinds_api_assistant_kinds_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4533,7 +4530,7 @@
                     "$ref": "#/components/schemas/ProviderKind"
                   },
                   "type": "array",
-                  "title": "Response Listaiproviderkinds"
+                  "title": "Response List Kinds Api Assistant Kinds Get"
                 }
               }
             }
@@ -4543,12 +4540,9 @@
     },
     "/api/assistant/kinds/refresh": {
       "post": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Refresh Kinds",
         "description": "Manually refresh the models.dev cache and return the updated kinds.",
-        "operationId": "refreshAiProviderKinds",
+        "operationId": "refresh_kinds_api_assistant_kinds_refresh_post",
         "responses": {
           "202": {
             "description": "Successful Response",
@@ -4557,7 +4551,7 @@
                 "schema": {
                   "additionalProperties": true,
                   "type": "object",
-                  "title": "Response Refreshaiproviderkinds"
+                  "title": "Response Refresh Kinds Api Assistant Kinds Refresh Post"
                 }
               }
             }
@@ -4567,11 +4561,8 @@
     },
     "/api/assistant/providers": {
       "get": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "List Providers",
-        "operationId": "listAiProviders",
+        "operationId": "list_providers_api_assistant_providers_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4582,7 +4573,7 @@
                     "$ref": "#/components/schemas/ProviderOut"
                   },
                   "type": "array",
-                  "title": "Response Listaiproviders"
+                  "title": "Response List Providers Api Assistant Providers Get"
                 }
               }
             }
@@ -4590,11 +4581,8 @@
         }
       },
       "post": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Create Provider",
-        "operationId": "createAiProvider",
+        "operationId": "create_provider_api_assistant_providers_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -4631,11 +4619,8 @@
     },
     "/api/assistant/providers/{provider_id}": {
       "put": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Update Provider",
-        "operationId": "updateAiProvider",
+        "operationId": "update_provider_api_assistant_providers__provider_id__put",
         "parameters": [
           {
             "name": "provider_id",
@@ -4682,11 +4667,8 @@
         }
       },
       "delete": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Delete Provider",
-        "operationId": "deleteAiProvider",
+        "operationId": "delete_provider_api_assistant_providers__provider_id__delete",
         "parameters": [
           {
             "name": "provider_id",
@@ -4718,11 +4700,8 @@
     },
     "/api/assistant/integrations": {
       "get": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "List Integrations",
-        "operationId": "listAiIntegrations",
+        "operationId": "list_integrations_api_assistant_integrations_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4733,7 +4712,7 @@
                     "$ref": "#/components/schemas/IntegrationOut"
                   },
                   "type": "array",
-                  "title": "Response Listaiintegrations"
+                  "title": "Response List Integrations Api Assistant Integrations Get"
                 }
               }
             }
@@ -4741,11 +4720,8 @@
         }
       },
       "post": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Create Integration",
-        "operationId": "createAiIntegration",
+        "operationId": "create_integration_api_assistant_integrations_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -4782,12 +4758,9 @@
     },
     "/api/assistant/integrations/kinds": {
       "get": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "List Integration Kinds",
         "description": "The curated integration kinds, for the add form.",
-        "operationId": "listAiIntegrationKinds",
+        "operationId": "list_integration_kinds_api_assistant_integrations_kinds_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4798,7 +4771,7 @@
                     "$ref": "#/components/schemas/IntegrationKindOut"
                   },
                   "type": "array",
-                  "title": "Response Listaiintegrationkinds"
+                  "title": "Response List Integration Kinds Api Assistant Integrations Kinds Get"
                 }
               }
             }
@@ -4808,11 +4781,8 @@
     },
     "/api/assistant/integrations/{integration_id}": {
       "put": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Update Integration",
-        "operationId": "updateAiIntegration",
+        "operationId": "update_integration_api_assistant_integrations__integration_id__put",
         "parameters": [
           {
             "name": "integration_id",
@@ -4859,11 +4829,8 @@
         }
       },
       "delete": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Delete Integration",
-        "operationId": "deleteAiIntegration",
+        "operationId": "delete_integration_api_assistant_integrations__integration_id__delete",
         "parameters": [
           {
             "name": "integration_id",
@@ -4895,12 +4862,9 @@
     },
     "/api/assistant/providers/{provider_id}/test": {
       "post": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Test Provider",
         "description": "Lists the provider's models, which proves the address and key work.",
-        "operationId": "testAiProvider",
+        "operationId": "test_provider_api_assistant_providers__provider_id__test_post",
         "parameters": [
           {
             "name": "provider_id",
@@ -4939,11 +4903,8 @@
     },
     "/api/assistant/providers/{provider_id}/models": {
       "get": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Provider Models",
-        "operationId": "listAiProviderModels",
+        "operationId": "provider_models_api_assistant_providers__provider_id__models_get",
         "parameters": [
           {
             "name": "provider_id",
@@ -4992,12 +4953,9 @@
     },
     "/api/assistant/models": {
       "get": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "All Models",
         "description": "Every provider's models, for the model picker. A provider that fails still shows,\nwith its error, so its model ids can be typed.",
-        "operationId": "listAiModels",
+        "operationId": "all_models_api_assistant_models_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5008,7 +4966,7 @@
                     "$ref": "#/components/schemas/ProviderModels"
                   },
                   "type": "array",
-                  "title": "Response Listaimodels"
+                  "title": "Response All Models Api Assistant Models Get"
                 }
               }
             }
@@ -5018,11 +4976,8 @@
     },
     "/api/assistant/conversations": {
       "get": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "List Conversations",
-        "operationId": "listConversations",
+        "operationId": "list_conversations_api_assistant_conversations_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5033,7 +4988,7 @@
                     "$ref": "#/components/schemas/ConversationOut"
                   },
                   "type": "array",
-                  "title": "Response Listconversations"
+                  "title": "Response List Conversations Api Assistant Conversations Get"
                 }
               }
             }
@@ -5041,11 +4996,8 @@
         }
       },
       "post": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Create Conversation",
-        "operationId": "createConversation",
+        "operationId": "create_conversation_api_assistant_conversations_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -5082,11 +5034,8 @@
     },
     "/api/assistant/conversations/{conversation_id}": {
       "get": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Get Conversation",
-        "operationId": "getConversation",
+        "operationId": "get_conversation_api_assistant_conversations__conversation_id__get",
         "parameters": [
           {
             "name": "conversation_id",
@@ -5123,11 +5072,8 @@
         }
       },
       "patch": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Update Conversation",
-        "operationId": "updateConversation",
+        "operationId": "update_conversation_api_assistant_conversations__conversation_id__patch",
         "parameters": [
           {
             "name": "conversation_id",
@@ -5174,11 +5120,8 @@
         }
       },
       "delete": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Delete Conversation",
-        "operationId": "deleteConversation",
+        "operationId": "delete_conversation_api_assistant_conversations__conversation_id__delete",
         "parameters": [
           {
             "name": "conversation_id",
@@ -5210,12 +5153,9 @@
     },
     "/api/assistant/conversations/{conversation_id}/messages": {
       "post": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Send Message",
         "description": "Server-Sent Events for the reply: `text` and `reasoning` (`delta`, and `new` when a\nnew block starts), `tool-call` (`id`, `name`, `args`), `tool-result` (`id`, `result`,\n`error`, `denied`), `approval` (`calls`: the actions waiting for Approve/Deny, each with `id`,\n`name`, `args`, `summary` and `destructive`), `question` (`ids`: the `ask_user_question`\ncalls waiting for an answer), `plan` (`steps`: the chat's plan after the assistant\nchanged it), `job` (`id` of the tool call, `job_id`, `title`: a job an approved action\nstarted), `title` (the first message's line; a title model renames the chat after\n`done`, see `naming`), `usage`, `stopped`, `error` (`message`) and finally `done`. While\nactions or questions wait, a new message denies and declines them.",
-        "operationId": "sendMessage",
+        "operationId": "send_message_api_assistant_conversations__conversation_id__messages_post",
         "parameters": [
           {
             "name": "conversation_id",
@@ -5242,7 +5182,9 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "text/event-stream": {}
+              "application/json": {
+                "schema": {}
+              }
             }
           },
           "422": {
@@ -5260,12 +5202,9 @@
     },
     "/api/assistant/conversations/{conversation_id}/approvals": {
       "post": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Answer Approvals",
         "description": "Answer everything a paused chat is waiting on, and continue it: Approve or Deny each\naction (approved actions run as you, and each decision is audited) and answer or decline\neach question. Streams the same events as sendMessage.",
-        "operationId": "answerApprovals",
+        "operationId": "answer_approvals_api_assistant_conversations__conversation_id__approvals_post",
         "parameters": [
           {
             "name": "conversation_id",
@@ -5292,7 +5231,9 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "text/event-stream": {}
+              "application/json": {
+                "schema": {}
+              }
             }
           },
           "422": {
@@ -5310,11 +5251,8 @@
     },
     "/api/assistant/conversations/{conversation_id}/stop": {
       "post": {
-        "tags": [
-          "assistant"
-        ],
         "summary": "Stop Conversation",
-        "operationId": "stopConversation",
+        "operationId": "stop_conversation_api_assistant_conversations__conversation_id__stop_post",
         "parameters": [
           {
             "name": "conversation_id",
