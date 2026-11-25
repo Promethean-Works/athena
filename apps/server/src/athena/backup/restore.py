@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from athena import restart
+from athena import __version__, restart
 from athena.apps.store import (
     APP_NAME,
     AppStore,
@@ -32,6 +32,7 @@ from athena.backup.restic import Repository, Restic, ResticError, failure_messag
 from athena.config import SETTINGS_FILE
 from athena.crypto import KEY_FILE
 from athena.jobs import Job, run_or_fail
+from athena.updates import version_key
 
 log = logging.getLogger(__name__)
 
@@ -279,6 +280,37 @@ async def restore_athena(
     for name in (SETTINGS_FILE, KEY_FILE):
         if not (staged / name).is_file():
             raise ResticError(f"The version has no {name}")
+
+    # Check the Athena version of the snapshot.
+    result = await tool.run_ok(repo, "snapshots", "--json", version_id)
+    try:
+        snap = json.loads(result.stdout or "[]")[0]
+        tags = [t for t in snap["tags"] if isinstance(t, str)]
+        backup_version = versions._tag_value(tags, "athena-version:")
+        backup_os = versions._tag_value(tags, "os:")
+    except (ValueError, KeyError, IndexError, TypeError) as exc:
+        raise ResticError("Could not read snapshot tags") from exc
+
+    if backup_version:
+        current_key = version_key(__version__)
+        backup_key = version_key(backup_version)
+        if current_key is not None and backup_key is not None and backup_key > current_key:
+            raise ResticError(
+                f"This backup was made by Athena {backup_version}, which is newer than "
+                f"the installed version ({__version__}). Upgrade Athena first, then restore."
+            )
+        await job.log(f"Backup Athena version: {backup_version}")
+    else:
+        await job.log("warning: backup has no Athena version tag; skipping version check")
+
+    # Cross-OS warning.
+    current_os = platform.system().lower()
+    if backup_os and backup_os != current_os:
+        await job.log(
+            f"warning: this backup was taken on {backup_os}, but this host is {current_os}. "
+            "Bind-mount paths in the restored apps may not exist on this host."
+        )
+
     # Stop the server so the supervisor starts a fresh one after the swap.
     if not restart.request():
         await job.log("warning: server won't restart automatically; restart it after the restore")
@@ -297,3 +329,28 @@ async def restore_athena(
     finally:
         if staging is not None:
             await asyncio.shield(asyncio.to_thread(shutil.rmtree, staging, True))
+
+    # Replace the server section of athena.json with this host's settings.
+    # The old server.host and server.port may clash with this install.
+    try:
+        restored_settings = (data_dir / SETTINGS_FILE).read_text(encoding="utf-8")
+        restored = json.loads(restored_settings)
+        current_settings = (aside / SETTINGS_FILE).read_text(encoding="utf-8")
+        current = json.loads(current_settings)
+        if "server" in current:
+            restored["server"] = current["server"]
+            (data_dir / SETTINGS_FILE).write_text(
+                json.dumps(restored, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+            await job.log("Replaced server section in athena.json with this host's settings")
+    except (OSError, json.JSONDecodeError) as exc:
+        await job.log(
+            f"warning: could not replace server section in athena.json: {exc}. "
+            "You may need to edit it manually."
+        )
+
+    # The HTTPS certificate will be reissued by the daily check because the addresses changed.
+    await job.log(
+        "Note: the HTTPS certificate will be reissued automatically by the next daily check "
+        "(or run `athena https status` to trigger it)."
+    )
