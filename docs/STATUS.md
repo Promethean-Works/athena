@@ -12,7 +12,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d (restore one app) done; `schedule` isn't run until part 4. **Part 4 (volumes/bind mounts/schedule/automation/dashboard card)** done in #256. 2d not run against a real runtime or volumes (backups hold the folder only).
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt or Cloudflare, trusting the CA on real devices. The last renewal/error live in memory only (a restart forgets them). Follow-up: own-certificate upload.
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.
-- Agent orchestration (`docs/specs/agent-orchestration.md`): Draft, needs a yes and its open questions answered; then part 1.
+- Agent orchestration (`docs/specs/agent-orchestration.md`, approved): part 1 done. Next part 2: the `athena-orchestrate` skill run by hand, stopping before the PR.
 - Windows E2E flake: `GET /api/containers` sometimes 500s under the service (`WinError 6`, see gotchas/windows.md).
 - M7 D stage 2 follow-up ideas: show a delegate's own tool calls nested under its row; a Settings → AI page to see and clear notes and to list or upload skills; warn in the UI when Ollama runs a model with a context too small for Athena's prompt and tools (see `docs/agents/gotchas/assistant.md`); on a phone, a waiting question card sits mostly below the plan bar and prompt until you scroll.
 - Dashboard follow-ups: touch dragging on a real phone; an app "update available" badge (`AppOut` has no such field).

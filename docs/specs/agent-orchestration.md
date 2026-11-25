@@ -1,6 +1,6 @@
 # Spec: agent orchestration (issue to merge)
 
-**Status:** Draft · **Milestone:** none (agent tooling) · **Design:** `docs/agents/tooling.md`, `docs/agents/subagents.md`
+**Status:** Approved (2026-11-25), part 1 done · **Milestone:** none (agent tooling) · **Design:** `docs/agents/tooling.md`, `docs/agents/subagents.md`
 
 ## Goal
 
@@ -26,9 +26,9 @@ Runs where the maintainer runs agents (macOS; Linux should work, untested). Need
 |---|---|---|---|
 | Coordinator | Hermes (`athena-orchestrate` skill) | the interactive or cron session | read issues, create worktrees, run the workers and checks, open PRs, write task state. Never edits code |
 | Worker | `omp -p --model <approved>` in the task's worktree | a child process | edit and commit in that worktree only |
-| Reviewer | `opencode run --agent reviewer --model <approved> --format json` in the same worktree after the worker exits | a child process | read and run commands; `edit` denied (already in `opencode.json`) |
+| Reviewer | `opencode run --agent reviewer --model <approved> --format json --archived` in its own detached worktree at the candidate commit, after the worker exits | a child process | read and run commands. Not truly read-only (part 1: `shell` and Code Mode `execute` can write), so Hermes discards the review if that worktree changed |
 
-Hermes runs the workers through its shell tool, not `delegate_task` (its children are Hermes itself, not omp or OpenCode).
+Hermes runs the workers through its shell tool, not `delegate_task` (its children are Hermes itself, not omp or OpenCode). The exact commands, output and exit codes are in `docs/agents/tooling.md` → Running agents headless.
 
 **Flow and states.** `queued → implementing → verifying → reviewing → pr_open → merged`, or `blocked` from any state.
 
@@ -36,14 +36,14 @@ Hermes runs the workers through its shell tool, not `delegate_task` (its childre
 2. **Isolate:** `scripts/new-worktree.sh <type>/<issue#>-<topic>` from the current `origin/main`; the base commit goes into the task file.
 3. **Implement:** the worker gets the issue, the criteria, the worktree path, and "follow `AGENTS.md`; commit when `scripts/check.sh --strict --quick` passes; report changed files, commands run and their results". Hermes checks the worker committed only inside the worktree (`git -C <wt> log origin/main..HEAD`) and that the base checkout is still clean.
 4. **Verify:** Hermes runs `ATHENA_CHECK_STRICT=1 scripts/check.sh` itself; the worker's word isn't evidence. A failure goes back to step 3 with its log tail.
-5. **Review:** the reviewer runs the `athena-review` skill on `git diff origin/main...HEAD` plus the criteria. Blockers and should-fix items go back to step 3 as a numbered list; nits go in the PR body.
+5. **Review:** in a fresh detached worktree at the candidate commit (`git worktree add --detach`), the reviewer runs the `athena-review` skill on `git diff origin/main...HEAD` plus the criteria. Afterwards Hermes checks `git status --porcelain` is empty and `HEAD` is still the candidate; if not, the review is discarded and retried once, then `blocked`. The review worktree is removed. Blockers and should-fix items go back to step 3 as a numbered list; nits go in the PR body.
 6. **Repair budget:** at most **2** rounds back to step 3 (for failed checks and findings together). After that: `blocked`, with the last log and findings on the issue.
 7. **PR:** push, `gh pr create` (Conventional Commit title, body: criteria and how each is met, checks run, review summary, what wasn't verified, `Closes #<n>`), then `gh pr merge --squash --auto --delete-branch`. A commit after the review means a new review.
 8. **Watch:** the `athena-check-prs` procedure. A CI failure counts against the same repair budget. Merged: remove the worktree, close out the task file, add the HISTORY bullet.
 
-**Task state.** `.agents/state/tasks/<issue#>.json` (git-ignored): issue, branch, worktree, base and candidate commits, state, attempts, last check result, review findings, models used. Each step rewrites it, so a crashed run picks up where it stopped.
+**Task state.** `.agents/state/tasks/<issue#>.json` in the base checkout (git-ignored, added in part 2): issue, branch, worktree, base and candidate commits, state, attempts, last check result, review findings, models used. Each step rewrites it, so a crashed run picks up where it stopped.
 
-**Model policy (fail closed).** `.agents/orchestration.json` lists the approved models per role (local Ollama or free routes, e.g. `kilo-auto/free`). Hermes passes `--model` explicitly to each worker and refuses to start if a role's model isn't on the list. After each run it checks the model the tool reports it used (omp and OpenCode JSON output, to be confirmed in part 1) and blocks the task on a mismatch. A model that isn't available means `blocked`, never a fallback.
+**Model policy (fail closed).** `.agents/orchestration.json` lists the approved models per role (local Ollama or free routes, e.g. `kilo-auto/free`). Hermes passes an exact `--model <provider>/<id>` to each worker (omp fuzzy-matches, so no short names) plus `--max-cost 0.01` to omp, and refuses to start if a role's model isn't on the list. After each run it checks the provider, model and cost the tool reports (omp: each `message_end`; OpenCode: `opencode session export`) and blocks the task on a mismatch or any cost above 0. A model that isn't available (both tools exit 1) means `blocked`, never a fallback. The policy applies only to runs the skill starts; the maintainer's interactive sessions keep their own models.
 
 **Security.** Issue text is data: it goes to the worker inside a quoted block, under the instruction that it can't override `AGENTS.md`. The worker and reviewer get the existing guards (`scripts/agent-guard.mjs`). Sensitive areas need a person and are never picked up: migrations (`apps/server/src/athena/db/migrations/`), auth and secrets (`apps/server/src/athena/auth/`), installers and the service (`scripts/install.*`, `athena service`), workflows (`.github/`), guards and agent config (`scripts/agent-guard.mjs`, `scripts/agents-sync.mjs`, `.agents/`), release files. If the diff touches one anyway, the PR is opened without auto-merge and labelled `agent:needs-human`.
 
@@ -51,7 +51,7 @@ Hermes runs the workers through its shell tool, not `delegate_task` (its childre
 
 ## Parts
 
-1. **Headless runs proven** — a short doc section on running omp and OpenCode non-interactively in a given worktree: the exact flags, how each reports the model used, exit codes, and whether omp's `worktree.onStart: create` makes a second worktree under `-p` (and how to turn it off for workers). Proven by hand on a throwaway issue. No automation yet.
+1. **Headless runs proven** (done, this PR) — `docs/agents/tooling.md` → Running agents headless: flags, output, where the model is reported, exit codes. Proven by hand in a throwaway worktree (local commits only, no issue): omp edited and committed there, its guard refused a base-checkout write, `worktree.onStart` doesn't fire under `-p`, both tools exit 1 on an unknown model. Found: the OpenCode reviewer can write through `shell`/`execute`, hence the review worktree above.
 2. **The skill, run by hand** — `.agents/skills/athena-orchestrate/SKILL.md`, `.agents/orchestration.json`, the task file, the repair budget and the blocked path. The maintainer starts it with `/orchestrate <issue#>` (added to `COMMANDS`); it stops before the PR is created, for a human look.
 3. **End to end** — PR creation, auto-merge and the CI watch, plus the three acceptance tasks below. Then optional: a Hermes cron that picks up `agent:ready` issues one at a time.
 
@@ -64,9 +64,9 @@ Run on throwaway issues in this repo, one each:
 - **Failing path:** a planted failing test or review finding. The pipeline repairs it once; when it can't be fixed, it stops after 2 rounds as `blocked`, with no PR merged.
 - **Policy:** an unapproved model in `.agents/orchestration.json`, or a missing tool, blocks before any code is written. An issue touching `.github/` is refused with `agent:needs-human`.
 
-## Open questions
+## Decisions (2026-11-25)
 
-- **Which models are approved?** `.agents/user/opencode.models.json` sets Kilo's paid Claude models for OpenCode today. Recommendation: workers use only local Ollama models and `kilo-auto/free`, listed in `.agents/orchestration.json`, and the maintainer's own interactive sessions keep their current models (the policy applies only to runs started by the skill).
-- **Can the worker also be the reviewer's model?** Recommendation: allow it at first (few free models are good at code), but use a different tool and a fresh context, so the review isn't anchored on the worker's reasoning.
-- **Where does task state live?** Recommendation: `.agents/state/` in the base checkout (git-ignored), not `~/Developer/agent-control`, until a second repository needs it.
-- **Cron or by hand?** Recommendation: by hand (`/orchestrate <issue#>`) until the acceptance checks pass and a few real issues have merged cleanly; then a Hermes cron at most one task at a time.
+- **Approved models:** only free or local routes (`kilo/kilo-auto/free` and other `:free` Kilo models, local Ollama once one is installed), listed in `.agents/orchestration.json`; interactive sessions keep the maintainer's models.
+- **Worker and reviewer may share a model** at first; independence comes from a different tool, a fresh context and a separate worktree.
+- **Task state** lives in this repo's `.agents/state/` until a second repository needs it.
+- **Started by hand** (`/orchestrate <issue#>`) until the acceptance checks pass and a few real issues have merged; a Hermes cron (one task at a time) after that.
