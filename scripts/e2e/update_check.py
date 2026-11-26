@@ -33,6 +33,7 @@ import hashlib
 import http.server
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -60,7 +61,6 @@ def rewrite_wheel(source: Path, target: Path, version: str, *, broken: bool = Fa
     with zipfile.ZipFile(source) as zin:
         meta = next(n for n in zin.namelist() if n.endswith(".dist-info/METADATA"))
         old_info = meta.split("/")[0]
-        old_version = old_info.removeprefix("athena_server-").removesuffix(".dist-info")
         new_info = f"athena_server-{version}.dist-info"
         files: dict[str, bytes] = {}
         for item in zin.infolist():
@@ -69,8 +69,10 @@ def rewrite_wheel(source: Path, target: Path, version: str, *, broken: bool = Fa
             name = item.filename.replace(old_info + "/", new_info + "/", 1)
             data = zin.read(item.filename)
             if name == f"{new_info}/METADATA":
-                data = data.replace(
-                    f"Version: {old_version}".encode(), f"Version: {version}".encode(), 1
+                # METADATA keeps the version as written in pyproject ("0.1.0-rc.1"), while
+                # the folder and filename are normalised ("0.1.0rc1"): match the header.
+                data = re.sub(
+                    rb"^Version: .*$", f"Version: {version}".encode(), data, count=1, flags=re.M
                 )
             if broken and name == "athena/cli.py":
                 marker = b"def _serve(args: argparse.Namespace) -> int:\n"
