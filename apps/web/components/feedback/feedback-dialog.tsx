@@ -1,5 +1,4 @@
-import i18n from "@/lib/i18n"
-;("use client")
+"use client"
 
 import * as React from "react"
 import { Trans, useTranslation } from "react-i18next"
@@ -35,6 +34,8 @@ import {
   useSidebar,
 } from "@workspace/ui/components/sidebar"
 import { Skeleton } from "@workspace/ui/components/skeleton"
+
+import i18n from "@/lib/i18n"
 
 type Kind = Exclude<Schemas["IssueIn"]["kind"], "app">
 
