@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "此链接不完整。",
+    "expiredTitle": "此链接已过期",
+    "notFoundTitle": "此链接无效",
+    "errorTitle": "无法打开此链接",
+    "expiredDescription": "请向发送者索取新链接。"
+  },
+  "unlock": {
+    "title": "此链接需要密码",
+    "description": "输入密码以查看共享内容。",
+    "password": "密码",
+    "open": "打开"
+  },
+  "file": {
+    "fallbackName": "文件",
+    "download": "下载"
+  },
+  "dropBox": {
+    "title": "向 {{name}} 发送文件",
+    "description": "添加的文件会立即上传。你看不到其他人发送的内容，你发送的文件也不会覆盖其他文件。",
+    "drop": "将文件拖放到此处，或",
+    "choose": "选择文件"
+  },
+  "folder": {
+    "downloadAll": "全部下载",
+    "cantOpen": "无法打开此文件夹",
+    "empty": "此文件夹为空。",
+    "columnName": "名称",
+    "columnSize": "大小",
+    "columnModified": "修改时间",
+    "columnDownload": "下载",
+    "downloadEntry": "下载 {{name}}",
+    "download": "下载"
+  }
+}

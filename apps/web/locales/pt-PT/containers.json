@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Em execução",
+    "dead": "Morto",
+    "exited": "Terminado",
+    "exitedWithCode": "Terminado ({{code}})",
+    "paused": "em pausa",
+    "created": "criado",
+    "restarting": "a reiniciar"
+  },
+  "logs": {
+    "following": "A acompanhar novo resultado",
+    "stopped": "O contentor parou",
+    "disconnected": "Desligado",
+    "connecting": "A ligar…",
+    "title": "Registos · {{name}}",
+    "empty": "Sem resultado de registo."
+  },
+  "runtime": {
+    "startFailed": "Não foi possível iniciar o runtime",
+    "running": "O runtime de contentores está em execução",
+    "providerStopped": "{{provider}} não está em execução",
+    "stopped": "O runtime de contentores não está em execução",
+    "none": "Sem runtime de contentores",
+    "notFound": "O Athena não encontrou um motor de contentores neste anfitrião.",
+    "start": "Iniciar {{provider}}",
+    "redetect": "Detetar de novo",
+    "setup": {
+      "darwin": {
+        "title": "Instalar o Colima"
+      },
+      "linux": {
+        "title": "Instalar o Docker Engine"
+      },
+      "windows": {
+        "title": "Instalar um runtime de contentores",
+        "wsl": "Docker Engine no WSL2: wsl --install, depois instala o docker-ce dentro da distribuição",
+        "podman": "ou Podman: winget install RedHat.Podman, depois podman machine init; podman machine start",
+        "rancher": "ou Rancher Desktop: winget install SUSE.RancherDesktop (escolhe o motor dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Não foi possível listar os contentores",
+    "actionFailed": {
+      "start": "Não foi possível iniciar {{name}}",
+      "stop": "Não foi possível parar {{name}}",
+      "restart": "Não foi possível reiniciar {{name}}"
+    },
+    "removeFailed": "Não foi possível remover {{name}}",
+    "removed": "{{name}} removido",
+    "emptyTitle": "Ainda sem contentores",
+    "emptyDescription": "Os contentores deste runtime aparecem aqui, incluindo os iniciados fora do Athena.",
+    "name": "Nome",
+    "image": "Imagem",
+    "state": "Estado",
+    "ports": "Portas",
+    "actions": "Ações",
+    "standalone": "Contentores autónomos",
+    "actionsFor": "Ações para {{name}}",
+    "logs": "Registos",
+    "shell": "Shell",
+    "restart": "Reiniciar",
+    "stop": "Parar",
+    "start": "Iniciar",
+    "remove": "Remover",
+    "removeTitle": "Remover {{name}}?",
+    "removeRunningDescription": "Será parado primeiro. O contentor é eliminado. Os volumes com nome e a imagem são mantidos.",
+    "removeDescription": "O contentor é eliminado. Os volumes com nome e a imagem são mantidos.",
+    "cancel": "Cancelar"
+  }
+}

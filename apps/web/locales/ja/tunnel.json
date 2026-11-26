@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "トンネルアドレス",
+    "description": "ネットワークの外から Athena を開くか、スマートフォンでコードをスキャンしてください。",
+    "publicAddress": "公開アドレス",
+    "notRunning": "トンネルは実行されていません。",
+    "startInSettings": "設定で開始してください。"
+  },
+  "qr": {
+    "title": "トンネルアドレスの QR コード"
+  }
+}

@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
+import type { TFunction } from "i18next"
 import { PlusIcon, Share2Icon, Trash2Icon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -62,6 +64,7 @@ type Location = Schemas["LocationOut"]
 
 /** The SMB tab of /files/network: list the shares Athena published and create new ones. */
 export function SmbSharesPanel() {
+  const { t } = useTranslation("files")
   const capability = useCapability("shares.smb")
   const [shares, setShares] = React.useState<SmbShare[] | null>(null)
   const [locations, setLocations] = React.useState<Location[] | null>(null)
@@ -94,11 +97,11 @@ export function SmbSharesPanel() {
     event.preventDefault()
     setFormError(null)
     if (locationId === null) {
-      setFormError("Pick a folder to share")
+      setFormError(t("network.pickFolder"))
       return
     }
     if (name.trim() === "") {
-      setFormError("Give the share a name")
+      setFormError(t("network.nameRequired"))
       return
     }
     setPending(true)
@@ -122,29 +125,26 @@ export function SmbSharesPanel() {
     await load()
     toast.add({
       type: "success",
-      title: "SMB share created",
+      title: t("smb.created"),
       description: `\\\\${serverHost()}\\${data.name}`,
     })
   }
 
   async function removeShare(id: number) {
-    if (
-      !window.confirm("Remove this SMB share? The folder stays on the server.")
-    )
-      return
+    if (!window.confirm(t("smb.confirmRemove"))) return
     const { error: err } = await api.DELETE("/api/shares/smb/{share_id}", {
       params: { path: { share_id: id } },
     })
     if (err) {
       toast.add({
         type: "error",
-        title: "Couldn't remove",
+        title: t("smb.removeFailed"),
         description: errorMessage(err),
       })
       return
     }
     await load()
-    toast.add({ type: "success", title: "SMB share removed" })
+    toast.add({ type: "success", title: t("smb.removed") })
   }
 
   const ready = capability?.status === "ready"
@@ -165,7 +165,7 @@ export function SmbSharesPanel() {
           disabled={pending || !ready}
         >
           <PlusIcon className="mr-2 size-4 shrink-0" />
-          Create share
+          {t("smb.createShare")}
         </Button>
       </div>
 
@@ -175,10 +175,8 @@ export function SmbSharesPanel() {
             <EmptyMedia variant="icon">
               <Share2Icon />
             </EmptyMedia>
-            <EmptyTitle>No SMB shares</EmptyTitle>
-            <EmptyDescription>
-              Create a share to publish a file location over the network.
-            </EmptyDescription>
+            <EmptyTitle>{t("smb.emptyTitle")}</EmptyTitle>
+            <EmptyDescription>{t("smb.emptyDescription")}</EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
@@ -186,23 +184,27 @@ export function SmbSharesPanel() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden md:table-cell">Location</TableHead>
+                <TableHead>{t("smb.columnName")}</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  {t("smb.columnLocation")}
+                </TableHead>
                 <TableHead className="hidden lg:table-cell">
-                  Path on server
+                  {t("smb.columnPath")}
                 </TableHead>
                 <TableHead className="hidden sm:table-cell">
-                  Read only
+                  {t("smb.columnReadOnly")}
                 </TableHead>
-                <TableHead className="hidden sm:table-cell">Guest ok</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  {t("smb.columnGuest")}
+                </TableHead>
                 <TableHead className="w-0">
-                  <span className="sr-only">Actions</span>
+                  <span className="sr-only">{t("smb.columnActions")}</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {shares.map((share) =>
-                renderShareRow(share, pending, removeShare)
+                renderShareRow(share, pending, removeShare, t)
               )}
             </TableBody>
           </Table>
@@ -212,11 +214,10 @@ export function SmbSharesPanel() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="truncate">Create SMB share</DialogTitle>
-            <DialogDescription>
-              Publish a file location over the network so other computers can
-              open it as a network drive.
-            </DialogDescription>
+            <DialogTitle className="truncate">
+              {t("smb.dialogTitle")}
+            </DialogTitle>
+            <DialogDescription>{t("smb.dialogDescription")}</DialogDescription>
           </DialogHeader>
 
           <Separator />
@@ -225,11 +226,9 @@ export function SmbSharesPanel() {
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="smb-share-location">
-                  Folder to share
+                  {t("smb.folderToShare")}
                 </FieldLabel>
-                <FieldDescription>
-                  Pick a file location. Its contents become the share.
-                </FieldDescription>
+                <FieldDescription>{t("smb.folderHint")}</FieldDescription>
                 <Select
                   items={locationItems}
                   value={locationId}
@@ -237,7 +236,7 @@ export function SmbSharesPanel() {
                   disabled={pending || locations === null}
                 >
                   <SelectTrigger id="smb-share-location" className="w-full">
-                    <SelectValue placeholder="Select a location" />
+                    <SelectValue placeholder={t("smb.selectLocation")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -252,16 +251,15 @@ export function SmbSharesPanel() {
                 {formError ? <FieldError>{formError}</FieldError> : null}
               </Field>
               <Field>
-                <FieldLabel htmlFor="smb-share-name">Share name</FieldLabel>
-                <FieldDescription>
-                  The name on the network, e.g. "Media". Letters, digits, _. - ,
-                  up to 63 chars and not starting with -.
-                </FieldDescription>
+                <FieldLabel htmlFor="smb-share-name">
+                  {t("smb.shareName")}
+                </FieldLabel>
+                <FieldDescription>{t("smb.shareNameHint")}</FieldDescription>
                 <Input
                   id="smb-share-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Media"
+                  placeholder={t("smb.shareNamePlaceholder")}
                   maxLength={63}
                   disabled={pending}
                 />
@@ -270,11 +268,9 @@ export function SmbSharesPanel() {
                 <Field orientation="horizontal">
                   <FieldContent>
                     <FieldLabel htmlFor="smb-share-read-only">
-                      Read only
+                      {t("smb.readOnly")}
                     </FieldLabel>
-                    <FieldDescription>
-                      Visitors can read but not add, change or delete files.
-                    </FieldDescription>
+                    <FieldDescription>{t("smb.readOnlyHint")}</FieldDescription>
                     <Switch
                       id="smb-share-read-only"
                       checked={readOnly}
@@ -287,11 +283,10 @@ export function SmbSharesPanel() {
                   <Field orientation="horizontal">
                     <FieldContent>
                       <FieldLabel htmlFor="smb-share-guest-ok">
-                        Guest ok
+                        {t("smb.guestOk")}
                       </FieldLabel>
                       <FieldDescription>
-                        Anyone on the network can connect without a username or
-                        password.
+                        {t("smb.guestOkHint")}
                       </FieldDescription>
                       <Switch
                         id="smb-share-guest-ok"
@@ -311,11 +306,11 @@ export function SmbSharesPanel() {
                 onClick={() => setDialogOpen(false)}
                 disabled={pending}
               >
-                Cancel
+                {t("smb.cancel")}
               </Button>
               <Button type="submit" form="new-smb-share" disabled={pending}>
                 {pending ? <Spinner /> : null}
-                Create share
+                {t("smb.createShare")}
               </Button>
             </DialogFooter>
           </form>
@@ -328,7 +323,8 @@ export function SmbSharesPanel() {
 function renderShareRow(
   share: SmbShare,
   pending: boolean,
-  onRemove: (id: number) => void
+  onRemove: (id: number) => void,
+  t: TFunction<"files">
 ) {
   return (
     <TableRow key={share.id}>
@@ -336,7 +332,7 @@ function renderShareRow(
         <div className="truncate font-medium">{share.name}</div>
         <ConnectionString
           value={`\\\\${serverHost()}\\${share.name}`}
-          label="share address"
+          label={t("network.smbAddress")}
         />
       </TableCell>
       <TableCell className="hidden md:table-cell">
@@ -348,16 +344,16 @@ function renderShareRow(
         </div>
       </TableCell>
       <TableCell className="hidden sm:table-cell">
-        {share.read_only ? "Yes" : "No"}
+        {share.read_only ? t("smb.yes") : t("smb.no")}
       </TableCell>
       <TableCell className="hidden sm:table-cell">
-        {share.guest_ok ? "Yes" : "No"}
+        {share.guest_ok ? t("smb.yes") : t("smb.no")}
       </TableCell>
       <TableCell>
         <Button
           variant="outline"
           size="icon"
-          aria-label={`Remove SMB share ${share.name}`}
+          aria-label={t("smb.removeShare", { name: share.name })}
           onClick={() => void onRemove(share.id)}
           disabled={pending}
         >

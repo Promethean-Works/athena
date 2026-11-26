@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { PlusIcon, Share2Icon, Trash2Icon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -71,6 +72,7 @@ function parseClients(text: string): string[] {
 
 /** The NFS tab of /files/network: list the exports Athena made and create new ones. */
 export function NfsSharesPanel() {
+  const { t } = useTranslation("files")
   const capability = useCapability("shares.nfs")
   const [shares, setShares] = React.useState<NfsShare[] | null>(null)
   const [locations, setLocations] = React.useState<Location[] | null>(null)
@@ -101,19 +103,17 @@ export function NfsSharesPanel() {
     event.preventDefault()
     setFormError(null)
     if (locationId === null) {
-      setFormError("Pick a folder to share")
+      setFormError(t("network.pickFolder"))
       return
     }
     const list = parseClients(clients)
     if (list.length === 0) {
-      setFormError("List at least one client that may mount it")
+      setFormError(t("network.nfs.clientsRequired"))
       return
     }
     if (
       list.some((c) => /\/0$/.test(c)) &&
-      !window.confirm(
-        "That network includes every address. Anyone who can reach this computer could mount the folder. Continue?"
-      )
+      !window.confirm(t("network.nfs.confirmEverywhere"))
     )
       return
     setPending(true)
@@ -131,27 +131,26 @@ export function NfsSharesPanel() {
     await load()
     toast.add({
       type: "success",
-      title: "NFS share created",
+      title: t("network.nfs.created"),
       description: `${serverHost()}:${data.path}`,
     })
   }
 
   async function removeShare(id: number) {
-    if (!window.confirm("Stop sharing this folder over NFS? The folder stays."))
-      return
+    if (!window.confirm(t("network.nfs.confirmRemove"))) return
     const { error: err } = await api.DELETE("/api/shares/nfs/{share_id}", {
       params: { path: { share_id: id } },
     })
     if (err) {
       toast.add({
         type: "error",
-        title: "Couldn't remove",
+        title: t("smb.removeFailed"),
         description: errorMessage(err),
       })
       return
     }
     await load()
-    toast.add({ type: "success", title: "NFS share removed" })
+    toast.add({ type: "success", title: t("network.nfs.removed") })
   }
 
   const ready = capability?.status === "ready"
@@ -170,7 +169,7 @@ export function NfsSharesPanel() {
           disabled={pending || !ready}
         >
           <PlusIcon className="mr-2 size-4 shrink-0" />
-          Create share
+          {t("smb.createShare")}
         </Button>
       </div>
 
@@ -180,10 +179,9 @@ export function NfsSharesPanel() {
             <EmptyMedia variant="icon">
               <Share2Icon />
             </EmptyMedia>
-            <EmptyTitle>No NFS shares</EmptyTitle>
+            <EmptyTitle>{t("network.nfs.emptyTitle")}</EmptyTitle>
             <EmptyDescription>
-              Export a file location to Linux and macOS computers on your
-              network.
+              {t("network.nfs.emptyDescription")}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -192,14 +190,18 @@ export function NfsSharesPanel() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Mount from</TableHead>
-                <TableHead className="hidden md:table-cell">Location</TableHead>
-                <TableHead className="hidden lg:table-cell">Clients</TableHead>
+                <TableHead>{t("network.nfs.columnMountFrom")}</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  {t("smb.columnLocation")}
+                </TableHead>
+                <TableHead className="hidden lg:table-cell">
+                  {t("network.nfs.columnClients")}
+                </TableHead>
                 <TableHead className="hidden sm:table-cell">
-                  Read only
+                  {t("smb.columnReadOnly")}
                 </TableHead>
                 <TableHead className="w-0">
-                  <span className="sr-only">Actions</span>
+                  <span className="sr-only">{t("smb.columnActions")}</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -209,7 +211,7 @@ export function NfsSharesPanel() {
                   <TableCell className="max-w-0 min-w-40">
                     <ConnectionString
                       value={`${serverHost()}:${share.path}`}
-                      label="NFS address"
+                      label={t("network.nfs.address")}
                     />
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
@@ -221,13 +223,15 @@ export function NfsSharesPanel() {
                     </div>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    {share.read_only ? "Yes" : "No"}
+                    {share.read_only ? t("smb.yes") : t("smb.no")}
                   </TableCell>
                   <TableCell>
                     <Button
                       variant="outline"
                       size="icon"
-                      aria-label={`Remove NFS share ${share.location_name}`}
+                      aria-label={t("network.nfs.removeShare", {
+                        name: share.location_name,
+                      })}
                       onClick={() => void removeShare(share.id)}
                       disabled={pending}
                     >
@@ -244,10 +248,11 @@ export function NfsSharesPanel() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="truncate">Create NFS share</DialogTitle>
+            <DialogTitle className="truncate">
+              {t("network.nfs.dialogTitle")}
+            </DialogTitle>
             <DialogDescription>
-              Let Linux and macOS computers mount a file location over the
-              network.
+              {t("network.nfs.dialogDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -256,15 +261,14 @@ export function NfsSharesPanel() {
           <form id="new-nfs-share" onSubmit={createShare}>
             <FieldGroup>
               <Alert>
-                <AlertTitle>NFS has no passwords</AlertTitle>
+                <AlertTitle>{t("network.nfs.noPasswordsTitle")}</AlertTitle>
                 <AlertDescription>
-                  Access is decided by the computer's address, so list only
-                  machines and networks you trust.
+                  {t("network.nfs.noPasswordsDescription")}
                 </AlertDescription>
               </Alert>
               <Field>
                 <FieldLabel htmlFor="nfs-share-location">
-                  Folder to share
+                  {t("smb.folderToShare")}
                 </FieldLabel>
                 <Select
                   items={locationItems}
@@ -273,7 +277,7 @@ export function NfsSharesPanel() {
                   disabled={pending || locations === null}
                 >
                   <SelectTrigger id="nfs-share-location" className="w-full">
-                    <SelectValue placeholder="Select a location" />
+                    <SelectValue placeholder={t("smb.selectLocation")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -288,11 +292,10 @@ export function NfsSharesPanel() {
               </Field>
               <Field>
                 <FieldLabel htmlFor="nfs-share-clients">
-                  Who may mount
+                  {t("network.nfs.whoMayMount")}
                 </FieldLabel>
                 <FieldDescription>
-                  IP addresses, networks like 192.168.1.0/24, or host names,
-                  separated by commas.
+                  {t("network.nfs.clientsHint")}
                 </FieldDescription>
                 <Input
                   id="nfs-share-clients"
@@ -310,7 +313,9 @@ export function NfsSharesPanel() {
                   onCheckedChange={setReadOnly}
                   disabled={pending}
                 />
-                <FieldLabel htmlFor="nfs-share-read-only">Read only</FieldLabel>
+                <FieldLabel htmlFor="nfs-share-read-only">
+                  {t("smb.readOnly")}
+                </FieldLabel>
               </Field>
             </FieldGroup>
 
@@ -321,11 +326,11 @@ export function NfsSharesPanel() {
                 onClick={() => setDialogOpen(false)}
                 disabled={pending}
               >
-                Cancel
+                {t("smb.cancel")}
               </Button>
               <Button type="submit" form="new-nfs-share" disabled={pending}>
                 {pending ? <Spinner /> : null}
-                Create share
+                {t("smb.createShare")}
               </Button>
             </DialogFooter>
           </form>

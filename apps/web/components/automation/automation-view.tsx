@@ -1,6 +1,7 @@
 "use client"
 
 import { WorkflowIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import {
   Empty,
@@ -22,6 +23,7 @@ import { useTriggers } from "@/components/automation/triggers"
 
 /** Automation page: triggers (cron + webhook), their job runs, and how to connect n8n or MCP. */
 export function AutomationView() {
+  const { t } = useTranslation("automation")
   const { manifest } = useCapabilities()
   const capability = useCapability("automation")
 
@@ -33,9 +35,9 @@ export function AutomationView() {
           <EmptyMedia variant="icon">
             <WorkflowIcon />
           </EmptyMedia>
-          <EmptyTitle>Automation isn&apos;t available</EmptyTitle>
+          <EmptyTitle>{t("view.unavailable")}</EmptyTitle>
           <EmptyDescription>
-            {capability?.detail ?? "This host doesn't support automation."}
+            {capability?.detail ?? t("view.unsupported")}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

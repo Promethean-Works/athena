@@ -1,6 +1,7 @@
 "use client"
 
 import { AlertCircleIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import {
   Alert,
@@ -20,20 +21,20 @@ export function ShareCapabilityNotice({
   capability: Capability | undefined
   kind: "SMB" | "NFS"
 }) {
+  const { t } = useTranslation("files")
   if (capability?.status === "ready") return null
   const title =
     capability?.status === "needs_privilege"
-      ? `${kind} sharing needs more permissions`
+      ? t("network.notice.needsPrivilege", { kind })
       : capability?.status === "missing"
-        ? `${kind} sharing isn't set up yet`
-        : `${kind} sharing isn't available on this computer`
+        ? t("network.notice.missing", { kind })
+        : t("network.notice.unsupported", { kind })
   return (
     <Alert>
       <AlertCircleIcon />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>
-        {capability?.detail ??
-          "This host can't create these shares from Athena."}
+        {capability?.detail ?? t("network.notice.fallback")}
       </AlertDescription>
     </Alert>
   )

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import {
   ChevronDownIcon,
   CircleCheckIcon,
@@ -51,6 +52,7 @@ export function PlanChecklist({
   /** A reply is streaming, so the step in progress spins. */
   running: boolean
 }) {
+  const { t } = useTranslation("assistant")
   const [open, setOpen] = React.useState<boolean>()
   if (steps.length === 0) return null
   const done = steps.filter(
@@ -67,10 +69,10 @@ export function PlanChecklist({
       <CollapsibleTrigger className="group flex w-full items-center gap-2 px-3 py-2 text-left">
         <ListChecksIcon className="size-4 shrink-0 text-muted-foreground" />
         <span className="min-w-0 flex-1 truncate">
-          <span className="font-medium">Plan</span>
+          <span className="font-medium">{t("plan.title")}</span>
           <span className="text-muted-foreground">
             {" · "}
-            {done} of {steps.length} done
+            {t("plan.progress", { done, total: steps.length })}
             {current ? ` · ${current.active_form || current.content}` : ""}
           </span>
         </span>
@@ -78,7 +80,7 @@ export function PlanChecklist({
       </CollapsibleTrigger>
       <CollapsibleContent>
         <ol
-          aria-label="Plan steps"
+          aria-label={t("plan.steps")}
           className="flex max-h-40 flex-col gap-1.5 overflow-y-auto px-3 pb-2"
         >
           {steps.map((s) => (
@@ -97,7 +99,7 @@ export function PlanChecklist({
                   ? s.active_form
                   : s.content}
                 <span className="sr-only">
-                  {` (${s.status.replace("_", " ")})`}
+                  {` (${t(`plan.status.${s.status}`)})`}
                 </span>
               </span>
             </li>

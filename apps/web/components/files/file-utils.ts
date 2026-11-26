@@ -13,6 +13,8 @@ import {
 
 import type { Schemas } from "@workspace/api-client"
 
+import { currentLocale } from "@/lib/i18n"
+
 export type FileEntry = Schemas["FileEntry"]
 export type Location = Schemas["LocationOut"]
 export type Remote = Schemas["RemoteOut"]
@@ -167,7 +169,7 @@ export function formatModified(iso: string | null | undefined): string {
   if (!iso) return "—"
   const date = new Date(iso)
   const sameYear = date.getFullYear() === new Date().getFullYear()
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString(currentLocale(), {
     year: sameYear ? undefined : "numeric",
     month: "short",
     day: "numeric",

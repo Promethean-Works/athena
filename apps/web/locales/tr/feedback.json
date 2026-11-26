@@ -1,0 +1,49 @@
+{
+  "menu": "Geri bildirim gönder",
+  "dialog": {
+    "title": "Geri bildirim gönder",
+    "description": "{{repo}} deposunda yeni bir sekmede yeni bir issue açar. Gönderilmeden önce orada gözden geçirip düzenleyebilirsiniz; issue'lar herkese açıktır.",
+    "storeHint": "Çalışmayan bir mağaza uygulaması mı var? Rapor onu bakımını yapan kişiye ulaşsın diye mağaza sayfasındaki <b>Sorun bildir</b> düğmesini kullanın.",
+    "loadFailed": "Bu sunucunun ayrıntıları yüklenemedi"
+  },
+  "choices": {
+    "bug": {
+      "title": "Hata bildir",
+      "description": "Bir şey olması gerektiği gibi çalışmıyor."
+    },
+    "change": {
+      "title": "Değişiklik öner",
+      "description": "Bir şey çalışıyor ama farklı çalışmalı."
+    },
+    "feature": {
+      "title": "Özellik iste",
+      "description": "Athena'nın henüz yapamadığı bir şey."
+    }
+  },
+  "diagnostics": {
+    "title": "Sizin için dolduruldu",
+    "system": "Sistem",
+    "cpu": "CPU",
+    "containers": "Konteynerler"
+  },
+  "appReport": {
+    "button": "Sorun bildir",
+    "title": "{{app}} ile ilgili sorun bildir",
+    "description": "{{where}} için yeni bir sekmede yeni bir issue açar; uygulama ve bu sunucunun ayrıntıları doldurulmuş olur. Gönderilmeden önce orada gözden geçirirsiniz; issue'lar herkese açıktır.",
+    "whereCatalog": "bu uygulamanın bakımını yapan {{name}} kataloğu",
+    "includeLogs_one": "Son {{count}} günlük satırını ekle",
+    "includeLogs_other": "Son {{count}} günlük satırını ekle",
+    "installedCopy": "Kurulu kopya",
+    "logsLabel": "Eklenecek günlükler",
+    "loadingLogs": "Günlükler yükleniyor…",
+    "logsWarning": "Devam etmeden önce parolaları, belirteçleri ve adresleri kaldırın.",
+    "logsTruncated": "Bağlantıya yalnızca günlüklerin sonu sığar.",
+    "cancel": "İptal",
+    "openIssue": "Issue aç",
+    "preparing": "Hazırlanıyor…",
+    "prepareFailed": "Rapor hazırlanamadı",
+    "logsFailed": "Günlükler yüklenemedi: {{error}}",
+    "appNotFound": "uygulama bulunamadı",
+    "noContainers": "Bu uygulama için konteyner bulunamadı."
+  }
+}

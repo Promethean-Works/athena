@@ -1,0 +1,139 @@
+{
+  "title": "アシスタント",
+  "sheet": {
+    "description": "このサーバーについて AI アシスタントとチャットします。",
+    "openFullPage": "フルページで開く"
+  },
+  "chat": {
+    "newChat": "新しいチャット",
+    "chats": "チャット",
+    "noChats": "チャットはまだありません。",
+    "deleteChat": "{{title}} を削除",
+    "thinking": "考え中…",
+    "stillWorking": "返信を作成中です。完了するとここに表示されます。",
+    "emptyTitle": "このサーバーについて質問",
+    "emptyDescription": "アシスタントは、アプリ、ログ、ファイル、システム統計を調べられます。各操作を承認すると、インストールや変更も行えます。",
+    "suggestions": {
+      "capabilities": "このサーバーでは何ができますか？",
+      "disk": "ディスクの空き容量はどれくらいですか？",
+      "apps": "実行中のアプリはどれですか？"
+    },
+    "message": "メッセージ",
+    "placeholder": "このサーバーについて質問…",
+    "placeholderWaiting": "上で回答するか、メッセージを送信してスキップします…",
+    "stop": "停止",
+    "send": "送信",
+    "pickModelFirst": "先にモデルを選択してください",
+    "changeModelFailed": "モデルを変更できませんでした",
+    "startFailed": "チャットを開始できませんでした",
+    "deleteFailed": "チャットを削除できませんでした",
+    "failed": "アシスタントでエラーが発生しました"
+  },
+  "noProviders": {
+    "title": "先にモデルを設定してください",
+    "description": "アシスタントには AI プロバイダーが必要です。API キーを使うクラウドのプロバイダー、または自分のハードウェアで動く Ollama を利用できます。",
+    "openSettings": "「設定 → AI」を開く"
+  },
+  "model": {
+    "pick": "モデルを選択",
+    "label": "モデル: {{label}}",
+    "search": "モデル ID を検索または入力",
+    "noMatch": "一致するモデルはありません。",
+    "addProvider": "先に「設定 → AI」でプロバイダーを追加してください。",
+    "noTools": "ツールを使用できません",
+    "use": "「{{model}}」を使用"
+  },
+  "plan": {
+    "title": "プラン",
+    "progress": "{{total}} 件中 {{done}} 件完了",
+    "steps": "プランのステップ",
+    "status": {
+      "pending": "保留中",
+      "in_progress": "進行中",
+      "completed": "完了",
+      "cancelled": "キャンセル済み",
+      "blocked": "ブロック中"
+    }
+  },
+  "spend": {
+    "usage": "このチャットの使用量",
+    "usageWith": "このチャットの使用量: {{label}}",
+    "unknownPrices": "このモデルの料金が不明なため、トークン数のみを集計しています。",
+    "estimate": "モデルの公開料金に基づく概算です。",
+    "ofLimit": "{{limit}} 中 {{spent}}",
+    "spent": "使用額",
+    "unknown": "不明",
+    "inputTokens": "入力トークン",
+    "outputTokens": "出力トークン",
+    "tokens_other": "{{formatted}} トークン",
+    "limitReached": "このチャットは利用上限に達しました。新しいチャットを開始するか、<settings>設定 → AI</settings> で上限を引き上げてください。",
+    "limitNotApplicable": "利用上限 ({{limit}}) はこのモデルには適用できません。"
+  },
+  "steps": {
+    "thinking": "考え中",
+    "thought": "思考済み",
+    "draft": "最初の下書き（下で修正）",
+    "approvalNeeded": "承認が必要です: {{title}}",
+    "run": "{{name}} を実行",
+    "approvalIntro": "アシスタントがこの操作を行おうとしています。承認するまで何も実行されません。",
+    "deny": "拒否",
+    "approve": "承認",
+    "approvedGoOn": "承認しました。続けるには他のカードにも回答してください。",
+    "deniedGoOn": "拒否しました。続けるには他のカードにも回答してください。",
+    "logGone": "そのログは削除されました",
+    "log": "ログ",
+    "denied": "拒否されました: {{title}}",
+    "failed": "失敗しました: {{title}}",
+    "running": "{{name}} を実行中",
+    "ran": "{{name}} を実行しました",
+    "withSubject": "{{subject}} の{{title}}",
+    "helperRunningTask": "ヘルパーが調査中: {{task}}",
+    "helperDoneTask": "ヘルパーが調査しました: {{task}}",
+    "helperRunning": "ヘルパーが調べています",
+    "helperDone": "ヘルパーが調べました",
+    "tools": {
+      "getCapabilities": {
+        "running": "このサーバーでできることを確認中",
+        "done": "このサーバーでできることを確認しました"
+      },
+      "getSystemStats": { "running": "システム統計を読み取り中", "done": "システム統計を読み取りました" },
+      "listApps": { "running": "アプリを一覧表示中", "done": "アプリを一覧表示しました" },
+      "appLogs": { "running": "アプリのログを読み取り中", "done": "アプリのログを読み取りました" },
+      "listFileLocations": { "running": "ファイルの場所を一覧表示中", "done": "ファイルの場所を一覧表示しました" },
+      "listFiles": { "running": "ファイルを一覧表示中", "done": "ファイルを一覧表示しました" },
+      "readFile": { "running": "ファイルを読み取り中", "done": "ファイルを読み取りました" },
+      "writeFile": { "running": "ファイルを書き込み中", "done": "ファイルを書き込みました" },
+      "editFile": { "running": "ファイルを編集中", "done": "ファイルを編集しました" },
+      "listDirectory": { "running": "フォルダーを一覧表示中", "done": "フォルダーを一覧表示しました" },
+      "createDirectory": { "running": "フォルダーを作成中", "done": "フォルダーを作成しました" },
+      "searchStore": { "running": "アプリストアを検索中", "done": "アプリストアを検索しました" },
+      "readToolResult": { "running": "保存されたツールの結果を読み取り中", "done": "保存されたツールの結果を読み取りました" },
+      "askUserQuestion": { "running": "回答を待っています", "done": "質問しました" },
+      "advisor": { "running": "アドバイザーに質問中", "done": "アドバイザーに質問しました" },
+      "runWorkflow": {
+        "running": "ヘルパーが協力して調べています",
+        "done": "ヘルパーが協力して調べました"
+      },
+      "getStoreApp": { "running": "ストアのアプリを読み取り中", "done": "ストアのアプリを読み取りました" },
+      "listPackageManagers": { "running": "パッケージマネージャーを一覧表示中", "done": "パッケージマネージャーを一覧表示しました" },
+      "searchPackages": { "running": "パッケージを検索中", "done": "パッケージを検索しました" },
+      "listUpgradablePackages": {
+        "running": "パッケージのアップデートを確認中",
+        "done": "パッケージのアップデートを確認しました"
+      }
+    }
+  },
+  "question": {
+    "title": "質問",
+    "asks": "アシスタントからの質問: {{title}}",
+    "intro": "アシスタントが続行する前に確認しています。パスワードやキーは絶対に回答に入力しないでください。",
+    "ownAnswerLabel": "{{header}} への独自の回答",
+    "ownAnswerPlaceholder": "または独自の回答を入力",
+    "skip": "スキップ",
+    "send": "回答を送信",
+    "skippedGoOn": "スキップしました。続けるには他のカードにも回答してください。",
+    "answeredGoOn": "回答しました。続けるには他のカードにも回答してください。",
+    "youAnswered": "回答: {{answers}}",
+    "youSkipped": "質問をスキップしました"
+  }
+}

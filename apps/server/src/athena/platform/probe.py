@@ -104,6 +104,17 @@ class Probe:
         geteuid = getattr(os, "geteuid", None)
         return bool(geteuid and geteuid() == 0)
 
+    def is_admin(self) -> bool:
+        """Running elevated: root on Linux and macOS, an administrator token on Windows."""
+        if self.os == "windows":
+            try:
+                import ctypes
+
+                return bool(ctypes.windll.shell32.IsUserAnAdmin())  # type: ignore[attr-defined]
+            except (AttributeError, OSError):
+                return False
+        return self.is_root()
+
     def ancestry(self) -> list[tuple[int, str]]:
         """(pid, process name) of this process and its parents, nearest first."""
         import psutil

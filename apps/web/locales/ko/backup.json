@@ -1,0 +1,119 @@
+{
+  "add": "추가",
+  "cancel": "취소",
+  "back": "뒤로",
+  "errors": {
+    "listDestinations": "백업 대상 목록을 불러올 수 없어요",
+    "createDestination": "대상을 만들 수 없어요",
+    "deleteDestination": "대상을 삭제할 수 없어요",
+    "listPlans": "백업 플랜 목록을 불러올 수 없어요",
+    "createPlan": "플랜을 만들 수 없어요",
+    "updatePlan": "플랜을 업데이트할 수 없어요",
+    "deletePlan": "플랜을 삭제할 수 없어요",
+    "startBackup": "백업을 시작할 수 없어요",
+    "listVersions": "백업 버전 목록을 불러올 수 없어요",
+    "listVersionFiles": "버전의 파일 목록을 불러올 수 없어요",
+    "restoreApp": "앱을 복원할 수 없어요"
+  },
+  "toast": {
+    "destinationCreated": "대상 \"{{name}}\"을(를) 만들었어요",
+    "planCreated": "플랜 \"{{name}}\"을(를) 만들었어요",
+    "planUpdated": "플랜 \"{{name}}\"을(를) 업데이트했어요",
+    "backupStarted": "백업 \"{{name}}\"을(를) 시작했어요"
+  },
+  "view": {
+    "unavailable": "백업을 사용할 수 없어요",
+    "unsupported": "이 호스트는 백업을 지원하지 않아요.",
+    "tabs": {
+      "versions": "버전",
+      "destinations": "대상",
+      "plans": "플랜"
+    }
+  },
+  "destinations": {
+    "title": "대상",
+    "name": "이름",
+    "kind": "종류",
+    "location": "위치",
+    "created": "생성일",
+    "empty": {
+      "title": "아직 대상이 없어요",
+      "description": "대상은 백업을 보관하는 폴더 또는 rclone 원격 저장소예요. 대상을 추가하면 백업을 시작할 수 있어요."
+    }
+  },
+  "plans": {
+    "title": "플랜",
+    "name": "이름",
+    "schedule": "일정",
+    "lastRun": "마지막 실행",
+    "status": "상태",
+    "manual": "수동",
+    "runNow": "지금 실행",
+    "empty": {
+      "title": "아직 플랜이 없어요",
+      "description": "플랜은 Athena, 앱, 대상, 일정을 정하고 타이머에 따라 실행돼요."
+    }
+  },
+  "versions": {
+    "title": "버전",
+    "refresh": "새로 고침",
+    "time": "시간",
+    "size": "크기",
+    "new": "신규",
+    "added": "추가됨",
+    "changed": "변경됨",
+    "removed": "삭제됨",
+    "os": "OS",
+    "viewFiles": "파일 보기",
+    "restore": "복원",
+    "empty": {
+      "title": "아직 버전이 없어요",
+      "description": "백업을 실행하면 첫 버전이 만들어져요."
+    }
+  },
+  "addDestination": {
+    "title": "백업 대상 추가",
+    "kitTitle": "복구 키트 저장",
+    "description": "restic이 저장소를 보관할 위치(로컬 폴더 또는 rclone 원격 저장소)를 선택하세요.",
+    "kitDescription": "키트를 다운로드하거나 복사하세요. Athena는 이 비밀번호를 다시 보여주지 않아요. 키트가 없으면 호스트가 손상되었을 때 복원할 수 없어요.",
+    "prepareFailed": "대상을 준비할 수 없어요",
+    "saveKitFirst": "대상을 만들기 전에 복구 키트를 저장하세요",
+    "name": "이름",
+    "namePlaceholder": "예: USB 드라이브",
+    "kind": "종류",
+    "local": "로컬 폴더",
+    "rclone": "rclone 원격 저장소",
+    "folder": "폴더",
+    "folderHint": "Athena 데이터 폴더 밖의 절대 경로예요.",
+    "remote": "원격 저장소",
+    "remoteHint": "클라우드 → 원격 저장소에 이미 설정된 rclone 원격 저장소예요.",
+    "password": "저장소 비밀번호",
+    "passwordPlaceholder": "비워 두면 강력한 비밀번호를 생성해요",
+    "passwordHint": "비워 두면 Athena가 강력한 비밀번호를 생성해요. 아래에 한 번만 표시되고 다시 보여주지 않아요.",
+    "kitSaved": "이 복구 키트(비밀번호, 대상, restic 버전)를 저장했어요",
+    "next": "다음: 복구 키트",
+    "create": "대상 만들기"
+  },
+  "addPlan": {
+    "title": "백업 플랜 추가",
+    "description": "백업할 항목, 위치, 빈도를 선택하세요. \"실행 중에 백업\"을 켜지 않으면 백업하는 동안 앱이 중지돼요.",
+    "name": "이름",
+    "namePlaceholder": "예: 매일 앱 백업",
+    "destination": "대상",
+    "athena": "Athena 백업 (설정, DB, 시크릿, TLS)",
+    "athenaHint": "권장: 기본으로 켜져 있어요.",
+    "apps": "앱",
+    "appsHint": "플랜에 포함할 앱을 선택하세요.",
+    "noApps": "앱이 없어요. 먼저 스토어 → 앱에서 앱을 시작하세요.",
+    "schedule": "일정 (cron)",
+    "schedulePlaceholder": "0 3 * * *  (매일 03:00)",
+    "scheduleHint": "비워 두면 수동 실행만 가능해요. 예약 실행은 part 4에서 제공돼요.",
+    "retention": "보존",
+    "keepLast": "최근 유지",
+    "keepDaily": "일별 유지",
+    "keepWeekly": "주별 유지",
+    "keepMonthly": "월별 유지",
+    "retentionHint": "항목별 `restic forget --keep-…`. 기본값: 일별 7 / 주별 4 / 월별 6.",
+    "create": "플랜 만들기"
+  }
+}

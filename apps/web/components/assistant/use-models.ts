@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { api, type Schemas } from "@workspace/api-client"
+import i18n from "@/lib/i18n"
 
 export type ProviderModels = Schemas["ProviderModels"]
 export type ModelRef = Schemas["ModelRef"]
@@ -31,7 +32,7 @@ export function modelLabel(
   ref: ModelRef | null | undefined,
   providers: ProviderModels[] | null
 ): string {
-  if (!ref) return "Pick a model"
+  if (!ref) return i18n.t("assistant:model.pick")
   const provider = providers?.find((p) => p.provider_id === ref.provider_id)
   const info = provider?.models.find((m) => m.id === ref.model)
   return info?.name || ref.model

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import {
   closestCenter,
   DndContext,
@@ -66,6 +67,7 @@ import {
   type DashboardCardDef,
   type LayoutCard,
 } from "@/components/dashboard/cards"
+import i18n from "@/lib/i18n"
 import { useDashboardLayout } from "@/components/dashboard/use-dashboard-layout"
 
 function subscribeReducedMotion(onChange: () => void) {
@@ -82,21 +84,31 @@ function useReducedMotion() {
   )
 }
 
-const titleOf = (id: string | number) =>
-  CARDS_BY_ID.get(String(id))?.title ?? String(id)
+const titleOf = (id: string | number) => {
+  const def = CARDS_BY_ID.get(String(id))
+  return def ? i18n.t(def.titleKey, { ns: "dashboard" }) : String(id)
+}
 
 /** What screen readers hear while a card is moved with the keyboard or pointer. */
 const announcements: Announcements = {
-  onDragStart: ({ active }) => `Picked up the ${titleOf(active.id)} card.`,
+  onDragStart: ({ active }) =>
+    i18n.t("dashboard:grid.pickedUp", { title: titleOf(active.id) }),
   onDragOver: ({ active, over }) =>
     over
-      ? `${titleOf(active.id)} is over ${titleOf(over.id)}.`
-      : `${titleOf(active.id)} is no longer over a card.`,
+      ? i18n.t("dashboard:grid.overCard", {
+          title: titleOf(active.id),
+          other: titleOf(over.id),
+        })
+      : i18n.t("dashboard:grid.notOverCard", { title: titleOf(active.id) }),
   onDragEnd: ({ active, over }) =>
     over
-      ? `${titleOf(active.id)} moved to where ${titleOf(over.id)} was.`
-      : `${titleOf(active.id)} dropped.`,
-  onDragCancel: ({ active }) => `Moving ${titleOf(active.id)} was cancelled.`,
+      ? i18n.t("dashboard:grid.moved", {
+          title: titleOf(active.id),
+          other: titleOf(over.id),
+        })
+      : i18n.t("dashboard:grid.dropped", { title: titleOf(active.id) }),
+  onDragCancel: ({ active }) =>
+    i18n.t("dashboard:grid.cancelled", { title: titleOf(active.id) }),
 }
 
 function SortableCell({
@@ -129,6 +141,8 @@ function SortableCell({
     transition,
     isDragging,
   } = useSortable({ id: card.id, disabled: !editing })
+  const { t } = useTranslation("dashboard")
+  const title = t(def.titleKey)
 
   const full = card.size === "full"
   return (
@@ -160,19 +174,19 @@ function SortableCell({
               variant="ghost"
               size="icon-sm"
               className="cursor-grab touch-none active:cursor-grabbing"
-              aria-label={`Move ${def.title}`}
+              aria-label={t("grid.move", { title })}
               {...attributes}
               {...listeners}
             >
               <GripVerticalIcon />
             </Button>
             <span className="flex-1 truncate text-sm font-medium">
-              {def.title}
+              {title}
             </span>
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={`Move ${def.title} up`}
+              aria-label={t("grid.moveUp", { title })}
               disabled={index === 0}
               onClick={() => onMove(index, index - 1)}
             >
@@ -181,7 +195,7 @@ function SortableCell({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={`Move ${def.title} down`}
+              aria-label={t("grid.moveDown", { title })}
               disabled={index === count - 1}
               onClick={() => onMove(index, index + 1)}
             >
@@ -193,7 +207,9 @@ function SortableCell({
               // Sizes only differ where the grid has two columns.
               className="hidden xl:inline-flex"
               aria-label={
-                full ? `Make ${def.title} half width` : `Make ${def.title} full width`
+                full
+                  ? t("grid.makeHalf", { title })
+                  : t("grid.makeFull", { title })
               }
               onClick={onResize}
             >
@@ -202,7 +218,7 @@ function SortableCell({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={`Remove ${def.title}`}
+              aria-label={t("grid.remove", { title })}
               onClick={onRemove}
             >
               <XIcon />
@@ -211,7 +227,8 @@ function SortableCell({
           {/* The card can't be used while arranging; it's only a preview. */}
           <div
             inert
-            className="flex-1 [&>[data-slot=card]]:h-full empty:rounded-lg empty:border empty:border-dashed empty:p-4 empty:text-sm empty:text-muted-foreground empty:before:content-['Nothing_to_show_on_this_server_right_now.']"
+            data-empty={t("grid.nothingToShow")}
+            className="flex-1 [&>[data-slot=card]]:h-full empty:rounded-lg empty:border empty:border-dashed empty:p-4 empty:text-sm empty:text-muted-foreground empty:before:content-[attr(data-empty)]"
           >
             {def.render()}
           </div>
@@ -234,22 +251,19 @@ function AddCardDialog({
   available: DashboardCardDef[]
   onAdd: (def: DashboardCardDef) => void
 }) {
+  const { t } = useTranslation("dashboard")
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add a card</DialogTitle>
-          <DialogDescription>
-            Cards are added at the end; drag them where you want them.
-          </DialogDescription>
+          <DialogTitle>{t("grid.addDialogTitle")}</DialogTitle>
+          <DialogDescription>{t("grid.addDialogDescription")}</DialogDescription>
         </DialogHeader>
         {available.length === 0 ? (
           <Empty className="border">
             <EmptyHeader>
-              <EmptyTitle>Every card is on your dashboard</EmptyTitle>
-              <EmptyDescription>
-                Remove one to add it again later.
-              </EmptyDescription>
+              <EmptyTitle>{t("grid.allAddedTitle")}</EmptyTitle>
+              <EmptyDescription>{t("grid.allAddedDescription")}</EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : (
@@ -260,18 +274,18 @@ function AddCardDialog({
                   <def.icon />
                 </ItemMedia>
                 <ItemContent>
-                  <ItemTitle>{def.title}</ItemTitle>
-                  <ItemDescription>{def.description}</ItemDescription>
+                  <ItemTitle>{t(def.titleKey)}</ItemTitle>
+                  <ItemDescription>{t(def.descriptionKey)}</ItemDescription>
                 </ItemContent>
                 <ItemActions>
                   <Button
                     size="sm"
                     variant="outline"
-                    aria-label={`Add ${def.title}`}
+                    aria-label={t("grid.addCard", { title: t(def.titleKey) })}
                     onClick={() => onAdd(def)}
                   >
                     <PlusIcon data-icon="inline-start" />
-                    Add
+                    {t("grid.add")}
                   </Button>
                 </ItemActions>
               </Item>
@@ -285,6 +299,7 @@ function AddCardDialog({
 
 /** The dashboard: the user's cards in their order, and edit mode to arrange them. */
 export function DashboardGrid() {
+  const { t } = useTranslation("dashboard")
   const layout = useDashboardLayout()
   const { manifest } = useCapabilities()
   const { user } = useAuth()
@@ -343,19 +358,18 @@ export function DashboardGrid() {
       {layout.editing ? (
         <div className="sticky top-2 z-20 flex flex-wrap items-center gap-2 rounded-xl border bg-background/95 p-2 pl-4 shadow-sm backdrop-blur">
           <p className="mr-auto text-sm text-muted-foreground">
-            Drag cards by their handle, or use the arrows. Changes save when
-            you press Done.
+            {t("grid.editHint")}
           </p>
           <Button variant="outline" size="sm" onClick={() => setAdding(true)}>
             <PlusIcon data-icon="inline-start" />
-            Add card
+            {t("grid.addCardButton")}
           </Button>
           <Button variant="ghost" size="sm" onClick={layout.reset}>
             <RotateCcwIcon data-icon="inline-start" />
-            Reset
+            {t("grid.reset")}
           </Button>
           <Button variant="ghost" size="sm" onClick={layout.cancel}>
-            Cancel
+            {t("grid.cancel")}
           </Button>
           <Button
             size="sm"
@@ -363,14 +377,14 @@ export function DashboardGrid() {
             disabled={layout.saving}
           >
             {layout.saving ? <Spinner data-icon="inline-start" /> : null}
-            Done
+            {t("grid.done")}
           </Button>
         </div>
       ) : (
         <div className="-mb-2 flex justify-end md:-mb-4">
           <Button variant="ghost" size="sm" onClick={layout.begin}>
             <LayoutDashboardIcon data-icon="inline-start" />
-            Customize
+            {t("grid.customize")}
           </Button>
         </div>
       )}
@@ -378,14 +392,12 @@ export function DashboardGrid() {
       {placed.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
-            <EmptyTitle>Your dashboard is empty</EmptyTitle>
-            <EmptyDescription>
-              Add cards, or reset to the default layout.
-            </EmptyDescription>
+            <EmptyTitle>{t("grid.emptyTitle")}</EmptyTitle>
+            <EmptyDescription>{t("grid.emptyDescription")}</EmptyDescription>
           </EmptyHeader>
           {!layout.editing ? (
             <Button variant="outline" onClick={layout.begin}>
-              Customize
+              {t("grid.customize")}
             </Button>
           ) : null}
         </Empty>
@@ -397,8 +409,7 @@ export function DashboardGrid() {
           accessibility={{
             announcements,
             screenReaderInstructions: {
-              draggable:
-                "To move a card, press Space or Enter, use the arrow keys, then press Space or Enter again to drop it, or Escape to cancel.",
+              draggable: t("grid.dragInstructions"),
             },
           }}
         >

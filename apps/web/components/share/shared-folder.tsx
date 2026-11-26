@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { DownloadIcon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -54,6 +55,7 @@ export function SharedFolder({
   token: string
   share: Schemas["PublicShare"]
 }) {
+  const { t } = useTranslation("share")
   const [path, setPath] = React.useState("")
   const [listing, setListing] = React.useState<Listing | null>(null)
   const [error, setError] = React.useState<string | null>(null)
@@ -130,32 +132,34 @@ export function SharedFolder({
           render={<a href={shareDownloadUrl(token, path)} download />}
         >
           <DownloadIcon />
-          Download all
+          {t("folder.downloadAll")}
         </Button>
       </div>
 
       {error ? (
         <Alert variant="destructive">
-          <AlertTitle>Couldn&apos;t open this folder</AlertTitle>
+          <AlertTitle>{t("folder.cantOpen")}</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : listing === null ? (
         <Skeleton className="h-40 w-full" />
       ) : listing.entries.length === 0 ? (
         <p className="p-6 text-center text-sm text-muted-foreground">
-          This folder is empty.
+          {t("folder.empty")}
         </p>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>{t("folder.columnName")}</TableHead>
               <TableHead className="hidden text-right sm:table-cell">
-                Size
+                {t("folder.columnSize")}
               </TableHead>
-              <TableHead className="hidden md:table-cell">Modified</TableHead>
+              <TableHead className="hidden md:table-cell">
+                {t("folder.columnModified")}
+              </TableHead>
               <TableHead className="w-0">
-                <span className="sr-only">Download</span>
+                <span className="sr-only">{t("folder.columnDownload")}</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -185,7 +189,7 @@ export function SharedFolder({
                       variant="ghost"
                       size="icon"
                       nativeButton={false}
-                      aria-label={`Download ${entry.name}`}
+                      aria-label={t("folder.downloadEntry", { name: entry.name })}
                       render={
                         <a
                           href={shareDownloadUrl(token, entry.path)}
@@ -226,7 +230,7 @@ export function SharedFolder({
                 }
               >
                 <DownloadIcon />
-                Download
+                {t("folder.download")}
               </Button>
             ) : null}
           </DialogFooter>

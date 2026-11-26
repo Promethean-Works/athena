@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Berjalan",
+    "dead": "Mati",
+    "exited": "Selesai",
+    "exitedWithCode": "Selesai ({{code}})",
+    "paused": "dijeda",
+    "created": "dibuat",
+    "restarting": "memulai ulang"
+  },
+  "logs": {
+    "following": "Mengikuti output baru",
+    "stopped": "Kontainer berhenti",
+    "disconnected": "Terputus",
+    "connecting": "Menghubungkan…",
+    "title": "Log · {{name}}",
+    "empty": "Tidak ada output log."
+  },
+  "runtime": {
+    "startFailed": "Tidak dapat memulai runtime",
+    "running": "Runtime kontainer berjalan",
+    "providerStopped": "{{provider}} tidak berjalan",
+    "stopped": "Runtime kontainer tidak berjalan",
+    "none": "Tidak ada runtime kontainer",
+    "notFound": "Athena tidak menemukan mesin kontainer di host ini.",
+    "start": "Mulai {{provider}}",
+    "redetect": "Deteksi ulang",
+    "setup": {
+      "darwin": {
+        "title": "Pasang Colima"
+      },
+      "linux": {
+        "title": "Pasang Docker Engine"
+      },
+      "windows": {
+        "title": "Pasang runtime kontainer",
+        "wsl": "Docker Engine di WSL2: wsl --install, lalu pasang docker-ce di dalam distro",
+        "podman": "atau Podman: winget install RedHat.Podman, lalu podman machine init; podman machine start",
+        "rancher": "atau Rancher Desktop: winget install SUSE.RancherDesktop (pilih mesin dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Tidak dapat menampilkan daftar kontainer",
+    "actionFailed": {
+      "start": "Tidak dapat memulai {{name}}",
+      "stop": "Tidak dapat menghentikan {{name}}",
+      "restart": "Tidak dapat memulai ulang {{name}}"
+    },
+    "removeFailed": "Tidak dapat menghapus {{name}}",
+    "removed": "{{name}} dihapus",
+    "emptyTitle": "Belum ada kontainer",
+    "emptyDescription": "Kontainer di runtime ini muncul di sini, termasuk yang dijalankan di luar Athena.",
+    "name": "Nama",
+    "image": "Image",
+    "state": "Status",
+    "ports": "Port",
+    "actions": "Aksi",
+    "standalone": "Kontainer mandiri",
+    "actionsFor": "Aksi untuk {{name}}",
+    "logs": "Log",
+    "shell": "Shell",
+    "restart": "Mulai ulang",
+    "stop": "Hentikan",
+    "start": "Mulai",
+    "remove": "Hapus",
+    "removeTitle": "Hapus {{name}}?",
+    "removeRunningDescription": "Kontainer akan dihentikan lebih dulu, lalu dihapus. Volume bernama dan image tetap disimpan.",
+    "removeDescription": "Kontainer dihapus. Volume bernama dan image tetap disimpan.",
+    "cancel": "Batal"
+  }
+}

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 import type { NavItem } from "@/components/nav"
 import {
@@ -21,12 +22,13 @@ export function NavSecondary({
   /** Extra menu items after the links, e.g. ones that open a dialog. */
   children?: React.ReactNode
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const { t } = useTranslation("nav")
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
+            <SidebarMenuItem key={item.url}>
               <SidebarMenuButton
                 render={
                   item.external ? (
@@ -37,7 +39,7 @@ export function NavSecondary({
                 }
               >
                 <item.icon />
-                <span>{item.title}</span>
+                <span>{t(item.titleKey)}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

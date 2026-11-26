@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Tünel adresi",
+    "description": "Athena'yı ağınızın dışından açın ya da kodu telefonunuzla tarayın.",
+    "publicAddress": "Genel adres",
+    "notRunning": "Tünel çalışmıyor.",
+    "startInSettings": "Ayarlar'dan başlatın."
+  },
+  "qr": {
+    "title": "Tünel adresi için QR kodu"
+  }
+}

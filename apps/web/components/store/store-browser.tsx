@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { useTranslation } from "react-i18next"
 import { LibraryIcon, SearchIcon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -10,6 +11,7 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { PopularCarousel } from "@/components/store/popular-carousel"
 import { StoreAppCard } from "@/components/store/store-app-card"
+import i18n from "@/lib/i18n"
 import {
   Empty,
   EmptyContent,
@@ -33,20 +35,18 @@ type Category = Schemas["Category"]
 
 /** "Emulated" or "Won't run here" next to an app's title; nothing when it runs natively. */
 export function SupportBadge({ support }: { support: StoreApp["support"] }) {
+  const { t } = useTranslation("store")
   if (support === "emulated") {
     return (
-      <Badge
-        variant="outline"
-        title="No image for this CPU; Docker runs another one under emulation, which is slower"
-      >
-        Emulated
+      <Badge variant="outline" title={t("support.emulatedTitle")}>
+        {t("support.emulated")}
       </Badge>
     )
   }
   if (support === "unsupported") {
     return (
-      <Badge variant="destructive" title="No image for this server's CPU">
-        Won&apos;t run here
+      <Badge variant="destructive" title={t("support.unsupportedTitle")}>
+        {t("support.unsupported")}
       </Badge>
     )
   }
@@ -58,6 +58,7 @@ export function storeAppHref(app: { catalog: string; id: string }) {
 }
 
 export function StoreBrowser() {
+  const { t } = useTranslation("store")
   // Deep links such as /store/?q=git open with the search already filled in.
   const initialQuery = useSearchParams().get("q") ?? ""
   const [apps, setApps] = React.useState<StoreApp[] | null>(null)
@@ -74,7 +75,8 @@ export function StoreBrowser() {
       api.GET("/api/store/categories"),
     ]).then(([appsRes, catsRes]) => {
       if (appsRes.data) setApps(appsRes.data)
-      else setError(errorMessage(appsRes.error, "Couldn't load the store"))
+      else
+        setError(errorMessage(appsRes.error, i18n.t("store:browser.loadError")))
       if (catsRes.data) setCategories(catsRes.data)
     })
   }, [])
@@ -105,7 +107,7 @@ export function StoreBrowser() {
           a.title.toLowerCase().includes(needle) ||
           a.description.toLowerCase().includes(needle) ||
           (a.tagline ?? "").toLowerCase().includes(needle) ||
-          a.tags.some((t) => t.toLowerCase().includes(needle)))
+          a.tags.some((tag) => tag.toLowerCase().includes(needle)))
       )
     },
     [query, category]
@@ -128,7 +130,7 @@ export function StoreBrowser() {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>Couldn&apos;t load the store</EmptyTitle>
+          <EmptyTitle>{t("browser.loadError")}</EmptyTitle>
           <EmptyDescription>{error}</EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -144,9 +146,12 @@ export function StoreBrowser() {
           <p className="text-sm text-muted-foreground">
             {apps
               ? browsing
-                ? `${shown.length} of ${runnable.length} apps`
-                : `${runnable.length} apps, each a compose project Athena sets up for you.`
-              : "Browse apps to install."}
+                ? t("browser.filteredCount", {
+                    shown: shown.length,
+                    total: runnable.length,
+                  })
+                : t("browser.totalCount", { count: runnable.length })
+              : t("browser.browsePrompt")}
           </p>
           <div className="flex items-center gap-2 sm:ml-auto">
             <InputGroup className="w-full max-w-xs sm:w-64">
@@ -156,8 +161,8 @@ export function StoreBrowser() {
               <InputGroupInput
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search apps"
-                aria-label="Search apps"
+                placeholder={t("browser.searchPlaceholder")}
+                aria-label={t("browser.searchPlaceholder")}
               />
             </InputGroup>
             <Button
@@ -166,22 +171,24 @@ export function StoreBrowser() {
               nativeButton={false}
             >
               <LibraryIcon data-icon="inline-start" />
-              Catalogs
+              {t("browser.catalogs")}
             </Button>
           </div>
         </div>
         {unsupportedCount ? (
           <p className="text-sm text-muted-foreground">
             {showUnsupported
-              ? `Showing ${unsupportedCount} ${unsupportedCount === 1 ? "app" : "apps"} that can't run on this server's CPU.`
-              : `${unsupportedCount} ${unsupportedCount === 1 ? "app is" : "apps are"} hidden because ${unsupportedCount === 1 ? "it has" : "they have"} no image for this server's CPU.`}{" "}
+              ? t("browser.showingUnsupported", { count: unsupportedCount })
+              : t("browser.hiddenUnsupported", {
+                  count: unsupportedCount,
+                })}{" "}
             <Button
               variant="link"
               size="sm"
               className="h-auto px-0"
               onClick={() => setShowUnsupported((v) => !v)}
             >
-              {showUnsupported ? "Hide them" : "Show them"}
+              {showUnsupported ? t("browser.hideThem") : t("browser.showThem")}
             </Button>
           </p>
         ) : null}
@@ -201,7 +208,7 @@ export function StoreBrowser() {
         spacing={2}
         className="flex-wrap"
       >
-        <ToggleGroupItem value="all">All</ToggleGroupItem>
+        <ToggleGroupItem value="all">{t("browser.all")}</ToggleGroupItem>
         {categories.map((c) => (
           <ToggleGroupItem key={c.id} value={c.id}>
             {c.label}
@@ -218,11 +225,11 @@ export function StoreBrowser() {
       ) : shown.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
-            <EmptyTitle>No apps match</EmptyTitle>
+            <EmptyTitle>{t("browser.noMatchTitle")}</EmptyTitle>
             <EmptyDescription>
               {hiddenMatches
-                ? `${hiddenMatches} matching ${hiddenMatches === 1 ? "app is" : "apps are"} hidden because ${hiddenMatches === 1 ? "it has" : "they have"} no image for this server's CPU.`
-                : "Try another search or category."}
+                ? t("browser.noMatchHidden", { count: hiddenMatches })
+                : t("browser.noMatchHint")}
             </EmptyDescription>
           </EmptyHeader>
           {hiddenMatches ? (
@@ -231,7 +238,7 @@ export function StoreBrowser() {
                 variant="outline"
                 onClick={() => setShowUnsupported(true)}
               >
-                Show {hiddenMatches === 1 ? "it" : "them"}
+                {t("browser.showMatches", { count: hiddenMatches })}
               </Button>
             </EmptyContent>
           ) : null}

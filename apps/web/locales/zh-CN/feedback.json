@@ -1,0 +1,48 @@
+{
+  "menu": "发送反馈",
+  "dialog": {
+    "title": "发送反馈",
+    "description": "将在新标签页中于 {{repo}} 创建新 issue。提交前你可以在那里查看和编辑；issue 是公开的。",
+    "storeHint": "商店中的应用无法使用？请在其商店页面使用<b>报告问题</b>，这样报告会直接送达维护者。",
+    "loadFailed": "无法加载此服务器的详情"
+  },
+  "choices": {
+    "bug": {
+      "title": "报告 Bug",
+      "description": "某些功能没有按预期工作。"
+    },
+    "change": {
+      "title": "建议修改",
+      "description": "功能可用，但应该有不同的表现。"
+    },
+    "feature": {
+      "title": "请求新功能",
+      "description": "Athena 目前还做不到的事。"
+    }
+  },
+  "diagnostics": {
+    "title": "已自动填写",
+    "system": "系统",
+    "cpu": "CPU",
+    "containers": "容器"
+  },
+  "appReport": {
+    "button": "报告问题",
+    "title": "报告 {{app}} 的问题",
+    "description": "将在新标签页中为 {{where}} 创建新 issue，并填入应用和此服务器的详情。提交前你可以在那里查看；issue 是公开的。",
+    "whereCatalog": "维护此应用的 {{name}} 目录",
+    "includeLogs_other": "包含最后 {{count}} 行日志",
+    "installedCopy": "已安装的副本",
+    "logsLabel": "要包含的日志",
+    "loadingLogs": "正在加载日志…",
+    "logsWarning": "继续之前请删除密码、令牌和地址。",
+    "logsTruncated": "链接中只能容纳日志的末尾部分。",
+    "cancel": "取消",
+    "openIssue": "打开 issue",
+    "preparing": "正在准备…",
+    "prepareFailed": "无法准备报告",
+    "logsFailed": "无法加载日志：{{error}}",
+    "appNotFound": "未找到应用",
+    "noContainers": "未找到此应用的容器。"
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "title": "Asistent",
+  "sheet": {
+    "description": "Discută cu asistentul AI despre acest server.",
+    "openFullPage": "Deschide pagina completă"
+  },
+  "chat": {
+    "newChat": "Conversație nouă",
+    "chats": "Conversații",
+    "noChats": "Nicio conversație încă.",
+    "deleteChat": "Șterge {{title}}",
+    "thinking": "Se gândește…",
+    "stillWorking": "Încă lucrează la un răspuns. Apare aici când e gata.",
+    "emptyTitle": "Întreabă despre acest server",
+    "emptyDescription": "Asistentul poate căuta aplicații, jurnale, fișiere și statistici de sistem, și poate instala sau schimba lucruri după ce aprobi fiecare acțiune.",
+    "suggestions": {
+      "capabilities": "Ce poate face acest server?",
+      "disk": "Cât spațiu liber a rămas pe disc?",
+      "apps": "Ce aplicații rulează?"
+    },
+    "message": "Mesaj",
+    "placeholder": "Întreabă despre acest server…",
+    "placeholderWaiting": "Răspunde mai sus sau trimite un mesaj pentru a-l sări…",
+    "stop": "Oprește",
+    "send": "Trimite",
+    "pickModelFirst": "Alege mai întâi un model",
+    "changeModelFailed": "Nu s-a putut schimba modelul",
+    "startFailed": "Nu s-a putut porni o conversație",
+    "deleteFailed": "Nu s-a putut șterge conversația",
+    "failed": "Asistentul a eșuat"
+  },
+  "noProviders": {
+    "title": "Configurează mai întâi un model",
+    "description": "Asistentul are nevoie de un furnizor AI: unul în cloud, cu cheie API, sau Ollama rulat pe propriul tău hardware.",
+    "openSettings": "Deschide Setări → AI"
+  },
+  "model": {
+    "pick": "Alege un model",
+    "label": "Model: {{label}}",
+    "search": "Caută sau scrie un id de model",
+    "noMatch": "Niciun model nu se potrivește.",
+    "addProvider": "Adaugă mai întâi un furnizor în Setări → AI.",
+    "noTools": "nu poate folosi instrumente",
+    "use": "Folosește „{{model}}”"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "{{done}} din {{total}} terminate",
+    "steps": "Pașii planului",
+    "status": {
+      "pending": "în așteptare",
+      "in_progress": "în curs",
+      "completed": "terminat",
+      "cancelled": "anulat",
+      "blocked": "blocat"
+    }
+  },
+  "spend": {
+    "usage": "Consumul acestei conversații",
+    "usageWith": "Consumul acestei conversații: {{label}}",
+    "unknownPrices": "Prețurile acestui model nu sunt cunoscute, deci se numără doar token-urile.",
+    "estimate": "O estimare pe baza prețurilor publicate ale modelului.",
+    "ofLimit": "{{spent}} din {{limit}}",
+    "spent": "Cheltuit",
+    "unknown": "Necunoscut",
+    "inputTokens": "Token-uri de intrare",
+    "outputTokens": "Token-uri de ieșire",
+    "tokens_one": "{{formatted}} token",
+    "tokens_few": "{{formatted}} token-uri",
+    "tokens_other": "{{formatted}} de token-uri",
+    "limitReached": "Această conversație a atins limita de cheltuieli. Începe o conversație nouă sau mărește limita în <settings>Setări → AI</settings>.",
+    "limitNotApplicable": "Limita de cheltuieli ({{limit}}) nu se poate aplica acestui model."
+  },
+  "steps": {
+    "thinking": "Se gândește",
+    "thought": "A gândit",
+    "draft": "Prima variantă, revizuită mai jos",
+    "approvalNeeded": "Este necesară aprobarea: {{title}}",
+    "run": "Rulează {{name}}",
+    "approvalIntro": "Asistentul vrea să facă asta. Nu se întâmplă nimic până nu aprobi.",
+    "deny": "Refuză",
+    "approve": "Aprobă",
+    "approvedGoOn": "Aprobat. Răspunde la celelalte carduri pentru a continua.",
+    "deniedGoOn": "Refuzat. Răspunde la celelalte carduri pentru a continua.",
+    "logGone": "Acel jurnal nu mai există",
+    "log": "Jurnal",
+    "denied": "Refuzat: {{title}}",
+    "failed": "Eșuat: {{title}}",
+    "running": "Se rulează {{name}}",
+    "ran": "S-a rulat {{name}}",
+    "withSubject": "{{title}} pentru {{subject}}",
+    "helperRunningTask": "Ajutorul analizează: {{task}}",
+    "helperDoneTask": "Ajutorul a analizat: {{task}}",
+    "helperRunning": "Ajutorul caută informații",
+    "helperDone": "Ajutorul a căutat informații",
+    "tools": {
+      "getCapabilities": {
+        "running": "Se verifică ce poate face acest server",
+        "done": "S-a verificat ce poate face acest server"
+      },
+      "getSystemStats": { "running": "Se citesc statisticile de sistem", "done": "S-au citit statisticile de sistem" },
+      "listApps": { "running": "Se listează aplicațiile", "done": "S-au listat aplicațiile" },
+      "appLogs": { "running": "Se citesc jurnalele aplicației", "done": "S-au citit jurnalele aplicației" },
+      "listFileLocations": { "running": "Se listează locațiile fișierelor", "done": "S-au listat locațiile fișierelor" },
+      "listFiles": { "running": "Se listează fișierele", "done": "S-au listat fișierele" },
+      "readFile": { "running": "Se citește un fișier", "done": "S-a citit un fișier" },
+      "writeFile": { "running": "Se scrie un fișier", "done": "S-a scris un fișier" },
+      "editFile": { "running": "Se editează un fișier", "done": "S-a editat un fișier" },
+      "listDirectory": { "running": "Se listează un dosar", "done": "S-a listat un dosar" },
+      "createDirectory": { "running": "Se creează un dosar", "done": "S-a creat un dosar" },
+      "searchStore": { "running": "Se caută în magazinul de aplicații", "done": "S-a căutat în magazinul de aplicații" },
+      "readToolResult": { "running": "Se citește un rezultat salvat al unui instrument", "done": "S-a citit un rezultat salvat al unui instrument" },
+      "askUserQuestion": { "running": "Se așteaptă răspunsul tău", "done": "Te-a întrebat" },
+      "advisor": { "running": "Se întreabă consilierul", "done": "S-a întrebat consilierul" },
+      "runWorkflow": {
+        "running": "Ajutoarele caută informații împreună",
+        "done": "Ajutoarele au căutat informații împreună"
+      },
+      "getStoreApp": { "running": "Se citește o aplicație din magazin", "done": "S-a citit o aplicație din magazin" },
+      "listPackageManagers": { "running": "Se listează managerii de pachete", "done": "S-au listat managerii de pachete" },
+      "searchPackages": { "running": "Se caută pachete", "done": "S-au căutat pachete" },
+      "listUpgradablePackages": {
+        "running": "Se verifică actualizările de pachete",
+        "done": "S-au verificat actualizările de pachete"
+      }
+    }
+  },
+  "question": {
+    "title": "Întrebări",
+    "asks": "Asistentul întreabă: {{title}}",
+    "intro": "Asistentul întreabă înainte de a continua. Nu răspunde niciodată cu o parolă sau o cheie.",
+    "ownAnswerLabel": "Propriul tău răspuns la {{header}}",
+    "ownAnswerPlaceholder": "Sau scrie propriul răspuns",
+    "skip": "Sari peste",
+    "send": "Trimite răspunsurile",
+    "skippedGoOn": "Omis. Răspunde la celelalte carduri pentru a continua.",
+    "answeredGoOn": "Răspuns trimis. Răspunde la celelalte carduri pentru a continua.",
+    "youAnswered": "Ai răspuns: {{answers}}",
+    "youSkipped": "Ai sărit peste întrebare"
+  }
+}

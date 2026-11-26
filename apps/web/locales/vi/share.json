@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Liên kết này không đầy đủ.",
+    "expiredTitle": "Liên kết này đã hết hạn",
+    "notFoundTitle": "Liên kết này không hoạt động",
+    "errorTitle": "Không thể mở liên kết này",
+    "expiredDescription": "Hãy nhờ người gửi cung cấp liên kết mới."
+  },
+  "unlock": {
+    "title": "Liên kết này có mật khẩu",
+    "description": "Nhập mật khẩu để xem nội dung được chia sẻ.",
+    "password": "Mật khẩu",
+    "open": "Mở"
+  },
+  "file": {
+    "fallbackName": "tệp",
+    "download": "Tải xuống"
+  },
+  "dropBox": {
+    "title": "Gửi tệp đến {{name}}",
+    "description": "Tệp bạn thêm sẽ được tải lên ngay. Bạn không xem được những gì người khác đã gửi, và tệp bạn gửi không ghi đè tệp khác.",
+    "drop": "Thả tệp vào đây, hoặc",
+    "choose": "Chọn tệp"
+  },
+  "folder": {
+    "downloadAll": "Tải xuống tất cả",
+    "cantOpen": "Không thể mở thư mục này",
+    "empty": "Thư mục này trống.",
+    "columnName": "Tên",
+    "columnSize": "Kích thước",
+    "columnModified": "Đã sửa đổi",
+    "columnDownload": "Tải xuống",
+    "downloadEntry": "Tải xuống {{name}}",
+    "download": "Tải xuống"
+  }
+}

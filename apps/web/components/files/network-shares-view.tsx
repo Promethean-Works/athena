@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { ArrowLeftIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -15,6 +16,7 @@ import { SmbSharesPanel } from "@/components/files/smb-shares-panel"
 
 /** /files/network: publish file locations over SMB and NFS where the host can. */
 export function NetworkSharesView() {
+  const { t } = useTranslation("files")
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
@@ -25,15 +27,17 @@ export function NetworkSharesView() {
           nativeButton={false}
         >
           <ArrowLeftIcon />
-          Files
+          {t("smb.files")}
         </Button>
-        <h2 className="font-heading text-lg font-medium">Network shares</h2>
+        <h2 className="font-heading text-lg font-medium">
+          {t("network.title")}
+        </h2>
       </div>
 
       <Tabs defaultValue="smb">
         <TabsList>
-          <TabsTrigger value="smb">SMB</TabsTrigger>
-          <TabsTrigger value="nfs">NFS</TabsTrigger>
+          <TabsTrigger value="smb">{t("network.tabSmb")}</TabsTrigger>
+          <TabsTrigger value="nfs">{t("network.tabNfs")}</TabsTrigger>
         </TabsList>
         <TabsContent value="smb" className="pt-2">
           <SmbSharesPanel />

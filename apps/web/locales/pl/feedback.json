@@ -1,0 +1,51 @@
+{
+  "menu": "Wyślij opinię",
+  "dialog": {
+    "title": "Wyślij opinię",
+    "description": "Otwiera nowe zgłoszenie w {{repo}} w nowej karcie. Możesz je tam przejrzeć i edytować przed opublikowaniem; zgłoszenia są publiczne.",
+    "storeHint": "Aplikacja ze sklepu nie działa? Użyj przycisku <b>Zgłoś problem</b> na jej stronie w sklepie, aby zgłoszenie trafiło do osoby, która ją utrzymuje.",
+    "loadFailed": "Nie udało się wczytać informacji o tym serwerze"
+  },
+  "choices": {
+    "bug": {
+      "title": "Zgłoś błąd",
+      "description": "Coś nie działa tak, jak powinno."
+    },
+    "change": {
+      "title": "Zaproponuj zmianę",
+      "description": "Coś działa, ale powinno działać inaczej."
+    },
+    "feature": {
+      "title": "Zaproponuj funkcję",
+      "description": "Coś, czego Athena jeszcze nie potrafi."
+    }
+  },
+  "diagnostics": {
+    "title": "Uzupełnione za Ciebie",
+    "system": "System",
+    "cpu": "Procesor",
+    "containers": "Kontenery"
+  },
+  "appReport": {
+    "button": "Zgłoś problem",
+    "title": "Zgłoś problem z aplikacją {{app}}",
+    "description": "Otwiera w nowej karcie nowe zgłoszenie dla: {{where}}, z uzupełnionymi informacjami o aplikacji i tym serwerze. Przeglądasz je tam przed opublikowaniem; zgłoszenia są publiczne.",
+    "whereCatalog": "katalog {{name}}, który utrzymuje tę aplikację",
+    "includeLogs_one": "Dołącz ostatnią {{count}} linię logów",
+    "includeLogs_few": "Dołącz ostatnie {{count}} linie logów",
+    "includeLogs_many": "Dołącz ostatnich {{count}} linii logów",
+    "includeLogs_other": "Dołącz ostatnie {{count}} linii logów",
+    "installedCopy": "Zainstalowana kopia",
+    "logsLabel": "Logi do dołączenia",
+    "loadingLogs": "Wczytywanie logów…",
+    "logsWarning": "Usuń hasła, tokeny i adresy, zanim przejdziesz dalej.",
+    "logsTruncated": "W linku mieści się tylko koniec logów.",
+    "cancel": "Anuluj",
+    "openIssue": "Otwórz zgłoszenie",
+    "preparing": "Przygotowywanie…",
+    "prepareFailed": "Nie udało się przygotować zgłoszenia",
+    "logsFailed": "Nie udało się wczytać logów: {{error}}",
+    "appNotFound": "nie znaleziono aplikacji",
+    "noContainers": "Nie znaleziono kontenerów tej aplikacji."
+  }
+}

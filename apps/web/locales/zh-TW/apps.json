@@ -1,0 +1,195 @@
+{
+  "page": {
+    "description": "應用程式是由 Athena 管理的 compose 專案。"
+  },
+  "newApp": "新增應用程式",
+  "open": "開啟",
+  "list": {
+    "failed": "無法列出應用程式"
+  },
+  "status": {
+    "running": "執行中",
+    "partial": "{{running}}/{{total}} 執行中",
+    "stopped": "已停止",
+    "notDeployed": "尚未部署"
+  },
+  "actions": {
+    "restart": "重新啟動",
+    "stop": "停止",
+    "start": "啟動",
+    "updateImages": "更新映像檔",
+    "remove": "移除"
+  },
+  "jobs": {
+    "failed": {
+      "start": "無法啟動 {{name}}",
+      "stop": "無法停止 {{name}}",
+      "restart": "無法重新啟動 {{name}}",
+      "update": "無法更新 {{name}}",
+      "remove": "無法移除 {{name}}",
+      "save": "無法儲存 {{name}}",
+      "saveSettings": "無法儲存 {{name}} 的設定",
+      "deploy": "無法部署 {{name}}"
+    }
+  },
+  "delete": {
+    "title": "要移除 {{name}} 嗎？",
+    "description": "它的容器會被停止並移除，Athena 也會忘記這個應用程式。",
+    "deleteData": "同時刪除它的磁碟區與資料資料夾。此動作無法復原。",
+    "cancel": "取消",
+    "confirm": "移除"
+  },
+  "grid": {
+    "emptyTitle": "尚無應用程式",
+    "emptyDescription": "部署 compose 檔案，或轉換 <code>docker run</code> 指令。",
+    "containerCount_other": "{{count}} 個容器",
+    "fromDockerRun": "來自 docker run",
+    "actionsFor": "{{name}} 的動作"
+  },
+  "containerState": {
+    "running": "執行中",
+    "exited": "已結束",
+    "dead": "已終止",
+    "paused": "已暫停",
+    "created": "已建立",
+    "restarting": "重新啟動中"
+  },
+  "detail": {
+    "loadFailed": "無法載入應用程式",
+    "loadFailedNamed": "無法載入 {{name}}",
+    "tabContainers": "容器",
+    "tabCompose": "Compose",
+    "tabSettings": "設定",
+    "tabBackups": "備份",
+    "noContainers": "沒有容器",
+    "noContainersHint": "啟動應用程式以建立其容器。",
+    "logs": "記錄",
+    "shell": "Shell",
+    "composeHelp": "儲存時會將前一版保留為 compose.prev.yaml，並重新部署應用程式。",
+    "settingsHelp": "安裝表單中的值（.env）。在這裡變更連接埠或資料夾，然後儲存以重新部署。其中可能包含自動產生的密碼。",
+    "saveRedeploy": "儲存並重新部署",
+    "discard": "捨棄變更"
+  },
+  "new": {
+    "nameInvalid": "請使用小寫字母、數字、連字號或底線，且以字母或數字開頭。",
+    "convertFailed": "無法轉換指令",
+    "validationFailed": "驗證失敗",
+    "name": "名稱",
+    "nameHelp": "同時也是 compose 專案名稱，之後無法變更。",
+    "tabCompose": "Compose 檔案",
+    "tabRun": "從 docker run",
+    "reviewConverted": "檢查轉換後的檔案",
+    "upload": "上傳檔案",
+    "composeHelp": "對應該存放在伺服器上此應用程式資料資料夾的檔案，請使用 <code>${ATHENA_APP_DATA}</code>。",
+    "runLabel": "docker run 指令",
+    "runHelp": "它會轉換成 compose 檔案，部署前你可以先檢查。目前不會執行任何東西。",
+    "convert": "轉換為 compose",
+    "valid": "compose 檔案有效",
+    "invalid": "compose 檔案有錯誤",
+    "validate": "驗證",
+    "deploy": "部署"
+  },
+  "compose": {
+    "serializationFailed": "序列化失敗",
+    "addService": "新增服務",
+    "tabs": {
+      "settings": "設定",
+      "networks": "網路",
+      "volumes": "磁碟區",
+      "raw": "原始 YAML"
+    },
+    "restart": {
+      "no": "否（不重新啟動）",
+      "always": "一律",
+      "unlessStopped": "除非已停止",
+      "onFailure": "失敗時"
+    },
+    "volumeMode": {
+      "rw": "讀寫",
+      "ro": "唯讀"
+    },
+    "table": {
+      "actions": "動作",
+      "empty": "尚無項目",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "remove": "移除",
+      "add": "新增"
+    },
+    "service": {
+      "collapse": "收合",
+      "expand": "展開",
+      "namePlaceholder": "服務名稱",
+      "noImage": "無映像檔",
+      "image": "映像檔",
+      "imageHelp": "Docker 映像檔名稱。支援 Docker Hub、GHCR 與其他登錄服務。",
+      "restartPolicy": "重新啟動原則"
+    },
+    "ports": {
+      "title": "連接埠",
+      "host": "主機連接埠",
+      "container": "容器連接埠",
+      "protocol": "通訊協定",
+      "help": "將主機連接埠對應到容器連接埠。主機連接埠留空則隨機指派。"
+    },
+    "volumes": {
+      "title": "磁碟區",
+      "host": "主機路徑 / 磁碟區名稱",
+      "container": "容器路徑",
+      "mode": "模式",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data or volume-name",
+      "help": "繫結掛載主機路徑或具名磁碟區。此應用程式的資料資料夾請使用 <code>${ATHENA_APP_DATA}</code>。"
+    },
+    "env": {
+      "title": "環境變數",
+      "help": "傳遞給容器的環境變數。安裝表單中的值（.env）也可使用。",
+      "valuePlaceholder": "value"
+    },
+    "keyValue": {
+      "key": "鍵",
+      "value": "值"
+    },
+    "command": {
+      "command": "指令",
+      "commandPlaceholder": "覆寫映像檔的預設指令",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "覆寫映像檔的預設 entrypoint",
+      "workingDir": "工作目錄",
+      "user": "使用者"
+    },
+    "resources": {
+      "title": "資源限制",
+      "cpuLimit": "CPU 限制",
+      "cpuCores": "CPU 核心數",
+      "memoryLimit": "記憶體限制",
+      "memoryLimitHelp": "例如 512M、1G",
+      "cpuReservation": "CPU 保留量",
+      "memoryReservation": "記憶體保留量",
+      "memoryReservationHelp": "例如 256M"
+    },
+    "health": {
+      "title": "健康檢查",
+      "test": "測試指令",
+      "interval": "間隔",
+      "timeout": "逾時",
+      "retries": "重試次數"
+    },
+    "labels": {
+      "title": "標籤",
+      "valuePlaceholder": "My service"
+    },
+    "networks": {
+      "title": "網路",
+      "help": "以逗號分隔的網路名稱。請在「網路」分頁中定義網路。"
+    },
+    "dependsOn": {
+      "title": "相依於",
+      "help": "必須先於此服務啟動的服務名稱，以逗號分隔。"
+    },
+    "entries": {
+      "name": "名稱",
+      "driver": "驅動程式",
+      "external": "外部"
+    }
+  }
+}

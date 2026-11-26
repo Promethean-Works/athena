@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import type { ParseKeys } from "i18next"
+import { Trans, useTranslation } from "react-i18next"
 import {
   CloudIcon,
   CpuIcon,
@@ -104,28 +106,34 @@ type KindGroup = { value: string; items: ProviderKind[] }
 export function AddMenu({
   kinds,
   onPick,
-  label = "Add provider",
+  label,
 }: {
   kinds: ProviderKind[]
   onPick: (kind: ProviderKind) => void
   label?: string
 }) {
+  const { t } = useTranslation("ai")
   const groups = React.useMemo<KindGroup[]>(() => {
     const byLabel = (a: ProviderKind, b: ProviderKind) =>
       a.label.localeCompare(b.label)
     return [
       {
-        value: "Cloud",
+        value: "cloud",
         items: kinds.filter((k) => k.group === "cloud").sort(byLabel),
       },
       {
-        value: "Local",
+        value: "local",
         items: kinds.filter((k) => k.group === "local").sort(byLabel),
       },
       // Custom endpoints stay last, in the server's order.
-      { value: "Custom", items: kinds.filter((k) => k.group === "custom") },
+      { value: "custom", items: kinds.filter((k) => k.group === "custom") },
     ].filter((g) => g.items.length > 0)
   }, [kinds])
+  const groupLabels: Record<string, string> = {
+    cloud: t("addMenu.groupCloud"),
+    local: t("addMenu.groupLocal"),
+    custom: t("addMenu.groupCustom"),
+  }
   return (
     <Combobox
       items={groups}
@@ -138,15 +146,15 @@ export function AddMenu({
     >
       <ComboboxTrigger render={<Button variant="outline" size="sm" />}>
         <PlusIcon />
-        {label}
+        {label ?? t("addMenu.addProvider")}
       </ComboboxTrigger>
       <ComboboxContent className="w-64 max-w-[calc(100vw-2rem)]" align="end">
-        <ComboboxInput showTrigger={false} placeholder="Search providers" />
-        <ComboboxEmpty>No provider matches.</ComboboxEmpty>
+        <ComboboxInput showTrigger={false} placeholder={t("addMenu.search")} />
+        <ComboboxEmpty>{t("addMenu.noMatch")}</ComboboxEmpty>
         <ComboboxList>
           {(group: KindGroup) => (
             <ComboboxGroup key={group.value} items={group.items}>
-              <ComboboxLabel>{group.value}</ComboboxLabel>
+              <ComboboxLabel>{groupLabels[group.value]}</ComboboxLabel>
               <ComboboxCollection>
                 {(k: ProviderKind) => (
                   <ComboboxItem key={k.id} value={k}>
@@ -163,6 +171,7 @@ export function AddMenu({
 }
 
 function ProvidersCard({ onChanged }: { onChanged: () => void }) {
+  const { t } = useTranslation("ai")
   const [kinds, setKinds] = React.useState<ProviderKind[]>([])
   const [providers, setProviders] = React.useState<Provider[] | null>(null)
   const [editing, setEditing] = React.useState<ProviderEditing>(null)
@@ -198,7 +207,7 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
     else
       toast.add({
         type: "error",
-        title: `${p.name} didn't connect`,
+        title: t("providers.didntConnect", { name: p.name }),
         description: data?.message ?? errorMessage(error),
       })
   }
@@ -214,7 +223,7 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
     if (error) {
       toast.add({
         type: "error",
-        title: "Couldn't remove",
+        title: t("providers.couldntRemove"),
         description: errorMessage(error),
       })
       return
@@ -234,10 +243,8 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Providers</CardTitle>
-        <CardDescription>
-          Set up providers once, then pick any of their models in a chat.
-        </CardDescription>
+        <CardTitle>{t("providers.title")}</CardTitle>
+        <CardDescription>{t("providers.description")}</CardDescription>
         {providers?.length ? (
           <CardAction>
             <AddMenu kinds={kinds} onPick={(kind) => setEditing({ kind })} />
@@ -253,11 +260,11 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
               <EmptyMedia variant="icon">
                 {local.length ? <CpuIcon /> : <CloudIcon />}
               </EmptyMedia>
-              <EmptyTitle>No providers yet</EmptyTitle>
+              <EmptyTitle>{t("providers.emptyTitle")}</EmptyTitle>
               <EmptyDescription>
                 {local.length
                   ? localServersSentence(local)
-                  : "Add a cloud provider with an API key, or run Ollama, llama.cpp or another local AI server on this server to run models locally."}
+                  : t("providers.emptyDescription")}
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent className="flex-row flex-wrap justify-center">
@@ -268,7 +275,7 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
               <AddMenu
                 kinds={kinds}
                 onPick={(kind) => setEditing({ kind })}
-                label={local.length ? "Another provider" : "Add a provider"}
+                label={local.length ? t("anotherProvider") : t("addAProvider")}
               />
             </EmptyContent>
           </Empty>
@@ -291,12 +298,12 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
                     disabled={testing === p.id}
                   >
                     {testing === p.id ? <Spinner /> : <PlugZapIcon />}
-                    Test
+                    {t("providers.test")}
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label={`Edit ${p.name}`}
+                    aria-label={t("providers.editAria", { name: p.name })}
                     onClick={() => {
                       const kind = kindOf(p.kind)
                       if (kind) setEditing({ kind, provider: p })
@@ -307,7 +314,7 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label={`Remove ${p.name}`}
+                    aria-label={t("providers.removeAria", { name: p.name })}
                     onClick={() => setRemoving(p)}
                   >
                     <Trash2Icon />
@@ -329,19 +336,20 @@ function ProvidersCard({ onChanged }: { onChanged: () => void }) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove {removing?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("providers.removeTitle", { name: removing?.name })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Its key is deleted from this server. Chats that used its models
-              stay, and ask for another model.
+              {t("providers.removeDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => removing && void remove(removing)}
             >
-              Remove
+              {t("remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -357,6 +365,7 @@ type SaveAi = (next: AiSettings, message: string) => Promise<void>
  * Reloaded when providers change (removing one can clear the default model).
  */
 function useAiSettings(version: number) {
+  const { t } = useTranslation("ai")
   const [settings, setSettings] = React.useState<AiSettings | null>(null)
 
   React.useEffect(() => {
@@ -377,12 +386,12 @@ function useAiSettings(version: number) {
         setSettings(previous)
         toast.add({
           type: "error",
-          title: "Couldn't save",
+          title: t("saveFailed"),
           description: errorMessage(error),
         })
       }
     },
-    [settings]
+    [settings, t]
   )
   return { settings, save }
 }
@@ -396,6 +405,7 @@ function DefaultsCard({
   settings: AiSettings | null
   save: SaveAi
 }) {
+  const { t } = useTranslation("ai")
   const { providers, reload } = useModels()
   const [limit, setLimit] = React.useState("")
   const savedLimit = settings?.spend_limit_usd
@@ -414,14 +424,14 @@ function DefaultsCard({
     if (value !== null && (!Number.isFinite(value) || value <= 0)) {
       toast.add({
         type: "error",
-        title: "Enter an amount above 0, or leave it empty",
+        title: t("defaults.limitInvalid"),
       })
       return
     }
     if (value === (settings.spend_limit_usd ?? null)) return
     void save(
       { ...settings, spend_limit_usd: value },
-      value ? `Chats stop at $${value}` : "No spend limit"
+      value ? t("defaults.limitSet", { value }) : t("defaults.limitNone")
     )
   }
 
@@ -430,11 +440,8 @@ function DefaultsCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Defaults</CardTitle>
-        <CardDescription>
-          New chats start with the default model. Each chat can switch model at
-          any time.
-        </CardDescription>
+        <CardTitle>{t("defaults.title")}</CardTitle>
+        <CardDescription>{t("defaults.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {settings === null ? (
@@ -442,7 +449,9 @@ function DefaultsCard({
         ) : (
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="default-model">Default model</FieldLabel>
+              <FieldLabel htmlFor="default-model">
+                {t("defaults.defaultModel")}
+              </FieldLabel>
               <ModelPicker
                 id="default-model"
                 variant="field"
@@ -451,17 +460,17 @@ function DefaultsCard({
                 onChange={(ref: ModelRef) =>
                   void save(
                     { ...settings, default_model: ref },
-                    "Default model saved"
+                    t("defaults.defaultModelSaved")
                   )
                 }
               />
               <FieldDescription>
-                Only models that can use tools work with the assistant.
+                {t("defaults.defaultModelHelp")}
               </FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="title-model">
-                Model for chat titles
+                {t("defaults.titleModel")}
               </FieldLabel>
               <ModelPicker
                 id="title-model"
@@ -471,16 +480,18 @@ function DefaultsCard({
                 onChange={(ref: ModelRef) =>
                   void save(
                     { ...settings, title_model: ref },
-                    "Title model saved"
+                    t("defaults.titleModelSaved")
                   )
                 }
               />
               <FieldDescription>
-                Optional. A small, cheap model is enough.
+                {t("defaults.titleModelHelp")}
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="advisor-model">Advisor model</FieldLabel>
+              <FieldLabel htmlFor="advisor-model">
+                {t("defaults.advisorModel")}
+              </FieldLabel>
               <div className="flex gap-2">
                 <ModelPicker
                   id="advisor-model"
@@ -491,7 +502,7 @@ function DefaultsCard({
                   onChange={(ref: ModelRef) =>
                     void save(
                       { ...settings, advisor_model: ref },
-                      "Advisor model saved"
+                      t("defaults.advisorModelSaved")
                     )
                   }
                 />
@@ -501,32 +512,22 @@ function DefaultsCard({
                     onClick={() =>
                       void save(
                         { ...settings, advisor_model: null },
-                        "Advisor turned off"
+                        t("defaults.advisorTurnedOff")
                       )
                     }
                   >
-                    Turn off
+                    {t("defaults.advisorOff")}
                   </Button>
                 )}
               </div>
-              <FieldDescription>
-                Optional. A stronger model the assistant can ask for a second
-                opinion, once per step. Its provider sees the question the
-                assistant writes, not the whole chat, and what it costs counts
-                toward the spend limit.
-              </FieldDescription>
+              <FieldDescription>{t("defaults.advisorHelp")}</FieldDescription>
             </Field>
             <Field orientation="horizontal">
               <FieldContent>
                 <FieldLabel htmlFor="refine-answers">
-                  Double-check answers
+                  {t("defaults.refine")}
                 </FieldLabel>
-                <FieldDescription>
-                  Before it finishes, the assistant reviews its answer and
-                  writes it again, fixed. At least one more model request per
-                  reply, so slower and costlier; the first draft stays folded in
-                  the reply.
-                </FieldDescription>
+                <FieldDescription>{t("defaults.refineHelp")}</FieldDescription>
               </FieldContent>
               <Switch
                 id="refine-answers"
@@ -534,30 +535,27 @@ function DefaultsCard({
                 onCheckedChange={(checked) =>
                   void save(
                     { ...settings, refine_answers: checked },
-                    checked
-                      ? "Answers are double-checked"
-                      : "Answers are no longer double-checked"
+                    checked ? t("defaults.refineOn") : t("defaults.refineOff")
                   )
                 }
               />
             </Field>
             <Field>
               <FieldLabel htmlFor="spend-limit">
-                Spend limit per chat (USD)
+                {t("defaults.spendLimit")}
               </FieldLabel>
               <Input
                 id="spend-limit"
                 inputMode="decimal"
                 value={limit}
-                placeholder="No limit"
+                placeholder={t("defaults.spendLimitPlaceholder")}
                 onChange={(e) => setLimit(e.target.value)}
                 onBlur={saveLimit}
                 onKeyDown={(e) => e.key === "Enter" && saveLimit()}
                 className="max-w-40"
               />
               <FieldDescription>
-                A chat stops once it has cost this much. Only applies to models
-                with known prices; local models are free.
+                {t("defaults.spendLimitHelp")}
               </FieldDescription>
             </Field>
           </FieldGroup>
@@ -579,6 +577,7 @@ function ShellCard({
   settings: AiSettings | null
   save: SaveAi
 }) {
+  const { t } = useTranslation("ai")
   const where = useCapability("assistant.shell")
   const [text, setText] = React.useState("")
   const saved = settings
@@ -596,9 +595,8 @@ function ShellCard({
     if (bad) {
       toast.add({
         type: "error",
-        title: `“${bad}” isn't a program name`,
-        description:
-          "List programs only, one per line, without shell operators like ; | & > or $.",
+        title: t("shell.badName", { name: bad }),
+        description: t("shell.badNameHelp"),
       })
       return
     }
@@ -608,7 +606,7 @@ function ShellCard({
     }
     void save(
       { ...settings, shell_commands: commands },
-      commands.length ? "Allowlist saved" : "Allowlist emptied"
+      commands.length ? t("shell.saved") : t("shell.emptied")
     )
   }
 
@@ -617,12 +615,8 @@ function ShellCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Shell</CardTitle>
-        <CardDescription>
-          Let the assistant ask to run commands on this server, as the user
-          Athena runs as. You approve every command before it runs, and each one
-          is written to the audit log.
-        </CardDescription>
+        <CardTitle>{t("shell.title")}</CardTitle>
+        <CardDescription>{t("shell.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {settings === null ? (
@@ -631,10 +625,11 @@ function ShellCard({
           <FieldGroup>
             <Field orientation="horizontal">
               <FieldContent>
-                <FieldLabel htmlFor="shell-enabled">Assistant shell</FieldLabel>
+                <FieldLabel htmlFor="shell-enabled">
+                  {t("shell.enabled")}
+                </FieldLabel>
                 <FieldDescription>
-                  Off by default. Athena&apos;s own tools (apps, packages,
-                  files) don&apos;t need it.
+                  {t("shell.enabledHelp")}
                   {where.detail && ` ${where.detail}.`}
                 </FieldDescription>
               </FieldContent>
@@ -644,15 +639,15 @@ function ShellCard({
                 onCheckedChange={(checked) =>
                   void save(
                     { ...settings, shell_enabled: checked },
-                    checked
-                      ? "Assistant shell turned on"
-                      : "Assistant shell turned off"
+                    checked ? t("shell.enabledOn") : t("shell.enabledOff")
                   )
                 }
               />
             </Field>
             <Field data-disabled={!settings.shell_enabled || undefined}>
-              <FieldLabel htmlFor="shell-commands">Allowed programs</FieldLabel>
+              <FieldLabel htmlFor="shell-commands">
+                {t("shell.allowed")}
+              </FieldLabel>
               <Textarea
                 id="shell-commands"
                 value={text}
@@ -666,12 +661,15 @@ function ShellCard({
                 className="[field-sizing:fixed] max-h-48 font-mono"
               />
               <FieldDescription>
-                One per line. Every program in a command is checked, including
-                each part of a pipe (<code>|</code>) or chain (<code>&&</code>,{" "}
-                <code>;</code>); others are refused before you&apos;re asked.
-                This guards against mistakes, not a determined model: an allowed
-                program can start others, so read each command before you
-                approve it. Empty means no shell.
+                <Trans
+                  i18nKey="shell.allowedHelp"
+                  ns="ai"
+                  components={{
+                    pipe: <code>|</code>,
+                    and: <code>&amp;&amp;</code>,
+                    semi: <code>;</code>,
+                  }}
+                />
               </FieldDescription>
             </Field>
           </FieldGroup>
@@ -722,11 +720,12 @@ type ToggleKey =
   | "browser_use_enabled"
 
 function useToggle(settings: AiSettings | null, save: SaveAi) {
+  const { t } = useTranslation("ai")
   return (key: ToggleKey, name: string) => (checked: boolean) => {
     if (!settings) return
     void save(
       { ...settings, [key]: checked },
-      `${name} turned ${checked ? "on" : "off"}`
+      t(checked ? "toggle.on" : "toggle.off", { name })
     )
   }
 }
@@ -739,14 +738,13 @@ function ToolsCard({
   settings: AiSettings | null
   save: SaveAi
 }) {
+  const { t } = useTranslation("ai")
   const toggle = useToggle(settings, save)
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Memory and research</CardTitle>
-        <CardDescription>
-          What the assistant can keep between chats and look up on its own.
-        </CardDescription>
+        <CardTitle>{t("tools.title")}</CardTitle>
+        <CardDescription>{t("tools.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {settings === null ? (
@@ -755,38 +753,40 @@ function ToolsCard({
           <FieldGroup>
             <ToggleRow
               id="memory-enabled"
-              label="Remember across chats"
+              label={t("tools.memory")}
               checked={settings.memory_enabled}
-              onChange={toggle("memory_enabled", "Memory")}
+              onChange={toggle("memory_enabled", t("tools.memoryName"))}
             >
-              Keeps notes that later chats read, such as how this server is set
-              up. Each admin has their own. Turning it off keeps the notes; the
-              assistant just stops using them. Notes that look like hidden
-              instructions are refused and written to the audit log.
+              {t("tools.memoryHelp")}
             </ToggleRow>
             <ToggleRow
               id="web-research-enabled"
-              label="Web research"
+              label={t("tools.web")}
               checked={settings.web_research_enabled}
-              onChange={toggle("web_research_enabled", "Web research")}
+              onChange={toggle("web_research_enabled", t("tools.web"))}
             >
-              Searches the web with{" "}
-              <a
-                href="https://exa.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Exa
-              </a>{" "}
-              and reads the pages it finds. The server needs an{" "}
-              <code>EXA_API_KEY</code> environment variable before any search
-              works.
+              <Trans
+                i18nKey="tools.webHelp"
+                ns="ai"
+                components={{
+                  exa: (
+                    <a
+                      href="https://exa.ai"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  ),
+                  code: <code />,
+                }}
+              />
             </ToggleRow>
             <FieldSeparator />
             <FieldDescription>
-              Skills are instructions the assistant loads when a task needs
-              them. Add one as a folder with a <code>SKILL.md</code> file in{" "}
-              <code>assistant/skills</code> inside Athena&apos;s data folder.
+              <Trans
+                i18nKey="tools.skills"
+                ns="ai"
+                components={{ code: <code /> }}
+              />
             </FieldDescription>
           </FieldGroup>
         )}
@@ -803,6 +803,7 @@ function AdvancedCard({
   settings: AiSettings | null
   save: SaveAi
 }) {
+  const { t } = useTranslation("ai")
   const containers = useCapability("containers")
   const containersReady = containers?.status === "ready"
   const toggle = useToggle(settings, save)
@@ -816,43 +817,45 @@ function AdvancedCard({
           <FieldGroup>
             <ToggleRow
               id="docker-sandbox-enabled"
-              label="Docker sandbox"
+              label={t("advanced.docker")}
               checked={settings.docker_sandbox_enabled}
               // Let an admin turn it off even when the engine went away.
               disabled={!containersReady && !settings.docker_sandbox_enabled}
-              onChange={toggle("docker_sandbox_enabled", "Docker sandbox")}
+              onChange={toggle("docker_sandbox_enabled", t("advanced.docker"))}
             >
-              Runs commands and edits files in an isolated container instead of
-              on this server. Pulls a small Python image on first use.
+              {t("advanced.dockerHelp")}
               {!containersReady &&
-                ` Needs ${containers?.label ?? "a container engine"} ready first.`}
+                ` ${t("advanced.dockerNeeds", {
+                  engine:
+                    containers?.label ?? t("advanced.dockerNeedsFallback"),
+                })}`}
             </ToggleRow>
             <ToggleRow
               id="coding-stack-enabled"
-              label="Coding stack"
+              label={t("advanced.coding")}
               checked={settings.coding_stack_enabled}
-              onChange={toggle("coding_stack_enabled", "Coding stack")}
+              onChange={toggle("coding_stack_enabled", t("advanced.coding"))}
             >
-              Reads <code>AGENTS.md</code> and <code>CLAUDE.md</code> from{" "}
-              <code>assistant/code-workspace</code> in Athena&apos;s data
-              folder, and reads or writes files there. Reading is free; every
-              write shows an Approve/Deny card first.
+              <Trans
+                i18nKey="advanced.codingHelp"
+                ns="ai"
+                components={{ code: <code /> }}
+              />
             </ToggleRow>
             <ToggleRow
               id="durable-execution-enabled"
-              label="Durable execution (experimental)"
+              label={t("advanced.durable")}
               checked={settings.durable_execution_enabled}
               onChange={toggle(
                 "durable_execution_enabled",
-                "Durable execution"
+                t("advanced.durableName")
               )}
             >
-              Checkpoints each model request and tool call, so an interrupted
-              chat resumes instead of repeating paid work. Needs pgtask and a
-              Postgres database (
-              <code>ATHENA_DURABLE_EXECUTION_DATABASE_URL</code>
-              ); without them it changes nothing. Experimental: a crash and resume
-              hasn&apos;t been tested end to end yet.
+              <Trans
+                i18nKey="advanced.durableHelp"
+                ns="ai"
+                components={{ code: <code /> }}
+              />
             </ToggleRow>
             {/* Hidden until it works (docs/plans/release-0.1.0.md §4): nothing
                 provides the browser tool yet, so the switch only shows when an
@@ -860,12 +863,11 @@ function AdvancedCard({
             {settings.browser_use_enabled && (
               <ToggleRow
                 id="browser-use-enabled"
-                label="Browser agent"
+                label={t("advanced.browser")}
                 checked
-                onChange={toggle("browser_use_enabled", "Browser agent")}
+                onChange={toggle("browser_use_enabled", t("advanced.browser"))}
               >
-                Not available yet: it waits for a browser-use release that
-                installs alongside the rest of the server. Turn it off.
+                {t("advanced.browserHelp")}
               </ToggleRow>
             )}
           </FieldGroup>
@@ -882,6 +884,7 @@ function ReviewCard({
   settings: AiSettings | null
   save: SaveAi
 }) {
+  const { t } = useTranslation("ai")
   const { providers } = useModels()
 
   function saveModel(ref: ModelRef | null) {
@@ -893,7 +896,7 @@ function ReviewCard({
         // No model means nothing can review; keep the two in step.
         review_tool_calls: ref ? settings.review_tool_calls : false,
       },
-      ref ? "Review model saved" : "Review turned off"
+      ref ? t("review.modelSaved") : t("review.modelOff")
     )
   }
 
@@ -903,12 +906,8 @@ function ReviewCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Review tool calls</CardTitle>
-        <CardDescription>
-          A second model checks each action before it reaches your Approve/Deny
-          card and approves the clearly safe ones, so you only see the risky
-          ones.
-        </CardDescription>
+        <CardTitle>{t("review.title")}</CardTitle>
+        <CardDescription>{t("review.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {settings === null ? (
@@ -916,7 +915,9 @@ function ReviewCard({
         ) : (
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="review-model">Review model</FieldLabel>
+              <FieldLabel htmlFor="review-model">
+                {t("review.model")}
+              </FieldLabel>
               <div className="flex gap-2">
                 <ModelPicker
                   id="review-model"
@@ -928,33 +929,27 @@ function ReviewCard({
                 />
                 {settings.review_model && (
                   <Button variant="outline" onClick={() => saveModel(null)}>
-                    Clear
+                    {t("review.clear")}
                   </Button>
                 )}
               </div>
-              <FieldDescription>
-                Its provider sees each call&apos;s name and arguments, not the
-                whole chat. Every check is one more model call and counts toward
-                the spend limit.
-              </FieldDescription>
+              <FieldDescription>{t("review.modelHelp")}</FieldDescription>
             </Field>
             <ToggleRow
               id="review-tool-calls"
-              label="Review before asking me"
+              label={t("review.toggle")}
               checked={settings.review_tool_calls}
               disabled={!settings.review_model && !settings.review_tool_calls}
               onChange={(checked) =>
                 void save(
                   { ...settings, review_tool_calls: checked },
-                  checked
-                    ? "Tool-call reviewing turned on"
-                    : "Tool-call reviewing turned off"
+                  checked ? t("review.toggleOn") : t("review.toggleOff")
                 )
               }
             >
               {settings.review_model
-                ? "Safe actions are approved for you; risky ones still reach your card."
-                : "Pick a review model first."}
+                ? t("review.helpWithModel")
+                : t("review.helpNoModel")}
             </ToggleRow>
           </FieldGroup>
         )}
@@ -964,6 +959,7 @@ function ReviewCard({
 }
 
 function IntegrationsCard() {
+  const { t } = useTranslation("ai")
   const [kinds, setKinds] = React.useState<IntegrationKind[]>([])
   const [integrations, setIntegrations] = React.useState<Integration[] | null>(
     null
@@ -997,7 +993,7 @@ function IntegrationsCard() {
     if (error) {
       toast.add({
         type: "error",
-        title: "Couldn't remove",
+        title: t("providers.couldntRemove"),
         description: errorMessage(error),
       })
       return
@@ -1023,12 +1019,8 @@ function IntegrationsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Hosted integrations</CardTitle>
-        <CardDescription>
-          MCP servers Athena runs for the assistant (GitHub, Linear, Notion, …).
-          Each has an encrypted token, and its actions go through your
-          Approve/Deny card.
-        </CardDescription>
+        <CardTitle>{t("integrations.title")}</CardTitle>
+        <CardDescription>{t("integrations.description")}</CardDescription>
         <CardAction>
           {kinds.length ? (
             <Button
@@ -1037,7 +1029,7 @@ function IntegrationsCard() {
               onClick={() => setEditing({ integration: null, kinds })}
             >
               <PlusIcon />
-              Add integration
+              {t("integrations.add")}
             </Button>
           ) : null}
         </CardAction>
@@ -1046,7 +1038,7 @@ function IntegrationsCard() {
         {list.length === 0 ? (
           <Empty className="border">
             <EmptyHeader>
-              <EmptyTitle>No integrations yet</EmptyTitle>
+              <EmptyTitle>{t("integrations.emptyTitle")}</EmptyTitle>
             </EmptyHeader>
           </Empty>
         ) : (
@@ -1059,14 +1051,18 @@ function IntegrationsCard() {
                     {kinds.find((k) => k.id === integration.kind)?.label ??
                       integration.kind}
                     {` · ${transportSummary(integration.transport)}`}
-                    {integration.secrets_set?.length ? " · token set" : ""}
+                    {integration.secrets_set?.length
+                      ? ` · ${t("integrations.tokenSet")}`
+                      : ""}
                   </ItemDescription>
                 </ItemContent>
                 <ItemActions>
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label={`Edit ${integration.name}`}
+                    aria-label={t("providers.editAria", {
+                      name: integration.name,
+                    })}
                     onClick={() => setEditing({ integration, kinds })}
                   >
                     <PencilIcon />
@@ -1074,7 +1070,9 @@ function IntegrationsCard() {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label={`Remove ${integration.name}`}
+                    aria-label={t("providers.removeAria", {
+                      name: integration.name,
+                    })}
                     onClick={() => setRemoving(integration)}
                   >
                     <Trash2Icon />
@@ -1096,19 +1094,20 @@ function IntegrationsCard() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove {removing?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("providers.removeTitle", { name: removing?.name })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Its token is deleted from this server. Chats that used its tools
-              will no longer have them.
+              {t("integrations.removeDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => removing && void remove(removing)}
             >
-              Remove
+              {t("remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1118,10 +1117,10 @@ function IntegrationsCard() {
 }
 
 const SECTIONS = [
-  { id: "models", title: "Models" },
-  { id: "tools", title: "Tools" },
-  { id: "advanced", title: "Advanced" },
-] as const
+  { id: "models", title: "sections.models" },
+  { id: "tools", title: "sections.tools" },
+  { id: "advanced", title: "sections.advanced" },
+] as const satisfies readonly { id: string; title: ParseKeys<"ai"> }[]
 
 function Section({
   id,
@@ -1153,6 +1152,7 @@ function Section({
 
 /** Settings → AI: providers, default models, tools and limits (admins only). */
 export function AiSettingsView() {
+  const { t } = useTranslation("ai")
   const { user } = useAuth()
   const [version, setVersion] = React.useState(0)
   const { settings, save } = useAiSettings(version)
@@ -1160,14 +1160,14 @@ export function AiSettingsView() {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>Only admins can set up the assistant</EmptyTitle>
+          <EmptyTitle>{t("adminOnly")}</EmptyTitle>
         </EmptyHeader>
       </Empty>
     )
   }
   return (
     <div className="flex flex-col gap-8">
-      <nav aria-label="AI settings sections" className="flex flex-wrap gap-1">
+      <nav aria-label={t("sections.navAria")} className="flex flex-wrap gap-1">
         {SECTIONS.map((s) => (
           <Button
             key={s.id}
@@ -1176,14 +1176,14 @@ export function AiSettingsView() {
             nativeButton={false}
             render={<a href={`#${s.id}`} />}
           >
-            {s.title}
+            {t(s.title)}
           </Button>
         ))}
       </nav>
       <Section
         id="models"
-        title="Models"
-        description="Where the assistant's models come from and which ones it uses."
+        title={t("sections.models")}
+        description={t("sections.modelsDescription")}
       >
         <ProvidersCard onChanged={() => setVersion((v) => v + 1)} />
         <DefaultsCard version={version} settings={settings} save={save} />
@@ -1191,8 +1191,8 @@ export function AiSettingsView() {
       </Section>
       <Section
         id="tools"
-        title="Tools"
-        description="What the assistant can do besides managing apps, packages and files."
+        title={t("sections.tools")}
+        description={t("sections.toolsDescription")}
       >
         <ToolsCard settings={settings} save={save} />
         <IntegrationsCard />
@@ -1200,8 +1200,8 @@ export function AiSettingsView() {
       </Section>
       <Section
         id="advanced"
-        title="Advanced"
-        description="Off by default. Each one needs something extra on the server."
+        title={t("sections.advanced")}
+        description={t("sections.advancedDescription")}
       >
         <AdvancedCard settings={settings} save={save} />
       </Section>

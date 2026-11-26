@@ -1,0 +1,195 @@
+{
+  "page": {
+    "description": "アプリは Athena が管理する compose プロジェクトです。"
+  },
+  "newApp": "新規アプリ",
+  "open": "開く",
+  "list": {
+    "failed": "アプリを一覧表示できませんでした"
+  },
+  "status": {
+    "running": "実行中",
+    "partial": "{{total}} 個中 {{running}} 個が実行中",
+    "stopped": "停止中",
+    "notDeployed": "未デプロイ"
+  },
+  "actions": {
+    "restart": "再起動",
+    "stop": "停止",
+    "start": "起動",
+    "updateImages": "イメージを更新",
+    "remove": "削除"
+  },
+  "jobs": {
+    "failed": {
+      "start": "{{name}} を起動できませんでした",
+      "stop": "{{name}} を停止できませんでした",
+      "restart": "{{name}} を再起動できませんでした",
+      "update": "{{name}} をアップデートできませんでした",
+      "remove": "{{name}} を削除できませんでした",
+      "save": "{{name}} を保存できませんでした",
+      "saveSettings": "{{name}} の設定を保存できませんでした",
+      "deploy": "{{name}} をデプロイできませんでした"
+    }
+  },
+  "delete": {
+    "title": "{{name}} を削除しますか？",
+    "description": "コンテナは停止・削除され、Athena はこのアプリを管理対象から外します。",
+    "deleteData": "ボリュームとデータフォルダーも削除します。この操作は元に戻せません。",
+    "cancel": "キャンセル",
+    "confirm": "削除"
+  },
+  "grid": {
+    "emptyTitle": "アプリはまだありません",
+    "emptyDescription": "compose ファイルをデプロイするか、<code>docker run</code> コマンドを変換してください。",
+    "containerCount_other": "{{count}} 個のコンテナ",
+    "fromDockerRun": "docker run から",
+    "actionsFor": "{{name}} の操作"
+  },
+  "containerState": {
+    "running": "実行中",
+    "exited": "終了",
+    "dead": "停止（異常）",
+    "paused": "一時停止",
+    "created": "作成済み",
+    "restarting": "再起動中"
+  },
+  "detail": {
+    "loadFailed": "アプリを読み込めませんでした",
+    "loadFailedNamed": "{{name}} を読み込めませんでした",
+    "tabContainers": "コンテナ",
+    "tabCompose": "Compose",
+    "tabSettings": "設定",
+    "tabBackups": "バックアップ",
+    "noContainers": "コンテナはありません",
+    "noContainersHint": "アプリを起動するとコンテナが作成されます。",
+    "logs": "ログ",
+    "shell": "シェル",
+    "composeHelp": "保存すると、以前のバージョンが compose.prev.yaml として残り、アプリが再デプロイされます。",
+    "settingsHelp": "インストールフォームの値 (.env) です。ここでポートやフォルダーを変更し、保存すると再デプロイされます。自動生成されたパスワードが含まれている場合があります。",
+    "saveRedeploy": "保存して再デプロイ",
+    "discard": "変更を破棄"
+  },
+  "new": {
+    "nameInvalid": "小文字、数字、ハイフン、アンダースコアを使用し、先頭は英字または数字にしてください。",
+    "convertFailed": "コマンドを変換できませんでした",
+    "validationFailed": "検証に失敗しました",
+    "name": "名前",
+    "nameHelp": "compose プロジェクト名にもなります。後から変更できません。",
+    "tabCompose": "Compose ファイル",
+    "tabRun": "docker run から",
+    "reviewConverted": "変換されたファイルを確認",
+    "upload": "ファイルをアップロード",
+    "composeHelp": "このアプリのサーバー上のデータフォルダーに置くファイルには <code>${ATHENA_APP_DATA}</code> を使用します。",
+    "runLabel": "docker run コマンド",
+    "runHelp": "デプロイ前に確認できる compose ファイルに変換されます。まだ何も実行されません。",
+    "convert": "compose に変換",
+    "valid": "compose ファイルは有効です",
+    "invalid": "compose ファイルにエラーがあります",
+    "validate": "検証",
+    "deploy": "デプロイ"
+  },
+  "compose": {
+    "serializationFailed": "シリアライズに失敗しました",
+    "addService": "サービスを追加",
+    "tabs": {
+      "settings": "設定",
+      "networks": "ネットワーク",
+      "volumes": "ボリューム",
+      "raw": "YAML"
+    },
+    "restart": {
+      "no": "なし（再起動しない）",
+      "always": "常に",
+      "unlessStopped": "停止した場合を除く",
+      "onFailure": "失敗時"
+    },
+    "volumeMode": {
+      "rw": "読み書き",
+      "ro": "読み取り専用"
+    },
+    "table": {
+      "actions": "操作",
+      "empty": "項目はまだありません",
+      "moveUp": "上へ移動",
+      "moveDown": "下へ移動",
+      "remove": "削除",
+      "add": "追加"
+    },
+    "service": {
+      "collapse": "折りたたむ",
+      "expand": "展開",
+      "namePlaceholder": "サービス名",
+      "noImage": "イメージなし",
+      "image": "イメージ",
+      "imageHelp": "Docker イメージ名。Docker Hub、GHCR、その他のレジストリに対応しています。",
+      "restartPolicy": "再起動ポリシー"
+    },
+    "ports": {
+      "title": "ポート",
+      "host": "ホストポート",
+      "container": "コンテナポート",
+      "protocol": "プロトコル",
+      "help": "ホストポートをコンテナポートにマッピングします。ホストポートを空にするとランダムに割り当てられます。"
+    },
+    "volumes": {
+      "title": "ボリューム",
+      "host": "ホストのパス / ボリューム名",
+      "container": "コンテナのパス",
+      "mode": "モード",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data または volume-name",
+      "help": "ホストのパスをバインドマウントするか、名前付きボリュームを使用します。このアプリのデータフォルダーには <code>${ATHENA_APP_DATA}</code> を使用します。"
+    },
+    "env": {
+      "title": "環境変数",
+      "help": "コンテナに渡される環境変数です。インストールフォームの値 (.env) も使用できます。",
+      "valuePlaceholder": "値"
+    },
+    "keyValue": {
+      "key": "キー",
+      "value": "値"
+    },
+    "command": {
+      "command": "コマンド",
+      "commandPlaceholder": "イメージのデフォルトコマンドを上書き",
+      "entrypoint": "エントリーポイント",
+      "entrypointPlaceholder": "イメージのデフォルトエントリーポイントを上書き",
+      "workingDir": "作業ディレクトリ",
+      "user": "ユーザー"
+    },
+    "resources": {
+      "title": "リソース制限",
+      "cpuLimit": "CPU 制限",
+      "cpuCores": "CPU コア数",
+      "memoryLimit": "メモリ制限",
+      "memoryLimitHelp": "例: 512M、1G",
+      "cpuReservation": "CPU 予約",
+      "memoryReservation": "メモリ予約",
+      "memoryReservationHelp": "例: 256M"
+    },
+    "health": {
+      "title": "ヘルスチェック",
+      "test": "テストコマンド",
+      "interval": "間隔",
+      "timeout": "タイムアウト",
+      "retries": "リトライ回数"
+    },
+    "labels": {
+      "title": "ラベル",
+      "valuePlaceholder": "My service"
+    },
+    "networks": {
+      "title": "ネットワーク",
+      "help": "ネットワーク名をカンマ区切りで指定します。ネットワークは「ネットワーク」タブで定義します。"
+    },
+    "dependsOn": {
+      "title": "依存先",
+      "help": "このサービスより先に起動する必要があるサービス名をカンマ区切りで指定します。"
+    },
+    "entries": {
+      "name": "名前",
+      "driver": "ドライバー",
+      "external": "外部"
+    }
+  }
+}

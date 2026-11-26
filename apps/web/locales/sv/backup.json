@@ -1,0 +1,119 @@
+{
+  "add": "Lägg till",
+  "cancel": "Avbryt",
+  "back": "Tillbaka",
+  "errors": {
+    "listDestinations": "Det gick inte att lista säkerhetskopieringsmål",
+    "createDestination": "Det gick inte att skapa målet",
+    "deleteDestination": "Det gick inte att radera målet",
+    "listPlans": "Det gick inte att lista säkerhetskopieringsplaner",
+    "createPlan": "Det gick inte att skapa planen",
+    "updatePlan": "Det gick inte att uppdatera planen",
+    "deletePlan": "Det gick inte att radera planen",
+    "startBackup": "Det gick inte att starta säkerhetskopieringen",
+    "listVersions": "Det gick inte att lista säkerhetskopieversioner",
+    "listVersionFiles": "Det gick inte att lista versionens filer",
+    "restoreApp": "Det gick inte att återställa appen"
+  },
+  "toast": {
+    "destinationCreated": "Målet ”{{name}}” skapades",
+    "planCreated": "Planen ”{{name}}” skapades",
+    "planUpdated": "Planen ”{{name}}” uppdaterades",
+    "backupStarted": "Säkerhetskopian ”{{name}}” startade"
+  },
+  "view": {
+    "unavailable": "Säkerhetskopiering är inte tillgänglig",
+    "unsupported": "Den här värden stöder inte säkerhetskopiering.",
+    "tabs": {
+      "versions": "Versioner",
+      "destinations": "Mål",
+      "plans": "Planer"
+    }
+  },
+  "destinations": {
+    "title": "Mål",
+    "name": "Namn",
+    "kind": "Typ",
+    "location": "Plats",
+    "created": "Skapad",
+    "empty": {
+      "title": "Inga mål än",
+      "description": "Ett mål är en mapp eller en rclone-fjärrlagring där säkerhetskopior sparas. Lägg till ett för att börja säkerhetskopiera."
+    }
+  },
+  "plans": {
+    "title": "Planer",
+    "name": "Namn",
+    "schedule": "Schema",
+    "lastRun": "Senaste körning",
+    "status": "Status",
+    "manual": "manuell",
+    "runNow": "Kör nu",
+    "empty": {
+      "title": "Inga planer än",
+      "description": "En plan väljer Athena, appar, ett mål och ett schema, och körs sedan på en timer."
+    }
+  },
+  "versions": {
+    "title": "Versioner",
+    "refresh": "Uppdatera",
+    "time": "Tid",
+    "size": "Storlek",
+    "new": "Nya",
+    "added": "Tillagda",
+    "changed": "Ändrade",
+    "removed": "Borttagna",
+    "os": "OS",
+    "viewFiles": "Visa filer",
+    "restore": "Återställ",
+    "empty": {
+      "title": "Inga versioner än",
+      "description": "Kör en säkerhetskopiering för att skapa den första."
+    }
+  },
+  "addDestination": {
+    "title": "Lägg till säkerhetskopieringsmål",
+    "kitTitle": "Spara återställningspaketet",
+    "description": "Välj var restic förvarar arkivet: en lokal mapp eller en rclone-fjärrlagring.",
+    "kitDescription": "Ladda ned eller kopiera paketet. Athena visar aldrig det här lösenordet igen; utan det kan en död värd inte återställas.",
+    "prepareFailed": "Det gick inte att förbereda målet",
+    "saveKitFirst": "Spara återställningspaketet innan du skapar målet",
+    "name": "Namn",
+    "namePlaceholder": "t.ex. USB-disk",
+    "kind": "Typ",
+    "local": "Lokal mapp",
+    "rclone": "rclone-fjärrlagring",
+    "folder": "Mapp",
+    "folderHint": "Absolut sökväg, utanför Athenas datamapp.",
+    "remote": "Fjärrlagring",
+    "remoteHint": "En rclone-fjärrlagring som redan är inställd under Moln → Fjärrlagringar.",
+    "password": "Arkivets lösenord",
+    "passwordPlaceholder": "Lämna tomt för att skapa ett starkt",
+    "passwordHint": "Lämna tomt så skapar Athena ett starkt lösenord. Det visas en gång nedan och sedan aldrig igen.",
+    "kitSaved": "Jag har sparat det här återställningspaketet (lösenord, mål och restic-version)",
+    "next": "Nästa: återställningspaket",
+    "create": "Skapa mål"
+  },
+  "addPlan": {
+    "title": "Lägg till säkerhetskopieringsplan",
+    "description": "Välj vad som ska säkerhetskopieras, vart och hur ofta. Appar stoppas under sin säkerhetskopiering om inte ”Säkerhetskopiera medan den körs” är på.",
+    "name": "Namn",
+    "namePlaceholder": "t.ex. Dagliga appar",
+    "destination": "Mål",
+    "athena": "Säkerhetskopiera Athena (inställningar, databas, hemligheter, TLS)",
+    "athenaHint": "Rekommenderas: på som standard.",
+    "apps": "Appar",
+    "appsHint": "Vilka appar som ingår i planen.",
+    "noApps": "Inga appar hittades. Starta appar från Butik → Appar först.",
+    "schedule": "Schema (cron)",
+    "schedulePlaceholder": "0 3 * * *  (dagligen kl. 03:00)",
+    "scheduleHint": "Lämna tomt för enbart manuella körningar. Schemalagda körningar kommer i del 4.",
+    "retention": "Lagringstid",
+    "keepLast": "Behåll senaste",
+    "keepDaily": "Behåll dagliga",
+    "keepWeekly": "Behåll veckovisa",
+    "keepMonthly": "Behåll månadsvisa",
+    "retentionHint": "`restic forget --keep-…` per post. Standard: 7 dagliga / 4 veckovisa / 6 månadsvisa.",
+    "create": "Skapa plan"
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "page": {
+    "description": "应用是由 Athena 管理的 compose 项目。"
+  },
+  "newApp": "新建应用",
+  "open": "打开",
+  "list": {
+    "failed": "无法列出应用"
+  },
+  "status": {
+    "running": "运行中",
+    "partial": "{{running}}/{{total}} 运行中",
+    "stopped": "已停止",
+    "notDeployed": "未部署"
+  },
+  "actions": {
+    "restart": "重启",
+    "stop": "停止",
+    "start": "启动",
+    "updateImages": "更新镜像",
+    "remove": "移除"
+  },
+  "jobs": {
+    "failed": {
+      "start": "无法启动 {{name}}",
+      "stop": "无法停止 {{name}}",
+      "restart": "无法重启 {{name}}",
+      "update": "无法更新 {{name}}",
+      "remove": "无法移除 {{name}}",
+      "save": "无法保存 {{name}}",
+      "saveSettings": "无法保存 {{name}} 的设置",
+      "deploy": "无法部署 {{name}}"
+    }
+  },
+  "delete": {
+    "title": "移除 {{name}}？",
+    "description": "它的容器会被停止并移除，Athena 将不再管理此应用。",
+    "deleteData": "同时删除它的卷和数据文件夹。此操作无法撤销。",
+    "cancel": "取消",
+    "confirm": "移除"
+  },
+  "grid": {
+    "emptyTitle": "还没有应用",
+    "emptyDescription": "部署 compose 文件，或转换 <code>docker run</code> 命令。",
+    "containerCount_other": "{{count}} 个容器",
+    "fromDockerRun": "来自 docker run",
+    "actionsFor": "{{name}} 的操作"
+  },
+  "containerState": {
+    "running": "运行中",
+    "exited": "已退出",
+    "dead": "已失效",
+    "paused": "已暂停",
+    "created": "已创建",
+    "restarting": "重启中"
+  },
+  "detail": {
+    "loadFailed": "无法加载应用",
+    "loadFailedNamed": "无法加载 {{name}}",
+    "tabContainers": "容器",
+    "tabCompose": "Compose",
+    "tabSettings": "设置",
+    "tabBackups": "备份",
+    "noContainers": "没有容器",
+    "noContainersHint": "启动应用以创建它的容器。",
+    "logs": "日志",
+    "shell": "Shell",
+    "composeHelp": "保存时会将上一个版本保留为 compose.prev.yaml，并重新部署应用。",
+    "settingsHelp": "安装表单中的值（.env）。在此更改端口或文件夹，然后保存以重新部署。其中可能包含自动生成的密码。",
+    "saveRedeploy": "保存并重新部署",
+    "discard": "放弃更改"
+  },
+  "new": {
+    "nameInvalid": "请使用小写字母、数字、连字符或下划线，并以字母或数字开头。",
+    "convertFailed": "无法转换该命令",
+    "validationFailed": "验证失败",
+    "name": "名称",
+    "nameHelp": "同时也是 compose 项目名称，之后无法更改。",
+    "tabCompose": "Compose 文件",
+    "tabRun": "来自 docker run",
+    "reviewConverted": "检查转换后的文件",
+    "upload": "上传文件",
+    "composeHelp": "对于应存放在服务器上此应用数据文件夹中的文件，请使用 <code>${ATHENA_APP_DATA}</code>。",
+    "runLabel": "docker run 命令",
+    "runHelp": "它会被转换为 compose 文件，部署前你可以检查。目前不会运行任何内容。",
+    "convert": "转换为 compose",
+    "valid": "compose 文件有效",
+    "invalid": "compose 文件有错误",
+    "validate": "验证",
+    "deploy": "部署"
+  },
+  "compose": {
+    "serializationFailed": "序列化失败",
+    "addService": "添加服务",
+    "tabs": {
+      "settings": "设置",
+      "networks": "网络",
+      "volumes": "卷",
+      "raw": "原始 YAML"
+    },
+    "restart": {
+      "no": "否（不重启）",
+      "always": "总是",
+      "unlessStopped": "除非已停止",
+      "onFailure": "失败时"
+    },
+    "volumeMode": {
+      "rw": "读/写",
+      "ro": "只读"
+    },
+    "table": {
+      "actions": "操作",
+      "empty": "暂无条目",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "remove": "移除",
+      "add": "添加"
+    },
+    "service": {
+      "collapse": "折叠",
+      "expand": "展开",
+      "namePlaceholder": "服务名称",
+      "noImage": "无镜像",
+      "image": "镜像",
+      "imageHelp": "Docker 镜像名称。支持 Docker Hub、GHCR 和其他镜像仓库。",
+      "restartPolicy": "重启策略"
+    },
+    "ports": {
+      "title": "端口",
+      "host": "主机端口",
+      "container": "容器端口",
+      "protocol": "协议",
+      "help": "将主机端口映射到容器端口。主机端口留空则随机分配。"
+    },
+    "volumes": {
+      "title": "卷",
+      "host": "主机路径 / 卷名称",
+      "container": "容器路径",
+      "mode": "模式",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data 或 volume-name",
+      "help": "绑定挂载主机路径或命名卷。此应用的数据文件夹请使用 <code>${ATHENA_APP_DATA}</code>。"
+    },
+    "env": {
+      "title": "环境变量",
+      "help": "传递给容器的环境变量。安装表单中的值（.env）也可使用。",
+      "valuePlaceholder": "值"
+    },
+    "keyValue": {
+      "key": "键",
+      "value": "值"
+    },
+    "command": {
+      "command": "命令",
+      "commandPlaceholder": "覆盖镜像的默认命令",
+      "entrypoint": "入口点",
+      "entrypointPlaceholder": "覆盖镜像的默认入口点",
+      "workingDir": "工作目录",
+      "user": "用户"
+    },
+    "resources": {
+      "title": "资源限制",
+      "cpuLimit": "CPU 限制",
+      "cpuCores": "CPU 核数",
+      "memoryLimit": "内存限制",
+      "memoryLimitHelp": "例如 512M、1G",
+      "cpuReservation": "CPU 预留",
+      "memoryReservation": "内存预留",
+      "memoryReservationHelp": "例如 256M"
+    },
+    "health": {
+      "title": "健康检查",
+      "test": "测试命令",
+      "interval": "间隔",
+      "timeout": "超时",
+      "retries": "重试次数"
+    },
+    "labels": {
+      "title": "标签",
+      "valuePlaceholder": "我的服务"
+    },
+    "networks": {
+      "title": "网络",
+      "help": "以逗号分隔的网络名称。请在“网络”标签页中定义网络。"
+    },
+    "dependsOn": {
+      "title": "依赖于",
+      "help": "以逗号分隔的服务名称，这些服务必须先于此服务启动。"
+    },
+    "entries": {
+      "name": "名称",
+      "driver": "驱动",
+      "external": "外部"
+    }
+  }
+}

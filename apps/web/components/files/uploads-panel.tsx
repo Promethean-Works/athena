@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
 import {
   CircleAlertIcon,
   CircleCheckIcon,
@@ -32,6 +33,7 @@ export function UploadsPanel({
   onRetry: (id: string, overwrite?: boolean) => void
   onClear: () => void
 }) {
+  const { t } = useTranslation("files")
   if (uploads.length === 0) return null
   const active = uploads.filter(
     (u) => u.status === "queued" || u.status === "uploading"
@@ -41,16 +43,18 @@ export function UploadsPanel({
       size="sm"
       className="fixed inset-x-4 bottom-4 z-40 max-h-[50dvh] shadow-lg sm:left-auto sm:w-96"
       role="region"
-      aria-label="Uploads"
+      aria-label={t("uploads.region")}
     >
       <CardHeader>
         <CardTitle>
-          {active ? `Uploading ${active} of ${uploads.length}` : "Uploads"}
+          {active
+            ? t("uploads.progress", { active, total: uploads.length })
+            : t("uploads.region")}
         </CardTitle>
         <CardAction>
           {active === 0 ? (
             <Button variant="ghost" size="sm" onClick={onClear}>
-              Close
+              {t("uploads.close")}
             </Button>
           ) : null}
         </CardAction>
@@ -73,16 +77,16 @@ export function UploadsPanel({
                   {u.status === "uploading"
                     ? `${pct}%`
                     : u.status === "queued"
-                      ? "Waiting"
+                      ? t("uploads.waiting")
                       : u.status === "cancelled"
-                        ? "Cancelled"
+                        ? t("uploads.cancelled")
                         : formatBytes(u.file.size)}
                 </span>
                 {u.status === "queued" || u.status === "uploading" ? (
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    aria-label={`Cancel ${u.file.name}`}
+                    aria-label={t("uploads.cancel", { name: u.file.name })}
                     onClick={() => onCancel(u.id)}
                   >
                     <XIcon />
@@ -91,7 +95,7 @@ export function UploadsPanel({
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    aria-label={`Retry ${u.file.name}`}
+                    aria-label={t("uploads.retry", { name: u.file.name })}
                     onClick={() => onRetry(u.id)}
                   >
                     <RotateCwIcon />
@@ -99,7 +103,7 @@ export function UploadsPanel({
                 ) : null}
               </div>
               {u.status === "uploading" ? (
-                <Progress value={pct} aria-label={`${u.file.name} progress`} />
+                <Progress value={pct} aria-label={t("uploads.fileProgress", { name: u.file.name })} />
               ) : null}
               {u.status === "error" ? (
                 <div className="flex items-center gap-2">
@@ -112,7 +116,7 @@ export function UploadsPanel({
                       size="xs"
                       onClick={() => onRetry(u.id, true)}
                     >
-                      Replace
+                      {t("uploads.replace")}
                     </Button>
                   ) : null}
                 </div>

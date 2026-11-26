@@ -1,5 +1,7 @@
 "use client"
 
+import { type ParseKeys } from "i18next"
+import { useTranslation } from "react-i18next"
 import {
   BoxIcon,
   ChevronDownIcon,
@@ -53,13 +55,13 @@ import {
 
 const STATUS: Record<
   Capability["status"],
-  { label: string; variant: "secondary" | "outline" | "destructive" }
+  { label: ParseKeys<"common">; variant: "secondary" | "outline" | "destructive" }
 > = {
-  ready: { label: "Ready", variant: "secondary" },
-  stopped: { label: "Stopped", variant: "outline" },
-  missing: { label: "Not installed", variant: "outline" },
-  unsupported: { label: "Unsupported", variant: "outline" },
-  needs_privilege: { label: "Needs root", variant: "destructive" },
+  ready: { label: "capabilities.status.ready", variant: "secondary" },
+  stopped: { label: "capabilities.status.stopped", variant: "outline" },
+  missing: { label: "capabilities.status.missing", variant: "outline" },
+  unsupported: { label: "capabilities.status.unsupported", variant: "outline" },
+  needs_privilege: { label: "capabilities.status.needs_privilege", variant: "destructive" },
 }
 
 function iconFor(id: string): LucideIcon {
@@ -94,6 +96,7 @@ const DOT: Record<Capability["status"], string> = {
 }
 
 function CapabilityList({ capabilities }: { capabilities: Capability[] }) {
+  const { t } = useTranslation()
   return (
     <ItemGroup>
       {capabilities.map((c) => {
@@ -115,7 +118,7 @@ function CapabilityList({ capabilities }: { capabilities: Capability[] }) {
               </ItemTitle>
               {c.detail ? <ItemDescription>{c.detail}</ItemDescription> : null}
             </ItemContent>
-            <Badge variant={status.variant}>{status.label}</Badge>
+            <Badge variant={status.variant}>{t(status.label)}</Badge>
           </Item>
         )
       })}
@@ -129,6 +132,7 @@ function CapabilityList({ capabilities }: { capabilities: Capability[] }) {
  * the dashboard.
  */
 export function HostCapabilities() {
+  const { t } = useTranslation()
   const { manifest, error, refreshing, refresh } = useCapabilities()
   const capabilities = manifest?.capabilities.filter(visible) ?? []
   const ready = capabilities.filter((c) => c.status === "ready").length
@@ -136,11 +140,11 @@ export function HostCapabilities() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Capabilities</CardTitle>
+        <CardTitle>{t("capabilities.title")}</CardTitle>
         <CardDescription>
           {manifest
-            ? `${ready} of ${capabilities.length} ready. Features appear only where they can work.`
-            : "What Athena found on this host."}
+            ? t("capabilities.summary", { ready, total: capabilities.length })
+            : t("capabilities.loadingSummary")}
         </CardDescription>
         <CardAction>
           <Button
@@ -154,14 +158,14 @@ export function HostCapabilities() {
             ) : (
               <RefreshCwIcon data-icon="inline-start" />
             )}
-            Re-detect
+            {t("capabilities.redetect")}
           </Button>
         </CardAction>
       </CardHeader>
       <CardContent>
         {error && !manifest ? (
           <p className="text-sm text-muted-foreground">
-            Couldn&apos;t load capabilities: {error}
+            {t("capabilities.loadFailed", { error })}
           </p>
         ) : !manifest ? (
           <div className="grid grid-cols-2 gap-2">
@@ -191,10 +195,10 @@ export function HostCapabilities() {
                         <span
                           className={`size-2 shrink-0 rounded-full ${DOT[c.status]}`}
                         />
-                        <span className="sr-only">{status.label}</span>
+                        <span className="sr-only">{t(status.label)}</span>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-72">
-                        {status.label}
+                        {t(status.label)}
                         {c.provider && c.provider !== "builtin"
                           ? ` · ${c.provider}`
                           : ""}
@@ -214,7 +218,7 @@ export function HostCapabilities() {
                 data-icon="inline-start"
                 className="transition-transform in-data-[panel-open]:rotate-180"
               />
-              Details
+              {t("capabilities.details")}
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CapabilityList capabilities={capabilities} />

@@ -39,11 +39,17 @@ def write_atomic(path: Path, text: str) -> None:
         raise
 
 
-def run_command(argv: list[str], action: str) -> None:
+def run_command(argv: list[str], action: str, env: dict[str, str] | None = None) -> None:
     """Run a host command; raise `ShareReloadFailed` ("Couldn't <action>: <why>") if it fails."""
     try:
         result = subprocess.run(
-            argv, check=False, capture_output=True, text=True, timeout=20, stdin=subprocess.DEVNULL
+            argv,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=20,
+            stdin=subprocess.DEVNULL,
+            env={**os.environ, **env} if env else None,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ShareReloadFailed(f"Couldn't {action}: {exc}") from exc

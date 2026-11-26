@@ -1,0 +1,108 @@
+{
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "close": "Cerrar",
+  "loading": "Cargando…",
+  "back": "Atrás",
+  "delete": "Eliminar",
+  "log": {
+    "empty": "Aún no hay salida.",
+    "copy": "Copiar registro",
+    "title": "Registro",
+    "copied": "Registro copiado",
+    "copyFailed": "No se pudo copiar"
+  },
+  "capabilities": {
+    "title": "Capacidades",
+    "summary": "{{ready}} de {{total}} listas. Las funciones solo aparecen donde pueden funcionar.",
+    "loadingSummary": "Lo que Athena encontró en este host.",
+    "redetect": "Detectar de nuevo",
+    "loadFailed": "No se pudieron cargar las capacidades: {{error}}",
+    "details": "Detalles",
+    "status": {
+      "ready": "Lista",
+      "stopped": "Detenida",
+      "missing": "No instalada",
+      "unsupported": "No compatible",
+      "needs_privilege": "Requiere root"
+    }
+  },
+  "job": {
+    "working": "Trabajando… Puedes cerrar esto; sigue ejecutándose.",
+    "done": "Hecho.",
+    "connectionLost": "Se perdió la conexión con la tarea.",
+    "progress": "Progreso",
+    "finishing": " · terminando…",
+    "cancel": "Cancelar tarea",
+    "stopFailed": "No se pudo detener"
+  },
+  "restart": {
+    "title": "¿Reiniciar Athena?",
+    "description": "Las tareas en ejecución se detienen. La página se reconecta en unos segundos. Tus apps siguen en ejecución.",
+    "confirm": "Reiniciar",
+    "failed": "No se pudo reiniciar Athena",
+    "waitingTitle": "Reiniciando Athena…",
+    "waitingBody": "Esta página se recarga cuando Athena vuelva."
+  },
+  "update": {
+    "notBackYet": "Athena aún no ha vuelto",
+    "reload": "Recargar la página",
+    "notice": {
+      "title": "Athena {{latest}} está disponible",
+      "runs": "Este servidor ejecuta {{current}}.",
+      "whatsNew": "Ver las novedades"
+    },
+    "action": {
+      "updateNow": "Actualizar ahora",
+      "cannotSelf": "Este Athena no puede actualizarse solo",
+      "howTo": "{{reason}}. Para actualizar, ejecuta esto en el servidor (instala la nueva versión y reinicia Athena; tus datos y ajustes se conservan):",
+      "commandLabel": "Comando de actualización"
+    },
+    "interrupted": {
+      "title": "La última actualización no terminó",
+      "body": "Una actualización de {{from}} a {{to}} empezó pero nunca informó de su resultado (puede que el host se quedara sin corriente o que la actualización se detuviera). Athena está activo, pero comprueba que sea la versión que esperas. El registro de la actualización está en la carpeta de datos (logs/update.log). Para reparar una instalación, ejecuta en el servidor el comando del instalador del README.",
+      "dismiss": "Descartar",
+      "oldVersion": "la versión anterior",
+      "newVersion": "la nueva"
+    },
+    "dialog": {
+      "steps": "Pasos de la actualización",
+      "stepPrepare": "Descargar y comprobar la versión",
+      "stepSwap": "Detener Athena, instalar e iniciarlo de nuevo",
+      "stepCheck": "Esperar a que responda la nueva versión",
+      "newVersion": "la nueva versión",
+      "oldVersion": "la anterior",
+      "updated": "Actualizado a {{to}}",
+      "reloading": "Recargando la página…",
+      "rolledBackTitle": "La actualización a {{to}} falló, sigue en {{from}}",
+      "rolledBackBody": "Athena volvió a la versión que tenías, con tus datos tal como estaban antes de la actualización.",
+      "reason": " Motivo: {{reason}}",
+      "abortedTitle": "La actualización a {{to}} se detuvo",
+      "failedTitle": "La actualización a {{to}} falló y Athena no está en ejecución",
+      "abortedBody": "No se instaló nada. Inicia Athena de nuevo o ejecuta el comando del instalador del README.",
+      "failedBody": "Ejecuta en el servidor el comando del instalador del README para repararlo.",
+      "back": "Athena ha vuelto",
+      "backBody": "Recarga la página para ver qué versión se está ejecutando.",
+      "confirmTitle": "¿Actualizar Athena?",
+      "notStartedTitle": "La actualización no se inició",
+      "preparingTitle": "Preparando la actualización",
+      "versions": "Athena {{current}} a {{latest}}.",
+      "confirmBody": "Athena se reinicia durante un par de minutos y la página se reconecta. Tus apps y contenedores siguen en ejecución. Si la nueva versión no arranca, Athena vuelve a esta.",
+      "stopsTitle": "Esto se detiene cuando Athena se reinicia:",
+      "terminals_one": "{{count}} terminal abierta",
+      "terminals_many": "{{count}} de terminales abiertas",
+      "terminals_other": "{{count}} terminales abiertas",
+      "backupFirst": "Hacer antes una copia de seguridad de Athena",
+      "backupFirstHelp": "Guarda los ajustes y los datos de Athena con el plan de copia de seguridad «{{plan}}» antes de detener nada. Tus apps no se tocan.",
+      "notChanged": "{{error}}. No se cambió nada; Athena sigue en {{current}}.",
+      "prepareFailed": "No se pudo preparar la actualización",
+      "updateAnyway": "Actualizar de todos modos",
+      "update": "Actualizar",
+      "restarting": "Reiniciando…",
+      "updatingTo": "Actualizando a {{latest}}. Esta página se recarga cuando Athena vuelva.",
+      "lateBody": "Puede tardar más en un host lento. Si sigue caído, revisa el registro de la actualización en la carpeta de datos (logs/update.log)."
+    }
+  },
+  "restartLateBody": "Puede tardar más en un host lento. Si sigue caído, revisa el registro en la carpeta de datos (logs/athena.log).",
+  "toggleSidebar": "Mostrar u ocultar la barra lateral"
+}

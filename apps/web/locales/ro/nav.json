@@ -1,0 +1,21 @@
+{
+  "dashboard": "Panou",
+  "apps": "Aplicații",
+  "store": "Magazin",
+  "packages": "Pachete",
+  "automation": "Automatizare",
+  "files": "Fișiere",
+  "networkShares": "Partajări de rețea",
+  "cloud": "Cloud",
+  "containers": "Containere",
+  "terminal": "Terminal",
+  "assistant": "Asistent",
+  "backups": "Copii de rezervă",
+  "settings": "Setări",
+  "help": "Ajutor",
+  "roleAdmin": "Administrator",
+  "roleUser": "Utilizator",
+  "tunnelAddress": "Adresă tunel",
+  "restartAthena": "Repornește Athena",
+  "logOut": "Deconectare"
+}

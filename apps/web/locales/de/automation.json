@@ -1,0 +1,169 @@
+{
+  "cancel": "Abbrechen",
+  "view": {
+    "unavailable": "Automatisierung ist nicht verfügbar",
+    "unsupported": "Dieser Host unterstützt keine Automatisierung."
+  },
+  "copyUrl": {
+    "copy": "{{label}} kopieren",
+    "copied": "{{label}} kopiert",
+    "failed": "Kopieren fehlgeschlagen"
+  },
+  "external": {
+    "title": "Externe Automatisierung",
+    "description": "Verbinde n8n, Skripte oder KI-Agenten mit Athena.",
+    "webhookUrl": "Webhook-URL",
+    "webhookHint": "Sende eine POST-Anfrage, um einen Webhook-Auslöser zu starten; keine Anmeldung nötig. Jeder Webhook-Auslöser hat ein eigenes Token: Kopiere seine vollständige URL aus der Auslöserliste.",
+    "mcpServer": "MCP-Server",
+    "mcpUrl": "URL des MCP-Servers",
+    "mcpHint": "Streamable HTTP. Clients melden sich mit einem Sitzungs-Cookie an oder senden das Token aus der Umgebungsvariable <envVar>ATHENA_MCP_TOKEN</envVar> des Servers als <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Auftragsläufe",
+    "description": "Die letzten Läufe, alle paar Sekunden aktualisiert.",
+    "trigger": "Auslöser",
+    "deletedTrigger": "Gelöschter Auslöser",
+    "listFailed": "Auftragsläufe konnten nicht aufgelistet werden",
+    "empty": {
+      "title": "Noch keine Auftragsläufe",
+      "description": "Läufe erscheinen hier, wenn ein Auslöser ausgelöst wird."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "App {{name}} starten",
+      "stop": "App {{name}} stoppen",
+      "restart": "App {{name}} neu starten",
+      "update": "App {{name}} aktualisieren"
+    },
+    "package": {
+      "install": "{{name}} installieren ({{manager}})",
+      "uninstall": "{{name}} deinstallieren ({{manager}})",
+      "upgrade": "{{name}} aktualisieren ({{manager}})",
+      "refresh": "Paketlisten von {{manager}} aktualisieren"
+    }
+  },
+  "triggers": {
+    "title": "Auslöser",
+    "description": "Führe eine App- oder Paketaktion nach Zeitplan oder per Webhook aus.",
+    "listFailed": "Auslöser konnten nicht aufgelistet werden",
+    "empty": {
+      "title": "Noch keine Auslöser",
+      "description": "Ein Auslöser führt eine Aktion nach Zeitplan (Cron) aus oder wenn sein Webhook aufgerufen wird, zum Beispiel von n8n."
+    },
+    "onWebhook": "Wenn sein Webhook aufgerufen wird",
+    "noSchedule": "Kein Zeitplan",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Nächster Lauf {{time}}",
+    "changeFailed": "Auslöser konnte nicht geändert werden",
+    "enabledToast": "{{name}} aktiviert",
+    "pausedToast": "{{name}} pausiert",
+    "enabledLabel": "{{name}} aktiviert",
+    "copyWebhook": "Webhook-URL kopieren",
+    "webhookCopied": "Webhook-URL kopiert",
+    "copyFailed": "Kopieren fehlgeschlagen",
+    "deleteFailed": "Auslöser konnte nicht gelöscht werden",
+    "deleted": "Auslöser gelöscht",
+    "deleteLabel": "{{name}} löschen",
+    "delete": "Löschen",
+    "deleteTitle": "{{name}} löschen?",
+    "deleteDescription": "Er läuft nicht mehr. Frühere Auftragsläufe bleiben im Log.",
+    "deleteDescriptionWebhook": "Er läuft nicht mehr und seine Webhook-URL funktioniert nicht mehr. Frühere Auftragsläufe bleiben im Log."
+  },
+  "dialog": {
+    "new": "Neuer Auslöser",
+    "description": "Führe eine App- oder Paketaktion nach Zeitplan aus oder immer dann, wenn ein Webhook aufgerufen wird.",
+    "created": {
+      "title": "Webhook-Auslöser erstellt",
+      "description": "Sende eine POST-Anfrage an diese URL, um „{{name}}“ auszuführen. Jeder mit der URL kann ihn auslösen, also halte sie geheim. Du kannst sie später erneut aus der Auslöserliste kopieren.",
+      "done": "Fertig"
+    },
+    "errors": {
+      "name": "Gib dem Auslöser einen Namen.",
+      "app": "Wähle eine App.",
+      "manager": "Wähle einen Paketmanager.",
+      "packageName": "Gib einen Paketnamen ein."
+    },
+    "createdToast": "Auslöser {{name}} erstellt",
+    "createFailed": "Auslöser konnte nicht erstellt werden",
+    "name": "Name",
+    "namePlaceholder": "z. B. Nächtlicher Jellyfin-Neustart",
+    "whenItRuns": "Wann er läuft",
+    "onSchedule": "Nach Zeitplan (Cron)",
+    "onWebhook": "Wenn ein Webhook aufgerufen wird",
+    "schedule": "Zeitplan",
+    "cronPlaceholder": "Minute Stunde Tag Monat Wochentag, z. B. 0 2 * * *",
+    "cronHelp": "Fünf Felder: Minute, Stunde, Tag des Monats, Monat, Wochentag. Zeiten sind in UTC.",
+    "webhookHint": "Nach dem Erstellen erhältst du eine geheime URL. Eine POST-Anfrage daran (von n8n, einem Skript oder curl) führt die Aktion aus.",
+    "whatItDoes": "Was er tut",
+    "appAction": "App-Aktion",
+    "packageAction": "Paketaktion",
+    "create": "Auslöser erstellen",
+    "app": "App",
+    "loadingApps": "Apps werden geladen…",
+    "chooseApp": "App wählen",
+    "noApps": "Keine Apps installiert",
+    "action": "Aktion",
+    "appVerbs": {
+      "start": "Starten",
+      "stop": "Stoppen",
+      "restart": "Neu starten",
+      "update": "Aktualisieren (pull und neu erstellen)"
+    },
+    "packageVerbs": {
+      "install": "Installieren",
+      "uninstall": "Deinstallieren",
+      "upgrade": "Aktualisieren",
+      "refresh": "Paketlisten aktualisieren"
+    },
+    "packageManager": "Paketmanager",
+    "loading": "Wird geladen…",
+    "chooseManager": "Manager wählen",
+    "noManagers": "Keiner auf diesem Host bereit",
+    "package": "Paket",
+    "packagePlaceholder": "z. B. jq",
+    "source": "Quelle (optional)",
+    "sourceHint": "Ein Flatpak-Remote, ein Scoop-Bucket oder „cask“ für ein Homebrew-Cask.",
+    "loadingInstalled": "Installierte Pakete werden geladen…",
+    "installedFailed": "Installierte Pakete konnten nicht aufgelistet werden ({{error}}); gib den Namen ein.",
+    "searchInstalled": "Installierte Pakete durchsuchen",
+    "noMatch": "Kein installiertes Paket passt."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Jede Stunde",
+      "daily": "Täglich um 02:00",
+      "sundays": "Sonntags um 03:00",
+      "monthly": "Monatlich am 1."
+    },
+    "fields": {
+      "minute": "Minute",
+      "hour": "Stunde",
+      "dayOfMonth": "Tag des Monats",
+      "month": "Monat",
+      "weekday": "Wochentag"
+    },
+    "errors": {
+      "empty": "Gib einen Cron-Ausdruck ein oder wähle eine Vorlage.",
+      "invalidField": "Das Feld {{field}} „{{value}}“ ist ungültig.",
+      "invalidStep": "Der Schritt „/{{step}}“ im Feld {{field}} muss eine Zahl sein.",
+      "outOfRange": "Das Feld {{field}} muss zwischen {{min}} und {{max}} liegen.",
+      "fieldCount": "Verwende fünf Felder (Minute Stunde Tag Monat Wochentag); hier sind es {{count}}."
+    },
+    "dayRange": "{{from}} bis {{to}}",
+    "custom": "Eigener Zeitplan",
+    "everyMinute": "Jede Minute",
+    "everyMinutes_one": "Jede {{count}}. Minute",
+    "everyMinutes_other": "Alle {{count}} Minuten",
+    "everyHourOnTheHour": "Jede volle Stunde",
+    "everyHourAtMinute": "Jede Stunde zu Minute {{minute}}",
+    "everyHoursAtMinute_one": "Jede {{count}}. Stunde zu Minute {{minute}}",
+    "everyHoursAtMinute_other": "Alle {{count}} Stunden zu Minute {{minute}}",
+    "everyDay": "Jeden Tag um {{time}}",
+    "everyWeekdays": "Jeden {{days}} um {{time}}",
+    "onDayOfMonth": "Am {{day}}. jedes Monats um {{time}}",
+    "everyYear": "Jedes Jahr am {{day}}. {{month}} um {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

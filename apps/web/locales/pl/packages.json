@@ -1,0 +1,61 @@
+{
+  "view": {
+    "noManagers": "Nie znaleziono menedżerów pakietów",
+    "noManagersHint": "Athena nie znalazła na tym hoście obsługiwanego menedżera pakietów."
+  },
+  "listError": "Nie udało się odczytać listy pakietów",
+  "cancel": "Anuluj",
+  "toast": {
+    "installFailed": "Nie udało się zainstalować {{name}}",
+    "uninstallFailed": "Nie udało się odinstalować {{name}}",
+    "upgradeFailed": "Nie udało się zaktualizować {{name}}",
+    "upgradeAllFailed": "Nie udało się zaktualizować pakietów",
+    "refreshFailed": "Nie udało się odświeżyć list pakietów"
+  },
+  "unavailable": "{{name}} nie może być teraz używany",
+  "unavailableHint": "Nie jest gotowy na tym hoście.",
+  "refreshLists": "Odśwież listy",
+  "upgradeAll": "Aktualizuj wszystko",
+  "tabs": {
+    "installed": "Zainstalowane",
+    "updates": "Aktualizacje",
+    "search": "Szukaj"
+  },
+  "installed": {
+    "filter": "Filtruj zainstalowane pakiety",
+    "noMatch": "Żaden zainstalowany pakiet nie pasuje.",
+    "empty": "Nic nie jest zainstalowane.",
+    "upgradeLabel": "Aktualizuj {{name}}",
+    "upgrade": "Aktualizuj",
+    "uninstallLabel": "Odinstaluj {{name}}",
+    "uninstall": "Odinstaluj",
+    "shortened": "{{manager}} skrócił ten identyfikator, więc nie można go stąd odinstalować",
+    "showing": "Wyświetlono {{shown}} z {{total}}. Użyj filtra, aby zawęzić wyniki."
+  },
+  "table": {
+    "package": "Pakiet",
+    "version": "Wersja",
+    "description": "Opis"
+  },
+  "updates": {
+    "upToDate": "Wszystko jest aktualne",
+    "upToDateRefresh": "Stan na ostatnie odświeżenie list. Odśwież listy, aby sprawdzić ponownie.",
+    "nothing": "Nic do aktualizacji.",
+    "installedColumn": "Zainstalowana",
+    "availableColumn": "Dostępna"
+  },
+  "search": {
+    "label": "Szukaj w {{manager}}",
+    "noMatch": "Żaden pakiet nie pasuje do „{{query}}”.",
+    "install": "Zainstaluj"
+  },
+  "confirm": {
+    "uninstallTitle": "Odinstalować {{name}}?",
+    "uninstallDescription": "Zostanie usunięty z tego serwera. Pakiety, które od niego zależą, mogą również zostać usunięte.",
+    "upgradeAllTitle": "Zaktualizować wszystkie pakiety {{manager}}?",
+    "upgradeAllDescription_one": "{{count}} pakiet zostanie zaktualizowany. To może chwilę potrwać.",
+    "upgradeAllDescription_few": "{{count}} pakiety zostaną zaktualizowane. To może chwilę potrwać.",
+    "upgradeAllDescription_many": "{{count}} pakietów zostanie zaktualizowanych. To może chwilę potrwać.",
+    "upgradeAllDescription_other": "{{count}} pakietu zostanie zaktualizowane. To może chwilę potrwać."
+  }
+}

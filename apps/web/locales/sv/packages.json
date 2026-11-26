@@ -1,0 +1,59 @@
+{
+  "view": {
+    "noManagers": "Inga pakethanterare hittades",
+    "noManagersHint": "Athena hittade ingen pakethanterare som stöds på den här värden."
+  },
+  "listError": "Det gick inte att läsa paketlistan",
+  "cancel": "Avbryt",
+  "toast": {
+    "installFailed": "Det gick inte att installera {{name}}",
+    "uninstallFailed": "Det gick inte att avinstallera {{name}}",
+    "upgradeFailed": "Det gick inte att uppgradera {{name}}",
+    "upgradeAllFailed": "Det gick inte att uppgradera paketen",
+    "refreshFailed": "Det gick inte att uppdatera paketlistorna"
+  },
+  "unavailable": "{{name}} kan inte användas just nu",
+  "unavailableHint": "Den är inte redo på den här värden.",
+  "refreshLists": "Uppdatera listor",
+  "upgradeAll": "Uppgradera alla",
+  "tabs": {
+    "installed": "Installerade",
+    "updates": "Uppdateringar",
+    "search": "Sök"
+  },
+  "installed": {
+    "filter": "Filtrera installerade paket",
+    "noMatch": "Inget installerat paket matchar.",
+    "empty": "Inget är installerat.",
+    "upgradeLabel": "Uppgradera {{name}}",
+    "upgrade": "Uppgradera",
+    "uninstallLabel": "Avinstallera {{name}}",
+    "uninstall": "Avinstallera",
+    "shortened": "{{manager}} förkortade det här id:t, så det kan inte avinstalleras härifrån",
+    "showing": "Visar {{shown}} av {{total}}. Filtrera för att begränsa."
+  },
+  "table": {
+    "package": "Paket",
+    "version": "Version",
+    "description": "Beskrivning"
+  },
+  "updates": {
+    "upToDate": "Allt är uppdaterat",
+    "upToDateRefresh": "Enligt senaste uppdateringen av listorna. Uppdatera listor för att kontrollera igen.",
+    "nothing": "Inget att uppgradera.",
+    "installedColumn": "Installerad",
+    "availableColumn": "Tillgänglig"
+  },
+  "search": {
+    "label": "Sök i {{manager}}",
+    "noMatch": "Inga paket matchar ”{{query}}”.",
+    "install": "Installera"
+  },
+  "confirm": {
+    "uninstallTitle": "Avinstallera {{name}}?",
+    "uninstallDescription": "Det tas bort från den här servern. Paket som är beroende av det kan också tas bort.",
+    "upgradeAllTitle": "Uppgradera alla {{manager}}-paket?",
+    "upgradeAllDescription_one": "{{count}} paket kommer att uppgraderas. Det kan ta en stund.",
+    "upgradeAllDescription_other": "{{count}} paket kommer att uppgraderas. Det kan ta en stund."
+  }
+}

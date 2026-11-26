@@ -1,0 +1,396 @@
+{
+  "language": {
+    "title": "Ngôn ngữ",
+    "description": "Ngôn ngữ của giao diện. Cài đặt này đi theo tài khoản của bạn sang các trình duyệt khác.",
+    "label": "Ngôn ngữ giao diện",
+    "auto": "Tự động (ngôn ngữ trình duyệt)"
+  },
+  "account": {
+    "admin": "Quản trị viên",
+    "user": "Người dùng",
+    "signedIn": "Đã đăng nhập trên trình duyệt này",
+    "signOut": "Đăng xuất",
+    "changeFailed": "Không thể đổi mật khẩu",
+    "toast": {
+      "changed": "Đã đổi mật khẩu",
+      "changedDescription": "Các trình duyệt khác đăng nhập tài khoản này đã bị đăng xuất."
+    },
+    "password": {
+      "title": "Đổi mật khẩu",
+      "description": "Các phiên khác sẽ bị đăng xuất; phiên này vẫn giữ đăng nhập.",
+      "current": "Mật khẩu hiện tại",
+      "new": "Mật khẩu mới",
+      "minLength_other": "Tối thiểu {{count}} ký tự.",
+      "confirm": "Xác nhận mật khẩu mới",
+      "mismatch": "Mật khẩu không khớp.",
+      "submit": "Đổi mật khẩu"
+    }
+  },
+  "copyField": {
+    "copy": "Sao chép {{label}}",
+    "copied": "Đã sao chép {{label}}",
+    "failed": "Không thể sao chép"
+  },
+  "settingsFile": {
+    "title": "Tệp cài đặt",
+    "description": "Các cài đặt trên những trang này được lưu trong một tệp trên máy chủ. Nếu một thay đổi khiến Athena không khởi động được hoặc khóa bạn bên ngoài, hãy sửa tại đó bằng bất kỳ trình soạn thảo văn bản nào, rồi khởi động lại Athena.",
+    "loadFailed": "Không thể tải vị trí của tệp: {{error}}",
+    "file": "Tệp",
+    "help": "<code>athena config check</code> trên máy chủ cho biết tệp sai ở đâu, kèm số dòng. Phiên bản trước lần lưu gần nhất được giữ bên cạnh dưới tên <code>athena.json.bak</code>."
+  },
+  "system": {
+    "title": "Hệ thống",
+    "description": "Các công tắc áp dụng cho mọi người trên máy chủ này. Thay đổi được ghi vào nhật ký kiểm tra.",
+    "saveFailed": "Không thể lưu",
+    "adminOnly": "Chỉ quản trị viên mới đổi được mục này.",
+    "terminal": {
+      "label": "Terminal web",
+      "description": "Một shell trên máy chủ này và trong các container, ngay từ trình duyệt. Tắt đi cũng đóng các phiên đang mở.",
+      "on": "Đã bật terminal",
+      "off": "Đã tắt terminal"
+    },
+    "updateCheck": {
+      "label": "Thông báo cập nhật",
+      "description": "Mỗi ngày một lần, hỏi GitHub bản phát hành Athena mới nhất và hiện thông báo khi có bản mới hơn. Không gửi gì ngoài chính yêu cầu: không có phiên bản, tên máy hay cài đặt.",
+      "on": "Đã bật thông báo cập nhật",
+      "off": "Đã tắt thông báo cập nhật"
+    }
+  },
+  "updates": {
+    "title": "Cập nhật",
+    "description": "Athena kiểm tra bản phát hành mới mỗi ngày một lần (công tắc ở trên). Cập nhật sẽ khởi động lại Athena; các ứng dụng vẫn tiếp tục chạy.",
+    "readFailed": "Không thể đọc trạng thái cập nhật.",
+    "installed": "Đã cài đặt",
+    "latest": "Mới nhất",
+    "unknown": "Chưa biết",
+    "noticeOff": "Thông báo cập nhật đang tắt",
+    "lastChecked": "Kiểm tra lần cuối",
+    "never": "Chưa bao giờ",
+    "upToDate": "Athena đã được cập nhật."
+  },
+  "localAi": {
+    "list": "{{head}} và {{last}}",
+    "running_other": "{{list}} đang chạy trên máy chủ này. Các mô hình chạy trên phần cứng của bạn và không có gì rời khỏi máy chủ.",
+    "useNamed": "Dùng {{name}} trên máy chủ này",
+    "usePort": "Dùng máy chủ AI ở cổng {{port}}",
+    "useThis": "Dùng máy chủ AI này"
+  },
+  "webdav": {
+    "title": "Chia sẻ mạng (WebDAV)",
+    "description": "Mở các vị trí của trình quản lý tệp như một ổ đĩa trong Finder, Windows Explorer hoặc trình quản lý tệp Linux.",
+    "label": "WebDAV",
+    "help": "Mặc định tắt. Bất kỳ ai có mật khẩu WebDAV đều đọc và sửa được mọi vị trí.",
+    "adminOnly": "Chỉ quản trị viên mới đổi được mục này.",
+    "on": "Đã bật WebDAV",
+    "off": "Đã tắt WebDAV",
+    "saveFailed": "Không thể lưu",
+    "passwordFailed": "Không thể tạo mật khẩu",
+    "address": "Địa chỉ",
+    "username": "Tên người dùng",
+    "password": "Mật khẩu",
+    "passwordHint": {
+      "copyNow": "Hãy sao chép ngay: mật khẩu sẽ không hiện lại.",
+      "set": "Đã đặt mật khẩu. Tạo mật khẩu mới sẽ đăng xuất mọi thiết bị đang dùng mật khẩu cũ.",
+      "none": "Tạo mật khẩu để đăng nhập. Mật khẩu này tách biệt với mật khẩu Athena của bạn."
+    },
+    "newPassword": "Mật khẩu mới",
+    "makePassword": "Tạo mật khẩu",
+    "plainHttp": {
+      "title": "Không mã hóa",
+      "description": "Athena đang mở qua HTTP thường, nên mật khẩu WebDAV và tệp truyền qua mạng không mã hóa. Hãy dùng trên mạng bạn tin cậy, hoặc đặt Athena sau HTTPS."
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → Go → Connect to Server, rồi nhập địa chỉ.",
+      "windows": "<b>Windows:</b> File Explorer → This PC → Map network drive, rồi nhập địa chỉ. Qua HTTP thường, Windows chỉ đăng nhập được sau khi đặt <code>BasicAuthLevel</code> thành 2 trong <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> và khởi động lại dịch vụ WebClient.",
+      "linux": "<b>Linux:</b> trong Files (GNOME) hoặc Dolphin, kết nối tới <code>{{url}}</code>."
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "Chế độ",
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    },
+    "colors": {
+      "title": "Màu sắc",
+      "saving": "Đang lưu…",
+      "description": "Thay đổi áp dụng ngay và đi theo tài khoản của bạn sang các trình duyệt khác.",
+      "matchBase": "Khớp màu nền",
+      "matchTheme": "Khớp chủ đề",
+      "base": "Màu nền",
+      "baseColor": "Màu cơ sở",
+      "baseHint": "Nền, viền và chữ mờ.",
+      "theme": "Chủ đề",
+      "themeHint": "Nút, viền tiêu điểm và liên kết.",
+      "charts": "Biểu đồ"
+    },
+    "type": {
+      "title": "Kiểu chữ và hình dạng",
+      "font": "Phông chữ",
+      "headingFont": "Phông chữ tiêu đề",
+      "sameAsBody": "Giống nội dung",
+      "radius": "Bo góc",
+      "style": "Kiểu",
+      "styleValue": "Nova, với biểu tượng Lucide",
+      "styleSoon": "đổi kiểu sẽ có trong phiên bản sau"
+    },
+    "radius": {
+      "default": "Mặc định",
+      "none": "Không",
+      "small": "Nhỏ",
+      "medium": "Vừa",
+      "large": "Lớn"
+    },
+    "preset": {
+      "title": "Mã preset",
+      "description": "Mã preset shadcn gói các cài đặt này trong vài ký tự.",
+      "current": "Mã preset hiện tại",
+      "copy": "Sao chép",
+      "copied": "Đã sao chép",
+      "copyFailed": "Không thể sao chép vào bộ nhớ tạm",
+      "use": "Dùng với <code>npx shadcn init --preset {{code}}</code>, hoặc chia sẻ nó.",
+      "apply": "Áp dụng mã preset",
+      "applyButton": "Áp dụng",
+      "invalid": "Đó không phải mã preset shadcn.",
+      "applied": "Đã áp dụng preset {{code}}",
+      "ignored": "Athena chưa áp dụng được {{parts}}, nên các phần đó đã bị bỏ qua.",
+      "fill": "Điền màu sắc, phông chữ và bo góc từ mã tạo tại <link>ui.shadcn.com/create</link>."
+    }
+  },
+  "tunnel": {
+    "hide": "Ẩn {{label}}",
+    "show": "Hiện {{label}}",
+    "secretSaved": "Đã lưu. Nhập giá trị mới để thay thế",
+    "customDomain": "Tên miền tùy chỉnh (tùy chọn)",
+    "cloudflare": {
+      "quick": "Tunnel nhanh",
+      "quickHelp": "Một địa chỉ trycloudflare.com ngẫu nhiên, không cần tài khoản. Địa chỉ đổi mỗi lần tunnel khởi động.",
+      "apiToken": "Token API",
+      "apiTokenPlaceholder": "Token API Cloudflare có quyền Tunnel",
+      "tunnelName": "Tên tunnel",
+      "tunnelNameHelp": "Tunnel có tên trong tài khoản Cloudflare của bạn.",
+      "domainHelp": "Cần một bản ghi DNS trỏ tới tunnel."
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "Tự động phát hiện",
+      "help": "Đặt bằng <code>tailscale up</code> trên máy chủ này."
+    },
+    "ngrok": {
+      "authToken": "Token xác thực",
+      "authTokenPlaceholder": "Token xác thực ngrok của bạn",
+      "subdomain": "Tên miền phụ (tùy chọn)",
+      "paidPlan": "Cần gói ngrok trả phí.",
+      "freeTitle": "Giới hạn gói miễn phí",
+      "freeDescription": "Một tunnel, 40 kết nối mỗi phút, và địa chỉ ngẫu nhiên mới mỗi phiên."
+    },
+    "status": {
+      "label": "Trạng thái",
+      "running": "Đang chạy",
+      "stopped": "Đã dừng",
+      "notInstalled": "Chưa cài đặt",
+      "notSetUp": "Chưa thiết lập"
+    },
+    "saveFailed": "Không thể lưu",
+    "saved": "Đã lưu cài đặt truy cập từ xa",
+    "autoStart": {
+      "label": "Chạy khi khởi động",
+      "on": "Truy cập từ xa sẽ chạy khi khởi động",
+      "off": "Truy cập từ xa không còn chạy khi khởi động",
+      "installFirst": "Hãy cài đặt {{name}} trước.",
+      "help": "Cài một dịch vụ hệ thống khởi động tunnel cùng máy chủ."
+    },
+    "serviceFailed": "Không thể cập nhật dịch vụ",
+    "title": "Truy cập từ xa",
+    "description": "Truy cập Athena từ mọi nơi qua Cloudflare, Tailscale hoặc ngrok, không cần mở cổng trên router.",
+    "label": "Truy cập từ xa",
+    "help": "Bất kỳ ai có địa chỉ đều đến được trang đăng nhập của bạn, nên hãy dùng mật khẩu mạnh.",
+    "adminOnly": "Chỉ quản trị viên mới đổi được mục này.",
+    "on": "Đã bật truy cập từ xa",
+    "off": "Đã tắt truy cập từ xa",
+    "exposed": {
+      "title": "Có thể truy cập từ internet",
+      "description": "Khi bật, terminal web, cài đặt gói và trợ lý AI chỉ cách bất kỳ ai tìm ra địa chỉ một mật khẩu. Hãy tắt <terminal>terminal</terminal> hoặc <assistant>trợ lý</assistant> nếu không cần dùng từ xa."
+    },
+    "provider": "Nhà cung cấp",
+    "using": "Đang dùng {{name}}",
+    "port": {
+      "label": "Cổng cục bộ",
+      "help": "Cổng Athena lắng nghe, nơi tunnel chuyển tiếp tới."
+    },
+    "discard": "Hủy bỏ",
+    "saveChanges": "Lưu thay đổi",
+    "publicAddress": "Địa chỉ công khai",
+    "install": "Cài đặt {{name}}",
+    "installFailed": "Không thể cài đặt",
+    "stop": "Dừng",
+    "stopFailed": "Không thể dừng tunnel",
+    "start": "Khởi động",
+    "startFailed": "Không thể khởi động tunnel",
+    "saveFirst": "Hãy lưu thay đổi trước",
+    "refresh": "Làm mới trạng thái"
+  },
+  "https": {
+    "copyFailed": "Không thể sao chép",
+    "adminOnly": "Chỉ quản trị viên mới đổi được HTTPS",
+    "unavailable": {
+      "title": "HTTPS không khả dụng",
+      "description": "Máy chủ Athena này không báo cáo hỗ trợ HTTPS."
+    },
+    "loadFailed": "Không thể tải cài đặt HTTPS",
+    "status": {
+      "on": "Bật, cổng {{port}}",
+      "notRunning": "Không chạy",
+      "off": "Tắt",
+      "encryptedLetsEncrypt": "Athena mã hóa kết nối bằng chứng chỉ từ Let's Encrypt. HTTP thường vẫn mở ở cổng {{port}}.",
+      "encryptedCustom": "Athena mã hóa kết nối bằng chứng chỉ tùy chỉnh của bạn. HTTP thường vẫn mở ở cổng {{port}}.",
+      "encryptedSelf": "Athena mã hóa kết nối bằng chứng chỉ riêng của mình. HTTP thường vẫn mở ở cổng {{port}}.",
+      "plain": "Athena được phục vụ qua HTTP thường ở cổng {{port}}, nên mật khẩu và tệp truyền qua mạng không mã hóa.",
+      "problem": "Sự cố HTTPS",
+      "renewalFailed": "Gia hạn Let's Encrypt thất bại",
+      "renewalStillServed": "Chứng chỉ hiện tại vẫn được dùng cho đến khi hết hạn.",
+      "open": "Mở qua HTTPS",
+      "expires": "Hết hạn",
+      "expiresIn_other": "sau {{count}} ngày; tự động gia hạn",
+      "names": "Tên",
+      "alsoAt": "Cũng tại"
+    },
+    "saveFailed": "Không thể lưu",
+    "requestFailed": "Không thể yêu cầu chứng chỉ",
+    "certificateReady": "Chứng chỉ đã sẵn sàng",
+    "certificateReadyHint": "Lưu với Let's Encrypt được chọn để bắt đầu dùng.",
+    "turnedOff": "Đã tắt HTTPS",
+    "saved": "Đã lưu cài đặt HTTPS",
+    "settings": {
+      "title": "Cài đặt",
+      "description": "Thay đổi áp dụng ngay; Athena không khởi động lại."
+    },
+    "mode": {
+      "label": "Chế độ",
+      "off": "Tắt",
+      "offHelp": "Chỉ HTTP thường.",
+      "self": "Tự ký",
+      "selfHelp": "Athena tạo cơ quan cấp chứng chỉ (CA) riêng. Tin cậy nó một lần trên mỗi thiết bị và trình duyệt sẽ hiện ổ khóa không cảnh báo. Dùng được trên mạng gia đình mà không cần tên miền.",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "Chứng chỉ miễn phí mà mọi trình duyệt tin cậy, cho tên miền bạn sở hữu trỏ tới máy chủ này. Tự động gia hạn.",
+      "custom": "Tùy chỉnh",
+      "customHelp": "Tải lên chứng chỉ và khóa riêng của bạn (định dạng PEM). Athena dùng nguyên trạng; không tự động gia hạn."
+    },
+    "port": {
+      "label": "Cổng HTTPS",
+      "help": "Các cổng dưới 1024 (như 443) có thể cần Athena chạy với quyền root. Bạn có thể phải cho phép cổng trong tường lửa của máy chủ.",
+      "range": "Nhập cổng từ 1 đến 65535.",
+      "taken": "Cổng {{port}} là cổng HTTP của Athena. Hãy chọn cổng khác."
+    },
+    "redirect": {
+      "label": "Chuyển trình duyệt sang HTTPS",
+      "help": "Các trang mở ở cổng {{port}} sẽ chuyển sang HTTPS. Chia sẻ tệp, webhook, ứng dụng và chính máy chủ vẫn dùng HTTP thường."
+    },
+    "names": {
+      "label": "Tên bổ sung",
+      "help": "Chứng chỉ đã bao gồm tên máy chủ này, tên .local và các địa chỉ mạng của nó. Thêm bất kỳ tên hoặc địa chỉ nào khác bạn dùng để mở Athena, cách nhau bằng dấu phẩy."
+    },
+    "lockedOut": "Bị khóa bên ngoài? Chạy <code>{{command}}</code> trên máy chủ và khởi động lại Athena.",
+    "cancel": "Hủy",
+    "needsCertificate": "Hãy lấy chứng chỉ trước",
+    "saving": "Đang lưu…",
+    "save": "Lưu",
+    "confirm": {
+      "title": "Chuyển trình duyệt sang HTTPS?",
+      "redirect": "Sau khi lưu, mở Athena ở cổng {{port}} sẽ đưa bạn đến <url>{{url}}</url>.",
+      "letsencrypt": "Hãy mở Athena bằng tên miền của nó ở đó; các tên khác sẽ có cảnh báo chứng chỉ.",
+      "custom": "Chứng chỉ tùy chỉnh của bạn được dùng; trình duyệt tin cậy nếu nó từ một CA đã biết.",
+      "self": "Cho đến khi bạn tin cậy CA của Athena trên một thiết bị, trình duyệt ở đó sẽ hiện cảnh báo.",
+      "recovery": "Nếu không vào lại được, chạy <cmd>{{command}}</cmd> trên máy chủ và khởi động lại Athena.",
+      "action": "Lưu và chuyển hướng"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "Tên miền",
+      "domainsHelp": "Phân tách nhiều tên bằng dấu phẩy. Mỗi tên phải trỏ tới máy chủ này trong DNS công khai. Ký tự đại diện (*.example.com) cần thử thách DNS.",
+      "email": "Email",
+      "emailHelp": "Let's Encrypt gửi thư tới đây nếu chứng chỉ sắp hết hạn.",
+      "challenge": "Cách Let's Encrypt kiểm tra",
+      "http": "HTTP (cổng 80)",
+      "httpHelp": "Let's Encrypt kết nối tới cổng 80 trên máy chủ này, nên cổng phải truy cập được từ internet (chuyển tiếp cổng trên router).",
+      "dns": "DNS",
+      "dnsHelp": "Athena thêm một bản ghi DNS tạm thời qua nhà cung cấp DNS của bạn. Không cần mở cổng; dùng được cho ký tự đại diện.",
+      "port80Title": "Hiện không mở được cổng 80",
+      "port80Description": "Chương trình khác đang dùng, hoặc Athena không được phép mở. Hãy giải phóng cổng 80 hoặc dùng thử thách DNS.",
+      "provider": "Nhà cung cấp DNS",
+      "savedUnchanged": "Đã lưu (không đổi)",
+      "staging": "Dùng máy chủ staging",
+      "stagingHelp": "Để thử nghiệm: trình duyệt không tin cậy chứng chỉ của nó, nhưng giới hạn rất rộng rãi.",
+      "getting": "Đang lấy chứng chỉ…",
+      "renew": "Gia hạn chứng chỉ ngay",
+      "get": "Lấy chứng chỉ",
+      "current": "Chứng chỉ hiện tại cho {{names}}, có hiệu lực đến {{date}}.",
+      "getThenSave": "Lấy chứng chỉ, rồi lưu để bắt đầu dùng.",
+      "lastFailed": "Lần thử gần nhất thất bại: {{error}}"
+    },
+    "custom": {
+      "legend": "Chứng chỉ tùy chỉnh",
+      "cert": "Chứng chỉ (PEM)",
+      "certHelp": "Dán toàn bộ chứng chỉ hoặc chuỗi chứng chỉ mã hóa PEM.",
+      "key": "Khóa riêng (PEM)",
+      "keyHelp": "Dán khóa riêng mã hóa PEM. Khóa sẽ được lưu mã hóa."
+    },
+    "trust": {
+      "title": "Tin cậy Athena trên các thiết bị",
+      "description": "Cài CA của Athena một lần trên mỗi điện thoại, máy tính bảng và máy tính bạn dùng. Sau đó trình duyệt tin cậy mọi chứng chỉ Athena tạo ra, kể cả khi gia hạn.",
+      "download": "Tải chứng chỉ CA",
+      "validUntil": "Có hiệu lực đến {{date}}",
+      "fingerprint": "Dấu vân tay SHA-256",
+      "copyFingerprint": "Sao chép dấu vân tay",
+      "fingerprintCopied": "Đã sao chép dấu vân tay",
+      "fingerprintHelp": "Kiểm tra xem nó có khớp với những gì thiết bị hiển thị trước khi tin cậy tệp.",
+      "rotated": "Đã tạo CA mới",
+      "rotatedHint": "Tải xuống và tin cậy lại trên mỗi thiết bị.",
+      "rotateFailed": "Không thể tạo CA mới",
+      "rotateHint": "Tạo CA mới nếu khóa có thể đã bị lộ. Mọi thiết bị phải tin cậy CA mới.",
+      "rotate": "Tạo CA mới",
+      "rotating": "Đang tạo…",
+      "confirmTitle": "Tạo CA mới?",
+      "confirmDescription": "Các thiết bị tin cậy CA hiện tại sẽ hiện cảnh báo cho đến khi bạn cài CA mới trên từng thiết bị.",
+      "macos": {
+        "label": "macOS",
+        "step1": "Mở tệp đã tải xuống. Keychain Access sẽ thêm nó vào chuỗi khóa đăng nhập.",
+        "step2": "Trong Keychain Access, nhấp đúp <b>Athena Local CA</b>, mở <b>Trust</b>, và đặt <b>When using this certificate</b> thành <b>Always Trust</b>.",
+        "step3": "Đóng cửa sổ và nhập mật khẩu Mac của bạn. Khởi động lại trình duyệt."
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "Mở tệp đã tải xuống và chọn <b>Install Certificate</b>.",
+        "step2": "Chọn <b>Current User</b>, rồi <b>Place all certificates in the following store</b> → <b>Trusted Root Certification Authorities</b>.",
+        "step3": "Hoàn tất và xác nhận cảnh báo bảo mật. Khởi động lại trình duyệt."
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian hoặc Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Firefox và Chrome giữ danh sách riêng trên Linux: nhập tệp trong cài đặt chứng chỉ của trình duyệt, ở mục <b>Authorities</b>."
+      },
+      "ios": {
+        "label": "iPhone và iPad",
+        "step1": "Tải tệp trong Safari và cho phép tải hồ sơ.",
+        "step2": "Trong Cài đặt, mở <b>Profile Downloaded</b> (hoặc <b>General → VPN & Device Management</b>) và cài đặt nó.",
+        "step3": "Vào <b>General → About → Certificate Trust Settings</b> và bật tin cậy hoàn toàn cho <b>Athena Local CA</b>."
+      },
+      "android": {
+        "label": "Android",
+        "step1": "Tải tệp xuống.",
+        "step2": "Trong Cài đặt, tìm <b>CA certificate</b> (thường là <b>Security → Encryption & credentials → Install a certificate → CA certificate</b>) và chọn tệp.",
+        "step3": "Xác nhận cảnh báo. Một số ứng dụng bỏ qua chứng chỉ người dùng; trình duyệt thì dùng chúng."
+      }
+    }
+  },
+  "sections": {
+    "appearance": "Giao diện",
+    "account": "Tài khoản",
+    "system": "Hệ thống",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "Cài đặt"
+  }
+}

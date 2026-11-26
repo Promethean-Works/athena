@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Acest link este incomplet.",
+    "expiredTitle": "Acest link a expirat",
+    "notFoundTitle": "Acest link nu funcționează",
+    "errorTitle": "Nu s-a putut deschide acest link",
+    "expiredDescription": "Cere unul nou de la cine ți l-a trimis."
+  },
+  "unlock": {
+    "title": "Acest link are parolă",
+    "description": "Introdu-o pentru a vedea ce este partajat.",
+    "password": "Parolă",
+    "open": "Deschide"
+  },
+  "file": {
+    "fallbackName": "fișier",
+    "download": "Descarcă"
+  },
+  "dropBox": {
+    "title": "Trimite fișiere către {{name}}",
+    "description": "Fișierele adăugate sunt încărcate imediat. Nu poți vedea ce au trimis alții, iar nimic din ce trimiți nu înlocuiește alt fișier.",
+    "drop": "Trage fișierele aici sau",
+    "choose": "Alege fișiere"
+  },
+  "folder": {
+    "downloadAll": "Descarcă tot",
+    "cantOpen": "Nu s-a putut deschide acest dosar",
+    "empty": "Acest dosar este gol.",
+    "columnName": "Nume",
+    "columnSize": "Dimensiune",
+    "columnModified": "Modificat",
+    "columnDownload": "Descărcare",
+    "downloadEntry": "Descarcă {{name}}",
+    "download": "Descarcă"
+  }
+}

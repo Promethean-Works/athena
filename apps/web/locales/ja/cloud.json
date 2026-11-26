@@ -1,0 +1,71 @@
+{
+  "cancel": "キャンセル",
+  "remove": "削除",
+  "noRclone": {
+    "title": "クラウドストレージには rclone が必要です",
+    "missing": "このホストに rclone がインストールされていません",
+    "description": "{{detail}} Athena は rclone を使って Google Drive、OneDrive、Dropbox、S3 などに接続します。",
+    "install": "サーバーに rclone をインストール",
+    "redetect": "再検出"
+  },
+  "view": {
+    "refresh": "更新",
+    "syncFolders": "フォルダーを同期",
+    "addRemote": "リモートを追加",
+    "cantReach": "rclone に接続できません",
+    "removeFailed": "{{name}} を削除できませんでした",
+    "removed": "{{name}} を削除しました",
+    "removeTitle": "{{name}} を削除しますか？",
+    "removeDescription": "Athena は接続方法を忘れます。保存されているデータは削除されません。",
+    "empty": {
+      "title": "リモートはまだありません",
+      "description": "Google Drive、OneDrive、Dropbox、S3 バケット、WebDAV サーバー、その他 rclone が対応するストレージを追加すると、ファイルで参照したり、フォルダーをコピー・同期したりできます。"
+    }
+  },
+  "remote": {
+    "actions": "{{name}} の操作",
+    "browse": "参照",
+    "edit": "編集",
+    "browseFiles": "ファイルを参照",
+    "settingCount_other": "{{count}} 件の設定",
+    "optional": "(任意)",
+    "choose": "選択…",
+    "unchanged": "変更なし",
+    "pasteResult": "結果を貼り付け",
+    "no": "いいえ",
+    "yes": "はい",
+    "continue": "続行",
+    "refused": "rclone に拒否されました",
+    "added": "{{name}} を追加しました",
+    "saved": "{{name}} を保存しました",
+    "addTitle": "リモートを追加",
+    "editTitle": "{{name}} を編集",
+    "oneMoreAnswer": "セットアップを完了するには、rclone への回答があと 1 つ必要です。",
+    "loading": "ストレージプロバイダーを読み込み中…",
+    "pickKind": "接続するストレージの種類を選択してください。",
+    "genericDescription": "rclone が接続するクラウドストレージ: Google Drive、OneDrive、Dropbox、S3、WebDAV など。",
+    "back": "戻る",
+    "add": "追加",
+    "save": "保存",
+    "catalogHint": "接続するストレージを選択し、名前を付けて設定を入力してください。",
+    "name": "名前",
+    "nameHint": "ファイルでの表示名です。例: gdrive、backups",
+    "storage": "ストレージ",
+    "advanced": "詳細設定 ({{count}})"
+  },
+  "sync": {
+    "title": "フォルダーを同期",
+    "description": "コピー先をコピー元に一致させます。新規・変更されたファイルはコピーされ、コピー元にないファイルはコピー先から削除されます。",
+    "from": "コピー元",
+    "to": "コピー先",
+    "willDelete_other": "{{dest}} から {{count}} 個のファイルが削除されます",
+    "andMore": "ほか {{count}} 件",
+    "willCopy_other": "{{count}} 個のファイルがコピーされます。",
+    "nothingDeleted": "削除されるものはありません",
+    "willCopyTo_other": "{{count}} 個のファイルが {{dest}} にコピーされます。",
+    "alreadyMatch": "フォルダーはすでに一致しています。",
+    "syncAndDelete": "同期して {{count}} 件を削除",
+    "sync": "同期",
+    "check": "変更を確認"
+  }
+}

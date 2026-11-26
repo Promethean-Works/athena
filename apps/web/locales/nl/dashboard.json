@@ -1,0 +1,272 @@
+{
+  "common": {
+    "manage": "Beheren"
+  },
+  "cardShell": {
+    "open": "Openen"
+  },
+  "cards": {
+    "stats": {
+      "title": "Systeem",
+      "description": "Live CPU-, geheugen-, netwerk- en schijfactiviteit."
+    },
+    "apps": {
+      "title": "Apps",
+      "description": "Je apps, met hun status en een knop Openen."
+    },
+    "containers": {
+      "title": "Containers",
+      "description": "Aantal actieve en gestopte containers, en welke aandacht nodig hebben."
+    },
+    "automation": {
+      "title": "Automatisering",
+      "description": "Volgende geplande uitvoeringen en hoe recente uitvoeringen verliepen."
+    },
+    "storage": {
+      "title": "Opslag",
+      "description": "Gebruikte ruimte per schijf."
+    },
+    "server": {
+      "title": "Server",
+      "description": "Hostnaam, besturingssysteem, uptime en versies."
+    },
+    "temperatures": {
+      "title": "Temperaturen",
+      "description": "Sensormetingen, waar de host ze meldt."
+    },
+    "power": {
+      "title": "Voeding",
+      "description": "Te lage spanning en throttling op een Raspberry Pi."
+    },
+    "activity": {
+      "title": "Recente activiteit",
+      "description": "De laatste wijzigingen uit het auditlog (alleen beheerders)."
+    },
+    "remoteAccess": {
+      "title": "Externe toegang",
+      "description": "Tunnelstatus en het openbare adres."
+    },
+    "capabilities": {
+      "title": "Mogelijkheden",
+      "description": "Wat Athena op deze host heeft gevonden."
+    },
+    "backups": {
+      "title": "Back-ups",
+      "description": "Back-upplannen, laatste uitvoeringen en de volgende geplande uitvoering."
+    }
+  },
+  "activity": {
+    "title": "Recente activiteit",
+    "description": "Wie wat op deze server heeft gewijzigd.",
+    "loadError": "Recente activiteit kon niet worden geladen: {{error}}",
+    "empty": "Nog niets. Acties op apps, containers en bestanden verschijnen hier.",
+    "by": "door {{username}}"
+  },
+  "automation": {
+    "title": "Automatisering",
+    "description": "Geplande triggers en webhook-triggers, en hoe hun uitvoeringen verliepen.",
+    "succeeded": "Geslaagd",
+    "failed": "Mislukt",
+    "loadError": "Automatisering kon niet worden geladen: {{error}}",
+    "noTriggers": "Nog geen triggers. Maak er een om een app te herstarten of pakketten bij te werken volgens een schema.",
+    "nextRuns": "Volgende uitvoeringen · {{enabled}} van {{total}} triggers aan",
+    "nothingScheduled": "Niets gepland. Webhook-triggers draaien wanneer ze worden aangeroepen.",
+    "recentRuns": "Recente uitvoeringen",
+    "noRuns": "Nog geen uitvoeringen.",
+    "deletedTrigger": "Verwijderde trigger"
+  },
+  "backup": {
+    "title": "Back-ups",
+    "description": "Back-upplannen, laatste uitvoeringen en de volgende geplande uitvoering.",
+    "succeeded": "Geslaagd",
+    "failed": "Mislukt",
+    "running": "Actief",
+    "loadError": "Back-upplannen konden niet worden geladen: {{error}}",
+    "empty": "Nog geen back-upplannen. Voeg er een toe in Instellingen → Back-ups.",
+    "plans": "Plannen",
+    "enabled": "Ingeschakeld",
+    "plansFailed_one": "{{count}} plan mislukt",
+    "plansFailed_other": "{{count}} plannen mislukt",
+    "noFailures": "Geen recente fouten",
+    "nextRuns": "Volgende geplande uitvoeringen",
+    "noScheduled": "Geen geplande uitvoeringen"
+  },
+  "containers": {
+    "title": "Containers",
+    "description": "Alles wat de container-engine draait, apps inbegrepen.",
+    "all": "Alle containers",
+    "running": "Actief",
+    "notRunning": "Niet actief",
+    "needAttention": "Aandacht nodig",
+    "exited": "Beëindigd ({{code}})",
+    "loadError": "Containers konden niet worden geladen: {{error}}",
+    "empty": "Nog geen containers op deze server.",
+    "engineDown": "De container-engine draait niet."
+  },
+  "apps": {
+    "title": "Apps",
+    "subtitle": "Wat er op deze server draait",
+    "store": "Store",
+    "all": "Alle apps",
+    "emptyTitle": "Nog geen apps",
+    "emptyDescription": "Installeer er een uit de store, of deploy je eigen compose-bestand.",
+    "browseStore": "De store bekijken",
+    "status": {
+      "running": "Actief",
+      "partial": "Deels actief",
+      "stopped": "Gestopt",
+      "notDeployed": "Niet gedeployed"
+    },
+    "containerCount_one": "{{count}} container",
+    "containerCount_other": "{{count}} containers",
+    "actionsFor": "Acties voor {{name}}",
+    "open": "Openen",
+    "openPort": "Open :{{port}}",
+    "details": "Details",
+    "restart": "Herstarten",
+    "stop": "Stoppen",
+    "start": "Starten",
+    "updateImages": "Images bijwerken",
+    "remove": "Verwijderen"
+  },
+  "grid": {
+    "pickedUp": "Kaart {{title}} opgepakt.",
+    "overCard": "{{title}} staat boven {{other}}.",
+    "notOverCard": "{{title}} staat niet meer boven een kaart.",
+    "moved": "{{title}} is verplaatst naar de plek van {{other}}.",
+    "dropped": "{{title}} neergezet.",
+    "cancelled": "Verplaatsen van {{title}} is geannuleerd.",
+    "move": "{{title}} verplaatsen",
+    "moveUp": "{{title}} omhoog verplaatsen",
+    "moveDown": "{{title}} omlaag verplaatsen",
+    "makeHalf": "{{title}} halve breedte geven",
+    "makeFull": "{{title}} volle breedte geven",
+    "remove": "{{title}} verwijderen",
+    "nothingToShow": "Er is op dit moment niets te tonen voor deze server.",
+    "addDialogTitle": "Een kaart toevoegen",
+    "addDialogDescription": "Kaarten worden aan het einde toegevoegd; sleep ze naar de gewenste plek.",
+    "allAddedTitle": "Elke kaart staat op je dashboard",
+    "allAddedDescription": "Verwijder er een om hem later opnieuw toe te voegen.",
+    "addCard": "{{title}} toevoegen",
+    "add": "Toevoegen",
+    "editHint": "Sleep kaarten aan hun handvat, of gebruik de pijlen. Wijzigingen worden opgeslagen als je op Klaar drukt.",
+    "addCardButton": "Kaart toevoegen",
+    "reset": "Herstellen",
+    "cancel": "Annuleren",
+    "done": "Klaar",
+    "customize": "Aanpassen",
+    "emptyTitle": "Je dashboard is leeg",
+    "emptyDescription": "Voeg kaarten toe, of herstel de standaardindeling.",
+    "dragInstructions": "Om een kaart te verplaatsen druk je op spatie of Enter, gebruik je de pijltjestoetsen en druk je weer op spatie of Enter om hem neer te zetten, of op Escape om te annuleren."
+  },
+  "stats": {
+    "used": "Gebruikt",
+    "download": "Download",
+    "upload": "Upload",
+    "read": "Lezen",
+    "write": "Schrijven",
+    "util": "Gebruik",
+    "unavailableTitle": "Livestatistieken zijn niet beschikbaar",
+    "unavailableDescription": "De server heeft geen hoststatistieken teruggegeven.",
+    "coresThreads": "{{cores}} cores · {{threads}} threads",
+    "cores_one": "{{count}} core",
+    "cores_other": "{{count}} cores",
+    "coresLoad": "{{cores}} · belasting {{load}}",
+    "liveLabel": "Live hoststatistieken",
+    "system": "Systeem",
+    "live": "Live",
+    "reconnecting": "Opnieuw verbinden",
+    "chartRange": "Grafiekbereik",
+    "range5m": "5 min",
+    "range1h": "1 uur",
+    "memory": "Geheugen",
+    "memUsed": "{{used}} gebruikt",
+    "memUsedSwap": "{{used}} gebruikt · swap {{swap}}",
+    "network": "Netwerk",
+    "diskActivity": "Schijfactiviteit",
+    "readRate": "L {{rate}}",
+    "writeRate": "S {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPU's",
+    "noGpu": "geen GPU gemeld",
+    "vramOf": "{{used}} van {{total}}"
+  },
+  "power": {
+    "title": "Voeding",
+    "description": "Voeding en throttling van de Raspberry Pi",
+    "problemNow": "Nu een probleem",
+    "ok": "OK",
+    "flagNow": "{{label}} nu",
+    "flagSinceBoot": "{{label}} sinds opstarten",
+    "none": "Geen te lage spanning of throttling sinds deze server is opgestart.",
+    "flags": {
+      "underVoltage": {
+        "label": "Te lage spanning",
+        "hint": "De voeding of kabel kan het niet bijhouden. Gebruik de officiële voeding en een korte, dikke kabel."
+      },
+      "throttled": {
+        "label": "Throttling",
+        "hint": "De CPU wordt vertraagd om zichzelf te beschermen."
+      },
+      "freqCapped": {
+        "label": "Frequentie begrensd",
+        "hint": "De firmware heeft de maximale CPU-snelheid verlaagd."
+      },
+      "softTempLimit": {
+        "label": "Zachte temperatuurlimiet",
+        "hint": "De CPU zit dicht bij zijn temperatuurlimiet. Controleer de koeling."
+      }
+    }
+  },
+  "remote": {
+    "title": "Externe toegang",
+    "description": "Bereik Athena van buiten je netwerk.",
+    "settings": "Instellingen",
+    "loadError": "Externe toegang kon niet worden geladen: {{error}}",
+    "off": "Uit. Schakel het in via Instellingen → Systeem om Athena van buiten je netwerk te bereiken.",
+    "running": "Actief",
+    "notRunning": "Niet actief",
+    "noProvider": "Geen provider",
+    "warning": "De terminal, pakketinstallaties en de assistent zijn met één wachtwoord bereikbaar vanaf internet. <link>Schakel ze uit</link> als je ze niet op afstand nodig hebt.",
+    "publicAddress": "Openbaar adres",
+    "copyAddress": "Openbaar adres kopiëren",
+    "copied": "Adres gekopieerd",
+    "copyFailed": "Kopiëren mislukt"
+  },
+  "storage": {
+    "title": "Opslag",
+    "description": "Schijven, mappen, cloud en netwerkshares",
+    "noDisks": "Nog geen schijven gemeld.",
+    "diskUsage": "{{used}} van {{total}}",
+    "folders": "Mappen",
+    "unavailable": "Niet beschikbaar",
+    "cloud": "Cloudopslag",
+    "shares": "Netwerkshares",
+    "readOnly": "Alleen lezen"
+  },
+  "temperatures": {
+    "title": "Temperaturen",
+    "description": "Hardwaresensoren"
+  },
+  "layout": {
+    "saveFailed": "Het dashboard kon niet worden opgeslagen",
+    "saved": "Dashboard opgeslagen"
+  },
+  "server": {
+    "title": "Server",
+    "description": "De machine waarop Athena draait",
+    "unreachableTitle": "De Athena-server is niet bereikbaar",
+    "unreachableDescription": "{{error}}. Start hem tijdens de ontwikkeling met <code>uv run athena serve --reload</code> in <code>apps/server</code>.",
+    "host": "Host",
+    "os": "Besturingssysteem",
+    "platform": "Platform",
+    "uptime": "Uptime",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Verbinden…",
+    "unreachable": "Server onbereikbaar",
+    "version": "Athena {{version}}"
+  }
+}

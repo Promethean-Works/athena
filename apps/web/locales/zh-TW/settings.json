@@ -1,0 +1,396 @@
+{
+  "language": {
+    "title": "語言",
+    "description": "介面語言。會隨你的帳號同步到其他瀏覽器。",
+    "label": "介面語言",
+    "auto": "自動（瀏覽器語言）"
+  },
+  "account": {
+    "admin": "管理員",
+    "user": "使用者",
+    "signedIn": "已在此瀏覽器登入",
+    "signOut": "登出",
+    "changeFailed": "無法變更密碼",
+    "toast": {
+      "changed": "已變更密碼",
+      "changedDescription": "此帳號在其他瀏覽器的登入已被登出。"
+    },
+    "password": {
+      "title": "變更密碼",
+      "description": "你的其他工作階段會被登出；目前這個仍保持登入。",
+      "current": "目前的密碼",
+      "new": "新密碼",
+      "minLength_other": "至少 {{count}} 個字元。",
+      "confirm": "確認新密碼",
+      "mismatch": "兩次輸入的密碼不一致。",
+      "submit": "變更密碼"
+    }
+  },
+  "copyField": {
+    "copy": "複製{{label}}",
+    "copied": "已複製{{label}}",
+    "failed": "無法複製"
+  },
+  "settingsFile": {
+    "title": "設定檔",
+    "description": "這些頁面上的設定都儲存在伺服器上的同一個檔案中。如果某項變更讓 Athena 無法啟動，或讓你無法登入，請用任何文字編輯器在該檔案中修正，然後重新啟動 Athena。",
+    "loadFailed": "無法載入檔案位置：{{error}}",
+    "file": "檔案",
+    "help": "在伺服器上執行 <code>athena config check</code> 可顯示檔案的問題與行號。上次儲存之前的版本會以 <code>athena.json.bak</code> 保留在旁邊。"
+  },
+  "system": {
+    "title": "系統",
+    "description": "套用於這台伺服器上所有人的開關。變更會寫入稽核記錄。",
+    "saveFailed": "無法儲存",
+    "adminOnly": "只有管理員可以變更。",
+    "terminal": {
+      "label": "網頁終端機",
+      "description": "在瀏覽器中使用這台伺服器與容器內的 Shell。關閉後也會結束已開啟的工作階段。",
+      "on": "已開啟終端機",
+      "off": "已關閉終端機"
+    },
+    "updateCheck": {
+      "label": "更新通知",
+      "description": "每天向 GitHub 查詢最新的 Athena 版本，有新版本時顯示通知。除了請求本身，不會傳送任何資料：沒有版本、主機名稱或設定。",
+      "on": "已開啟更新通知",
+      "off": "已關閉更新通知"
+    }
+  },
+  "updates": {
+    "title": "更新",
+    "description": "Athena 每天檢查一次是否有新版本（上方的開關）。更新會重新啟動 Athena；你的應用程式會繼續執行。",
+    "readFailed": "無法讀取更新狀態。",
+    "installed": "已安裝",
+    "latest": "最新",
+    "unknown": "尚未得知",
+    "noticeOff": "更新通知已關閉",
+    "lastChecked": "上次檢查",
+    "never": "從未",
+    "upToDate": "Athena 已是最新版本。"
+  },
+  "localAi": {
+    "list": "{{head}}與{{last}}",
+    "running_other": "{{list}} 正在這台伺服器上執行。其模型在你自己的硬體上運作，不會有任何資料離開伺服器。",
+    "useNamed": "使用這台伺服器上的 {{name}}",
+    "usePort": "使用連接埠 {{port}} 上的 AI 伺服器",
+    "useThis": "使用此 AI 伺服器"
+  },
+  "webdav": {
+    "title": "網路分享（WebDAV）",
+    "description": "在 Finder、Windows 檔案總管或 Linux 檔案管理員中，將檔案管理員的位置當作磁碟機開啟。",
+    "label": "WebDAV",
+    "help": "預設關閉。任何擁有 WebDAV 密碼的人都可以讀取並變更每個位置。",
+    "adminOnly": "只有管理員可以變更。",
+    "on": "已開啟 WebDAV",
+    "off": "已關閉 WebDAV",
+    "saveFailed": "無法儲存",
+    "passwordFailed": "無法產生密碼",
+    "address": "位址",
+    "username": "使用者名稱",
+    "password": "密碼",
+    "passwordHint": {
+      "copyNow": "請立即複製：之後不會再顯示。",
+      "set": "已設定密碼。產生新密碼會讓所有使用舊密碼的裝置登出。",
+      "none": "產生密碼以登入。它與你的 Athena 密碼是分開的。"
+    },
+    "newPassword": "新密碼",
+    "makePassword": "產生密碼",
+    "plainHttp": {
+      "title": "未加密",
+      "description": "Athena 是以純 HTTP 開啟，因此 WebDAV 密碼與檔案會以未加密方式在網路上傳輸。請在你信任的網路中使用，或將 Athena 置於 HTTPS 之後。"
+    },
+    "howto": {
+      "macos": "<b>macOS：</b>Finder → 前往 → 連接伺服器，然後輸入位址。",
+      "windows": "<b>Windows：</b>檔案總管 → 本機 → 對應網路磁碟機，然後輸入位址。透過純 HTTP 時，必須先將 <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> 下的 <code>BasicAuthLevel</code> 設為 2 並重新啟動 WebClient 服務，Windows 才能登入。",
+      "linux": "<b>Linux：</b>在「檔案」（GNOME）或 Dolphin 中，連線到 <code>{{url}}</code>。"
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "模式",
+      "light": "淺色",
+      "dark": "深色",
+      "system": "系統"
+    },
+    "colors": {
+      "title": "色彩",
+      "saving": "儲存中…",
+      "description": "變更會立即套用，並隨你的帳號同步到其他瀏覽器。",
+      "matchBase": "與基底一致",
+      "matchTheme": "與主題一致",
+      "base": "基底",
+      "baseColor": "基底色彩",
+      "baseHint": "背景、邊框與淡色文字。",
+      "theme": "主題",
+      "themeHint": "按鈕、焦點框與連結。",
+      "charts": "圖表"
+    },
+    "type": {
+      "title": "字型與形狀",
+      "font": "字型",
+      "headingFont": "標題字型",
+      "sameAsBody": "與內文相同",
+      "radius": "圓角",
+      "style": "樣式",
+      "styleValue": "Nova，搭配 Lucide 圖示",
+      "styleSoon": "切換樣式的功能將在日後版本推出"
+    },
+    "radius": {
+      "default": "預設",
+      "none": "無",
+      "small": "小",
+      "medium": "中",
+      "large": "大"
+    },
+    "preset": {
+      "title": "預設組合代碼",
+      "description": "shadcn 預設組合代碼可用幾個字元記錄這些設定。",
+      "current": "目前的預設組合代碼",
+      "copy": "複製",
+      "copied": "已複製",
+      "copyFailed": "無法複製到剪貼簿",
+      "use": "搭配 <code>npx shadcn init --preset {{code}}</code> 使用，或分享給他人。",
+      "apply": "套用預設組合代碼",
+      "applyButton": "套用",
+      "invalid": "這不是 shadcn 預設組合代碼。",
+      "applied": "已套用預設組合 {{code}}",
+      "ignored": "Athena 目前無法套用 {{parts}}，因此已略過這些部分。",
+      "fill": "從 <link>ui.shadcn.com/create</link> 產生的代碼填入色彩、字型與圓角。"
+    }
+  },
+  "tunnel": {
+    "hide": "隱藏{{label}}",
+    "show": "顯示{{label}}",
+    "secretSaved": "已儲存。輸入新值即可取代",
+    "customDomain": "自訂網域（選填）",
+    "cloudflare": {
+      "quick": "快速通道",
+      "quickHelp": "隨機的 trycloudflare.com 位址，不需要帳號。每次啟動通道都會改變。",
+      "apiToken": "API 權杖",
+      "apiTokenPlaceholder": "具有 Tunnel 權限的 Cloudflare API 權杖",
+      "tunnelName": "通道名稱",
+      "tunnelNameHelp": "你 Cloudflare 帳號中的具名通道。",
+      "domainHelp": "需要一筆指向該通道的 DNS 記錄。"
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "自動偵測",
+      "help": "在這台伺服器上使用 <code>tailscale up</code> 設定。"
+    },
+    "ngrok": {
+      "authToken": "驗證權杖",
+      "authTokenPlaceholder": "你的 ngrok 驗證權杖",
+      "subdomain": "子網域（選填）",
+      "paidPlan": "需要付費的 ngrok 方案。",
+      "freeTitle": "免費方案限制",
+      "freeDescription": "一條通道、每分鐘 40 次連線，且每個工作階段都有新的隨機位址。"
+    },
+    "status": {
+      "label": "狀態",
+      "running": "執行中",
+      "stopped": "已停止",
+      "notInstalled": "未安裝",
+      "notSetUp": "尚未設定"
+    },
+    "saveFailed": "無法儲存",
+    "saved": "已儲存遠端存取設定",
+    "autoStart": {
+      "label": "開機時啟動",
+      "on": "遠端存取會在開機時啟動",
+      "off": "遠端存取不再於開機時啟動",
+      "installFirst": "請先安裝 {{name}}。",
+      "help": "安裝系統服務，讓通道隨伺服器一起啟動。"
+    },
+    "serviceFailed": "無法更新服務",
+    "title": "遠端存取",
+    "description": "透過 Cloudflare、Tailscale 或 ngrok 從任何地方連線到 Athena，不必在路由器上開放連接埠。",
+    "label": "遠端存取",
+    "help": "任何知道位址的人都能看到你的登入頁面，請使用高強度密碼。",
+    "adminOnly": "只有管理員可以變更。",
+    "on": "已開啟遠端存取",
+    "off": "已關閉遠端存取",
+    "exposed": {
+      "title": "可從網際網路存取",
+      "description": "開啟期間，只要有人找到位址，網頁終端機、套件安裝與 AI 助理就只差一組密碼。若不需要遠端使用，請關閉<terminal>終端機</terminal>或<assistant>助理</assistant>。"
+    },
+    "provider": "供應商",
+    "using": "使用 {{name}}",
+    "port": {
+      "label": "本機連接埠",
+      "help": "Athena 監聽的連接埠，通道會轉送到這裡。"
+    },
+    "discard": "捨棄",
+    "saveChanges": "儲存變更",
+    "publicAddress": "公開位址",
+    "install": "安裝 {{name}}",
+    "installFailed": "無法安裝",
+    "stop": "停止",
+    "stopFailed": "無法停止通道",
+    "start": "啟動",
+    "startFailed": "無法啟動通道",
+    "saveFirst": "請先儲存你的變更",
+    "refresh": "重新整理狀態"
+  },
+  "https": {
+    "copyFailed": "無法複製",
+    "adminOnly": "只有管理員可以變更 HTTPS",
+    "unavailable": {
+      "title": "HTTPS 無法使用",
+      "description": "此 Athena 伺服器沒有回報支援 HTTPS。"
+    },
+    "loadFailed": "無法載入 HTTPS 設定",
+    "status": {
+      "on": "已開啟，連接埠 {{port}}",
+      "notRunning": "未執行",
+      "off": "已關閉",
+      "encryptedLetsEncrypt": "Athena 使用 Let's Encrypt 的憑證加密連線。純 HTTP 仍保留在連接埠 {{port}}。",
+      "encryptedCustom": "Athena 使用你的自訂憑證加密連線。純 HTTP 仍保留在連接埠 {{port}}。",
+      "encryptedSelf": "Athena 使用自己的憑證加密連線。純 HTTP 仍保留在連接埠 {{port}}。",
+      "plain": "Athena 目前以純 HTTP 在連接埠 {{port}} 提供服務，因此密碼與檔案會以未加密方式在網路上傳輸。",
+      "problem": "HTTPS 問題",
+      "renewalFailed": "Let's Encrypt 續期失敗",
+      "renewalStillServed": "目前的憑證在到期前仍會繼續使用。",
+      "open": "以 HTTPS 開啟",
+      "expires": "到期時間",
+      "expiresIn_other": "{{count}} 天後；會自動續期",
+      "names": "名稱",
+      "alsoAt": "也可使用"
+    },
+    "saveFailed": "無法儲存",
+    "requestFailed": "無法申請憑證",
+    "certificateReady": "憑證已就緒",
+    "certificateReadyHint": "選擇 Let's Encrypt 後儲存，即可開始使用。",
+    "turnedOff": "已關閉 HTTPS",
+    "saved": "已儲存 HTTPS 設定",
+    "settings": {
+      "title": "設定",
+      "description": "變更會立即套用；Athena 不會重新啟動。"
+    },
+    "mode": {
+      "label": "模式",
+      "off": "關閉",
+      "offHelp": "僅使用純 HTTP。",
+      "self": "自簽憑證",
+      "selfHelp": "Athena 會建立自己的憑證授權單位（CA）。在每個裝置上信任一次後，瀏覽器就會顯示掛鎖且沒有警告。可在沒有網域的家用網路中使用。",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "適用於你擁有、且指向這台伺服器的網域，是所有瀏覽器都信任的免費憑證。會自動續期。",
+      "custom": "自訂",
+      "customHelp": "上傳你自己的憑證與私密金鑰（PEM 格式）。Athena 會原樣使用；不會自動續期。"
+    },
+    "port": {
+      "label": "HTTPS 連接埠",
+      "help": "低於 1024 的連接埠（例如 443）可能需要以 root 身分執行 Athena。你可能還需要在主機防火牆中允許該連接埠。",
+      "range": "請輸入 1 到 65535 之間的連接埠。",
+      "taken": "連接埠 {{port}} 是 Athena 的 HTTP 連接埠。請選擇其他連接埠。"
+    },
+    "redirect": {
+      "label": "將瀏覽器導向 HTTPS",
+      "help": "在連接埠 {{port}} 開啟的頁面會轉到 HTTPS。檔案分享、webhook、應用程式與伺服器本身仍使用純 HTTP。"
+    },
+    "names": {
+      "label": "額外名稱",
+      "help": "憑證已涵蓋這台伺服器的名稱、其 .local 名稱與其網路位址。請加入你用來開啟 Athena 的其他名稱或位址，以逗號分隔。"
+    },
+    "lockedOut": "被鎖在外面了？請在伺服器上執行 <code>{{command}}</code>，然後重新啟動 Athena。",
+    "cancel": "取消",
+    "needsCertificate": "請先取得憑證",
+    "saving": "儲存中…",
+    "save": "儲存",
+    "confirm": {
+      "title": "要將瀏覽器導向 HTTPS 嗎？",
+      "redirect": "儲存後，在連接埠 {{port}} 開啟 Athena 會轉到 <url>{{url}}</url>。",
+      "letsencrypt": "請在該處以網域名稱開啟 Athena；其他名稱會出現憑證警告。",
+      "custom": "會使用你的自訂憑證；若它來自已知的 CA，瀏覽器就會信任。",
+      "self": "在裝置上信任 Athena 的 CA 之前，該裝置的瀏覽器會顯示警告。",
+      "recovery": "如果無法重新登入，請在伺服器上執行 <cmd>{{command}}</cmd>，然後重新啟動 Athena。",
+      "action": "儲存並導向"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "網域",
+      "domainsHelp": "多個網域請以逗號分隔。每個都必須在公開 DNS 中指向這台伺服器。萬用字元（*.example.com）需要使用 DNS 驗證。",
+      "email": "電子郵件",
+      "emailHelp": "憑證即將到期時，Let's Encrypt 會寄信到這裡。",
+      "challenge": "Let's Encrypt 的驗證方式",
+      "http": "HTTP（連接埠 80）",
+      "httpHelp": "Let's Encrypt 會連線到這台伺服器的連接埠 80，因此必須能從網際網路存取（請在路由器上轉發）。",
+      "dns": "DNS",
+      "dnsHelp": "Athena 會透過你的 DNS 供應商新增暫時的 DNS 記錄。不需開放連接埠；適用於萬用字元。",
+      "port80Title": "目前無法開啟連接埠 80",
+      "port80Description": "有其他程式正在使用，或 Athena 沒有權限開啟。請釋出連接埠 80，或使用 DNS 驗證。",
+      "provider": "DNS 供應商",
+      "savedUnchanged": "已儲存（未變更）",
+      "staging": "使用測試伺服器",
+      "stagingHelp": "供試用：瀏覽器不信任其憑證，但限制寬鬆。",
+      "getting": "正在取得憑證…",
+      "renew": "立即更新憑證",
+      "get": "取得憑證",
+      "current": "{{names}} 的目前憑證，有效期限至 {{date}}。",
+      "getThenSave": "取得憑證後儲存，即可開始使用。",
+      "lastFailed": "上次嘗試失敗：{{error}}"
+    },
+    "custom": {
+      "legend": "自訂憑證",
+      "cert": "憑證（PEM）",
+      "certHelp": "貼上完整的 PEM 編碼憑證或憑證鏈。",
+      "key": "私密金鑰（PEM）",
+      "keyHelp": "貼上 PEM 編碼的私密金鑰。它會加密儲存。"
+    },
+    "trust": {
+      "title": "在你的裝置上信任 Athena",
+      "description": "在你使用的每支手機、平板與電腦上安裝一次 Athena 的 CA。之後瀏覽器就會信任 Athena 產生的每張憑證，包括續期後的憑證。",
+      "download": "下載 CA 憑證",
+      "validUntil": "有效期限至 {{date}}",
+      "fingerprint": "SHA-256 指紋",
+      "copyFingerprint": "複製指紋",
+      "fingerprintCopied": "已複製指紋",
+      "fingerprintHelp": "信任檔案之前，請確認它與裝置顯示的內容一致。",
+      "rotated": "已建立新的 CA",
+      "rotatedHint": "請下載並在每個裝置上重新信任它。",
+      "rotateFailed": "無法建立新的 CA",
+      "rotateHint": "若金鑰可能外洩，請建立新的 CA。每個裝置都必須信任新的 CA。",
+      "rotate": "建立新的 CA",
+      "rotating": "建立中…",
+      "confirmTitle": "要建立新的 CA 嗎？",
+      "confirmDescription": "信任目前 CA 的裝置會顯示警告，直到你在每個裝置上安裝新的 CA 為止。",
+      "macos": {
+        "label": "macOS",
+        "step1": "開啟下載的檔案。「鑰匙圈存取」會將它加入登入鑰匙圈。",
+        "step2": "在「鑰匙圈存取」中，連按兩下 <b>Athena Local CA</b>，開啟<b>信任</b>，並將<b>使用此憑證時</b>設為<b>永遠信任</b>。",
+        "step3": "關閉視窗並輸入你的 Mac 密碼。然後重新啟動瀏覽器。"
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "開啟下載的檔案並選擇<b>安裝憑證</b>。",
+        "step2": "選擇<b>目前使用者</b>，然後選擇<b>將所有憑證放入以下的存放區</b> → <b>受信任的根憑證授權單位</b>。",
+        "step3": "完成並確認安全性警告。然後重新啟動瀏覽器。"
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian 或 Ubuntu：<code>{{command}}</code>",
+        "step2": "Fedora：<code>{{command}}</code>",
+        "step3": "Firefox 與 Chrome 在 Linux 上有自己的清單：請在瀏覽器的憑證設定中，於<b>授權單位</b>下匯入該檔案。"
+      },
+      "ios": {
+        "label": "iPhone 與 iPad",
+        "step1": "在 Safari 中下載檔案，並允許下載描述檔。",
+        "step2": "在「設定」中開啟<b>已下載描述檔</b>（或<b>一般 → VPN 與裝置管理</b>）並安裝。",
+        "step3": "前往<b>一般 → 關於本機 → 憑證信任設定</b>，並為 <b>Athena Local CA</b> 開啟完全信任。"
+      },
+      "android": {
+        "label": "Android",
+        "step1": "下載檔案。",
+        "step2": "在「設定」中搜尋 <b>CA 憑證</b>（通常是<b>安全性 → 加密與憑證 → 安裝憑證 → CA 憑證</b>），並選擇該檔案。",
+        "step3": "確認警告。有些應用程式會忽略使用者憑證；瀏覽器則會使用。"
+      }
+    }
+  },
+  "sections": {
+    "appearance": "外觀",
+    "account": "帳號",
+    "system": "系統",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "設定"
+  }
+}

@@ -2811,6 +2811,11 @@ export interface components {
              * @default default
              */
             radius: string;
+            /**
+             * Language
+             * @default auto
+             */
+            language: string;
         };
         /** ApprovalsIn */
         ApprovalsIn: {

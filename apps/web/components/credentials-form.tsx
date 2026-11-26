@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -26,6 +27,7 @@ export function CredentialsForm({
   /** Resolves to an error message, or null on success. */
   onSubmit: (credentials: Credentials) => Promise<string | null>
 }) {
+  const { t } = useTranslation("auth")
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [mismatch, setMismatch] = React.useState(false)
@@ -49,7 +51,7 @@ export function CredentialsForm({
     <form onSubmit={handleSubmit}>
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="username">Username</FieldLabel>
+          <FieldLabel htmlFor="username">{t("credentials.username")}</FieldLabel>
           <Input
             id="username"
             name="username"
@@ -60,7 +62,7 @@ export function CredentialsForm({
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="password">Password</FieldLabel>
+          <FieldLabel htmlFor="password">{t("credentials.password")}</FieldLabel>
           <Input
             id="password"
             name="password"
@@ -72,12 +74,12 @@ export function CredentialsForm({
             required
           />
           {mode === "setup" ? (
-            <FieldDescription>At least 8 characters.</FieldDescription>
+            <FieldDescription>{t("credentials.passwordHelp")}</FieldDescription>
           ) : null}
         </Field>
         {mode === "setup" ? (
           <Field data-invalid={mismatch || undefined}>
-            <FieldLabel htmlFor="confirm">Confirm password</FieldLabel>
+            <FieldLabel htmlFor="confirm">{t("credentials.confirm")}</FieldLabel>
             <Input
               id="confirm"
               name="confirm"
@@ -87,7 +89,7 @@ export function CredentialsForm({
               required
             />
             {mismatch ? (
-              <FieldError>Passwords don&apos;t match.</FieldError>
+              <FieldError>{t("credentials.mismatch")}</FieldError>
             ) : null}
           </Field>
         ) : null}

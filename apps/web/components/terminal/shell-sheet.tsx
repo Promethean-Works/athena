@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   Sheet,
@@ -24,6 +25,7 @@ export function ShellSheet({
   container: { id: string; name: string } | null
   onClose: () => void
 }) {
+  const { t } = useTranslation("terminal")
   const [state, setState] = React.useState<SessionState>({
     phase: "connecting",
   })
@@ -39,13 +41,13 @@ export function ShellSheet({
       >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            Shell · {container?.name}
+            {t("shell.title", { name: container?.name ?? "" })}
             <SessionBadge state={state} />
           </SheetTitle>
           <SheetDescription>
             {state.phase === "closed"
               ? state.reason
-              : "Runs bash, or sh when the image has no bash."}
+              : t("shell.description")}
           </SheetDescription>
         </SheetHeader>
         <div className="flex min-h-0 flex-1 flex-col px-4 pb-4">

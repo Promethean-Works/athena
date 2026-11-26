@@ -1,0 +1,173 @@
+{
+  "cancel": "Zrušit",
+  "view": {
+    "unavailable": "Automatizace není k dispozici",
+    "unsupported": "Tento hostitel automatizaci nepodporuje."
+  },
+  "copyUrl": {
+    "copy": "Kopírovat {{label}}",
+    "copied": "{{label}} zkopírováno",
+    "failed": "Kopírování se nepovedlo"
+  },
+  "external": {
+    "title": "Externí automatizace",
+    "description": "Připojte k Athena n8n, skripty nebo agenty AI.",
+    "webhookUrl": "URL webhooku",
+    "webhookHint": "Požadavkem POST spustíte spouštěč webhooku; přihlášení není potřeba. Každý spouštěč webhooku má vlastní token: celou jeho URL zkopírujte ze seznamu spouštěčů.",
+    "mcpServer": "Server MCP",
+    "mcpUrl": "URL serveru MCP",
+    "mcpHint": "Streamovatelné HTTP. Klienti se přihlašují cookie relace, nebo posílají token nastavený v proměnné prostředí <envVar>ATHENA_MCP_TOKEN</envVar> serveru jako <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Spuštění úloh",
+    "description": "Nejnovější spuštění, obnovují se každých pár sekund.",
+    "trigger": "Spouštěč",
+    "deletedTrigger": "Smazaný spouštěč",
+    "listFailed": "Spuštění úloh se nepodařilo vypsat",
+    "empty": {
+      "title": "Zatím žádná spuštění úloh",
+      "description": "Spuštění se zobrazí zde, když se spouštěč aktivuje."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Spustit aplikaci {{name}}",
+      "stop": "Zastavit aplikaci {{name}}",
+      "restart": "Restartovat aplikaci {{name}}",
+      "update": "Aktualizovat aplikaci {{name}}"
+    },
+    "package": {
+      "install": "Nainstalovat {{name}} ({{manager}})",
+      "uninstall": "Odinstalovat {{name}} ({{manager}})",
+      "upgrade": "Upgradovat {{name}} ({{manager}})",
+      "refresh": "Obnovit seznamy balíčků {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Spouštěče",
+    "description": "Spusťte akci aplikace nebo balíčku podle plánu nebo z webhooku.",
+    "listFailed": "Spouštěče se nepodařilo vypsat",
+    "empty": {
+      "title": "Zatím žádné spouštěče",
+      "description": "Spouštěč provede akci podle plánu (cron) nebo při zavolání jeho webhooku, například z n8n."
+    },
+    "onWebhook": "Při zavolání jeho webhooku",
+    "noSchedule": "Bez plánu",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Další spuštění {{time}}",
+    "changeFailed": "Spouštěč se nepodařilo změnit",
+    "enabledToast": "{{name}} povolen",
+    "pausedToast": "{{name}} pozastaven",
+    "enabledLabel": "{{name}} povolen",
+    "copyWebhook": "Kopírovat URL webhooku",
+    "webhookCopied": "URL webhooku zkopírována",
+    "copyFailed": "Kopírování se nepovedlo",
+    "deleteFailed": "Spouštěč se nepodařilo smazat",
+    "deleted": "Spouštěč smazán",
+    "deleteLabel": "Smazat {{name}}",
+    "delete": "Smazat",
+    "deleteTitle": "Smazat {{name}}?",
+    "deleteDescription": "Přestane se spouštět. Dřívější spuštění úloh zůstanou v protokolu.",
+    "deleteDescriptionWebhook": "Přestane se spouštět a jeho URL webhooku přestane fungovat. Dřívější spuštění úloh zůstanou v protokolu."
+  },
+  "dialog": {
+    "new": "Nový spouštěč",
+    "description": "Spusťte akci aplikace nebo balíčku podle plánu, nebo kdykoli se zavolá webhook.",
+    "created": {
+      "title": "Spouštěč webhooku vytvořen",
+      "description": "Požadavkem POST na tuto URL spustíte „{{name}}“. Kdokoli s URL ji může aktivovat, proto ji nesdílejte. Můžete ji znovu zkopírovat ze seznamu spouštěčů.",
+      "done": "Hotovo"
+    },
+    "errors": {
+      "name": "Zadejte spouštěči název.",
+      "app": "Vyberte aplikaci.",
+      "manager": "Vyberte správce balíčků.",
+      "packageName": "Zadejte název balíčku."
+    },
+    "createdToast": "Spouštěč {{name}} vytvořen",
+    "createFailed": "Spouštěč se nepodařilo vytvořit",
+    "name": "Název",
+    "namePlaceholder": "např. Noční restart Jellyfinu",
+    "whenItRuns": "Kdy se spustí",
+    "onSchedule": "Podle plánu (cron)",
+    "onWebhook": "Při zavolání webhooku",
+    "schedule": "Plán",
+    "cronPlaceholder": "minuta hodina den měsíc den v týdnu, např. 0 2 * * *",
+    "cronHelp": "Pět polí: minuta, hodina, den v měsíci, měsíc, den v týdnu. Časy jsou v UTC.",
+    "webhookHint": "Po vytvoření získáte tajnou URL. Požadavek POST na ni (z n8n, skriptu nebo curl) provede akci.",
+    "whatItDoes": "Co dělá",
+    "appAction": "Akce aplikace",
+    "packageAction": "Akce balíčku",
+    "create": "Vytvořit spouštěč",
+    "app": "Aplikace",
+    "loadingApps": "Načítání aplikací…",
+    "chooseApp": "Vyberte aplikaci",
+    "noApps": "Žádné nainstalované aplikace",
+    "action": "Akce",
+    "appVerbs": {
+      "start": "Spustit",
+      "stop": "Zastavit",
+      "restart": "Restartovat",
+      "update": "Aktualizovat (stáhnout a znovu vytvořit)"
+    },
+    "packageVerbs": {
+      "install": "Nainstalovat",
+      "uninstall": "Odinstalovat",
+      "upgrade": "Upgradovat",
+      "refresh": "Obnovit seznamy balíčků"
+    },
+    "packageManager": "Správce balíčků",
+    "loading": "Načítání…",
+    "chooseManager": "Vyberte správce",
+    "noManagers": "Na tomto hostiteli žádný není připraven",
+    "package": "Balíček",
+    "packagePlaceholder": "např. jq",
+    "source": "Zdroj (volitelné)",
+    "sourceHint": "Vzdálené úložiště Flatpak, bucket Scoop, nebo „cask“ pro cask Homebrew.",
+    "loadingInstalled": "Načítání nainstalovaných balíčků…",
+    "installedFailed": "Nainstalované balíčky se nepodařilo vypsat ({{error}}); zadejte název.",
+    "searchInstalled": "Hledat nainstalované balíčky",
+    "noMatch": "Žádný nainstalovaný balíček neodpovídá."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Každou hodinu",
+      "daily": "Denně ve 02:00",
+      "sundays": "V neděli ve 03:00",
+      "monthly": "Měsíčně 1."
+    },
+    "fields": {
+      "minute": "minuta",
+      "hour": "hodina",
+      "dayOfMonth": "den v měsíci",
+      "month": "měsíc",
+      "weekday": "den v týdnu"
+    },
+    "errors": {
+      "empty": "Zadejte výraz cron nebo vyberte předvolbu.",
+      "invalidField": "Hodnota „{{value}}“ v poli {{field}} není platná.",
+      "invalidStep": "Krok „/{{step}}“ v poli {{field}} musí být číslo.",
+      "outOfRange": "Pole {{field}} musí být mezi {{min}} a {{max}}.",
+      "fieldCount": "Použijte pět polí (minuta hodina den měsíc den v týdnu); tento výraz jich má {{count}}."
+    },
+    "dayRange": "{{from}} až {{to}}",
+    "custom": "Vlastní plán",
+    "everyMinute": "Každou minutu",
+    "everyMinutes_one": "Každou {{count}}. minutu",
+    "everyMinutes_few": "Každé {{count}} minuty",
+    "everyMinutes_many": "Každých {{count}} minuty",
+    "everyMinutes_other": "Každých {{count}} minut",
+    "everyHourOnTheHour": "Každou hodinu, v celou",
+    "everyHourAtMinute": "Každou hodinu v {{minute}}. minutě",
+    "everyHoursAtMinute_one": "Každou {{count}}. hodinu v {{minute}}. minutě",
+    "everyHoursAtMinute_few": "Každé {{count}} hodiny v {{minute}}. minutě",
+    "everyHoursAtMinute_many": "Každých {{count}} hodiny v {{minute}}. minutě",
+    "everyHoursAtMinute_other": "Každých {{count}} hodin v {{minute}}. minutě",
+    "everyDay": "Každý den v {{time}}",
+    "everyWeekdays": "Každý {{days}} v {{time}}",
+    "onDayOfMonth": "{{day}}. den každého měsíce v {{time}}",
+    "everyYear": "Každý rok {{day}}. {{month}} v {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

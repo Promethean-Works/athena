@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Deze link is onvolledig.",
+    "expiredTitle": "Deze link is verlopen",
+    "notFoundTitle": "Deze link werkt niet",
+    "errorTitle": "Deze link kon niet worden geopend",
+    "expiredDescription": "Vraag de afzender om een nieuwe."
+  },
+  "unlock": {
+    "title": "Deze link heeft een wachtwoord",
+    "description": "Voer het in om te zien wat er gedeeld is.",
+    "password": "Wachtwoord",
+    "open": "Openen"
+  },
+  "file": {
+    "fallbackName": "bestand",
+    "download": "Downloaden"
+  },
+  "dropBox": {
+    "title": "Bestanden naar {{name}} sturen",
+    "description": "Bestanden die je toevoegt worden direct geüpload. Je ziet niet wat anderen hebben gestuurd, en niets wat je stuurt vervangt een ander bestand.",
+    "drop": "Sleep bestanden hierheen, of",
+    "choose": "Kies bestanden"
+  },
+  "folder": {
+    "downloadAll": "Alles downloaden",
+    "cantOpen": "Deze map kon niet worden geopend",
+    "empty": "Deze map is leeg.",
+    "columnName": "Naam",
+    "columnSize": "Grootte",
+    "columnModified": "Gewijzigd",
+    "columnDownload": "Downloaden",
+    "downloadEntry": "{{name}} downloaden",
+    "download": "Downloaden"
+  }
+}

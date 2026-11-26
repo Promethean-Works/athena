@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 import {
   CloudIcon,
   FolderIcon,
@@ -95,6 +96,7 @@ function Row({
 
 /** Everything configured as storage: disks, file locations, cloud remotes, SMB and NFS shares. */
 export function StorageCard() {
+  const { t } = useTranslation("dashboard")
   const { host } = useHostStats()
   const { manifest } = useCapabilities()
   const { remotes } = useRemotes()
@@ -147,18 +149,16 @@ export function StorageCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <HardDriveIcon className="size-4 text-muted-foreground" />
-          Storage
+          {t("storage.title")}
         </CardTitle>
-        <CardDescription>
-          Disks, folders, cloud and network shares
-        </CardDescription>
+        <CardDescription>{t("storage.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {!host ? (
           <Skeleton className="h-10 w-full" />
         ) : host.disks.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No disks reported yet.
+            {t("storage.noDisks")}
           </p>
         ) : (
           host.disks.map((disk) => (
@@ -171,26 +171,33 @@ export function StorageCard() {
               </ProgressLabel>
               <ProgressValue>
                 {() =>
-                  `${formatBytes(disk.used)} of ${formatBytes(disk.total)}`
+                  t("storage.diskUsage", {
+                    used: formatBytes(disk.used),
+                    total: formatBytes(disk.total),
+                  })
                 }
               </ProgressValue>
             </Progress>
           ))
         )}
         {locations.length > 0 ? (
-          <Section icon={FolderIcon} title="Folders" href="/files/">
+          <Section
+            icon={FolderIcon}
+            title={t("storage.folders")}
+            href="/files/"
+          >
             {locations.map((l) => (
               <Row
                 key={l.id}
                 name={l.name}
                 detail={l.path}
-                badge={!l.available ? "Unavailable" : undefined}
+                badge={!l.available ? t("storage.unavailable") : undefined}
               />
             ))}
           </Section>
         ) : null}
         {remotes && remotes.length > 0 ? (
-          <Section icon={CloudIcon} title="Cloud storage" href="/cloud/">
+          <Section icon={CloudIcon} title={t("storage.cloud")} href="/cloud/">
             {remotes.map((r) => (
               <Row key={r.name} name={r.name} detail={r.type} />
             ))}
@@ -199,7 +206,7 @@ export function StorageCard() {
         {network.length > 0 ? (
           <Section
             icon={ServerIcon}
-            title="Network shares"
+            title={t("storage.shares")}
             href="/files/network/"
           >
             {network.map((x) => (
@@ -207,7 +214,7 @@ export function StorageCard() {
                 key={x.key}
                 name={x.name}
                 detail={x.location_name}
-                badge={x.read_only ? "Read-only" : undefined}
+                badge={x.read_only ? t("storage.readOnly") : undefined}
               />
             ))}
           </Section>
@@ -219,6 +226,7 @@ export function StorageCard() {
 
 /** Hardware sensors. Rendered only on hosts that report them (Linux). */
 export function TemperaturesCard() {
+  const { t: tr } = useTranslation("dashboard")
   const { host } = useHostStats()
   const temps = host?.temperatures
   if (!temps || temps.length === 0) return null
@@ -227,9 +235,9 @@ export function TemperaturesCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ThermometerIcon className="size-4 text-muted-foreground" />
-          Temperatures
+          {tr("temperatures.title")}
         </CardTitle>
-        <CardDescription>Hardware sensors</CardDescription>
+        <CardDescription>{tr("temperatures.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <dl className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-2 text-sm">

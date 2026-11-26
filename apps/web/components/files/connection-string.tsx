@@ -1,6 +1,7 @@
 "use client"
 
 import { CopyIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@workspace/ui/components/button"
 import { toast } from "@workspace/ui/components/toast"
@@ -20,6 +21,7 @@ export function ConnectionString({
   value: string
   label: string
 }) {
+  const { t } = useTranslation("files")
   return (
     <div className="flex items-center gap-1">
       <span className="truncate font-mono text-xs text-muted-foreground">
@@ -28,13 +30,13 @@ export function ConnectionString({
       <Button
         variant="ghost"
         size="icon-xs"
-        aria-label={`Copy ${label}`}
+        aria-label={t("network.copy", { label })}
         onClick={async () => {
           const ok = await copyText(value)
           toast.add(
             ok
-              ? { type: "success", title: `${label} copied` }
-              : { type: "error", title: "Couldn't copy" }
+              ? { type: "success", title: t("network.copied", { label }) }
+              : { type: "error", title: t("network.copyFailed") }
           )
         }}
       >

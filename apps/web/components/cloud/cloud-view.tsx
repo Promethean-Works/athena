@@ -12,6 +12,7 @@ import {
   RefreshCcwDotIcon,
   Trash2Icon,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import {
@@ -88,6 +89,7 @@ function sentence(text: string): string {
 }
 
 function NoRclone({ detail }: { detail?: string | null }) {
+  const { t } = useTranslation("cloud")
   const { manifest, refresh, refreshing } = useCapabilities()
   const steps = SETUP[manifest?.os ?? "linux"] ?? SETUP.linux!
   return (
@@ -95,16 +97,16 @@ function NoRclone({ detail }: { detail?: string | null }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CloudIcon className="size-4 text-muted-foreground" />
-          Cloud storage needs rclone
+          {t("noRclone.title")}
         </CardTitle>
         <CardDescription>
-          {sentence(detail ?? "rclone isn't installed on this host")} Athena
-          uses rclone to connect to Google Drive, OneDrive, Dropbox, S3 and many
-          more.
+          {t("noRclone.description", {
+            detail: sentence(detail ?? t("noRclone.missing")),
+          })}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex w-full flex-col gap-2 text-left">
-        <p className="text-sm font-medium">Install rclone on the server</p>
+        <p className="text-sm font-medium">{t("noRclone.install")}</p>
         <pre className="rounded-lg border bg-muted/50 p-3 font-mono text-xs whitespace-pre-wrap">
           {steps.join("\n")}
         </pre>
@@ -121,7 +123,7 @@ function NoRclone({ detail }: { detail?: string | null }) {
           ) : (
             <RefreshCwIcon data-icon="inline-start" />
           )}
-          Re-detect
+          {t("noRclone.redetect")}
         </Button>
       </CardFooter>
     </Card>
@@ -140,6 +142,7 @@ function RemoteCard({
   onEdit: () => void
   onRemove: (name: string) => void
 }) {
+  const { t } = useTranslation("cloud")
   const router = useRouter()
   const browseHref = folderHref({ remote: remote.name }, "")
 
@@ -156,18 +159,20 @@ function RemoteCard({
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
             <EllipsisVerticalIcon />
-            <span className="sr-only">Actions for {remote.name}</span>
+            <span className="sr-only">
+              {t("remote.actions", { name: remote.name })}
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-40">
             <DropdownMenuGroup>
               <DropdownMenuItem render={<Link href={browseHref} />}>
                 <FolderOpenIcon />
-                Browse
+                {t("remote.browse")}
               </DropdownMenuItem>
               {admin ? (
                 <DropdownMenuItem onClick={onEdit}>
                   <PencilIcon />
-                  Edit
+                  {t("remote.edit")}
                 </DropdownMenuItem>
               ) : null}
             </DropdownMenuGroup>
@@ -180,7 +185,7 @@ function RemoteCard({
                     onClick={() => onRemove(remote.name)}
                   >
                     <Trash2Icon />
-                    Remove
+                    {t("remove")}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </>
@@ -196,7 +201,7 @@ function RemoteCard({
       <CardFooter>
         <Button onClick={() => void router.push(browseHref)} className="w-full">
           <FolderOpenIcon className="mr-2" />
-          Browse files
+          {t("remote.browseFiles")}
         </Button>
       </CardFooter>
     </Card>
@@ -205,6 +210,7 @@ function RemoteCard({
 
 /** Cloud remotes (rclone): add, edit, remove, browse in Files, and sync folders. */
 export function CloudView() {
+  const { t } = useTranslation("cloud")
   const { user } = useAuth()
   const capability = useCapability("cloud.rclone")
   const { remotes, error, reload } = useRemotes()
@@ -233,10 +239,10 @@ export function CloudView() {
     if (error)
       toast.add({
         type: "error",
-        title: `Couldn't remove ${name}`,
+        title: t("view.removeFailed", { name }),
         description: errorMessage(error),
       })
-    else toast.add({ type: "success", title: `Removed ${name}` })
+    else toast.add({ type: "success", title: t("view.removed", { name }) })
   }
 
   const admin = user.is_admin
@@ -252,7 +258,7 @@ export function CloudView() {
           <Button
             variant="outline"
             size="icon"
-            aria-label="Refresh"
+            aria-label={t("view.refresh")}
             onClick={() => void reload()}
           >
             <RefreshCwIcon />
@@ -263,12 +269,12 @@ export function CloudView() {
             onClick={() => setSyncing(true)}
           >
             <RefreshCcwDotIcon />
-            Sync folders
+            {t("view.syncFolders")}
           </Button>
           {admin ? (
             <Button onClick={() => setEditing({ name: null })}>
               <PlusIcon />
-              Add remote
+              {t("view.addRemote")}
             </Button>
           ) : null}
         </div>
@@ -279,7 +285,7 @@ export function CloudView() {
       ) : error ? (
         <Empty className="border">
           <EmptyHeader>
-            <EmptyTitle>Can&apos;t reach rclone</EmptyTitle>
+            <EmptyTitle>{t("view.cantReach")}</EmptyTitle>
             <EmptyDescription>{error}</EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -289,18 +295,16 @@ export function CloudView() {
             <EmptyMedia variant="icon">
               <CloudIcon />
             </EmptyMedia>
-            <EmptyTitle>No remotes yet</EmptyTitle>
+            <EmptyTitle>{t("view.empty.title")}</EmptyTitle>
             <EmptyDescription>
-              Add Google Drive, OneDrive, Dropbox, an S3 bucket, a WebDAV server
-              or any other storage rclone supports, then browse it in Files and
-              copy or sync folders to it.
+              {t("view.empty.description")}
             </EmptyDescription>
           </EmptyHeader>
           {admin ? (
             <EmptyContent>
               <Button onClick={() => setEditing({ name: null })}>
                 <PlusIcon />
-                Add remote
+                {t("view.addRemote")}
               </Button>
             </EmptyContent>
           ) : null}
@@ -330,19 +334,20 @@ export function CloudView() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove {removing}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("view.removeTitle", { name: removing ?? "" })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Athena forgets how to connect to it. Nothing stored on it is
-              deleted.
+              {t("view.removeDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => removing && void remove(removing)}
             >
-              Remove
+              {t("remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

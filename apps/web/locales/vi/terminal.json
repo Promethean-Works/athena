@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Đang kết nối…",
+    "connected": "Đã kết nối",
+    "exited": "Đã thoát ({{code}})",
+    "disconnected": "Đã ngắt kết nối",
+    "hostTerminal": "Terminal máy chủ",
+    "containerShell": "Shell của container",
+    "lost": "Mất kết nối với Athena",
+    "closedCode": "Đã ngắt kết nối (mã {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminal không khả dụng",
+    "openSettings": "Mở Cài đặt",
+    "description": "Một shell trên máy chủ này, với quyền của người dùng chạy Athena.",
+    "newSession": "Phiên mới"
+  },
+  "access": {
+    "noSupport": "Máy chủ này không hỗ trợ terminal.",
+    "adminsOnly": "Chỉ quản trị viên mới mở được terminal.",
+    "turnedOff": "Terminal đã bị tắt trong Cài đặt → Hệ thống."
+  },
+  "shell": {
+    "title": "Shell · {{name}}",
+    "description": "Chạy bash, hoặc sh khi image không có bash."
+  }
+}

@@ -277,8 +277,8 @@ def detect_power(probe: Probe) -> list[Capability]:
 
 def detect_smb(probe: Probe) -> Capability:
     """SMB shares: publish a file location over the network (§4.3). Linux uses the
-    installed Samba server, macOS its built-in `sharing` tool (both need root); Windows
-    isn't wired yet."""
+    installed Samba server, macOS its built-in `sharing` tool (both need root), Windows the built-in
+    SmbShare cmdlets (needs an administrator)."""
     label = "SMB shares"
     if probe.os == "linux":
         if probe.which("smbd"):
@@ -301,12 +301,22 @@ def detect_smb(probe: Probe) -> Capability:
             provider="sharing",
             detail="Sharing folders over SMB needs Athena to run as root.",
         )
+    if probe.os == "windows" and probe.which("powershell"):
+        if probe.is_admin():
+            return Capability(id="shares.smb", label=label, status="ready", provider="smbshare")
+        return Capability(
+            id="shares.smb",
+            label=label,
+            status="needs_privilege",
+            provider="smbshare",
+            detail="Sharing folders over SMB needs Athena to run as an administrator.",
+        )
     return Capability(
         id="shares.smb",
         label=label,
         status="unsupported",
         provider="built-in",
-        detail="Creating SMB shares from Athena isn't available on this operating system yet.",
+        detail="Creating SMB shares from Athena isn't available on this operating system.",
     )
 
 

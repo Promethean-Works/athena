@@ -1,0 +1,106 @@
+{
+  "save": "Simpan",
+  "cancel": "Batal",
+  "close": "Tutup",
+  "loading": "Memuat…",
+  "back": "Kembali",
+  "delete": "Hapus",
+  "log": {
+    "empty": "Belum ada output.",
+    "copy": "Salin log",
+    "title": "Log",
+    "copied": "Log disalin",
+    "copyFailed": "Tidak dapat menyalin"
+  },
+  "capabilities": {
+    "title": "Kapabilitas",
+    "summary": "{{ready}} dari {{total}} siap. Fitur hanya muncul jika dapat berfungsi.",
+    "loadingSummary": "Apa yang ditemukan Athena di host ini.",
+    "redetect": "Deteksi ulang",
+    "loadFailed": "Tidak dapat memuat kapabilitas: {{error}}",
+    "details": "Detail",
+    "status": {
+      "ready": "Siap",
+      "stopped": "Berhenti",
+      "missing": "Belum terpasang",
+      "unsupported": "Tidak didukung",
+      "needs_privilege": "Perlu root"
+    }
+  },
+  "job": {
+    "working": "Sedang bekerja… Anda boleh menutup ini; proses tetap berjalan.",
+    "done": "Selesai.",
+    "connectionLost": "Koneksi ke tugas terputus.",
+    "progress": "Progres",
+    "finishing": " · menyelesaikan…",
+    "cancel": "Batalkan tugas",
+    "stopFailed": "Tidak dapat menghentikannya"
+  },
+  "restart": {
+    "title": "Mulai ulang Athena?",
+    "description": "Tugas yang berjalan akan dihentikan. Halaman tersambung kembali dalam beberapa detik. Aplikasi Anda tetap berjalan.",
+    "confirm": "Mulai ulang",
+    "failed": "Tidak dapat memulai ulang Athena",
+    "waitingTitle": "Memulai ulang Athena…",
+    "waitingBody": "Halaman ini dimuat ulang saat Athena kembali."
+  },
+  "update": {
+    "notBackYet": "Athena belum kembali",
+    "reload": "Muat ulang halaman",
+    "notice": {
+      "title": "Athena {{latest}} tersedia",
+      "runs": "Server ini menjalankan {{current}}.",
+      "whatsNew": "Lihat yang baru"
+    },
+    "action": {
+      "updateNow": "Perbarui sekarang",
+      "cannotSelf": "Athena ini tidak dapat memperbarui dirinya sendiri",
+      "howTo": "{{reason}}. Untuk memperbarui, jalankan ini di server (memasang versi baru dan memulai ulang Athena; data dan pengaturan Anda tetap):",
+      "commandLabel": "Perintah pembaruan"
+    },
+    "interrupted": {
+      "title": "Pembaruan terakhir tidak selesai",
+      "body": "Pembaruan dari {{from}} ke {{to}} dimulai tetapi tidak pernah melapor kembali (host mungkin kehilangan daya, atau pembaruan dihentikan). Athena berjalan, tetapi pastikan itu versi yang Anda harapkan. Log pembaruan ada di folder data (logs/update.log). Untuk memperbaiki instalasi, jalankan perintah penginstal dari README di server.",
+      "dismiss": "Tutup",
+      "oldVersion": "versi lama",
+      "newVersion": "versi baru"
+    },
+    "dialog": {
+      "steps": "Langkah pembaruan",
+      "stepPrepare": "Unduh dan periksa rilis",
+      "stepSwap": "Hentikan Athena, pasang, dan mulai lagi",
+      "stepCheck": "Tunggu versi baru merespons",
+      "newVersion": "versi baru",
+      "oldVersion": "versi lama",
+      "updated": "Diperbarui ke {{to}}",
+      "reloading": "Memuat ulang halaman…",
+      "rolledBackTitle": "Pembaruan ke {{to}} gagal, tetap di {{from}}",
+      "rolledBackBody": "Athena kembali ke versi yang Anda miliki, dengan data seperti sebelum pembaruan.",
+      "reason": " Alasan: {{reason}}",
+      "abortedTitle": "Pembaruan ke {{to}} dihentikan",
+      "failedTitle": "Pembaruan ke {{to}} gagal dan Athena tidak berjalan",
+      "abortedBody": "Tidak ada yang dipasang. Mulai Athena lagi, atau jalankan perintah penginstal dari README.",
+      "failedBody": "Jalankan perintah penginstal dari README di server untuk memperbaikinya.",
+      "back": "Athena sudah kembali",
+      "backBody": "Muat ulang halaman untuk melihat versi yang berjalan.",
+      "confirmTitle": "Perbarui Athena?",
+      "notStartedTitle": "Pembaruan tidak dimulai",
+      "preparingTitle": "Menyiapkan pembaruan",
+      "versions": "Athena {{current}} ke {{latest}}.",
+      "confirmBody": "Athena dimulai ulang selama satu atau dua menit dan halaman tersambung kembali. Aplikasi dan kontainer Anda tetap berjalan. Jika versi baru tidak dapat dimulai, Athena kembali ke versi ini.",
+      "stopsTitle": "Ini berhenti saat Athena dimulai ulang:",
+      "terminals_other": "{{count}} terminal terbuka",
+      "backupFirst": "Cadangkan Athena terlebih dahulu",
+      "backupFirstHelp": "Menyimpan pengaturan dan data Athena dengan rencana cadangan “{{plan}}” sebelum apa pun dihentikan. Aplikasi Anda tidak disentuh.",
+      "notChanged": "{{error}}. Tidak ada yang diubah; Athena tetap menjalankan {{current}}.",
+      "prepareFailed": "Pembaruan tidak dapat disiapkan",
+      "updateAnyway": "Tetap perbarui",
+      "update": "Perbarui",
+      "restarting": "Memulai ulang…",
+      "updatingTo": "Memperbarui ke {{latest}}. Halaman ini dimuat ulang saat Athena kembali.",
+      "lateBody": "Bisa lebih lama pada host yang lambat. Jika tetap mati, periksa log pembaruan di folder data (logs/update.log)."
+    }
+  },
+  "restartLateBody": "Bisa lebih lama pada host yang lambat. Jika tetap mati, periksa log di folder data (logs/athena.log).",
+  "toggleSidebar": "Buka/tutup sidebar"
+}

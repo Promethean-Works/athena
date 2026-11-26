@@ -1,0 +1,280 @@
+{
+  "common": {
+    "manage": "Zarządzaj"
+  },
+  "cardShell": {
+    "open": "Otwórz"
+  },
+  "cards": {
+    "stats": {
+      "title": "System",
+      "description": "Aktywność procesora, pamięci, sieci i dysku na żywo."
+    },
+    "apps": {
+      "title": "Aplikacje",
+      "description": "Twoje aplikacje, ze stanem i przyciskiem Otwórz."
+    },
+    "containers": {
+      "title": "Kontenery",
+      "description": "Liczby działających i zatrzymanych oraz te wymagające uwagi."
+    },
+    "automation": {
+      "title": "Automatyzacja",
+      "description": "Następne zaplanowane uruchomienia i przebieg ostatnich."
+    },
+    "storage": {
+      "title": "Pamięć masowa",
+      "description": "Zajęte miejsce na każdym dysku."
+    },
+    "server": {
+      "title": "Serwer",
+      "description": "Nazwa hosta, system operacyjny, czas działania i wersje."
+    },
+    "temperatures": {
+      "title": "Temperatury",
+      "description": "Odczyty czujników, jeśli host je zgłasza."
+    },
+    "power": {
+      "title": "Zasilanie",
+      "description": "Zbyt niskie napięcie i dławienie na Raspberry Pi."
+    },
+    "activity": {
+      "title": "Ostatnia aktywność",
+      "description": "Najnowsze zmiany z dziennika audytu (tylko administratorzy)."
+    },
+    "remoteAccess": {
+      "title": "Dostęp zdalny",
+      "description": "Stan tunelu i adres publiczny."
+    },
+    "capabilities": {
+      "title": "Możliwości",
+      "description": "Co Athena znalazła na tym hoście."
+    },
+    "backups": {
+      "title": "Kopie zapasowe",
+      "description": "Plany kopii, ostatnie uruchomienia i następne zaplanowane."
+    }
+  },
+  "activity": {
+    "title": "Ostatnia aktywność",
+    "description": "Kto co zmienił na tym serwerze.",
+    "loadError": "Nie udało się wczytać ostatniej aktywności: {{error}}",
+    "empty": "Na razie nic. Akcje na aplikacjach, kontenerach i plikach pojawiają się tutaj.",
+    "by": "przez {{username}}"
+  },
+  "automation": {
+    "title": "Automatyzacja",
+    "description": "Wyzwalacze harmonogramu i webhooków oraz przebieg ich uruchomień.",
+    "succeeded": "Udane",
+    "failed": "Nieudane",
+    "loadError": "Nie udało się wczytać automatyzacji: {{error}}",
+    "noTriggers": "Brak wyzwalaczy. Utwórz jeden, aby restartować aplikację lub aktualizować pakiety według harmonogramu.",
+    "nextRuns": "Następne uruchomienia · włączone wyzwalacze: {{enabled}} z {{total}}",
+    "nothingScheduled": "Nic nie zaplanowano. Wyzwalacze webhook działają po wywołaniu.",
+    "recentRuns": "Ostatnie uruchomienia",
+    "noRuns": "Brak uruchomień.",
+    "deletedTrigger": "Usunięty wyzwalacz"
+  },
+  "backup": {
+    "title": "Kopie zapasowe",
+    "description": "Plany kopii, ostatnie uruchomienia i następne zaplanowane.",
+    "succeeded": "Udane",
+    "failed": "Nieudane",
+    "running": "W toku",
+    "loadError": "Nie udało się wczytać planów kopii zapasowych: {{error}}",
+    "empty": "Brak planów kopii zapasowych. Dodaj jeden w Ustawienia → Kopie zapasowe.",
+    "plans": "Plany",
+    "enabled": "Włączone",
+    "plansFailed_one": "{{count}} plan nie powiódł się",
+    "plansFailed_few": "{{count}} plany nie powiodły się",
+    "plansFailed_many": "{{count}} planów nie powiodło się",
+    "plansFailed_other": "{{count}} planu nie powiodło się",
+    "noFailures": "Brak ostatnich niepowodzeń",
+    "nextRuns": "Następne zaplanowane uruchomienia",
+    "noScheduled": "Brak zaplanowanych uruchomień"
+  },
+  "containers": {
+    "title": "Kontenery",
+    "description": "Wszystko, co uruchamia silnik kontenerów, razem z aplikacjami.",
+    "all": "Wszystkie kontenery",
+    "running": "Działają",
+    "notRunning": "Nie działają",
+    "needAttention": "Wymagają uwagi",
+    "exited": "Zakończony ({{code}})",
+    "loadError": "Nie udało się wczytać kontenerów: {{error}}",
+    "empty": "Na tym serwerze nie ma jeszcze kontenerów.",
+    "engineDown": "Silnik kontenerów nie działa."
+  },
+  "apps": {
+    "title": "Aplikacje",
+    "subtitle": "Co działa na tym serwerze",
+    "store": "Sklep",
+    "all": "Wszystkie aplikacje",
+    "emptyTitle": "Brak aplikacji",
+    "emptyDescription": "Zainstaluj jedną ze sklepu lub wdróż własny plik compose.",
+    "browseStore": "Przeglądaj sklep",
+    "status": {
+      "running": "Działa",
+      "partial": "Działa częściowo",
+      "stopped": "Zatrzymana",
+      "notDeployed": "Niewdrożona"
+    },
+    "containerCount_one": "{{count}} kontener",
+    "containerCount_few": "{{count}} kontenery",
+    "containerCount_many": "{{count}} kontenerów",
+    "containerCount_other": "{{count}} kontenera",
+    "actionsFor": "Akcje dla {{name}}",
+    "open": "Otwórz",
+    "openPort": "Otwórz :{{port}}",
+    "details": "Szczegóły",
+    "restart": "Restartuj",
+    "stop": "Zatrzymaj",
+    "start": "Uruchom",
+    "updateImages": "Aktualizuj obrazy",
+    "remove": "Usuń"
+  },
+  "grid": {
+    "pickedUp": "Podniesiono kartę {{title}}.",
+    "overCard": "{{title}} jest nad kartą {{other}}.",
+    "notOverCard": "{{title}} nie jest już nad żadną kartą.",
+    "moved": "{{title}} przeniesiono na miejsce karty {{other}}.",
+    "dropped": "Upuszczono {{title}}.",
+    "cancelled": "Anulowano przenoszenie {{title}}.",
+    "move": "Przenieś {{title}}",
+    "moveUp": "Przesuń {{title}} w górę",
+    "moveDown": "Przesuń {{title}} w dół",
+    "makeHalf": "Zmień {{title}} na pół szerokości",
+    "makeFull": "Zmień {{title}} na pełną szerokość",
+    "remove": "Usuń {{title}}",
+    "nothingToShow": "Na tym serwerze nie ma teraz nic do pokazania.",
+    "addDialogTitle": "Dodaj kartę",
+    "addDialogDescription": "Karty dodawane są na końcu; przeciągnij je tam, gdzie chcesz.",
+    "allAddedTitle": "Wszystkie karty są na pulpicie",
+    "allAddedDescription": "Usuń jedną, aby później dodać ją ponownie.",
+    "addCard": "Dodaj {{title}}",
+    "add": "Dodaj",
+    "editHint": "Przeciągaj karty za uchwyt lub użyj strzałek. Zmiany zapiszą się po naciśnięciu Gotowe.",
+    "addCardButton": "Dodaj kartę",
+    "reset": "Resetuj",
+    "cancel": "Anuluj",
+    "done": "Gotowe",
+    "customize": "Dostosuj",
+    "emptyTitle": "Twój pulpit jest pusty",
+    "emptyDescription": "Dodaj karty lub przywróć układ domyślny.",
+    "dragInstructions": "Aby przenieść kartę, naciśnij Spację lub Enter, użyj klawiszy strzałek, a potem znów naciśnij Spację lub Enter, aby ją upuścić, albo Escape, aby anulować."
+  },
+  "stats": {
+    "used": "Użyte",
+    "download": "Pobieranie",
+    "upload": "Wysyłanie",
+    "read": "Odczyt",
+    "write": "Zapis",
+    "util": "Wykorz.",
+    "unavailableTitle": "Statystyki na żywo są niedostępne",
+    "unavailableDescription": "Serwer nie zwrócił statystyk hosta.",
+    "coresThreads": "{{cores}} rdzeni · {{threads}} wątków",
+    "cores_one": "{{count}} rdzeń",
+    "cores_few": "{{count}} rdzenie",
+    "cores_many": "{{count}} rdzeni",
+    "cores_other": "{{count}} rdzenia",
+    "coresLoad": "{{cores}} · obciążenie {{load}}",
+    "liveLabel": "Statystyki hosta na żywo",
+    "system": "System",
+    "live": "Na żywo",
+    "reconnecting": "Ponowne łączenie",
+    "chartRange": "Zakres wykresu",
+    "range5m": "5 min",
+    "range1h": "1 godz.",
+    "memory": "Pamięć",
+    "memUsed": "Użyto {{used}}",
+    "memUsedSwap": "Użyto {{used}} · swap {{swap}}",
+    "network": "Sieć",
+    "diskActivity": "Aktywność dysku",
+    "readRate": "O {{rate}}",
+    "writeRate": "Z {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_few": "{{count}} GPU",
+    "gpuCount_many": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPU",
+    "noGpu": "nie zgłoszono GPU",
+    "vramOf": "{{used}} z {{total}}"
+  },
+  "power": {
+    "title": "Zasilanie",
+    "description": "Zasilanie i dławienie Raspberry Pi",
+    "problemNow": "Problem teraz",
+    "ok": "OK",
+    "flagNow": "{{label}} teraz",
+    "flagSinceBoot": "{{label}} od uruchomienia",
+    "none": "Brak zbyt niskiego napięcia i dławienia od uruchomienia tego serwera.",
+    "flags": {
+      "underVoltage": {
+        "label": "Zbyt niskie napięcie",
+        "hint": "Zasilacz lub kabel nie nadąża. Użyj oficjalnego zasilacza i krótkiego, grubego kabla."
+      },
+      "throttled": {
+        "label": "Dławienie",
+        "hint": "Procesor jest spowolniony w celu ochrony."
+      },
+      "freqCapped": {
+        "label": "Ograniczona częstotliwość",
+        "hint": "Firmware obniżył maksymalną prędkość procesora."
+      },
+      "softTempLimit": {
+        "label": "Miękki limit temperatury",
+        "hint": "Procesor zbliża się do limitu temperatury. Sprawdź chłodzenie."
+      }
+    }
+  },
+  "remote": {
+    "title": "Dostęp zdalny",
+    "description": "Połącz się z Athena spoza swojej sieci.",
+    "settings": "Ustawienia",
+    "loadError": "Nie udało się wczytać dostępu zdalnego: {{error}}",
+    "off": "Wyłączony. Włącz go w Ustawienia → System, aby łączyć się z Athena spoza swojej sieci.",
+    "running": "Działa",
+    "notRunning": "Nie działa",
+    "noProvider": "Brak dostawcy",
+    "warning": "Terminal, instalacja pakietów i asystent są dostępne z internetu za pomocą jednego hasła. <link>Wyłącz je</link>, jeśli nie potrzebujesz ich zdalnie.",
+    "publicAddress": "Adres publiczny",
+    "copyAddress": "Kopiuj adres publiczny",
+    "copied": "Skopiowano adres",
+    "copyFailed": "Nie udało się skopiować"
+  },
+  "storage": {
+    "title": "Pamięć masowa",
+    "description": "Dyski, foldery, chmura i udziały sieciowe",
+    "noDisks": "Nie zgłoszono jeszcze dysków.",
+    "diskUsage": "{{used}} z {{total}}",
+    "folders": "Foldery",
+    "unavailable": "Niedostępne",
+    "cloud": "Pamięć w chmurze",
+    "shares": "Udziały sieciowe",
+    "readOnly": "Tylko do odczytu"
+  },
+  "temperatures": {
+    "title": "Temperatury",
+    "description": "Czujniki sprzętowe"
+  },
+  "layout": {
+    "saveFailed": "Nie udało się zapisać pulpitu",
+    "saved": "Zapisano pulpit"
+  },
+  "server": {
+    "title": "Serwer",
+    "description": "Maszyna, na której działa Athena",
+    "unreachableTitle": "Nie można połączyć się z serwerem Athena",
+    "unreachableDescription": "{{error}}. W trybie deweloperskim uruchom go poleceniem <code>uv run athena serve --reload</code> w <code>apps/server</code>.",
+    "host": "Host",
+    "os": "System operacyjny",
+    "platform": "Platforma",
+    "uptime": "Czas działania",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Łączenie…",
+    "unreachable": "Serwer nieosiągalny",
+    "version": "Athena {{version}}"
+  }
+}

@@ -1,0 +1,268 @@
+{
+  "common": {
+    "manage": "관리"
+  },
+  "cardShell": {
+    "open": "열기"
+  },
+  "cards": {
+    "stats": {
+      "title": "시스템",
+      "description": "CPU, 메모리, 네트워크, 디스크 활동을 실시간으로 보여줘요."
+    },
+    "apps": {
+      "title": "앱",
+      "description": "앱의 상태와 열기 버튼을 보여줘요."
+    },
+    "containers": {
+      "title": "컨테이너",
+      "description": "실행 중, 중지된 컨테이너 수와 주의가 필요한 컨테이너를 보여줘요."
+    },
+    "automation": {
+      "title": "자동화",
+      "description": "다음 예약 실행과 최근 실행 결과를 보여줘요."
+    },
+    "storage": {
+      "title": "저장소",
+      "description": "각 디스크의 사용 공간이에요."
+    },
+    "server": {
+      "title": "서버",
+      "description": "호스트 이름, 운영 체제, 가동 시간, 버전이에요."
+    },
+    "temperatures": {
+      "title": "온도",
+      "description": "호스트가 보고하는 센서 값이에요."
+    },
+    "power": {
+      "title": "전원",
+      "description": "Raspberry Pi의 저전압과 스로틀링이에요."
+    },
+    "activity": {
+      "title": "최근 활동",
+      "description": "감사 로그의 최근 변경 사항이에요(관리자 전용)."
+    },
+    "remoteAccess": {
+      "title": "원격 접속",
+      "description": "터널 상태와 공개 주소예요."
+    },
+    "capabilities": {
+      "title": "기능 지원",
+      "description": "Athena가 이 호스트에서 찾은 항목이에요."
+    },
+    "backups": {
+      "title": "백업",
+      "description": "백업 플랜, 마지막 실행, 다음 예약 실행이에요."
+    }
+  },
+  "activity": {
+    "title": "최근 활동",
+    "description": "이 서버에서 누가 무엇을 바꿨는지 보여줘요.",
+    "loadError": "최근 활동을 불러올 수 없어요: {{error}}",
+    "empty": "아직 없어요. 앱, 컨테이너, 파일에 대한 작업이 여기에 표시돼요.",
+    "by": "{{username}}"
+  },
+  "automation": {
+    "title": "자동화",
+    "description": "예약 및 웹훅 트리거와 실행 결과예요.",
+    "succeeded": "성공",
+    "failed": "실패",
+    "loadError": "자동화를 불러올 수 없어요: {{error}}",
+    "noTriggers": "아직 트리거가 없어요. 일정에 따라 앱을 다시 시작하거나 패키지를 업데이트하는 트리거를 만들어 보세요.",
+    "nextRuns": "다음 실행 · 트리거 {{total}}개 중 {{enabled}}개 켜짐",
+    "nothingScheduled": "예약된 항목이 없어요. 웹훅 트리거는 호출될 때 실행돼요.",
+    "recentRuns": "최근 실행",
+    "noRuns": "아직 실행 기록이 없어요.",
+    "deletedTrigger": "삭제된 트리거"
+  },
+  "backup": {
+    "title": "백업",
+    "description": "백업 플랜, 마지막 실행, 다음 예약 실행이에요.",
+    "succeeded": "성공",
+    "failed": "실패",
+    "running": "실행 중",
+    "loadError": "백업 플랜을 불러올 수 없어요: {{error}}",
+    "empty": "아직 백업 플랜이 없어요. 설정 → 백업에서 추가하세요.",
+    "plans": "플랜",
+    "enabled": "사용 중",
+    "plansFailed_other": "플랜 {{count}}개 실패",
+    "noFailures": "최근 실패 없음",
+    "nextRuns": "다음 예약 실행",
+    "noScheduled": "예약된 실행 없음"
+  },
+  "containers": {
+    "title": "컨테이너",
+    "description": "앱을 포함해 컨테이너 엔진이 실행하는 모든 항목이에요.",
+    "all": "전체 컨테이너",
+    "running": "실행 중",
+    "notRunning": "실행 중 아님",
+    "needAttention": "주의 필요",
+    "exited": "종료됨 ({{code}})",
+    "loadError": "컨테이너를 불러올 수 없어요: {{error}}",
+    "empty": "이 서버에 아직 컨테이너가 없어요.",
+    "engineDown": "컨테이너 엔진이 실행 중이 아니에요."
+  },
+  "apps": {
+    "title": "앱",
+    "subtitle": "이 서버에서 실행 중인 앱",
+    "store": "스토어",
+    "all": "전체 앱",
+    "emptyTitle": "아직 앱이 없어요",
+    "emptyDescription": "스토어에서 설치하거나 직접 만든 Compose 파일을 배포하세요.",
+    "browseStore": "스토어 둘러보기",
+    "status": {
+      "running": "실행 중",
+      "partial": "일부 실행 중",
+      "stopped": "중지됨",
+      "notDeployed": "배포되지 않음"
+    },
+    "containerCount_other": "컨테이너 {{count}}개",
+    "actionsFor": "{{name}} 작업",
+    "open": "열기",
+    "openPort": ":{{port}} 열기",
+    "details": "세부 정보",
+    "restart": "다시 시작",
+    "stop": "중지",
+    "start": "시작",
+    "updateImages": "이미지 업데이트",
+    "remove": "삭제"
+  },
+  "grid": {
+    "pickedUp": "{{title}} 카드를 집었어요.",
+    "overCard": "{{title}}이(가) {{other}} 위에 있어요.",
+    "notOverCard": "{{title}}이(가) 더 이상 카드 위에 있지 않아요.",
+    "moved": "{{title}}을(를) {{other}}의 위치로 옮겼어요.",
+    "dropped": "{{title}}을(를) 놓았어요.",
+    "cancelled": "{{title}} 이동을 취소했어요.",
+    "move": "{{title}} 이동",
+    "moveUp": "{{title}} 위로 이동",
+    "moveDown": "{{title}} 아래로 이동",
+    "makeHalf": "{{title}} 너비를 절반으로",
+    "makeFull": "{{title}} 너비를 전체로",
+    "remove": "{{title}} 삭제",
+    "nothingToShow": "지금 이 서버에는 표시할 항목이 없어요.",
+    "addDialogTitle": "카드 추가",
+    "addDialogDescription": "카드는 맨 끝에 추가돼요. 원하는 위치로 끌어서 옮기세요.",
+    "allAddedTitle": "모든 카드가 대시보드에 있어요",
+    "allAddedDescription": "카드를 삭제하면 나중에 다시 추가할 수 있어요.",
+    "addCard": "{{title}} 추가",
+    "add": "추가",
+    "editHint": "핸들로 카드를 끌거나 화살표를 사용하세요. 완료를 누르면 변경 사항이 저장돼요.",
+    "addCardButton": "카드 추가",
+    "reset": "초기화",
+    "cancel": "취소",
+    "done": "완료",
+    "customize": "사용자 지정",
+    "emptyTitle": "대시보드가 비어 있어요",
+    "emptyDescription": "카드를 추가하거나 기본 레이아웃으로 초기화하세요.",
+    "dragInstructions": "카드를 옮기려면 Space 또는 Enter를 누르고 화살표 키로 이동한 다음, 다시 Space 또는 Enter를 눌러 놓거나 Escape를 눌러 취소하세요."
+  },
+  "stats": {
+    "used": "사용 중",
+    "download": "다운로드",
+    "upload": "업로드",
+    "read": "읽기",
+    "write": "쓰기",
+    "util": "사용률",
+    "unavailableTitle": "실시간 통계를 사용할 수 없어요",
+    "unavailableDescription": "서버가 호스트 통계를 반환하지 않았어요.",
+    "coresThreads": "코어 {{cores}}개 · 스레드 {{threads}}개",
+    "cores_other": "코어 {{count}}개",
+    "coresLoad": "{{cores}} · 부하 {{load}}",
+    "liveLabel": "실시간 호스트 통계",
+    "system": "시스템",
+    "live": "실시간",
+    "reconnecting": "다시 연결 중",
+    "chartRange": "차트 범위",
+    "range5m": "5분",
+    "range1h": "1시간",
+    "memory": "메모리",
+    "memUsed": "{{used}} 사용 중",
+    "memUsedSwap": "{{used}} 사용 중 · 스왑 {{swap}}",
+    "network": "네트워크",
+    "diskActivity": "디스크 활동",
+    "readRate": "R {{rate}}",
+    "writeRate": "W {{rate}}",
+    "gpuCount_other": "GPU {{count}}개",
+    "noGpu": "보고된 GPU 없음",
+    "vramOf": "{{total}} 중 {{used}}"
+  },
+  "power": {
+    "title": "전원",
+    "description": "Raspberry Pi 전원과 스로틀링",
+    "problemNow": "현재 문제 있음",
+    "ok": "정상",
+    "flagNow": "현재 {{label}}",
+    "flagSinceBoot": "부팅 이후 {{label}}",
+    "none": "이 서버가 부팅된 이후 저전압이나 스로틀링이 없었어요.",
+    "flags": {
+      "underVoltage": {
+        "label": "저전압",
+        "hint": "전원 어댑터나 케이블이 전력을 감당하지 못해요. 정품 어댑터와 짧고 굵은 케이블을 사용하세요."
+      },
+      "throttled": {
+        "label": "스로틀링",
+        "hint": "CPU가 스스로를 보호하려고 속도를 낮췄어요."
+      },
+      "freqCapped": {
+        "label": "주파수 제한",
+        "hint": "펌웨어가 CPU 최대 속도를 낮췄어요."
+      },
+      "softTempLimit": {
+        "label": "소프트 온도 제한",
+        "hint": "CPU가 온도 한계에 가까워요. 냉각을 확인하세요."
+      }
+    }
+  },
+  "remote": {
+    "title": "원격 접속",
+    "description": "네트워크 밖에서 Athena에 접속하세요.",
+    "settings": "설정",
+    "loadError": "원격 접속 정보를 불러올 수 없어요: {{error}}",
+    "off": "꺼져 있어요. 네트워크 밖에서 Athena에 접속하려면 설정 → 시스템에서 켜세요.",
+    "running": "실행 중",
+    "notRunning": "실행 중 아님",
+    "noProvider": "제공자 없음",
+    "warning": "터미널, 패키지 설치, 어시스턴트를 비밀번호 하나로 인터넷에서 사용할 수 있어요. 원격으로 필요 없다면 <link>끄세요</link>.",
+    "publicAddress": "공개 주소",
+    "copyAddress": "공개 주소 복사",
+    "copied": "주소를 복사했어요",
+    "copyFailed": "복사할 수 없어요"
+  },
+  "storage": {
+    "title": "저장소",
+    "description": "디스크, 폴더, 클라우드, 네트워크 공유",
+    "noDisks": "아직 보고된 디스크가 없어요.",
+    "diskUsage": "{{total}} 중 {{used}}",
+    "folders": "폴더",
+    "unavailable": "사용할 수 없음",
+    "cloud": "클라우드 스토리지",
+    "shares": "네트워크 공유",
+    "readOnly": "읽기 전용"
+  },
+  "temperatures": {
+    "title": "온도",
+    "description": "하드웨어 센서"
+  },
+  "layout": {
+    "saveFailed": "대시보드를 저장할 수 없어요",
+    "saved": "대시보드를 저장했어요"
+  },
+  "server": {
+    "title": "서버",
+    "description": "Athena가 실행 중인 머신",
+    "unreachableTitle": "Athena 서버에 연결할 수 없어요",
+    "unreachableDescription": "{{error}}. 개발 중이라면 <code>apps/server</code>에서 <code>uv run athena serve --reload</code>로 시작하세요.",
+    "host": "호스트",
+    "os": "운영 체제",
+    "platform": "플랫폼",
+    "uptime": "가동 시간",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "연결 중…",
+    "unreachable": "서버에 연결할 수 없음",
+    "version": "Athena {{version}}"
+  }
+}

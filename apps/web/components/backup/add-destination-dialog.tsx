@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { FolderIcon, KeyIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -41,6 +42,7 @@ export function AddDestinationDialog({
   /** Called with the created destination. */
   onAdded: (destination: Schemas["DestinationOut"]) => void
 }) {
+  const { t } = useTranslation("backup")
   const [submitting, setSubmitting] = React.useState(false)
   const [step, setStep] = React.useState<"form" | "kit">("form")
   const [name, setName] = React.useState("")
@@ -74,7 +76,7 @@ export function AddDestinationDialog({
           return
         }
         toast.add({
-          title: errorMessage(err, "Couldn't prepare destination"),
+          title: errorMessage(err, t("addDestination.prepareFailed")),
           type: "error",
         })
         return
@@ -83,7 +85,7 @@ export function AddDestinationDialog({
       // "kit" step: confirm the kit was saved, then create.
       if (!kitSaved) {
         toast.add({
-          title: "Save the recovery kit before creating the destination",
+          title: t("addDestination.saveKitFirst"),
           type: "error",
         })
         return
@@ -100,7 +102,7 @@ export function AddDestinationDialog({
       })
       if (data) {
         toast.add({
-          title: `Destination "${data.name}" created`,
+          title: t("toast.destinationCreated", { name: data.name }),
           type: "success",
         })
         onAdded(data)
@@ -108,7 +110,7 @@ export function AddDestinationDialog({
         return
       }
       toast.add({
-        title: errorMessage(err, "Couldn't create destination"),
+        title: errorMessage(err, t("errors.createDestination")),
         type: "error",
       })
     } finally {
@@ -122,29 +124,29 @@ export function AddDestinationDialog({
         <DialogHeader>
           <DialogTitle>
             {step === "form"
-              ? "Add backup destination"
-              : "Save the recovery kit"}
+              ? t("addDestination.title")
+              : t("addDestination.kitTitle")}
           </DialogTitle>
           <DialogDescription>
             {step === "form"
-              ? "Pick where restic keeps the repository: a local folder or an rclone remote."
-              : "Download or copy the kit. Athena never shows this password again; without it a dead host can't restore."}
+              ? t("addDestination.description")
+              : t("addDestination.kitDescription")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit}>
           {step === "form" ? (
             <>
               <Field>
-                <FieldLabel>Name</FieldLabel>
+                <FieldLabel>{t("addDestination.name")}</FieldLabel>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. USB drive"
+                  placeholder={t("addDestination.namePlaceholder")}
                   required
                 />
               </Field>
               <Field>
-                <FieldLabel>Kind</FieldLabel>
+                <FieldLabel>{t("addDestination.kind")}</FieldLabel>
                 <Select value={kind} onValueChange={(v) => setKind(v as Kind)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -152,15 +154,17 @@ export function AddDestinationDialog({
                   <SelectContent>
                     <SelectItem value="local">
                       <FolderIcon data-icon="inline-start" />
-                      Local folder
+                      {t("addDestination.local")}
                     </SelectItem>
-                    <SelectItem value="rclone">rclone remote</SelectItem>
+                    <SelectItem value="rclone">
+                      {t("addDestination.rclone")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
               {kind === "local" ? (
                 <Field>
-                  <FieldLabel>Folder</FieldLabel>
+                  <FieldLabel>{t("addDestination.folder")}</FieldLabel>
                   <Input
                     value={path}
                     onChange={(e) => setPath(e.target.value)}
@@ -168,12 +172,12 @@ export function AddDestinationDialog({
                     required
                   />
                   <FieldDescription>
-                    Absolute path, outside the Athena data folder.
+                    {t("addDestination.folderHint")}
                   </FieldDescription>
                 </Field>
               ) : (
                 <Field>
-                  <FieldLabel>Remote</FieldLabel>
+                  <FieldLabel>{t("addDestination.remote")}</FieldLabel>
                   <Input
                     value={remote}
                     onChange={(e) => setRemote(e.target.value)}
@@ -181,21 +185,20 @@ export function AddDestinationDialog({
                     required
                   />
                   <FieldDescription>
-                    An rclone remote already set up on Cloud → Remotes.
+                    {t("addDestination.remoteHint")}
                   </FieldDescription>
                 </Field>
               )}
               <Field>
-                <FieldLabel>Repository password</FieldLabel>
+                <FieldLabel>{t("addDestination.password")}</FieldLabel>
                 <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Leave empty to generate a strong one"
+                  placeholder={t("addDestination.passwordPlaceholder")}
                 />
                 <FieldDescription>
-                  Leave empty to have Athena generate a strong password. It's
-                  shown once below, then never again.
+                  {t("addDestination.passwordHint")}
                 </FieldDescription>
               </Field>
             </>
@@ -216,8 +219,7 @@ export function AddDestinationDialog({
                     onChange={(e) => setKitSaved(e.target.checked)}
                     required
                   />
-                  I saved this recovery kit (password, destination and restic
-                  version)
+                  {t("addDestination.kitSaved")}
                 </FieldLabel>
               </Field>
             </>
@@ -226,7 +228,7 @@ export function AddDestinationDialog({
         <DialogFooter>
           {step === "form" ? (
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t("cancel")}
             </Button>
           ) : (
             <Button
@@ -234,14 +236,16 @@ export function AddDestinationDialog({
               variant="outline"
               onClick={() => setStep("form")}
             >
-              Back
+              {t("back")}
             </Button>
           )}
           <Button
             type="submit"
             disabled={submitting || (step === "kit" && !kitSaved)}
           >
-            {step === "form" ? "Next: recovery kit" : "Create destination"}
+            {step === "form"
+              ? t("addDestination.next")
+              : t("addDestination.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

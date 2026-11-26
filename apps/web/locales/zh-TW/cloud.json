@@ -1,0 +1,71 @@
+{
+  "cancel": "取消",
+  "remove": "移除",
+  "noRclone": {
+    "title": "雲端儲存需要 rclone",
+    "missing": "此主機尚未安裝 rclone",
+    "description": "{{detail}} Athena 使用 rclone 連接 Google Drive、OneDrive、Dropbox、S3 等眾多服務。",
+    "install": "在伺服器上安裝 rclone",
+    "redetect": "重新偵測"
+  },
+  "view": {
+    "refresh": "重新整理",
+    "syncFolders": "同步資料夾",
+    "addRemote": "新增遠端",
+    "cantReach": "無法連線到 rclone",
+    "removeFailed": "無法移除 {{name}}",
+    "removed": "已移除 {{name}}",
+    "removeTitle": "要移除 {{name}} 嗎？",
+    "removeDescription": "Athena 會忘記如何連線到它。儲存在其中的內容不會被刪除。",
+    "empty": {
+      "title": "尚無遠端",
+      "description": "新增 Google Drive、OneDrive、Dropbox、S3 儲存貯體、WebDAV 伺服器或 rclone 支援的任何其他儲存空間，然後在「檔案」中瀏覽，並將資料夾複製或同步到其中。"
+    }
+  },
+  "remote": {
+    "actions": "{{name}} 的動作",
+    "browse": "瀏覽",
+    "edit": "編輯",
+    "browseFiles": "瀏覽檔案",
+    "settingCount_other": "{{count}} 項設定",
+    "optional": "（選填）",
+    "choose": "選擇…",
+    "unchanged": "未變更",
+    "pasteResult": "貼上結果",
+    "no": "否",
+    "yes": "是",
+    "continue": "繼續",
+    "refused": "rclone 拒絕了該操作",
+    "added": "已新增 {{name}}",
+    "saved": "已儲存 {{name}}",
+    "addTitle": "新增遠端",
+    "editTitle": "編輯 {{name}}",
+    "oneMoreAnswer": "rclone 還需要一個回答才能完成設定。",
+    "loading": "正在載入儲存服務供應商…",
+    "pickKind": "選擇要連接的儲存類型。",
+    "genericDescription": "rclone 連接的雲端儲存：Google Drive、OneDrive、Dropbox、S3、WebDAV 等眾多服務。",
+    "back": "返回",
+    "add": "新增",
+    "save": "儲存",
+    "catalogHint": "選擇要連接的儲存服務，然後為它命名並填寫設定。",
+    "name": "名稱",
+    "nameHint": "在「檔案」中顯示的名稱，例如 gdrive 或 backups。",
+    "storage": "儲存空間",
+    "advanced": "進階設定（{{count}}）"
+  },
+  "sync": {
+    "title": "同步資料夾",
+    "description": "讓目的地與來源一致：會複製新增與變更的檔案，並刪除目的地中不在來源裡的檔案。",
+    "from": "來源",
+    "to": "目的地",
+    "willDelete_other": "將從 {{dest}} 刪除 {{count}} 個檔案",
+    "andMore": "以及另外 {{count}} 個",
+    "willCopy_other": "將複製 {{count}} 個檔案。",
+    "nothingDeleted": "不會刪除任何檔案",
+    "willCopyTo_other": "將複製 {{count}} 個檔案到 {{dest}}。",
+    "alreadyMatch": "兩個資料夾已經一致。",
+    "syncAndDelete": "同步並刪除 {{count}} 個",
+    "sync": "同步",
+    "check": "檢查變更"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "support": {
+    "emulated": "Giả lập",
+    "emulatedTitle": "Không có image cho CPU này; Docker chạy image khác qua giả lập, chậm hơn",
+    "unsupported": "Không chạy được ở đây",
+    "unsupportedTitle": "Không có image cho CPU của máy chủ này"
+  },
+  "browser": {
+    "loadError": "Không thể tải cửa hàng",
+    "filteredCount": "{{shown}}/{{total}} ứng dụng",
+    "totalCount_other": "{{count}} ứng dụng, mỗi ứng dụng là một dự án compose do Athena thiết lập cho bạn.",
+    "browsePrompt": "Duyệt ứng dụng để cài đặt.",
+    "searchPlaceholder": "Tìm ứng dụng",
+    "catalogs": "Danh mục",
+    "showingUnsupported_other": "Đang hiển thị {{count}} ứng dụng không chạy được trên CPU của máy chủ này.",
+    "hiddenUnsupported_other": "{{count}} ứng dụng bị ẩn vì không có image cho CPU của máy chủ này.",
+    "hideThem": "Ẩn chúng",
+    "showThem": "Hiện chúng",
+    "all": "Tất cả",
+    "noMatchTitle": "Không có ứng dụng phù hợp",
+    "noMatchHidden_other": "{{count}} ứng dụng phù hợp bị ẩn vì không có image cho CPU của máy chủ này.",
+    "noMatchHint": "Thử tìm kiếm hoặc danh mục khác.",
+    "showMatches_other": "Hiện chúng"
+  },
+  "card": {
+    "installed": "Đã cài đặt"
+  },
+  "popular": {
+    "title": "Phổ biến hiện nay",
+    "subtitle": "Những ứng dụng mà hầu hết máy chủ gia đình bắt đầu với.",
+    "showPage": "Hiện trang {{page}}/{{total}}"
+  },
+  "installForm": {
+    "generated": "Tự tạo nếu để trống",
+    "nameInvalid": "Dùng chữ thường, chữ số, dấu gạch ngang hoặc gạch dưới.",
+    "jobLabel": "cài đặt {{title}}",
+    "appName": "Tên ứng dụng",
+    "nameHint": "Có thể cài cùng một ứng dụng hai lần dưới các tên khác nhau nếu cần.",
+    "advanced": "Cài đặt nâng cao",
+    "install": "Cài đặt {{title}}"
+  },
+  "view": {
+    "loadError": "Không thể tải ứng dụng này",
+    "notFound": "Không tìm thấy ứng dụng",
+    "website": "Trang web",
+    "alreadyInstalled": "Đã cài đặt",
+    "installedAs": "Với tên",
+    "installAnother": "Bạn có thể cài thêm một bản sao dưới tên khác.",
+    "beforeYouStart": "Trước khi bắt đầu",
+    "whatYouGet": "Bạn nhận được",
+    "details": "Chi tiết",
+    "category": "Danh mục",
+    "license": "Giấy phép",
+    "images": "Image",
+    "platforms": "Nền tảng",
+    "viewCompose": "Xem compose.yaml",
+    "reportPrompt": "Không hoạt động như mong đợi?",
+    "install": "Cài đặt",
+    "installHint": "Câu trả lời của bạn được lưu trong tệp .env của ứng dụng trên máy chủ, cạnh compose.yaml.",
+    "variant": "Biến thể",
+    "cannotInstall": "Không thể cài đặt {{title}} trên máy chủ này: không có image cho {{platform}}.",
+    "thisCpu": "CPU này",
+    "thisServerCpu": "CPU của máy chủ này",
+    "moreIn": "Thêm trong {{category}}",
+    "cpu": {
+      "unsupportedTitle": "Không chạy được trên máy chủ này",
+      "unsupportedBody": "Image của ứng dụng được phát hành cho {{published}}, còn máy chủ này là {{host}}.",
+      "emulatedTitle": "Chạy qua giả lập",
+      "emulatedBody": "Không có image cho {{host}}, nên Docker chạy image {{published}} qua giả lập. Vẫn hoạt động nhưng chậm hơn và dùng nhiều bộ nhớ hơn."
+    },
+    "screenshot": {
+      "alt": "Ảnh chụp màn hình {{title}}",
+      "open": "Mở ảnh chụp màn hình {{title}} lớn hơn",
+      "enlarge": "Phóng to",
+      "show": "Hiện ảnh chụp màn hình {{number}}",
+      "description": "Ảnh chụp màn hình của {{title}}.",
+      "close": "Đóng"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "Tự động phát hiện",
+    "kindAthena": "Danh mục Athena",
+    "never": "chưa bao giờ",
+    "addFailed": "Không thể thêm danh mục",
+    "refreshFailed": "Không thể làm mới {{name}}",
+    "removeFailed": "Không thể gỡ {{name}}",
+    "removed": "Đã gỡ {{name}}",
+    "builtIn": "Tích hợp sẵn",
+    "refreshFailedBadge": "Làm mới thất bại",
+    "summaryBuiltin_other": "{{count}} ứng dụng · đi kèm Athena",
+    "summaryUpdated_other": "{{count}} ứng dụng · cập nhật {{when}}",
+    "refresh": "Làm mới",
+    "removeLabel": "Gỡ {{name}}",
+    "addTitle": "Thêm danh mục",
+    "addDescription": "Một kho GitHub, Codeberg hoặc GitLab, hoặc liên kết trực tiếp .tar.gz/.zip.",
+    "name": "Tên",
+    "namePlaceholder": "Ứng dụng của tôi",
+    "format": "Định dạng",
+    "formatHint": "Danh mục Athena dùng apps/<id>/compose.yaml; cửa hàng CasaOS dùng Apps/<Name>/docker-compose.yml.",
+    "add": "Thêm danh mục",
+    "removeTitle": "Gỡ {{name}}?",
+    "removeDescription": "Các ứng dụng của nó biến mất khỏi cửa hàng. Ứng dụng bạn đã cài từ đó vẫn tiếp tục chạy.",
+    "cancel": "Hủy",
+    "remove": "Gỡ"
+  }
+}

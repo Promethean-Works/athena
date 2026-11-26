@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import type { Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -44,11 +45,6 @@ export type TransferStart =
   | { kind: "files"; body: Schemas["TransferIn"] }
   | { kind: "cloud"; body: Schemas["CloudTransferIn"] }
 
-const CONFLICTS: { value: OnConflict; label: string }[] = [
-  { value: "rename", label: "Keep both (add a number)" },
-  { value: "skip", label: "Skip it" },
-  { value: "overwrite", label: "Replace files" },
-]
 
 function place(folder: Folder): Schemas["Place"] {
   return isRemote(folder.source)
@@ -70,6 +66,12 @@ export function TransferDialog({
   onClose: () => void
   onStart: (start: TransferStart) => void
 }) {
+  const { t } = useTranslation("files")
+  const CONFLICTS: { value: OnConflict; label: string }[] = [
+    { value: "rename", label: t("transfer.conflictRename") },
+    { value: "skip", label: t("transfer.conflictSkip") },
+    { value: "overwrite", label: t("transfer.conflictOverwrite") },
+  ]
   const [dest, setDest] = React.useState<Folder>({
     source: { location: 0 },
     path: "",
@@ -84,10 +86,12 @@ export function TransferDialog({
     }
   }, [request])
 
-  const verb = request?.op === "move" ? "Move" : "Copy"
+  const moving = request?.op === "move"
   const count = request?.paths.length ?? 0
   const what =
-    count === 1 ? request!.paths[0]!.split("/").pop() : `${count} items`
+    count === 1
+      ? request!.paths[0]!.split("/").pop()
+      : t("transfer.items", { count })
   const selected = new Set(request?.paths ?? [])
   const viaCloud =
     request !== null && (isRemote(request.source) || isRemote(dest.source))
@@ -124,16 +128,20 @@ export function TransferDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {verb} {what}
+            {t(moving ? "transfer.moveTitle" : "transfer.copyTitle", { what })}
           </DialogTitle>
           <DialogDescription>
-            Choose the folder to {verb.toLowerCase()} into.
+            {t(
+              moving
+                ? "transfer.moveDescription"
+                : "transfer.copyDescription"
+            )}
           </DialogDescription>
         </DialogHeader>
         {request ? (
           <FolderPicker
             id="dest-location"
-            label="Location"
+            label={t("transfer.location")}
             value={dest}
             onChange={setDest}
             onStatus={setOk}
@@ -148,13 +156,14 @@ export function TransferDialog({
         {viaCloud ? (
           <Field>
             <FieldDescription>
-              Copied with rclone. A file that&apos;s already there is replaced
-              when it differs, and skipped when it&apos;s the same.
+              {t("transfer.viaCloud")}
             </FieldDescription>
           </Field>
         ) : (
           <Field>
-            <FieldLabel htmlFor="on-conflict">If the name is taken</FieldLabel>
+            <FieldLabel htmlFor="on-conflict">
+              {t("transfer.ifNameTaken")}
+            </FieldLabel>
             <Select
               items={CONFLICTS}
               value={onConflict}
@@ -177,10 +186,10 @@ export function TransferDialog({
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("transfer.cancel")}
           </Button>
           <Button disabled={!request || ok !== true} onClick={start}>
-            {verb} here
+            {t(moving ? "transfer.moveHere" : "transfer.copyHere")}
           </Button>
         </DialogFooter>
       </DialogContent>

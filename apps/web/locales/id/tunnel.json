@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Alamat tunnel",
+    "description": "Buka Athena dari luar jaringan Anda, atau pindai kodenya dengan ponsel.",
+    "publicAddress": "Alamat publik",
+    "notRunning": "Tunnel tidak berjalan.",
+    "startInSettings": "Mulai di Pengaturan."
+  },
+  "qr": {
+    "title": "Kode QR untuk alamat tunnel"
+  }
+}

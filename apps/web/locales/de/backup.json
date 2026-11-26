@@ -1,0 +1,119 @@
+{
+  "add": "Hinzufügen",
+  "cancel": "Abbrechen",
+  "back": "Zurück",
+  "errors": {
+    "listDestinations": "Backup-Ziele konnten nicht aufgelistet werden",
+    "createDestination": "Ziel konnte nicht erstellt werden",
+    "deleteDestination": "Ziel konnte nicht gelöscht werden",
+    "listPlans": "Backup-Pläne konnten nicht aufgelistet werden",
+    "createPlan": "Plan konnte nicht erstellt werden",
+    "updatePlan": "Plan konnte nicht aktualisiert werden",
+    "deletePlan": "Plan konnte nicht gelöscht werden",
+    "startBackup": "Backup konnte nicht gestartet werden",
+    "listVersions": "Backup-Versionen konnten nicht aufgelistet werden",
+    "listVersionFiles": "Dateien der Version konnten nicht aufgelistet werden",
+    "restoreApp": "App konnte nicht wiederhergestellt werden"
+  },
+  "toast": {
+    "destinationCreated": "Ziel „{{name}}“ erstellt",
+    "planCreated": "Plan „{{name}}“ erstellt",
+    "planUpdated": "Plan „{{name}}“ aktualisiert",
+    "backupStarted": "Backup „{{name}}“ gestartet"
+  },
+  "view": {
+    "unavailable": "Backups sind nicht verfügbar",
+    "unsupported": "Dieser Host unterstützt keine Backups.",
+    "tabs": {
+      "versions": "Versionen",
+      "destinations": "Ziele",
+      "plans": "Pläne"
+    }
+  },
+  "destinations": {
+    "title": "Ziele",
+    "name": "Name",
+    "kind": "Art",
+    "location": "Ort",
+    "created": "Erstellt",
+    "empty": {
+      "title": "Noch keine Ziele",
+      "description": "Ein Ziel ist ein Ordner oder ein rclone-Remote, in dem Backups aufbewahrt werden. Füge eines hinzu, um mit dem Sichern zu beginnen."
+    }
+  },
+  "plans": {
+    "title": "Pläne",
+    "name": "Name",
+    "schedule": "Zeitplan",
+    "lastRun": "Letzter Lauf",
+    "status": "Status",
+    "manual": "manuell",
+    "runNow": "Jetzt ausführen",
+    "empty": {
+      "title": "Noch keine Pläne",
+      "description": "Ein Plan legt Athena, Apps, ein Ziel und einen Zeitplan fest und läuft dann zeitgesteuert."
+    }
+  },
+  "versions": {
+    "title": "Versionen",
+    "refresh": "Aktualisieren",
+    "time": "Zeit",
+    "size": "Größe",
+    "new": "Neu",
+    "added": "Hinzugefügt",
+    "changed": "Geändert",
+    "removed": "Entfernt",
+    "os": "OS",
+    "viewFiles": "Dateien ansehen",
+    "restore": "Wiederherstellen",
+    "empty": {
+      "title": "Noch keine Versionen",
+      "description": "Führe ein Backup aus, um die erste zu erstellen."
+    }
+  },
+  "addDestination": {
+    "title": "Backup-Ziel hinzufügen",
+    "kitTitle": "Wiederherstellungs-Kit speichern",
+    "description": "Wähle, wo restic das Repository ablegt: in einem lokalen Ordner oder einem rclone-Remote.",
+    "kitDescription": "Lade das Kit herunter oder kopiere es. Athena zeigt dieses Passwort nie wieder an; ohne es kann nach einem Hostausfall nichts wiederhergestellt werden.",
+    "prepareFailed": "Ziel konnte nicht vorbereitet werden",
+    "saveKitFirst": "Speichere das Wiederherstellungs-Kit, bevor du das Ziel erstellst",
+    "name": "Name",
+    "namePlaceholder": "z. B. USB-Laufwerk",
+    "kind": "Art",
+    "local": "Lokaler Ordner",
+    "rclone": "rclone-Remote",
+    "folder": "Ordner",
+    "folderHint": "Absoluter Pfad, außerhalb des Athena-Datenordners.",
+    "remote": "Remote",
+    "remoteHint": "Ein rclone-Remote, das bereits unter Cloud → Remotes eingerichtet ist.",
+    "password": "Repository-Passwort",
+    "passwordPlaceholder": "Leer lassen, um ein starkes zu erzeugen",
+    "passwordHint": "Leer lassen, damit Athena ein starkes Passwort erzeugt. Es wird unten einmal angezeigt, danach nie wieder.",
+    "kitSaved": "Ich habe dieses Wiederherstellungs-Kit gespeichert (Passwort, Ziel und restic-Version)",
+    "next": "Weiter: Wiederherstellungs-Kit",
+    "create": "Ziel erstellen"
+  },
+  "addPlan": {
+    "title": "Backup-Plan hinzufügen",
+    "description": "Wähle, was gesichert wird, wohin und wie oft. Apps werden während ihres Backups gestoppt, außer „Im laufenden Betrieb sichern“ ist aktiviert.",
+    "name": "Name",
+    "namePlaceholder": "z. B. Tägliche Apps",
+    "destination": "Ziel",
+    "athena": "Athena sichern (Einstellungen, DB, Secrets, TLS)",
+    "athenaHint": "Empfohlen: standardmäßig aktiviert.",
+    "apps": "Apps",
+    "appsHint": "Welche Apps in den Plan aufgenommen werden.",
+    "noApps": "Keine Apps gefunden. Starte zuerst Apps über Store → Apps.",
+    "schedule": "Zeitplan (Cron)",
+    "schedulePlaceholder": "0 3 * * *  (täglich um 03:00)",
+    "scheduleHint": "Leer lassen für ausschließlich manuelle Läufe. Zeitgesteuerte Läufe kommen mit Teil 4.",
+    "retention": "Aufbewahrung",
+    "keepLast": "Letzte behalten",
+    "keepDaily": "Tägliche behalten",
+    "keepWeekly": "Wöchentliche behalten",
+    "keepMonthly": "Monatliche behalten",
+    "retentionHint": "`restic forget --keep-…` je Eintrag. Standard: 7 täglich / 4 wöchentlich / 6 monatlich.",
+    "create": "Plan erstellen"
+  }
+}

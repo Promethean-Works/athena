@@ -1,0 +1,107 @@
+{
+  "save": "Spara",
+  "cancel": "Avbryt",
+  "close": "Stäng",
+  "loading": "Läser in…",
+  "back": "Tillbaka",
+  "delete": "Radera",
+  "log": {
+    "empty": "Ingen utdata än.",
+    "copy": "Kopiera logg",
+    "title": "Logg",
+    "copied": "Loggen kopierades",
+    "copyFailed": "Det gick inte att kopiera"
+  },
+  "capabilities": {
+    "title": "Funktioner",
+    "summary": "{{ready}} av {{total}} redo. Funktioner visas bara där de kan fungera.",
+    "loadingSummary": "Det Athena hittade på den här värden.",
+    "redetect": "Sök igen",
+    "loadFailed": "Det gick inte att läsa in funktioner: {{error}}",
+    "details": "Detaljer",
+    "status": {
+      "ready": "Redo",
+      "stopped": "Stoppad",
+      "missing": "Inte installerad",
+      "unsupported": "Stöds inte",
+      "needs_privilege": "Kräver root"
+    }
+  },
+  "job": {
+    "working": "Arbetar… Du kan stänga det här; jobbet fortsätter.",
+    "done": "Klart.",
+    "connectionLost": "Anslutningen till jobbet bröts.",
+    "progress": "Förlopp",
+    "finishing": " · avslutar…",
+    "cancel": "Avbryt jobb",
+    "stopFailed": "Det gick inte att stoppa det"
+  },
+  "restart": {
+    "title": "Starta om Athena?",
+    "description": "Pågående jobb stoppas. Sidan återansluter om några sekunder. Dina appar fortsätter köra.",
+    "confirm": "Starta om",
+    "failed": "Det gick inte att starta om Athena",
+    "waitingTitle": "Startar om Athena…",
+    "waitingBody": "Sidan läses in igen när Athena är tillbaka."
+  },
+  "update": {
+    "notBackYet": "Athena har inte kommit tillbaka än",
+    "reload": "Läs in sidan igen",
+    "notice": {
+      "title": "Athena {{latest}} finns tillgänglig",
+      "runs": "Den här servern kör {{current}}.",
+      "whatsNew": "Se vad som är nytt"
+    },
+    "action": {
+      "updateNow": "Uppdatera nu",
+      "cannotSelf": "Den här Athena kan inte uppdatera sig själv",
+      "howTo": "{{reason}}. För att uppgradera, kör detta på servern (det installerar den nya versionen och startar om Athena; dina data och inställningar behålls):",
+      "commandLabel": "Uppgraderingskommando"
+    },
+    "interrupted": {
+      "title": "Den senaste uppdateringen blev inte klar",
+      "body": "En uppdatering från {{from}} till {{to}} startade men rapporterade aldrig tillbaka (värden kan ha tappat strömmen, eller så avbröts uppdateringen). Athena är igång, men kontrollera att det är den version du väntar dig. Uppdateringsloggen finns i datamappen (logs/update.log). För att reparera en installation, kör installationskommandot från README på servern.",
+      "dismiss": "Avfärda",
+      "oldVersion": "den gamla versionen",
+      "newVersion": "den nya"
+    },
+    "dialog": {
+      "steps": "Uppdateringssteg",
+      "stepPrepare": "Ladda ned och kontrollera utgåvan",
+      "stepSwap": "Stoppa Athena, installera och starta den igen",
+      "stepCheck": "Vänta på att den nya versionen svarar",
+      "newVersion": "den nya versionen",
+      "oldVersion": "den gamla",
+      "updated": "Uppdaterad till {{to}}",
+      "reloading": "Läser in sidan igen…",
+      "rolledBackTitle": "Uppdateringen till {{to}} misslyckades, kör fortfarande {{from}}",
+      "rolledBackBody": "Athena gick tillbaka till den version du hade, med dina data som de var före uppdateringen.",
+      "reason": " Orsak: {{reason}}",
+      "abortedTitle": "Uppdateringen till {{to}} avbröts",
+      "failedTitle": "Uppdateringen till {{to}} misslyckades och Athena körs inte",
+      "abortedBody": "Inget installerades. Starta Athena igen, eller kör installationskommandot från README.",
+      "failedBody": "Kör installationskommandot från README på servern för att reparera den.",
+      "back": "Athena är tillbaka",
+      "backBody": "Läs in sidan igen för att se vilken version som körs.",
+      "confirmTitle": "Uppdatera Athena?",
+      "notStartedTitle": "Uppdateringen startade inte",
+      "preparingTitle": "Förbereder uppdateringen",
+      "versions": "Athena {{current}} till {{latest}}.",
+      "confirmBody": "Athena startar om i en till två minuter och sidan återansluter. Dina appar och behållare fortsätter köra. Om den nya versionen inte startar går Athena tillbaka till den här.",
+      "stopsTitle": "Dessa stoppas när Athena startar om:",
+      "terminals_one": "{{count}} öppen terminal",
+      "terminals_other": "{{count}} öppna terminaler",
+      "backupFirst": "Säkerhetskopiera Athena först",
+      "backupFirstHelp": "Sparar Athenas inställningar och data med säkerhetskopieringsplanen ”{{plan}}” innan något stoppas. Dina appar berörs inte.",
+      "notChanged": "{{error}}. Inget ändrades; Athena kör fortfarande {{current}}.",
+      "prepareFailed": "Det gick inte att förbereda uppdateringen",
+      "updateAnyway": "Uppdatera ändå",
+      "update": "Uppdatera",
+      "restarting": "Startar om…",
+      "updatingTo": "Uppdaterar till {{latest}}. Sidan läses in igen när Athena är tillbaka.",
+      "lateBody": "Det kan ta längre tid på en långsam värd. Om den förblir nere, kontrollera uppdateringsloggen i datamappen (logs/update.log)."
+    }
+  },
+  "restartLateBody": "Det kan ta längre tid på en långsam värd. Om den förblir nere, kontrollera loggen i datamappen (logs/athena.log).",
+  "toggleSidebar": "Visa/dölj sidofält"
+}

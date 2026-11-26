@@ -81,6 +81,10 @@ shadcn presets are applied at *init/build time* by the CLI. Athena needs them sw
 - **Preset codes (M4).** `shadcn/preset` (`encodePreset`/`decodePreset`, pure and browser-safe) runs in the browser. Export keeps b0's style, icons and menus; import applies colors, fonts and radius and reports what it skipped (another style, icon library, menu colors, or an option the registry doesn't serve).
 - **Style (decided: one style in the MVP).** Styles change component class names and spacing, not just variables, so the MVP ships the style from preset `b0` only. The Style field in Settings shows the current style as read-only, with a "coming later" note. Post-MVP option: generate a `packages/ui` build per style and swap them by attribute-scoped CSS.
 
+## 5.4b Language (i18n)
+
+Every user-visible string is a key in `apps/web/locales/<lang>/<namespace>.json` (one namespace per area), read with `useTranslation("<ns>")`; English is the source and the fallback, and its keys type-check `t()`. The language is part of the per-user appearance setting (`language`: `auto` or a locale code) with a localStorage copy for the pages before sign-in; `auto` follows the browser. Dates, numbers and sizes use `Intl` with `currentLocale()`. Decisions and the as-built notes: `docs/specs/i18n.md`.
+
 ## 5.5 Routes
 
 ```

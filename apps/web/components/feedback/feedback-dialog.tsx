@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Trans, useTranslation } from "react-i18next"
 import {
   BugIcon,
   ExternalLinkIcon,
@@ -34,36 +35,19 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 
+import i18n from "@/lib/i18n"
+
 type Kind = Exclude<Schemas["IssueIn"]["kind"], "app">
 
-const CHOICES: {
-  kind: Kind
-  title: string
-  description: string
-  icon: LucideIcon
-}[] = [
-  {
-    kind: "bug",
-    title: "Report a bug",
-    description: "Something doesn't work the way it should.",
-    icon: BugIcon,
-  },
-  {
-    kind: "change",
-    title: "Suggest a change",
-    description: "Something works, but it should work differently.",
-    icon: SlidersHorizontalIcon,
-  },
-  {
-    kind: "feature",
-    title: "Request a feature",
-    description: "Something Athena can't do yet.",
-    icon: LightbulbIcon,
-  },
+const CHOICES: { kind: Kind; icon: LucideIcon }[] = [
+  { kind: "bug", icon: BugIcon },
+  { kind: "change", icon: SlidersHorizontalIcon },
+  { kind: "feature", icon: LightbulbIcon },
 ]
 
 /** The "Send feedback" sidebar entry and its dialog. */
 export function FeedbackMenuItem() {
+  const { t } = useTranslation("feedback")
   const [open, setOpen] = React.useState(false)
   const { setOpenMobile } = useSidebar()
   return (
@@ -75,7 +59,7 @@ export function FeedbackMenuItem() {
         }}
       >
         <MessageSquareIcon />
-        <span>Send feedback</span>
+        <span>{t("menu")}</span>
       </SidebarMenuButton>
       <FeedbackDialog open={open} onOpenChange={setOpen} />
     </SidebarMenuItem>
@@ -89,6 +73,7 @@ export function FeedbackDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t } = useTranslation("feedback")
   const [info, setInfo] = React.useState<Schemas["FeedbackInfo"] | null>(null)
   const [urls, setUrls] = React.useState<Partial<Record<Kind, string>>>({})
   const [error, setError] = React.useState<string | null>(null)
@@ -100,7 +85,7 @@ export function FeedbackDialog({
     api.GET("/api/feedback").then(({ data, error: err }) => {
       if (cancelled) return
       if (data) setInfo(data)
-      else setError(errorMessage(err, "Couldn't load this server's details"))
+      else setError(errorMessage(err, i18n.t("feedback:dialog.loadFailed")))
     })
     // Links are built up front so each choice is a real link: a tab opened after an
     // await would be caught by popup blockers.
@@ -122,16 +107,14 @@ export function FeedbackDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Send feedback</DialogTitle>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
           <DialogDescription>
-            Opens a new issue on {repoName(info?.repo_url)} in a new tab. You
-            can review and edit it there before it&apos;s posted; issues are
-            public.
+            {t("dialog.description", { repo: repoName(info?.repo_url) })}
           </DialogDescription>
         </DialogHeader>
 
         <ItemGroup className="gap-2">
-          {CHOICES.map(({ kind, title, description, icon: Icon }) => {
+          {CHOICES.map(({ kind, icon: Icon }) => {
             const url = urls[kind]
             return (
               <Item
@@ -156,8 +139,10 @@ export function FeedbackDialog({
                   <Icon />
                 </ItemMedia>
                 <ItemContent>
-                  <ItemTitle>{title}</ItemTitle>
-                  <ItemDescription>{description}</ItemDescription>
+                  <ItemTitle>{t(`choices.${kind}.title`)}</ItemTitle>
+                  <ItemDescription>
+                    {t(`choices.${kind}.description`)}
+                  </ItemDescription>
                 </ItemContent>
                 <ItemActions>
                   <ExternalLinkIcon className="size-4 text-muted-foreground" />
@@ -168,9 +153,13 @@ export function FeedbackDialog({
         </ItemGroup>
 
         <p className="text-sm text-muted-foreground">
-          A store app that doesn&apos;t work? Use{" "}
-          <span className="font-medium text-foreground">Report a problem</span>{" "}
-          on its store page, so the report reaches whoever maintains it.
+          <Trans
+            i18nKey="dialog.storeHint"
+            ns="feedback"
+            components={{
+              b: <span className="font-medium text-foreground" />,
+            }}
+          />
         </p>
 
         <Diagnostics info={info} error={error} />
@@ -187,23 +176,26 @@ export function Diagnostics({
   info: Schemas["FeedbackInfo"] | null
   error?: string | null
 }) {
+  const { t } = useTranslation("feedback")
   if (error) return <p className="text-sm text-destructive">{error}</p>
   return (
     <section className="flex flex-col gap-2 rounded-lg bg-muted/50 p-3">
       <h3 className="text-xs font-medium text-muted-foreground">
-        Filled in for you
+        {t("diagnostics.title")}
       </h3>
       {info ? (
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
           <dt className="text-muted-foreground">Athena</dt>
           <dd className="font-mono">{info.version}</dd>
-          <dt className="text-muted-foreground">System</dt>
+          <dt className="text-muted-foreground">{t("diagnostics.system")}</dt>
           <dd className="min-w-0 font-mono [overflow-wrap:anywhere]">
             {info.os_version}
           </dd>
-          <dt className="text-muted-foreground">CPU</dt>
+          <dt className="text-muted-foreground">{t("diagnostics.cpu")}</dt>
           <dd className="font-mono">{info.arch}</dd>
-          <dt className="text-muted-foreground">Containers</dt>
+          <dt className="text-muted-foreground">
+            {t("diagnostics.containers")}
+          </dt>
           <dd className="min-w-0 font-mono [overflow-wrap:anywhere]">
             {info.runtime}
           </dd>
