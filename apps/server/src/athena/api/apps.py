@@ -16,7 +16,10 @@ from athena.api.containers import RuntimeDep
 from athena.apps import docker_run
 from athena.apps.store import APP_NAME, AppStore, InvalidComposeError, compose, parse_compose
 from athena.auth.deps import Authed, DbSession
+from athena.catalog import profiles as catalog_profiles
+from athena.catalog.loader import InstallValueError, env_file
 from athena.catalog.model import CatalogApp
+from athena.catalog.platforms import host_platform
 from athena.containers import service as containers
 from athena.containers.runtime import Runtime
 from athena.containers.service import ContainerError, ContainerOut
@@ -54,6 +57,10 @@ class AppDetail(AppOut):
     env: str | None
     """The app's .env file (install-form values for store apps), if it has one."""
     containers: list[ContainerOut]
+    profiles: list[catalog_profiles.ProfileState] = []
+    """Optional parts of a store app (browser, sandbox, …), with which are on."""
+    docker_access: bool = False
+    """Something that always runs mounts the Docker socket."""
 
 
 class ComposeIn(BaseModel):
@@ -222,11 +229,21 @@ async def get_app(name: AppName, request: Request, runtime: RuntimeDep, db: DbSe
     app = _get_app(db, name)
     all_containers = await _containers(runtime)
     summary = _summarize(request, app, all_containers)
+    catalog_app = _catalog_app(request, app)
+    profiles: list[catalog_profiles.ProfileState] = []
+    if catalog_app is not None and catalog_app.meta.profiles:
+        manifest = await request.app.state.capabilities.get()
+        enabled = catalog_profiles.enabled_in(_store(request).read_env(name))
+        profiles = catalog_profiles.states(
+            catalog_app, manifest, host_platform(manifest.arch), enabled
+        )
     return AppDetail(
         **summary.model_dump(),
         compose=_store(request).read(name),
         env=_store(request).read_env_text(name),
         containers=[c for c in all_containers if c.project == name],
+        profiles=profiles,
+        docker_access=catalog_app.variants[0].docker_access if catalog_app else False,
     )
 
 
@@ -261,12 +278,23 @@ async def validate_compose(
 # ---------------------------------------------------------------- write
 
 
-def _deploy_body(runtime: Runtime, store: AppStore, name: str, path: FsPath, pull: bool):
+def _deploy_body(
+    runtime: Runtime,
+    store: AppStore,
+    name: str,
+    path: FsPath,
+    pull: bool,
+    remove: list[str] | None = None,
+):
+    """``remove``: services to stop and delete first (a profile that was just switched off:
+    ``up --remove-orphans`` leaves their containers running)."""
+
     async def body(job: Job) -> None:
         env = store.env(name)
         await job.log(f"App directory: {path.parent}")
         steps = [
             ["config", "--quiet"],
+            *([["rm", "--stop", "--force", *remove]] if remove else []),
             *([["pull"]] if pull else []),
             ["up", "--detach", "--remove-orphans"],
         ]
@@ -276,6 +304,12 @@ def _deploy_body(runtime: Runtime, store: AppStore, name: str, path: FsPath, pul
                 raise RuntimeError(f"docker compose {args[0]} failed (exit code {code})")
 
     return body
+
+
+def _catalog_app(request: Request, app: App) -> CatalogApp | None:
+    """The store app a catalog-installed app came from, if that catalog still has it."""
+    catalog, _, app_id = (app.catalog_id or "").partition("/")
+    return request.app.state.catalogs.get(catalog, app_id) if app_id else None
 
 
 def deploy_new_app(
@@ -290,6 +324,7 @@ def deploy_new_app(
     env_text: str | None = None,
     catalog_id: str | None = None,
     files: dict[str, bytes] | None = None,
+    detail: str | None = None,
 ) -> JobOut:
     """Save an app's files, record it, and start its deploy job (shared with the store)."""
     if db.exec(select(App).where(App.name == name)).first():
@@ -306,7 +341,13 @@ def deploy_new_app(
         store.write_files(name, files)
     db.add(App(name=name, source=source, catalog_id=catalog_id))
     db.commit()
-    audit.record(db, user.user.username, "app.create", name, catalog_id or source)
+    audit.record(
+        db,
+        user.user.username,
+        "app.create",
+        name,
+        f"{catalog_id or source} ({detail})" if detail else catalog_id or source,
+    )
     return _start_job(
         request, name, f"Deploy {name}", _deploy_body(runtime, store, name, path, True)
     )
@@ -383,6 +424,69 @@ async def update_env(
         name,
         f"Redeploy {name}",
         _deploy_body(runtime, store, name, store.compose_path(name), False),
+    )
+
+
+class ProfilesIn(BaseModel):
+    profiles: list[str] = Field(max_length=32)
+
+
+def _services_of(compose_text: str, profile: str) -> list[str]:
+    doc = parse_compose(compose_text)
+    return [
+        service
+        for service, spec in doc["services"].items()
+        if profile in (spec.get("profiles") or [])
+    ]
+
+
+@router.put(
+    "/{name}/profiles", operation_id="updateAppProfiles", status_code=status.HTTP_202_ACCEPTED
+)
+async def update_profiles(
+    name: AppName,
+    body: ProfilesIn,
+    request: Request,
+    runtime: RuntimeDep,
+    user: Authed,
+    db: DbSession,
+) -> JobOut:
+    """Switch a store app's optional parts (browser, sandbox, …) on or off and redeploy."""
+    app = _get_app(db, name)
+    catalog_app = _catalog_app(request, app)
+    if catalog_app is None or not catalog_app.meta.profiles:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"{name} has no optional parts to switch")
+    manifest = await request.app.state.capabilities.get()
+    try:
+        chosen = catalog_profiles.choose(
+            catalog_app, body.profiles, manifest, host_platform(manifest.arch)
+        )
+    except InstallValueError as exc:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            {"message": "Some values need fixing", "errors": exc.errors},
+        ) from exc
+    store = _store(request)
+    before = catalog_profiles.enabled_in(store.read_env(name))
+    env = store.read_env(name)
+    for key in catalog_profiles.profile_keys(catalog_app):
+        env.pop(key, None)
+    env.update(catalog_profiles.env_for(catalog_app, chosen))
+    store.write_env(name, env_file(env))
+    removed = [
+        service
+        for pid in sorted(before - set(chosen))
+        for service in _services_of(store.read(name), pid)
+    ]
+    app.updated_at = datetime.now(UTC)
+    db.add(app)
+    db.commit()
+    audit.record(db, user.user.username, "app.profiles", name, detail=",".join(chosen) or "none")
+    return _start_job(
+        request,
+        name,
+        f"Update {name}",
+        _deploy_body(runtime, store, name, store.compose_path(name), False, removed),
     )
 
 

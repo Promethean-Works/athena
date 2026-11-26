@@ -178,7 +178,7 @@ def lookup_apps(
     transport: httpx2.BaseTransport | None = None,
 ) -> list[AppResult]:
     apps = list(apps)
-    images = sorted({image for app in apps for image in app.images})
+    images = sorted({image for app in apps for image in app.core_images or app.images})
     found: dict[str, set[str]] = {}
     failed: dict[str, str] = {}
 
@@ -195,11 +195,11 @@ def lookup_apps(
 
     results = []
     for app in apps:
-        errors = {i: failed[i] for i in app.images if i in failed}
+        errors = {i: failed[i] for i in (app.core_images or app.images) if i in failed}
         platforms = None
         if not errors:
             common = set(KNOWN_PLATFORMS)
-            for image in app.images:
+            for image in app.core_images or app.images:
                 common &= found[image]
             platforms = [p for p in KNOWN_PLATFORMS if p in common]
         results.append(AppResult(app, platforms, errors))

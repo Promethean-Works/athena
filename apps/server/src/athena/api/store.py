@@ -15,6 +15,7 @@ from athena.api.apps import deploy_new_app
 from athena.api.containers import RuntimeDep
 from athena.apps.store import APP_NAME, AppStore
 from athena.auth.deps import Authed, DbSession
+from athena.catalog import profiles as catalog_profiles
 from athena.catalog import remote
 from athena.catalog.loader import (
     InstallValueError,
@@ -86,6 +87,10 @@ class VariantDetail(BaseModel):
 
 
 class StoreAppDetail(StoreApp):
+    docker_access: bool
+    """Something that always runs mounts the Docker socket: it controls every container."""
+    profiles: list[catalog_profiles.ProfileState]
+    """Optional parts, each a checkbox in the install form."""
     homepage: str | None
     notes: str | None
     platforms: list[str]
@@ -108,6 +113,8 @@ class InstallIn(BaseModel):
     values: dict[str, str] = Field(default_factory=dict)
     variant: str | None = None
     """Which compose variant to install; defaults to the app's default variant."""
+    profiles: list[str] | None = None
+    """Optional parts to switch on; None takes the ones that are on by default."""
 
 
 def _registry(request: Request) -> CatalogRegistry:
@@ -245,6 +252,8 @@ async def get_store_app(
         )
     return StoreAppDetail(
         **_summary(app, _installed(db), manifest, _catalog_names(db)).model_dump(),
+        docker_access=app.variants[0].docker_access,
+        profiles=catalog_profiles.states(app, manifest, host_platform(manifest.arch)),
         homepage=app.meta.homepage,
         notes=app.meta.notes,
         platforms=app.meta.platforms,
@@ -303,6 +312,15 @@ async def install(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             {"message": "Some values need fixing", "errors": exc.errors},
         ) from exc
+    try:
+        enabled = catalog_profiles.choose(
+            app, body.profiles, manifest, host_platform(manifest.arch)
+        )
+    except InstallValueError as exc:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            {"message": "Some values need fixing", "errors": exc.errors},
+        ) from exc
     return deploy_new_app(
         request,
         runtime,
@@ -311,9 +329,10 @@ async def install(
         name=body.name,
         compose_text=variant.compose,
         source="catalog",
-        env_text=env_file(values),
+        env_text=env_file({**values, **catalog_profiles.env_for(app, enabled)}),
         catalog_id=f"{app.catalog}/{app.id}",
         files=app.files,
+        detail=f"profiles: {','.join(enabled)}" if enabled else None,
     )
 
 

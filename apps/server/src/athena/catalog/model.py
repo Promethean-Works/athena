@@ -23,6 +23,10 @@ A catalog app is a plain compose file plus an `x-athena` block:
           type: password
           generate: secret        # filled with a random value if left empty
                                   # (hex16 / hex32: that many random bytes as hex)
+      profiles:                   # optional parts: services with `profiles: [browser]`
+        - id: browser
+          label: Browser for agents
+          default: false
 
 The compose file references values with standard `${KEY}` interpolation. Athena
 writes the answers to `.env` next to `compose.yaml`, which compose reads on its own.
@@ -73,6 +77,7 @@ CATEGORY_LABELS: dict[str, str] = {
 
 ENV_KEY = r"^[A-Z][A-Z0-9_]{0,63}$"
 APP_ID = r"^[a-z0-9][a-z0-9-]{0,62}$"
+PROFILE_ID = r"^[a-z0-9][a-z0-9-]{0,30}$"
 
 
 class EnvField(BaseModel):
@@ -100,6 +105,28 @@ class EnvField(BaseModel):
         return value
 
 
+class ProfileMeta(BaseModel):
+    """An optional part of an app, switched on at install time (a Compose profile).
+
+    The compose file puts the services of this part under ``profiles: [<id>]``; the
+    install form lists a checkbox per entry and writes the chosen ids to ``.env`` as
+    ``COMPOSE_PROFILES``, which Docker Compose reads on its own.
+    """
+
+    id: str = Field(pattern=PROFILE_ID)
+    label: str
+    description: str | None = None
+    default: bool = False
+    """Switched on in the install form unless the admin clears it."""
+    requires: list[str] = Field(default_factory=list)
+    """Host capabilities this part needs (e.g. ``docker-socket``); unmet ones disable it."""
+    platforms: list[str] | None = None
+    """CPUs this part runs on, when narrower than the app's."""
+    env: dict[str, str] = Field(default_factory=dict)
+    """Values written to ``.env`` while this part is on. The compose file reads them as
+    ``${KEY:-default}``, so the app behaves as without the part when it is off."""
+
+
 class AppMeta(BaseModel):
     title: str
     description: str
@@ -111,6 +138,8 @@ class AppMeta(BaseModel):
     web_path: str = "/"
     platforms: list[str] = Field(default_factory=lambda: ["linux/amd64", "linux/arm64"])
     env: list[EnvField] = Field(default_factory=list)
+    profiles: list[ProfileMeta] = Field(default_factory=list)
+    """Optional parts of the app (Compose profiles) the admin can switch on."""
     notes: str | None = None
     """Shown on the app page, e.g. first-login instructions."""
     tagline: str | None = None
@@ -177,8 +206,17 @@ class CatalogAppVariant(BaseModel):
     """Human-readable variant name shown in the install form."""
     compose: str
     images: list[str]
+    """Every image the variant can pull, optional profiles included."""
+    core_images: list[str] = Field(default_factory=list)
+    """Images of the services that always run (no profile): these set the app's platforms."""
     web_port: str | int | None = None
     env: list[EnvField] = Field(default_factory=list)
+    profiles_used: list[str] = Field(default_factory=list)
+    """Profile ids the compose file's services belong to."""
+    docker_access: bool = False
+    """A service that always runs mounts the Docker socket."""
+    docker_access_profiles: list[str] = Field(default_factory=list)
+    """Profiles whose services mount the Docker socket."""
 
 
 class CatalogApp(BaseModel):
@@ -191,6 +229,7 @@ class CatalogApp(BaseModel):
     """The default variant's compose file, kept for backward compatibility."""
     images: list[str]
     """The default variant's images, kept for backward compatibility."""
+    core_images: list[str] = Field(default_factory=list)
     files: dict[str, bytes] = Field(default_factory=dict, exclude=True)
     """Config files shipped in the app folder's ``files/``: path relative to it -> content.
     Installed next to compose.yaml, so the compose file reaches them as ``./files/<path>``."""
@@ -231,6 +270,19 @@ def _env_fields(raw: dict[str, Any], app_id: str) -> tuple[list[EnvField], list[
     return fields, keys
 
 
+def _service_profiles(service: dict[str, Any]) -> list[str]:
+    value = service.get("profiles") or []
+    return [str(p) for p in value] if isinstance(value, list) else []
+
+
+def _mounts_docker_socket(service: dict[str, Any]) -> bool:
+    for volume in service.get("volumes") or []:
+        text = volume if isinstance(volume, str) else " ".join(str(v) for v in volume.values())
+        if "docker.sock" in text:
+            return True
+    return False
+
+
 def _images_of(doc: dict[str, Any], app_id: str) -> list[str]:
     services = doc.get("services") or {}
     images = sorted({s.get("image", "") for s in services.values() if isinstance(s, dict)} - {""})
@@ -252,19 +304,36 @@ def _variant(app_id: str, slug: str, text: str, doc: dict[str, Any]) -> CatalogA
     if isinstance(web_port, str) and web_port not in keys:
         raise InvalidCatalogAppError(f"{app_id}: web_port {web_port} isn't an env key")
 
-    # Every ${VAR} in the compose file must be an env field or provided by Athena.
-    provided = {*keys, "ATHENA_APP_DATA"}
+    # Every ${VAR} in the compose file must be an env field, a profile's env key, or
+    # provided by Athena.
+    profile_keys = {
+        str(key)
+        for entry in raw.get("profiles") or []
+        if isinstance(entry, dict)
+        for key in (entry.get("env") or {})
+    }
+    provided = {*keys, *profile_keys, "ATHENA_APP_DATA"}
     unknown = sorted({m for m in _INTERP.findall(text) if m not in provided})
     if unknown:
         raise InvalidCatalogAppError(f"{app_id}: undeclared variables {', '.join(unknown)}")
 
+    services = [s for s in (doc.get("services") or {}).values() if isinstance(s, dict)]
+    core = [s for s in services if not _service_profiles(s)]
+    profiles_used = sorted({p for s in services for p in _service_profiles(s)})
+    docker_profiles = sorted(
+        {p for s in services if _mounts_docker_socket(s) for p in _service_profiles(s)}
+    )
     return CatalogAppVariant(
         slug=slug,
         label=(raw.get("variant") or {}).get("label") or _label_of(slug),
         compose=text,
         images=_images_of(doc, app_id),
+        core_images=sorted({s.get("image", "") for s in core} - {""}),
         web_port=web_port,
         env=env_fields,
+        profiles_used=profiles_used,
+        docker_access=any(_mounts_docker_socket(s) for s in core),
+        docker_access_profiles=docker_profiles,
     )
 
 
@@ -289,6 +358,30 @@ def parse_app(app_id: str, catalog: str, docs: list[tuple[str, str, dict[str, An
     for name, text, doc in docs[1:]:
         variants.append(_variant(app_id, _slug_of(name), text, doc))
 
+    from athena.catalog.requirements import KNOWN_REQUIREMENTS
+
+    for profile in meta.profiles:
+        unknown = sorted(set(profile.requires) - set(KNOWN_REQUIREMENTS))
+        if unknown:
+            raise InvalidCatalogAppError(
+                f"{app_id}: profile {profile.id} requires unknown {', '.join(unknown)}"
+            )
+    declared = [p.id for p in meta.profiles]
+    if len(declared) != len(set(declared)):
+        raise InvalidCatalogAppError(f"{app_id}: duplicate profile ids")
+    for variant in variants:
+        undeclared = sorted(set(variant.profiles_used) - set(declared))
+        if undeclared:
+            raise InvalidCatalogAppError(
+                f"{app_id}: services use profiles {', '.join(undeclared)} that x-athena.profiles "
+                "doesn't list, so nobody could switch them on"
+            )
+    unused = sorted(set(declared) - set(variants[0].profiles_used))
+    if unused:
+        raise InvalidCatalogAppError(
+            f"{app_id}: profiles {', '.join(unused)} aren't used by any service"
+        )
+
     return CatalogApp(
         id=app_id,
         catalog=catalog,
@@ -296,4 +389,5 @@ def parse_app(app_id: str, catalog: str, docs: list[tuple[str, str, dict[str, An
         variants=variants,
         compose=variants[0].compose,
         images=variants[0].images,
+        core_images=variants[0].core_images,
     )
