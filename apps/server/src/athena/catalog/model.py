@@ -191,6 +191,9 @@ class CatalogApp(BaseModel):
     """The default variant's compose file, kept for backward compatibility."""
     images: list[str]
     """The default variant's images, kept for backward compatibility."""
+    files: dict[str, bytes] = Field(default_factory=dict, exclude=True)
+    """Config files shipped in the app folder's ``files/``: path relative to it -> content.
+    Installed next to compose.yaml, so the compose file reaches them as ``./files/<path>``."""
 
 
 class InvalidCatalogAppError(ValueError):

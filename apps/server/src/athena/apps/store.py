@@ -3,6 +3,7 @@
 <data-dir>/apps/<name>/compose.yaml       the app definition
 <data-dir>/apps/<name>/compose.prev.yaml  the previous version, kept on every edit
 <data-dir>/apps/<name>/data/              exposed to compose as ${ATHENA_APP_DATA}
+<data-dir>/apps/<name>/files/             config files a catalog app ships (./files/... in compose)
 <data-dir>/apps/<name>/.env               install-form values (catalog apps), mode 600
 """
 
@@ -57,6 +58,23 @@ def parse_compose(text: str) -> dict[str, Any]:
     return doc
 
 
+def seed_files(app_dir: Path, files: dict[str, bytes]) -> None:
+    """Write an app's shipped config files into ``<app_dir>/files/``.
+
+    A file that already exists is left alone, so the user's edits survive a reinstall
+    or a later update.
+    """
+    root = (app_dir / "files").resolve()
+    for rel, data in files.items():
+        target = (root / rel).resolve()
+        if root not in target.parents:
+            raise ValueError(f"Unsafe file path: {rel}")
+        if target.exists():
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+
+
 class AppStore:
     def __init__(self, data_dir: Path) -> None:
         self.root = data_dir / "apps"
@@ -78,6 +96,9 @@ class AppStore:
             shutil.copyfile(path, path.with_name("compose.prev.yaml"))
         path.write_text(text if text.endswith("\n") else text + "\n", encoding="utf-8")
         return path
+
+    def write_files(self, name: str, files: dict[str, bytes]) -> None:
+        seed_files(self.dir(name), files)
 
     def read_env_text(self, name: str) -> str | None:
         path = self.dir(name) / ".env"
@@ -115,8 +136,8 @@ class AppStore:
             return
         for file in ("compose.yaml", "compose.prev.yaml", ".env"):
             (directory / file).unlink(missing_ok=True)
-        # Keep data/ and anything else the user put there; only tidy up empty dirs.
-        for path in (directory / "data", directory):
+        # Keep data/, files/ and anything else the user put there; only tidy up empty dirs.
+        for path in (directory / "data", directory / "files", directory):
             if path.is_dir() and not any(path.iterdir()):
                 path.rmdir()
 

@@ -14,6 +14,10 @@ from athena.catalog.model import CatalogApp, EnvField, InvalidCatalogAppError, p
 
 log = logging.getLogger(__name__)
 
+MAX_FILE_BYTES = 256 * 1024
+MAX_APP_FILES_BYTES = 2 * 1024 * 1024
+MAX_APP_FILES = 40
+
 
 def builtin_catalog_dir() -> Path | None:
     """The bundled catalog in the wheel, or the repo's catalog/ in development."""
@@ -25,6 +29,35 @@ def builtin_catalog_dir() -> Path | None:
         if (candidate / "apps").is_dir():
             return candidate
     return None
+
+
+def load_app_files(folder: Path, app_id: str) -> dict[str, bytes]:
+    """Read ``<folder>/files/**``: path (POSIX, relative to ``files/``) -> content.
+
+    Symlinks are refused (an archive could point one outside the catalog), and the
+    size and count limits keep a third-party catalog from filling the disk.
+    """
+    root = folder / "files"
+    if not root.exists():
+        return {}
+    if root.is_symlink() or not root.is_dir():
+        raise InvalidCatalogAppError(f"{app_id}: `files` must be a folder")
+    files: dict[str, bytes] = {}
+    total = 0
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink():
+            raise InvalidCatalogAppError(f"{app_id}: files/ can't contain symlinks")
+        if path.is_dir():
+            continue
+        rel = path.relative_to(root).as_posix()
+        data = path.read_bytes()
+        total += len(data)
+        if len(data) > MAX_FILE_BYTES:
+            raise InvalidCatalogAppError(f"{app_id}: files/{rel} is larger than 256 KB")
+        if total > MAX_APP_FILES_BYTES or len(files) >= MAX_APP_FILES:
+            raise InvalidCatalogAppError(f"{app_id}: files/ is too large (2 MB, 40 files)")
+        files[rel] = data
+    return files
 
 
 def load_catalog(root: Path, catalog_id: str) -> tuple[list[CatalogApp], list[str]]:
@@ -56,7 +89,9 @@ def load_catalog(root: Path, catalog_id: str) -> tuple[list[CatalogApp], list[st
         if skipped:
             continue
         try:
-            apps.append(parse_app(app_id, catalog_id, docs))
+            app = parse_app(app_id, catalog_id, docs)
+            app.files = load_app_files(folder, app_id)
+            apps.append(app)
         except InvalidCatalogAppError as exc:
             errors.append(f"{app_id}: {exc}")
     for message in errors:

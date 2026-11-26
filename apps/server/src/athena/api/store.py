@@ -313,6 +313,7 @@ async def install(
         source="catalog",
         env_text=env_file(values),
         catalog_id=f"{app.catalog}/{app.id}",
+        files=app.files,
     )
 
 

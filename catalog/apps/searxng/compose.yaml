@@ -10,9 +10,9 @@ x-athena:
   homepage: https://docs.searxng.org
   web_port: WEB_PORT
   notes: >-
-    Settings live in `config/settings.yml` inside the app's data folder (created on first start).
-    To use SearXNG as a web-search tool for Open WebUI or other AI apps, add `json` under
-    `search: formats:` in that file and restart the app.
+    Settings are in `files/settings.yml` in the app's folder, written once so your edits stay. JSON output is
+    already on, so Open WebUI, Vane and other AI apps can use this as their web-search tool
+    (`http://<server>:<port>/search?q=…&format=json`).
   features:
     - Aggregates results from 70+ search engines
     - No tracking, no profiling, no ads
@@ -23,6 +23,11 @@ x-athena:
       label: Web port
       type: port
       default: "8218"
+    - key: SECRET
+      label: Secret key
+      type: password
+      generate: hex32
+      advanced: true
 
 services:
   searxng:
@@ -30,6 +35,8 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8080"
+    environment:
+      SEARXNG_SECRET: ${SECRET}
     volumes:
-      - ${ATHENA_APP_DATA}/config:/etc/searxng
+      - ./files/settings.yml:/etc/searxng/settings.yml
       - ${ATHENA_APP_DATA}/cache:/var/cache/searxng

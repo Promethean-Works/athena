@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from test_containers import ready_store
 
 import athena.api.apps as apps_api
+from athena.apps.store import seed_files
 from athena.catalog import image_platforms as ip
 from athena.catalog.loader import (
     InstallValueError,
@@ -94,6 +95,7 @@ def test_every_builtin_app_passes_compose_config(tmp_path: Path) -> None:
         (folder / "compose.yaml").write_text(app.compose)
         values = resolve_values(app.meta.env, user_entries(app), folder / "data")
         (folder / ".env").write_text(env_file(values))
+        seed_files(folder, app.files)
         result = subprocess.run(
             [*cli, "compose", "--file", str(folder / "compose.yaml"), "config", "--quiet"],
             capture_output=True,
@@ -595,3 +597,101 @@ def test_hex_secrets(tmp_path: Path) -> None:
         resolve_values(app.meta.env, {"IV": "not-hex"}, tmp_path)
     assert "32 hexadecimal" in exc.value.errors["IV"]
     assert resolve_values(app.meta.env, {"IV": "a" * 32}, tmp_path)["IV"] == "a" * 32
+
+
+# ---------------------------------------------------------------- app files
+
+
+def app_folder(tmp_path: Path, files: dict[str, bytes | str]) -> Path:
+    folder = tmp_path / "apps" / "a"
+    folder.mkdir(parents=True)
+    text, _ = doc([PORT])
+    (folder / "compose.yaml").write_text(
+        "x-athena:\n  title: A\n  description: d\n  category: utilities\n  web_port: WEB_PORT\n"
+        "  env:\n    - {key: WEB_PORT, label: Port, type: port, default: '8080'}\n" + text
+    )
+    for rel, data in files.items():
+        path = folder / "files" / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data if isinstance(data, bytes) else data.encode())
+    return folder
+
+
+def test_app_files_are_loaded(tmp_path: Path) -> None:
+    app_folder(tmp_path, {"squid.conf": "http_port 3128\n", "sub/dir/x.bin": b"\x00\x01"})
+    apps, errors = load_catalog(tmp_path, "builtin")
+    assert errors == []
+    assert apps[0].files == {"squid.conf": b"http_port 3128\n", "sub/dir/x.bin": b"\x00\x01"}
+
+
+def test_app_files_are_not_in_api_output(tmp_path: Path) -> None:
+    app_folder(tmp_path, {"a.conf": "x"})
+    apps, _ = load_catalog(tmp_path, "builtin")
+    assert "files" not in apps[0].model_dump()
+
+
+def test_app_files_limits_and_symlinks_are_refused(tmp_path: Path) -> None:
+    folder = app_folder(tmp_path, {"big.conf": b"x" * (256 * 1024 + 1)})
+    _, errors = load_catalog(tmp_path, "builtin")
+    assert errors and "larger than 256 KB" in errors[0]
+
+    (folder / "files" / "big.conf").unlink()
+    (folder / "files" / "link").symlink_to(tmp_path)
+    _, errors = load_catalog(tmp_path, "builtin")
+    assert errors and "symlinks" in errors[0]
+
+
+def test_seed_files_never_overwrite_edits(tmp_path: Path) -> None:
+    seed_files(tmp_path, {"x/a.conf": b"shipped"})
+    (tmp_path / "files" / "x" / "a.conf").write_bytes(b"edited")
+    seed_files(tmp_path, {"x/a.conf": b"shipped", "b.conf": b"new"})
+    assert (tmp_path / "files" / "x" / "a.conf").read_bytes() == b"edited"
+    assert (tmp_path / "files" / "b.conf").read_bytes() == b"new"
+
+
+def test_seed_files_refuse_paths_that_escape(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="Unsafe"):
+        seed_files(tmp_path, {"../evil": b"x"})
+    assert not (tmp_path / "evil").exists()
+
+
+def test_remote_build_copies_variants_and_files(tmp_path: Path) -> None:
+    from athena.catalog import remote
+
+    src = tmp_path / "src"
+    app_folder(src, {"a.conf": "x"})
+    (src / "apps" / "a" / "compose.extra.yaml").write_text(
+        (src / "apps" / "a" / "compose.yaml").read_text()
+    )
+    out = tmp_path / "out"
+    assert remote.build(src, "athena", "mine", out, lambda _msg: None) == 1
+    apps, _ = load_catalog(out, "mine")
+    assert [v.slug for v in apps[0].variants] == ["default", "extra"]
+    assert apps[0].files == {"a.conf": b"x"}
+
+
+def test_install_seeds_shipped_files(
+    api: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from test_apps import wait
+
+    app = api.app.state.catalogs.get("builtin", "searxng")
+    monkeypatch.setattr(app, "files", {"settings.yml": b"shipped: true\n"})
+    res = api.post(
+        "/api/store/apps/builtin/searxng/install",
+        json={"name": "search", "values": {"WEB_PORT": "9998"}},
+    )
+    assert res.status_code == 202, res.text
+    assert wait(api, res.json()["id"])["status"] == "succeeded"
+    shipped = tmp_path / "data" / "apps" / "search" / "files" / "settings.yml"
+    assert shipped.read_text() == "shipped: true\n"
+
+
+def test_searxng_ships_json_enabled_settings() -> None:
+    apps, _ = builtin()
+    app = next(a for a in apps if a.id == "searxng")
+    import yaml
+
+    settings = yaml.safe_load(app.files["settings.yml"])
+    assert "json" in settings["search"]["formats"]
+    assert "./files/settings.yml" in app.compose

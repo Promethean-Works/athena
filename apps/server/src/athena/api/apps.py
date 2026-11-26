@@ -289,6 +289,7 @@ def deploy_new_app(
     source: str,
     env_text: str | None = None,
     catalog_id: str | None = None,
+    files: dict[str, bytes] | None = None,
 ) -> JobOut:
     """Save an app's files, record it, and start its deploy job (shared with the store)."""
     if db.exec(select(App).where(App.name == name)).first():
@@ -301,6 +302,8 @@ def deploy_new_app(
     path = store.write(name, compose_text)
     if env_text is not None:
         store.write_env(name, env_text)
+    if files:
+        store.write_files(name, files)
     db.add(App(name=name, source=source, catalog_id=catalog_id))
     db.commit()
     audit.record(db, user.user.username, "app.create", name, catalog_id or source)

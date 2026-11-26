@@ -44,7 +44,7 @@ from typing import Literal
 
 import httpx2
 
-from athena.apps.store import parse_compose
+from athena.apps.store import parse_compose, seed_files
 from athena.catalog.loader import builtin_catalog_dir, env_file, load_catalog, resolve_values
 from athena.catalog.model import CatalogApp, CatalogAppVariant
 from athena.catalog.platforms import support
@@ -324,6 +324,7 @@ def run_one(
     compose_path.write_text(variant.compose, encoding="utf-8")
     values = install_values(target, folder, engine)
     (folder / ".env").write_text(env_file(values), encoding="utf-8")
+    seed_files(folder, target.app.files)
     env = {**os.environ, "ATHENA_APP_DATA": str(folder / "data")}
     compose = ["compose", "--project-name", target.project, "--file", str(compose_path)]
     port = _web_port(variant, app, values)
