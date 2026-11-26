@@ -165,7 +165,8 @@ export default function SetupPage() {
                 body: credentials,
               })
               if (!data) return errorMessage(error, "Couldn't create the account")
-              setCsrfToken(null)
+              // Setup signs in; the AI step's writes need this session's token.
+              setCsrfToken(data.csrf_token ?? null)
               setStep("ai")
               return null
             }}
