@@ -220,6 +220,20 @@ def test_installed_tunnels_are_detected() -> None:
     assert detect_tunnel_tailscale(stopped).status == "stopped"
 
 
+def test_tunnel_binary_installed_off_path_is_detected(tmp_path: Path) -> None:
+    # The installer drops cloudflared in ~/.local/bin, which a service's PATH lacks.
+    from athena.platform.detect import detect_tunnel_cloudflare
+
+    binary = tmp_path / ".local" / "bin" / "cloudflared"
+    probe = FakeProbe(
+        home_dir=tmp_path,
+        paths={str(binary)},
+        commands={(str(binary), "version"): RunResult(0, "cloudflared 2026.11.0", "")},
+    )
+    assert detect_tunnel_cloudflare(probe).status == "ready"
+    assert detect_tunnel_cloudflare(FakeProbe(home_dir=tmp_path)).status == "missing"
+
+
 # ---------------------------------------------------------------- local AI servers
 
 MODELS = {"object": "list", "data": [{"id": "m1"}]}
