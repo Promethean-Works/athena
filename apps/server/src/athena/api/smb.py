@@ -19,6 +19,7 @@ from athena.api.netshares import require_share_capability
 from athena.auth.deps import Authed, DbSession
 from athena.db.models import SmbShare
 from athena.files import smb
+from athena.files.paths import FileError
 
 router = APIRouter(prefix="/shares/smb", tags=["smb shares"])
 
@@ -81,7 +82,7 @@ async def create_smb_share(
                 provider=cap.provider or "samba",
             )
         )
-    except smb.FileError as exc:
+    except FileError as exc:
         raise _fail(exc) from exc
     audit.record(
         db,
@@ -102,6 +103,6 @@ async def remove_smb_share(share_id: int, request: Request, user: Authed, db: Db
     cap = await require_share_capability(request, "shares.smb")
     try:
         await _run(lambda: smb.remove_share(db, share_id, provider=cap.provider or "samba"))
-    except smb.FileError as exc:
+    except FileError as exc:
         raise _fail(exc) from exc
     audit.record(db, user.user.username, "smb.share.remove", f"SMB:{share.name}")

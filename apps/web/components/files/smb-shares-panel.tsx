@@ -1,8 +1,7 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-import { ArrowLeftIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { PlusIcon, Share2Icon, Trash2Icon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -52,12 +51,17 @@ import { Switch } from "@workspace/ui/components/switch"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { toast } from "@workspace/ui/components/toast"
 import { useCapability } from "@/components/capabilities-provider"
+import {
+  ConnectionString,
+  serverHost,
+} from "@/components/files/connection-string"
+import { ShareCapabilityNotice } from "@/components/files/share-capability-notice"
 
 type SmbShare = Schemas["SmbShareOut"]
 type Location = Schemas["LocationOut"]
 
-/** /files/smb: list the SMB shares Athena published and create new ones. */
-export function SmbSharesView() {
+/** The SMB tab of /files/network: list the shares Athena published and create new ones. */
+export function SmbSharesPanel() {
   const capability = useCapability("shares.smb")
   const [shares, setShares] = React.useState<SmbShare[] | null>(null)
   const [locations, setLocations] = React.useState<Location[] | null>(null)
@@ -89,7 +93,14 @@ export function SmbSharesView() {
   async function createShare(event: React.FormEvent) {
     event.preventDefault()
     setFormError(null)
-    if (locationId === null) return
+    if (locationId === null) {
+      setFormError("Pick a folder to share")
+      return
+    }
+    if (name.trim() === "") {
+      setFormError("Give the share a name")
+      return
+    }
     setPending(true)
     const { data, error: err } = await api.POST("/api/shares/smb", {
       body: {
@@ -112,7 +123,7 @@ export function SmbSharesView() {
     toast.add({
       type: "success",
       title: "SMB share created",
-      description: `\\\\server\\${data.name}`,
+      description: `\\\\${serverHost()}\\${data.name}`,
     })
   }
 
@@ -137,6 +148,8 @@ export function SmbSharesView() {
   }
 
   const ready = capability?.status === "ready"
+  // Windows can't share to guests from here (the server refuses it).
+  const canGuest = capability?.provider !== "smbshare"
 
   if (shares === null) {
     return <Skeleton className="h-40 w-full" />
@@ -144,47 +157,13 @@ export function SmbSharesView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          render={<Link href="/files/" />}
-          nativeButton={false}
-        >
-          <ArrowLeftIcon />
-          Files
-        </Button>
-        <h2 className="font-heading text-lg font-medium">SMB shares</h2>
-      </div>
-
-      {!ready && (
-        <div className="rounded-lg border p-4">
-          {capability?.status === "unsupported" ? (
-            <>
-              <h3 className="font-medium">
-                SMB shares aren't available on this computer
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Creating SMB shares from Athena isn't wired on macOS or Windows
-                yet. On Linux, install Samba (
-                <code className="font-mono text-xs">apt install samba</code>)
-                and Athena will offer it here.
-              </p>
-            </>
-          ) : (
-            <>
-              <h3 className="font-medium">SMB shares aren't set up yet</h3>
-              <p className="text-sm text-muted-foreground">
-                Install the Samba server on this host, then shares can be
-                published over the network as \\\\server\\share.
-              </p>
-            </>
-          )}
-        </div>
-      )}
+      <ShareCapabilityNotice capability={capability} kind="SMB" />
 
       <div className="flex items-center justify-between">
-        <Button onClick={() => setDialogOpen(true)} disabled={pending}>
+        <Button
+          onClick={() => setDialogOpen(true)}
+          disabled={pending || !ready}
+        >
           <PlusIcon className="mr-2 size-4 shrink-0" />
           Create share
         </Button>
@@ -194,7 +173,7 @@ export function SmbSharesView() {
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <Trash2Icon />
+              <Share2Icon />
             </EmptyMedia>
             <EmptyTitle>No SMB shares</EmptyTitle>
             <EmptyDescription>
@@ -304,23 +283,25 @@ export function SmbSharesView() {
                     />
                   </FieldContent>
                 </Field>
-                <Field orientation="horizontal">
-                  <FieldContent>
-                    <FieldLabel htmlFor="smb-share-guest-ok">
-                      Guest ok
-                    </FieldLabel>
-                    <FieldDescription>
-                      Anyone on the network can connect without a username or
-                      password.
-                    </FieldDescription>
-                    <Switch
-                      id="smb-share-guest-ok"
-                      checked={guestOk}
-                      onCheckedChange={setGuestOk}
-                      disabled={pending}
-                    />
-                  </FieldContent>
-                </Field>
+                {canGuest ? (
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldLabel htmlFor="smb-share-guest-ok">
+                        Guest ok
+                      </FieldLabel>
+                      <FieldDescription>
+                        Anyone on the network can connect without a username or
+                        password.
+                      </FieldDescription>
+                      <Switch
+                        id="smb-share-guest-ok"
+                        checked={guestOk}
+                        onCheckedChange={setGuestOk}
+                        disabled={pending}
+                      />
+                    </FieldContent>
+                  </Field>
+                ) : null}
               </div>
             </FieldGroup>
 
@@ -353,9 +334,10 @@ function renderShareRow(
     <TableRow key={share.id}>
       <TableCell className="max-w-0 min-w-40">
         <div className="truncate font-medium">{share.name}</div>
-        <p className="truncate text-xs text-muted-foreground">
-          \\\\server\\{share.name}
-        </p>
+        <ConnectionString
+          value={`\\\\${serverHost()}\\${share.name}`}
+          label="share address"
+        />
       </TableCell>
       <TableCell className="hidden md:table-cell">
         <div className="truncate">{share.location_name}</div>

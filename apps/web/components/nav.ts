@@ -73,11 +73,11 @@ export const navMain: NavItem[] = [
     capability: "files",
   },
   {
-    title: "SMB shares",
-    url: "/files/smb/",
+    title: "Network shares",
+    url: "/files/network/",
     icon: Share2Icon,
-    // Shown even when Samba isn't installed yet, so the page can say how to set it
-    // up. Hidden on macOS and Windows where share creation is unsupported.
+    // Shown even when the host can't create shares yet, so the page can say why
+    // and how to set it up (SMB and NFS each have their own capability).
     capability: "shares.smb",
     showWhenUnavailable: true,
   },

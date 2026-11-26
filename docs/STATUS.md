@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Network shares (`docs/specs/network-shares.md`): parts 1 (#304) and 2 (macOS, root only; branch `feat/macos-network-shares`) built. Next: macOS privilege model, part 3 Windows SMB, part 4 UI. Not verified: real mounts.
+- Network shares (`docs/specs/network-shares.md`): parts 1-3 merged or in review, part 4 UI (`/files/network`, #310) in review. Open: how macOS/Windows get root/admin. Not verified: real mounts, a real `sharing`/`nfsd`/Windows run.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).
 - Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d done; `schedule` runs in part 4. Part 4 (#256) done. 2d not run against real runtime/volumes.
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt/Cloudflare, trusting CA on real devices. Renewal/error live in memory only (restart forgets). Follow-up: own-certificate upload.
@@ -22,7 +22,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
 - Not yet verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell through Docker in WSL.
 - Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
-- Not yet verified in browser: `/files/smb` (#104), compose variant picker (#109), cloud wizard (#97) and remote cards (#92) with real rclone remote.
+- Not yet verified in browser: compose variant picker (#109), cloud wizard (#97) and remote cards (#92) with real rclone remote.
 - Catalog smoke test (#169, #172, fixes #173–#176): every store app installed for real on macOS arm64 (Colima); 135/199 passed at first, rest fixed or marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run `Catalog smoke` workflow for `--all` on amd64/arm64. Logins/real use not verified.
 - Tunnel follow-ups (#150): ngrok service files hold `${NGROK_AUTHTOKEN}` placeholder; Cloudflare quick tunnel tested (macOS); not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`.
 - models.dev providers left out (pydantic-ai needs their SDK): watsonx, GitLab, SAP AI Core, gateways. Google Vertex in (`google-vertex`, service-account key; not tried against real Vertex).

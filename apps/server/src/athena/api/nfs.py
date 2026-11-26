@@ -17,6 +17,7 @@ from athena.api.netshares import require_share_capability
 from athena.auth.deps import Authed, DbSession
 from athena.db.models import NfsShare
 from athena.files import nfs
+from athena.files.paths import FileError
 
 router = APIRouter(prefix="/shares/nfs", tags=["nfs shares"])
 
@@ -72,7 +73,7 @@ async def create_nfs_share(
                 db, body.location, body.clients, read_only=body.read_only, flavor=flavor
             )
         )
-    except nfs.FileError as exc:
+    except FileError as exc:
         raise _fail(exc) from exc
     audit.record(
         db,
@@ -94,6 +95,6 @@ async def remove_nfs_share(share_id: int, request: Request, user: Authed, db: Db
     flavor = nfs.flavor_for(cap.provider)
     try:
         await _run(lambda: nfs.remove_share(db, share_id, flavor=flavor))
-    except nfs.FileError as exc:
+    except FileError as exc:
         raise _fail(exc) from exc
     audit.record(db, user.user.username, "nfs.share.remove", f"NFS:{share.path}")
