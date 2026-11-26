@@ -1,0 +1,48 @@
+x-athena:
+  title: Seerr
+  description: "Request manager for Jellyfin, Plex and Emby: users ask for movies and shows, Seerr sends them to Sonarr and Radarr. The successor to Jellyseerr and Overseerr."
+  tagline: Media requests for Jellyfin, Plex and Emby.
+  tags: [Media, Requests, Jellyfin]
+  license: MIT
+  category: media
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/seerr.svg
+  homepage: https://seerr.dev
+  web_port: WEB_PORT
+  notes: >-
+    Sign in with your Jellyfin, Plex or Emby account on first open, then connect Sonarr and Radarr.
+  features:
+    - Requests with approval flow
+    - Sends approved requests to Sonarr and Radarr
+    - Sign in with Jellyfin, Plex or Emby
+    - Discover trending titles and get notifications
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8243"
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+
+services:
+  seerr:
+    image: ghcr.io/seerr-team/seerr:v3.5.2
+    restart: unless-stopped
+    init: true
+    user: "${PUID}:${PGID}"
+    ports:
+      - "${WEB_PORT}:5055"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/app/config

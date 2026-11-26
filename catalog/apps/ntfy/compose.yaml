@@ -1,0 +1,46 @@
+x-athena:
+  title: ntfy
+  description: Send push notifications to your phone or desktop from any script with a simple HTTP request.
+  tagline: Push notifications from scripts, over plain HTTP.
+  tags: [Notifications, Push, API]
+  license: Apache-2.0
+  category: utilities
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/ntfy.svg
+  homepage: https://ntfy.sh
+  web_port: WEB_PORT
+  notes: >-
+    Phones reach a self-hosted server only when it's open to them (same network, VPN or a public HTTPS address).
+    Set the base URL below to that address.
+  features:
+    - Publish with curl, no account needed
+    - Android, iOS and web apps
+    - Message history and attachments
+    - Access control with users and tokens
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8237"
+    - key: BASE_URL
+      label: Base URL
+      description: Public address of this server, without a trailing slash.
+      default: "http://localhost:8237"
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
+
+services:
+  ntfy:
+    image: binwiederhier/ntfy:v2.38.2
+    restart: unless-stopped
+    command: ["serve"]
+    ports:
+      - "${WEB_PORT}:80"
+    environment:
+      NTFY_BASE_URL: ${BASE_URL}
+      NTFY_CACHE_FILE: /var/cache/ntfy/cache.db
+      TZ: ${TZ}
+    volumes:
+      - ${ATHENA_APP_DATA}/cache:/var/cache/ntfy

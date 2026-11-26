@@ -1,0 +1,38 @@
+x-athena:
+  title: Crawl4AI
+  description: Web crawler that turns pages into clean Markdown for LLMs and RAG, with a REST API and a playground.
+  tagline: Web crawler that feeds LLMs clean Markdown.
+  tags: [AI, Crawler, RAG]
+  license: Apache-2.0
+  category: ai
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://raw.githubusercontent.com/unclecode/crawl4ai/main/deploy/docker/static/assets/logo.png
+  homepage: https://docs.crawl4ai.com
+  web_port: WEB_PORT
+  notes: >-
+    Try it at `/playground`. API calls need the token below as a bearer token. Uses a headless Chromium,
+    so it needs about 2 GB of RAM.
+  features:
+    - Clean Markdown output from any page
+    - Runs JavaScript with a real headless browser
+    - REST API with token authentication
+    - Optional LLM-based structured extraction
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8227"
+    - key: API_TOKEN
+      label: API token
+      type: password
+      generate: secret
+
+services:
+  crawl4ai:
+    image: unclecode/crawl4ai:0.9.6
+    restart: unless-stopped
+    shm_size: "1gb"
+    ports:
+      - "${WEB_PORT}:11235"
+    environment:
+      CRAWL4AI_API_TOKEN: ${API_TOKEN}

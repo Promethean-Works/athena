@@ -1,0 +1,63 @@
+x-athena:
+  title: Vikunja
+  description: To-do and project manager with lists, kanban boards, Gantt charts, reminders and CalDAV sync.
+  tagline: Tasks and projects, your way.
+  tags: [Tasks, Kanban, Projects]
+  license: AGPL-3.0
+  category: productivity
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/vikunja.svg
+  homepage: https://vikunja.io
+  web_port: WEB_PORT
+  notes: >-
+    Register the first account on the sign-in page. Set the public URL below to the address you open the app
+    from, so links in emails and the mobile apps work.
+  features:
+    - List, kanban, Gantt and table views
+    - Reminders, labels, priorities and sub-tasks
+    - CalDAV and mobile apps
+    - Share projects with teams
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8233"
+    - key: PUBLIC_URL
+      label: Public URL
+      description: Address you open Vikunja from, with a trailing slash.
+      default: "http://localhost:8233/"
+    - key: JWT_SECRET
+      label: JWT secret
+      type: password
+      generate: secret
+      advanced: true
+    - key: ENABLE_REGISTRATION
+      label: Allow sign-ups
+      type: boolean
+      default: "true"
+      advanced: true
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+
+services:
+  vikunja:
+    image: vikunja/vikunja:2.8.0
+    restart: unless-stopped
+    user: "${PUID}:${PGID}"
+    ports:
+      - "${WEB_PORT}:3456"
+    environment:
+      VIKUNJA_SERVICE_PUBLICURL: ${PUBLIC_URL}
+      VIKUNJA_SERVICE_JWTSECRET: ${JWT_SECRET}
+      VIKUNJA_SERVICE_ENABLEREGISTRATION: "${ENABLE_REGISTRATION}"
+      VIKUNJA_DATABASE_TYPE: sqlite
+      VIKUNJA_DATABASE_PATH: /db/vikunja.db
+    volumes:
+      - ${ATHENA_APP_DATA}/files:/app/vikunja/files
+      - ${ATHENA_APP_DATA}/db:/db

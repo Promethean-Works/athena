@@ -1,0 +1,39 @@
+x-athena:
+  title: Qdrant
+  description: Vector database for semantic search and RAG, with a built-in web dashboard.
+  tagline: Vector database for AI search and RAG.
+  tags: [AI, Vector DB, RAG]
+  license: Apache-2.0
+  category: databases
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/qdrant.svg
+  homepage: https://qdrant.tech
+  web_port: WEB_PORT
+  notes: >-
+    The dashboard is at `/dashboard`. The API has no authentication by default; set the API key
+    below before exposing it beyond your home network.
+  features:
+    - Fast similarity search with filtering
+    - REST and gRPC APIs
+    - Web dashboard to browse collections
+    - Used by Open WebUI, AnythingLLM, Dify and many other AI apps
+  env:
+    - key: WEB_PORT
+      label: Web port (REST and dashboard)
+      type: port
+      default: "8223"
+    - key: GRPC_PORT
+      label: gRPC port
+      type: port
+      default: "8244"
+      advanced: true
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.20.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:6333"
+      - "${GRPC_PORT}:6334"
+    volumes:
+      - ${ATHENA_APP_DATA}/storage:/qdrant/storage

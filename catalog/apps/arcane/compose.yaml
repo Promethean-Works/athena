@@ -1,0 +1,42 @@
+x-athena:
+  title: Arcane
+  description: "Modern web UI for Docker: manage containers, images, volumes, networks and Compose projects."
+  tagline: Modern Docker management UI.
+  tags: [Docker, Containers, Admin]
+  license: BSD-3-Clause
+  category: utilities
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/arcane.svg
+  homepage: https://getarcane.app
+  web_port: WEB_PORT
+  notes: >-
+    Mounts the host's Docker socket, so it controls every container on this server, Athena's apps included.
+    Create or change the admin credentials on first open.
+  features:
+    - Containers, images, volumes and networks in one place
+    - Compose project editor and deploy
+    - Image update checks and auto-update
+    - Multiple Docker hosts
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8239"
+    - key: ENCRYPTION_KEY
+      label: Encryption key
+      type: password
+      generate: hex16
+      advanced: true
+
+services:
+  arcane:
+    image: getarcaneapp/manager:v3.1.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3552"
+    environment:
+      ARCANE_APP_URL: http://localhost:${WEB_PORT}
+      ARCANE_ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${ATHENA_APP_DATA}/data:/app/data

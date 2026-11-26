@@ -1,0 +1,35 @@
+x-athena:
+  title: Paperless-AI
+  description: "Adds AI to Paperless-ngx: automatic titles, tags, correspondents and document types, plus chat with your documents."
+  tagline: AI tagging and chat for Paperless-ngx.
+  tags: [AI, Documents, Paperless]
+  license: MIT
+  category: documents
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/paperless-ai.png
+  homepage: https://github.com/clusterzx/paperless-ai
+  web_port: WEB_PORT
+  notes: >-
+    Needs a running Paperless-ngx (install it from the store). The setup wizard asks for its address and
+    an API token, then for an AI provider: Ollama, OpenAI or any OpenAI-compatible server.
+  features:
+    - Tags and titles new documents automatically
+    - Chat with your document archive
+    - Works with Ollama, OpenAI and compatible APIs
+    - Review mode before changes are written back
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8224"
+
+services:
+  paperless-ai:
+    image: clusterzx/paperless-ai:4.7.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3000"
+    environment:
+      PAPERLESS_AI_PORT: "3000"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data

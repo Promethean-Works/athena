@@ -1,0 +1,32 @@
+x-athena:
+  title: changedetection.io
+  description: Watch web pages for changes and get notified, for price drops, restocks, new posts or anything else.
+  tagline: Get notified when a web page changes.
+  tags: [Monitoring, Web, Notifications]
+  license: Apache-2.0
+  category: monitoring
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/changedetection.svg
+  homepage: https://changedetection.io
+  web_port: WEB_PORT
+  notes: >-
+    Notifications go through Apprise (email, Telegram, ntfy, Discord, …); set them up under Settings.
+  features:
+    - Visual diff of what changed on a page
+    - Track a CSS or XPath selector, or just text
+    - 90+ notification services through Apprise
+    - Restock and price-change detection
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8232"
+
+services:
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io:0.70.4
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5000"
+    volumes:
+      - ${ATHENA_APP_DATA}/datastore:/datastore
