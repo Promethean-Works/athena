@@ -74,7 +74,8 @@
     "truncated_one": "Yalnızca ilk {{n}} öğe gösteriliyor.",
     "truncated_other": "Yalnızca ilk {{n}} öğe gösteriliyor.",
     "renameTitle": "{{name}} yeniden adlandır",
-    "create": "Oluştur"
+    "create": "Oluştur",
+    "shareFolder": "Klasörü paylaş"
   },
   "preview": {
     "cantOpen": "Bu dosya burada açılamıyor",
@@ -154,7 +155,12 @@
     "passwordOptional": "Parola (isteğe bağlı)",
     "expires": "Bitiş",
     "allLinks": "Tüm bağlantılar",
-    "create": "Bağlantı oluştur"
+    "create": "Bağlantı oluştur",
+    "tabLink": "Bağlantı",
+    "tabNetwork": "Ağ",
+    "networkDescription": "Bu klasörü ağınızdaki diğer bilgisayarlarla paylaşın.",
+    "networkRootOnly": "Ağ üzerinden yalnızca bütün bir dosya konumu paylaşılabilir. Konumun en üst klasörünü açın.",
+    "networkFolderOnly": "Ağ üzerinden yalnızca klasörler paylaşılabilir."
   },
   "sharesView": {
     "files": "Dosyalar",
@@ -259,6 +265,17 @@
     "copy": "{{label}} kopyala",
     "copied": "{{label}} kopyalandı",
     "copyFailed": "Kopyalanamadı",
-    "smbAddress": "paylaşım adresi"
+    "smbAddress": "paylaşım adresi",
+    "password": {
+      "label": "Bilgisayarınızın parolası",
+      "hint": "Bu değişiklik için bir kez gerekir. Athena onu saklamaz.",
+      "required": "Bilgisayarınızın parolasını girin",
+      "systemHint": "Bilgisayarınız yönetici olarak onaylamanızı isteyecek."
+    },
+    "remove": {
+      "title": "Paylaşımı kaldır",
+      "action": "Kaldır"
+    },
+    "allShares": "Tüm ağ paylaşımları"
   }
 }

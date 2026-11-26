@@ -70,7 +70,8 @@
     "link": "連結",
     "truncated_other": "僅顯示前 {{n}} 個項目。",
     "renameTitle": "重新命名 {{name}}",
-    "create": "建立"
+    "create": "建立",
+    "shareFolder": "共用資料夾"
   },
   "preview": {
     "cantOpen": "無法在這裡開啟此檔案",
@@ -149,7 +150,12 @@
     "passwordOptional": "密碼（選填）",
     "expires": "過期時間",
     "allLinks": "所有連結",
-    "create": "建立連結"
+    "create": "建立連結",
+    "tabLink": "連結",
+    "tabNetwork": "網路",
+    "networkDescription": "與網路上的其他電腦共用此資料夾。",
+    "networkRootOnly": "網路上只能共用整個檔案位置。請開啟該位置的最上層資料夾。",
+    "networkFolderOnly": "網路上只能共用資料夾。"
   },
   "sharesView": {
     "files": "檔案",
@@ -251,6 +257,17 @@
     "copy": "複製{{label}}",
     "copied": "已複製{{label}}",
     "copyFailed": "無法複製",
-    "smbAddress": "分享位址"
+    "smbAddress": "分享位址",
+    "password": {
+      "label": "電腦密碼",
+      "hint": "此變更需要輸入一次。Athena 不會儲存。",
+      "required": "請輸入電腦密碼",
+      "systemHint": "電腦會要求你以系統管理員身分確認。"
+    },
+    "remove": {
+      "title": "移除共用",
+      "action": "移除"
+    },
+    "allShares": "所有網路共用"
   }
 }

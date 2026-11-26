@@ -3362,10 +3362,10 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/SmbShareOut"
                   },
-                  "type": "array",
                   "title": "Response Listsmbshares"
                 }
               }
@@ -3380,15 +3380,35 @@
         "summary": "Create Smb Share",
         "description": "Share a location over SMB. On Linux this writes a section to\n/etc/samba/smb.conf and reloads smbd; on other operating systems it's 501.",
         "operationId": "createSmbShare",
+        "parameters": [
+          {
+            "name": "X-Host-Password",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged.",
+              "title": "X-Host-Password"
+            },
+            "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged."
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/SmbShareIn"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -3431,6 +3451,24 @@
               "type": "integer",
               "title": "Share Id"
             }
+          },
+          {
+            "name": "X-Host-Password",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged.",
+              "title": "X-Host-Password"
+            },
+            "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged."
           }
         ],
         "responses": {
@@ -3464,10 +3502,10 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/NfsShareOut"
                   },
-                  "type": "array",
                   "title": "Response Listnfsshares"
                 }
               }
@@ -3482,15 +3520,35 @@
         "summary": "Create Nfs Share",
         "description": "Export a location over NFS to the listed clients (501 if the host can't).",
         "operationId": "createNfsShare",
+        "parameters": [
+          {
+            "name": "X-Host-Password",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged.",
+              "title": "X-Host-Password"
+            },
+            "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged."
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/NfsShareIn"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -3533,6 +3591,24 @@
               "type": "integer",
               "title": "Share Id"
             }
+          },
+          {
+            "name": "X-Host-Password",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged.",
+              "title": "X-Host-Password"
+            },
+            "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged."
           }
         ],
         "responses": {
@@ -7481,6 +7557,21 @@
             "type": "array",
             "title": "Actions",
             "default": []
+          },
+          "elevation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "password",
+                  "system"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elevation"
           },
           "available": {
             "type": "boolean",

@@ -70,7 +70,8 @@
     "link": "liên kết",
     "truncated_other": "Chỉ hiển thị {{n}} mục đầu tiên.",
     "renameTitle": "Đổi tên {{name}}",
-    "create": "Tạo"
+    "create": "Tạo",
+    "shareFolder": "Chia sẻ thư mục"
   },
   "preview": {
     "cantOpen": "Không thể mở tệp này tại đây",
@@ -149,7 +150,12 @@
     "passwordOptional": "Mật khẩu (tùy chọn)",
     "expires": "Hết hạn",
     "allLinks": "Tất cả liên kết",
-    "create": "Tạo liên kết"
+    "create": "Tạo liên kết",
+    "tabLink": "Liên kết",
+    "tabNetwork": "Mạng",
+    "networkDescription": "Chia sẻ thư mục này với các máy tính khác trong mạng của bạn.",
+    "networkRootOnly": "Chỉ có thể chia sẻ cả một vị trí tệp qua mạng. Hãy mở thư mục gốc của vị trí đó.",
+    "networkFolderOnly": "Chỉ có thể chia sẻ thư mục qua mạng."
   },
   "sharesView": {
     "files": "Tệp",
@@ -251,6 +257,17 @@
     "copy": "Sao chép {{label}}",
     "copied": "Đã sao chép {{label}}",
     "copyFailed": "Không thể sao chép",
-    "smbAddress": "địa chỉ chia sẻ"
+    "smbAddress": "địa chỉ chia sẻ",
+    "password": {
+      "label": "Mật khẩu máy tính của bạn",
+      "hint": "Chỉ cần một lần cho thay đổi này. Athena không lưu mật khẩu.",
+      "required": "Nhập mật khẩu máy tính của bạn",
+      "systemHint": "Máy tính sẽ yêu cầu bạn xác nhận với quyền quản trị viên."
+    },
+    "remove": {
+      "title": "Gỡ chia sẻ",
+      "action": "Gỡ"
+    },
+    "allShares": "Tất cả chia sẻ mạng"
   }
 }

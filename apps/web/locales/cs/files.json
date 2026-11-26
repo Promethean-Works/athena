@@ -82,7 +82,8 @@
     "truncated_many": "Zobrazeno je jen prvních {{n}} položky.",
     "truncated_other": "Zobrazeno je jen prvních {{n}} položek.",
     "renameTitle": "Přejmenovat {{name}}",
-    "create": "Vytvořit"
+    "create": "Vytvořit",
+    "shareFolder": "Sdílet složku"
   },
   "preview": {
     "cantOpen": "Tento soubor zde nelze otevřít",
@@ -164,7 +165,12 @@
     "passwordOptional": "Heslo (volitelné)",
     "expires": "Vyprší",
     "allLinks": "Všechny odkazy",
-    "create": "Vytvořit odkaz"
+    "create": "Vytvořit odkaz",
+    "tabLink": "Odkaz",
+    "tabNetwork": "Síť",
+    "networkDescription": "Sdílejte tuto složku s ostatními počítači v síti.",
+    "networkRootOnly": "V síti lze sdílet jen celé umístění souborů. Otevřete nejvyšší složku umístění.",
+    "networkFolderOnly": "V síti lze sdílet jen složky."
   },
   "sharesView": {
     "files": "Soubory",
@@ -275,6 +281,17 @@
     "copy": "Kopírovat: {{label}}",
     "copied": "{{label}} zkopírováno",
     "copyFailed": "Kopírování se nezdařilo",
-    "smbAddress": "adresa sdílení"
+    "smbAddress": "adresa sdílení",
+    "password": {
+      "label": "Heslo k počítači",
+      "hint": "Je potřeba jednou pro tuto změnu. Athena ho neukládá.",
+      "required": "Zadejte heslo k počítači",
+      "systemHint": "Počítač vás požádá o schválení jako správce."
+    },
+    "remove": {
+      "title": "Odebrat sdílení",
+      "action": "Odebrat"
+    },
+    "allShares": "Všechna síťová sdílení"
   }
 }

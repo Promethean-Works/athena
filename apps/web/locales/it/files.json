@@ -78,7 +78,8 @@
     "truncated_many": "Vengono mostrate solo le prime {{n}} voci.",
     "truncated_other": "Vengono mostrate solo le prime {{n}} voci.",
     "renameTitle": "Rinomina {{name}}",
-    "create": "Crea"
+    "create": "Crea",
+    "shareFolder": "Condividi cartella"
   },
   "preview": {
     "cantOpen": "Impossibile aprire questo file qui",
@@ -159,7 +160,12 @@
     "passwordOptional": "Password (facoltativa)",
     "expires": "Scadenza",
     "allLinks": "Tutti i link",
-    "create": "Crea link"
+    "create": "Crea link",
+    "tabLink": "Link",
+    "tabNetwork": "Rete",
+    "networkDescription": "Condividi questa cartella con altri computer della tua rete.",
+    "networkRootOnly": "In rete si può condividere solo un'intera posizione di file. Apri la cartella principale della posizione.",
+    "networkFolderOnly": "In rete si possono condividere solo cartelle."
   },
   "sharesView": {
     "files": "File",
@@ -267,6 +273,17 @@
     "copy": "Copia {{label}}",
     "copied": "{{label}} copiato",
     "copyFailed": "Impossibile copiare",
-    "smbAddress": "indirizzo della condivisione"
+    "smbAddress": "indirizzo della condivisione",
+    "password": {
+      "label": "La password del tuo computer",
+      "hint": "Serve una volta per questa modifica. Athena non la memorizza.",
+      "required": "Inserisci la password del tuo computer",
+      "systemHint": "Il tuo computer ti chiederà di approvare come amministratore."
+    },
+    "remove": {
+      "title": "Rimuovi condivisione",
+      "action": "Rimuovi"
+    },
+    "allShares": "Tutte le condivisioni di rete"
   }
 }

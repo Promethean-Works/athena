@@ -2874,6 +2874,8 @@ export interface components {
              * @default []
              */
             actions: ("start" | "setup")[];
+            /** Elevation */
+            elevation?: ("password" | "system") | null;
             /** Available */
             readonly available: boolean;
         };
@@ -7545,7 +7547,10 @@ export interface operations {
     createSmbShare: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged. */
+                "X-Host-Password"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -7578,7 +7583,10 @@ export interface operations {
     removeSmbShare: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged. */
+                "X-Host-Password"?: string | null;
+            };
             path: {
                 share_id: number;
             };
@@ -7627,7 +7635,10 @@ export interface operations {
     createNfsShare: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged. */
+                "X-Host-Password"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -7660,7 +7671,10 @@ export interface operations {
     removeNfsShare: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged. */
+                "X-Host-Password"?: string | null;
+            };
             path: {
                 share_id: number;
             };

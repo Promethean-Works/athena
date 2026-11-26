@@ -74,7 +74,8 @@
     "truncated_one": "Only the first {{n}} entry is shown.",
     "truncated_other": "Only the first {{n}} entries are shown.",
     "renameTitle": "Rename {{name}}",
-    "create": "Create"
+    "create": "Create",
+    "shareFolder": "Share folder"
   },
   "preview": {
     "cantOpen": "Can't open this file here",
@@ -154,7 +155,12 @@
     "passwordOptional": "Password (optional)",
     "expires": "Expires",
     "allLinks": "All links",
-    "create": "Create link"
+    "create": "Create link",
+    "tabLink": "Link",
+    "tabNetwork": "Network",
+    "networkDescription": "Share this folder with other computers on your network.",
+    "networkRootOnly": "Only a whole file location can be shared over the network. Open the location's top folder to share it.",
+    "networkFolderOnly": "Only folders can be shared over the network."
   },
   "sharesView": {
     "files": "Files",
@@ -259,6 +265,17 @@
     "copy": "Copy {{label}}",
     "copied": "{{label}} copied",
     "copyFailed": "Couldn't copy",
-    "smbAddress": "share address"
+    "smbAddress": "share address",
+    "password": {
+      "label": "Your computer's password",
+      "hint": "Needed once for this change. Athena doesn't store it.",
+      "required": "Enter your computer's password",
+      "systemHint": "Your computer will ask you to approve this as an administrator."
+    },
+    "remove": {
+      "title": "Remove share",
+      "action": "Remove"
+    },
+    "allShares": "All network shares"
   }
 }

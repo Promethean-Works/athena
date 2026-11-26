@@ -74,7 +74,8 @@
     "truncated_one": "Só é mostrada a primeira {{n}} entrada.",
     "truncated_other": "Só são mostradas as primeiras {{n}} entradas.",
     "renameTitle": "Mudar o nome de {{name}}",
-    "create": "Criar"
+    "create": "Criar",
+    "shareFolder": "Partilhar pasta"
   },
   "preview": {
     "cantOpen": "Não é possível abrir este ficheiro aqui",
@@ -154,7 +155,12 @@
     "passwordOptional": "Palavra-passe (opcional)",
     "expires": "Expira",
     "allLinks": "Todas as ligações",
-    "create": "Criar ligação"
+    "create": "Criar ligação",
+    "tabLink": "Ligação",
+    "tabNetwork": "Rede",
+    "networkDescription": "Partilhe esta pasta com outros computadores da sua rede.",
+    "networkRootOnly": "Só é possível partilhar na rede uma localização de ficheiros inteira. Abra a pasta de topo da localização.",
+    "networkFolderOnly": "Só é possível partilhar pastas na rede."
   },
   "sharesView": {
     "files": "Ficheiros",
@@ -259,6 +265,17 @@
     "copy": "Copiar {{label}}",
     "copied": "{{label}} copiado",
     "copyFailed": "Não foi possível copiar",
-    "smbAddress": "endereço da partilha"
+    "smbAddress": "endereço da partilha",
+    "password": {
+      "label": "A palavra-passe do seu computador",
+      "hint": "Necessária uma vez para esta alteração. O Athena não a guarda.",
+      "required": "Introduza a palavra-passe do seu computador",
+      "systemHint": "O seu computador pedirá que aprove como administrador."
+    },
+    "remove": {
+      "title": "Remover partilha",
+      "action": "Remover"
+    },
+    "allShares": "Todas as partilhas de rede"
   }
 }

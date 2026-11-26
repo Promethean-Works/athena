@@ -9,7 +9,6 @@ import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -33,6 +32,12 @@ import {
 import { Separator } from "@workspace/ui/components/separator"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@workspace/ui/components/tabs"
 import { toast } from "@workspace/ui/components/toast"
 
 import {
@@ -41,6 +46,7 @@ import {
   type ShareLink,
   shareUrl,
 } from "@/components/files/share-links"
+import { ShareNetworkTab } from "@/components/files/share-network-tab"
 import { copyText } from "@/lib/clipboard"
 
 export type ShareTarget = {
@@ -137,122 +143,138 @@ export function ShareDialog({
           <DialogTitle className="truncate">
             {t("shareDialog.title", { name: target?.name })}
           </DialogTitle>
-          <DialogDescription>
-            {t("shareDialog.description")}
-          </DialogDescription>
         </DialogHeader>
 
-        {links === null ? (
-          <Skeleton className="h-12 w-full" />
-        ) : links.length ? (
-          <ul className="flex flex-col gap-2" aria-label={t("shareDialog.links")}>
-            {links.map((link) => (
-              <li
-                key={link.id}
-                className="flex items-center gap-2 rounded-lg border p-2"
+        <Tabs defaultValue="link">
+          <TabsList>
+            <TabsTrigger value="link">{t("shareDialog.tabLink")}</TabsTrigger>
+            <TabsTrigger value="network">
+              {t("shareDialog.tabNetwork")}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="link" className="flex flex-col gap-4 pt-2">
+            <p className="text-sm text-muted-foreground">
+              {t("shareDialog.description")}
+            </p>
+            {links === null ? (
+              <Skeleton className="h-12 w-full" />
+            ) : links.length ? (
+              <ul
+                className="flex flex-col gap-2"
+                aria-label={t("shareDialog.links")}
               >
-                <div className="min-w-0 flex-1">
-                  <LinkBadges link={link} />
+                {links.map((link) => (
+                  <li
+                    key={link.id}
+                    className="flex items-center gap-2 rounded-lg border p-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <LinkBadges link={link} />
+                    </div>
+                    <LinkActions link={link} onRemoved={() => void load()} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {t("shareDialog.noLinks")}
+              </p>
+            )}
+
+            <Separator />
+
+            <form id="new-share" onSubmit={create}>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="share-mode">
+                    {t("shareDialog.visitorsCan")}
+                  </FieldLabel>
+                  <Select
+                    items={MODES}
+                    value={mode}
+                    onValueChange={(v) => v && setMode(v)}
+                    disabled={!isFolder}
+                  >
+                    <SelectTrigger id="share-mode" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {MODES.map((m) => (
+                          <SelectItem key={m.value} value={m.value}>
+                            {m.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldDescription>
+                    {!isFolder
+                      ? t("shareDialog.needsFolder")
+                      : mode === "upload"
+                        ? t("shareDialog.uploadHint")
+                        : t("shareDialog.readHint")}
+                  </FieldDescription>
+                </Field>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field>
+                    <FieldLabel htmlFor="share-password">
+                      {t("shareDialog.passwordOptional")}
+                    </FieldLabel>
+                    <Input
+                      id="share-password"
+                      type="password"
+                      autoComplete="new-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="share-expiry">
+                      {t("shareDialog.expires")}
+                    </FieldLabel>
+                    <Select
+                      items={EXPIRY}
+                      value={days}
+                      onValueChange={(v) => v && setDays(v)}
+                    >
+                      <SelectTrigger id="share-expiry" className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {EXPIRY.map((e) => (
+                            <SelectItem key={e.value} value={e.value}>
+                              {e.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
                 </div>
-                <LinkActions link={link} onRemoved={() => void load()} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            {t("shareDialog.noLinks")}
-          </p>
-        )}
+                {error ? <FieldError>{error}</FieldError> : null}
+              </FieldGroup>
+            </form>
 
-        <Separator />
-
-        <form id="new-share" onSubmit={create}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="share-mode">
-                {t("shareDialog.visitorsCan")}
-              </FieldLabel>
-              <Select
-                items={MODES}
-                value={mode}
-                onValueChange={(v) => v && setMode(v)}
-                disabled={!isFolder}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                render={<Link href="/files/shares/" />}
+                nativeButton={false}
               >
-                <SelectTrigger id="share-mode" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {MODES.map((m) => (
-                      <SelectItem key={m.value} value={m.value}>
-                        {m.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <FieldDescription>
-                {!isFolder
-                  ? t("shareDialog.needsFolder")
-                  : mode === "upload"
-                    ? t("shareDialog.uploadHint")
-                    : t("shareDialog.readHint")}
-              </FieldDescription>
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field>
-                <FieldLabel htmlFor="share-password">
-                  {t("shareDialog.passwordOptional")}
-                </FieldLabel>
-                <Input
-                  id="share-password"
-                  type="password"
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="share-expiry">
-                  {t("shareDialog.expires")}
-                </FieldLabel>
-                <Select
-                  items={EXPIRY}
-                  value={days}
-                  onValueChange={(v) => v && setDays(v)}
-                >
-                  <SelectTrigger id="share-expiry" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {EXPIRY.map((e) => (
-                        <SelectItem key={e.value} value={e.value}>
-                          {e.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
-            </div>
-            {error ? <FieldError>{error}</FieldError> : null}
-          </FieldGroup>
-        </form>
-
-        <DialogFooter>
-          <Button
-            variant="outline"
-            render={<Link href="/files/shares/" />}
-            nativeButton={false}
-          >
-            {t("shareDialog.allLinks")}
-          </Button>
-          <Button type="submit" form="new-share" disabled={pending}>
-            {pending ? <Spinner /> : null}
-            {t("shareDialog.create")}
-          </Button>
-        </DialogFooter>
+                {t("shareDialog.allLinks")}
+              </Button>
+              <Button type="submit" form="new-share" disabled={pending}>
+                {pending ? <Spinner /> : null}
+                {t("shareDialog.create")}
+              </Button>
+            </DialogFooter>
+          </TabsContent>
+          <TabsContent value="network" className="pt-2">
+            {target ? <ShareNetworkTab target={target} /> : null}
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   )
