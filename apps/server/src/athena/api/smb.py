@@ -15,7 +15,12 @@ from pydantic import BaseModel, Field
 
 from athena import audit
 from athena.api.files import _fail, _run
-from athena.api.netshares import HostPassword, require_share_capability, share_elevation
+from athena.api.netshares import (
+    HostPassword,
+    release_mount,
+    require_share_capability,
+    share_elevation,
+)
 from athena.auth.deps import Authed, DbSession
 from athena.db.models import SmbShare
 from athena.files import smb
@@ -115,6 +120,7 @@ async def remove_smb_share(
     share = db.get(SmbShare, share_id)
     if share is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such SMB share")
+    location_id = share.location_id
     cap = await require_share_capability(request, "shares.smb")
     elevation = share_elevation(cap, password)
     try:
@@ -126,4 +132,5 @@ async def remove_smb_share(
         )
     except FileError as exc:
         raise _fail(exc) from exc
+    await release_mount(request, db, location_id)
     audit.record(db, user.user.username, "smb.share.remove", f"SMB:{share.name}")

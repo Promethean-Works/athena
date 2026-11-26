@@ -160,7 +160,11 @@
     "tabNetwork": "Ağ",
     "networkDescription": "Bu klasörü ağınızdaki diğer bilgisayarlarla paylaşın.",
     "networkRootOnly": "Ağ üzerinden yalnızca bütün bir dosya konumu paylaşılabilir. Konumun en üst klasörünü açın.",
-    "networkFolderOnly": "Ağ üzerinden yalnızca klasörler paylaşılabilir."
+    "networkFolderOnly": "Ağ üzerinden yalnızca klasörler paylaşılabilir.",
+    "mountUnavailable": "Bulut klasörleri bu bilgisayardan henüz paylaşılamıyor",
+    "mountDescription": "Athena, bu bulut klasörünü paylaşmadan önce bu bilgisayara bağlamalıdır. Bulut depolama, paylaşımı açan herkes için bir diskten daha yavaştır.",
+    "mountReadOnly": "Salt okunur (önerilir)",
+    "mountAction": "Bağla ve paylaş"
   },
   "sharesView": {
     "files": "Dosyalar",

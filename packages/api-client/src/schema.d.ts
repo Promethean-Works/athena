@@ -1363,6 +1363,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cloud/mounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Cloud Mounts */
+        get: operations["listCloudMounts"];
+        put?: never;
+        /**
+         * Mount Cloud Folder
+         * @description Mount a remote folder on this computer (or return the mount that exists).
+         */
+        post: operations["mountCloudFolder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cloud/mounts/{mount_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Unmount Cloud Folder
+         * @description Unmount a cloud folder. 409 while a share still uses it.
+         */
+        delete: operations["unmountCloudFolder"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cloud/providers": {
         parameters: {
             query?: never;
@@ -3872,6 +3913,34 @@ export interface components {
             models: components["schemas"]["ModelInfo"][];
             /** Error */
             error?: string | null;
+        };
+        /** MountIn */
+        MountIn: {
+            /** Remote */
+            remote: string;
+            /**
+             * Path
+             * @default
+             */
+            path: string;
+            /**
+             * Read Only
+             * @default true
+             */
+            read_only: boolean;
+        };
+        /** MountOut */
+        MountOut: {
+            /** Id */
+            id: number;
+            /** Remote */
+            remote: string;
+            /** Path */
+            path: string;
+            /** Location Id */
+            location_id: number;
+            /** Read Only */
+            read_only: boolean;
         };
         /** NameIn */
         NameIn: {
@@ -7677,6 +7746,88 @@ export interface operations {
             };
             path: {
                 share_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listCloudMounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MountOut"][];
+                };
+            };
+        };
+    };
+    mountCloudFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MountIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MountOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unmountCloudFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mount_id: number;
             };
             cookie?: never;
         };

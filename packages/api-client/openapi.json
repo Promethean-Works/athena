@@ -3628,6 +3628,107 @@
         }
       }
     },
+    "/api/cloud/mounts": {
+      "get": {
+        "tags": [
+          "cloud mounts"
+        ],
+        "summary": "List Cloud Mounts",
+        "operationId": "listCloudMounts",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MountOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listcloudmounts"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cloud mounts"
+        ],
+        "summary": "Mount Cloud Folder",
+        "description": "Mount a remote folder on this computer (or return the mount that exists).",
+        "operationId": "mountCloudFolder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MountIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MountOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cloud/mounts/{mount_id}": {
+      "delete": {
+        "tags": [
+          "cloud mounts"
+        ],
+        "summary": "Unmount Cloud Folder",
+        "description": "Unmount a cloud folder. 409 while a share still uses it.",
+        "operationId": "unmountCloudFolder",
+        "parameters": [
+          {
+            "name": "mount_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Mount Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/cloud/providers": {
       "get": {
         "tags": [
@@ -10409,6 +10510,62 @@
           "models"
         ],
         "title": "ModelsOut"
+      },
+      "MountIn": {
+        "properties": {
+          "remote": {
+            "type": "string",
+            "title": "Remote"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "default": ""
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "remote"
+        ],
+        "title": "MountIn"
+      },
+      "MountOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "remote": {
+            "type": "string",
+            "title": "Remote"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "location_id": {
+            "type": "integer",
+            "title": "Location Id"
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "remote",
+          "path",
+          "location_id",
+          "read_only"
+        ],
+        "title": "MountOut"
       },
       "NameIn": {
         "properties": {

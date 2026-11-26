@@ -50,7 +50,10 @@ import { ShareNetworkTab } from "@/components/files/share-network-tab"
 import { copyText } from "@/lib/clipboard"
 
 export type ShareTarget = {
+  /** The file location (0 for a cloud remote, which has no public links). */
   location: number
+  /** Set for a folder on a cloud remote: only the Network tab applies. */
+  remote?: string
   path: string
   name: string
   kind: "dir" | "file" | "other"
@@ -86,7 +89,8 @@ export function ShareDialog({
   const [error, setError] = React.useState<string | null>(null)
 
   const load = React.useCallback(async () => {
-    if (!target) return
+    // A cloud folder has no public links (they need a file location).
+    if (!target || target.remote) return
     const { data } = await api.GET("/api/shares", {
       params: { query: { location: target.location, path: target.path } },
     })
@@ -145,9 +149,11 @@ export function ShareDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="link">
+        <Tabs defaultValue={target?.remote ? "network" : "link"}>
           <TabsList>
-            <TabsTrigger value="link">{t("shareDialog.tabLink")}</TabsTrigger>
+            <TabsTrigger value="link" disabled={!!target?.remote}>
+              {t("shareDialog.tabLink")}
+            </TabsTrigger>
             <TabsTrigger value="network">
               {t("shareDialog.tabNetwork")}
             </TabsTrigger>

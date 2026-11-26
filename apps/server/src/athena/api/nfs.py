@@ -13,7 +13,12 @@ from pydantic import BaseModel, Field
 
 from athena import audit
 from athena.api.files import _fail, _run
-from athena.api.netshares import HostPassword, require_share_capability, share_elevation
+from athena.api.netshares import (
+    HostPassword,
+    release_mount,
+    require_share_capability,
+    share_elevation,
+)
 from athena.auth.deps import Authed, DbSession
 from athena.db.models import NfsShare
 from athena.files import nfs
@@ -106,6 +111,7 @@ async def remove_nfs_share(
     share = db.get(NfsShare, share_id)
     if share is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such NFS share")
+    location_id = share.location_id
     cap = await require_share_capability(request, "shares.nfs")
     flavor = nfs.flavor_for(cap.provider)
     elevation = share_elevation(cap, password)
@@ -113,4 +119,5 @@ async def remove_nfs_share(
         await _run(with_elevation(elevation, lambda: nfs.remove_share(db, share_id, flavor=flavor)))
     except FileError as exc:
         raise _fail(exc) from exc
+    await release_mount(request, db, location_id)
     audit.record(db, user.user.username, "nfs.share.remove", f"NFS:{share.path}")

@@ -160,7 +160,11 @@
     "tabNetwork": "Netzwerk",
     "networkDescription": "Gib diesen Ordner für andere Computer in deinem Netzwerk frei.",
     "networkRootOnly": "Im Netzwerk kann nur ein ganzer Dateispeicherort freigegeben werden. Öffne den obersten Ordner des Speicherorts.",
-    "networkFolderOnly": "Im Netzwerk können nur Ordner freigegeben werden."
+    "networkFolderOnly": "Im Netzwerk können nur Ordner freigegeben werden.",
+    "mountUnavailable": "Cloud-Ordner können von diesem Computer noch nicht freigegeben werden",
+    "mountDescription": "Athena muss diesen Cloud-Ordner zuerst auf diesem Computer einbinden, bevor er freigegeben werden kann. Cloud-Speicher ist langsamer als eine Festplatte, für alle, die die Freigabe öffnen.",
+    "mountReadOnly": "Nur lesen (empfohlen)",
+    "mountAction": "Einbinden und freigeben"
   },
   "sharesView": {
     "files": "Dateien",

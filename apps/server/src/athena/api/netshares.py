@@ -3,6 +3,7 @@
 from typing import Annotated
 
 from fastapi import Header, HTTPException, Request, status
+from sqlmodel import Session
 
 from athena.files.netshare import Elevation
 from athena.platform.capabilities import Capability
@@ -42,3 +43,10 @@ def share_elevation(cap: Capability, password: str | None) -> Elevation | None:
     if not password:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Enter your computer's password to continue")
     return Elevation("sudo", password)
+
+
+async def release_mount(request: Request, db: Session, location_id: int) -> None:
+    """After removing a share: unmount its cloud folder if no other share needs it."""
+    from athena.cloud import mounts
+
+    await mounts.release_if_unused(db, request.app.state.rclone, location_id)

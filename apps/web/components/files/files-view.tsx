@@ -686,24 +686,32 @@ export function FilesView() {
             <EyeIcon />
             <span className="hidden sm:inline">{t("view.hidden")}</span>
           </Toggle>
-          {onRemote ? null : (
-            <Button
-              variant="outline"
-              disabled={!place.available || path !== ""}
-              onClick={() =>
-                setSharing({
-                  location: locId,
-                  path: "",
-                  name: place.name,
-                  kind: "dir",
-                })
-              }
-              aria-label={t("view.shareFolder")}
-            >
-              <Share2Icon />
-              <span className="hidden sm:inline">{t("view.shareFolder")}</span>
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            disabled={!place.available || (!onRemote && path !== "")}
+            onClick={() =>
+              setSharing(
+                onRemote
+                  ? {
+                      location: 0,
+                      remote: remoteName ?? undefined,
+                      path,
+                      name: path.split("/").pop() || place.name,
+                      kind: "dir",
+                    }
+                  : {
+                      location: locId,
+                      path: "",
+                      name: place.name,
+                      kind: "dir",
+                    }
+              )
+            }
+            aria-label={t("view.shareFolder")}
+          >
+            <Share2Icon />
+            <span className="hidden sm:inline">{t("view.shareFolder")}</span>
+          </Button>
           <Button
             variant="outline"
             render={<Link href="/files/shares/" />}

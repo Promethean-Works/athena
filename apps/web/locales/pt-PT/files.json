@@ -160,7 +160,11 @@
     "tabNetwork": "Rede",
     "networkDescription": "Partilhe esta pasta com outros computadores da sua rede.",
     "networkRootOnly": "Só é possível partilhar na rede uma localização de ficheiros inteira. Abra a pasta de topo da localização.",
-    "networkFolderOnly": "Só é possível partilhar pastas na rede."
+    "networkFolderOnly": "Só é possível partilhar pastas na rede.",
+    "mountUnavailable": "Ainda não é possível partilhar pastas da nuvem a partir deste computador",
+    "mountDescription": "O Athena precisa de montar esta pasta da nuvem neste computador antes de a partilhar. O armazenamento na nuvem é mais lento do que um disco para todos os que abrirem a partilha.",
+    "mountReadOnly": "Só de leitura (recomendado)",
+    "mountAction": "Montar e partilhar"
   },
   "sharesView": {
     "files": "Ficheiros",

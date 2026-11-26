@@ -170,7 +170,11 @@
     "tabNetwork": "Síť",
     "networkDescription": "Sdílejte tuto složku s ostatními počítači v síti.",
     "networkRootOnly": "V síti lze sdílet jen celé umístění souborů. Otevřete nejvyšší složku umístění.",
-    "networkFolderOnly": "V síti lze sdílet jen složky."
+    "networkFolderOnly": "V síti lze sdílet jen složky.",
+    "mountUnavailable": "Složky v cloudu zatím nelze z tohoto počítače sdílet",
+    "mountDescription": "Athena musí tuto cloudovou složku nejdřív připojit k tomuto počítači, aby ji mohla sdílet. Cloudové úložiště je pomalejší než disk pro každého, kdo sdílení otevře.",
+    "mountReadOnly": "Jen pro čtení (doporučeno)",
+    "mountAction": "Připojit a sdílet"
   },
   "sharesView": {
     "files": "Soubory",

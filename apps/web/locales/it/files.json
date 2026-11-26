@@ -165,7 +165,11 @@
     "tabNetwork": "Rete",
     "networkDescription": "Condividi questa cartella con altri computer della tua rete.",
     "networkRootOnly": "In rete si può condividere solo un'intera posizione di file. Apri la cartella principale della posizione.",
-    "networkFolderOnly": "In rete si possono condividere solo cartelle."
+    "networkFolderOnly": "In rete si possono condividere solo cartelle.",
+    "mountUnavailable": "Le cartelle cloud non possono ancora essere condivise da questo computer",
+    "mountDescription": "Athena deve prima montare questa cartella cloud su questo computer per condividerla. Lo spazio cloud è più lento di un disco per chiunque apra la condivisione.",
+    "mountReadOnly": "Sola lettura (consigliato)",
+    "mountAction": "Monta e condividi"
   },
   "sharesView": {
     "files": "File",

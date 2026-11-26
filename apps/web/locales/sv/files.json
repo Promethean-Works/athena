@@ -160,7 +160,11 @@
     "tabNetwork": "Nätverk",
     "networkDescription": "Dela den här mappen med andra datorer i ditt nätverk.",
     "networkRootOnly": "Bara en hel filplats kan delas i nätverket. Öppna platsens översta mapp.",
-    "networkFolderOnly": "Bara mappar kan delas i nätverket."
+    "networkFolderOnly": "Bara mappar kan delas i nätverket.",
+    "mountUnavailable": "Molnmappar kan inte delas från den här datorn ännu",
+    "mountDescription": "Athena måste först montera den här molnmappen på datorn innan den kan delas. Molnlagring är långsammare än en disk för alla som öppnar delningen.",
+    "mountReadOnly": "Skrivskyddad (rekommenderas)",
+    "mountAction": "Montera och dela"
   },
   "sharesView": {
     "files": "Filer",

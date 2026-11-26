@@ -155,7 +155,11 @@
     "tabNetwork": "Mạng",
     "networkDescription": "Chia sẻ thư mục này với các máy tính khác trong mạng của bạn.",
     "networkRootOnly": "Chỉ có thể chia sẻ cả một vị trí tệp qua mạng. Hãy mở thư mục gốc của vị trí đó.",
-    "networkFolderOnly": "Chỉ có thể chia sẻ thư mục qua mạng."
+    "networkFolderOnly": "Chỉ có thể chia sẻ thư mục qua mạng.",
+    "mountUnavailable": "Chưa thể chia sẻ thư mục đám mây từ máy tính này",
+    "mountDescription": "Athena phải gắn (mount) thư mục đám mây này vào máy tính trước khi chia sẻ. Bộ nhớ đám mây chậm hơn ổ đĩa với mọi người mở chia sẻ.",
+    "mountReadOnly": "Chỉ đọc (khuyến nghị)",
+    "mountAction": "Gắn và chia sẻ"
   },
   "sharesView": {
     "files": "Tệp",

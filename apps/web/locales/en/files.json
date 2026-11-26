@@ -160,7 +160,11 @@
     "tabNetwork": "Network",
     "networkDescription": "Share this folder with other computers on your network.",
     "networkRootOnly": "Only a whole file location can be shared over the network. Open the location's top folder to share it.",
-    "networkFolderOnly": "Only folders can be shared over the network."
+    "networkFolderOnly": "Only folders can be shared over the network.",
+    "mountUnavailable": "Cloud folders can't be shared from this computer yet",
+    "mountDescription": "Athena has to mount this cloud folder on this computer before it can share it. Cloud storage is slower than a disk, for everyone who opens the share.",
+    "mountReadOnly": "Read only (recommended)",
+    "mountAction": "Mount and share"
   },
   "sharesView": {
     "files": "Files",

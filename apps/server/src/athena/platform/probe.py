@@ -89,6 +89,13 @@ class Probe:
         except OSError:
             return False
 
+    def real_path(self, path: str | Path) -> str:
+        """`path` with links resolved (where a Homebrew link really points)."""
+        try:
+            return str(Path(path).resolve())
+        except OSError:
+            return str(path)
+
     def read_text(self, path: str | Path, limit: int = 4096) -> str | None:
         """The start of a small text file (sysfs, /proc), or None when it can't be read."""
         try:

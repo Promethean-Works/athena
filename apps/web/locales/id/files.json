@@ -155,7 +155,11 @@
     "tabNetwork": "Jaringan",
     "networkDescription": "Bagikan folder ini ke komputer lain di jaringan Anda.",
     "networkRootOnly": "Hanya seluruh lokasi berkas yang dapat dibagikan lewat jaringan. Buka folder teratas lokasi tersebut.",
-    "networkFolderOnly": "Hanya folder yang dapat dibagikan lewat jaringan."
+    "networkFolderOnly": "Hanya folder yang dapat dibagikan lewat jaringan.",
+    "mountUnavailable": "Folder cloud belum dapat dibagikan dari komputer ini",
+    "mountDescription": "Athena harus me-mount folder cloud ini di komputer ini sebelum membagikannya. Penyimpanan cloud lebih lambat daripada disk bagi semua orang yang membuka berbagi.",
+    "mountReadOnly": "Hanya baca (disarankan)",
+    "mountAction": "Mount dan bagikan"
   },
   "sharesView": {
     "files": "File",
