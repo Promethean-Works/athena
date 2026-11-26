@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Trans, useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import {
@@ -21,6 +22,7 @@ type SettingsFile = Schemas["SettingsFileOut"]
 /** Settings → System: where the host-wide settings are saved, so an admin knows
  * which file to fix if a change keeps Athena from starting. Admins only. */
 export function SettingsFileCard() {
+  const { t } = useTranslation("settings")
   const { user } = useAuth()
   const [file, setFile] = React.useState<SettingsFile | null>(null)
   const [error, setError] = React.useState<string | null>(null)
@@ -38,27 +40,29 @@ export function SettingsFileCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Settings file</CardTitle>
-        <CardDescription>
-          The settings on these pages are saved in one file on the server. If a
-          change keeps Athena from starting or locks you out, fix it there in
-          any text editor, then restart Athena.
-        </CardDescription>
+        <CardTitle>{t("settingsFile.title")}</CardTitle>
+        <CardDescription>{t("settingsFile.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {error !== null ? (
           <FieldDescription className="text-destructive">
-            Couldn&apos;t load where the file is: {error}
+            {t("settingsFile.loadFailed", { error })}
           </FieldDescription>
         ) : file === null ? (
           <Skeleton className="h-16 w-full" />
         ) : (
           <FieldGroup>
-            <CopyField id="settings-file-path" label="File" value={file.path} />
+            <CopyField
+              id="settings-file-path"
+              label={t("settingsFile.file")}
+              value={file.path}
+            />
             <FieldDescription>
-              <code>athena config check</code> on the server shows what&apos;s
-              wrong with it, with line numbers. The version before the last save
-              is kept next to it as <code>athena.json.bak</code>.
+              <Trans
+                i18nKey="settingsFile.help"
+                ns="settings"
+                components={{ code: <code /> }}
+              />
             </FieldDescription>
           </FieldGroup>
         )}

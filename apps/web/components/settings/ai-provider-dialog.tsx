@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -52,6 +53,7 @@ export function ProviderDialog({
   onClose: () => void
   onSaved: (provider: Provider) => void
 }) {
+  const { t } = useTranslation("ai")
   const kind = editing?.kind
   const existing = editing?.provider
   const [name, setName] = React.useState("")
@@ -94,17 +96,20 @@ export function ProviderDialog({
           <DialogHeader>
             <DialogTitle>
               {existing
-                ? `Edit ${existing.name}`
-                : `Add ${kind?.label ?? "provider"}`}
+                ? t("providerDialog.edit", { name: existing.name })
+                : t("providerDialog.add", {
+                    kind: kind?.label ?? t("providerDialog.addFallback"),
+                  })}
             </DialogTitle>
             <DialogDescription>
-              Keys are stored encrypted on this server and never sent back to
-              the browser.
+              {t("providerDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="provider-name">Name</FieldLabel>
+              <FieldLabel htmlFor="provider-name">
+                {t("providerDialog.name")}
+              </FieldLabel>
               <Input
                 id="provider-name"
                 value={name}
@@ -113,7 +118,7 @@ export function ProviderDialog({
                 required
               />
               <FieldDescription>
-                Shown in the model picker, e.g. “Work key”.
+                {t("providerDialog.nameHelp")}
               </FieldDescription>
             </Field>
             {kind?.fields.map((f) => {
@@ -125,7 +130,7 @@ export function ProviderDialog({
                     {f.label}
                     {f.required ? null : (
                       <span className="font-normal text-muted-foreground">
-                        (optional)
+                        {t("providerDialog.optional")}
                       </span>
                     )}
                   </FieldLabel>
@@ -139,7 +144,7 @@ export function ProviderDialog({
                     }
                     placeholder={
                       stored
-                        ? "Unchanged"
+                        ? t("providerDialog.unchanged")
                         : (f.placeholder ?? f.default ?? undefined)
                     }
                     required={f.required && !stored && !f.default}
@@ -154,11 +159,11 @@ export function ProviderDialog({
           </FieldGroup>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={saving}>
               {saving ? <Spinner /> : null}
-              {existing ? "Save" : "Add"}
+              {existing ? t("save") : t("add")}
             </Button>
           </DialogFooter>
         </form>

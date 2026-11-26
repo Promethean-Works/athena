@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { CircleCheckIcon, CircleXIcon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -34,6 +35,7 @@ export function JobDialog({
   /** Called once when the job ends, with whether it succeeded. */
   onFinished?: (succeeded: boolean) => void
 }) {
+  const { t } = useTranslation()
   const stream = useEventStream(job ? `/api/jobs/${job.id}/events` : null)
   const status = stream.final?.status
   const reported = React.useRef<string | null>(null)
@@ -60,7 +62,7 @@ export function JobDialog({
       setCancelling(false)
       toast.add({
         type: "error",
-        title: "Couldn't stop it",
+        title: t("job.stopFailed"),
         description: errorMessage(error),
       })
     }
@@ -82,11 +84,11 @@ export function JobDialog({
           </DialogTitle>
           <DialogDescription>
             {running
-              ? "Working… You can close this; it keeps running."
+              ? t("job.working")
               : status === "succeeded"
-                ? "Done."
+                ? t("job.done")
                 : (stream.final?.error ??
-                  "The connection to the job was lost.")}
+                  t("job.connectionLost"))}
           </DialogDescription>
         </DialogHeader>
         {progress ? (
@@ -94,13 +96,13 @@ export function JobDialog({
             {progress.fraction != null ? (
               <Progress
                 value={Math.round(progress.fraction * 100)}
-                aria-label="Progress"
+                aria-label={t("job.progress")}
               />
             ) : null}
             <p className="text-sm text-muted-foreground tabular-nums">
               {progress.text}
               {/* rclone counts bytes once read; the remote may still be taking them. */}
-              {running && (progress.fraction ?? 0) >= 1 ? " · finishing…" : null}
+              {running && (progress.fraction ?? 0) >= 1 ? t("job.finishing") : null}
             </p>
           </div>
         ) : null}
@@ -113,11 +115,11 @@ export function JobDialog({
               onClick={() => void cancel()}
             >
               {cancelling ? <Spinner data-icon="inline-start" /> : null}
-              Cancel job
+              {t("job.cancel")}
             </Button>
           ) : null}
           <Button variant={running ? "outline" : "default"} onClick={onClose}>
-            Close
+            {t("close")}
           </Button>
         </DialogFooter>
       </DialogContent>

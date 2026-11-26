@@ -1,7 +1,9 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { CircleAlertIcon } from "lucide-react"
+import { type TFunction } from "i18next"
 import { Area, AreaChart, YAxis } from "recharts"
 
 import {
@@ -157,29 +159,35 @@ function StatCard({
   )
 }
 
-const cpuConfig = {
-  cpu: { label: "CPU", color: "var(--chart-1)" },
-} satisfies ChartConfig
-const memConfig = {
-  mem: { label: "Used", color: "var(--chart-2)" },
-} satisfies ChartConfig
-const netConfig = {
-  rx: { label: "Download", color: "var(--chart-3)" },
-  tx: { label: "Upload", color: "var(--chart-4)" },
-} satisfies ChartConfig
-const diskConfig = {
-  read: { label: "Read", color: "var(--chart-1)" },
-  write: { label: "Write", color: "var(--chart-5)" },
-} satisfies ChartConfig
-const gpuConfig = {
-  gpu: { label: "Util", color: "var(--chart-3)" },
-} satisfies ChartConfig
-const vramConfig = {
-  vram: { label: "Used", color: "var(--chart-4)" },
-} satisfies ChartConfig
+type Translate = TFunction<"dashboard">
+
+// Built per render because the labels are translated.
+const chartConfigs = (t: Translate) => ({
+  cpu: {
+    cpu: { label: "CPU", color: "var(--chart-1)" },
+  } satisfies ChartConfig,
+  mem: {
+    mem: { label: t("stats.used"), color: "var(--chart-2)" },
+  } satisfies ChartConfig,
+  net: {
+    rx: { label: t("stats.download"), color: "var(--chart-3)" },
+    tx: { label: t("stats.upload"), color: "var(--chart-4)" },
+  } satisfies ChartConfig,
+  disk: {
+    read: { label: t("stats.read"), color: "var(--chart-1)" },
+    write: { label: t("stats.write"), color: "var(--chart-5)" },
+  } satisfies ChartConfig,
+  gpu: {
+    gpu: { label: t("stats.util"), color: "var(--chart-3)" },
+  } satisfies ChartConfig,
+  vram: {
+    vram: { label: t("stats.used"), color: "var(--chart-4)" },
+  } satisfies ChartConfig,
+})
 
 /** CPU, memory, network and disk activity cards with sparklines, fed by HostStatsProvider. */
 export function HostStatsCards() {
+  const { t } = useTranslation("dashboard")
   const { status, host, history, live } = useHostStats()
   const [range, setRange] = React.useState<Range>("5m")
 
@@ -187,10 +195,8 @@ export function HostStatsCards() {
     return (
       <Alert variant="destructive">
         <CircleAlertIcon />
-        <AlertTitle>Live stats are unavailable</AlertTitle>
-        <AlertDescription>
-          The server didn&apos;t return host statistics.
-        </AlertDescription>
+        <AlertTitle>{t("stats.unavailableTitle")}</AlertTitle>
+        <AlertDescription>{t("stats.unavailableDescription")}</AlertDescription>
       </Alert>
     )
   }
@@ -217,24 +223,28 @@ export function HostStatsCards() {
   const hottestGpuTemp = gpuTemps.length ? Math.max(...gpuTemps) : null
   const cores =
     host.cpu_count_physical && host.cpu_count_physical !== host.cpu_count
-      ? `${host.cpu_count_physical} cores · ${host.cpu_count} threads`
-      : `${host.cpu_count} cores`
+      ? t("stats.coresThreads", {
+          cores: host.cpu_count_physical,
+          threads: host.cpu_count,
+        })
+      : t("stats.cores", { count: host.cpu_count })
+  const configs = chartConfigs(t)
 
   return (
-    <section aria-label="Live host stats" className="flex flex-col gap-3">
+    <section aria-label={t("stats.liveLabel")} className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <h2 className="text-base font-medium">System</h2>
+          <h2 className="text-base font-medium">{t("stats.system")}</h2>
           <Badge variant={live ? "secondary" : "outline"}>
             <span
               aria-hidden
               className={`size-1.5 rounded-full ${live ? "animate-pulse bg-primary" : "bg-muted-foreground"}`}
             />
-            {live ? "Live" : "Reconnecting"}
+            {live ? t("stats.live") : t("stats.reconnecting")}
           </Badge>
         </div>
         <ToggleGroup
-          aria-label="Chart range"
+          aria-label={t("stats.chartRange")}
           value={[range]}
           onValueChange={(value: string[]) =>
             value[0] && setRange(value[0] as Range)
@@ -243,8 +253,8 @@ export function HostStatsCards() {
           size="sm"
           spacing={0}
         >
-          <ToggleGroupItem value="5m">5 min</ToggleGroupItem>
-          <ToggleGroupItem value="1h">1 hour</ToggleGroupItem>
+          <ToggleGroupItem value="5m">{t("stats.range5m")}</ToggleGroupItem>
+          <ToggleGroupItem value="1h">{t("stats.range1h")}</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
@@ -258,42 +268,46 @@ export function HostStatsCards() {
             ) : undefined
           }
           footer={
-            host.load_avg ? `${cores} · load ${host.load_avg.join(" ")}` : cores
+            host.load_avg
+              ? t("stats.coresLoad", { cores, load: host.load_avg.join(" ") })
+              : cores
           }
         >
           <Sparkline
             data={series(history, range, (s) => ({ cpu: s.cpu_percent }))}
-            config={cpuConfig}
+            config={configs.cpu}
             format={formatPercent}
             max={100}
           />
         </StatCard>
 
         <StatCard
-          label="Memory"
+          label={t("stats.memory")}
           value={formatPercent(memPercent)}
           badge={
             <Badge variant="outline">{formatBytes(latest.mem_total)}</Badge>
           }
           footer={
-            `${formatBytes(latest.mem_used)} used` +
-            (latest.swap_total > 0
-              ? ` · swap ${formatBytes(latest.swap_used)}`
-              : "")
+            latest.swap_total > 0
+              ? t("stats.memUsedSwap", {
+                  used: formatBytes(latest.mem_used),
+                  swap: formatBytes(latest.swap_used),
+                })
+              : t("stats.memUsed", { used: formatBytes(latest.mem_used) })
           }
         >
           <Sparkline
             data={series(history, range, (s) => ({
               mem: (s.mem_used / s.mem_total) * 100,
             }))}
-            config={memConfig}
+            config={configs.mem}
             format={formatPercent}
             max={100}
           />
         </StatCard>
 
         <StatCard
-          label="Network"
+          label={t("stats.network")}
           value={`↓ ${formatRate(latest.net_rx)}`}
           footer={`↑ ${formatRate(latest.net_tx)}`}
         >
@@ -302,23 +316,23 @@ export function HostStatsCards() {
               rx: s.net_rx,
               tx: s.net_tx,
             }))}
-            config={netConfig}
+            config={configs.net}
             format={formatRate}
           />
         </StatCard>
 
         {hasDiskIo ? (
           <StatCard
-            label="Disk activity"
-            value={`R ${formatRate(latest.disk_read ?? 0)}`}
-            footer={`W ${formatRate(latest.disk_write ?? 0)}`}
+            label={t("stats.diskActivity")}
+            value={t("stats.readRate", { rate: formatRate(latest.disk_read ?? 0) })}
+            footer={t("stats.writeRate", { rate: formatRate(latest.disk_write ?? 0) })}
           >
             <Sparkline
               data={series(history, range, (s) => ({
                 read: s.disk_read ?? 0,
                 write: s.disk_write ?? 0,
               }))}
-              config={diskConfig}
+              config={configs.disk}
               format={formatRate}
             />
           </StatCard>
@@ -335,13 +349,13 @@ export function HostStatsCards() {
               }
               footer={
                 host.gpus?.length
-                  ? `${host.gpus.length} GPU${host.gpus.length === 1 ? "" : "s"}`
-                  : "no GPU reported"
+                  ? t("stats.gpuCount", { count: host.gpus.length })
+                  : t("stats.noGpu")
               }
             >
               <Sparkline
                 data={series(history, range, (s) => ({ gpu: s.gpu_util ?? 0 }))}
-                config={gpuConfig}
+                config={configs.gpu}
                 format={formatPercent}
                 max={100}
               />
@@ -350,7 +364,10 @@ export function HostStatsCards() {
               label="VRAM"
               value={
                 latest.vram_used !== null && latest.vram_total
-                  ? `${formatBytes(latest.vram_used)} of ${formatBytes(latest.vram_total)}`
+                  ? t("stats.vramOf", {
+                      used: formatBytes(latest.vram_used),
+                      total: formatBytes(latest.vram_total),
+                    })
                   : "—"
               }
               footer={
@@ -364,7 +381,7 @@ export function HostStatsCards() {
                   vram:
                     ((s.vram_used ?? 0) / (s.vram_total ?? 1)) * 100,
                 }))}
-                config={vramConfig}
+                config={configs.vram}
                 format={formatPercent}
                 max={100}
               />

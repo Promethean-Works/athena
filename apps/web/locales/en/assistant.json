@@ -1,1 +1,140 @@
-{}
+{
+  "title": "Assistant",
+  "sheet": {
+    "description": "Chat with the AI assistant about this server.",
+    "openFullPage": "Open the full page"
+  },
+  "chat": {
+    "newChat": "New chat",
+    "chats": "Chats",
+    "noChats": "No chats yet.",
+    "deleteChat": "Delete {{title}}",
+    "thinking": "Thinking…",
+    "stillWorking": "Still working on a reply. It shows here when it's done.",
+    "emptyTitle": "Ask about this server",
+    "emptyDescription": "The assistant can look up apps, logs, files and system stats, and install or change things once you approve each action.",
+    "suggestions": {
+      "capabilities": "What can this server do?",
+      "disk": "How much disk space is left?",
+      "apps": "Which apps are running?"
+    },
+    "message": "Message",
+    "placeholder": "Ask about this server…",
+    "placeholderWaiting": "Answer above, or send a message to skip it…",
+    "stop": "Stop",
+    "send": "Send",
+    "pickModelFirst": "Pick a model first",
+    "changeModelFailed": "Couldn't change the model",
+    "startFailed": "Couldn't start a chat",
+    "deleteFailed": "Couldn't delete the chat",
+    "failed": "The assistant failed"
+  },
+  "noProviders": {
+    "title": "Set up a model first",
+    "description": "The assistant needs an AI provider: a cloud one with an API key, or Ollama running on your own hardware.",
+    "openSettings": "Open Settings → AI"
+  },
+  "model": {
+    "pick": "Pick a model",
+    "label": "Model: {{label}}",
+    "search": "Search or type a model id",
+    "noMatch": "No model matches.",
+    "addProvider": "Add a provider in Settings → AI first.",
+    "noTools": "can't use tools",
+    "use": "Use “{{model}}”"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "{{done}} of {{total}} done",
+    "steps": "Plan steps",
+    "status": {
+      "pending": "pending",
+      "in_progress": "in progress",
+      "completed": "completed",
+      "cancelled": "cancelled",
+      "blocked": "blocked"
+    }
+  },
+  "spend": {
+    "usage": "This chat's usage",
+    "usageWith": "This chat's usage: {{label}}",
+    "unknownPrices": "This model's prices aren't known, so only tokens are counted.",
+    "estimate": "An estimate from the model's published prices.",
+    "ofLimit": "{{spent}} of {{limit}}",
+    "spent": "Spent",
+    "unknown": "Unknown",
+    "inputTokens": "Input tokens",
+    "outputTokens": "Output tokens",
+    "tokens_one": "{{formatted}} token",
+    "tokens_other": "{{formatted}} tokens",
+    "limitReached": "This chat reached its spend limit. Start a new chat, or raise the limit in <settings>Settings → AI</settings>.",
+    "limitNotApplicable": "The spend limit ({{limit}}) can't apply to this model."
+  },
+  "steps": {
+    "thinking": "Thinking",
+    "thought": "Thought",
+    "draft": "First draft, revised below",
+    "approvalNeeded": "Approval needed: {{title}}",
+    "run": "Run {{name}}",
+    "approvalIntro": "The assistant wants to do this. Nothing happens until you approve.",
+    "deny": "Deny",
+    "approve": "Approve",
+    "approvedGoOn": "Approved. Answer the other cards to go on.",
+    "deniedGoOn": "Denied. Answer the other cards to go on.",
+    "logGone": "That log is gone",
+    "log": "Log",
+    "denied": "Denied: {{title}}",
+    "failed": "Failed: {{title}}",
+    "running": "Running {{name}}",
+    "ran": "Ran {{name}}",
+    "withSubject": "{{title}} of {{subject}}",
+    "helperRunningTask": "Helper looking into: {{task}}",
+    "helperDoneTask": "Helper looked into: {{task}}",
+    "helperRunning": "Helper looking things up",
+    "helperDone": "Helper looked things up",
+    "tools": {
+      "getCapabilities": {
+        "running": "Checking what this server can do",
+        "done": "Checked what this server can do"
+      },
+      "getSystemStats": { "running": "Reading system stats", "done": "Read system stats" },
+      "listApps": { "running": "Listing apps", "done": "Listed apps" },
+      "appLogs": { "running": "Reading app logs", "done": "Read app logs" },
+      "listFileLocations": { "running": "Listing file locations", "done": "Listed file locations" },
+      "listFiles": { "running": "Listing files", "done": "Listed files" },
+      "readFile": { "running": "Reading a file", "done": "Read a file" },
+      "writeFile": { "running": "Writing a file", "done": "Wrote a file" },
+      "editFile": { "running": "Editing a file", "done": "Edited a file" },
+      "listDirectory": { "running": "Listing a folder", "done": "Listed a folder" },
+      "createDirectory": { "running": "Creating a folder", "done": "Created a folder" },
+      "searchStore": { "running": "Searching the app store", "done": "Searched the app store" },
+      "readToolResult": { "running": "Reading a saved tool result", "done": "Read a saved tool result" },
+      "askUserQuestion": { "running": "Waiting for your answer", "done": "Asked you" },
+      "advisor": { "running": "Asking the advisor", "done": "Asked the advisor" },
+      "runWorkflow": {
+        "running": "Helpers looking things up together",
+        "done": "Helpers looked things up together"
+      },
+      "getStoreApp": { "running": "Reading a store app", "done": "Read a store app" },
+      "listPackageManagers": { "running": "Listing package managers", "done": "Listed package managers" },
+      "searchPackages": { "running": "Searching packages", "done": "Searched packages" },
+      "listUpgradablePackages": {
+        "running": "Checking for package updates",
+        "done": "Checked for package updates"
+      }
+    }
+  },
+  "question": {
+    "title": "Questions",
+    "asks": "The assistant asks: {{title}}",
+    "intro": "The assistant is asking before it goes on. Never answer with a password or key.",
+    "ownAnswerLabel": "Your own answer to {{header}}",
+    "ownAnswerPlaceholder": "Or type your own answer",
+    "skip": "Skip",
+    "send": "Send answers",
+    "skippedGoOn": "Skipped. Answer the other cards to go on.",
+    "answeredGoOn": "Answered. Answer the other cards to go on.",
+    "youAnswered": "You answered: {{answers}}",
+    "youSkipped": "You skipped the question"
+  }
+}

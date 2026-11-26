@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -66,14 +67,15 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** The three things an update does: a check mark for each one that's done. */
 function StepList({ active }: { active: Step }) {
+  const { t } = useTranslation()
   const order: Step[] = ["prepare", "swap", "check"]
   const labels: Record<Step, string> = {
-    prepare: "Download and check the release",
-    swap: "Stop Athena, install and start it again",
-    check: "Wait for the new version to answer",
+    prepare: t("update.dialog.stepPrepare"),
+    swap: t("update.dialog.stepSwap"),
+    check: t("update.dialog.stepCheck"),
   }
   return (
-    <ol className="flex flex-col gap-2 text-sm" aria-label="Update steps">
+    <ol className="flex flex-col gap-2 text-sm" aria-label={t("update.dialog.steps")}>
       {order.map((step, index) => {
         const done = index < order.indexOf(active)
         const running = step === active
@@ -102,6 +104,7 @@ function StepList({ active }: { active: Step }) {
 }
 
 function LogDetails({ lines }: { lines: string[] }) {
+  const { t } = useTranslation()
   if (!lines.length) return null
   return (
     <Collapsible className="flex w-full max-w-md flex-col gap-2 text-left">
@@ -111,7 +114,7 @@ function LogDetails({ lines }: { lines: string[] }) {
             data-icon="inline-start"
             className="transition-transform in-data-[panel-open]:rotate-180"
           />
-          Log
+          {t("log.title")}
         </CollapsibleTrigger>
         <Button
           variant="outline"
@@ -120,13 +123,13 @@ function LogDetails({ lines }: { lines: string[] }) {
             const ok = await copyText(lines.join("\n"))
             toast.add(
               ok
-                ? { type: "success", title: "Log copied" }
-                : { type: "error", title: "Couldn't copy" }
+                ? { type: "success", title: t("log.copied") }
+                : { type: "error", title: t("log.copyFailed") }
             )
           }}
         >
           <CopyIcon data-icon="inline-start" />
-          Copy log
+          {t("log.copy")}
         </Button>
       </div>
       <CollapsibleContent>
@@ -137,15 +140,16 @@ function LogDetails({ lines }: { lines: string[] }) {
 }
 
 function Result({ status }: { status: Status | null }) {
-  const to = status?.to_version ?? "the new version"
-  const from = status?.from_version ?? "the old one"
+  const { t } = useTranslation()
+  const to = status?.to_version ?? t("update.dialog.newVersion")
+  const from = status?.from_version ?? t("update.dialog.oldVersion")
   const log = status?.log_tail ?? []
   if (status?.phase === "done") {
     return (
       <>
         <CircleCheckIcon className="size-8 text-primary" />
-        <p className="text-lg font-medium">Updated to {to}</p>
-        <p className="text-sm text-muted-foreground">Reloading the page…</p>
+        <p className="text-lg font-medium">{t("update.dialog.updated", { to })}</p>
+        <p className="text-sm text-muted-foreground">{t("update.dialog.reloading")}</p>
       </>
     )
   }
@@ -154,12 +158,13 @@ function Result({ status }: { status: Status | null }) {
       <>
         <TriangleAlertIcon className="size-8 text-foreground" />
         <p className="text-lg font-medium">
-          Update to {to} failed, still on {from}
+          {t("update.dialog.rolledBackTitle", { to, from })}
         </p>
         <p className="max-w-md text-sm text-muted-foreground">
-          Athena went back to the version you had, with your data as it was
-          before the update.
-          {status.error ? ` Reason: ${status.error}` : null}
+          {t("update.dialog.rolledBackBody")}
+          {status.error
+            ? t("update.dialog.reason", { reason: status.error })
+            : null}
         </p>
         <LogDetails lines={log} />
       </>
@@ -171,14 +176,14 @@ function Result({ status }: { status: Status | null }) {
         <CircleXIcon className="size-8 text-destructive" />
         <p className="text-lg font-medium">
           {status.phase === "aborted"
-            ? `Update to ${to} was stopped`
-            : `Update to ${to} failed and Athena isn't running`}
+            ? t("update.dialog.abortedTitle", { to })
+            : t("update.dialog.failedTitle", { to })}
         </p>
         <p className="max-w-md text-sm text-muted-foreground">
           {status.error ? `${status.error}. ` : null}
           {status.phase === "aborted"
-            ? "Nothing was installed. Start Athena again, or run the installer command from the README."
-            : "Run the installer command from the README on the server to repair it."}
+            ? t("update.dialog.abortedBody")
+            : t("update.dialog.failedBody")}
         </p>
         <LogDetails lines={log} />
       </>
@@ -186,9 +191,9 @@ function Result({ status }: { status: Status | null }) {
   }
   return (
     <>
-      <p className="text-lg font-medium">Athena is back</p>
+      <p className="text-lg font-medium">{t("update.dialog.back")}</p>
       <p className="max-w-sm text-sm text-muted-foreground">
-        Reload the page to see which version is running.
+        {t("update.dialog.backBody")}
       </p>
     </>
   )
@@ -211,6 +216,7 @@ export function UpdateAthenaDialog({
   releaseUrl: string | null
   onClose: () => void
 }) {
+  const { t } = useTranslation()
   const [stage, setStage] = React.useState<Stage>("confirm")
   const [before, setBefore] = React.useState<Status | null>(null)
   const [jobId, setJobId] = React.useState<string | null>(null)
@@ -235,9 +241,9 @@ export function UpdateAthenaDialog({
     if (jobStatus === "succeeded" || (stream.phase === "error" && !jobStatus)) {
       setStage("waiting")
     } else if (jobStatus === "failed") {
-      setError(stream.final?.error ?? "The update couldn't be prepared")
+      setError(stream.final?.error ?? t("update.dialog.prepareFailed"))
     }
-  }, [stage, jobStatus, stream.phase, stream.final])
+  }, [stage, jobStatus, stream.phase, stream.final, t])
 
   // The swap: wait for a server with a new start time, then for the helper's last word.
   React.useEffect(() => {
@@ -329,13 +335,13 @@ export function UpdateAthenaDialog({
           <DialogHeader>
             <DialogTitle>
               {stage === "confirm"
-                ? "Update Athena?"
+                ? t("update.dialog.confirmTitle")
                 : error
-                  ? "The update didn't start"
-                  : "Preparing the update"}
+                  ? t("update.dialog.notStartedTitle")
+                  : t("update.dialog.preparingTitle")}
             </DialogTitle>
             <DialogDescription>
-              Athena {current} to {latest}.{" "}
+              {t("update.dialog.versions", { current, latest })}{" "}
               {releaseUrl && (
                 <a
                   href={releaseUrl}
@@ -343,7 +349,7 @@ export function UpdateAthenaDialog({
                   rel="noreferrer"
                   className="underline underline-offset-4"
                 >
-                  See what&apos;s new
+                  {t("update.notice.whatsNew")}
                 </a>
               )}
             </DialogDescription>
@@ -351,23 +357,20 @@ export function UpdateAthenaDialog({
           {stage === "confirm" ? (
             <div className="flex flex-col gap-3 text-sm">
               <p>
-                Athena restarts for a minute or two and the page reconnects.
-                Your apps and containers keep running. If the new version
-                doesn&apos;t start, Athena goes back to this one.
+                {t("update.dialog.confirmBody")}
               </p>
               {stops.length || terminals ? (
                 <Alert>
                   <TriangleAlertIcon />
                   <AlertDescription>
-                    <p>These stop when Athena restarts:</p>
+                    <p>{t("update.dialog.stopsTitle")}</p>
                     <ul className="list-disc pl-5">
                       {stops.map((title, index) => (
                         <li key={`${title}-${index}`}>{title}</li>
                       ))}
                       {terminals ? (
                         <li>
-                          {terminals} open terminal
-                          {terminals === 1 ? "" : "s"}
+                          {t("update.dialog.terminals", { count: terminals })}
                         </li>
                       ) : null}
                     </ul>
@@ -378,12 +381,10 @@ export function UpdateAthenaDialog({
                 <Field orientation="horizontal">
                   <FieldContent>
                     <FieldLabel htmlFor="backup-first">
-                      Back up Athena first
+                      {t("update.dialog.backupFirst")}
                     </FieldLabel>
                     <FieldDescription>
-                      Saves Athena&apos;s settings and data with the backup plan
-                      &ldquo;{backupPlan}&rdquo; before anything is stopped.
-                      Your apps aren&apos;t touched.
+                      {t("update.dialog.backupFirstHelp", { plan: backupPlan })}
                     </FieldDescription>
                   </FieldContent>
                   <Switch
@@ -407,8 +408,10 @@ export function UpdateAthenaDialog({
                 <Alert variant="destructive">
                   <CircleXIcon />
                   <AlertDescription>
-                    {error.replace(/\.$/, "")}. Nothing was changed; Athena
-                    still runs {current}.
+                    {t("update.dialog.notChanged", {
+                      error: error.replace(/\.$/, ""),
+                      current,
+                    })}
                   </AlertDescription>
                 </Alert>
               ) : null}
@@ -418,7 +421,7 @@ export function UpdateAthenaDialog({
           <DialogFooter>
             {stage === "confirm" || error ? (
               <Button variant="outline" onClick={onClose} disabled={starting}>
-                {error && stage === "preparing" ? "Close" : "Cancel"}
+                {error && stage === "preparing" ? t("close") : t("cancel")}
               </Button>
             ) : null}
             {backupFailed ? (
@@ -428,7 +431,7 @@ export function UpdateAthenaDialog({
                 disabled={starting}
               >
                 {starting ? <Spinner data-icon="inline-start" /> : null}
-                Update anyway
+                {t("update.dialog.updateAnyway")}
               </Button>
             ) : null}
             {stage === "confirm" ? (
@@ -437,7 +440,7 @@ export function UpdateAthenaDialog({
                 disabled={starting}
               >
                 {starting ? <Spinner data-icon="inline-start" /> : null}
-                Update
+                {t("update.dialog.update")}
               </Button>
             ) : null}
           </DialogFooter>
@@ -452,23 +455,22 @@ export function UpdateAthenaDialog({
           {stage === "waiting" ? (
             <>
               <Spinner className="size-6" />
-              <p className="text-lg font-medium">Restarting…</p>
+              <p className="text-lg font-medium">{t("update.dialog.restarting")}</p>
               <p className="text-sm text-muted-foreground">
-                Updating to {latest}. This page reloads when Athena is back.
+                {t("update.dialog.updatingTo", { latest })}
               </p>
               <StepList active={back ? "check" : "swap"} />
             </>
           ) : stage === "late" ? (
             <>
               <p className="text-lg font-medium">
-                Athena hasn&apos;t come back yet
+                {t("update.notBackYet")}
               </p>
               <p className="max-w-sm text-sm text-muted-foreground">
-                It can take longer on a slow host. If it stays down, check the
-                update log in the data folder (logs/update.log).
+                {t("update.dialog.lateBody")}
               </p>
               <Button onClick={() => window.location.reload()}>
-                Reload the page
+                {t("update.reload")}
               </Button>
             </>
           ) : (
@@ -476,7 +478,7 @@ export function UpdateAthenaDialog({
               <Result status={result} />
               {result?.phase !== "done" ? (
                 <Button onClick={() => window.location.reload()}>
-                  Reload the page
+                  {t("update.reload")}
                 </Button>
               ) : null}
             </>

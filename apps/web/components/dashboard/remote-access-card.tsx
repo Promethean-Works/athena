@@ -1,5 +1,6 @@
 "use client"
 
+import { Trans, useTranslation } from "react-i18next"
 import { CopyIcon, GlobeIcon } from "lucide-react"
 
 import { api } from "@workspace/api-client"
@@ -27,6 +28,7 @@ const PROVIDERS: Record<string, string> = {
 }
 
 function RemoteBody() {
+  const { t } = useTranslation("dashboard")
   const state = useApi(async () => {
     const [status, system] = await Promise.all([
       api.GET("/api/tunnel/status"),
@@ -42,55 +44,53 @@ function RemoteBody() {
   }, 30000)
   if (state.status === "loading") return <RowsSkeleton rows={2} />
   if (state.status === "error")
-    return <Quiet>Couldn&apos;t load remote access: {state.error}</Quiet>
+    return <Quiet>{t("remote.loadError", { error: state.error })}</Quiet>
 
   const { status, enabled, provider } = state.data
   if (!enabled)
     return (
-      <Quiet>
-        Off. Turn it on in Settings → System to reach Athena from outside your
-        network.
-      </Quiet>
+      <Quiet>{t("remote.off")}</Quiet>
     )
   const url = status.public_url
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 text-sm">
         {status.running ? (
-          <Badge>Running</Badge>
+          <Badge>{t("remote.running")}</Badge>
         ) : (
-          <Badge variant="outline">Not running</Badge>
+          <Badge variant="outline">{t("remote.notRunning")}</Badge>
         )}
         <span className="text-muted-foreground">
-          {PROVIDERS[provider ?? ""] ?? provider ?? "No provider"}
+          {PROVIDERS[provider ?? ""] ?? provider ?? t("remote.noProvider")}
         </span>
       </div>
       <p className="text-xs text-muted-foreground">
-        The terminal, package installs and the assistant are reachable from the
-        internet with one password.{" "}
-        <a className="underline" href="/settings/system/">
-          Turn them off
-        </a>{" "}
-        if you don&apos;t need them remotely.
+        <Trans
+          i18nKey="remote.warning"
+          ns="dashboard"
+          components={{
+            link: <a className="underline" href="/settings/system/" />,
+          }}
+        />
       </p>
       {url ? (
         <InputGroup>
           <InputGroupInput
             readOnly
             value={url}
-            aria-label="Public address"
+            aria-label={t("remote.publicAddress")}
             className="font-mono"
           />
           <InputGroupAddon align="inline-end">
             <InputGroupButton
               size="icon-xs"
-              aria-label="Copy public address"
+              aria-label={t("remote.copyAddress")}
               onClick={async () => {
                 const ok = await copyText(url)
                 toast.add(
                   ok
-                    ? { type: "success", title: "Address copied" }
-                    : { type: "error", title: "Couldn't copy" }
+                    ? { type: "success", title: t("remote.copied") }
+                    : { type: "error", title: t("remote.copyFailed") }
                 )
               }}
             >
@@ -106,13 +106,14 @@ function RemoteBody() {
 }
 
 export function RemoteAccessCard() {
+  const { t } = useTranslation("dashboard")
   return (
     <DashboardCard
       icon={GlobeIcon}
-      title="Remote access"
-      description="Reach Athena from outside your network."
+      title={t("remote.title")}
+      description={t("remote.description")}
       href="/settings/system/"
-      linkLabel="Settings"
+      linkLabel={t("remote.settings")}
     >
       <RemoteBody />
     </DashboardCard>

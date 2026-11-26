@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Trans, useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -73,6 +74,7 @@ function IntegrationForm({
   onClose: () => void
   onSaved: (integration: Integration) => void
 }) {
+  const { t } = useTranslation("ai")
   const { integration: existing, kinds } = editing
   const isHttp = React.useMemo(
     () =>
@@ -165,43 +167,48 @@ function IntegrationForm({
   const stdioFields = (
     <>
       <Field>
-        <FieldLabel htmlFor="integration-command">Command</FieldLabel>
+        <FieldLabel htmlFor="integration-command">
+          {t("integrationDialog.command")}
+        </FieldLabel>
         <Input
           id="integration-command"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
-          placeholder="e.g. npx"
+          placeholder={t("integrationDialog.commandPlaceholder")}
           required
         />
         <FieldDescription>
-          The program that runs the MCP server, e.g. <code>npx</code> or{" "}
-          <code>uvx</code>.
+          <Trans
+            i18nKey="integrationDialog.commandHelp"
+            ns="ai"
+            components={{ code: <code /> }}
+          />
         </FieldDescription>
       </Field>
       <Field>
-        <FieldLabel htmlFor="integration-args">Arguments</FieldLabel>
+        <FieldLabel htmlFor="integration-args">
+          {t("integrationDialog.args")}
+        </FieldLabel>
         <Input
           id="integration-args"
           value={args}
           onChange={(e) => setArgs(e.target.value)}
-          placeholder="e.g. -y @modelcontextprotocol/server-github@latest"
+          placeholder={t("integrationDialog.argsPlaceholder")}
         />
-        <FieldDescription>
-          Comma-separated arguments; no shell is used.
-        </FieldDescription>
+        <FieldDescription>{t("integrationDialog.argsHelp")}</FieldDescription>
       </Field>
       <Field>
         <FieldLabel htmlFor="integration-token-env">
-          Token environment variable
+          {t("integrationDialog.tokenEnv")}
         </FieldLabel>
         <Input
           id="integration-token-env"
           value={tokenTarget}
           onChange={(e) => setTokenTarget(e.target.value)}
-          placeholder="e.g. GITHUB_PERSONAL_ACCESS_TOKEN"
+          placeholder={t("integrationDialog.tokenEnvPlaceholder")}
         />
         <FieldDescription>
-          The env var that receives the decrypted token on each turn.
+          {t("integrationDialog.tokenEnvHelp")}
         </FieldDescription>
       </Field>
     </>
@@ -210,28 +217,30 @@ function IntegrationForm({
   const httpFields = (
     <>
       <Field>
-        <FieldLabel htmlFor="integration-url">URL</FieldLabel>
+        <FieldLabel htmlFor="integration-url">
+          {t("integrationDialog.url")}
+        </FieldLabel>
         <Input
           id="integration-url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="e.g. https://slack.example.com/mcp"
+          placeholder={t("integrationDialog.urlPlaceholder")}
           required
         />
-        <FieldDescription>
-          The server's streamable-HTTP MCP endpoint.
-        </FieldDescription>
+        <FieldDescription>{t("integrationDialog.urlHelp")}</FieldDescription>
       </Field>
       <Field>
-        <FieldLabel htmlFor="integration-token-header">Token header</FieldLabel>
+        <FieldLabel htmlFor="integration-token-header">
+          {t("integrationDialog.tokenHeader")}
+        </FieldLabel>
         <Input
           id="integration-token-header"
           value={tokenTarget}
           onChange={(e) => setTokenTarget(e.target.value)}
-          placeholder="e.g. Authorization"
+          placeholder={t("integrationDialog.tokenHeaderPlaceholder")}
         />
         <FieldDescription>
-          The HTTP header that receives the decrypted token on each request.
+          {t("integrationDialog.tokenHeaderHelp")}
         </FieldDescription>
       </Field>
     </>
@@ -243,17 +252,19 @@ function IntegrationForm({
         <form onSubmit={save} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>
-              {existing ? `Edit ${existing.name}` : "Add integration"}
+              {existing
+                ? t("integrationDialog.edit", { name: existing.name })
+                : t("integrationDialog.add")}
             </DialogTitle>
             <DialogDescription>
-              The token is stored encrypted on this server and never sent back
-              to the browser. Leave the token empty when editing to keep the
-              stored value.
+              {t("integrationDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="integration-kind">Integration</FieldLabel>
+              <FieldLabel htmlFor="integration-kind">
+                {t("integrationDialog.integration")}
+              </FieldLabel>
               <Select
                 id="integration-kind"
                 value={selectedKind?.id ?? ""}
@@ -268,7 +279,7 @@ function IntegrationForm({
                     placeholder={
                       kindFixed
                         ? (selectedKind?.label ?? "")
-                        : "Pick an integration"
+                        : t("integrationDialog.pick")
                     }
                   />
                 </SelectTrigger>
@@ -282,14 +293,15 @@ function IntegrationForm({
               </Select>
               {kindFixed ? (
                 <FieldDescription>
-                  The kind can't be changed after creation; remove and re-add to
-                  pick another.
+                  {t("integrationDialog.kindFixed")}
                 </FieldDescription>
               ) : null}
             </Field>
             {error ? <FieldError>{error}</FieldError> : null}
             <Field>
-              <FieldLabel htmlFor="integration-name">Name</FieldLabel>
+              <FieldLabel htmlFor="integration-name">
+                {t("integrationDialog.name")}
+              </FieldLabel>
               <Input
                 id="integration-name"
                 value={name}
@@ -298,12 +310,12 @@ function IntegrationForm({
                 required
               />
               <FieldDescription>
-                Shown when the integration is listed.
+                {t("integrationDialog.nameHelp")}
               </FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="integration-transport-type">
-                Transport
+                {t("integrationDialog.transport")}
               </FieldLabel>
               <div className="flex gap-2">
                 <Button
@@ -313,7 +325,7 @@ function IntegrationForm({
                   variant={transportType === "stdio" ? "default" : "outline"}
                   size="sm"
                 >
-                  Stdio (command)
+                  {t("integrationDialog.stdio")}
                 </Button>
                 <Button
                   role="radio"
@@ -322,33 +334,35 @@ function IntegrationForm({
                   variant={transportType === "http" ? "default" : "outline"}
                   size="sm"
                 >
-                  HTTP (URL)
+                  {t("integrationDialog.http")}
                 </Button>
               </div>
             </Field>
             {transportType === "stdio" ? stdioFields : httpFields}
             <Field>
-              <FieldLabel htmlFor="integration-token">Token</FieldLabel>
+              <FieldLabel htmlFor="integration-token">
+                {t("integrationDialog.token")}
+              </FieldLabel>
               <Input
                 id="integration-token"
                 type="password"
                 autoComplete="new-password"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder="API token or OAuth access token"
+                placeholder={t("integrationDialog.tokenPlaceholder")}
               />
               <FieldDescription>
-                Left empty when editing, the stored token is kept unchanged.
+                {t("integrationDialog.tokenHelp")}
               </FieldDescription>
             </Field>
           </FieldGroup>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={saving || !selectedKind}>
               {saving ? <Spinner /> : null}
-              {existing ? "Save" : "Add"}
+              {existing ? t("save") : t("add")}
             </Button>
           </DialogFooter>
         </form>

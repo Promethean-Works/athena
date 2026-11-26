@@ -1,1 +1,75 @@
-{}
+{
+  "cancel": "Cancelar",
+  "remove": "Remover",
+  "noRclone": {
+    "title": "O armazenamento em nuvem precisa do rclone",
+    "missing": "O rclone não está instalado neste host",
+    "description": "{{detail}} O Athena usa o rclone para se conectar ao Google Drive, OneDrive, Dropbox, S3 e muito mais.",
+    "install": "Instale o rclone no servidor",
+    "redetect": "Detectar de novo"
+  },
+  "view": {
+    "refresh": "Atualizar",
+    "syncFolders": "Sincronizar pastas",
+    "addRemote": "Adicionar remoto",
+    "cantReach": "Não foi possível acessar o rclone",
+    "removeFailed": "Não foi possível remover {{name}}",
+    "removed": "{{name}} removido",
+    "removeTitle": "Remover {{name}}?",
+    "removeDescription": "O Athena esquece como se conectar a ele. Nada do que está armazenado nele é apagado.",
+    "empty": {
+      "title": "Nenhum remoto ainda",
+      "description": "Adicione o Google Drive, OneDrive, Dropbox, um bucket S3, um servidor WebDAV ou qualquer outro armazenamento compatível com o rclone, depois navegue por ele em Arquivos e copie ou sincronize pastas para ele."
+    }
+  },
+  "remote": {
+    "actions": "Ações para {{name}}",
+    "browse": "Navegar",
+    "edit": "Editar",
+    "browseFiles": "Navegar pelos arquivos",
+    "settingCount_one": "{{count}} configuração",
+    "settingCount_other": "{{count}} configurações",
+    "optional": "(opcional)",
+    "choose": "Escolha…",
+    "unchanged": "Inalterado",
+    "pasteResult": "Cole o resultado",
+    "no": "Não",
+    "yes": "Sim",
+    "continue": "Continuar",
+    "refused": "O rclone recusou isso",
+    "added": "{{name}} adicionado",
+    "saved": "{{name}} salvo",
+    "addTitle": "Adicionar um remoto",
+    "editTitle": "Editar {{name}}",
+    "oneMoreAnswer": "O rclone precisa de mais uma resposta para terminar a configuração.",
+    "loading": "Carregando provedores de armazenamento…",
+    "pickKind": "Escolha o tipo de armazenamento para se conectar.",
+    "genericDescription": "Armazenamento em nuvem ao qual o rclone se conecta: Google Drive, OneDrive, Dropbox, S3, WebDAV e muito mais.",
+    "back": "Voltar",
+    "add": "Adicionar",
+    "save": "Salvar",
+    "catalogHint": "Escolha o armazenamento ao qual você quer se conectar, depois dê um nome a ele e preencha as configurações.",
+    "name": "Nome",
+    "nameHint": "Como aparece em Arquivos, por exemplo gdrive ou backups.",
+    "storage": "Armazenamento",
+    "advanced": "Configurações avançadas ({{count}})"
+  },
+  "sync": {
+    "title": "Sincronizar pastas",
+    "description": "Faz o destino ficar igual à origem: arquivos novos e alterados são copiados, e arquivos que não estão na origem são apagados do destino.",
+    "from": "De",
+    "to": "Para",
+    "willDelete_one": "{{count}} arquivo será apagado de {{dest}}",
+    "willDelete_other": "{{count}} arquivos serão apagados de {{dest}}",
+    "andMore": "e mais {{count}}",
+    "willCopy_one": "{{count}} arquivo será copiado.",
+    "willCopy_other": "{{count}} arquivos serão copiados.",
+    "nothingDeleted": "Nada será apagado",
+    "willCopyTo_one": "{{count}} arquivo será copiado para {{dest}}.",
+    "willCopyTo_other": "{{count}} arquivos serão copiados para {{dest}}.",
+    "alreadyMatch": "As pastas já são iguais.",
+    "syncAndDelete": "Sincronizar e apagar {{count}}",
+    "sync": "Sincronizar",
+    "check": "Verificar alterações"
+  }
+}

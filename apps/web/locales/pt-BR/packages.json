@@ -1,1 +1,59 @@
-{}
+{
+  "view": {
+    "noManagers": "Nenhum gerenciador de pacotes encontrado",
+    "noManagersHint": "O Athena não encontrou nenhum gerenciador de pacotes compatível neste host."
+  },
+  "listError": "Não foi possível ler a lista de pacotes",
+  "cancel": "Cancelar",
+  "toast": {
+    "installFailed": "Não foi possível instalar {{name}}",
+    "uninstallFailed": "Não foi possível desinstalar {{name}}",
+    "upgradeFailed": "Não foi possível atualizar {{name}}",
+    "upgradeAllFailed": "Não foi possível atualizar os pacotes",
+    "refreshFailed": "Não foi possível atualizar as listas de pacotes"
+  },
+  "unavailable": "{{name}} não pode ser usado agora",
+  "unavailableHint": "Não está pronto neste host.",
+  "refreshLists": "Atualizar listas",
+  "upgradeAll": "Atualizar tudo",
+  "tabs": {
+    "installed": "Instalados",
+    "updates": "Atualizações",
+    "search": "Buscar"
+  },
+  "installed": {
+    "filter": "Filtrar pacotes instalados",
+    "noMatch": "Nenhum pacote instalado corresponde.",
+    "empty": "Nada instalado.",
+    "upgradeLabel": "Atualizar {{name}}",
+    "upgrade": "Atualizar",
+    "uninstallLabel": "Desinstalar {{name}}",
+    "uninstall": "Desinstalar",
+    "shortened": "{{manager}} abreviou este id, então ele não pode ser desinstalado daqui",
+    "showing": "Mostrando {{shown}} de {{total}}. Use o filtro para refinar."
+  },
+  "table": {
+    "package": "Pacote",
+    "version": "Versão",
+    "description": "Descrição"
+  },
+  "updates": {
+    "upToDate": "Tudo está atualizado",
+    "upToDateRefresh": "Conforme a última atualização das listas. Atualize as listas para verificar de novo.",
+    "nothing": "Nada para atualizar.",
+    "installedColumn": "Instalada",
+    "availableColumn": "Disponível"
+  },
+  "search": {
+    "label": "Buscar em {{manager}}",
+    "noMatch": "Nenhum pacote corresponde a “{{query}}”.",
+    "install": "Instalar"
+  },
+  "confirm": {
+    "uninstallTitle": "Desinstalar {{name}}?",
+    "uninstallDescription": "Ele será removido deste servidor. Pacotes que dependem dele também podem ser removidos.",
+    "upgradeAllTitle": "Atualizar todos os pacotes de {{manager}}?",
+    "upgradeAllDescription_one": "{{count}} pacote será atualizado. Isso pode demorar.",
+    "upgradeAllDescription_other": "{{count}} pacotes serão atualizados. Isso pode demorar."
+  }
+}

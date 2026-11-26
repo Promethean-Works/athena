@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
+import { type ParseKeys } from "i18next"
 import { PlugZapIcon } from "lucide-react"
 
 import { Badge } from "@workspace/ui/components/badge"
@@ -16,31 +18,36 @@ import { useHostStats } from "@/components/dashboard/host-stats-provider"
 
 type Flag = "under_voltage" | "freq_capped" | "throttled" | "soft_temp_limit"
 
-const FLAGS: { id: Flag; label: string; hint: string }[] = [
+const FLAGS: {
+  id: Flag
+  label: ParseKeys<"dashboard">
+  hint: ParseKeys<"dashboard">
+}[] = [
   {
     id: "under_voltage",
-    label: "Under-voltage",
-    hint: "The power supply or cable can't keep up. Use the official supply and a short, thick cable.",
+    label: "power.flags.underVoltage.label",
+    hint: "power.flags.underVoltage.hint",
   },
   {
     id: "throttled",
-    label: "Throttled",
-    hint: "The CPU is slowed down to protect itself.",
+    label: "power.flags.throttled.label",
+    hint: "power.flags.throttled.hint",
   },
   {
     id: "freq_capped",
-    label: "Frequency capped",
-    hint: "The firmware lowered the maximum CPU speed.",
+    label: "power.flags.freqCapped.label",
+    hint: "power.flags.freqCapped.hint",
   },
   {
     id: "soft_temp_limit",
-    label: "Soft temperature limit",
-    hint: "The CPU is close to its temperature limit. Check cooling.",
+    label: "power.flags.softTempLimit.label",
+    hint: "power.flags.softTempLimit.hint",
   },
 ]
 
 /** Raspberry Pi power and throttling flags. Rendered only where the host reports them. */
 export function PowerCard() {
+  const { t } = useTranslation("dashboard")
   const { host } = useHostStats()
   const power = host?.power
   if (!power) return null
@@ -53,32 +60,30 @@ export function PowerCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <PlugZapIcon className="size-4 text-muted-foreground" />
-          Power
+          {t("power.title")}
         </CardTitle>
-        <CardDescription>Raspberry Pi power and throttling</CardDescription>
+        <CardDescription>{t("power.description")}</CardDescription>
         <CardAction>
           <Badge variant={now.length > 0 ? "destructive" : "secondary"}>
-            {now.length > 0 ? "Problem now" : "OK"}
+            {now.length > 0 ? t("power.problemNow") : t("power.ok")}
           </Badge>
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm">
         {now.map((f) => (
           <div key={f.id}>
-            <p className="font-medium text-destructive">{f.label} now</p>
-            <p className="text-muted-foreground">{f.hint}</p>
+            <p className="font-medium text-destructive">{t("power.flagNow", { label: t(f.label) })}</p>
+            <p className="text-muted-foreground">{t(f.hint)}</p>
           </div>
         ))}
         {earlier.map((f) => (
           <div key={f.id}>
-            <p className="font-medium">{f.label} since boot</p>
-            <p className="text-muted-foreground">{f.hint}</p>
+            <p className="font-medium">{t("power.flagSinceBoot", { label: t(f.label) })}</p>
+            <p className="text-muted-foreground">{t(f.hint)}</p>
           </div>
         ))}
         {now.length === 0 && earlier.length === 0 && (
-          <p className="text-muted-foreground">
-            No under-voltage or throttling since this server booted.
-          </p>
+          <p className="text-muted-foreground">{t("power.none")}</p>
         )}
       </CardContent>
     </Card>

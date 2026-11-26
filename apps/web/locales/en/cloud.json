@@ -1,1 +1,75 @@
-{}
+{
+  "cancel": "Cancel",
+  "remove": "Remove",
+  "noRclone": {
+    "title": "Cloud storage needs rclone",
+    "missing": "rclone isn't installed on this host",
+    "description": "{{detail}} Athena uses rclone to connect to Google Drive, OneDrive, Dropbox, S3 and many more.",
+    "install": "Install rclone on the server",
+    "redetect": "Re-detect"
+  },
+  "view": {
+    "refresh": "Refresh",
+    "syncFolders": "Sync folders",
+    "addRemote": "Add remote",
+    "cantReach": "Can't reach rclone",
+    "removeFailed": "Couldn't remove {{name}}",
+    "removed": "Removed {{name}}",
+    "removeTitle": "Remove {{name}}?",
+    "removeDescription": "Athena forgets how to connect to it. Nothing stored on it is deleted.",
+    "empty": {
+      "title": "No remotes yet",
+      "description": "Add Google Drive, OneDrive, Dropbox, an S3 bucket, a WebDAV server or any other storage rclone supports, then browse it in Files and copy or sync folders to it."
+    }
+  },
+  "remote": {
+    "actions": "Actions for {{name}}",
+    "browse": "Browse",
+    "edit": "Edit",
+    "browseFiles": "Browse files",
+    "settingCount_one": "{{count}} setting",
+    "settingCount_other": "{{count}} settings",
+    "optional": "(optional)",
+    "choose": "Choose…",
+    "unchanged": "Unchanged",
+    "pasteResult": "Paste the result",
+    "no": "No",
+    "yes": "Yes",
+    "continue": "Continue",
+    "refused": "rclone refused that",
+    "added": "Added {{name}}",
+    "saved": "Saved {{name}}",
+    "addTitle": "Add a remote",
+    "editTitle": "Edit {{name}}",
+    "oneMoreAnswer": "rclone needs one more answer to finish setting it up.",
+    "loading": "Loading storage providers…",
+    "pickKind": "Pick the kind of storage to connect to.",
+    "genericDescription": "Cloud storage that rclone connects to: Google Drive, OneDrive, Dropbox, S3, WebDAV and many more.",
+    "back": "Back",
+    "add": "Add",
+    "save": "Save",
+    "catalogHint": "Choose the storage you want to connect to, then give it a name and fill in its settings.",
+    "name": "Name",
+    "nameHint": "How it shows in Files, e.g. gdrive or backups.",
+    "storage": "Storage",
+    "advanced": "Advanced settings ({{count}})"
+  },
+  "sync": {
+    "title": "Sync folders",
+    "description": "Makes the destination match the source: new and changed files are copied, and files that aren't in the source are deleted from the destination.",
+    "from": "From",
+    "to": "To",
+    "willDelete_one": "{{count}} file will be deleted from {{dest}}",
+    "willDelete_other": "{{count}} files will be deleted from {{dest}}",
+    "andMore": "and {{count}} more",
+    "willCopy_one": "{{count}} file will be copied.",
+    "willCopy_other": "{{count}} files will be copied.",
+    "nothingDeleted": "Nothing will be deleted",
+    "willCopyTo_one": "{{count}} file will be copied to {{dest}}.",
+    "willCopyTo_other": "{{count}} files will be copied to {{dest}}.",
+    "alreadyMatch": "The folders already match.",
+    "syncAndDelete": "Sync and delete {{count}}",
+    "sync": "Sync",
+    "check": "Check changes"
+  }
+}

@@ -1,1 +1,106 @@
-{}
+{
+  "save": "Save",
+  "cancel": "Cancel",
+  "close": "Close",
+  "loading": "Loading…",
+  "back": "Back",
+  "delete": "Delete",
+  "log": {
+    "empty": "No output yet.",
+    "copy": "Copy log",
+    "title": "Log",
+    "copied": "Log copied",
+    "copyFailed": "Couldn't copy"
+  },
+  "capabilities": {
+    "title": "Capabilities",
+    "summary": "{{ready}} of {{total}} ready. Features appear only where they can work.",
+    "loadingSummary": "What Athena found on this host.",
+    "redetect": "Re-detect",
+    "loadFailed": "Couldn't load capabilities: {{error}}",
+    "details": "Details",
+    "status": {
+      "ready": "Ready",
+      "stopped": "Stopped",
+      "missing": "Not installed",
+      "unsupported": "Unsupported",
+      "needs_privilege": "Needs root"
+    }
+  },
+  "job": {
+    "working": "Working… You can close this; it keeps running.",
+    "done": "Done.",
+    "connectionLost": "The connection to the job was lost.",
+    "progress": "Progress",
+    "finishing": " · finishing…",
+    "cancel": "Cancel job",
+    "stopFailed": "Couldn't stop it"
+  },
+  "restart": {
+    "title": "Restart Athena?",
+    "description": "Running jobs are stopped. The page reconnects in a few seconds. Your apps keep running.",
+    "confirm": "Restart",
+    "failed": "Couldn't restart Athena",
+    "waitingTitle": "Restarting Athena…",
+    "waitingBody": "This page reloads when Athena is back."
+  },
+  "update": {
+    "notBackYet": "Athena hasn't come back yet",
+    "reload": "Reload the page",
+    "notice": {
+      "title": "Athena {{latest}} is available",
+      "runs": "This server runs {{current}}.",
+      "whatsNew": "See what's new"
+    },
+    "action": {
+      "updateNow": "Update now",
+      "cannotSelf": "This Athena can't update itself",
+      "howTo": "{{reason}}. To upgrade, run this on the server (it installs the new version and restarts Athena; your data and settings stay):",
+      "commandLabel": "Upgrade command"
+    },
+    "interrupted": {
+      "title": "The last update didn't finish",
+      "body": "An update from {{from}} to {{to}} started but never reported back (the host may have lost power, or the update was stopped). Athena is up, but check that it's the version you expect. The update log is in the data folder (logs/update.log). To repair an install, run the installer command from the README on the server.",
+      "dismiss": "Dismiss",
+      "oldVersion": "the old version",
+      "newVersion": "the new one"
+    },
+    "dialog": {
+      "steps": "Update steps",
+      "stepPrepare": "Download and check the release",
+      "stepSwap": "Stop Athena, install and start it again",
+      "stepCheck": "Wait for the new version to answer",
+      "newVersion": "the new version",
+      "oldVersion": "the old one",
+      "updated": "Updated to {{to}}",
+      "reloading": "Reloading the page…",
+      "rolledBackTitle": "Update to {{to}} failed, still on {{from}}",
+      "rolledBackBody": "Athena went back to the version you had, with your data as it was before the update.",
+      "reason": " Reason: {{reason}}",
+      "abortedTitle": "Update to {{to}} was stopped",
+      "failedTitle": "Update to {{to}} failed and Athena isn't running",
+      "abortedBody": "Nothing was installed. Start Athena again, or run the installer command from the README.",
+      "failedBody": "Run the installer command from the README on the server to repair it.",
+      "back": "Athena is back",
+      "backBody": "Reload the page to see which version is running.",
+      "confirmTitle": "Update Athena?",
+      "notStartedTitle": "The update didn't start",
+      "preparingTitle": "Preparing the update",
+      "versions": "Athena {{current}} to {{latest}}.",
+      "confirmBody": "Athena restarts for a minute or two and the page reconnects. Your apps and containers keep running. If the new version doesn't start, Athena goes back to this one.",
+      "stopsTitle": "These stop when Athena restarts:",
+      "terminals_one": "{{count}} open terminal",
+      "terminals_other": "{{count}} open terminals",
+      "backupFirst": "Back up Athena first",
+      "backupFirstHelp": "Saves Athena's settings and data with the backup plan “{{plan}}” before anything is stopped. Your apps aren't touched.",
+      "notChanged": "{{error}}. Nothing was changed; Athena still runs {{current}}.",
+      "prepareFailed": "The update couldn't be prepared",
+      "updateAnyway": "Update anyway",
+      "update": "Update",
+      "restarting": "Restarting…",
+      "updatingTo": "Updating to {{latest}}. This page reloads when Athena is back.",
+      "lateBody": "It can take longer on a slow host. If it stays down, check the update log in the data folder (logs/update.log)."
+    }
+  },
+  "restartLateBody": "It can take longer on a slow host. If it stays down, check the log in the data folder (logs/athena.log)."
+}

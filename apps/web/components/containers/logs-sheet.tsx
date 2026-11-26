@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
+
 import {
   Sheet,
   SheetContent,
@@ -19,6 +21,7 @@ export function LogsSheet({
   container: { id: string; name: string } | null
   onClose: () => void
 }) {
+  const { t } = useTranslation("containers")
   const stream = useEventStream(
     container
       ? `/api/containers/${encodeURIComponent(container.id)}/logs/stream?tail=300`
@@ -26,12 +29,12 @@ export function LogsSheet({
   )
   const state =
     stream.phase === "open"
-      ? "Following new output"
+      ? t("logs.following")
       : stream.phase === "done"
-        ? "The container stopped"
+        ? t("logs.stopped")
         : stream.phase === "error"
-          ? "Disconnected"
-          : "Connecting…"
+          ? t("logs.disconnected")
+          : t("logs.connecting")
 
   return (
     <Sheet
@@ -43,14 +46,14 @@ export function LogsSheet({
         className="w-full gap-0 data-[side=right]:sm:max-w-3xl"
       >
         <SheetHeader>
-          <SheetTitle>Logs · {container?.name}</SheetTitle>
+          <SheetTitle>{t("logs.title", { name: container?.name })}</SheetTitle>
           <SheetDescription>{state}</SheetDescription>
         </SheetHeader>
         <div className="min-h-0 flex-1 px-4 pb-4">
           <LogView
             lines={stream.lines}
             className="h-full"
-            placeholder="No log output."
+            placeholder={t("logs.empty")}
           />
         </div>
       </SheetContent>

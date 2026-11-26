@@ -4,6 +4,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -70,6 +71,7 @@ type Detail = Schemas["StoreAppDetail"]
 type StoreApp = Schemas["StoreApp"]
 
 export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
+  const { t } = useTranslation("store")
   const [app, setApp] = React.useState<Detail | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [selectedVariantSlug, setSelectedVariantSlug] = React.useState("")
@@ -81,9 +83,9 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
       })
       .then(({ data, error: err }) => {
         if (data) setApp(data)
-        else setError(errorMessage(err, "Couldn't load this app"))
+        else setError(errorMessage(err, t("view.loadError")))
       })
-  }, [catalog, id])
+  }, [catalog, id, t])
 
   React.useEffect(() => {
     if (app) {
@@ -95,7 +97,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>App not found</EmptyTitle>
+          <EmptyTitle>{t("view.notFound")}</EmptyTitle>
           <EmptyDescription>{error}</EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -138,7 +140,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
                     <a href={app.homepage} target="_blank" rel="noreferrer" />
                   }
                 >
-                  Website
+                  {t("view.website")}
                   <ExternalLinkIcon data-icon="inline-end" />
                 </Button>
               ) : null}
@@ -153,10 +155,10 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
         {app.installed.length ? (
           <Alert>
             <InfoIcon />
-            <AlertTitle>Already installed</AlertTitle>
+            <AlertTitle>{t("view.alreadyInstalled")}</AlertTitle>
             <AlertDescription>
               <span>
-                As{" "}
+                {t("view.installedAs")}{" "}
                 {app.installed.map((n, i) => (
                   <React.Fragment key={n}>
                     {i > 0 ? ", " : ""}
@@ -168,7 +170,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
                     </Link>
                   </React.Fragment>
                 ))}
-                . You can install another copy under a different name.
+                . {t("view.installAnother")}
               </span>
             </AlertDescription>
           </Alert>
@@ -177,14 +179,14 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
         {app.notes ? (
           <Alert>
             <InfoIcon />
-            <AlertTitle>Before you start</AlertTitle>
+            <AlertTitle>{t("view.beforeYouStart")}</AlertTitle>
             <AlertDescription>{app.notes}</AlertDescription>
           </Alert>
         ) : null}
 
         {app.features.length ? (
           <section className="flex flex-col gap-2">
-            <h3 className="font-heading text-sm font-medium">What you get</h3>
+            <h3 className="font-heading text-sm font-medium">{t("view.whatYouGet")}</h3>
             <ul className="grid gap-2 sm:grid-cols-2">
               {app.features.map((feature) => (
                 <li key={feature} className="flex gap-2 text-sm">
@@ -201,19 +203,19 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
         ) : null}
 
         <section className="flex flex-col gap-2">
-          <h3 className="font-heading text-sm font-medium">Details</h3>
+          <h3 className="font-heading text-sm font-medium">{t("view.details")}</h3>
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-            <dt className="text-muted-foreground">Category</dt>
+            <dt className="text-muted-foreground">{t("view.category")}</dt>
             <dd>{app.category_label || app.category}</dd>
             {app.license ? (
               <>
-                <dt className="text-muted-foreground">License</dt>
+                <dt className="text-muted-foreground">{t("view.license")}</dt>
                 <dd>{app.license}</dd>
               </>
             ) : null}
             {app.homepage ? (
               <>
-                <dt className="text-muted-foreground">Website</dt>
+                <dt className="text-muted-foreground">{t("view.website")}</dt>
                 <dd className="truncate">
                   <a
                     href={app.homepage}
@@ -226,11 +228,11 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
                 </dd>
               </>
             ) : null}
-            <dt className="text-muted-foreground">Images</dt>
+            <dt className="text-muted-foreground">{t("view.images")}</dt>
             <dd className="font-mono text-xs break-all">
               {app.images.join(", ")}
             </dd>
-            <dt className="text-muted-foreground">Platforms</dt>
+            <dt className="text-muted-foreground">{t("view.platforms")}</dt>
             <dd className="font-mono text-xs">{app.platforms.join(", ")}</dd>
           </dl>
         </section>
@@ -241,7 +243,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
               <Button variant="outline" size="sm" className="group/compose" />
             }
           >
-            View compose.yaml
+            {t("view.viewCompose")}
             <ChevronDownIcon
               data-icon="inline-end"
               className="transition-transform group-data-panel-open/compose:rotate-180"
@@ -258,7 +260,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
         </Collapsible>
 
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <span>Doesn&apos;t work as expected?</span>
+          <span>{t("view.reportPrompt")}</span>
           <AppReportButton app={app} />
         </div>
 
@@ -267,18 +269,17 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
 
       <Card className="h-fit xl:sticky xl:top-6">
         <CardHeader>
-          <CardTitle>Install</CardTitle>
+          <CardTitle>{t("view.install")}</CardTitle>
           {app.support !== "unsupported" ? (
             <CardDescription>
-              Your answers are saved in the app&apos;s .env file on the server,
-              next to its compose.yaml.
+              {t("view.installHint")}
             </CardDescription>
           ) : null}
         </CardHeader>
         <CardContent>
           {app.variants.length > 1 && (
             <Field className="pb-2">
-              <FieldLabel>Variant</FieldLabel>
+              <FieldLabel>{t("view.variant")}</FieldLabel>
               <Select
                 value={selectedVariantSlug}
                 onValueChange={(value) =>
@@ -301,8 +302,10 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
           )}
           {app.support === "unsupported" ? (
             <p className="text-sm text-muted-foreground">
-              {app.title} can&apos;t be installed on this server: it has no
-              image for {app.host_platform ?? "this CPU"}.
+              {t("view.cannotInstall", {
+                title: app.title,
+                platform: app.host_platform ?? t("view.thisCpu"),
+              })}
             </p>
           ) : (
             <InstallForm app={app} variant={selectedVariant} />
@@ -314,15 +317,16 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
 }
 
 function CpuAlert({ app }: { app: Detail }) {
+  const { t } = useTranslation("store")
   const published = app.platforms.join(", ")
-  const host = app.host_platform ?? "this server's CPU"
+  const host = app.host_platform ?? t("view.thisServerCpu")
   if (app.support === "unsupported") {
     return (
       <Alert variant="destructive">
         <CpuIcon />
-        <AlertTitle>Doesn&apos;t run on this server</AlertTitle>
+        <AlertTitle>{t("view.cpu.unsupportedTitle")}</AlertTitle>
         <AlertDescription>
-          Its images are published for {published}, and this server is {host}.
+          {t("view.cpu.unsupportedBody", { published, host })}
         </AlertDescription>
       </Alert>
     )
@@ -331,10 +335,9 @@ function CpuAlert({ app }: { app: Detail }) {
     return (
       <Alert>
         <CpuIcon />
-        <AlertTitle>Runs under emulation</AlertTitle>
+        <AlertTitle>{t("view.cpu.emulatedTitle")}</AlertTitle>
         <AlertDescription>
-          There&apos;s no image for {host}, so Docker runs the {published} one
-          under emulation. It works, but it&apos;s slower and uses more memory.
+          {t("view.cpu.emulatedBody", { host, published })}
         </AlertDescription>
       </Alert>
     )
@@ -384,12 +387,13 @@ function ScreenshotImage({
 }
 
 function Screenshots({ title, images }: { title: string; images: string[] }) {
+  const { t } = useTranslation("store")
   const [active, setActive] = React.useState(0)
   const [open, setOpen] = React.useState(false)
 
   if (images.length === 0) return null
   const current = images[Math.min(active, images.length - 1)]
-  const alt = `${title} screenshot`
+  const alt = t("view.screenshot.alt", { title })
 
   return (
     <div className="flex flex-col gap-2">
@@ -397,7 +401,7 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
         type="button"
         onClick={() => setOpen(true)}
         className="group relative overflow-hidden rounded-xl border focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-        aria-label={`Open a larger ${title} screenshot`}
+        aria-label={t("view.screenshot.open", { title })}
       >
         <ScreenshotImage
           src={current}
@@ -406,7 +410,7 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
         />
         <span className="absolute right-2 bottom-2 flex items-center gap-1 rounded-md bg-background/80 px-2 py-1 text-xs text-foreground opacity-0 transition-opacity group-hover:opacity-100">
           <MaximizeIcon className="size-3" />
-          Enlarge
+          {t("view.screenshot.enlarge")}
         </span>
       </button>
 
@@ -417,7 +421,7 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
               key={image}
               type="button"
               onClick={() => setActive(index)}
-              aria-label={`Show screenshot ${index + 1}`}
+              aria-label={t("view.screenshot.show", { number: index + 1 })}
               aria-current={index === active}
               className={cn(
                 "overflow-hidden rounded-lg border transition-opacity",
@@ -441,9 +445,9 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
           showCloseButton={false}
           className="max-w-5xl sm:max-w-5xl"
         >
-          <DialogTitle className="sr-only">{title} screenshot</DialogTitle>
+          <DialogTitle className="sr-only">{alt}</DialogTitle>
           <DialogDescription className="sr-only">
-            A screenshot of {title}.
+            {t("view.screenshot.description", { title })}
           </DialogDescription>
           <ScreenshotImage
             src={current}
@@ -460,7 +464,7 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
             }
           >
             <XIcon />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("view.screenshot.close")}</span>
           </DialogClose>
         </DialogContent>
       </Dialog>
@@ -469,6 +473,7 @@ function Screenshots({ title, images }: { title: string; images: string[] }) {
 }
 
 function RelatedApps({ app }: { app: Detail }) {
+  const { t } = useTranslation("store")
   const [apps, setApps] = React.useState<StoreApp[]>([])
 
   React.useEffect(() => {
@@ -494,7 +499,7 @@ function RelatedApps({ app }: { app: Detail }) {
   return (
     <section className="flex flex-col gap-3">
       <h3 className="font-heading text-sm font-medium">
-        More in {app.category_label || app.category}
+        {t("view.moreIn", { category: app.category_label || app.category })}
       </h3>
       <div className="grid gap-3 sm:grid-cols-2">
         {related.map((other) => (

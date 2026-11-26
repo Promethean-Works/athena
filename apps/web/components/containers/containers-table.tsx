@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import {
   EllipsisVerticalIcon,
   PlayIcon,
@@ -60,18 +61,25 @@ type Action = "start" | "stop" | "restart"
 const REFRESH_MS = 10_000
 
 function StateBadge({ c }: { c: Container }) {
-  if (c.state === "running") return <Badge variant="secondary">Running</Badge>
-  if (c.state === "dead") return <Badge variant="destructive">Dead</Badge>
+  const { t } = useTranslation("containers")
+  if (c.state === "running")
+    return <Badge variant="secondary">{t("state.running")}</Badge>
+  if (c.state === "dead")
+    return <Badge variant="destructive">{t("state.dead")}</Badge>
   if (c.state === "exited") {
     return (
       <Badge variant="outline">
-        Exited{c.exit_code ? ` (${c.exit_code})` : ""}
+        {c.exit_code
+          ? t("state.exitedWithCode", { code: c.exit_code })
+          : t("state.exited")}
       </Badge>
     )
   }
+  const other = ["paused", "created", "restarting"] as const
+  const known = other.find((s) => s === c.state)
   return (
     <Badge variant="outline" className="capitalize">
-      {c.state}
+      {known ? t(`state.${known}`) : c.state}
     </Badge>
   )
 }
@@ -88,6 +96,7 @@ function groups(containers: Container[]): [string, Container[]][] {
 }
 
 export function ContainersTable() {
+  const { t } = useTranslation("containers")
   const [containers, setContainers] = React.useState<Container[] | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [busy, setBusy] = React.useState<string | null>(null)
@@ -102,9 +111,9 @@ export function ContainersTable() {
       setContainers(data)
       setError(null)
     } else {
-      setError(errorMessage(err, "Couldn't list containers"))
+      setError(errorMessage(err, t("table.listFailed")))
     }
-  }, [])
+  }, [t])
 
   React.useEffect(() => {
     void load()
@@ -122,7 +131,7 @@ export function ContainersTable() {
     if (err) {
       toast.add({
         type: "error",
-        title: `Couldn't ${action} ${c.name}`,
+        title: t(`table.actionFailed.${action}`, { name: c.name }),
         description: errorMessage(err),
       })
     }
@@ -139,11 +148,14 @@ export function ContainersTable() {
     if (err) {
       toast.add({
         type: "error",
-        title: `Couldn't remove ${c.name}`,
+        title: t("table.removeFailed", { name: c.name }),
         description: errorMessage(err),
       })
     } else {
-      toast.add({ type: "success", title: `Removed ${c.name}` })
+      toast.add({
+        type: "success",
+        title: t("table.removed", { name: c.name }),
+      })
     }
     await load()
   }
@@ -152,7 +164,7 @@ export function ContainersTable() {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>Couldn&apos;t list containers</EmptyTitle>
+          <EmptyTitle>{t("table.listFailed")}</EmptyTitle>
           <EmptyDescription>{error}</EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -173,11 +185,8 @@ export function ContainersTable() {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>No containers yet</EmptyTitle>
-          <EmptyDescription>
-            Containers on this runtime show up here, including ones started
-            outside Athena.
-          </EmptyDescription>
+          <EmptyTitle>{t("table.emptyTitle")}</EmptyTitle>
+          <EmptyDescription>{t("table.emptyDescription")}</EmptyDescription>
         </EmptyHeader>
       </Empty>
     )
@@ -189,12 +198,16 @@ export function ContainersTable() {
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden md:table-cell">Image</TableHead>
-              <TableHead>State</TableHead>
-              <TableHead className="hidden lg:table-cell">Ports</TableHead>
+              <TableHead>{t("table.name")}</TableHead>
+              <TableHead className="hidden md:table-cell">
+                {t("table.image")}
+              </TableHead>
+              <TableHead>{t("table.state")}</TableHead>
+              <TableHead className="hidden lg:table-cell">
+                {t("table.ports")}
+              </TableHead>
               <TableHead className="w-10">
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{t("table.actions")}</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -206,7 +219,7 @@ export function ContainersTable() {
                     colSpan={5}
                     className="bg-muted/40 text-xs font-medium text-muted-foreground"
                   >
-                    {project || "Standalone containers"}
+                    {project || t("table.standalone")}
                   </TableCell>
                 </TableRow>
                 {rows.map((c) => (
@@ -244,18 +257,20 @@ export function ContainersTable() {
                           ) : (
                             <EllipsisVerticalIcon />
                           )}
-                          <span className="sr-only">Actions for {c.name}</span>
+                          <span className="sr-only">
+                            {t("table.actionsFor", { name: c.name })}
+                          </span>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="min-w-40">
                           <DropdownMenuGroup>
                             <DropdownMenuItem onClick={() => setLogsFor(c)}>
                               <ScrollTextIcon />
-                              Logs
+                              {t("table.logs")}
                             </DropdownMenuItem>
                             {canShell && c.state === "running" && (
                               <DropdownMenuItem onClick={() => setShellFor(c)}>
                                 <SquareTerminalIcon />
-                                Shell
+                                {t("table.shell")}
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuGroup>
@@ -267,19 +282,19 @@ export function ContainersTable() {
                                   onClick={() => act(c, "restart")}
                                 >
                                   <RotateCwIcon />
-                                  Restart
+                                  {t("table.restart")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => act(c, "stop")}
                                 >
                                   <SquareIcon />
-                                  Stop
+                                  {t("table.stop")}
                                 </DropdownMenuItem>
                               </>
                             ) : (
                               <DropdownMenuItem onClick={() => act(c, "start")}>
                                 <PlayIcon />
-                                Start
+                                {t("table.start")}
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuGroup>
@@ -290,7 +305,7 @@ export function ContainersTable() {
                               onClick={() => setRemoving(c)}
                             >
                               <Trash2Icon />
-                              Remove
+                              {t("table.remove")}
                             </DropdownMenuItem>
                           </DropdownMenuGroup>
                         </DropdownMenuContent>
@@ -313,21 +328,22 @@ export function ContainersTable() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove {removing?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("table.removeTitle", { name: removing?.name ?? "" })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {removing?.state === "running"
-                ? "It will be stopped first. "
-                : ""}
-              The container is deleted. Named volumes and the image are kept.
+                ? t("table.removeRunningDescription")
+                : t("table.removeDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("table.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => removing && remove(removing)}
             >
-              Remove
+              {t("table.remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

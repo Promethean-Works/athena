@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 import { type LucideIcon } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -31,6 +32,7 @@ export function DashboardCard({
   linkLabel?: string
   children: React.ReactNode
 }) {
+  const { t } = useTranslation("dashboard")
   return (
     <Card>
       <CardHeader>
@@ -47,7 +49,7 @@ export function DashboardCard({
               nativeButton={false}
               render={<Link href={href} />}
             >
-              {linkLabel ?? "Open"}
+              {linkLabel ?? t("cardShell.open")}
             </Button>
           </CardAction>
         ) : null}

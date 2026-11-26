@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { type ParseKeys } from "i18next"
 import {
   ActivityIcon,
   BoxIcon,
@@ -36,9 +37,10 @@ export type CardSize = "half" | "full"
 export type DashboardCardDef = {
   /** Stored in the user's layout; `^[a-z][a-z0-9-]{0,39}$` (checked by the server). */
   id: string
-  title: string
-  /** One line for the Add card picker. */
-  description: string
+  /** Translation key of the title (translated at render, never at load). */
+  titleKey: ParseKeys<"dashboard">
+  /** Key of the one line for the Add card picker. */
+  descriptionKey: ParseKeys<"dashboard">
   icon: LucideIcon
   defaultSize: CardSize
   /** Hidden from the picker when this capability isn't reported on the host. */
@@ -56,16 +58,16 @@ export type DashboardCardDef = {
 export const DASHBOARD_CARDS: DashboardCardDef[] = [
   {
     id: "stats",
-    title: "System",
-    description: "Live CPU, memory, network and disk activity.",
+    titleKey: "cards.stats.title",
+    descriptionKey: "cards.stats.description",
     icon: ActivityIcon,
     defaultSize: "full",
     render: () => <HostStatsCards />,
   },
   {
     id: "apps",
-    title: "Apps",
-    description: "Your apps, with their status and an Open button.",
+    titleKey: "cards.apps.title",
+    descriptionKey: "cards.apps.description",
     icon: LayoutGridIcon,
     defaultSize: "full",
     capability: "containers",
@@ -73,8 +75,8 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "containers",
-    title: "Containers",
-    description: "Running and stopped counts, and which ones need attention.",
+    titleKey: "cards.containers.title",
+    descriptionKey: "cards.containers.description",
     icon: BoxIcon,
     defaultSize: "half",
     capability: "containers",
@@ -82,8 +84,8 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "automation",
-    title: "Automation",
-    description: "Next scheduled runs and how recent runs went.",
+    titleKey: "cards.automation.title",
+    descriptionKey: "cards.automation.description",
     icon: ZapIcon,
     defaultSize: "half",
     capability: "automation",
@@ -91,32 +93,32 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "storage",
-    title: "Storage",
-    description: "Space used on each disk.",
+    titleKey: "cards.storage.title",
+    descriptionKey: "cards.storage.description",
     icon: HardDriveIcon,
     defaultSize: "half",
     render: () => <StorageCard />,
   },
   {
     id: "server",
-    title: "Server",
-    description: "Host name, operating system, uptime and versions.",
+    titleKey: "cards.server.title",
+    descriptionKey: "cards.server.description",
     icon: ServerIcon,
     defaultSize: "half",
     render: () => <ServerOverview />,
   },
   {
     id: "temperatures",
-    title: "Temperatures",
-    description: "Sensor readings, where the host reports them.",
+    titleKey: "cards.temperatures.title",
+    descriptionKey: "cards.temperatures.description",
     icon: ThermometerIcon,
     defaultSize: "half",
     render: () => <TemperaturesCard />,
   },
   {
     id: "power",
-    title: "Power",
-    description: "Under-voltage and throttling on a Raspberry Pi.",
+    titleKey: "cards.power.title",
+    descriptionKey: "cards.power.description",
     icon: PlugZapIcon,
     defaultSize: "half",
     capability: "host.power",
@@ -124,8 +126,8 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "activity",
-    title: "Recent activity",
-    description: "The latest changes from the audit log (admins only).",
+    titleKey: "cards.activity.title",
+    descriptionKey: "cards.activity.description",
     icon: HistoryIcon,
     defaultSize: "half",
     adminOnly: true,
@@ -133,8 +135,8 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "remote-access",
-    title: "Remote access",
-    description: "Tunnel status and the public address.",
+    titleKey: "cards.remoteAccess.title",
+    descriptionKey: "cards.remoteAccess.description",
     icon: GlobeIcon,
     defaultSize: "half",
     capability: "tunnel.*",
@@ -142,16 +144,16 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "capabilities",
-    title: "Capabilities",
-    description: "What Athena found on this host.",
+    titleKey: "cards.capabilities.title",
+    descriptionKey: "cards.capabilities.description",
     icon: ShieldCheckIcon,
     defaultSize: "half",
     render: () => <HostCapabilities />,
   },
   {
     id: "backups",
-    title: "Backups",
-    description: "Backup plans, last runs and the next scheduled run.",
+    titleKey: "cards.backups.title",
+    descriptionKey: "cards.backups.description",
     icon: ShieldCheckIcon,
     defaultSize: "half",
     capability: "backup",

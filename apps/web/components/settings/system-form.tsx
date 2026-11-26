@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import {
@@ -28,6 +29,7 @@ type SystemSettings = Schemas["SystemSettings"]
 
 /** Settings → System: host-wide switches that only admins change. */
 export function SystemForm() {
+  const { t } = useTranslation("settings")
   const { user } = useAuth()
   const [settings, setSettings] = React.useState<SystemSettings | null>(null)
   const [saving, setSaving] = React.useState(false)
@@ -59,7 +61,7 @@ export function SystemForm() {
       setSettings(previous)
       toast.add({
         type: "error",
-        title: "Couldn't save",
+        title: t("system.saveFailed"),
         description: errorMessage(error),
       })
     }
@@ -68,11 +70,8 @@ export function SystemForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>System</CardTitle>
-        <CardDescription>
-          Switches that apply to everyone on this server. Changes are written
-          to the audit log.
-        </CardDescription>
+        <CardTitle>{t("system.title")}</CardTitle>
+        <CardDescription>{t("system.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {settings === null ? (
@@ -81,11 +80,12 @@ export function SystemForm() {
           <FieldGroup>
             <Field orientation="horizontal">
               <FieldContent>
-                <FieldLabel htmlFor="terminal-enabled">Web terminal</FieldLabel>
+                <FieldLabel htmlFor="terminal-enabled">
+                  {t("system.terminal.label")}
+                </FieldLabel>
                 <FieldDescription>
-                  A shell on this server and in containers, from the browser.
-                  Turning it off also closes open sessions.
-                  {!user.is_admin && " Only admins can change this."}
+                  {t("system.terminal.description")}
+                  {!user.is_admin && ` ${t("system.adminOnly")}`}
                 </FieldDescription>
               </FieldContent>
               <Switch
@@ -95,19 +95,19 @@ export function SystemForm() {
                 onCheckedChange={(checked) =>
                   update(
                     { ...settings, terminal_enabled: checked },
-                    checked ? "Terminal turned on" : "Terminal turned off"
+                    checked ? t("system.terminal.on") : t("system.terminal.off")
                   )
                 }
               />
             </Field>
             <Field orientation="horizontal">
               <FieldContent>
-                <FieldLabel htmlFor="update-check">Update notice</FieldLabel>
+                <FieldLabel htmlFor="update-check">
+                  {t("system.updateCheck.label")}
+                </FieldLabel>
                 <FieldDescription>
-                  Once a day, ask GitHub for the latest Athena release and show
-                  a notice when a newer one is out. Nothing is sent but the
-                  request itself: no version, host name or settings.
-                  {!user.is_admin && " Only admins can change this."}
+                  {t("system.updateCheck.description")}
+                  {!user.is_admin && ` ${t("system.adminOnly")}`}
                 </FieldDescription>
               </FieldContent>
               <Switch
@@ -118,8 +118,8 @@ export function SystemForm() {
                   update(
                     { ...settings, update_check: checked },
                     checked
-                      ? "Update notice turned on"
-                      : "Update notice turned off"
+                      ? t("system.updateCheck.on")
+                      : t("system.updateCheck.off")
                   )
                 }
               />

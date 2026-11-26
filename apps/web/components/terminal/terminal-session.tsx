@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { useLatest } from "@/hooks/use-latest"
+import i18n from "@/lib/i18n"
 
 import { getCsrfToken } from "@workspace/api-client"
 import {
@@ -22,8 +24,8 @@ function closeReason(event: CloseEvent): string {
   // eslint-disable-next-line no-control-regex
   const reason = event.reason.replace(/[\u0000-\u001f\u007f-\u009f]/g, "")
   if (reason) return reason
-  if (event.code === 1006) return "The connection to Athena was lost"
-  return `Disconnected (code ${event.code})`
+  if (event.code === 1006) return i18n.t("terminal:session.lost")
+  return i18n.t("terminal:session.closedCode", { code: event.code })
 }
 
 /**
@@ -40,6 +42,7 @@ export function TerminalSession({
   onStateChange?: (state: SessionState) => void
   className?: string
 }) {
+  const { t } = useTranslation("terminal")
   const termRef = React.useRef<TerminalHandle>(null)
   const wsRef = React.useRef<WebSocket | null>(null)
   const notify = useLatest(onStateChange)
@@ -107,7 +110,11 @@ export function TerminalSession({
     <Terminal
       ref={termRef}
       className={className}
-      aria-label={target === "host" ? "Host terminal" : "Container shell"}
+      aria-label={
+        target === "host"
+          ? t("session.hostTerminal")
+          : t("session.containerShell")
+      }
       onReady={connect}
       onData={(data) => send({ type: "input", data })}
       onResize={({ cols, rows }) => send({ type: "resize", cols, rows })}

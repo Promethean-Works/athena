@@ -1,1 +1,196 @@
-{}
+{
+  "page": {
+    "description": "Apps são projetos compose gerenciados pelo Athena."
+  },
+  "newApp": "Novo app",
+  "open": "Abrir",
+  "list": {
+    "failed": "Não foi possível listar os apps"
+  },
+  "status": {
+    "running": "Em execução",
+    "partial": "{{running}}/{{total}} em execução",
+    "stopped": "Parado",
+    "notDeployed": "Não implantado"
+  },
+  "actions": {
+    "restart": "Reiniciar",
+    "stop": "Parar",
+    "start": "Iniciar",
+    "updateImages": "Atualizar imagens",
+    "remove": "Remover"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Não foi possível iniciar {{name}}",
+      "stop": "Não foi possível parar {{name}}",
+      "restart": "Não foi possível reiniciar {{name}}",
+      "update": "Não foi possível atualizar {{name}}",
+      "remove": "Não foi possível remover {{name}}",
+      "save": "Não foi possível salvar {{name}}",
+      "saveSettings": "Não foi possível salvar as configurações de {{name}}",
+      "deploy": "Não foi possível implantar {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Remover {{name}}?",
+    "description": "Os contêineres dele são parados e removidos, e o Athena esquece o app.",
+    "deleteData": "Apagar também os volumes e a pasta de dados. Isso não pode ser desfeito.",
+    "cancel": "Cancelar",
+    "confirm": "Remover"
+  },
+  "grid": {
+    "emptyTitle": "Nenhum app ainda",
+    "emptyDescription": "Implante um arquivo compose ou converta um comando <code>docker run</code>.",
+    "containerCount_one": "{{count}} contêiner",
+    "containerCount_other": "{{count}} contêineres",
+    "fromDockerRun": "de um docker run",
+    "actionsFor": "Ações para {{name}}"
+  },
+  "containerState": {
+    "running": "em execução",
+    "exited": "encerrado",
+    "dead": "morto",
+    "paused": "pausado",
+    "created": "criado",
+    "restarting": "reiniciando"
+  },
+  "detail": {
+    "loadFailed": "Não foi possível carregar o app",
+    "loadFailedNamed": "Não foi possível carregar {{name}}",
+    "tabContainers": "Contêineres",
+    "tabCompose": "Compose",
+    "tabSettings": "Configurações",
+    "tabBackups": "Backups",
+    "noContainers": "Nenhum contêiner",
+    "noContainersHint": "Inicie o app para criar os contêineres dele.",
+    "logs": "Logs",
+    "shell": "Shell",
+    "composeHelp": "Ao salvar, a versão anterior fica guardada como compose.prev.yaml e o app é reimplantado.",
+    "settingsHelp": "Os valores do formulário de instalação (.env). Altere uma porta ou pasta aqui e salve para reimplantar. Pode conter senhas geradas.",
+    "saveRedeploy": "Salvar e reimplantar",
+    "discard": "Descartar alterações"
+  },
+  "new": {
+    "nameInvalid": "Use letras minúsculas, dígitos, hífens ou sublinhados, começando com uma letra ou dígito.",
+    "convertFailed": "Não foi possível converter o comando",
+    "validationFailed": "Falha na validação",
+    "name": "Nome",
+    "nameHelp": "Também é o nome do projeto compose. Não pode ser alterado depois.",
+    "tabCompose": "Arquivo compose",
+    "tabRun": "A partir de docker run",
+    "reviewConverted": "Revise o arquivo convertido",
+    "upload": "Enviar arquivo",
+    "composeHelp": "Use <code>${ATHENA_APP_DATA}</code> para arquivos que devem ficar na pasta de dados deste app no servidor.",
+    "runLabel": "Comando docker run",
+    "runHelp": "Ele é convertido em um arquivo compose que você pode revisar antes de implantar. Nada é executado ainda.",
+    "convert": "Converter para compose",
+    "valid": "O arquivo compose é válido",
+    "invalid": "O arquivo compose tem erros",
+    "validate": "Validar",
+    "deploy": "Implantar"
+  },
+  "compose": {
+    "serializationFailed": "Falha na serialização",
+    "addService": "Adicionar serviço",
+    "tabs": {
+      "settings": "Configurações",
+      "networks": "Redes",
+      "volumes": "Volumes",
+      "raw": "YAML bruto"
+    },
+    "restart": {
+      "no": "Não (não reiniciar)",
+      "always": "Sempre",
+      "unlessStopped": "A menos que seja parado",
+      "onFailure": "Em caso de falha"
+    },
+    "volumeMode": {
+      "rw": "Leitura/Escrita",
+      "ro": "Somente leitura"
+    },
+    "table": {
+      "actions": "Ações",
+      "empty": "Nenhum item ainda",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo",
+      "remove": "Remover",
+      "add": "Adicionar"
+    },
+    "service": {
+      "collapse": "Recolher",
+      "expand": "Expandir",
+      "namePlaceholder": "nome do serviço",
+      "noImage": "sem imagem",
+      "image": "Imagem",
+      "imageHelp": "Nome da imagem Docker. Funciona com Docker Hub, GHCR e outros registros.",
+      "restartPolicy": "Política de reinício"
+    },
+    "ports": {
+      "title": "Portas",
+      "host": "Porta do host",
+      "container": "Porta do contêiner",
+      "protocol": "Protocolo",
+      "help": "Mapeie portas do host para portas do contêiner. Deixe a porta do host vazia para atribuição aleatória."
+    },
+    "volumes": {
+      "title": "Volumes",
+      "host": "Caminho no host / Nome do volume",
+      "container": "Caminho no contêiner",
+      "mode": "Modo",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data ou nome-do-volume",
+      "help": "Monte caminhos do host ou volumes nomeados. Use <code>${ATHENA_APP_DATA}</code> para a pasta de dados deste app."
+    },
+    "env": {
+      "title": "Variáveis de ambiente",
+      "help": "Variáveis de ambiente passadas ao contêiner. Os valores do formulário de instalação (.env) também ficam disponíveis.",
+      "valuePlaceholder": "valor"
+    },
+    "keyValue": {
+      "key": "Chave",
+      "value": "Valor"
+    },
+    "command": {
+      "command": "Comando",
+      "commandPlaceholder": "Substitui o comando padrão da imagem",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Substitui o entrypoint padrão da imagem",
+      "workingDir": "Diretório de trabalho",
+      "user": "Usuário"
+    },
+    "resources": {
+      "title": "Limites de recursos",
+      "cpuLimit": "Limite de CPU",
+      "cpuCores": "Núcleos de CPU",
+      "memoryLimit": "Limite de memória",
+      "memoryLimitHelp": "ex.: 512M, 1G",
+      "cpuReservation": "Reserva de CPU",
+      "memoryReservation": "Reserva de memória",
+      "memoryReservationHelp": "ex.: 256M"
+    },
+    "health": {
+      "title": "Verificação de integridade",
+      "test": "Comando de teste",
+      "interval": "Intervalo",
+      "timeout": "Tempo limite",
+      "retries": "Tentativas"
+    },
+    "labels": {
+      "title": "Rótulos",
+      "valuePlaceholder": "Meu serviço"
+    },
+    "networks": {
+      "title": "Redes",
+      "help": "Nomes de redes separados por vírgula. Defina as redes na aba Redes."
+    },
+    "dependsOn": {
+      "title": "Depende de",
+      "help": "Nomes de serviços separados por vírgula que precisam iniciar antes deste."
+    },
+    "entries": {
+      "name": "Nome",
+      "driver": "Driver",
+      "external": "Externa"
+    }
+  }
+}

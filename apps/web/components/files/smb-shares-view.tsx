@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { Trans, useTranslation } from "react-i18next"
+import type { TFunction } from "i18next"
 import Link from "next/link"
 import { ArrowLeftIcon, PlusIcon, Trash2Icon } from "lucide-react"
 
@@ -58,6 +60,7 @@ type Location = Schemas["LocationOut"]
 
 /** /files/smb: list the SMB shares Athena published and create new ones. */
 export function SmbSharesView() {
+  const { t } = useTranslation("files")
   const capability = useCapability("shares.smb")
   const [shares, setShares] = React.useState<SmbShare[] | null>(null)
   const [locations, setLocations] = React.useState<Location[] | null>(null)
@@ -111,29 +114,26 @@ export function SmbSharesView() {
     await load()
     toast.add({
       type: "success",
-      title: "SMB share created",
+      title: t("smb.created"),
       description: `\\\\server\\${data.name}`,
     })
   }
 
   async function removeShare(id: number) {
-    if (
-      !window.confirm("Remove this SMB share? The folder stays on the server.")
-    )
-      return
+    if (!window.confirm(t("smb.confirmRemove"))) return
     const { error: err } = await api.DELETE("/api/shares/smb/{share_id}", {
       params: { path: { share_id: id } },
     })
     if (err) {
       toast.add({
         type: "error",
-        title: "Couldn't remove",
+        title: t("smb.removeFailed"),
         description: errorMessage(err),
       })
       return
     }
     await load()
-    toast.add({ type: "success", title: "SMB share removed" })
+    toast.add({ type: "success", title: t("smb.removed") })
   }
 
   const ready = capability?.status === "ready"
@@ -152,31 +152,31 @@ export function SmbSharesView() {
           nativeButton={false}
         >
           <ArrowLeftIcon />
-          Files
+          {t("smb.files")}
         </Button>
-        <h2 className="font-heading text-lg font-medium">SMB shares</h2>
+        <h2 className="font-heading text-lg font-medium">
+          {t("smb.title")}
+        </h2>
       </div>
 
       {!ready && (
         <div className="rounded-lg border p-4">
           {capability?.status === "unsupported" ? (
             <>
-              <h3 className="font-medium">
-                SMB shares aren't available on this computer
-              </h3>
+              <h3 className="font-medium">{t("smb.unsupportedTitle")}</h3>
               <p className="text-sm text-muted-foreground">
-                Creating SMB shares from Athena isn't wired on macOS or Windows
-                yet. On Linux, install Samba (
-                <code className="font-mono text-xs">apt install samba</code>)
-                and Athena will offer it here.
+                <Trans
+                  i18nKey="smb.unsupportedDescription"
+                  ns="files"
+                  components={{ code: <code className="font-mono text-xs" /> }}
+                />
               </p>
             </>
           ) : (
             <>
-              <h3 className="font-medium">SMB shares aren't set up yet</h3>
+              <h3 className="font-medium">{t("smb.notSetUpTitle")}</h3>
               <p className="text-sm text-muted-foreground">
-                Install the Samba server on this host, then shares can be
-                published over the network as \\\\server\\share.
+                {t("smb.notSetUpDescription")}
               </p>
             </>
           )}
@@ -186,7 +186,7 @@ export function SmbSharesView() {
       <div className="flex items-center justify-between">
         <Button onClick={() => setDialogOpen(true)} disabled={pending}>
           <PlusIcon className="mr-2 size-4 shrink-0" />
-          Create share
+          {t("smb.createShare")}
         </Button>
       </div>
 
@@ -196,9 +196,9 @@ export function SmbSharesView() {
             <EmptyMedia variant="icon">
               <Trash2Icon />
             </EmptyMedia>
-            <EmptyTitle>No SMB shares</EmptyTitle>
+            <EmptyTitle>{t("smb.emptyTitle")}</EmptyTitle>
             <EmptyDescription>
-              Create a share to publish a file location over the network.
+              {t("smb.emptyDescription")}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -207,23 +207,27 @@ export function SmbSharesView() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden md:table-cell">Location</TableHead>
+                <TableHead>{t("smb.columnName")}</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  {t("smb.columnLocation")}
+                </TableHead>
                 <TableHead className="hidden lg:table-cell">
-                  Path on server
+                  {t("smb.columnPath")}
                 </TableHead>
                 <TableHead className="hidden sm:table-cell">
-                  Read only
+                  {t("smb.columnReadOnly")}
                 </TableHead>
-                <TableHead className="hidden sm:table-cell">Guest ok</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  {t("smb.columnGuest")}
+                </TableHead>
                 <TableHead className="w-0">
-                  <span className="sr-only">Actions</span>
+                  <span className="sr-only">{t("smb.columnActions")}</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {shares.map((share) =>
-                renderShareRow(share, pending, removeShare)
+                renderShareRow(share, pending, removeShare, t)
               )}
             </TableBody>
           </Table>
@@ -233,10 +237,11 @@ export function SmbSharesView() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="truncate">Create SMB share</DialogTitle>
+            <DialogTitle className="truncate">
+              {t("smb.dialogTitle")}
+            </DialogTitle>
             <DialogDescription>
-              Publish a file location over the network so other computers can
-              open it as a network drive.
+              {t("smb.dialogDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -246,10 +251,10 @@ export function SmbSharesView() {
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="smb-share-location">
-                  Folder to share
+                  {t("smb.folderToShare")}
                 </FieldLabel>
                 <FieldDescription>
-                  Pick a file location. Its contents become the share.
+                  {t("smb.folderHint")}
                 </FieldDescription>
                 <Select
                   items={locationItems}
@@ -258,7 +263,7 @@ export function SmbSharesView() {
                   disabled={pending || locations === null}
                 >
                   <SelectTrigger id="smb-share-location" className="w-full">
-                    <SelectValue placeholder="Select a location" />
+                    <SelectValue placeholder={t("smb.selectLocation")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -273,16 +278,17 @@ export function SmbSharesView() {
                 {formError ? <FieldError>{formError}</FieldError> : null}
               </Field>
               <Field>
-                <FieldLabel htmlFor="smb-share-name">Share name</FieldLabel>
+                <FieldLabel htmlFor="smb-share-name">
+                  {t("smb.shareName")}
+                </FieldLabel>
                 <FieldDescription>
-                  The name on the network, e.g. "Media". Letters, digits, _. - ,
-                  up to 63 chars and not starting with -.
+                  {t("smb.shareNameHint")}
                 </FieldDescription>
                 <Input
                   id="smb-share-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Media"
+                  placeholder={t("smb.shareNamePlaceholder")}
                   maxLength={63}
                   disabled={pending}
                 />
@@ -291,10 +297,10 @@ export function SmbSharesView() {
                 <Field orientation="horizontal">
                   <FieldContent>
                     <FieldLabel htmlFor="smb-share-read-only">
-                      Read only
+                      {t("smb.readOnly")}
                     </FieldLabel>
                     <FieldDescription>
-                      Visitors can read but not add, change or delete files.
+                      {t("smb.readOnlyHint")}
                     </FieldDescription>
                     <Switch
                       id="smb-share-read-only"
@@ -307,11 +313,10 @@ export function SmbSharesView() {
                 <Field orientation="horizontal">
                   <FieldContent>
                     <FieldLabel htmlFor="smb-share-guest-ok">
-                      Guest ok
+                      {t("smb.guestOk")}
                     </FieldLabel>
                     <FieldDescription>
-                      Anyone on the network can connect without a username or
-                      password.
+                      {t("smb.guestOkHint")}
                     </FieldDescription>
                     <Switch
                       id="smb-share-guest-ok"
@@ -330,11 +335,11 @@ export function SmbSharesView() {
                 onClick={() => setDialogOpen(false)}
                 disabled={pending}
               >
-                Cancel
+                {t("smb.cancel")}
               </Button>
               <Button type="submit" form="new-smb-share" disabled={pending}>
                 {pending ? <Spinner /> : null}
-                Create share
+                {t("smb.createShare")}
               </Button>
             </DialogFooter>
           </form>
@@ -347,7 +352,8 @@ export function SmbSharesView() {
 function renderShareRow(
   share: SmbShare,
   pending: boolean,
-  onRemove: (id: number) => void
+  onRemove: (id: number) => void,
+  t: TFunction<"files">
 ) {
   return (
     <TableRow key={share.id}>
@@ -366,16 +372,16 @@ function renderShareRow(
         </div>
       </TableCell>
       <TableCell className="hidden sm:table-cell">
-        {share.read_only ? "Yes" : "No"}
+        {share.read_only ? t("smb.yes") : t("smb.no")}
       </TableCell>
       <TableCell className="hidden sm:table-cell">
-        {share.guest_ok ? "Yes" : "No"}
+        {share.guest_ok ? t("smb.yes") : t("smb.no")}
       </TableCell>
       <TableCell>
         <Button
           variant="outline"
           size="icon"
-          aria-label={`Remove SMB share ${share.name}`}
+          aria-label={t("smb.removeShare", { name: share.name })}
           onClick={() => void onRemove(share.id)}
           disabled={pending}
         >

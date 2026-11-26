@@ -1,1 +1,196 @@
-{}
+{
+  "page": {
+    "description": "Apps are compose projects that Athena manages."
+  },
+  "newApp": "New app",
+  "open": "Open",
+  "list": {
+    "failed": "Couldn't list apps"
+  },
+  "status": {
+    "running": "Running",
+    "partial": "{{running}}/{{total}} running",
+    "stopped": "Stopped",
+    "notDeployed": "Not deployed"
+  },
+  "actions": {
+    "restart": "Restart",
+    "stop": "Stop",
+    "start": "Start",
+    "updateImages": "Update images",
+    "remove": "Remove"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Couldn't start {{name}}",
+      "stop": "Couldn't stop {{name}}",
+      "restart": "Couldn't restart {{name}}",
+      "update": "Couldn't update {{name}}",
+      "remove": "Couldn't remove {{name}}",
+      "save": "Couldn't save {{name}}",
+      "saveSettings": "Couldn't save the settings of {{name}}",
+      "deploy": "Couldn't deploy {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Remove {{name}}?",
+    "description": "Its containers are stopped and removed, and Athena forgets the app.",
+    "deleteData": "Also delete its volumes and data folder. This can't be undone.",
+    "cancel": "Cancel",
+    "confirm": "Remove"
+  },
+  "grid": {
+    "emptyTitle": "No apps yet",
+    "emptyDescription": "Deploy a compose file or convert a <code>docker run</code> command.",
+    "containerCount_one": "{{count}} container",
+    "containerCount_other": "{{count}} containers",
+    "fromDockerRun": "from docker run",
+    "actionsFor": "Actions for {{name}}"
+  },
+  "containerState": {
+    "running": "running",
+    "exited": "exited",
+    "dead": "dead",
+    "paused": "paused",
+    "created": "created",
+    "restarting": "restarting"
+  },
+  "detail": {
+    "loadFailed": "Couldn't load the app",
+    "loadFailedNamed": "Couldn't load {{name}}",
+    "tabContainers": "Containers",
+    "tabCompose": "Compose",
+    "tabSettings": "Settings",
+    "tabBackups": "Backups",
+    "noContainers": "No containers",
+    "noContainersHint": "Start the app to create its containers.",
+    "logs": "Logs",
+    "shell": "Shell",
+    "composeHelp": "Saving keeps the previous version as compose.prev.yaml and redeploys the app.",
+    "settingsHelp": "The values from the install form (.env). Change a port or folder here, then save to redeploy. It may contain generated passwords.",
+    "saveRedeploy": "Save and redeploy",
+    "discard": "Discard changes"
+  },
+  "new": {
+    "nameInvalid": "Use lowercase letters, digits, dashes or underscores, starting with a letter or digit.",
+    "convertFailed": "Couldn't convert the command",
+    "validationFailed": "Validation failed",
+    "name": "Name",
+    "nameHelp": "Also the compose project name. It can't be changed later.",
+    "tabCompose": "Compose file",
+    "tabRun": "From docker run",
+    "reviewConverted": "Review the converted file",
+    "upload": "Upload file",
+    "composeHelp": "Use <code>${ATHENA_APP_DATA}</code> for files that should live in this app's data folder on the server.",
+    "runLabel": "docker run command",
+    "runHelp": "It's converted to a compose file you can review before deploying. Nothing runs yet.",
+    "convert": "Convert to compose",
+    "valid": "The compose file is valid",
+    "invalid": "The compose file has errors",
+    "validate": "Validate",
+    "deploy": "Deploy"
+  },
+  "compose": {
+    "serializationFailed": "Serialization failed",
+    "addService": "Add service",
+    "tabs": {
+      "settings": "Settings",
+      "networks": "Networks",
+      "volumes": "Volumes",
+      "raw": "Raw YAML"
+    },
+    "restart": {
+      "no": "No (don't restart)",
+      "always": "Always",
+      "unlessStopped": "Unless stopped",
+      "onFailure": "On failure"
+    },
+    "volumeMode": {
+      "rw": "Read/Write",
+      "ro": "Read-only"
+    },
+    "table": {
+      "actions": "Actions",
+      "empty": "No items yet",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove",
+      "add": "Add"
+    },
+    "service": {
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "namePlaceholder": "service name",
+      "noImage": "no image",
+      "image": "Image",
+      "imageHelp": "Docker image name. Supports Docker Hub, GHCR, and other registries.",
+      "restartPolicy": "Restart policy"
+    },
+    "ports": {
+      "title": "Ports",
+      "host": "Host port",
+      "container": "Container port",
+      "protocol": "Protocol",
+      "help": "Map host ports to container ports. Leave host port empty for random assignment."
+    },
+    "volumes": {
+      "title": "Volumes",
+      "host": "Host path / Volume name",
+      "container": "Container path",
+      "mode": "Mode",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data or volume-name",
+      "help": "Bind-mount host paths or named volumes. Use <code>${ATHENA_APP_DATA}</code> for this app's data folder."
+    },
+    "env": {
+      "title": "Environment variables",
+      "help": "Environment variables passed to the container. Values from the install form (.env) are also available.",
+      "valuePlaceholder": "value"
+    },
+    "keyValue": {
+      "key": "Key",
+      "value": "Value"
+    },
+    "command": {
+      "command": "Command",
+      "commandPlaceholder": "Overrides the image's default command",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Overrides the image's default entrypoint",
+      "workingDir": "Working directory",
+      "user": "User"
+    },
+    "resources": {
+      "title": "Resource limits",
+      "cpuLimit": "CPU limit",
+      "cpuCores": "CPU cores",
+      "memoryLimit": "Memory limit",
+      "memoryLimitHelp": "e.g. 512M, 1G",
+      "cpuReservation": "CPU reservation",
+      "memoryReservation": "Memory reservation",
+      "memoryReservationHelp": "e.g. 256M"
+    },
+    "health": {
+      "title": "Health check",
+      "test": "Test command",
+      "interval": "Interval",
+      "timeout": "Timeout",
+      "retries": "Retries"
+    },
+    "labels": {
+      "title": "Labels",
+      "valuePlaceholder": "My service"
+    },
+    "networks": {
+      "title": "Networks",
+      "help": "Comma-separated network names. Define networks in the Networks tab."
+    },
+    "dependsOn": {
+      "title": "Depends on",
+      "help": "Comma-separated service names that must start before this one."
+    },
+    "entries": {
+      "name": "Name",
+      "driver": "Driver",
+      "external": "External"
+    }
+  }
+}

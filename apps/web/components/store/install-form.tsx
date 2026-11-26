@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "react-i18next"
 import { ChevronDownIcon, DownloadIcon } from "lucide-react"
 
 import { api, type Schemas } from "@workspace/api-client"
@@ -49,6 +50,7 @@ function FieldControl({
   invalid: boolean
   onChange: (value: string) => void
 }) {
+  const { t } = useTranslation("store")
   const id = `field-${field.key}`
   if (field.type === "boolean") {
     return (
@@ -95,7 +97,7 @@ function FieldControl({
             : "text"
       }
       inputMode={field.type === "port" ? "numeric" : undefined}
-      placeholder={field.generated ? "Generated if left empty" : undefined}
+      placeholder={field.generated ? t("installForm.generated") : undefined}
       autoComplete={field.type === "password" ? "new-password" : "off"}
       className={field.type === "path" ? "font-mono text-xs" : undefined}
       aria-invalid={invalid || undefined}
@@ -104,6 +106,7 @@ function FieldControl({
 }
 
 export function InstallForm({ app, variant }: { app: Detail; variant: Variant }) {
+  const { t } = useTranslation("store")
   const router = useRouter()
   const [name, setName] = React.useState(app.suggested_name)
   const [values, setValues] = React.useState<Record<string, string>>(() =>
@@ -128,7 +131,7 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
 
   const nameError =
     name && !NAME_RE.test(name)
-      ? "Use lowercase letters, digits, dashes or underscores."
+      ? t("installForm.nameInvalid")
       : (errors.__name ?? null)
 
   async function install(event: React.FormEvent) {
@@ -153,7 +156,7 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
       setErrors({ __name: detail })
       return
     }
-    jobs.show(result, `install ${app.title}`)
+    jobs.show(result, t("installForm.jobLabel", { title: app.title }))
   }
 
   const basic = variant.fields.filter((f) => !f.advanced)
@@ -184,7 +187,7 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
     <form onSubmit={install} className="flex flex-col gap-6">
       <FieldGroup>
         <Field data-invalid={nameError ? true : undefined}>
-          <FieldLabel htmlFor="install-name">App name</FieldLabel>
+          <FieldLabel htmlFor="install-name">{t("installForm.appName")}</FieldLabel>
           <Input
             id="install-name"
             value={name}
@@ -196,7 +199,7 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
             <FieldError>{nameError}</FieldError>
           ) : (
             <FieldDescription>
-              Install the same app twice under different names if you need to.
+              {t("installForm.nameHint")}
             </FieldDescription>
           )}
         </Field>
@@ -210,7 +213,7 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
               <Button variant="ghost" size="sm" className="group/adv -ml-2" />
             }
           >
-            Advanced settings
+            {t("installForm.advanced")}
             <ChevronDownIcon
               data-icon="inline-end"
               className="transition-transform group-data-panel-open/adv:rotate-180"
@@ -231,7 +234,7 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
           ) : (
             <DownloadIcon data-icon="inline-start" />
           )}
-          Install {app.title}
+          {t("installForm.install", { title: app.title })}
         </Button>
       </div>
       {jobs.dialog}

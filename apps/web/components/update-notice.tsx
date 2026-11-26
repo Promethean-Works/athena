@@ -1,6 +1,7 @@
 "use client"
 
 import { ArrowUpCircleIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { api } from "@workspace/api-client"
 import {
@@ -18,16 +19,17 @@ import { useApi } from "@/hooks/use-api"
  * nothing when there's no newer release, the check is off or it couldn't run.
  */
 export function UpdateNotice() {
+  const { t } = useTranslation()
   const update = useApi(() => api.GET("/api/system/update"))
   if (update.status !== "ok" || !update.data.available) return null
   const { latest, current, release_url } = update.data
   return (
     <Alert>
       <ArrowUpCircleIcon />
-      <AlertTitle>Athena {latest} is available</AlertTitle>
+      <AlertTitle>{t("update.notice.title", { latest })}</AlertTitle>
       <AlertDescription className="flex flex-col gap-3">
         <p>
-          This server runs {current}.{" "}
+          {t("update.notice.runs", { current })}{" "}
           {release_url && (
             <a
               href={release_url}
@@ -35,7 +37,7 @@ export function UpdateNotice() {
               rel="noreferrer"
               className="underline underline-offset-4"
             >
-              See what&apos;s new
+              {t("update.notice.whatsNew")}
             </a>
           )}
         </p>
