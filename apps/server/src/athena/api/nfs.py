@@ -64,10 +64,13 @@ async def create_nfs_share(
     body: NfsShareIn, request: Request, user: Authed, db: DbSession
 ) -> NfsShareOut:
     """Export a location over NFS to the listed clients (501 if the host can't)."""
-    await require_share_capability(request, "shares.nfs")
+    cap = await require_share_capability(request, "shares.nfs")
+    flavor = nfs.flavor_for(cap.provider)
     try:
         entry = await _run(
-            lambda: nfs.create_share(db, body.location, body.clients, read_only=body.read_only)
+            lambda: nfs.create_share(
+                db, body.location, body.clients, read_only=body.read_only, flavor=flavor
+            )
         )
     except nfs.FileError as exc:
         raise _fail(exc) from exc
@@ -87,9 +90,10 @@ async def remove_nfs_share(share_id: int, request: Request, user: Authed, db: Db
     share = db.get(NfsShare, share_id)
     if share is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such NFS share")
-    await require_share_capability(request, "shares.nfs")
+    cap = await require_share_capability(request, "shares.nfs")
+    flavor = nfs.flavor_for(cap.provider)
     try:
-        await _run(lambda: nfs.remove_share(db, share_id))
+        await _run(lambda: nfs.remove_share(db, share_id, flavor=flavor))
     except nfs.FileError as exc:
         raise _fail(exc) from exc
     audit.record(db, user.user.username, "nfs.share.remove", f"NFS:{share.path}")

@@ -1,8 +1,9 @@
 """NFS shares: export a file location over the network from the host's NFS server.
 
 Linux (Athena runs as root there): Athena owns `/etc/exports.d/athena.exports`, rewrites
-it from its own table after every change and runs `exportfs -ra`. Other operating
-systems report `shares.nfs` as unsupported until their providers exist.
+it from its own table after every change and runs `exportfs -ra`. macOS (Athena as root):
+Athena keeps a marked block in `/etc/exports` and runs `nfsd update`. Windows has no NFS
+server outside Windows Server and reports `shares.nfs` as unsupported.
 
 See docs/specs/network-shares.md.
 """
@@ -10,6 +11,7 @@ See docs/specs/network-shares.md.
 from __future__ import annotations
 
 import ipaddress
+import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -29,6 +31,11 @@ HOSTNAME = re.compile(
 )
 MAX_CLIENTS = 32
 HEADER = "# Managed by Athena. Changes here are overwritten.\n"
+
+
+MACOS_EXPORTS = Path("/etc/exports")
+BEGIN = "# BEGIN athena (managed by Athena, don't edit between these lines)\n"
+END = "# END athena\n"
 
 
 class AlreadyExported(Conflict):
@@ -94,6 +101,92 @@ def render(shares: list[NfsShare]) -> str:
     return "".join(lines)
 
 
+def _escape_macos(path: str) -> str:
+    """exports(5) on macOS: spaces are escaped with a backslash (quotes are refused earlier)."""
+    return path.replace(" ", "\\ ")
+
+
+def _split_client(client: str) -> ipaddress.IPv4Network | ipaddress.IPv6Network | str:
+    """A stored client as a network, or the host name."""
+    try:
+        return ipaddress.ip_network(client.replace("[", "").replace("]", ""), strict=False)
+    except ValueError:
+        return client
+
+
+def render_macos_block(shares: list[NfsShare]) -> str:
+    """The Athena block of /etc/exports: one line per host list and one per network."""
+    if not shares:
+        return ""
+    lines = [BEGIN]
+    for share in sorted(shares, key=lambda s: s.path):
+        path = _escape_macos(os.path.realpath(share.path))
+        ro = " -ro" if share.read_only else ""
+        hosts: list[str] = []
+        nets: list[ipaddress.IPv4Network | ipaddress.IPv6Network] = []
+        for client in share.clients.split(","):
+            parsed = _split_client(client)
+            if isinstance(parsed, str):
+                hosts.append(parsed)
+            elif parsed.version == 4 and parsed.num_addresses == 1:
+                hosts.append(str(parsed.network_address))
+            else:
+                nets.append(parsed)
+        if hosts:
+            lines.append(f"{path}{ro} {' '.join(hosts)}\n")
+        for net in nets:
+            lines.append(f"{path}{ro} -network {net.network_address} -mask {net.netmask}\n")
+    lines.append(END)
+    return "".join(lines)
+
+
+def merge_block(old: str | None, block: str) -> str:
+    """`old` with the Athena block replaced by `block` (appended if there was none,
+    dropped if `block` is empty). Lines outside the markers are never touched."""
+    text = old or ""
+    start = text.find(BEGIN)
+    if start != -1:
+        end = text.find(END, start)
+        stop = len(text) if end == -1 else end + len(END)
+        text = text[:start] + text[stop:]
+    if not block:
+        return text
+    if text and not text.endswith("\n"):
+        text += "\n"
+    return text + block
+
+
+@dataclass(frozen=True)
+class Flavor:
+    """How one operating system's NFS server is configured."""
+
+    exports: Path
+    render: Callable[[str | None, list[NfsShare]], str]
+    """(current file text or None, every share) -> the new file text."""
+    reload: Callable[[], None]
+
+
+def _reload_linux() -> None:
+    netshare.run_reload(["exportfs", "-ra"], "the NFS exports")
+
+
+def _reload_macos() -> None:
+    netshare.run_command(["nfsd", "checkexports"], "reload the NFS exports")
+    netshare.run_command(["nfsd", "enable"], "start the NFS server")
+    netshare.run_command(["nfsd", "update"], "reload the NFS exports")
+
+
+LINUX = Flavor(NFS_EXPORTS, lambda _old, shares: render(shares), _reload_linux)
+MACOS = Flavor(
+    MACOS_EXPORTS, lambda old, shares: merge_block(old, render_macos_block(shares)), _reload_macos
+)
+
+
+def flavor_for(provider: str | None) -> Flavor:
+    """The flavour for a `shares.nfs` capability's provider."""
+    return MACOS if provider == "nfsd" else LINUX
+
+
 def _entry(db: Session, share: NfsShare) -> NfsShareEntry:
     loc = db.get(FileLocation, share.location_id)
     return NfsShareEntry(
@@ -113,23 +206,22 @@ def list_shares(db: Session) -> list[NfsShareEntry]:
     return [_entry(db, share) for share in rows]
 
 
-def _reload() -> None:
-    netshare.run_reload(["exportfs", "-ra"], "the NFS exports")
-
-
 def create_share(
     db: Session,
     location_id: int,
     clients: list[str],
     *,
     read_only: bool = False,
-    exports: Path = NFS_EXPORTS,
-    reload: Callable[[], None] = _reload,
+    flavor: Flavor = LINUX,
+    exports: Path | None = None,
+    reload: Callable[[], None] | None = None,
 ) -> NfsShareEntry:
     """Export `location_id` to `clients`. The caller has checked the `shares.nfs` capability."""
     loc = get_location(db, location_id)
     allowed = clean_clients(clients)
-    if "\n" in loc.path or "\r" in loc.path:
+    if any(c in loc.path for c in "\n\r") or (
+        flavor is MACOS and any(c in loc.path for c in "'\"\\")
+    ):
         raise BadPath("This folder's path can't be exported")
     if db.exec(select(NfsShare).where(NfsShare.path == loc.path)).first() is not None:
         raise AlreadyExported(f"{loc.name} is already shared over NFS")
@@ -138,21 +230,37 @@ def create_share(
         location_id=location_id, path=loc.path, clients=",".join(allowed), read_only=read_only
     )
     current = list(db.exec(select(NfsShare)).all())
-    netshare.swap_config(exports, render([*current, share]), reload)
+    _apply(flavor, exports, reload, [*current, share])
     db.add(share)
     db.commit()
     db.refresh(share)
     return _entry(db, share)
 
 
+def _apply(
+    flavor: Flavor,
+    exports: Path | None,
+    reload: Callable[[], None] | None,
+    shares: list[NfsShare],
+) -> None:
+    path = exports or flavor.exports
+    old = path.read_text(encoding="utf-8") if path.exists() else None
+    netshare.swap_config(path, flavor.render(old, shares), reload or flavor.reload)
+
+
 def remove_share(
-    db: Session, share_id: int, *, exports: Path = NFS_EXPORTS, reload: Callable[[], None] = _reload
+    db: Session,
+    share_id: int,
+    *,
+    flavor: Flavor = LINUX,
+    exports: Path | None = None,
+    reload: Callable[[], None] | None = None,
 ) -> None:
     """Stop exporting a share and drop its tracking row."""
     share = db.get(NfsShare, share_id)
     if share is None:
         raise NotFound("No such NFS share")
     rest = [s for s in db.exec(select(NfsShare)).all() if s.id != share_id]
-    netshare.swap_config(exports, render(rest), reload)
+    _apply(flavor, exports, reload, rest)
     db.delete(share)
     db.commit()

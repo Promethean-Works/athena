@@ -3,8 +3,8 @@
 Linux (Athena runs as a root systemd service there): Athena adds a share section to
 /etc/samba/smb.conf and reloads smbd, so the folder is available as
 \\\\server\\share on the LAN. macOS and Windows have SMB sharing built in, but
-creating a share from Athena isn't wired on those operating systems yet. The API checks
-the `shares.smb` capability before calling in here.
+creating a share from Athena is wired on macOS (`sharing`, Athena as root); Windows isn't yet.
+The API checks the `shares.smb` capability before calling in here and passes its provider.
 
 See docs/design/files.md ("SMB/NFS where the OS supports it").
 """
@@ -106,6 +106,27 @@ def _without_share_section(text: str, name: str) -> str:
     return "".join(out)
 
 
+def _macos_add(name: str, path: str, read_only: bool, guest_ok: bool) -> None:
+    """macOS: `sharing -a` publishes a share point over SMB. The record name equals the
+    share name, so `sharing -r <name>` removes it again."""
+    argv = [
+        "sharing",
+        "-a",
+        path,
+        "-n",
+        name,
+        "-S",
+        name,
+        "-s",
+        "001",
+        "-g",
+        "001" if guest_ok else "000",
+        "-R",
+        "1" if read_only else "0",
+    ]
+    netshare.run_command(argv, f"share {name}")
+
+
 # ------------------------------------------------------------------ public API
 
 
@@ -116,6 +137,7 @@ def create_share(
     *,
     read_only: bool = False,
     guest_ok: bool = False,
+    provider: str = "samba",
     conf: Path = SMB_CONF,
 ) -> SmbShareEntry:
     """Create an SMB share for `location_id` and publish it through Samba.
@@ -132,9 +154,12 @@ def create_share(
     if taken is not None:
         raise ShareNameTaken(f"An SMB share named {name} already exists")
 
-    old = conf.read_text(encoding="utf-8") if conf.exists() else None
-    new = _with_share_section(old, name, loc.path, read_only, guest_ok)
-    netshare.swap_config(conf, new, _reload_smbd)
+    if provider == "sharing":
+        _macos_add(name, loc.path, read_only, guest_ok)
+    else:
+        old = conf.read_text(encoding="utf-8") if conf.exists() else None
+        new = _with_share_section(old, name, loc.path, read_only, guest_ok)
+        netshare.swap_config(conf, new, _reload_smbd)
 
     share = SmbShare(
         name=name,
@@ -153,6 +178,7 @@ def remove_share(
     db: Session,
     share_id: int,
     *,
+    provider: str = "samba",
     conf: Path = SMB_CONF,
 ) -> None:
     """Remove an SMB share: drop its smb.conf section and the tracking row."""
@@ -160,7 +186,9 @@ def remove_share(
     if share is None:
         raise NotFound("No such SMB share")
 
-    if conf.exists():
+    if provider == "sharing":
+        netshare.run_command(["sharing", "-r", share.name], f"remove the {share.name} share")
+    elif conf.exists():
         new = _without_share_section(conf.read_text(encoding="utf-8"), share.name)
         netshare.swap_config(conf, new, _reload_smbd)
 

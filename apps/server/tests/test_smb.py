@@ -35,9 +35,19 @@ def test_linux_without_samba_is_missing_with_setup() -> None:
     assert "apt install samba" in c.detail
 
 
-def test_macos_and_windows_are_unsupported() -> None:
-    assert caps(FakeProbe(os="darwin"))["shares.smb"].status == "unsupported"
+def test_macos_as_root_is_ready_with_sharing() -> None:
+    c = caps(FakeProbe(os="darwin", binaries={"sharing": "/usr/sbin/sharing"}, root=True))
+    assert (c["shares.smb"].status, c["shares.smb"].provider) == ("ready", "sharing")
+
+
+def test_macos_not_root_needs_privilege() -> None:
+    probe = FakeProbe(os="darwin", binaries={"sharing": "/usr/sbin/sharing"})
+    assert caps(probe)["shares.smb"].status == "needs_privilege"
+
+
+def test_windows_is_unsupported_for_now() -> None:
     assert caps(FakeProbe(os="windows"))["shares.smb"].status == "unsupported"
+    assert caps(FakeProbe(os="darwin"))["shares.smb"].status == "unsupported"  # no `sharing`
 
 
 # ---------------------------------------------------------------- service
@@ -179,3 +189,37 @@ def test_failed_reload_rolls_the_config_back(
             smb.create_share(session, loc_id, SHARE_NAME, conf=conf)
         assert smb.list_shares(session) == []
     assert conf.read_text(encoding="utf-8") == "[global]\n"
+
+
+def test_macos_uses_sharing_to_add_and_remove(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[list[str]] = []
+    monkeypatch.setattr(
+        "athena.files.netshare.run_command", lambda argv, action: calls.append(argv)
+    )
+    db, loc_id = _seed(tmp_path)
+
+    for session in db.session():
+        entry = smb.create_share(
+            session, loc_id, SHARE_NAME, read_only=True, guest_ok=False, provider="sharing"
+        )
+        assert calls[-1] == [
+            "sharing", "-a", entry.path, "-n", SHARE_NAME, "-S", SHARE_NAME,
+            "-s", "001", "-g", "000", "-R", "1",
+        ]  # fmt: skip
+        smb.remove_share(session, entry.id, provider="sharing")
+        assert calls[-1] == ["sharing", "-r", SHARE_NAME]
+        assert smb.list_shares(session) == []
+
+
+def test_macos_failure_is_not_tracked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def refuse(argv: list[str], action: str) -> None:
+        raise ShareReloadFailed(f"Couldn't {action}: nope")
+
+    monkeypatch.setattr("athena.files.netshare.run_command", refuse)
+    db, loc_id = _seed(tmp_path)
+    for session in db.session():
+        with pytest.raises(ShareReloadFailed):
+            smb.create_share(session, loc_id, SHARE_NAME, provider="sharing")
+        assert smb.list_shares(session) == []
