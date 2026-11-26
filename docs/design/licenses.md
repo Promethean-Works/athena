@@ -6,6 +6,7 @@
 | shadcn chat components and AI Elements patterns (copied in) | MIT |
 | cryptography (Fernet for AI keys) | Apache-2.0 / BSD-3-Clause |
 | react-markdown, remark-gfm (assistant replies), @shadcn/react (Message Scroller) | MIT |
+| qrcode.react (tunnel address QR code) | ISC |
 | Provider SDKs pulled in by pydantic-ai-slim: openai, anthropic, google-genai (with google-auth, used for Vertex AI service-account credentials), groq, mistralai, cohere (the `cohere` extra, #149) | Apache-2.0 / MIT |
 | cohere's dependencies: fastavro, filelock (MIT); tokenizers, huggingface-hub, hf-xet, types-requests (Apache-2.0); fsspec (BSD-3-Clause); tqdm | MIT / Apache-2.0 / BSD-3-Clause; tqdm is MPL-2.0 AND MIT |
 | boto3 (Bedrock, via pydantic-ai-slim) | Apache-2.0 |
