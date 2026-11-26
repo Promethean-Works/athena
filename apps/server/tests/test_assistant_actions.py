@@ -306,3 +306,11 @@ def test_install_form_errors_reach_the_model_readably():
     exc = HTTPException(422, {"message": "Some values need fixing", "errors": {"PORT": "Taken"}})
     assert http_detail(exc) == "Some values need fixing\n- PORT: Taken"
     assert http_detail(HTTPException(409, "jellyfin is busy")) == "jellyfin is busy"
+
+
+def test_install_summary_names_the_optional_parts():
+    args = {"catalog": "builtin", "app_id": "agenticos", "name": "ai", "profiles": ["browser"]}
+    text = actions.summarize(None, "install_store_app", args)  # type: ignore[arg-type]
+    assert text == "Install builtin/agenticos from the store as ai with browser"
+    without = actions.summarize(None, "install_store_app", {**args, "profiles": None})  # type: ignore[arg-type]
+    assert without == "Install builtin/agenticos from the store as ai"

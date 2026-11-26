@@ -10,3 +10,4 @@
 - `browser_file_upload` only accepts files under the repo (`.playwright-mcp/` is git-ignored). Copy test files there instead of using the scratchpad, and delete them afterwards.
 - A text input with a `<datalist>` shows up as a `combobox` in snapshots, not a textbox: type into it, don't wait for a listbox.
 - What the sandbox can't do: `mount_webdav` (Finder mounts), `.claude/settings.json` edits, and turning on Claude's PR monitor. Say so and leave them to the maintainer; don't work around the guard.
+- Colima only shares `$HOME` (and `/tmp/colima`) with its VM. An app whose compose file bind-mounts a file from a data dir under macOS `/var/folders/...` or `/private/tmp` gets an empty *directory* created at the source, and the app crash-loops (SearXNG: `settings.yml is a directory`). Put the data dir, and `athena.catalog.smoke --out`, under `$HOME` when testing catalog apps with `files/`.

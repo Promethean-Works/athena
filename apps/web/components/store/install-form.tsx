@@ -31,6 +31,10 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { Switch } from "@workspace/ui/components/switch"
 
 import { useAppJobs } from "@/components/apps/use-app-jobs"
+import {
+  DockerAccessAlert,
+  ProfileOptions,
+} from "@/components/store/profile-options"
 
 type Detail = Schemas["StoreAppDetail"]
 type FormField = Schemas["FormField"]
@@ -103,7 +107,13 @@ function FieldControl({
   )
 }
 
-export function InstallForm({ app, variant }: { app: Detail; variant: Variant }) {
+export function InstallForm({
+  app,
+  variant,
+}: {
+  app: Detail
+  variant: Variant
+}) {
   const router = useRouter()
   const [name, setName] = React.useState(app.suggested_name)
   const [values, setValues] = React.useState<Record<string, string>>(() =>
@@ -115,6 +125,9 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
     setValuesSlug(variant.slug)
     setValues(Object.fromEntries(variant.fields.map((f) => [f.key, f.default])))
   }
+  const [profiles, setProfiles] = React.useState<string[]>(() =>
+    app.profiles.filter((p) => p.enabled).map((p) => p.id)
+  )
   const [errors, setErrors] = React.useState<Record<string, string>>({})
   const [installing, setInstalling] = React.useState(false)
   const installedName = React.useRef(name)
@@ -140,7 +153,12 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
       "/api/store/apps/{catalog}/{app_id}/install",
       {
         params: { path: { catalog: app.catalog, app_id: app.id } },
-        body: { name, values, variant: variant.slug },
+        body: {
+          name,
+          values,
+          variant: variant.slug,
+          profiles: app.profiles.length > 0 ? profiles : undefined,
+        },
       }
     )
     setInstalling(false)
@@ -202,6 +220,20 @@ export function InstallForm({ app, variant }: { app: Detail; variant: Variant })
         </Field>
         {basic.map(renderField)}
       </FieldGroup>
+
+      {app.docker_access ? (
+        <DockerAccessAlert title="This app controls this server's Docker">
+          It mounts the Docker socket, so it can start, stop and read every
+          container here, including your other apps.
+        </DockerAccessAlert>
+      ) : null}
+
+      <ProfileOptions
+        profiles={app.profiles}
+        selected={profiles}
+        onChange={setProfiles}
+        error={errors.profiles}
+      />
 
       {advanced.length > 0 ? (
         <Collapsible>

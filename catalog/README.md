@@ -71,6 +71,66 @@ services:
       - ${MEDIA_PATH}:/media:ro
 ```
 
+### App files
+
+Config an app needs but a single compose file can't hold (a proxy's `squid.conf`, a
+search engine's `settings.yml`) goes in `apps/<id>/files/` (any depth, up to 256 KB a file,
+2 MB and 40 files per app, no symlinks). The install copies it next to the app's
+`compose.yaml` and the compose file reaches it with a relative path, which also works with
+plain `docker compose`:
+
+```yaml
+    volumes:
+      - ./files/settings.yml:/etc/searxng/settings.yml
+```
+
+Files are **written once**: a file that already exists (the user edited it) is never
+overwritten by a reinstall or an update. They're literal, with no templating; anything
+that varies per install is an environment variable. Remote catalogs can ship `files/` too.
+
+### Optional parts (profiles)
+
+Services that only some admins want (a browser for an AI agent, a code sandbox) go under a
+Compose `profiles:` key and are listed in `x-athena.profiles`. The install form shows a
+checkbox for each and writes the chosen ones to `.env` as `COMPOSE_PROFILES`, which Docker
+Compose reads on its own. The app's Settings tab can switch them later.
+
+```yaml
+x-athena:
+  profiles:
+    - id: browser                 # lowercase letters, digits, dashes
+      label: Browser for agents
+      description: A real Chromium agents can drive.
+      default: false              # ticked in the install form
+      requires: [docker-socket]   # host checks; unmet ones disable the box with the reason
+                                  # (docker-socket, same-path-mounts)
+      platforms: [linux/amd64]    # optional, when narrower than the app's
+      env:                        # written to .env while this part is on
+        BROWSER_URL: http://browser:9222
+services:
+  app:
+    environment:
+      BROWSER_URL: ${BROWSER_URL:-}   # empty when the part is off
+  browser:
+    image: example/browser:1.0
+    profiles: [browser]
+```
+
+Every profile a service uses must be listed, and every listed profile must be used. A
+profile's `env` keys count as declared variables, so use them as `${KEY:-default}`. The
+app's `platforms` come from the services that always run; a profile's own images aren't
+part of it. Switching a part off stops and removes its containers (Compose's
+`up --remove-orphans` would leave them running).
+
+### Docker access
+
+An app that bind-mounts the Docker socket, in its main services or a profile, is flagged
+automatically: the install form and app page say it controls every container on the
+server. Use the `@docker_gid` default token for the socket's group (`group_add`; `0` where
+the socket is proxied: Docker Desktop, Colima, WSL). To start sibling containers that mount
+a workspace folder, mount it at the same path inside and outside:
+`${WORKSPACE}:${WORKSPACE}` with `WORKSPACE` defaulting to `@app_data/<sub>`.
+
 ### Variants
 
 An app folder may hold several compose files: `compose.yaml` is the default variant and
@@ -89,6 +149,7 @@ slug title-cased when it's missing.
   - `@timezone` is the host's timezone.
   - `@uid` and `@gid` are the server user's IDs (1000 when Athena runs as root).
   - `@app_data` and `@app_data/<sub>` are paths inside the app's data folder.
+  - `@docker_gid` is the group that owns the Docker socket on Linux, `0` elsewhere.
 - **Pin image tags** to a release, a major version, or an official channel (`stable`). Check that they exist for `linux/amd64` and `linux/arm64`.
 - **`platforms`** lists the CPUs every image of the default `compose.yaml` is published for (`linux/amd64`, `linux/arm64`, `linux/arm/v7`). Don't write it by hand: `cd apps/server && uv run python -m athena.catalog.image_platforms <id> --write` reads the registries and sets it (no ids: every app; no `--write`: report only). The store hides apps that don't match the host's CPU, marks amd64-only apps on an arm64 Mac or Windows PC as "Emulated", and install refuses the rest. Run it once at a time: Docker Hub's tag API allows about 180 requests a minute and a full run uses about 140.
 - **No fixed secrets.** Never ship a password, key or token as a literal (CasaOS files often do). Make it a `type: password` field with `generate: secret` (or `hex16`/`hex32`), and use the same `${KEY}` everywhere the value appears (a database URL, a `--requirepass` argument). Gitleaks fails the commit otherwise.
@@ -110,7 +171,7 @@ uv run python -m athena.catalog.smoke --changed      # apps changed against orig
 uv run python -m athena.catalog.smoke --all --jobs 3 # every app: hours and many GB of downloads
 ```
 
-Other flags: `--variants` (every compose variant), `--timeout` (seconds, default 180, doubled for emulated apps), `--keep` (leave the app running to inspect it), `--keep-images`, `--min-free-gb` (stop starting apps below this much free disk, default 20; on Colima it also runs `fstrim` in the VM after each app), `--shard K/N`, `--out` (default `catalog-smoke-report/`, with `summary.md`, `results.json` and `logs/<id>.log` for each failure). Use `smoke: start` for apps without a web page reachable from the host (host networking is detected on its own) and `smoke: skip` with a `smoke_note` for apps that can't run on a test machine (a GPU, a device, a required account token). <!-- docs-check: ignore -->
+Other flags: `--variants` (every compose variant), `--profiles` (each app with optional parts once more with all of them on, as `<id>-profiles`), `--timeout` (seconds, default 180, doubled for emulated apps), `--keep` (leave the app running to inspect it), `--keep-images`, `--min-free-gb` (stop starting apps below this much free disk, default 20; on Colima it also runs `fstrim` in the VM after each app), `--shard K/N`, `--out` (default `catalog-smoke-report/`, with `summary.md`, `results.json` and `logs/<id>.log` for each failure). Use `smoke: start` for apps without a web page reachable from the host (host networking is detected on its own) and `smoke: skip` with a `smoke_note` for apps that can't run on a test machine (a GPU, a device, a required account token). <!-- docs-check: ignore -->
 
 The `Catalog smoke` workflow runs it on amd64 and arm64 Linux: on pull requests for the apps they change, weekly and by hand for every app (split into shards), or by hand for named apps.
 

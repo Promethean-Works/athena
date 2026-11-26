@@ -583,6 +583,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/apps/{name}/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Profiles
+         * @description Switch a store app's optional parts (browser, sandbox, …) on or off and redeploy.
+         */
+        put: operations["updateAppProfiles"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/apps/{name}/{action}": {
         parameters: {
             query?: never;
@@ -2736,6 +2756,16 @@ export interface components {
             env: string | null;
             /** Containers */
             containers: components["schemas"]["ContainerOut"][];
+            /**
+             * Profiles
+             * @default []
+             */
+            profiles: components["schemas"]["ProfileState"][];
+            /**
+             * Docker Access
+             * @default false
+             */
+            docker_access: boolean;
         };
         /** AppOut */
         AppOut: {
@@ -4110,6 +4140,28 @@ export interface components {
             /** Since Boot */
             since_boot: ("under_voltage" | "freq_capped" | "throttled" | "soft_temp_limit")[];
         };
+        /** ProfileState */
+        ProfileState: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Description */
+            description: string | null;
+            /** Default */
+            default: boolean;
+            /** Enabled */
+            enabled: boolean;
+            /** Docker Access */
+            docker_access: boolean;
+            /** Disabled Reason */
+            disabled_reason: string | null;
+        };
+        /** ProfilesIn */
+        ProfilesIn: {
+            /** Profiles */
+            profiles: string[];
+        };
         /** Provider */
         Provider: {
             /** Name */
@@ -4659,6 +4711,10 @@ export interface components {
              * @enum {string}
              */
             support: "native" | "emulated" | "unsupported";
+            /** Docker Access */
+            docker_access: boolean;
+            /** Profiles */
+            profiles: components["schemas"]["ProfileState"][];
             /** Homepage */
             homepage: string | null;
             /** Notes */
@@ -5142,6 +5198,8 @@ export interface components {
             };
             /** Variant */
             variant?: string | null;
+            /** Profiles */
+            profiles?: string[] | null;
         };
     };
     responses: never;
@@ -6086,6 +6144,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["EnvIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    updateAppProfiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfilesIn"];
             };
         };
         responses: {

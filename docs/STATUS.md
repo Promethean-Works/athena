@@ -8,6 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
+- Catalog extras (`docs/specs/catalog-extras.md`): files, profiles and Docker-access flag built and browser-verified (demo app, SearXNG). Not verified: AgenticOS with browser/artifacts/sandbox on (needs a Docker VM with 8 GB; Colima's 2 GB kills it), Podman compose, Windows disabled state, Linux `@docker_gid`. Left out: AgenticOS object store (MinIO). Next: those checks, then tick the spec Done with PR numbers.
 - Network shares (`docs/specs/network-shares.md`): parts 1-2 (#304, #307) and 3 (Windows SMB, `feat/shares-windows`) built. Next: part 4 UI; how macOS/Windows get root/admin. Not verified: real mounts.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).
 - Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d done; `schedule` runs in part 4. Part 4 (#256) done. 2d not run against real runtime/volumes.
