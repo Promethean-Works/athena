@@ -485,8 +485,24 @@ def detect_local_ai(probe: Probe) -> list[Capability]:
     return found
 
 
+def _installed_binary(probe: Probe, name: str) -> str | None:
+    """`name` on PATH, or in the folders the tunnel installers use (often not on PATH)."""
+    if found := probe.which(name):
+        return found
+    suffix = ".exe" if probe.os == "windows" else ""
+    candidates = [probe.home() / ".local" / "bin" / f"{name}{suffix}"]
+    if probe.os == "windows":
+        candidates.append(probe.home() / "scoop" / "shims" / f"{name}.exe")
+    else:
+        candidates.insert(0, Path("/usr/local/bin") / name)
+    for candidate in candidates:
+        if probe.exists(candidate):
+            return str(candidate)
+    return None
+
+
 def detect_tunnel_cloudflare(probe: Probe) -> Capability:
-    path = probe.which("cloudflared")
+    path = _installed_binary(probe, "cloudflared")
     if not path:
         return Capability(
             id="tunnel.cloudflare",
@@ -545,7 +561,7 @@ def detect_tunnel_tailscale(probe: Probe) -> Capability:
 
 
 def detect_tunnel_ngrok(probe: Probe) -> Capability:
-    path = probe.which("ngrok")
+    path = _installed_binary(probe, "ngrok")
     if not path:
         return Capability(
             id="tunnel.ngrok",
