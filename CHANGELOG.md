@@ -18,6 +18,21 @@
 ## [0.1.0-rc.1](https://github.com/Promethean-Works/athena/compare/v0.1.0-rc.1...v0.1.0-rc.1) (2026-11-26)
 
 
+### Features
+
+* **tunnel:** show a QR code for the tunnel address ([#293](https://github.com/Promethean-Works/athena/issues/293)) ([6df6174](https://github.com/Promethean-Works/athena/commit/6df6174b7834129274efe76329ff4eed15108afa))
+
+
+### Bug Fixes
+
+* **cloud:** show next unit when size rounds to 1000 ([#290](https://github.com/Promethean-Works/athena/issues/290)) ([a91fe1d](https://github.com/Promethean-Works/athena/commit/a91fe1d22046f9641d04b851163671dea4f95f99))
+* **e2e:** rewrite the wheel's Version header whatever its spelling ([#291](https://github.com/Promethean-Works/athena/issues/291)) ([763ad06](https://github.com/Promethean-Works/athena/commit/763ad065fc256789c5119efd18b192b275e120be))
+* **setup:** set CSRF token after account creation ([#287](https://github.com/Promethean-Works/athena/issues/287)) ([901dc41](https://github.com/Promethean-Works/athena/commit/901dc41b47f4f47ba13c661a0168dcb6f0a63b4e))
+* **tunnel:** detect cloudflared and ngrok installed outside PATH ([#289](https://github.com/Promethean-Works/athena/issues/289)) ([af8fd1c](https://github.com/Promethean-Works/athena/commit/af8fd1c15b43331df6ac2441369d7ffe761edfa7))
+
+## [0.1.0-rc.1](https://github.com/Promethean-Works/athena/compare/v0.1.0-rc.1...v0.1.0-rc.1) (2026-11-26)
+
+
 ### Bug Fixes
 
 * **cloud:** show next unit when size rounds to 1000 ([#290](https://github.com/Promethean-Works/athena/issues/290)) ([a91fe1d](https://github.com/Promethean-Works/athena/commit/a91fe1d22046f9641d04b851163671dea4f95f99))
