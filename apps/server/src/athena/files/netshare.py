@@ -39,18 +39,23 @@ def write_atomic(path: Path, text: str) -> None:
         raise
 
 
-def run_reload(argv: list[str], what: str) -> None:
-    """Run the reload command; raise `ShareReloadFailed` with its output if it fails."""
+def run_command(argv: list[str], action: str) -> None:
+    """Run a host command; raise `ShareReloadFailed` ("Couldn't <action>: <why>") if it fails."""
     try:
         result = subprocess.run(
             argv, check=False, capture_output=True, text=True, timeout=20, stdin=subprocess.DEVNULL
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        raise ShareReloadFailed(f"Couldn't reload {what}: {exc}") from exc
+        raise ShareReloadFailed(f"Couldn't {action}: {exc}") from exc
     if result.returncode != 0:
         output = (result.stderr or result.stdout or "").strip().splitlines()
         reason = output[-1] if output else f"exit code {result.returncode}"
-        raise ShareReloadFailed(f"Couldn't reload {what}: {reason}")
+        raise ShareReloadFailed(f"Couldn't {action}: {reason}")
+
+
+def run_reload(argv: list[str], what: str) -> None:
+    """Run the reload command for `what` (see `run_command`)."""
+    run_command(argv, f"reload {what}")
 
 
 def swap_config(path: Path, new_text: str, reload: Callable[[], None]) -> None:

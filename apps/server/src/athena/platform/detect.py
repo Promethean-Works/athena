@@ -276,9 +276,9 @@ def detect_power(probe: Probe) -> list[Capability]:
 
 
 def detect_smb(probe: Probe) -> Capability:
-    """SMB shares: publish a file location over the network via the host's Samba
-    server (§4.3). Linux uses the installed Samba server; macOS and Windows have
-    SMB built in but creating a share from Athena isn't wired on those OSes yet."""
+    """SMB shares: publish a file location over the network (§4.3). Linux uses the
+    installed Samba server, macOS its built-in `sharing` tool (both need root); Windows
+    isn't wired yet."""
     label = "SMB shares"
     if probe.os == "linux":
         if probe.which("smbd"):
@@ -290,6 +290,16 @@ def detect_smb(probe: Probe) -> Capability:
             provider="samba",
             detail="Samba not installed. Install it (apt install samba) to share folders over SMB.",
             actions=["setup"],
+        )
+    if probe.os == "darwin" and probe.which("sharing"):
+        if probe.is_root():
+            return Capability(id="shares.smb", label=label, status="ready", provider="sharing")
+        return Capability(
+            id="shares.smb",
+            label=label,
+            status="needs_privilege",
+            provider="sharing",
+            detail="Sharing folders over SMB needs Athena to run as root.",
         )
     return Capability(
         id="shares.smb",
@@ -303,7 +313,7 @@ def detect_smb(probe: Probe) -> Capability:
 def detect_nfs(probe: Probe) -> Capability:
     """NFS shares: export a file location from the host's NFS server
     (docs/specs/network-shares.md). Linux only for now; Windows client editions have no
-    NFS server, and the macOS provider comes in a later part."""
+    NFS server. macOS uses its built-in nfsd (needs root)."""
     label = "NFS shares"
     if probe.os == "linux":
         if not probe.which("exportfs"):
@@ -326,13 +336,22 @@ def detect_nfs(probe: Probe) -> Capability:
         return Capability(
             id="shares.nfs", label=label, status="ready", provider="nfs-kernel-server"
         )
-    detail = (
-        "Windows has no NFS server outside Windows Server. Use SMB or WebDAV instead."
-        if probe.os == "windows"
-        else "Creating NFS shares from Athena isn't available on this operating system yet."
-    )
+    if probe.os == "darwin" and probe.which("nfsd"):
+        if probe.is_root():
+            return Capability(id="shares.nfs", label=label, status="ready", provider="nfsd")
+        return Capability(
+            id="shares.nfs",
+            label=label,
+            status="needs_privilege",
+            provider="nfsd",
+            detail="Exporting folders over NFS needs Athena to run as root.",
+        )
     return Capability(
-        id="shares.nfs", label=label, status="unsupported", provider="built-in", detail=detail
+        id="shares.nfs",
+        label=label,
+        status="unsupported",
+        provider="built-in",
+        detail="Windows has no NFS server outside Windows Server. Use SMB or WebDAV instead.",
     )
 
 

@@ -69,7 +69,7 @@ async def create_smb_share(
 ) -> SmbShareOut:
     """Share a location over SMB. On Linux this writes a section to
     /etc/samba/smb.conf and reloads smbd; on other operating systems it's 501."""
-    await require_share_capability(request, "shares.smb")
+    cap = await require_share_capability(request, "shares.smb")
     try:
         entry = await _run(
             lambda: smb.create_share(
@@ -78,6 +78,7 @@ async def create_smb_share(
                 body.name,
                 read_only=body.read_only,
                 guest_ok=body.guest_ok,
+                provider=cap.provider or "samba",
             )
         )
     except smb.FileError as exc:
@@ -98,9 +99,9 @@ async def remove_smb_share(share_id: int, request: Request, user: Authed, db: Db
     share = db.get(SmbShare, share_id)
     if share is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such SMB share")
-    await require_share_capability(request, "shares.smb")
+    cap = await require_share_capability(request, "shares.smb")
     try:
-        await _run(lambda: smb.remove_share(db, share_id))
+        await _run(lambda: smb.remove_share(db, share_id, provider=cap.provider or "samba"))
     except smb.FileError as exc:
         raise _fail(exc) from exc
     audit.record(db, user.user.username, "smb.share.remove", f"SMB:{share.name}")

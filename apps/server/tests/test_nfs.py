@@ -1,5 +1,6 @@
 """NFS shares: detection, the exports file, and the /api/shares/nfs API."""
 
+import os
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,7 @@ from fake_probe import FakeProbe
 from fastapi.testclient import TestClient
 
 from athena.db import Database
-from athena.db.models import FileLocation
+from athena.db.models import FileLocation, NfsShare
 from athena.files import nfs
 from athena.files.netshare import ShareReloadFailed
 from athena.files.paths import BadPath, NotFound
@@ -37,8 +38,17 @@ def test_linux_without_nfs_server_is_missing_with_setup() -> None:
     assert "nfs-kernel-server" in c.detail
 
 
-def test_macos_and_windows_are_unsupported() -> None:
-    assert caps(FakeProbe(os="darwin"))["shares.nfs"].status == "unsupported"
+def test_macos_as_root_is_ready_with_nfsd() -> None:
+    c = caps(FakeProbe(os="darwin", binaries={"nfsd": "/sbin/nfsd"}, root=True))["shares.nfs"]
+    assert (c.status, c.provider) == ("ready", "nfsd")
+
+
+def test_macos_not_root_needs_privilege() -> None:
+    probe = FakeProbe(os="darwin", binaries={"nfsd": "/sbin/nfsd"})
+    assert caps(probe)["shares.nfs"].status == "needs_privilege"
+
+
+def test_windows_is_unsupported() -> None:
     windows = caps(FakeProbe(os="windows"))["shares.nfs"]
     assert windows.status == "unsupported" and "Windows Server" in windows.detail
 
@@ -171,3 +181,68 @@ def test_api_on_unsupported_host(tmp_path: Path) -> None:
         res = client.post("/api/shares/nfs", json={"location": location, "clients": ["10.0.0.1"]})
         assert res.status_code == 501, res.text
         assert client.delete("/api/shares/nfs/1").status_code == 404
+
+
+# ---------------------------------------------------------------- macOS
+
+
+def _macos_share(path: str, clients: str, read_only: bool = False) -> NfsShare:
+    return NfsShare(location_id=1, path=path, clients=clients, read_only=read_only)
+
+
+def test_macos_block_has_a_line_per_host_list_and_network() -> None:
+    real = os.path.realpath
+    block = nfs.render_macos_block(
+        [
+            _macos_share("/Volumes/My Disk", "10.0.0.5,nas.local,192.168.1.0/24,[fd00::]/64", True),
+        ]
+    )
+    path = real("/Volumes/My Disk").replace(" ", "\\ ")
+    assert block == (
+        nfs.BEGIN
+        + f"{path} -ro 10.0.0.5 nas.local\n"
+        + f"{path} -ro -network 192.168.1.0 -mask 255.255.255.0\n"
+        + f"{path} -ro -network fd00:: -mask ffff:ffff:ffff:ffff::\n"
+        + nfs.END
+    )
+
+
+def test_merge_block_keeps_the_admins_own_lines() -> None:
+    mine = "/Users/me/own -network 10.0.0.0 -mask 255.0.0.0\n"
+    block = nfs.render_macos_block([_macos_share("/tmp/a", "10.0.0.1")])
+    once = nfs.merge_block(mine, block)
+    assert once.startswith(mine) and nfs.BEGIN in once
+    again = nfs.merge_block(once, nfs.render_macos_block([_macos_share("/tmp/b", "10.0.0.2")]))
+    assert again.count(nfs.BEGIN) == 1 and "/tmp/a" not in again and again.startswith(mine)
+    assert nfs.merge_block(again, "") == mine
+    assert nfs.merge_block(None, "") == ""
+
+
+def test_macos_flavor_merges_into_existing_exports_and_rolls_back(tmp_path: Path) -> None:
+    exports = tmp_path / "exports"
+    exports.write_text("/keep -ro 10.9.9.9\n", encoding="utf-8")
+    db, loc_id = _seed(tmp_path)
+    for session in db.session():
+        entry = nfs.create_share(
+            session, loc_id, ["10.0.0.1"], flavor=nfs.MACOS, exports=exports, reload=_noop
+        )
+        text = exports.read_text(encoding="utf-8")
+        assert text.startswith("/keep -ro 10.9.9.9\n") and nfs.BEGIN in text
+        nfs.remove_share(session, entry.id, flavor=nfs.MACOS, exports=exports, reload=_noop)
+    assert exports.read_text(encoding="utf-8") == "/keep -ro 10.9.9.9\n"
+
+
+def test_macos_refuses_quotes_in_the_path(tmp_path: Path) -> None:
+    exports = tmp_path / "exports"
+    db, _ = _seed(tmp_path)
+    for session in db.session():
+        quoted = tmp_path / "it's"
+        quoted.mkdir()
+        loc = FileLocation(name="Quoted", path=str(quoted))
+        session.add(loc)
+        session.commit()
+        session.refresh(loc)
+        with pytest.raises(BadPath):
+            nfs.create_share(
+                session, loc.id, ["10.0.0.1"], flavor=nfs.MACOS, exports=exports, reload=_noop
+            )
