@@ -1,0 +1,50 @@
+{
+  "menu": "Trimite feedback",
+  "dialog": {
+    "title": "Trimite feedback",
+    "description": "Deschide o problemă nouă pe {{repo}} într-o filă nouă. O poți verifica și edita acolo înainte de a fi publicată; problemele sunt publice.",
+    "storeHint": "O aplicație din magazin nu funcționează? Folosește <b>Raportează o problemă</b> pe pagina ei din magazin, ca raportul să ajungă la cine o întreține.",
+    "loadFailed": "Nu s-au putut încărca detaliile acestui server"
+  },
+  "choices": {
+    "bug": {
+      "title": "Raportează o eroare",
+      "description": "Ceva nu funcționează cum ar trebui."
+    },
+    "change": {
+      "title": "Sugerează o schimbare",
+      "description": "Ceva funcționează, dar ar trebui să funcționeze altfel."
+    },
+    "feature": {
+      "title": "Cere o funcție",
+      "description": "Ceva ce Athena nu poate face încă."
+    }
+  },
+  "diagnostics": {
+    "title": "Completat pentru tine",
+    "system": "Sistem",
+    "cpu": "CPU",
+    "containers": "Containere"
+  },
+  "appReport": {
+    "button": "Raportează o problemă",
+    "title": "Raportează o problemă cu {{app}}",
+    "description": "Deschide o problemă nouă pentru {{where}} într-o filă nouă, cu aplicația și detaliile acestui server completate. O verifici acolo înainte de a fi publicată; problemele sunt publice.",
+    "whereCatalog": "catalogul {{name}}, care întreține această aplicație",
+    "includeLogs_one": "Include ultima linie de jurnal",
+    "includeLogs_few": "Include ultimele {{count}} linii de jurnal",
+    "includeLogs_other": "Include ultimele {{count}} de linii de jurnal",
+    "installedCopy": "Copie instalată",
+    "logsLabel": "Jurnale de inclus",
+    "loadingLogs": "Se încarcă jurnalele…",
+    "logsWarning": "Elimină parolele, token-urile și adresele înainte de a continua.",
+    "logsTruncated": "În link încape doar finalul jurnalelor.",
+    "cancel": "Anulează",
+    "openIssue": "Deschide problema",
+    "preparing": "Se pregătește…",
+    "prepareFailed": "Nu s-a putut pregăti raportul",
+    "logsFailed": "Nu s-au putut încărca jurnalele: {{error}}",
+    "appNotFound": "aplicația nu a fost găsită",
+    "noContainers": "Nu s-a găsit niciun container pentru această aplicație."
+  }
+}

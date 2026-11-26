@@ -1,0 +1,58 @@
+{
+  "view": {
+    "noManagers": "パッケージマネージャーが見つかりません",
+    "noManagersHint": "このホストで Athena が対応しているパッケージマネージャーが見つかりませんでした。"
+  },
+  "listError": "パッケージ一覧を読み取れませんでした",
+  "cancel": "キャンセル",
+  "toast": {
+    "installFailed": "{{name}} をインストールできませんでした",
+    "uninstallFailed": "{{name}} をアンインストールできませんでした",
+    "upgradeFailed": "{{name}} をアップグレードできませんでした",
+    "upgradeAllFailed": "パッケージをアップグレードできませんでした",
+    "refreshFailed": "パッケージリストを更新できませんでした"
+  },
+  "unavailable": "{{name}} は現在使用できません",
+  "unavailableHint": "このホストでは準備ができていません。",
+  "refreshLists": "リストを更新",
+  "upgradeAll": "すべてアップグレード",
+  "tabs": {
+    "installed": "インストール済み",
+    "updates": "アップデート",
+    "search": "検索"
+  },
+  "installed": {
+    "filter": "インストール済みパッケージを絞り込む",
+    "noMatch": "一致するインストール済みパッケージはありません。",
+    "empty": "インストールされているものはありません。",
+    "upgradeLabel": "{{name}} をアップグレード",
+    "upgrade": "アップグレード",
+    "uninstallLabel": "{{name}} をアンインストール",
+    "uninstall": "アンインストール",
+    "shortened": "{{manager}} がこの ID を短縮したため、ここからはアンインストールできません",
+    "showing": "{{total}} 件中 {{shown}} 件を表示しています。絞り込んでください。"
+  },
+  "table": {
+    "package": "パッケージ",
+    "version": "バージョン",
+    "description": "説明"
+  },
+  "updates": {
+    "upToDate": "すべて最新です",
+    "upToDateRefresh": "最後にリストを更新した時点の状態です。再確認するにはリストを更新してください。",
+    "nothing": "アップグレードするものはありません。",
+    "installedColumn": "インストール済み",
+    "availableColumn": "利用可能"
+  },
+  "search": {
+    "label": "{{manager}} を検索",
+    "noMatch": "「{{query}}」に一致するパッケージはありません。",
+    "install": "インストール"
+  },
+  "confirm": {
+    "uninstallTitle": "{{name}} をアンインストールしますか？",
+    "uninstallDescription": "このサーバーから削除されます。依存するパッケージも削除される場合があります。",
+    "upgradeAllTitle": "{{manager}} のパッケージをすべてアップグレードしますか？",
+    "upgradeAllDescription_other": "{{count}} 個のパッケージがアップグレードされます。時間がかかる場合があります。"
+  }
+}

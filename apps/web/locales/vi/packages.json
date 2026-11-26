@@ -1,0 +1,58 @@
+{
+  "view": {
+    "noManagers": "Không tìm thấy trình quản lý gói",
+    "noManagersHint": "Athena không tìm thấy trình quản lý gói nào được hỗ trợ trên máy chủ này."
+  },
+  "listError": "Không thể đọc danh sách gói",
+  "cancel": "Hủy",
+  "toast": {
+    "installFailed": "Không thể cài đặt {{name}}",
+    "uninstallFailed": "Không thể gỡ cài đặt {{name}}",
+    "upgradeFailed": "Không thể nâng cấp {{name}}",
+    "upgradeAllFailed": "Không thể nâng cấp các gói",
+    "refreshFailed": "Không thể làm mới danh sách gói"
+  },
+  "unavailable": "Hiện không thể dùng {{name}}",
+  "unavailableHint": "Chưa sẵn sàng trên máy chủ này.",
+  "refreshLists": "Làm mới danh sách",
+  "upgradeAll": "Nâng cấp tất cả",
+  "tabs": {
+    "installed": "Đã cài đặt",
+    "updates": "Bản cập nhật",
+    "search": "Tìm kiếm"
+  },
+  "installed": {
+    "filter": "Lọc các gói đã cài đặt",
+    "noMatch": "Không có gói đã cài đặt nào khớp.",
+    "empty": "Chưa cài đặt gì.",
+    "upgradeLabel": "Nâng cấp {{name}}",
+    "upgrade": "Nâng cấp",
+    "uninstallLabel": "Gỡ cài đặt {{name}}",
+    "uninstall": "Gỡ cài đặt",
+    "shortened": "{{manager}} đã rút gọn id này nên không thể gỡ cài đặt từ đây",
+    "showing": "Hiển thị {{shown}}/{{total}}. Hãy lọc để thu hẹp."
+  },
+  "table": {
+    "package": "Gói",
+    "version": "Phiên bản",
+    "description": "Mô tả"
+  },
+  "updates": {
+    "upToDate": "Mọi thứ đã được cập nhật",
+    "upToDateRefresh": "Tính đến lần làm mới danh sách gần nhất. Làm mới danh sách để kiểm tra lại.",
+    "nothing": "Không có gì để nâng cấp.",
+    "installedColumn": "Đã cài đặt",
+    "availableColumn": "Có sẵn"
+  },
+  "search": {
+    "label": "Tìm trong {{manager}}",
+    "noMatch": "Không có gói nào khớp “{{query}}”.",
+    "install": "Cài đặt"
+  },
+  "confirm": {
+    "uninstallTitle": "Gỡ cài đặt {{name}}?",
+    "uninstallDescription": "Gói sẽ bị gỡ khỏi máy chủ này. Các gói phụ thuộc vào nó cũng có thể bị gỡ.",
+    "upgradeAllTitle": "Nâng cấp tất cả gói {{manager}}?",
+    "upgradeAllDescription_other": "{{count}} gói sẽ được nâng cấp. Việc này có thể mất một lúc."
+  }
+}

@@ -1,0 +1,399 @@
+{
+  "language": {
+    "title": "Språk",
+    "description": "Gränssnittets språk. Det följer ditt konto till andra webbläsare.",
+    "label": "Gränssnittsspråk",
+    "auto": "Automatiskt (webbläsarens språk)"
+  },
+  "account": {
+    "admin": "Administratör",
+    "user": "Användare",
+    "signedIn": "Inloggad i den här webbläsaren",
+    "signOut": "Logga ut",
+    "changeFailed": "Det gick inte att byta lösenord",
+    "toast": {
+      "changed": "Lösenordet ändrades",
+      "changedDescription": "Andra webbläsare som var inloggade på det här kontot loggades ut."
+    },
+    "password": {
+      "title": "Byt lösenord",
+      "description": "Dina andra sessioner loggas ut; den här förblir inloggad.",
+      "current": "Nuvarande lösenord",
+      "new": "Nytt lösenord",
+      "minLength_one": "Minst {{count}} tecken.",
+      "minLength_other": "Minst {{count}} tecken.",
+      "confirm": "Bekräfta nytt lösenord",
+      "mismatch": "Lösenorden matchar inte.",
+      "submit": "Byt lösenord"
+    }
+  },
+  "copyField": {
+    "copy": "Kopiera {{label}}",
+    "copied": "{{label}} kopierades",
+    "failed": "Det gick inte att kopiera"
+  },
+  "settingsFile": {
+    "title": "Inställningsfil",
+    "description": "Inställningarna på de här sidorna sparas i en fil på servern. Om en ändring hindrar Athena från att starta eller låser ute dig, rätta den där i valfri textredigerare och starta sedan om Athena.",
+    "loadFailed": "Det gick inte att läsa in var filen finns: {{error}}",
+    "file": "Fil",
+    "help": "<code>athena config check</code> på servern visar vad som är fel, med radnummer. Versionen före den senaste sparningen finns kvar bredvid den som <code>athena.json.bak</code>."
+  },
+  "system": {
+    "title": "System",
+    "description": "Reglage som gäller alla på den här servern. Ändringar skrivs till granskningsloggen.",
+    "saveFailed": "Det gick inte att spara",
+    "adminOnly": "Bara administratörer kan ändra detta.",
+    "terminal": {
+      "label": "Webbterminal",
+      "description": "Ett skal på den här servern och i behållare, från webbläsaren. Om du stänger av den stängs även öppna sessioner.",
+      "on": "Terminalen slogs på",
+      "off": "Terminalen stängdes av"
+    },
+    "updateCheck": {
+      "label": "Uppdateringsavisering",
+      "description": "En gång om dagen frågar Athena GitHub efter den senaste utgåvan och visar en avisering när en nyare finns. Inget skickas utom själva förfrågan: ingen version, inget värdnamn och inga inställningar.",
+      "on": "Uppdateringsaviseringen slogs på",
+      "off": "Uppdateringsaviseringen stängdes av"
+    }
+  },
+  "updates": {
+    "title": "Uppdateringar",
+    "description": "Athena söker efter en ny utgåva en gång om dagen (reglaget ovan). Uppdatering startar om Athena; dina appar fortsätter köra.",
+    "readFailed": "Det gick inte att läsa uppdateringsstatusen.",
+    "installed": "Installerad",
+    "latest": "Senaste",
+    "unknown": "Inte känd än",
+    "noticeOff": "Uppdateringsaviseringen är avstängd",
+    "lastChecked": "Senast kontrollerad",
+    "never": "Aldrig",
+    "upToDate": "Athena är uppdaterad."
+  },
+  "localAi": {
+    "list": "{{head}} och {{last}}",
+    "running_one": "{{list}} körs på den här servern. Dess modeller körs på din egen hårdvara och inget lämnar servern.",
+    "running_other": "{{list}} körs på den här servern. Deras modeller körs på din egen hårdvara och inget lämnar servern.",
+    "useNamed": "Använd {{name}} på den här servern",
+    "usePort": "Använd AI-servern på port {{port}}",
+    "useThis": "Använd den här AI-servern"
+  },
+  "webdav": {
+    "title": "Nätverksdelning (WebDAV)",
+    "description": "Öppna filhanterarens platser som en enhet i Finder, Utforskaren i Windows eller en Linux-filhanterare.",
+    "label": "WebDAV",
+    "help": "Av som standard. Alla som har WebDAV-lösenordet kan läsa och ändra varje plats.",
+    "adminOnly": "Bara administratörer kan ändra detta.",
+    "on": "WebDAV slogs på",
+    "off": "WebDAV stängdes av",
+    "saveFailed": "Det gick inte att spara",
+    "passwordFailed": "Det gick inte att skapa ett lösenord",
+    "address": "Adress",
+    "username": "Användarnamn",
+    "password": "Lösenord",
+    "passwordHint": {
+      "copyNow": "Kopiera det nu: det visas inte igen.",
+      "set": "Ett lösenord är satt. Om du skapar ett nytt loggas alla enheter som använder det gamla ut.",
+      "none": "Skapa ett lösenord för att logga in. Det är skilt från ditt Athena-lösenord."
+    },
+    "newPassword": "Nytt lösenord",
+    "makePassword": "Skapa lösenord",
+    "plainHttp": {
+      "title": "Inte krypterad",
+      "description": "Athena öppnas över vanlig HTTP, så WebDAV-lösenordet och filerna skickas okrypterade över nätverket. Använd det i ett nätverk du litar på, eller lägg Athena bakom HTTPS."
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → Gå → Anslut till server, sedan adressen.",
+      "windows": "<b>Windows:</b> Utforskaren → Den här datorn → Anslut nätverksenhet, sedan adressen. Över vanlig HTTP loggar Windows bara in efter att du satt <code>BasicAuthLevel</code> till 2 under <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> och startat om WebClient-tjänsten.",
+      "linux": "<b>Linux:</b> i Filer (GNOME) eller Dolphin, anslut till <code>{{url}}</code>."
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "Läge",
+      "light": "Ljust",
+      "dark": "Mörkt",
+      "system": "System"
+    },
+    "colors": {
+      "title": "Färger",
+      "saving": "Sparar…",
+      "description": "Ändringar tillämpas direkt och följer ditt konto till andra webbläsare.",
+      "matchBase": "Matcha bas",
+      "matchTheme": "Matcha tema",
+      "base": "Bas",
+      "baseColor": "Basfärg",
+      "baseHint": "Bakgrunder, kanter och dämpad text.",
+      "theme": "Tema",
+      "themeHint": "Knappar, fokusringar och länkar.",
+      "charts": "Diagram"
+    },
+    "type": {
+      "title": "Typsnitt och form",
+      "font": "Typsnitt",
+      "headingFont": "Rubriktypsnitt",
+      "sameAsBody": "Samma som brödtext",
+      "radius": "Hörnradie",
+      "style": "Stil",
+      "styleValue": "Nova, med Lucide-ikoner",
+      "styleSoon": "att byta stil kommer i en senare version"
+    },
+    "radius": {
+      "default": "Standard",
+      "none": "Ingen",
+      "small": "Liten",
+      "medium": "Medel",
+      "large": "Stor"
+    },
+    "preset": {
+      "title": "Förinställningskod",
+      "description": "En shadcn-förinställningskod fångar de här inställningarna i några få tecken.",
+      "current": "Nuvarande förinställningskod",
+      "copy": "Kopiera",
+      "copied": "Kopierad",
+      "copyFailed": "Det gick inte att kopiera till urklipp",
+      "use": "Använd den med <code>npx shadcn init --preset {{code}}</code>, eller dela den.",
+      "apply": "Använd en förinställningskod",
+      "applyButton": "Använd",
+      "invalid": "Det är inte en shadcn-förinställningskod.",
+      "applied": "Förinställningen {{code}} tillämpades",
+      "ignored": "Athena kan inte tillämpa {{parts}} än, så de delarna hoppades över.",
+      "fill": "Fyller i färger, typsnitt och hörnradie från en kod skapad på <link>ui.shadcn.com/create</link>."
+    }
+  },
+  "tunnel": {
+    "hide": "Dölj {{label}}",
+    "show": "Visa {{label}}",
+    "secretSaved": "Sparad. Skriv ett nytt värde för att ersätta den",
+    "customDomain": "Egen domän (valfritt)",
+    "cloudflare": {
+      "quick": "Snabbtunnel",
+      "quickHelp": "En slumpmässig trycloudflare.com-adress som inte kräver något konto. Den ändras varje gång tunneln startar.",
+      "apiToken": "API-token",
+      "apiTokenPlaceholder": "En Cloudflare API-token med Tunnel-behörighet",
+      "tunnelName": "Tunnelnamn",
+      "tunnelNameHelp": "Den namngivna tunneln i ditt Cloudflare-konto.",
+      "domainHelp": "Kräver en DNS-post som pekar på tunneln."
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "Identifieras automatiskt",
+      "help": "Ställs in med <code>tailscale up</code> på den här servern."
+    },
+    "ngrok": {
+      "authToken": "Auth-token",
+      "authTokenPlaceholder": "Din ngrok-auth-token",
+      "subdomain": "Underdomän (valfritt)",
+      "paidPlan": "Kräver en betald ngrok-plan.",
+      "freeTitle": "Begränsningar i gratisplanen",
+      "freeDescription": "En tunnel, 40 anslutningar i minuten och en ny slumpmässig adress varje session."
+    },
+    "status": {
+      "label": "Status",
+      "running": "Körs",
+      "stopped": "Stoppad",
+      "notInstalled": "Inte installerad",
+      "notSetUp": "Inte konfigurerad"
+    },
+    "saveFailed": "Det gick inte att spara",
+    "saved": "Inställningarna för fjärråtkomst sparades",
+    "autoStart": {
+      "label": "Starta vid uppstart",
+      "on": "Fjärråtkomst startar vid uppstart",
+      "off": "Fjärråtkomst startar inte längre vid uppstart",
+      "installFirst": "Installera {{name}} först.",
+      "help": "Installerar en systemtjänst som startar tunneln tillsammans med servern."
+    },
+    "serviceFailed": "Det gick inte att uppdatera tjänsten",
+    "title": "Fjärråtkomst",
+    "description": "Nå Athena varifrån som helst via Cloudflare, Tailscale eller ngrok, utan att öppna portar i routern.",
+    "label": "Fjärråtkomst",
+    "help": "Alla som har adressen når din inloggningssida, så använd ett starkt lösenord.",
+    "adminOnly": "Bara administratörer kan ändra detta.",
+    "on": "Fjärråtkomst slogs på",
+    "off": "Fjärråtkomst stängdes av",
+    "exposed": {
+      "title": "Nåbar från internet",
+      "description": "Så länge detta är på är webbterminalen, paketinstallationer och AI-assistenten ett lösenord bort för alla som hittar adressen. Stäng av <terminal>terminalen</terminal> eller <assistant>assistenten</assistant> om du inte behöver dem på distans."
+    },
+    "provider": "Leverantör",
+    "using": "Använder {{name}}",
+    "port": {
+      "label": "Lokal port",
+      "help": "Porten som Athena lyssnar på och som tunneln vidarebefordrar till."
+    },
+    "discard": "Förkasta",
+    "saveChanges": "Spara ändringar",
+    "publicAddress": "Offentlig adress",
+    "install": "Installera {{name}}",
+    "installFailed": "Det gick inte att installera",
+    "stop": "Stoppa",
+    "stopFailed": "Det gick inte att stoppa tunneln",
+    "start": "Starta",
+    "startFailed": "Det gick inte att starta tunneln",
+    "saveFirst": "Spara dina ändringar först",
+    "refresh": "Uppdatera status"
+  },
+  "https": {
+    "copyFailed": "Det gick inte att kopiera",
+    "adminOnly": "Bara administratörer kan ändra HTTPS",
+    "unavailable": {
+      "title": "HTTPS är inte tillgängligt",
+      "description": "Den här Athena-servern rapporterar inget stöd för HTTPS."
+    },
+    "loadFailed": "Det gick inte att läsa in HTTPS-inställningar",
+    "status": {
+      "on": "På, port {{port}}",
+      "notRunning": "Körs inte",
+      "off": "Av",
+      "encryptedLetsEncrypt": "Athena krypterar anslutningen med ett certifikat från Let's Encrypt. Vanlig HTTP finns kvar på port {{port}}.",
+      "encryptedCustom": "Athena krypterar anslutningen med ditt egna certifikat. Vanlig HTTP finns kvar på port {{port}}.",
+      "encryptedSelf": "Athena krypterar anslutningen med sitt eget certifikat. Vanlig HTTP finns kvar på port {{port}}.",
+      "plain": "Athena serveras över vanlig HTTP på port {{port}}, så lösenord och filer skickas okrypterade över nätverket.",
+      "problem": "HTTPS-problem",
+      "renewalFailed": "Förnyelsen hos Let's Encrypt misslyckades",
+      "renewalStillServed": "Det nuvarande certifikatet används tills det går ut.",
+      "open": "Öppna över HTTPS",
+      "expires": "Går ut",
+      "expiresIn_one": "om {{count}} dag; förnyas automatiskt",
+      "expiresIn_other": "om {{count}} dagar; förnyas automatiskt",
+      "names": "Namn",
+      "alsoAt": "Också på"
+    },
+    "saveFailed": "Det gick inte att spara",
+    "requestFailed": "Det gick inte att begära ett certifikat",
+    "certificateReady": "Certifikatet är klart",
+    "certificateReadyHint": "Spara med Let's Encrypt valt för att börja använda det.",
+    "turnedOff": "HTTPS stängdes av",
+    "saved": "HTTPS-inställningarna sparades",
+    "settings": {
+      "title": "Inställningar",
+      "description": "Ändringar tillämpas direkt; Athena startar inte om."
+    },
+    "mode": {
+      "label": "Läge",
+      "off": "Av",
+      "offHelp": "Endast vanlig HTTP.",
+      "self": "Självsignerat",
+      "selfHelp": "Athena skapar en egen certifikatutfärdare (CA). Lita på den en gång på varje enhet så visar webbläsare ett hänglås utan varning. Fungerar i ditt hemmanätverk utan domän.",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "Ett gratis certifikat som alla webbläsare litar på, för en domän du äger som pekar på den här servern. Förnyas automatiskt.",
+      "custom": "Eget",
+      "customHelp": "Ladda upp ditt eget certifikat och din privata nyckel (PEM-format). Athena använder dem som de är; ingen automatisk förnyelse."
+    },
+    "port": {
+      "label": "HTTPS-port",
+      "help": "Portar under 1024 (som 443) kan kräva att Athena körs som root. Du kan behöva tillåta porten i värdens brandvägg.",
+      "range": "Ange en port från 1 till 65535.",
+      "taken": "Port {{port}} är Athenas HTTP-port. Välj en annan."
+    },
+    "redirect": {
+      "label": "Skicka webbläsare till HTTPS",
+      "help": "Sidor som öppnas på port {{port}} flyttas till HTTPS. Fildelningar, webhooks, appar och själva servern fortsätter använda vanlig HTTP."
+    },
+    "names": {
+      "label": "Extra namn",
+      "help": "Certifikatet täcker redan serverns namn, dess .local-namn och dess nätverksadresser. Lägg till andra namn eller adresser du öppnar Athena med, avgränsade med kommatecken."
+    },
+    "lockedOut": "Utelåst? Kör <code>{{command}}</code> på servern och starta om Athena.",
+    "cancel": "Avbryt",
+    "needsCertificate": "Skaffa ett certifikat först",
+    "saving": "Sparar…",
+    "save": "Spara",
+    "confirm": {
+      "title": "Skicka webbläsare till HTTPS?",
+      "redirect": "Efter sparning tar öppnandet av Athena på port {{port}} dig till <url>{{url}}</url>.",
+      "letsencrypt": "Öppna Athena med dess domännamn där; andra namn ger en certifikatvarning.",
+      "custom": "Ditt egna certifikat används; webbläsare litar på det om det kommer från en känd CA.",
+      "self": "Tills du litar på Athenas CA på en enhet visar dess webbläsare en varning där.",
+      "recovery": "Om du inte kommer in igen, kör <cmd>{{command}}</cmd> på servern och starta om Athena.",
+      "action": "Spara och omdirigera"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "Domäner",
+      "domainsHelp": "Separera flera med kommatecken. Var och en måste peka på den här servern i offentlig DNS. Ett jokertecken (*.example.com) kräver DNS-utmaningen.",
+      "email": "E-post",
+      "emailHelp": "Let's Encrypt skriver hit om ett certifikat snart går ut.",
+      "challenge": "Hur Let's Encrypt kontrollerar",
+      "http": "HTTP (port 80)",
+      "httpHelp": "Let's Encrypt ansluter till port 80 på den här servern, så den måste vara nåbar från internet (vidarebefordra den i routern).",
+      "dns": "DNS",
+      "dnsHelp": "Athena lägger till en tillfällig DNS-post via din DNS-leverantör. Inga öppna portar; fungerar för jokertecken.",
+      "port80Title": "Port 80 kan inte öppnas just nu",
+      "port80Description": "Ett annat program använder den, eller så får inte Athena öppna den. Frigör port 80 eller använd DNS-utmaningen.",
+      "provider": "DNS-leverantör",
+      "savedUnchanged": "Sparad (oförändrad)",
+      "staging": "Använd teståtkomstservern",
+      "stagingHelp": "För att prova: webbläsare litar inte på dess certifikat, men gränserna är generösa.",
+      "getting": "Hämtar certifikat…",
+      "renew": "Förnya certifikatet nu",
+      "get": "Hämta certifikat",
+      "current": "Nuvarande certifikat för {{names}}, giltigt till {{date}}.",
+      "getThenSave": "Hämta ett certifikat och spara sedan för att börja använda det.",
+      "lastFailed": "Senaste försöket misslyckades: {{error}}"
+    },
+    "custom": {
+      "legend": "Eget certifikat",
+      "cert": "Certifikat (PEM)",
+      "certHelp": "Klistra in hela PEM-kodade certifikatet eller certifikatkedjan.",
+      "key": "Privat nyckel (PEM)",
+      "keyHelp": "Klistra in den PEM-kodade privata nyckeln. Den lagras krypterad."
+    },
+    "trust": {
+      "title": "Lita på Athena på dina enheter",
+      "description": "Installera Athenas CA en gång på varje telefon, surfplatta och dator du använder. Då litar webbläsaren på varje certifikat Athena skapar, även förnyelser.",
+      "download": "Ladda ned CA-certifikat",
+      "validUntil": "Giltigt till {{date}}",
+      "fingerprint": "SHA-256-fingeravtryck",
+      "copyFingerprint": "Kopiera fingeravtryck",
+      "fingerprintCopied": "Fingeravtrycket kopierades",
+      "fingerprintHelp": "Kontrollera att det stämmer med det enheten visar innan du litar på filen.",
+      "rotated": "Ny CA skapad",
+      "rotatedHint": "Ladda ned den och lita på den igen på varje enhet.",
+      "rotateFailed": "Det gick inte att skapa en ny CA",
+      "rotateHint": "Skapa en ny CA om nyckeln kan ha läckt. Varje enhet måste lita på den nya.",
+      "rotate": "Skapa en ny CA",
+      "rotating": "Skapar…",
+      "confirmTitle": "Skapa en ny CA?",
+      "confirmDescription": "Enheter som litar på den nuvarande CA:n visar en varning tills du installerar den nya på var och en av dem.",
+      "macos": {
+        "label": "macOS",
+        "step1": "Öppna den nedladdade filen. Nyckelhanteraren lägger till den i inloggningsnyckelringen.",
+        "step2": "Dubbelklicka på <b>Athena Local CA</b> i Nyckelhanteraren, öppna <b>Förtroende</b> och ställ in <b>Vid användning av detta certifikat</b> på <b>Lita alltid på</b>.",
+        "step3": "Stäng fönstret och ange ditt Mac-lösenord. Starta om webbläsaren."
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "Öppna den nedladdade filen och välj <b>Installera certifikat</b>.",
+        "step2": "Välj <b>Aktuell användare</b> och sedan <b>Placera alla certifikat i följande arkiv</b> → <b>Betrodda rotcertifikatutfärdare</b>.",
+        "step3": "Slutför och bekräfta säkerhetsvarningen. Starta om webbläsaren."
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian eller Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Firefox och Chrome har en egen lista på Linux: importera filen under webbläsarens certifikatinställningar, i <b>Utfärdare</b>."
+      },
+      "ios": {
+        "label": "iPhone och iPad",
+        "step1": "Ladda ned filen i Safari och tillåt nedladdningen av profilen.",
+        "step2": "Öppna <b>Profil nedladdad</b> i Inställningar (eller <b>Allmänt → VPN och enhetshantering</b>) och installera den.",
+        "step3": "Gå till <b>Allmänt → Om → Certifikatförtroende</b> och slå på fullt förtroende för <b>Athena Local CA</b>."
+      },
+      "android": {
+        "label": "Android",
+        "step1": "Ladda ned filen.",
+        "step2": "Sök efter <b>CA-certifikat</b> i Inställningar (oftast <b>Säkerhet → Kryptering och inloggningsuppgifter → Installera ett certifikat → CA-certifikat</b>) och välj filen.",
+        "step3": "Bekräfta varningen. Vissa appar ignorerar användarcertifikat; webbläsare använder dem."
+      }
+    }
+  },
+  "sections": {
+    "appearance": "Utseende",
+    "account": "Konto",
+    "system": "System",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "Inställningar"
+  }
+}

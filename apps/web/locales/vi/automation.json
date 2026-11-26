@@ -1,0 +1,167 @@
+{
+  "cancel": "Hủy",
+  "view": {
+    "unavailable": "Không có tính năng tự động hóa",
+    "unsupported": "Máy chủ này không hỗ trợ tự động hóa."
+  },
+  "copyUrl": {
+    "copy": "Sao chép {{label}}",
+    "copied": "Đã sao chép {{label}}",
+    "failed": "Không thể sao chép"
+  },
+  "external": {
+    "title": "Tự động hóa bên ngoài",
+    "description": "Kết nối n8n, script hoặc tác tử AI với Athena.",
+    "webhookUrl": "URL webhook",
+    "webhookHint": "Gửi yêu cầu POST để kích hoạt trigger webhook; không cần đăng nhập. Mỗi trigger webhook có token riêng: sao chép URL đầy đủ từ danh sách trigger.",
+    "mcpServer": "Máy chủ MCP",
+    "mcpUrl": "URL máy chủ MCP",
+    "mcpHint": "Streamable HTTP. Client đăng nhập bằng cookie phiên, hoặc gửi token đặt trong biến môi trường <envVar>ATHENA_MCP_TOKEN</envVar> của máy chủ dưới dạng <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Lần chạy tác vụ",
+    "description": "Các lần chạy gần nhất, làm mới sau vài giây.",
+    "trigger": "Trigger",
+    "deletedTrigger": "Trigger đã xóa",
+    "listFailed": "Không thể liệt kê các lần chạy tác vụ",
+    "empty": {
+      "title": "Chưa có lần chạy tác vụ",
+      "description": "Các lần chạy sẽ hiện ở đây khi một trigger được kích hoạt."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Khởi động ứng dụng {{name}}",
+      "stop": "Dừng ứng dụng {{name}}",
+      "restart": "Khởi động lại ứng dụng {{name}}",
+      "update": "Cập nhật ứng dụng {{name}}"
+    },
+    "package": {
+      "install": "Cài đặt {{name}} ({{manager}})",
+      "uninstall": "Gỡ cài đặt {{name}} ({{manager}})",
+      "upgrade": "Nâng cấp {{name}} ({{manager}})",
+      "refresh": "Làm mới danh sách gói {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Trigger",
+    "description": "Chạy thao tác ứng dụng hoặc gói theo lịch hoặc từ webhook.",
+    "listFailed": "Không thể liệt kê trigger",
+    "empty": {
+      "title": "Chưa có trigger",
+      "description": "Trigger chạy một thao tác theo lịch (cron) hoặc khi webhook của nó được gọi, ví dụ từ n8n."
+    },
+    "onWebhook": "Khi webhook của nó được gọi",
+    "noSchedule": "Không có lịch",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Lần chạy tiếp theo {{time}}",
+    "changeFailed": "Không thể thay đổi trigger",
+    "enabledToast": "Đã bật {{name}}",
+    "pausedToast": "Đã tạm dừng {{name}}",
+    "enabledLabel": "{{name}} đã bật",
+    "copyWebhook": "Sao chép URL webhook",
+    "webhookCopied": "Đã sao chép URL webhook",
+    "copyFailed": "Không thể sao chép",
+    "deleteFailed": "Không thể xóa trigger",
+    "deleted": "Đã xóa trigger",
+    "deleteLabel": "Xóa {{name}}",
+    "delete": "Xóa",
+    "deleteTitle": "Xóa {{name}}?",
+    "deleteDescription": "Trigger ngừng chạy. Các lần chạy tác vụ trước đó vẫn nằm trong nhật ký.",
+    "deleteDescriptionWebhook": "Trigger ngừng chạy và URL webhook của nó không còn hoạt động. Các lần chạy tác vụ trước đó vẫn nằm trong nhật ký."
+  },
+  "dialog": {
+    "new": "Trigger mới",
+    "description": "Chạy thao tác ứng dụng hoặc gói theo lịch, hoặc mỗi khi webhook được gọi.",
+    "created": {
+      "title": "Đã tạo trigger webhook",
+      "description": "Gửi yêu cầu POST đến URL này để chạy \"{{name}}\". Bất kỳ ai có URL đều có thể kích hoạt, nên hãy giữ riêng tư. Bạn có thể sao chép lại từ danh sách trigger.",
+      "done": "Xong"
+    },
+    "errors": {
+      "name": "Hãy đặt tên cho trigger.",
+      "app": "Hãy chọn một ứng dụng.",
+      "manager": "Hãy chọn một trình quản lý gói.",
+      "packageName": "Hãy nhập tên gói."
+    },
+    "createdToast": "Đã tạo trigger {{name}}",
+    "createFailed": "Không thể tạo trigger",
+    "name": "Tên",
+    "namePlaceholder": "ví dụ: Khởi động lại Jellyfin hằng đêm",
+    "whenItRuns": "Khi nào chạy",
+    "onSchedule": "Theo lịch (cron)",
+    "onWebhook": "Khi webhook được gọi",
+    "schedule": "Lịch chạy",
+    "cronPlaceholder": "phút giờ ngày tháng thứ, ví dụ 0 2 * * *",
+    "cronHelp": "Năm trường: phút, giờ, ngày trong tháng, tháng, thứ. Giờ theo UTC.",
+    "webhookHint": "Sau khi tạo, bạn nhận được một URL bí mật. Một yêu cầu POST đến URL đó (từ n8n, script hoặc curl) sẽ chạy thao tác.",
+    "whatItDoes": "Làm gì",
+    "appAction": "Thao tác ứng dụng",
+    "packageAction": "Thao tác gói",
+    "create": "Tạo trigger",
+    "app": "Ứng dụng",
+    "loadingApps": "Đang tải ứng dụng…",
+    "chooseApp": "Chọn ứng dụng",
+    "noApps": "Chưa cài ứng dụng nào",
+    "action": "Thao tác",
+    "appVerbs": {
+      "start": "Khởi động",
+      "stop": "Dừng",
+      "restart": "Khởi động lại",
+      "update": "Cập nhật (pull và tạo lại)"
+    },
+    "packageVerbs": {
+      "install": "Cài đặt",
+      "uninstall": "Gỡ cài đặt",
+      "upgrade": "Nâng cấp",
+      "refresh": "Làm mới danh sách gói"
+    },
+    "packageManager": "Trình quản lý gói",
+    "loading": "Đang tải…",
+    "chooseManager": "Chọn trình quản lý",
+    "noManagers": "Không có trình nào sẵn sàng trên máy chủ này",
+    "package": "Gói",
+    "packagePlaceholder": "ví dụ: jq",
+    "source": "Nguồn (tùy chọn)",
+    "sourceHint": "Một remote Flatpak, một bucket Scoop, hoặc \"cask\" cho cask của Homebrew.",
+    "loadingInstalled": "Đang tải các gói đã cài đặt…",
+    "installedFailed": "Không thể liệt kê các gói đã cài đặt ({{error}}); hãy nhập tên.",
+    "searchInstalled": "Tìm các gói đã cài đặt",
+    "noMatch": "Không có gói đã cài đặt nào khớp."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Mỗi giờ",
+      "daily": "Hằng ngày lúc 02:00",
+      "sundays": "Chủ nhật lúc 03:00",
+      "monthly": "Hằng tháng vào ngày 1"
+    },
+    "fields": {
+      "minute": "phút",
+      "hour": "giờ",
+      "dayOfMonth": "ngày trong tháng",
+      "month": "tháng",
+      "weekday": "thứ"
+    },
+    "errors": {
+      "empty": "Nhập biểu thức cron hoặc chọn một mẫu có sẵn.",
+      "invalidField": "Trường {{field}} \"{{value}}\" không hợp lệ.",
+      "invalidStep": "Bước \"/{{step}}\" trong trường {{field}} phải là một số.",
+      "outOfRange": "Trường {{field}} phải nằm trong khoảng {{min}} đến {{max}}.",
+      "fieldCount": "Dùng năm trường (phút giờ ngày tháng thứ); hiện có {{count}}."
+    },
+    "dayRange": "{{from}} đến {{to}}",
+    "custom": "Lịch tùy chỉnh",
+    "everyMinute": "Mỗi phút",
+    "everyMinutes_other": "Mỗi {{count}} phút",
+    "everyHourOnTheHour": "Mỗi giờ, vào đầu giờ",
+    "everyHourAtMinute": "Mỗi giờ vào phút {{minute}}",
+    "everyHoursAtMinute_other": "Mỗi {{count}} giờ vào phút {{minute}}",
+    "everyDay": "Mỗi ngày lúc {{time}}",
+    "everyWeekdays": "Mỗi {{days}} lúc {{time}}",
+    "onDayOfMonth": "Vào ngày {{day}} hằng tháng lúc {{time}}",
+    "everyYear": "Mỗi năm vào ngày {{day}} {{month}} lúc {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

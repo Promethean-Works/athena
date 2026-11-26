@@ -1,0 +1,169 @@
+{
+  "cancel": "Avbryt",
+  "view": {
+    "unavailable": "Automation är inte tillgänglig",
+    "unsupported": "Den här värden stöder inte automation."
+  },
+  "copyUrl": {
+    "copy": "Kopiera {{label}}",
+    "copied": "{{label}} kopierades",
+    "failed": "Det gick inte att kopiera"
+  },
+  "external": {
+    "title": "Extern automation",
+    "description": "Anslut n8n, skript eller AI-agenter till Athena.",
+    "webhookUrl": "Webhook-URL",
+    "webhookHint": "Skicka en POST-förfrågan för att utlösa en webhook-utlösare; ingen inloggning behövs. Varje webhook-utlösare har en egen token: kopiera dess fullständiga URL från utlösarlistan.",
+    "mcpServer": "MCP-server",
+    "mcpUrl": "MCP-serverns URL",
+    "mcpHint": "Streamable HTTP. Klienter loggar in med en sessionscookie, eller skickar den token som anges i serverns miljövariabel <envVar>ATHENA_MCP_TOKEN</envVar> som <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Jobbkörningar",
+    "description": "De senaste körningarna, uppdateras med några sekunders mellanrum.",
+    "trigger": "Utlösare",
+    "deletedTrigger": "Raderad utlösare",
+    "listFailed": "Det gick inte att lista jobbkörningar",
+    "empty": {
+      "title": "Inga jobbkörningar än",
+      "description": "Körningar visas här när en utlösare utlöses."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Starta appen {{name}}",
+      "stop": "Stoppa appen {{name}}",
+      "restart": "Starta om appen {{name}}",
+      "update": "Uppdatera appen {{name}}"
+    },
+    "package": {
+      "install": "Installera {{name}} ({{manager}})",
+      "uninstall": "Avinstallera {{name}} ({{manager}})",
+      "upgrade": "Uppgradera {{name}} ({{manager}})",
+      "refresh": "Uppdatera paketlistor för {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Utlösare",
+    "description": "Kör en app- eller paketåtgärd enligt schema eller från en webhook.",
+    "listFailed": "Det gick inte att lista utlösare",
+    "empty": {
+      "title": "Inga utlösare än",
+      "description": "En utlösare kör en åtgärd enligt schema (cron) eller när dess webhook anropas, till exempel från n8n."
+    },
+    "onWebhook": "När dess webhook anropas",
+    "noSchedule": "Inget schema",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Nästa körning {{time}}",
+    "changeFailed": "Det gick inte att ändra utlösaren",
+    "enabledToast": "{{name}} aktiverades",
+    "pausedToast": "{{name}} pausades",
+    "enabledLabel": "{{name}} aktiverad",
+    "copyWebhook": "Kopiera webhook-URL",
+    "webhookCopied": "Webhook-URL kopierades",
+    "copyFailed": "Det gick inte att kopiera",
+    "deleteFailed": "Det gick inte att radera utlösaren",
+    "deleted": "Utlösaren raderades",
+    "deleteLabel": "Radera {{name}}",
+    "delete": "Radera",
+    "deleteTitle": "Radera {{name}}?",
+    "deleteDescription": "Den slutar köras. Tidigare jobbkörningar finns kvar i loggen.",
+    "deleteDescriptionWebhook": "Den slutar köras och dess webhook-URL slutar fungera. Tidigare jobbkörningar finns kvar i loggen."
+  },
+  "dialog": {
+    "new": "Ny utlösare",
+    "description": "Kör en app- eller paketåtgärd enligt schema, eller när en webhook anropas.",
+    "created": {
+      "title": "Webhook-utlösaren skapades",
+      "description": "Skicka en POST-förfrågan till den här URL:en för att köra ”{{name}}”. Alla som har URL:en kan utlösa den, så håll den privat. Du kan kopiera den igen från utlösarlistan.",
+      "done": "Klar"
+    },
+    "errors": {
+      "name": "Ge utlösaren ett namn.",
+      "app": "Välj en app.",
+      "manager": "Välj en pakethanterare.",
+      "packageName": "Ange ett paketnamn."
+    },
+    "createdToast": "Utlösaren {{name}} skapades",
+    "createFailed": "Det gick inte att skapa utlösaren",
+    "name": "Namn",
+    "namePlaceholder": "t.ex. Nattlig omstart av Jellyfin",
+    "whenItRuns": "När den körs",
+    "onSchedule": "Enligt schema (cron)",
+    "onWebhook": "När en webhook anropas",
+    "schedule": "Schema",
+    "cronPlaceholder": "minut timme dag månad veckodag, t.ex. 0 2 * * *",
+    "cronHelp": "Fem fält: minut, timme, dag i månaden, månad, veckodag. Tiderna är UTC.",
+    "webhookHint": "När du har skapat den får du en hemlig URL. En POST-förfrågan dit (från n8n, ett skript eller curl) kör åtgärden.",
+    "whatItDoes": "Vad den gör",
+    "appAction": "Appåtgärd",
+    "packageAction": "Paketåtgärd",
+    "create": "Skapa utlösare",
+    "app": "App",
+    "loadingApps": "Läser in appar…",
+    "chooseApp": "Välj en app",
+    "noApps": "Inga appar installerade",
+    "action": "Åtgärd",
+    "appVerbs": {
+      "start": "Starta",
+      "stop": "Stoppa",
+      "restart": "Starta om",
+      "update": "Uppdatera (hämta och skapa om)"
+    },
+    "packageVerbs": {
+      "install": "Installera",
+      "uninstall": "Avinstallera",
+      "upgrade": "Uppgradera",
+      "refresh": "Uppdatera paketlistor"
+    },
+    "packageManager": "Pakethanterare",
+    "loading": "Läser in…",
+    "chooseManager": "Välj en hanterare",
+    "noManagers": "Ingen är redo på den här värden",
+    "package": "Paket",
+    "packagePlaceholder": "t.ex. jq",
+    "source": "Källa (valfritt)",
+    "sourceHint": "En Flatpak-fjärrlagring, en Scoop-bucket eller ”cask” för en Homebrew-cask.",
+    "loadingInstalled": "Läser in installerade paket…",
+    "installedFailed": "Det gick inte att lista installerade paket ({{error}}); skriv namnet.",
+    "searchInstalled": "Sök bland installerade paket",
+    "noMatch": "Inget installerat paket matchar."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Varje timme",
+      "daily": "Dagligen kl. 02:00",
+      "sundays": "Söndagar kl. 03:00",
+      "monthly": "Månadsvis den 1:a"
+    },
+    "fields": {
+      "minute": "minut",
+      "hour": "timme",
+      "dayOfMonth": "dag i månaden",
+      "month": "månad",
+      "weekday": "veckodag"
+    },
+    "errors": {
+      "empty": "Ange ett cron-uttryck eller välj en förinställning.",
+      "invalidField": "Fältet {{field}} ”{{value}}” är inte giltigt.",
+      "invalidStep": "Steget ”/{{step}}” i fältet {{field}} måste vara ett tal.",
+      "outOfRange": "Fältet {{field}} måste vara mellan {{min}} och {{max}}.",
+      "fieldCount": "Använd fem fält (minut timme dag månad veckodag); det här har {{count}}."
+    },
+    "dayRange": "{{from}} till {{to}}",
+    "custom": "Eget schema",
+    "everyMinute": "Varje minut",
+    "everyMinutes_one": "Var {{count}}:e minut",
+    "everyMinutes_other": "Var {{count}}:e minut",
+    "everyHourOnTheHour": "Varje timme, på hel timme",
+    "everyHourAtMinute": "Varje timme vid minut {{minute}}",
+    "everyHoursAtMinute_one": "Var {{count}}:e timme vid minut {{minute}}",
+    "everyHoursAtMinute_other": "Var {{count}}:e timme vid minut {{minute}}",
+    "everyDay": "Varje dag kl. {{time}}",
+    "everyWeekdays": "Varje {{days}} kl. {{time}}",
+    "onDayOfMonth": "Dag {{day}} i varje månad kl. {{time}}",
+    "everyYear": "Varje år den {{day}} {{month}} kl. {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

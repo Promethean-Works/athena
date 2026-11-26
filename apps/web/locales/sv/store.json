@@ -1,0 +1,113 @@
+{
+  "support": {
+    "emulated": "Emulerad",
+    "emulatedTitle": "Ingen avbild för den här CPU:n; Docker kör en annan under emulering, vilket är långsammare",
+    "unsupported": "Körs inte här",
+    "unsupportedTitle": "Ingen avbild för serverns CPU"
+  },
+  "browser": {
+    "loadError": "Det gick inte att läsa in butiken",
+    "filteredCount": "{{shown}} av {{total}} appar",
+    "totalCount_one": "{{count}} app, ett compose-projekt som Athena ställer in åt dig.",
+    "totalCount_other": "{{count}} appar, vart och ett ett compose-projekt som Athena ställer in åt dig.",
+    "browsePrompt": "Bläddra bland appar att installera.",
+    "searchPlaceholder": "Sök appar",
+    "catalogs": "Kataloger",
+    "showingUnsupported_one": "Visar {{count}} app som inte kan köras på serverns CPU.",
+    "showingUnsupported_other": "Visar {{count}} appar som inte kan köras på serverns CPU.",
+    "hiddenUnsupported_one": "{{count}} app är dold eftersom den saknar avbild för serverns CPU.",
+    "hiddenUnsupported_other": "{{count}} appar är dolda eftersom de saknar avbild för serverns CPU.",
+    "hideThem": "Dölj dem",
+    "showThem": "Visa dem",
+    "all": "Alla",
+    "noMatchTitle": "Inga appar matchar",
+    "noMatchHidden_one": "{{count}} matchande app är dold eftersom den saknar avbild för serverns CPU.",
+    "noMatchHidden_other": "{{count}} matchande appar är dolda eftersom de saknar avbild för serverns CPU.",
+    "noMatchHint": "Prova en annan sökning eller kategori.",
+    "showMatches_one": "Visa den",
+    "showMatches_other": "Visa dem"
+  },
+  "card": {
+    "installed": "Installerad"
+  },
+  "popular": {
+    "title": "Populärt just nu",
+    "subtitle": "Apparna de flesta hemservrar börjar med.",
+    "showPage": "Visa sida {{page}} av {{total}}"
+  },
+  "installForm": {
+    "generated": "Genereras om det lämnas tomt",
+    "nameInvalid": "Använd små bokstäver, siffror, bindestreck eller understreck.",
+    "jobLabel": "installera {{title}}",
+    "appName": "Appnamn",
+    "nameHint": "Installera samma app två gånger under olika namn om du behöver.",
+    "advanced": "Avancerade inställningar",
+    "install": "Installera {{title}}"
+  },
+  "view": {
+    "loadError": "Det gick inte att läsa in appen",
+    "notFound": "Appen hittades inte",
+    "website": "Webbplats",
+    "alreadyInstalled": "Redan installerad",
+    "installedAs": "Som",
+    "installAnother": "Du kan installera en kopia till under ett annat namn.",
+    "beforeYouStart": "Innan du börjar",
+    "whatYouGet": "Det här får du",
+    "details": "Detaljer",
+    "category": "Kategori",
+    "license": "Licens",
+    "images": "Avbilder",
+    "platforms": "Plattformar",
+    "viewCompose": "Visa compose.yaml",
+    "reportPrompt": "Fungerar den inte som väntat?",
+    "install": "Installera",
+    "installHint": "Dina svar sparas i appens .env-fil på servern, bredvid dess compose.yaml.",
+    "variant": "Variant",
+    "cannotInstall": "{{title}} kan inte installeras på den här servern: den saknar avbild för {{platform}}.",
+    "thisCpu": "den här CPU:n",
+    "thisServerCpu": "serverns CPU",
+    "moreIn": "Mer i {{category}}",
+    "cpu": {
+      "unsupportedTitle": "Körs inte på den här servern",
+      "unsupportedBody": "Dess avbilder publiceras för {{published}}, och den här servern är {{host}}.",
+      "emulatedTitle": "Körs under emulering",
+      "emulatedBody": "Det finns ingen avbild för {{host}}, så Docker kör den för {{published}} under emulering. Det fungerar, men är långsammare och använder mer minne."
+    },
+    "screenshot": {
+      "alt": "Skärmbild av {{title}}",
+      "open": "Öppna en större skärmbild av {{title}}",
+      "enlarge": "Förstora",
+      "show": "Visa skärmbild {{number}}",
+      "description": "En skärmbild av {{title}}.",
+      "close": "Stäng"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "Identifiera automatiskt",
+    "kindAthena": "Athena-katalog",
+    "never": "aldrig",
+    "addFailed": "Det gick inte att lägga till katalogen",
+    "refreshFailed": "Det gick inte att uppdatera {{name}}",
+    "removeFailed": "Det gick inte att ta bort {{name}}",
+    "removed": "{{name}} togs bort",
+    "builtIn": "Inbyggd",
+    "refreshFailedBadge": "Uppdateringen misslyckades",
+    "summaryBuiltin_one": "{{count}} app · följer med Athena",
+    "summaryBuiltin_other": "{{count}} appar · följer med Athena",
+    "summaryUpdated_one": "{{count}} app · uppdaterad {{when}}",
+    "summaryUpdated_other": "{{count}} appar · uppdaterad {{when}}",
+    "refresh": "Uppdatera",
+    "removeLabel": "Ta bort {{name}}",
+    "addTitle": "Lägg till en katalog",
+    "addDescription": "Ett GitHub-, Codeberg- eller GitLab-arkiv, eller en direktlänk till .tar.gz/.zip.",
+    "name": "Namn",
+    "namePlaceholder": "Mina appar",
+    "format": "Format",
+    "formatHint": "Athena-kataloger använder apps/<id>/compose.yaml; CasaOS-butiker använder Apps/<Name>/docker-compose.yml.",
+    "add": "Lägg till katalog",
+    "removeTitle": "Ta bort {{name}}?",
+    "removeDescription": "Dess appar försvinner från butiken. Appar du redan installerat därifrån fortsätter köra.",
+    "cancel": "Avbryt",
+    "remove": "Ta bort"
+  }
+}

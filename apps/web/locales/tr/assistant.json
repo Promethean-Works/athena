@@ -1,0 +1,140 @@
+{
+  "title": "Asistan",
+  "sheet": {
+    "description": "Yapay zekâ asistanıyla bu sunucu hakkında sohbet edin.",
+    "openFullPage": "Tam sayfayı aç"
+  },
+  "chat": {
+    "newChat": "Yeni sohbet",
+    "chats": "Sohbetler",
+    "noChats": "Henüz sohbet yok.",
+    "deleteChat": "{{title}} sohbetini sil",
+    "thinking": "Düşünüyor…",
+    "stillWorking": "Yanıt üzerinde hâlâ çalışıyor. Bittiğinde burada görünür.",
+    "emptyTitle": "Bu sunucu hakkında sorun",
+    "emptyDescription": "Asistan uygulamalara, günlüklere, dosyalara ve sistem istatistiklerine bakabilir; her eylemi onayladıktan sonra bir şeyler kurabilir veya değiştirebilir.",
+    "suggestions": {
+      "capabilities": "Bu sunucu neler yapabilir?",
+      "disk": "Ne kadar disk alanı kaldı?",
+      "apps": "Hangi uygulamalar çalışıyor?"
+    },
+    "message": "Mesaj",
+    "placeholder": "Bu sunucu hakkında sorun…",
+    "placeholderWaiting": "Yukarıyı yanıtlayın ya da atlamak için mesaj gönderin…",
+    "stop": "Durdur",
+    "send": "Gönder",
+    "pickModelFirst": "Önce bir model seçin",
+    "changeModelFailed": "Model değiştirilemedi",
+    "startFailed": "Sohbet başlatılamadı",
+    "deleteFailed": "Sohbet silinemedi",
+    "failed": "Asistan başarısız oldu"
+  },
+  "noProviders": {
+    "title": "Önce bir model ayarlayın",
+    "description": "Asistanın bir yapay zekâ sağlayıcısına ihtiyacı var: API anahtarlı bir bulut sağlayıcı ya da kendi donanımınızda çalışan Ollama.",
+    "openSettings": "Ayarlar → Yapay zekâ'yı aç"
+  },
+  "model": {
+    "pick": "Bir model seçin",
+    "label": "Model: {{label}}",
+    "search": "Model kimliği ara veya yaz",
+    "noMatch": "Eşleşen model yok.",
+    "addProvider": "Önce Ayarlar → Yapay zekâ bölümünden bir sağlayıcı ekleyin.",
+    "noTools": "araç kullanamaz",
+    "use": "“{{model}}” kullan"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "{{total}} adımın {{done}} tanesi bitti",
+    "steps": "Plan adımları",
+    "status": {
+      "pending": "bekliyor",
+      "in_progress": "sürüyor",
+      "completed": "tamamlandı",
+      "cancelled": "iptal edildi",
+      "blocked": "engellendi"
+    }
+  },
+  "spend": {
+    "usage": "Bu sohbetin kullanımı",
+    "usageWith": "Bu sohbetin kullanımı: {{label}}",
+    "unknownPrices": "Bu modelin fiyatları bilinmiyor, bu yüzden yalnızca belirteçler sayılır.",
+    "estimate": "Modelin yayımlanmış fiyatlarından bir tahmin.",
+    "ofLimit": "{{limit}} içinden {{spent}}",
+    "spent": "Harcanan",
+    "unknown": "Bilinmiyor",
+    "inputTokens": "Girdi belirteçleri",
+    "outputTokens": "Çıktı belirteçleri",
+    "tokens_one": "{{formatted}} belirteç",
+    "tokens_other": "{{formatted}} belirteç",
+    "limitReached": "Bu sohbet harcama sınırına ulaştı. Yeni bir sohbet başlatın ya da <settings>Ayarlar → Yapay zekâ</settings> bölümünden sınırı yükseltin.",
+    "limitNotApplicable": "Harcama sınırı ({{limit}}) bu modele uygulanamaz."
+  },
+  "steps": {
+    "thinking": "Düşünüyor",
+    "thought": "Düşündü",
+    "draft": "İlk taslak, aşağıda düzeltildi",
+    "approvalNeeded": "Onay gerekli: {{title}}",
+    "run": "{{name}} çalıştır",
+    "approvalIntro": "Asistan bunu yapmak istiyor. Siz onaylayana kadar hiçbir şey olmaz.",
+    "deny": "Reddet",
+    "approve": "Onayla",
+    "approvedGoOn": "Onaylandı. Devam etmek için diğer kartları yanıtlayın.",
+    "deniedGoOn": "Reddedildi. Devam etmek için diğer kartları yanıtlayın.",
+    "logGone": "Bu günlük artık yok",
+    "log": "Günlük",
+    "denied": "Reddedildi: {{title}}",
+    "failed": "Başarısız: {{title}}",
+    "running": "{{name}} çalışıyor",
+    "ran": "{{name}} çalıştı",
+    "withSubject": "{{subject}}: {{title}}",
+    "helperRunningTask": "Yardımcı araştırıyor: {{task}}",
+    "helperDoneTask": "Yardımcı araştırdı: {{task}}",
+    "helperRunning": "Yardımcı bir şeylere bakıyor",
+    "helperDone": "Yardımcı bir şeylere baktı",
+    "tools": {
+      "getCapabilities": {
+        "running": "Bu sunucunun neler yapabildiği denetleniyor",
+        "done": "Bu sunucunun neler yapabildiği denetlendi"
+      },
+      "getSystemStats": { "running": "Sistem istatistikleri okunuyor", "done": "Sistem istatistikleri okundu" },
+      "listApps": { "running": "Uygulamalar listeleniyor", "done": "Uygulamalar listelendi" },
+      "appLogs": { "running": "Uygulama günlükleri okunuyor", "done": "Uygulama günlükleri okundu" },
+      "listFileLocations": { "running": "Dosya konumları listeleniyor", "done": "Dosya konumları listelendi" },
+      "listFiles": { "running": "Dosyalar listeleniyor", "done": "Dosyalar listelendi" },
+      "readFile": { "running": "Bir dosya okunuyor", "done": "Bir dosya okundu" },
+      "writeFile": { "running": "Bir dosya yazılıyor", "done": "Bir dosya yazıldı" },
+      "editFile": { "running": "Bir dosya düzenleniyor", "done": "Bir dosya düzenlendi" },
+      "listDirectory": { "running": "Bir klasör listeleniyor", "done": "Bir klasör listelendi" },
+      "createDirectory": { "running": "Bir klasör oluşturuluyor", "done": "Bir klasör oluşturuldu" },
+      "searchStore": { "running": "Uygulama mağazasında aranıyor", "done": "Uygulama mağazasında arandı" },
+      "readToolResult": { "running": "Kaydedilmiş bir araç sonucu okunuyor", "done": "Kaydedilmiş bir araç sonucu okundu" },
+      "askUserQuestion": { "running": "Yanıtınız bekleniyor", "done": "Size soruldu" },
+      "advisor": { "running": "Danışmana soruluyor", "done": "Danışmana soruldu" },
+      "runWorkflow": {
+        "running": "Yardımcılar birlikte araştırıyor",
+        "done": "Yardımcılar birlikte araştırdı"
+      },
+      "getStoreApp": { "running": "Bir mağaza uygulaması okunuyor", "done": "Bir mağaza uygulaması okundu" },
+      "listPackageManagers": { "running": "Paket yöneticileri listeleniyor", "done": "Paket yöneticileri listelendi" },
+      "searchPackages": { "running": "Paketler aranıyor", "done": "Paketler arandı" },
+      "listUpgradablePackages": {
+        "running": "Paket güncellemeleri denetleniyor",
+        "done": "Paket güncellemeleri denetlendi"
+      }
+    }
+  },
+  "question": {
+    "title": "Sorular",
+    "asks": "Asistan soruyor: {{title}}",
+    "intro": "Asistan devam etmeden önce soruyor. Asla parola veya anahtarla yanıt vermeyin.",
+    "ownAnswerLabel": "{{header}} için kendi yanıtınız",
+    "ownAnswerPlaceholder": "Ya da kendi yanıtınızı yazın",
+    "skip": "Atla",
+    "send": "Yanıtları gönder",
+    "skippedGoOn": "Atlandı. Devam etmek için diğer kartları yanıtlayın.",
+    "answeredGoOn": "Yanıtlandı. Devam etmek için diğer kartları yanıtlayın.",
+    "youAnswered": "Yanıtınız: {{answers}}",
+    "youSkipped": "Soruyu atladınız"
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "cancel": "Batal",
+  "view": {
+    "unavailable": "Otomatisasi tidak tersedia",
+    "unsupported": "Host ini tidak mendukung otomatisasi."
+  },
+  "copyUrl": {
+    "copy": "Salin {{label}}",
+    "copied": "{{label}} disalin",
+    "failed": "Tidak dapat menyalin"
+  },
+  "external": {
+    "title": "Otomatisasi eksternal",
+    "description": "Hubungkan n8n, skrip, atau agen AI ke Athena.",
+    "webhookUrl": "URL webhook",
+    "webhookHint": "Kirim permintaan POST untuk memicu pemicu webhook; tanpa perlu masuk. Setiap pemicu webhook punya token sendiri: salin URL lengkapnya dari daftar pemicu.",
+    "mcpServer": "Server MCP",
+    "mcpUrl": "URL server MCP",
+    "mcpHint": "Streamable HTTP. Klien masuk dengan cookie sesi, atau mengirim token yang diatur di variabel lingkungan <envVar>ATHENA_MCP_TOKEN</envVar> server sebagai <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Eksekusi tugas",
+    "description": "Eksekusi terbaru, disegarkan setiap beberapa detik.",
+    "trigger": "Pemicu",
+    "deletedTrigger": "Pemicu yang dihapus",
+    "listFailed": "Tidak dapat menampilkan daftar eksekusi tugas",
+    "empty": {
+      "title": "Belum ada eksekusi tugas",
+      "description": "Eksekusi muncul di sini saat pemicu aktif."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Mulai aplikasi {{name}}",
+      "stop": "Hentikan aplikasi {{name}}",
+      "restart": "Mulai ulang aplikasi {{name}}",
+      "update": "Perbarui aplikasi {{name}}"
+    },
+    "package": {
+      "install": "Pasang {{name}} ({{manager}})",
+      "uninstall": "Copot {{name}} ({{manager}})",
+      "upgrade": "Perbarui {{name}} ({{manager}})",
+      "refresh": "Segarkan daftar paket {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Pemicu",
+    "description": "Jalankan aksi aplikasi atau paket sesuai jadwal atau dari webhook.",
+    "listFailed": "Tidak dapat menampilkan daftar pemicu",
+    "empty": {
+      "title": "Belum ada pemicu",
+      "description": "Pemicu menjalankan aksi sesuai jadwal (cron) atau saat webhook-nya dipanggil, misalnya dari n8n."
+    },
+    "onWebhook": "Saat webhook-nya dipanggil",
+    "noSchedule": "Tanpa jadwal",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Berikutnya {{time}}",
+    "changeFailed": "Tidak dapat mengubah pemicu",
+    "enabledToast": "{{name}} diaktifkan",
+    "pausedToast": "{{name}} dijeda",
+    "enabledLabel": "{{name}} aktif",
+    "copyWebhook": "Salin URL webhook",
+    "webhookCopied": "URL webhook disalin",
+    "copyFailed": "Tidak dapat menyalin",
+    "deleteFailed": "Tidak dapat menghapus pemicu",
+    "deleted": "Pemicu dihapus",
+    "deleteLabel": "Hapus {{name}}",
+    "delete": "Hapus",
+    "deleteTitle": "Hapus {{name}}?",
+    "deleteDescription": "Pemicu berhenti berjalan. Eksekusi tugas sebelumnya tetap ada di log.",
+    "deleteDescriptionWebhook": "Pemicu berhenti berjalan dan URL webhook-nya tidak berfungsi lagi. Eksekusi tugas sebelumnya tetap ada di log."
+  },
+  "dialog": {
+    "new": "Pemicu baru",
+    "description": "Jalankan aksi aplikasi atau paket sesuai jadwal, atau setiap kali webhook dipanggil.",
+    "created": {
+      "title": "Pemicu webhook dibuat",
+      "description": "Kirim permintaan POST ke URL ini untuk menjalankan \"{{name}}\". Siapa pun yang memiliki URL dapat memicunya, jadi jaga kerahasiaannya. Anda dapat menyalinnya lagi dari daftar pemicu.",
+      "done": "Selesai"
+    },
+    "errors": {
+      "name": "Beri nama pemicu.",
+      "app": "Pilih aplikasi.",
+      "manager": "Pilih pengelola paket.",
+      "packageName": "Masukkan nama paket."
+    },
+    "createdToast": "Pemicu {{name}} dibuat",
+    "createFailed": "Tidak dapat membuat pemicu",
+    "name": "Nama",
+    "namePlaceholder": "mis. Mulai ulang Jellyfin tiap malam",
+    "whenItRuns": "Kapan dijalankan",
+    "onSchedule": "Sesuai jadwal (cron)",
+    "onWebhook": "Saat webhook dipanggil",
+    "schedule": "Jadwal",
+    "cronPlaceholder": "menit jam hari bulan hari-minggu, mis. 0 2 * * *",
+    "cronHelp": "Lima kolom: menit, jam, tanggal, bulan, hari dalam seminggu. Waktu dalam UTC.",
+    "webhookHint": "Setelah dibuat, Anda mendapat URL rahasia. Permintaan POST ke URL itu (dari n8n, skrip, atau curl) menjalankan aksi.",
+    "whatItDoes": "Yang dilakukan",
+    "appAction": "Aksi aplikasi",
+    "packageAction": "Aksi paket",
+    "create": "Buat pemicu",
+    "app": "Aplikasi",
+    "loadingApps": "Memuat aplikasi…",
+    "chooseApp": "Pilih aplikasi",
+    "noApps": "Tidak ada aplikasi terpasang",
+    "action": "Aksi",
+    "appVerbs": {
+      "start": "Mulai",
+      "stop": "Hentikan",
+      "restart": "Mulai ulang",
+      "update": "Perbarui (tarik dan buat ulang)"
+    },
+    "packageVerbs": {
+      "install": "Pasang",
+      "uninstall": "Copot",
+      "upgrade": "Perbarui",
+      "refresh": "Segarkan daftar paket"
+    },
+    "packageManager": "Pengelola paket",
+    "loading": "Memuat…",
+    "chooseManager": "Pilih pengelola",
+    "noManagers": "Tidak ada yang siap di host ini",
+    "package": "Paket",
+    "packagePlaceholder": "mis. jq",
+    "source": "Sumber (opsional)",
+    "sourceHint": "Remote Flatpak, bucket Scoop, atau \"cask\" untuk cask Homebrew.",
+    "loadingInstalled": "Memuat paket terpasang…",
+    "installedFailed": "Tidak dapat menampilkan daftar paket terpasang ({{error}}); ketik namanya.",
+    "searchInstalled": "Cari paket terpasang",
+    "noMatch": "Tidak ada paket terpasang yang cocok."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Setiap jam",
+      "daily": "Harian pukul 02:00",
+      "sundays": "Hari Minggu pukul 03:00",
+      "monthly": "Bulanan setiap tanggal 1"
+    },
+    "fields": {
+      "minute": "menit",
+      "hour": "jam",
+      "dayOfMonth": "tanggal",
+      "month": "bulan",
+      "weekday": "hari dalam seminggu"
+    },
+    "errors": {
+      "empty": "Masukkan ekspresi cron atau pilih preset.",
+      "invalidField": "Kolom {{field}} \"{{value}}\" tidak valid.",
+      "invalidStep": "Langkah \"/{{step}}\" pada kolom {{field}} harus berupa angka.",
+      "outOfRange": "Nilai {{field}} harus antara {{min}} dan {{max}}.",
+      "fieldCount": "Gunakan lima kolom (menit jam tanggal bulan hari); ini memiliki {{count}}."
+    },
+    "dayRange": "{{from}} sampai {{to}}",
+    "custom": "Jadwal kustom",
+    "everyMinute": "Setiap menit",
+    "everyMinutes_other": "Setiap {{count}} menit",
+    "everyHourOnTheHour": "Setiap jam, tepat di awal jam",
+    "everyHourAtMinute": "Setiap jam pada menit ke-{{minute}}",
+    "everyHoursAtMinute_other": "Setiap {{count}} jam pada menit ke-{{minute}}",
+    "everyDay": "Setiap hari pukul {{time}}",
+    "everyWeekdays": "Setiap {{days}} pukul {{time}}",
+    "onDayOfMonth": "Pada tanggal {{day}} setiap bulan pukul {{time}}",
+    "everyYear": "Setiap tahun pada {{day}} {{month}} pukul {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

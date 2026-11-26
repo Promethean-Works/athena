@@ -1,0 +1,197 @@
+{
+  "page": {
+    "description": "Aplicațiile sunt proiecte compose administrate de Athena."
+  },
+  "newApp": "Aplicație nouă",
+  "open": "Deschide",
+  "list": {
+    "failed": "Nu s-au putut lista aplicațiile"
+  },
+  "status": {
+    "running": "În execuție",
+    "partial": "{{running}}/{{total}} în execuție",
+    "stopped": "Oprită",
+    "notDeployed": "Nepusă în funcțiune"
+  },
+  "actions": {
+    "restart": "Repornește",
+    "stop": "Oprește",
+    "start": "Pornește",
+    "updateImages": "Actualizează imaginile",
+    "remove": "Elimină"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Nu s-a putut porni {{name}}",
+      "stop": "Nu s-a putut opri {{name}}",
+      "restart": "Nu s-a putut reporni {{name}}",
+      "update": "Nu s-a putut actualiza {{name}}",
+      "remove": "Nu s-a putut elimina {{name}}",
+      "save": "Nu s-a putut salva {{name}}",
+      "saveSettings": "Nu s-au putut salva setările pentru {{name}}",
+      "deploy": "Nu s-a putut pune în funcțiune {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Elimini {{name}}?",
+    "description": "Containerele ei sunt oprite și eliminate, iar Athena uită aplicația.",
+    "deleteData": "Șterge și volumele și dosarul ei de date. Acțiunea nu poate fi anulată.",
+    "cancel": "Anulează",
+    "confirm": "Elimină"
+  },
+  "grid": {
+    "emptyTitle": "Nicio aplicație încă",
+    "emptyDescription": "Pune în funcțiune un fișier compose sau convertește o comandă <code>docker run</code>.",
+    "containerCount_one": "un container",
+    "containerCount_few": "{{count}} containere",
+    "containerCount_other": "{{count}} de containere",
+    "fromDockerRun": "din docker run",
+    "actionsFor": "Acțiuni pentru {{name}}"
+  },
+  "containerState": {
+    "running": "în execuție",
+    "exited": "oprit",
+    "dead": "mort",
+    "paused": "în pauză",
+    "created": "creat",
+    "restarting": "repornește"
+  },
+  "detail": {
+    "loadFailed": "Nu s-a putut încărca aplicația",
+    "loadFailedNamed": "Nu s-a putut încărca {{name}}",
+    "tabContainers": "Containere",
+    "tabCompose": "Compose",
+    "tabSettings": "Setări",
+    "tabBackups": "Copii de rezervă",
+    "noContainers": "Niciun container",
+    "noContainersHint": "Pornește aplicația pentru a-i crea containerele.",
+    "logs": "Jurnale",
+    "shell": "Shell",
+    "composeHelp": "Salvarea păstrează versiunea anterioară ca compose.prev.yaml și repune aplicația în funcțiune.",
+    "settingsHelp": "Valorile din formularul de instalare (.env). Schimbă aici un port sau un dosar, apoi salvează pentru a repune în funcțiune. Pot conține parole generate.",
+    "saveRedeploy": "Salvează și repune în funcțiune",
+    "discard": "Renunță la modificări"
+  },
+  "new": {
+    "nameInvalid": "Folosește litere mici, cifre, cratime sau liniuțe de subliniere, începând cu o literă sau o cifră.",
+    "convertFailed": "Nu s-a putut converti comanda",
+    "validationFailed": "Validarea a eșuat",
+    "name": "Nume",
+    "nameHelp": "Este și numele proiectului compose. Nu poate fi schimbat ulterior.",
+    "tabCompose": "Fișier compose",
+    "tabRun": "Din docker run",
+    "reviewConverted": "Verifică fișierul convertit",
+    "upload": "Încarcă fișier",
+    "composeHelp": "Folosește <code>${ATHENA_APP_DATA}</code> pentru fișierele care trebuie să stea în dosarul de date al acestei aplicații de pe server.",
+    "runLabel": "Comandă docker run",
+    "runHelp": "Este convertită într-un fișier compose pe care îl poți verifica înainte de punerea în funcțiune. Încă nu rulează nimic.",
+    "convert": "Convertește în compose",
+    "valid": "Fișierul compose este valid",
+    "invalid": "Fișierul compose are erori",
+    "validate": "Validează",
+    "deploy": "Pune în funcțiune"
+  },
+  "compose": {
+    "serializationFailed": "Serializarea a eșuat",
+    "addService": "Adaugă serviciu",
+    "tabs": {
+      "settings": "Setări",
+      "networks": "Rețele",
+      "volumes": "Volume",
+      "raw": "YAML brut"
+    },
+    "restart": {
+      "no": "Nu (nu reporni)",
+      "always": "Întotdeauna",
+      "unlessStopped": "Dacă nu a fost oprit",
+      "onFailure": "La eroare"
+    },
+    "volumeMode": {
+      "rw": "Citire/Scriere",
+      "ro": "Doar citire"
+    },
+    "table": {
+      "actions": "Acțiuni",
+      "empty": "Niciun element încă",
+      "moveUp": "Mută în sus",
+      "moveDown": "Mută în jos",
+      "remove": "Elimină",
+      "add": "Adaugă"
+    },
+    "service": {
+      "collapse": "Restrânge",
+      "expand": "Extinde",
+      "namePlaceholder": "nume serviciu",
+      "noImage": "fără imagine",
+      "image": "Imagine",
+      "imageHelp": "Numele imaginii Docker. Acceptă Docker Hub, GHCR și alte registre.",
+      "restartPolicy": "Politică de repornire"
+    },
+    "ports": {
+      "title": "Porturi",
+      "host": "Port gazdă",
+      "container": "Port container",
+      "protocol": "Protocol",
+      "help": "Asociază porturile gazdei cu porturile containerului. Lasă portul gazdei gol pentru alocare aleatorie."
+    },
+    "volumes": {
+      "title": "Volume",
+      "host": "Cale gazdă / Nume volum",
+      "container": "Cale container",
+      "mode": "Mod",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data sau volume-name",
+      "help": "Montează căi ale gazdei (bind mount) sau volume cu nume. Folosește <code>${ATHENA_APP_DATA}</code> pentru dosarul de date al acestei aplicații."
+    },
+    "env": {
+      "title": "Variabile de mediu",
+      "help": "Variabile de mediu transmise containerului. Valorile din formularul de instalare (.env) sunt de asemenea disponibile.",
+      "valuePlaceholder": "valoare"
+    },
+    "keyValue": {
+      "key": "Cheie",
+      "value": "Valoare"
+    },
+    "command": {
+      "command": "Comandă",
+      "commandPlaceholder": "Înlocuiește comanda implicită a imaginii",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Înlocuiește entrypoint-ul implicit al imaginii",
+      "workingDir": "Director de lucru",
+      "user": "Utilizator"
+    },
+    "resources": {
+      "title": "Limite de resurse",
+      "cpuLimit": "Limită CPU",
+      "cpuCores": "Nuclee CPU",
+      "memoryLimit": "Limită de memorie",
+      "memoryLimitHelp": "de ex. 512M, 1G",
+      "cpuReservation": "Rezervare CPU",
+      "memoryReservation": "Rezervare de memorie",
+      "memoryReservationHelp": "de ex. 256M"
+    },
+    "health": {
+      "title": "Verificare de stare",
+      "test": "Comandă de test",
+      "interval": "Interval",
+      "timeout": "Timp limită",
+      "retries": "Încercări"
+    },
+    "labels": {
+      "title": "Etichete",
+      "valuePlaceholder": "Serviciul meu"
+    },
+    "networks": {
+      "title": "Rețele",
+      "help": "Nume de rețele separate prin virgulă. Definește rețelele în fila Rețele."
+    },
+    "dependsOn": {
+      "title": "Depinde de",
+      "help": "Nume de servicii separate prin virgulă care trebuie să pornească înaintea acestuia."
+    },
+    "entries": {
+      "name": "Nume",
+      "driver": "Driver",
+      "external": "Extern"
+    }
+  }
+}

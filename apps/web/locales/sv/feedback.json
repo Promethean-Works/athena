@@ -1,0 +1,49 @@
+{
+  "menu": "Skicka feedback",
+  "dialog": {
+    "title": "Skicka feedback",
+    "description": "Öppnar ett nytt ärende i {{repo}} i en ny flik. Du kan granska och redigera det där innan det publiceras; ärenden är offentliga.",
+    "storeHint": "Fungerar inte en butiksapp? Använd <b>Rapportera ett problem</b> på dess butikssida, så når rapporten dem som underhåller den.",
+    "loadFailed": "Det gick inte att läsa in serverns uppgifter"
+  },
+  "choices": {
+    "bug": {
+      "title": "Rapportera en bugg",
+      "description": "Något fungerar inte som det ska."
+    },
+    "change": {
+      "title": "Föreslå en ändring",
+      "description": "Något fungerar, men borde fungera annorlunda."
+    },
+    "feature": {
+      "title": "Föreslå en funktion",
+      "description": "Något Athena inte kan än."
+    }
+  },
+  "diagnostics": {
+    "title": "Ifyllt åt dig",
+    "system": "System",
+    "cpu": "CPU",
+    "containers": "Behållare"
+  },
+  "appReport": {
+    "button": "Rapportera ett problem",
+    "title": "Rapportera ett problem med {{app}}",
+    "description": "Öppnar ett nytt ärende för {{where}} i en ny flik, med appens och serverns uppgifter ifyllda. Du granskar det där innan det publiceras; ärenden är offentliga.",
+    "whereCatalog": "katalogen {{name}}, som underhåller den här appen",
+    "includeLogs_one": "Ta med den senaste {{count}} loggraden",
+    "includeLogs_other": "Ta med de senaste {{count}} loggraderna",
+    "installedCopy": "Installerad kopia",
+    "logsLabel": "Loggar att ta med",
+    "loadingLogs": "Läser in loggar…",
+    "logsWarning": "Ta bort lösenord, token och adresser innan du fortsätter.",
+    "logsTruncated": "Bara slutet av loggarna ryms i länken.",
+    "cancel": "Avbryt",
+    "openIssue": "Öppna ärende",
+    "preparing": "Förbereder…",
+    "prepareFailed": "Det gick inte att förbereda rapporten",
+    "logsFailed": "Det gick inte att läsa in loggar: {{error}}",
+    "appNotFound": "appen hittades inte",
+    "noContainers": "Inga behållare hittades för den här appen."
+  }
+}

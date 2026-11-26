@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Работает",
+    "dead": "Нерабочий",
+    "exited": "Завершён",
+    "exitedWithCode": "Завершён ({{code}})",
+    "paused": "приостановлен",
+    "created": "создан",
+    "restarting": "перезапускается"
+  },
+  "logs": {
+    "following": "Отслеживание нового вывода",
+    "stopped": "Контейнер остановлен",
+    "disconnected": "Отключено",
+    "connecting": "Подключение…",
+    "title": "Журнал · {{name}}",
+    "empty": "Вывода в журнале нет."
+  },
+  "runtime": {
+    "startFailed": "Не удалось запустить среду выполнения",
+    "running": "Среда выполнения контейнеров работает",
+    "providerStopped": "{{provider}} не запущен",
+    "stopped": "Среда выполнения контейнеров не запущена",
+    "none": "Нет среды выполнения контейнеров",
+    "notFound": "Athena не нашла на этом хосте движок контейнеров.",
+    "start": "Запустить {{provider}}",
+    "redetect": "Определить заново",
+    "setup": {
+      "darwin": {
+        "title": "Установите Colima"
+      },
+      "linux": {
+        "title": "Установите Docker Engine"
+      },
+      "windows": {
+        "title": "Установите среду выполнения контейнеров",
+        "wsl": "Docker Engine в WSL2: wsl --install, затем установите docker-ce внутри дистрибутива",
+        "podman": "или Podman: winget install RedHat.Podman, затем podman machine init; podman machine start",
+        "rancher": "или Rancher Desktop: winget install SUSE.RancherDesktop (выберите движок dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Не удалось получить список контейнеров",
+    "actionFailed": {
+      "start": "Не удалось запустить {{name}}",
+      "stop": "Не удалось остановить {{name}}",
+      "restart": "Не удалось перезапустить {{name}}"
+    },
+    "removeFailed": "Не удалось удалить {{name}}",
+    "removed": "{{name}} удалён",
+    "emptyTitle": "Контейнеров пока нет",
+    "emptyDescription": "Здесь отображаются контейнеры этой среды выполнения, в том числе запущенные вне Athena.",
+    "name": "Имя",
+    "image": "Образ",
+    "state": "Состояние",
+    "ports": "Порты",
+    "actions": "Действия",
+    "standalone": "Отдельные контейнеры",
+    "actionsFor": "Действия для {{name}}",
+    "logs": "Журнал",
+    "shell": "Оболочка",
+    "restart": "Перезапустить",
+    "stop": "Остановить",
+    "start": "Запустить",
+    "remove": "Удалить",
+    "removeTitle": "Удалить {{name}}?",
+    "removeRunningDescription": "Сначала он будет остановлен. Контейнер удаляется. Именованные тома и образ сохраняются.",
+    "removeDescription": "Контейнер удаляется. Именованные тома и образ сохраняются.",
+    "cancel": "Отмена"
+  }
+}

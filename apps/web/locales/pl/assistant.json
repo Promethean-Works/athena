@@ -1,0 +1,142 @@
+{
+  "title": "Asystent",
+  "sheet": {
+    "description": "Rozmawiaj z asystentem AI o tym serwerze.",
+    "openFullPage": "Otwórz pełną stronę"
+  },
+  "chat": {
+    "newChat": "Nowy czat",
+    "chats": "Czaty",
+    "noChats": "Brak czatów.",
+    "deleteChat": "Usuń {{title}}",
+    "thinking": "Myślę…",
+    "stillWorking": "Odpowiedź wciąż powstaje. Pojawi się tutaj, gdy będzie gotowa.",
+    "emptyTitle": "Zapytaj o ten serwer",
+    "emptyDescription": "Asystent może sprawdzać aplikacje, logi, pliki i statystyki systemu oraz instalować lub zmieniać rzeczy po zatwierdzeniu każdej akcji.",
+    "suggestions": {
+      "capabilities": "Co potrafi ten serwer?",
+      "disk": "Ile zostało miejsca na dysku?",
+      "apps": "Które aplikacje działają?"
+    },
+    "message": "Wiadomość",
+    "placeholder": "Zapytaj o ten serwer…",
+    "placeholderWaiting": "Odpowiedz powyżej lub wyślij wiadomość, aby to pominąć…",
+    "stop": "Zatrzymaj",
+    "send": "Wyślij",
+    "pickModelFirst": "Najpierw wybierz model",
+    "changeModelFailed": "Nie udało się zmienić modelu",
+    "startFailed": "Nie udało się rozpocząć czatu",
+    "deleteFailed": "Nie udało się usunąć czatu",
+    "failed": "Asystent napotkał błąd"
+  },
+  "noProviders": {
+    "title": "Najpierw skonfiguruj model",
+    "description": "Asystent potrzebuje dostawcy AI: chmurowego z kluczem API lub Ollama uruchomionej na własnym sprzęcie.",
+    "openSettings": "Otwórz Ustawienia → AI"
+  },
+  "model": {
+    "pick": "Wybierz model",
+    "label": "Model: {{label}}",
+    "search": "Szukaj lub wpisz identyfikator modelu",
+    "noMatch": "Żaden model nie pasuje.",
+    "addProvider": "Najpierw dodaj dostawcę w Ustawienia → AI.",
+    "noTools": "nie obsługuje narzędzi",
+    "use": "Użyj „{{model}}”"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "Wykonano {{done}} z {{total}}",
+    "steps": "Kroki planu",
+    "status": {
+      "pending": "oczekuje",
+      "in_progress": "w toku",
+      "completed": "ukończony",
+      "cancelled": "anulowany",
+      "blocked": "zablokowany"
+    }
+  },
+  "spend": {
+    "usage": "Zużycie w tym czacie",
+    "usageWith": "Zużycie w tym czacie: {{label}}",
+    "unknownPrices": "Ceny tego modelu nie są znane, więc liczone są tylko tokeny.",
+    "estimate": "Szacunek na podstawie opublikowanych cen modelu.",
+    "ofLimit": "{{spent}} z {{limit}}",
+    "spent": "Wydano",
+    "unknown": "Nieznane",
+    "inputTokens": "Tokeny wejściowe",
+    "outputTokens": "Tokeny wyjściowe",
+    "tokens_one": "{{formatted}} token",
+    "tokens_few": "{{formatted}} tokeny",
+    "tokens_many": "{{formatted}} tokenów",
+    "tokens_other": "{{formatted}} tokena",
+    "limitReached": "Ten czat osiągnął limit wydatków. Rozpocznij nowy czat lub podnieś limit w <settings>Ustawienia → AI</settings>.",
+    "limitNotApplicable": "Limit wydatków ({{limit}}) nie ma zastosowania do tego modelu."
+  },
+  "steps": {
+    "thinking": "Myślenie",
+    "thought": "Przemyślenia",
+    "draft": "Pierwsza wersja, poprawiona poniżej",
+    "approvalNeeded": "Wymagana zgoda: {{title}}",
+    "run": "Uruchom {{name}}",
+    "approvalIntro": "Asystent chce to zrobić. Nic się nie stanie, dopóki tego nie zatwierdzisz.",
+    "deny": "Odrzuć",
+    "approve": "Zatwierdź",
+    "approvedGoOn": "Zatwierdzono. Odpowiedz na pozostałe karty, aby kontynuować.",
+    "deniedGoOn": "Odrzucono. Odpowiedz na pozostałe karty, aby kontynuować.",
+    "logGone": "Tego logu już nie ma",
+    "log": "Log",
+    "denied": "Odrzucono: {{title}}",
+    "failed": "Niepowodzenie: {{title}}",
+    "running": "Uruchamianie {{name}}",
+    "ran": "Uruchomiono {{name}}",
+    "withSubject": "{{title}}: {{subject}}",
+    "helperRunningTask": "Pomocnik sprawdza: {{task}}",
+    "helperDoneTask": "Pomocnik sprawdził: {{task}}",
+    "helperRunning": "Pomocnik czegoś szuka",
+    "helperDone": "Pomocnik coś sprawdził",
+    "tools": {
+      "getCapabilities": {
+        "running": "Sprawdzanie, co potrafi ten serwer",
+        "done": "Sprawdzono, co potrafi ten serwer"
+      },
+      "getSystemStats": { "running": "Odczytywanie statystyk systemu", "done": "Odczytano statystyki systemu" },
+      "listApps": { "running": "Wyświetlanie aplikacji", "done": "Wyświetlono aplikacje" },
+      "appLogs": { "running": "Odczytywanie logów aplikacji", "done": "Odczytano logi aplikacji" },
+      "listFileLocations": { "running": "Wyświetlanie lokalizacji plików", "done": "Wyświetlono lokalizacje plików" },
+      "listFiles": { "running": "Wyświetlanie plików", "done": "Wyświetlono pliki" },
+      "readFile": { "running": "Odczytywanie pliku", "done": "Odczytano plik" },
+      "writeFile": { "running": "Zapisywanie pliku", "done": "Zapisano plik" },
+      "editFile": { "running": "Edytowanie pliku", "done": "Edytowano plik" },
+      "listDirectory": { "running": "Wyświetlanie folderu", "done": "Wyświetlono folder" },
+      "createDirectory": { "running": "Tworzenie folderu", "done": "Utworzono folder" },
+      "searchStore": { "running": "Przeszukiwanie sklepu z aplikacjami", "done": "Przeszukano sklep z aplikacjami" },
+      "readToolResult": { "running": "Odczytywanie zapisanego wyniku narzędzia", "done": "Odczytano zapisany wynik narzędzia" },
+      "askUserQuestion": { "running": "Oczekiwanie na Twoją odpowiedź", "done": "Zapytano Cię" },
+      "advisor": { "running": "Pytanie doradcy", "done": "Zapytano doradcę" },
+      "runWorkflow": {
+        "running": "Pomocnicy wspólnie szukają informacji",
+        "done": "Pomocnicy wspólnie sprawdzili informacje"
+      },
+      "getStoreApp": { "running": "Odczytywanie aplikacji ze sklepu", "done": "Odczytano aplikację ze sklepu" },
+      "listPackageManagers": { "running": "Wyświetlanie menedżerów pakietów", "done": "Wyświetlono menedżery pakietów" },
+      "searchPackages": { "running": "Wyszukiwanie pakietów", "done": "Wyszukano pakiety" },
+      "listUpgradablePackages": {
+        "running": "Sprawdzanie aktualizacji pakietów",
+        "done": "Sprawdzono aktualizacje pakietów"
+      }
+    }
+  },
+  "question": {
+    "title": "Pytania",
+    "asks": "Asystent pyta: {{title}}",
+    "intro": "Asystent pyta, zanim przejdzie dalej. Nigdy nie odpowiadaj hasłem ani kluczem.",
+    "ownAnswerLabel": "Twoja własna odpowiedź na: {{header}}",
+    "ownAnswerPlaceholder": "Lub wpisz własną odpowiedź",
+    "skip": "Pomiń",
+    "send": "Wyślij odpowiedzi",
+    "skippedGoOn": "Pominięto. Odpowiedz na pozostałe karty, aby kontynuować.",
+    "answeredGoOn": "Odpowiedziano. Odpowiedz na pozostałe karty, aby kontynuować.",
+    "youAnswered": "Odpowiedziałeś(-aś): {{answers}}",
+    "youSkipped": "Pominięto pytanie"
+  }
+}

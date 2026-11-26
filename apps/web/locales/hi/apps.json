@@ -1,0 +1,196 @@
+{
+  "page": {
+    "description": "ऐप्स वे कंपोज़ प्रोजेक्ट हैं जिन्हें Athena प्रबंधित करता है।"
+  },
+  "newApp": "नया ऐप",
+  "open": "खोलें",
+  "list": {
+    "failed": "ऐप्स की सूची नहीं मिल सकी"
+  },
+  "status": {
+    "running": "चल रहा है",
+    "partial": "{{running}}/{{total}} चल रहे हैं",
+    "stopped": "बंद",
+    "notDeployed": "डिप्लॉय नहीं किया गया"
+  },
+  "actions": {
+    "restart": "रीस्टार्ट करें",
+    "stop": "बंद करें",
+    "start": "शुरू करें",
+    "updateImages": "इमेज अपडेट करें",
+    "remove": "हटाएँ"
+  },
+  "jobs": {
+    "failed": {
+      "start": "{{name}} शुरू नहीं हो सका",
+      "stop": "{{name}} बंद नहीं हो सका",
+      "restart": "{{name}} रीस्टार्ट नहीं हो सका",
+      "update": "{{name}} अपडेट नहीं हो सका",
+      "remove": "{{name}} हटाया नहीं जा सका",
+      "save": "{{name}} सहेजा नहीं जा सका",
+      "saveSettings": "{{name}} की सेटिंग्स सहेजी नहीं जा सकीं",
+      "deploy": "{{name}} डिप्लॉय नहीं हो सका"
+    }
+  },
+  "delete": {
+    "title": "{{name}} हटाएँ?",
+    "description": "इसके कंटेनर बंद करके हटा दिए जाते हैं, और Athena इस ऐप को भूल जाता है।",
+    "deleteData": "इसके वॉल्यूम और डेटा फ़ोल्डर भी मिटाएँ। इसे पहले जैसा नहीं किया जा सकता।",
+    "cancel": "रद्द करें",
+    "confirm": "हटाएँ"
+  },
+  "grid": {
+    "emptyTitle": "अभी कोई ऐप नहीं",
+    "emptyDescription": "कोई कंपोज़ फ़ाइल डिप्लॉय करें या <code>docker run</code> कमांड को कन्वर्ट करें।",
+    "containerCount_one": "{{count}} कंटेनर",
+    "containerCount_other": "{{count}} कंटेनर",
+    "fromDockerRun": "docker run से",
+    "actionsFor": "{{name}} की कार्रवाइयाँ"
+  },
+  "containerState": {
+    "running": "चल रहा है",
+    "exited": "बंद हुआ",
+    "dead": "डेड",
+    "paused": "रुका हुआ",
+    "created": "बनाया गया",
+    "restarting": "रीस्टार्ट हो रहा है"
+  },
+  "detail": {
+    "loadFailed": "ऐप लोड नहीं हो सका",
+    "loadFailedNamed": "{{name}} लोड नहीं हो सका",
+    "tabContainers": "कंटेनर",
+    "tabCompose": "कंपोज़",
+    "tabSettings": "सेटिंग्स",
+    "tabBackups": "बैकअप",
+    "noContainers": "कोई कंटेनर नहीं",
+    "noContainersHint": "कंटेनर बनाने के लिए ऐप शुरू करें।",
+    "logs": "लॉग",
+    "shell": "शेल",
+    "composeHelp": "सहेजने पर पिछला वर्शन compose.prev.yaml के रूप में रखा जाता है और ऐप दोबारा डिप्लॉय होता है।",
+    "settingsHelp": "इंस्टॉल फ़ॉर्म के मान (.env)। यहाँ पोर्ट या फ़ोल्डर बदलें, फिर दोबारा डिप्लॉय करने के लिए सहेजें। इसमें अपने आप बने पासवर्ड हो सकते हैं।",
+    "saveRedeploy": "सहेजें और दोबारा डिप्लॉय करें",
+    "discard": "बदलाव छोड़ें"
+  },
+  "new": {
+    "nameInvalid": "छोटे अक्षर, अंक, डैश या अंडरस्कोर का उपयोग करें, और शुरुआत अक्षर या अंक से करें।",
+    "convertFailed": "कमांड कन्वर्ट नहीं हो सका",
+    "validationFailed": "जाँच विफल रही",
+    "name": "नाम",
+    "nameHelp": "यही कंपोज़ प्रोजेक्ट का नाम भी है। इसे बाद में बदला नहीं जा सकता।",
+    "tabCompose": "कंपोज़ फ़ाइल",
+    "tabRun": "docker run से",
+    "reviewConverted": "कन्वर्ट की गई फ़ाइल देखें",
+    "upload": "फ़ाइल अपलोड करें",
+    "composeHelp": "जो फ़ाइलें सर्वर पर इस ऐप के डेटा फ़ोल्डर में रहनी चाहिए, उनके लिए <code>${ATHENA_APP_DATA}</code> का उपयोग करें।",
+    "runLabel": "docker run कमांड",
+    "runHelp": "इसे एक कंपोज़ फ़ाइल में बदला जाता है जिसे आप डिप्लॉय करने से पहले देख सकते हैं। अभी कुछ नहीं चलता।",
+    "convert": "कंपोज़ में कन्वर्ट करें",
+    "valid": "कंपोज़ फ़ाइल सही है",
+    "invalid": "कंपोज़ फ़ाइल में त्रुटियाँ हैं",
+    "validate": "जाँचें",
+    "deploy": "डिप्लॉय करें"
+  },
+  "compose": {
+    "serializationFailed": "सीरियलाइज़ेशन विफल रहा",
+    "addService": "सर्विस जोड़ें",
+    "tabs": {
+      "settings": "सेटिंग्स",
+      "networks": "नेटवर्क",
+      "volumes": "वॉल्यूम",
+      "raw": "रॉ YAML"
+    },
+    "restart": {
+      "no": "नहीं (रीस्टार्ट न करें)",
+      "always": "हमेशा",
+      "unlessStopped": "बंद किए जाने तक",
+      "onFailure": "विफल होने पर"
+    },
+    "volumeMode": {
+      "rw": "पढ़ें/लिखें",
+      "ro": "केवल पढ़ने योग्य"
+    },
+    "table": {
+      "actions": "कार्रवाइयाँ",
+      "empty": "अभी कोई आइटम नहीं",
+      "moveUp": "ऊपर ले जाएँ",
+      "moveDown": "नीचे ले जाएँ",
+      "remove": "हटाएँ",
+      "add": "जोड़ें"
+    },
+    "service": {
+      "collapse": "समेटें",
+      "expand": "फैलाएँ",
+      "namePlaceholder": "सर्विस का नाम",
+      "noImage": "कोई इमेज नहीं",
+      "image": "इमेज",
+      "imageHelp": "Docker इमेज का नाम। Docker Hub, GHCR और अन्य रजिस्ट्री का समर्थन करता है।",
+      "restartPolicy": "रीस्टार्ट नीति"
+    },
+    "ports": {
+      "title": "पोर्ट",
+      "host": "होस्ट पोर्ट",
+      "container": "कंटेनर पोर्ट",
+      "protocol": "प्रोटोकॉल",
+      "help": "होस्ट पोर्ट को कंटेनर पोर्ट से मैप करें। रैंडम असाइनमेंट के लिए होस्ट पोर्ट खाली छोड़ें।"
+    },
+    "volumes": {
+      "title": "वॉल्यूम",
+      "host": "होस्ट पाथ / वॉल्यूम का नाम",
+      "container": "कंटेनर पाथ",
+      "mode": "मोड",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data या volume-name",
+      "help": "होस्ट पाथ या नामित वॉल्यूम को बाइंड-माउंट करें। इस ऐप के डेटा फ़ोल्डर के लिए <code>${ATHENA_APP_DATA}</code> का उपयोग करें।"
+    },
+    "env": {
+      "title": "एनवायरनमेंट वेरिएबल",
+      "help": "कंटेनर को दिए जाने वाले एनवायरनमेंट वेरिएबल। इंस्टॉल फ़ॉर्म (.env) के मान भी उपलब्ध रहते हैं।",
+      "valuePlaceholder": "मान"
+    },
+    "keyValue": {
+      "key": "की",
+      "value": "मान"
+    },
+    "command": {
+      "command": "कमांड",
+      "commandPlaceholder": "इमेज की डिफ़ॉल्ट कमांड को बदलता है",
+      "entrypoint": "एंट्रीपॉइंट",
+      "entrypointPlaceholder": "इमेज के डिफ़ॉल्ट एंट्रीपॉइंट को बदलता है",
+      "workingDir": "वर्किंग डायरेक्टरी",
+      "user": "उपयोगकर्ता"
+    },
+    "resources": {
+      "title": "संसाधन सीमाएँ",
+      "cpuLimit": "CPU सीमा",
+      "cpuCores": "CPU कोर",
+      "memoryLimit": "मेमोरी सीमा",
+      "memoryLimitHelp": "जैसे 512M, 1G",
+      "cpuReservation": "CPU आरक्षण",
+      "memoryReservation": "मेमोरी आरक्षण",
+      "memoryReservationHelp": "जैसे 256M"
+    },
+    "health": {
+      "title": "हेल्थ चेक",
+      "test": "टेस्ट कमांड",
+      "interval": "अंतराल",
+      "timeout": "टाइमआउट",
+      "retries": "पुनः प्रयास"
+    },
+    "labels": {
+      "title": "लेबल",
+      "valuePlaceholder": "मेरी सर्विस"
+    },
+    "networks": {
+      "title": "नेटवर्क",
+      "help": "कॉमा से अलग किए गए नेटवर्क नाम। नेटवर्क टैब में नेटवर्क परिभाषित करें।"
+    },
+    "dependsOn": {
+      "title": "इन पर निर्भर",
+      "help": "कॉमा से अलग किए गए सर्विस नाम जो इससे पहले शुरू होने चाहिए।"
+    },
+    "entries": {
+      "name": "नाम",
+      "driver": "ड्राइवर",
+      "external": "बाहरी"
+    }
+  }
+}

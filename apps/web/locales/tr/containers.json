@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Çalışıyor",
+    "dead": "Ölü",
+    "exited": "Çıktı",
+    "exitedWithCode": "Çıktı ({{code}})",
+    "paused": "duraklatıldı",
+    "created": "oluşturuldu",
+    "restarting": "yeniden başlıyor"
+  },
+  "logs": {
+    "following": "Yeni çıktı izleniyor",
+    "stopped": "Konteyner durdu",
+    "disconnected": "Bağlantı kesildi",
+    "connecting": "Bağlanıyor…",
+    "title": "Günlükler · {{name}}",
+    "empty": "Günlük çıktısı yok."
+  },
+  "runtime": {
+    "startFailed": "Çalışma ortamı başlatılamadı",
+    "running": "Konteyner çalışma ortamı çalışıyor",
+    "providerStopped": "{{provider}} çalışmıyor",
+    "stopped": "Konteyner çalışma ortamı çalışmıyor",
+    "none": "Konteyner çalışma ortamı yok",
+    "notFound": "Athena bu ana makinede bir konteyner motoru bulamadı.",
+    "start": "{{provider}} başlat",
+    "redetect": "Yeniden algıla",
+    "setup": {
+      "darwin": {
+        "title": "Colima kur"
+      },
+      "linux": {
+        "title": "Docker Engine kur"
+      },
+      "windows": {
+        "title": "Bir konteyner çalışma ortamı kur",
+        "wsl": "WSL2'de Docker Engine: wsl --install, sonra dağıtımın içine docker-ce kurun",
+        "podman": "ya da Podman: winget install RedHat.Podman, sonra podman machine init; podman machine start",
+        "rancher": "ya da Rancher Desktop: winget install SUSE.RancherDesktop (dockerd motorunu seçin)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Konteynerler listelenemedi",
+    "actionFailed": {
+      "start": "{{name}} başlatılamadı",
+      "stop": "{{name}} durdurulamadı",
+      "restart": "{{name}} yeniden başlatılamadı"
+    },
+    "removeFailed": "{{name}} kaldırılamadı",
+    "removed": "{{name}} kaldırıldı",
+    "emptyTitle": "Henüz konteyner yok",
+    "emptyDescription": "Bu çalışma ortamındaki konteynerler, Athena dışında başlatılanlar dahil, burada görünür.",
+    "name": "Ad",
+    "image": "İmaj",
+    "state": "Durum",
+    "ports": "Portlar",
+    "actions": "Eylemler",
+    "standalone": "Bağımsız konteynerler",
+    "actionsFor": "{{name}} için eylemler",
+    "logs": "Günlükler",
+    "shell": "Kabuk",
+    "restart": "Yeniden başlat",
+    "stop": "Durdur",
+    "start": "Başlat",
+    "remove": "Kaldır",
+    "removeTitle": "{{name}} kaldırılsın mı?",
+    "removeRunningDescription": "Önce durdurulur. Konteyner silinir. Adlandırılmış birimler ve imaj korunur.",
+    "removeDescription": "Konteyner silinir. Adlandırılmış birimler ve imaj korunur.",
+    "cancel": "İptal"
+  }
+}

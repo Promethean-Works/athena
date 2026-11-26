@@ -1,0 +1,59 @@
+{
+  "view": {
+    "noManagers": "Aucun gestionnaire de paquets trouvé",
+    "noManagersHint": "Athena n'a trouvé aucun gestionnaire de paquets pris en charge sur cet hôte."
+  },
+  "listError": "Impossible de lire la liste des paquets",
+  "cancel": "Annuler",
+  "toast": {
+    "installFailed": "Impossible d'installer {{name}}",
+    "uninstallFailed": "Impossible de désinstaller {{name}}",
+    "upgradeFailed": "Impossible de mettre à niveau {{name}}",
+    "upgradeAllFailed": "Impossible de mettre à niveau les paquets",
+    "refreshFailed": "Impossible d'actualiser les listes de paquets"
+  },
+  "unavailable": "{{name}} est inutilisable pour le moment",
+  "unavailableHint": "Il n'est pas prêt sur cet hôte.",
+  "refreshLists": "Actualiser les listes",
+  "upgradeAll": "Tout mettre à niveau",
+  "tabs": {
+    "installed": "Installés",
+    "updates": "Mises à jour",
+    "search": "Recherche"
+  },
+  "installed": {
+    "filter": "Filtrer les paquets installés",
+    "noMatch": "Aucun paquet installé ne correspond.",
+    "empty": "Rien d'installé.",
+    "upgradeLabel": "Mettre à niveau {{name}}",
+    "upgrade": "Mettre à niveau",
+    "uninstallLabel": "Désinstaller {{name}}",
+    "uninstall": "Désinstaller",
+    "shortened": "{{manager}} a abrégé cet identifiant, il ne peut donc pas être désinstallé d'ici",
+    "showing": "{{shown}} sur {{total}} affichés. Filtrez pour affiner."
+  },
+  "table": {
+    "package": "Paquet",
+    "version": "Version",
+    "description": "Description"
+  },
+  "updates": {
+    "upToDate": "Tout est à jour",
+    "upToDateRefresh": "D'après la dernière actualisation des listes. Actualisez-les pour vérifier à nouveau.",
+    "nothing": "Rien à mettre à niveau.",
+    "installedColumn": "Installée",
+    "availableColumn": "Disponible"
+  },
+  "search": {
+    "label": "Rechercher dans {{manager}}",
+    "noMatch": "Aucun paquet ne correspond à « {{query}} ».",
+    "install": "Installer"
+  },
+  "confirm": {
+    "uninstallTitle": "Désinstaller {{name}} ?",
+    "uninstallDescription": "Il est retiré de ce serveur. Les paquets qui en dépendent peuvent l'être aussi.",
+    "upgradeAllTitle": "Mettre à niveau tous les paquets {{manager}} ?",
+    "upgradeAllDescription_one": "{{count}} paquet sera mis à niveau. Cela peut prendre un moment.",
+    "upgradeAllDescription_other": "{{count}} paquets seront mis à niveau. Cela peut prendre un moment."
+  }
+}

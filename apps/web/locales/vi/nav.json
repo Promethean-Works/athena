@@ -1,0 +1,21 @@
+{
+  "dashboard": "Bảng điều khiển",
+  "apps": "Ứng dụng",
+  "store": "Cửa hàng",
+  "packages": "Gói",
+  "automation": "Tự động hóa",
+  "files": "Tệp",
+  "smbShares": "Chia sẻ SMB",
+  "cloud": "Đám mây",
+  "containers": "Container",
+  "terminal": "Terminal",
+  "assistant": "Trợ lý",
+  "backups": "Sao lưu",
+  "settings": "Cài đặt",
+  "help": "Trợ giúp",
+  "roleAdmin": "Quản trị viên",
+  "roleUser": "Người dùng",
+  "tunnelAddress": "Địa chỉ tunnel",
+  "restartAthena": "Khởi động lại Athena",
+  "logOut": "Đăng xuất"
+}

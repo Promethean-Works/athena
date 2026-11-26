@@ -1,0 +1,198 @@
+{
+  "page": {
+    "description": "Застосунки — це compose-проєкти, якими керує Athena."
+  },
+  "newApp": "Новий застосунок",
+  "open": "Відкрити",
+  "list": {
+    "failed": "Не вдалося отримати список застосунків"
+  },
+  "status": {
+    "running": "Працює",
+    "partial": "Працює {{running}}/{{total}}",
+    "stopped": "Зупинено",
+    "notDeployed": "Не розгорнуто"
+  },
+  "actions": {
+    "restart": "Перезапустити",
+    "stop": "Зупинити",
+    "start": "Запустити",
+    "updateImages": "Оновити образи",
+    "remove": "Видалити"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Не вдалося запустити {{name}}",
+      "stop": "Не вдалося зупинити {{name}}",
+      "restart": "Не вдалося перезапустити {{name}}",
+      "update": "Не вдалося оновити {{name}}",
+      "remove": "Не вдалося видалити {{name}}",
+      "save": "Не вдалося зберегти {{name}}",
+      "saveSettings": "Не вдалося зберегти налаштування {{name}}",
+      "deploy": "Не вдалося розгорнути {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Видалити {{name}}?",
+    "description": "Його контейнери буде зупинено й видалено, а Athena забуде застосунок.",
+    "deleteData": "Також видалити його томи й теку даних. Цю дію не можна скасувати.",
+    "cancel": "Скасувати",
+    "confirm": "Видалити"
+  },
+  "grid": {
+    "emptyTitle": "Застосунків ще немає",
+    "emptyDescription": "Розгорніть файл compose або перетворіть команду <code>docker run</code>.",
+    "containerCount_one": "{{count}} контейнер",
+    "containerCount_few": "{{count}} контейнери",
+    "containerCount_many": "{{count}} контейнерів",
+    "containerCount_other": "{{count}} контейнера",
+    "fromDockerRun": "із docker run",
+    "actionsFor": "Дії для {{name}}"
+  },
+  "containerState": {
+    "running": "працює",
+    "exited": "завершено",
+    "dead": "мертвий",
+    "paused": "призупинено",
+    "created": "створено",
+    "restarting": "перезапускається"
+  },
+  "detail": {
+    "loadFailed": "Не вдалося завантажити застосунок",
+    "loadFailedNamed": "Не вдалося завантажити {{name}}",
+    "tabContainers": "Контейнери",
+    "tabCompose": "Compose",
+    "tabSettings": "Налаштування",
+    "tabBackups": "Резервні копії",
+    "noContainers": "Немає контейнерів",
+    "noContainersHint": "Запустіть застосунок, щоб створити його контейнери.",
+    "logs": "Журнали",
+    "shell": "Оболонка",
+    "composeHelp": "Збереження залишає попередню версію як compose.prev.yaml і повторно розгортає застосунок.",
+    "settingsHelp": "Значення з форми встановлення (.env). Змініть тут порт чи теку, а потім збережіть, щоб розгорнути повторно. Може містити згенеровані паролі.",
+    "saveRedeploy": "Зберегти й розгорнути повторно",
+    "discard": "Скасувати зміни"
+  },
+  "new": {
+    "nameInvalid": "Використовуйте малі літери, цифри, дефіси чи підкреслення; починати треба з літери або цифри.",
+    "convertFailed": "Не вдалося перетворити команду",
+    "validationFailed": "Перевірка не пройдена",
+    "name": "Назва",
+    "nameHelp": "Також назва проєкту compose. Пізніше її змінити не можна.",
+    "tabCompose": "Файл compose",
+    "tabRun": "Із docker run",
+    "reviewConverted": "Перегляньте перетворений файл",
+    "upload": "Завантажити файл",
+    "composeHelp": "Використовуйте <code>${ATHENA_APP_DATA}</code> для файлів, що мають лежати в теці даних цього застосунку на сервері.",
+    "runLabel": "Команда docker run",
+    "runHelp": "Її буде перетворено на файл compose, який можна переглянути перед розгортанням. Поки що нічого не запускається.",
+    "convert": "Перетворити на compose",
+    "valid": "Файл compose коректний",
+    "invalid": "У файлі compose є помилки",
+    "validate": "Перевірити",
+    "deploy": "Розгорнути"
+  },
+  "compose": {
+    "serializationFailed": "Помилка серіалізації",
+    "addService": "Додати сервіс",
+    "tabs": {
+      "settings": "Налаштування",
+      "networks": "Мережі",
+      "volumes": "Томи",
+      "raw": "Сирий YAML"
+    },
+    "restart": {
+      "no": "Ні (не перезапускати)",
+      "always": "Завжди",
+      "unlessStopped": "Якщо не зупинено",
+      "onFailure": "Після збою"
+    },
+    "volumeMode": {
+      "rw": "Читання/запис",
+      "ro": "Лише читання"
+    },
+    "table": {
+      "actions": "Дії",
+      "empty": "Елементів ще немає",
+      "moveUp": "Вгору",
+      "moveDown": "Вниз",
+      "remove": "Видалити",
+      "add": "Додати"
+    },
+    "service": {
+      "collapse": "Згорнути",
+      "expand": "Розгорнути",
+      "namePlaceholder": "назва сервісу",
+      "noImage": "немає образу",
+      "image": "Образ",
+      "imageHelp": "Назва образу Docker. Підтримуються Docker Hub, GHCR та інші реєстри.",
+      "restartPolicy": "Політика перезапуску"
+    },
+    "ports": {
+      "title": "Порти",
+      "host": "Порт хоста",
+      "container": "Порт контейнера",
+      "protocol": "Протокол",
+      "help": "Зіставте порти хоста з портами контейнера. Залиште порт хоста порожнім для випадкового призначення."
+    },
+    "volumes": {
+      "title": "Томи",
+      "host": "Шлях хоста / назва тому",
+      "container": "Шлях у контейнері",
+      "mode": "Режим",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data або volume-name",
+      "help": "Bind-монтування шляхів хоста або іменовані томи. Використовуйте <code>${ATHENA_APP_DATA}</code> для теки даних цього застосунку."
+    },
+    "env": {
+      "title": "Змінні середовища",
+      "help": "Змінні середовища, що передаються контейнеру. Значення з форми встановлення (.env) також доступні.",
+      "valuePlaceholder": "значення"
+    },
+    "keyValue": {
+      "key": "Ключ",
+      "value": "Значення"
+    },
+    "command": {
+      "command": "Команда",
+      "commandPlaceholder": "Перевизначає типову команду образу",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Перевизначає типовий entrypoint образу",
+      "workingDir": "Робоча тека",
+      "user": "Користувач"
+    },
+    "resources": {
+      "title": "Обмеження ресурсів",
+      "cpuLimit": "Ліміт CPU",
+      "cpuCores": "Ядра CPU",
+      "memoryLimit": "Ліміт пам'яті",
+      "memoryLimitHelp": "напр. 512M, 1G",
+      "cpuReservation": "Резерв CPU",
+      "memoryReservation": "Резерв пам'яті",
+      "memoryReservationHelp": "напр. 256M"
+    },
+    "health": {
+      "title": "Перевірка стану",
+      "test": "Команда перевірки",
+      "interval": "Інтервал",
+      "timeout": "Тайм-аут",
+      "retries": "Спроби"
+    },
+    "labels": {
+      "title": "Мітки",
+      "valuePlaceholder": "Мій сервіс"
+    },
+    "networks": {
+      "title": "Мережі",
+      "help": "Назви мереж через кому. Визначайте мережі на вкладці «Мережі»."
+    },
+    "dependsOn": {
+      "title": "Залежить від",
+      "help": "Назви сервісів через кому, які мають запуститися раніше за цей."
+    },
+    "entries": {
+      "name": "Назва",
+      "driver": "Драйвер",
+      "external": "Зовнішня"
+    }
+  }
+}

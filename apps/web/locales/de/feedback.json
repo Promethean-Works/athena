@@ -1,0 +1,49 @@
+{
+  "menu": "Feedback senden",
+  "dialog": {
+    "title": "Feedback senden",
+    "description": "Öffnet in einem neuen Tab ein neues Issue in {{repo}}. Dort kannst du es prüfen und bearbeiten, bevor es veröffentlicht wird; Issues sind öffentlich.",
+    "storeHint": "Eine Store-App funktioniert nicht? Nutze <b>Problem melden</b> auf ihrer Store-Seite, damit die Meldung bei den Verantwortlichen ankommt.",
+    "loadFailed": "Details dieses Servers konnten nicht geladen werden"
+  },
+  "choices": {
+    "bug": {
+      "title": "Fehler melden",
+      "description": "Etwas funktioniert nicht so, wie es soll."
+    },
+    "change": {
+      "title": "Änderung vorschlagen",
+      "description": "Etwas funktioniert, sollte aber anders funktionieren."
+    },
+    "feature": {
+      "title": "Funktion vorschlagen",
+      "description": "Etwas, das Athena noch nicht kann."
+    }
+  },
+  "diagnostics": {
+    "title": "Für dich ausgefüllt",
+    "system": "System",
+    "cpu": "CPU",
+    "containers": "Container"
+  },
+  "appReport": {
+    "button": "Problem melden",
+    "title": "Problem mit {{app}} melden",
+    "description": "Öffnet in einem neuen Tab ein neues Issue für {{where}}, mit den Angaben zur App und zu diesem Server. Du prüfst es dort, bevor es veröffentlicht wird; Issues sind öffentlich.",
+    "whereCatalog": "den Katalog {{name}}, der diese App pflegt",
+    "includeLogs_one": "Die letzte {{count}} Logzeile einbeziehen",
+    "includeLogs_other": "Die letzten {{count}} Logzeilen einbeziehen",
+    "installedCopy": "Installierte Kopie",
+    "logsLabel": "Einzubeziehende Logs",
+    "loadingLogs": "Logs werden geladen…",
+    "logsWarning": "Entferne Passwörter, Tokens und Adressen, bevor du fortfährst.",
+    "logsTruncated": "Nur das Ende der Logs passt in den Link.",
+    "cancel": "Abbrechen",
+    "openIssue": "Issue öffnen",
+    "preparing": "Wird vorbereitet…",
+    "prepareFailed": "Meldung konnte nicht vorbereitet werden",
+    "logsFailed": "Logs konnten nicht geladen werden: {{error}}",
+    "appNotFound": "App nicht gefunden",
+    "noContainers": "Keine Container für diese App gefunden."
+  }
+}

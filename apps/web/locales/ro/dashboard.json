@@ -1,0 +1,276 @@
+{
+  "common": {
+    "manage": "Administrează"
+  },
+  "cardShell": {
+    "open": "Deschide"
+  },
+  "cards": {
+    "stats": {
+      "title": "Sistem",
+      "description": "Activitate CPU, memorie, rețea și disc în timp real."
+    },
+    "apps": {
+      "title": "Aplicații",
+      "description": "Aplicațiile tale, cu starea lor și un buton Deschide."
+    },
+    "containers": {
+      "title": "Containere",
+      "description": "Numărul celor pornite și oprite și care necesită atenție."
+    },
+    "automation": {
+      "title": "Automatizare",
+      "description": "Următoarele rulări programate și cum au decurs cele recente."
+    },
+    "storage": {
+      "title": "Stocare",
+      "description": "Spațiul folosit pe fiecare disc."
+    },
+    "server": {
+      "title": "Server",
+      "description": "Numele gazdei, sistemul de operare, timpul de funcționare și versiunile."
+    },
+    "temperatures": {
+      "title": "Temperaturi",
+      "description": "Valorile senzorilor, unde le raportează gazda."
+    },
+    "power": {
+      "title": "Alimentare",
+      "description": "Tensiune scăzută și limitare de performanță pe un Raspberry Pi."
+    },
+    "activity": {
+      "title": "Activitate recentă",
+      "description": "Cele mai recente modificări din jurnalul de audit (doar administratori)."
+    },
+    "remoteAccess": {
+      "title": "Acces la distanță",
+      "description": "Starea tunelului și adresa publică."
+    },
+    "capabilities": {
+      "title": "Capabilități",
+      "description": "Ce a găsit Athena pe această gazdă."
+    },
+    "backups": {
+      "title": "Copii de rezervă",
+      "description": "Planuri de copii de rezervă, ultimele rulări și următoarea rulare programată."
+    }
+  },
+  "activity": {
+    "title": "Activitate recentă",
+    "description": "Cine ce a schimbat pe acest server.",
+    "loadError": "Nu s-a putut încărca activitatea recentă: {{error}}",
+    "empty": "Nimic încă. Acțiunile asupra aplicațiilor, containerelor și fișierelor apar aici.",
+    "by": "de {{username}}"
+  },
+  "automation": {
+    "title": "Automatizare",
+    "description": "Declanșatoare programate și webhook și cum au decurs rulările lor.",
+    "succeeded": "Reușite",
+    "failed": "Eșuate",
+    "loadError": "Nu s-a putut încărca automatizarea: {{error}}",
+    "noTriggers": "Niciun declanșator încă. Creează unul pentru a reporni o aplicație sau a actualiza pachete după un program.",
+    "nextRuns": "Următoarele rulări · {{enabled}} din {{total}} declanșatoare active",
+    "nothingScheduled": "Nimic programat. Declanșatoarele webhook rulează când sunt apelate.",
+    "recentRuns": "Rulări recente",
+    "noRuns": "Nicio rulare încă.",
+    "deletedTrigger": "Declanșator șters"
+  },
+  "backup": {
+    "title": "Copii de rezervă",
+    "description": "Planuri de copii de rezervă, ultimele rulări și următoarea rulare programată.",
+    "succeeded": "Reușite",
+    "failed": "Eșuate",
+    "running": "În execuție",
+    "loadError": "Nu s-au putut încărca planurile de copii de rezervă: {{error}}",
+    "empty": "Niciun plan de copii de rezervă încă. Adaugă unul în Setări → Copii de rezervă.",
+    "plans": "Planuri",
+    "enabled": "Active",
+    "plansFailed_one": "Un plan a eșuat",
+    "plansFailed_few": "{{count}} planuri au eșuat",
+    "plansFailed_other": "{{count}} de planuri au eșuat",
+    "noFailures": "Nicio eșuare recentă",
+    "nextRuns": "Următoarele rulări programate",
+    "noScheduled": "Nicio rulare programată"
+  },
+  "containers": {
+    "title": "Containere",
+    "description": "Tot ce rulează motorul de containere, inclusiv aplicațiile.",
+    "all": "Toate containerele",
+    "running": "În execuție",
+    "notRunning": "Oprite",
+    "needAttention": "Necesită atenție",
+    "exited": "Oprit ({{code}})",
+    "loadError": "Nu s-au putut încărca containerele: {{error}}",
+    "empty": "Niciun container pe acest server încă.",
+    "engineDown": "Motorul de containere nu rulează."
+  },
+  "apps": {
+    "title": "Aplicații",
+    "subtitle": "Ce rulează pe acest server",
+    "store": "Magazin",
+    "all": "Toate aplicațiile",
+    "emptyTitle": "Nicio aplicație încă",
+    "emptyDescription": "Instalează una din magazin sau pune în funcțiune propriul fișier compose.",
+    "browseStore": "Răsfoiește magazinul",
+    "status": {
+      "running": "În execuție",
+      "partial": "Parțial în execuție",
+      "stopped": "Oprită",
+      "notDeployed": "Nepusă în funcțiune"
+    },
+    "containerCount_one": "un container",
+    "containerCount_few": "{{count}} containere",
+    "containerCount_other": "{{count}} de containere",
+    "actionsFor": "Acțiuni pentru {{name}}",
+    "open": "Deschide",
+    "openPort": "Deschide :{{port}}",
+    "details": "Detalii",
+    "restart": "Repornește",
+    "stop": "Oprește",
+    "start": "Pornește",
+    "updateImages": "Actualizează imaginile",
+    "remove": "Elimină"
+  },
+  "grid": {
+    "pickedUp": "Cardul {{title}} a fost ridicat.",
+    "overCard": "{{title}} este deasupra lui {{other}}.",
+    "notOverCard": "{{title}} nu mai este deasupra unui card.",
+    "moved": "{{title}} a fost mutat unde era {{other}}.",
+    "dropped": "{{title}} a fost plasat.",
+    "cancelled": "Mutarea {{title}} a fost anulată.",
+    "move": "Mută {{title}}",
+    "moveUp": "Mută {{title}} în sus",
+    "moveDown": "Mută {{title}} în jos",
+    "makeHalf": "Fă {{title}} de jumătate de lățime",
+    "makeFull": "Fă {{title}} pe toată lățimea",
+    "remove": "Elimină {{title}}",
+    "nothingToShow": "Nimic de afișat pe acest server acum.",
+    "addDialogTitle": "Adaugă un card",
+    "addDialogDescription": "Cardurile se adaugă la final; trage-le unde vrei.",
+    "allAddedTitle": "Toate cardurile sunt în panou",
+    "allAddedDescription": "Elimină unul pentru a-l adăuga din nou mai târziu.",
+    "addCard": "Adaugă {{title}}",
+    "add": "Adaugă",
+    "editHint": "Trage cardurile de mâner sau folosește săgețile. Modificările se salvează când apeși Gata.",
+    "addCardButton": "Adaugă card",
+    "reset": "Resetează",
+    "cancel": "Anulează",
+    "done": "Gata",
+    "customize": "Personalizează",
+    "emptyTitle": "Panoul tău este gol",
+    "emptyDescription": "Adaugă carduri sau revino la aspectul implicit.",
+    "dragInstructions": "Pentru a muta un card, apasă Space sau Enter, folosește tastele săgeți, apoi apasă din nou Space sau Enter pentru a-l plasa sau Escape pentru a anula."
+  },
+  "stats": {
+    "used": "Folosit",
+    "download": "Descărcare",
+    "upload": "Încărcare",
+    "read": "Citire",
+    "write": "Scriere",
+    "util": "Util.",
+    "unavailableTitle": "Statisticile live nu sunt disponibile",
+    "unavailableDescription": "Serverul nu a returnat statistici despre gazdă.",
+    "coresThreads": "{{cores}} nuclee · {{threads}} fire",
+    "cores_one": "un nucleu",
+    "cores_few": "{{count}} nuclee",
+    "cores_other": "{{count}} de nuclee",
+    "coresLoad": "{{cores}} · încărcare {{load}}",
+    "liveLabel": "Statistici live ale gazdei",
+    "system": "Sistem",
+    "live": "Live",
+    "reconnecting": "Se reconectează",
+    "chartRange": "Interval grafic",
+    "range5m": "5 min",
+    "range1h": "1 oră",
+    "memory": "Memorie",
+    "memUsed": "{{used}} folosiți",
+    "memUsedSwap": "{{used}} folosiți · swap {{swap}}",
+    "network": "Rețea",
+    "diskActivity": "Activitate disc",
+    "readRate": "C {{rate}}",
+    "writeRate": "S {{rate}}",
+    "gpuCount_one": "un GPU",
+    "gpuCount_few": "{{count}} GPU-uri",
+    "gpuCount_other": "{{count}} de GPU-uri",
+    "noGpu": "niciun GPU raportat",
+    "vramOf": "{{used}} din {{total}}"
+  },
+  "power": {
+    "title": "Alimentare",
+    "description": "Alimentare și limitare de performanță Raspberry Pi",
+    "problemNow": "Problemă acum",
+    "ok": "OK",
+    "flagNow": "{{label}} acum",
+    "flagSinceBoot": "{{label}} de la pornire",
+    "none": "Nicio tensiune scăzută sau limitare de performanță de la pornirea acestui server.",
+    "flags": {
+      "underVoltage": {
+        "label": "Tensiune scăzută",
+        "hint": "Sursa de alimentare sau cablul nu face față. Folosește sursa oficială și un cablu scurt și gros."
+      },
+      "throttled": {
+        "label": "Performanță limitată",
+        "hint": "CPU-ul este încetinit pentru a se proteja."
+      },
+      "freqCapped": {
+        "label": "Frecvență limitată",
+        "hint": "Firmware-ul a redus viteza maximă a CPU-ului."
+      },
+      "softTempLimit": {
+        "label": "Limită ușoară de temperatură",
+        "hint": "CPU-ul este aproape de limita de temperatură. Verifică răcirea."
+      }
+    }
+  },
+  "remote": {
+    "title": "Acces la distanță",
+    "description": "Accesează Athena din afara rețelei tale.",
+    "settings": "Setări",
+    "loadError": "Nu s-a putut încărca accesul la distanță: {{error}}",
+    "off": "Dezactivat. Activează-l în Setări → Sistem pentru a accesa Athena din afara rețelei tale.",
+    "running": "Rulează",
+    "notRunning": "Nu rulează",
+    "noProvider": "Niciun furnizor",
+    "warning": "Terminalul, instalarea pachetelor și asistentul sunt accesibile de pe internet cu o singură parolă. <link>Dezactivează-le</link> dacă nu ai nevoie de ele la distanță.",
+    "publicAddress": "Adresă publică",
+    "copyAddress": "Copiază adresa publică",
+    "copied": "Adresă copiată",
+    "copyFailed": "Nu s-a putut copia"
+  },
+  "storage": {
+    "title": "Stocare",
+    "description": "Discuri, dosare, cloud și partajări de rețea",
+    "noDisks": "Niciun disc raportat încă.",
+    "diskUsage": "{{used}} din {{total}}",
+    "folders": "Dosare",
+    "unavailable": "Indisponibil",
+    "cloud": "Stocare în cloud",
+    "shares": "Partajări de rețea",
+    "readOnly": "Doar citire"
+  },
+  "temperatures": {
+    "title": "Temperaturi",
+    "description": "Senzori hardware"
+  },
+  "layout": {
+    "saveFailed": "Nu s-a putut salva panoul",
+    "saved": "Panou salvat"
+  },
+  "server": {
+    "title": "Server",
+    "description": "Mașina pe care rulează Athena",
+    "unreachableTitle": "Nu se poate contacta serverul Athena",
+    "unreachableDescription": "{{error}}. În dezvoltare, pornește-l cu <code>uv run athena serve --reload</code> în <code>apps/server</code>.",
+    "host": "Gazdă",
+    "os": "Sistem de operare",
+    "platform": "Platformă",
+    "uptime": "Timp de funcționare",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Se conectează…",
+    "unreachable": "Server inaccesibil",
+    "version": "Athena {{version}}"
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "title": "Assistant",
+  "sheet": {
+    "description": "Discutez avec l'assistant IA à propos de ce serveur.",
+    "openFullPage": "Ouvrir la page complète"
+  },
+  "chat": {
+    "newChat": "Nouvelle discussion",
+    "chats": "Discussions",
+    "noChats": "Aucune discussion pour l'instant.",
+    "deleteChat": "Supprimer {{title}}",
+    "thinking": "Réflexion…",
+    "stillWorking": "Une réponse est en cours. Elle s'affichera ici une fois terminée.",
+    "emptyTitle": "Posez une question sur ce serveur",
+    "emptyDescription": "L'assistant peut consulter les apps, les journaux, les fichiers et les statistiques système, et installer ou modifier des choses une fois que vous avez approuvé chaque action.",
+    "suggestions": {
+      "capabilities": "Que peut faire ce serveur ?",
+      "disk": "Combien d'espace disque reste-t-il ?",
+      "apps": "Quelles apps tournent ?"
+    },
+    "message": "Message",
+    "placeholder": "Posez une question sur ce serveur…",
+    "placeholderWaiting": "Répondez ci-dessus, ou envoyez un message pour l'ignorer…",
+    "stop": "Arrêter",
+    "send": "Envoyer",
+    "pickModelFirst": "Choisissez d'abord un modèle",
+    "changeModelFailed": "Impossible de changer de modèle",
+    "startFailed": "Impossible de démarrer une discussion",
+    "deleteFailed": "Impossible de supprimer la discussion",
+    "failed": "L'assistant a échoué"
+  },
+  "noProviders": {
+    "title": "Configurez d'abord un modèle",
+    "description": "L'assistant a besoin d'un fournisseur d'IA : un service cloud avec une clé d'API, ou Ollama sur votre propre matériel.",
+    "openSettings": "Ouvrir Paramètres → IA"
+  },
+  "model": {
+    "pick": "Choisir un modèle",
+    "label": "Modèle : {{label}}",
+    "search": "Rechercher ou saisir un id de modèle",
+    "noMatch": "Aucun modèle ne correspond.",
+    "addProvider": "Ajoutez d'abord un fournisseur dans Paramètres → IA.",
+    "noTools": "n'utilise pas d'outils",
+    "use": "Utiliser « {{model}} »"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "{{done}} sur {{total}} terminées",
+    "steps": "Étapes du plan",
+    "status": {
+      "pending": "en attente",
+      "in_progress": "en cours",
+      "completed": "terminée",
+      "cancelled": "annulée",
+      "blocked": "bloquée"
+    }
+  },
+  "spend": {
+    "usage": "Consommation de cette discussion",
+    "usageWith": "Consommation de cette discussion : {{label}}",
+    "unknownPrices": "Les tarifs de ce modèle sont inconnus, seuls les tokens sont comptés.",
+    "estimate": "Une estimation d'après les tarifs publiés du modèle.",
+    "ofLimit": "{{spent}} sur {{limit}}",
+    "spent": "Dépensé",
+    "unknown": "Inconnu",
+    "inputTokens": "Tokens d'entrée",
+    "outputTokens": "Tokens de sortie",
+    "tokens_one": "{{formatted}} token",
+    "tokens_other": "{{formatted}} tokens",
+    "limitReached": "Cette discussion a atteint sa limite de dépense. Commencez une nouvelle discussion, ou augmentez la limite dans <settings>Paramètres → IA</settings>.",
+    "limitNotApplicable": "La limite de dépense ({{limit}}) ne peut pas s'appliquer à ce modèle."
+  },
+  "steps": {
+    "thinking": "Réflexion",
+    "thought": "Réflexion faite",
+    "draft": "Premier jet, révisé ci-dessous",
+    "approvalNeeded": "Approbation requise : {{title}}",
+    "run": "Exécuter {{name}}",
+    "approvalIntro": "L'assistant veut faire ceci. Rien ne se passe tant que vous n'avez pas approuvé.",
+    "deny": "Refuser",
+    "approve": "Approuver",
+    "approvedGoOn": "Approuvé. Répondez aux autres cartes pour continuer.",
+    "deniedGoOn": "Refusé. Répondez aux autres cartes pour continuer.",
+    "logGone": "Ce journal n'existe plus",
+    "log": "Journal",
+    "denied": "Refusé : {{title}}",
+    "failed": "Échec : {{title}}",
+    "running": "Exécution de {{name}}",
+    "ran": "{{name}} exécuté",
+    "withSubject": "{{title}} de {{subject}}",
+    "helperRunningTask": "L'assistant secondaire examine : {{task}}",
+    "helperDoneTask": "L'assistant secondaire a examiné : {{task}}",
+    "helperRunning": "L'assistant secondaire fait des recherches",
+    "helperDone": "L'assistant secondaire a fait des recherches",
+    "tools": {
+      "getCapabilities": {
+        "running": "Vérification de ce que ce serveur peut faire",
+        "done": "Vérification de ce que ce serveur peut faire terminée"
+      },
+      "getSystemStats": { "running": "Lecture des statistiques système", "done": "Statistiques système lues" },
+      "listApps": { "running": "Liste des apps", "done": "Apps listées" },
+      "appLogs": { "running": "Lecture des journaux de l'app", "done": "Journaux de l'app lus" },
+      "listFileLocations": { "running": "Liste des emplacements de fichiers", "done": "Emplacements de fichiers listés" },
+      "listFiles": { "running": "Liste des fichiers", "done": "Fichiers listés" },
+      "readFile": { "running": "Lecture d'un fichier", "done": "Fichier lu" },
+      "writeFile": { "running": "Écriture d'un fichier", "done": "Fichier écrit" },
+      "editFile": { "running": "Modification d'un fichier", "done": "Fichier modifié" },
+      "listDirectory": { "running": "Liste d'un dossier", "done": "Dossier listé" },
+      "createDirectory": { "running": "Création d'un dossier", "done": "Dossier créé" },
+      "searchStore": { "running": "Recherche dans le store d'apps", "done": "Recherche effectuée dans le store d'apps" },
+      "readToolResult": { "running": "Lecture d'un résultat d'outil enregistré", "done": "Résultat d'outil enregistré lu" },
+      "askUserQuestion": { "running": "En attente de votre réponse", "done": "Question posée" },
+      "advisor": { "running": "Consultation du conseiller", "done": "Conseiller consulté" },
+      "runWorkflow": {
+        "running": "Les assistants secondaires font des recherches ensemble",
+        "done": "Les assistants secondaires ont fait des recherches ensemble"
+      },
+      "getStoreApp": { "running": "Lecture d'une app du store", "done": "App du store lue" },
+      "listPackageManagers": { "running": "Liste des gestionnaires de paquets", "done": "Gestionnaires de paquets listés" },
+      "searchPackages": { "running": "Recherche de paquets", "done": "Recherche de paquets effectuée" },
+      "listUpgradablePackages": {
+        "running": "Recherche de mises à jour de paquets",
+        "done": "Mises à jour de paquets vérifiées"
+      }
+    }
+  },
+  "question": {
+    "title": "Questions",
+    "asks": "L'assistant demande : {{title}}",
+    "intro": "L'assistant pose une question avant de continuer. Ne répondez jamais avec un mot de passe ou une clé.",
+    "ownAnswerLabel": "Votre propre réponse pour {{header}}",
+    "ownAnswerPlaceholder": "Ou saisissez votre propre réponse",
+    "skip": "Passer",
+    "send": "Envoyer les réponses",
+    "skippedGoOn": "Passée. Répondez aux autres cartes pour continuer.",
+    "answeredGoOn": "Répondu. Répondez aux autres cartes pour continuer.",
+    "youAnswered": "Vous avez répondu : {{answers}}",
+    "youSkipped": "Vous avez passé la question"
+  }
+}

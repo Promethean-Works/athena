@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Łączenie…",
+    "connected": "Połączono",
+    "exited": "Zakończono ({{code}})",
+    "disconnected": "Rozłączono",
+    "hostTerminal": "Terminal hosta",
+    "containerShell": "Powłoka kontenera",
+    "lost": "Utracono połączenie z Athena",
+    "closedCode": "Rozłączono (kod {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminal niedostępny",
+    "openSettings": "Otwórz Ustawienia",
+    "description": "Powłoka na tym serwerze, uruchomiona jako użytkownik, na którym działa Athena.",
+    "newSession": "Nowa sesja"
+  },
+  "access": {
+    "noSupport": "Ten host nie obsługuje terminala.",
+    "adminsOnly": "Tylko administratorzy mogą otworzyć terminal.",
+    "turnedOff": "Terminal jest wyłączony w Ustawienia → System."
+  },
+  "shell": {
+    "title": "Powłoka · {{name}}",
+    "description": "Uruchamia bash lub sh, gdy obraz nie ma basha."
+  }
+}

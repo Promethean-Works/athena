@@ -1,0 +1,107 @@
+{
+  "save": "Kaydet",
+  "cancel": "İptal",
+  "close": "Kapat",
+  "loading": "Yükleniyor…",
+  "back": "Geri",
+  "delete": "Sil",
+  "log": {
+    "empty": "Henüz çıktı yok.",
+    "copy": "Günlüğü kopyala",
+    "title": "Günlük",
+    "copied": "Günlük kopyalandı",
+    "copyFailed": "Kopyalanamadı"
+  },
+  "capabilities": {
+    "title": "Yetenekler",
+    "summary": "{{total}} içinden {{ready}} hazır. Özellikler yalnızca çalışabilecekleri yerde görünür.",
+    "loadingSummary": "Athena'nın bu ana makinede bulduğu şeyler.",
+    "redetect": "Yeniden algıla",
+    "loadFailed": "Yetenekler yüklenemedi: {{error}}",
+    "details": "Ayrıntılar",
+    "status": {
+      "ready": "Hazır",
+      "stopped": "Durduruldu",
+      "missing": "Kurulu değil",
+      "unsupported": "Desteklenmiyor",
+      "needs_privilege": "Root gerekir"
+    }
+  },
+  "job": {
+    "working": "Çalışıyor… Bunu kapatabilirsiniz; çalışmaya devam eder.",
+    "done": "Bitti.",
+    "connectionLost": "İşle bağlantı kesildi.",
+    "progress": "İlerleme",
+    "finishing": " · bitiriliyor…",
+    "cancel": "İşi iptal et",
+    "stopFailed": "Durdurulamadı"
+  },
+  "restart": {
+    "title": "Athena yeniden başlatılsın mı?",
+    "description": "Çalışan işler durdurulur. Sayfa birkaç saniye içinde yeniden bağlanır. Uygulamalarınız çalışmaya devam eder.",
+    "confirm": "Yeniden başlat",
+    "failed": "Athena yeniden başlatılamadı",
+    "waitingTitle": "Athena yeniden başlatılıyor…",
+    "waitingBody": "Athena geri döndüğünde bu sayfa yeniden yüklenir."
+  },
+  "update": {
+    "notBackYet": "Athena henüz geri dönmedi",
+    "reload": "Sayfayı yeniden yükle",
+    "notice": {
+      "title": "Athena {{latest}} mevcut",
+      "runs": "Bu sunucu {{current}} sürümünü çalıştırıyor.",
+      "whatsNew": "Yenilikleri gör"
+    },
+    "action": {
+      "updateNow": "Şimdi güncelle",
+      "cannotSelf": "Bu Athena kendini güncelleyemez",
+      "howTo": "{{reason}}. Yükseltmek için bunu sunucuda çalıştırın (yeni sürümü kurar ve Athena'yı yeniden başlatır; verileriniz ve ayarlarınız kalır):",
+      "commandLabel": "Yükseltme komutu"
+    },
+    "interrupted": {
+      "title": "Son güncelleme tamamlanmadı",
+      "body": "{{from}} sürümünden {{to}} sürümüne bir güncelleme başladı ama hiç geri bildirim gelmedi (ana makinenin gücü kesilmiş ya da güncelleme durdurulmuş olabilir). Athena çalışıyor, ancak beklediğiniz sürüm olduğunu denetleyin. Güncelleme günlüğü veri klasöründedir (logs/update.log). Bir kurulumu onarmak için sunucuda README'deki kurulum komutunu çalıştırın.",
+      "dismiss": "Kapat",
+      "oldVersion": "eski sürüm",
+      "newVersion": "yeni sürüm"
+    },
+    "dialog": {
+      "steps": "Güncelleme adımları",
+      "stepPrepare": "Sürümü indir ve denetle",
+      "stepSwap": "Athena'yı durdur, kur ve yeniden başlat",
+      "stepCheck": "Yeni sürümün yanıt vermesini bekle",
+      "newVersion": "yeni sürüm",
+      "oldVersion": "eski sürüm",
+      "updated": "{{to}} sürümüne güncellendi",
+      "reloading": "Sayfa yeniden yükleniyor…",
+      "rolledBackTitle": "{{to}} sürümüne güncelleme başarısız, hâlâ {{from}} sürümündesiniz",
+      "rolledBackBody": "Athena, elinizdeki sürüme ve verilerinizin güncellemeden önceki haline geri döndü.",
+      "reason": " Neden: {{reason}}",
+      "abortedTitle": "{{to}} sürümüne güncelleme durduruldu",
+      "failedTitle": "{{to}} sürümüne güncelleme başarısız oldu ve Athena çalışmıyor",
+      "abortedBody": "Hiçbir şey kurulmadı. Athena'yı yeniden başlatın ya da README'deki kurulum komutunu çalıştırın.",
+      "failedBody": "Onarmak için sunucuda README'deki kurulum komutunu çalıştırın.",
+      "back": "Athena geri döndü",
+      "backBody": "Hangi sürümün çalıştığını görmek için sayfayı yeniden yükleyin.",
+      "confirmTitle": "Athena güncellensin mi?",
+      "notStartedTitle": "Güncelleme başlamadı",
+      "preparingTitle": "Güncelleme hazırlanıyor",
+      "versions": "Athena {{current}} sürümünden {{latest}} sürümüne.",
+      "confirmBody": "Athena bir iki dakika yeniden başlar ve sayfa yeniden bağlanır. Uygulamalarınız ve konteynerleriniz çalışmaya devam eder. Yeni sürüm başlamazsa Athena bu sürüme geri döner.",
+      "stopsTitle": "Athena yeniden başlayınca bunlar durur:",
+      "terminals_one": "{{count}} açık terminal",
+      "terminals_other": "{{count}} açık terminal",
+      "backupFirst": "Önce Athena'yı yedekle",
+      "backupFirstHelp": "Hiçbir şey durdurulmadan önce Athena'nın ayarlarını ve verilerini “{{plan}}” yedekleme planıyla kaydeder. Uygulamalarınıza dokunulmaz.",
+      "notChanged": "{{error}}. Hiçbir şey değiştirilmedi; Athena hâlâ {{current}} sürümünü çalıştırıyor.",
+      "prepareFailed": "Güncelleme hazırlanamadı",
+      "updateAnyway": "Yine de güncelle",
+      "update": "Güncelle",
+      "restarting": "Yeniden başlatılıyor…",
+      "updatingTo": "{{latest}} sürümüne güncelleniyor. Athena geri döndüğünde bu sayfa yeniden yüklenir.",
+      "lateBody": "Yavaş bir ana makinede daha uzun sürebilir. Kapalı kalırsa veri klasöründeki güncelleme günlüğüne (logs/update.log) bakın."
+    }
+  },
+  "restartLateBody": "Yavaş bir ana makinede daha uzun sürebilir. Kapalı kalırsa veri klasöründeki günlüğe (logs/athena.log) bakın.",
+  "toggleSidebar": "Kenar çubuğunu aç/kapat"
+}

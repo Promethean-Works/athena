@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "執行中",
+    "dead": "已終止",
+    "exited": "已結束",
+    "exitedWithCode": "已結束（{{code}}）",
+    "paused": "已暫停",
+    "created": "已建立",
+    "restarting": "重新啟動中"
+  },
+  "logs": {
+    "following": "正在追蹤新輸出",
+    "stopped": "容器已停止",
+    "disconnected": "已中斷連線",
+    "connecting": "連線中…",
+    "title": "記錄 · {{name}}",
+    "empty": "沒有記錄輸出。"
+  },
+  "runtime": {
+    "startFailed": "無法啟動執行環境",
+    "running": "容器執行環境正在執行",
+    "providerStopped": "{{provider}} 未在執行",
+    "stopped": "容器執行環境未在執行",
+    "none": "沒有容器執行環境",
+    "notFound": "Athena 在此主機上找不到容器引擎。",
+    "start": "啟動 {{provider}}",
+    "redetect": "重新偵測",
+    "setup": {
+      "darwin": {
+        "title": "安裝 Colima"
+      },
+      "linux": {
+        "title": "安裝 Docker Engine"
+      },
+      "windows": {
+        "title": "安裝容器執行環境",
+        "wsl": "WSL2 中的 Docker Engine：wsl --install，然後在該發行版內安裝 docker-ce",
+        "podman": "或 Podman：winget install RedHat.Podman，然後 podman machine init; podman machine start",
+        "rancher": "或 Rancher Desktop：winget install SUSE.RancherDesktop（選擇 dockerd 引擎）"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "無法列出容器",
+    "actionFailed": {
+      "start": "無法啟動 {{name}}",
+      "stop": "無法停止 {{name}}",
+      "restart": "無法重新啟動 {{name}}"
+    },
+    "removeFailed": "無法移除 {{name}}",
+    "removed": "已移除 {{name}}",
+    "emptyTitle": "尚無容器",
+    "emptyDescription": "此執行環境上的容器會顯示在這裡，包括在 Athena 之外啟動的容器。",
+    "name": "名稱",
+    "image": "映像檔",
+    "state": "狀態",
+    "ports": "連接埠",
+    "actions": "動作",
+    "standalone": "獨立容器",
+    "actionsFor": "{{name}} 的動作",
+    "logs": "記錄",
+    "shell": "Shell",
+    "restart": "重新啟動",
+    "stop": "停止",
+    "start": "啟動",
+    "remove": "移除",
+    "removeTitle": "要移除 {{name}} 嗎？",
+    "removeRunningDescription": "會先將它停止，然後刪除容器。具名磁碟區與映像檔會保留。",
+    "removeDescription": "容器會被刪除。具名磁碟區與映像檔會保留。",
+    "cancel": "取消"
+  }
+}

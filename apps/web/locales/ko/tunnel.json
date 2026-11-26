@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "터널 주소",
+    "description": "네트워크 밖에서 Athena에 접속하거나, 휴대폰으로 코드를 스캔하세요.",
+    "publicAddress": "공개 주소",
+    "notRunning": "터널이 실행 중이 아니에요.",
+    "startInSettings": "설정에서 시작하세요."
+  },
+  "qr": {
+    "title": "터널 주소 QR 코드"
+  }
+}

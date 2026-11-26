@@ -1,0 +1,109 @@
+{
+  "save": "Zapisz",
+  "cancel": "Anuluj",
+  "close": "Zamknij",
+  "loading": "Wczytywanie…",
+  "back": "Wstecz",
+  "delete": "Usuń",
+  "log": {
+    "empty": "Brak danych wyjściowych.",
+    "copy": "Kopiuj log",
+    "title": "Log",
+    "copied": "Skopiowano log",
+    "copyFailed": "Nie udało się skopiować"
+  },
+  "capabilities": {
+    "title": "Możliwości",
+    "summary": "Gotowe: {{ready}} z {{total}}. Funkcje pojawiają się tylko tam, gdzie mogą działać.",
+    "loadingSummary": "Co Athena znalazła na tym hoście.",
+    "redetect": "Wykryj ponownie",
+    "loadFailed": "Nie udało się wczytać możliwości: {{error}}",
+    "details": "Szczegóły",
+    "status": {
+      "ready": "Gotowe",
+      "stopped": "Zatrzymane",
+      "missing": "Niezainstalowane",
+      "unsupported": "Nieobsługiwane",
+      "needs_privilege": "Wymaga roota"
+    }
+  },
+  "job": {
+    "working": "Pracuję… Możesz to zamknąć; zadanie działa dalej.",
+    "done": "Gotowe.",
+    "connectionLost": "Utracono połączenie z zadaniem.",
+    "progress": "Postęp",
+    "finishing": " · kończenie…",
+    "cancel": "Anuluj zadanie",
+    "stopFailed": "Nie udało się zatrzymać"
+  },
+  "restart": {
+    "title": "Uruchomić ponownie Athenę?",
+    "description": "Działające zadania zostaną zatrzymane. Strona połączy się ponownie za kilka sekund. Twoje aplikacje nadal działają.",
+    "confirm": "Uruchom ponownie",
+    "failed": "Nie udało się uruchomić ponownie Athena",
+    "waitingTitle": "Ponowne uruchamianie Athena…",
+    "waitingBody": "Ta strona przeładuje się, gdy Athena wróci."
+  },
+  "update": {
+    "notBackYet": "Athena jeszcze nie wróciła",
+    "reload": "Przeładuj stronę",
+    "notice": {
+      "title": "Dostępna jest Athena {{latest}}",
+      "runs": "Ten serwer działa na wersji {{current}}.",
+      "whatsNew": "Zobacz, co nowego"
+    },
+    "action": {
+      "updateNow": "Aktualizuj teraz",
+      "cannotSelf": "Ta Athena nie potrafi sama się zaktualizować",
+      "howTo": "{{reason}}. Aby zaktualizować, uruchom to na serwerze (instaluje nową wersję i restartuje Athenę; Twoje dane i ustawienia zostają):",
+      "commandLabel": "Polecenie aktualizacji"
+    },
+    "interrupted": {
+      "title": "Ostatnia aktualizacja nie zakończyła się",
+      "body": "Aktualizacja z {{from}} do {{to}} rozpoczęła się, ale nigdy nie zgłosiła zakończenia (host mógł stracić zasilanie albo aktualizację przerwano). Athena działa, ale sprawdź, czy to oczekiwana wersja. Dziennik aktualizacji jest w folderze danych (logs/update.log). Aby naprawić instalację, uruchom na serwerze polecenie instalatora z README.",
+      "dismiss": "Odrzuć",
+      "oldVersion": "starej wersji",
+      "newVersion": "nowej"
+    },
+    "dialog": {
+      "steps": "Kroki aktualizacji",
+      "stepPrepare": "Pobierz i sprawdź wydanie",
+      "stepSwap": "Zatrzymaj Athenę, zainstaluj i uruchom ją ponownie",
+      "stepCheck": "Poczekaj, aż nowa wersja odpowie",
+      "newVersion": "nowej wersji",
+      "oldVersion": "starej",
+      "updated": "Zaktualizowano do {{to}}",
+      "reloading": "Przeładowywanie strony…",
+      "rolledBackTitle": "Aktualizacja do {{to}} nie powiodła się, nadal {{from}}",
+      "rolledBackBody": "Athena wróciła do poprzedniej wersji, z danymi w stanie sprzed aktualizacji.",
+      "reason": " Powód: {{reason}}",
+      "abortedTitle": "Aktualizacja do {{to}} została zatrzymana",
+      "failedTitle": "Aktualizacja do {{to}} nie powiodła się i Athena nie działa",
+      "abortedBody": "Nic nie zostało zainstalowane. Uruchom Athenę ponownie lub użyj polecenia instalatora z README.",
+      "failedBody": "Aby ją naprawić, uruchom na serwerze polecenie instalatora z README.",
+      "back": "Athena wróciła",
+      "backBody": "Przeładuj stronę, aby zobaczyć, która wersja działa.",
+      "confirmTitle": "Zaktualizować Athenę?",
+      "notStartedTitle": "Aktualizacja się nie rozpoczęła",
+      "preparingTitle": "Przygotowywanie aktualizacji",
+      "versions": "Athena {{current}} do {{latest}}.",
+      "confirmBody": "Athena uruchomi się ponownie na minutę lub dwie, a strona połączy się ponownie. Twoje aplikacje i kontenery nadal działają. Jeśli nowa wersja się nie uruchomi, Athena wróci do tej.",
+      "stopsTitle": "Te elementy zatrzymają się przy restarcie Athena:",
+      "terminals_one": "{{count}} otwarty terminal",
+      "terminals_few": "{{count}} otwarte terminale",
+      "terminals_many": "{{count}} otwartych terminali",
+      "terminals_other": "{{count}} otwartego terminala",
+      "backupFirst": "Najpierw utwórz kopię Athena",
+      "backupFirstHelp": "Zapisuje ustawienia i dane Athena w planie kopii zapasowych „{{plan}}”, zanim cokolwiek zostanie zatrzymane. Twoje aplikacje nie są ruszane.",
+      "notChanged": "{{error}}. Nic nie zostało zmienione; Athena nadal działa na {{current}}.",
+      "prepareFailed": "Nie udało się przygotować aktualizacji",
+      "updateAnyway": "Aktualizuj mimo to",
+      "update": "Aktualizuj",
+      "restarting": "Ponowne uruchamianie…",
+      "updatingTo": "Aktualizacja do {{latest}}. Ta strona przeładuje się, gdy Athena wróci.",
+      "lateBody": "Na wolnym hoście może to potrwać dłużej. Jeśli nadal nie działa, sprawdź dziennik aktualizacji w folderze danych (logs/update.log)."
+    }
+  },
+  "restartLateBody": "Na wolnym hoście może to potrwać dłużej. Jeśli nadal nie działa, sprawdź log w folderze danych (logs/athena.log).",
+  "toggleSidebar": "Przełącz panel boczny"
+}

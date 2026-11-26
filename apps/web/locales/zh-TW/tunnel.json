@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "通道位址",
+    "description": "從網路外部開啟 Athena，或用手機掃描 QR 碼。",
+    "publicAddress": "公開位址",
+    "notRunning": "通道未在執行。",
+    "startInSettings": "請到「設定」啟動。"
+  },
+  "qr": {
+    "title": "通道位址的 QR 碼"
+  }
+}

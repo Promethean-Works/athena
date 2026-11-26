@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Adresse du tunnel",
+    "description": "Ouvrez Athena depuis l'extérieur de votre réseau, ou scannez le code avec votre téléphone.",
+    "publicAddress": "Adresse publique",
+    "notRunning": "Le tunnel n'est pas actif.",
+    "startInSettings": "Démarrez-le dans les Paramètres."
+  },
+  "qr": {
+    "title": "QR code de l'adresse du tunnel"
+  }
+}

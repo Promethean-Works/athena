@@ -1,0 +1,21 @@
+{
+  "dashboard": "Pano",
+  "apps": "Uygulamalar",
+  "store": "Mağaza",
+  "packages": "Paketler",
+  "automation": "Otomasyon",
+  "files": "Dosyalar",
+  "smbShares": "SMB paylaşımları",
+  "cloud": "Bulut",
+  "containers": "Konteynerler",
+  "terminal": "Terminal",
+  "assistant": "Asistan",
+  "backups": "Yedekler",
+  "settings": "Ayarlar",
+  "help": "Yardım",
+  "roleAdmin": "Yönetici",
+  "roleUser": "Kullanıcı",
+  "tunnelAddress": "Tünel adresi",
+  "restartAthena": "Athena'yı yeniden başlat",
+  "logOut": "Çıkış yap"
+}

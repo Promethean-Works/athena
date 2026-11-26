@@ -1,0 +1,106 @@
+{
+  "support": {
+    "emulated": "模擬執行",
+    "emulatedTitle": "沒有適用於此 CPU 的映像檔；Docker 會以模擬方式執行另一個映像檔，速度較慢",
+    "unsupported": "無法在此執行",
+    "unsupportedTitle": "沒有適用於此伺服器 CPU 的映像檔"
+  },
+  "browser": {
+    "loadError": "無法載入商店",
+    "filteredCount": "{{shown}} / {{total}} 個應用程式",
+    "totalCount_other": "{{count}} 個應用程式，每個都是由 Athena 為你設定的 compose 專案。",
+    "browsePrompt": "瀏覽要安裝的應用程式。",
+    "searchPlaceholder": "搜尋應用程式",
+    "catalogs": "目錄",
+    "showingUnsupported_other": "顯示 {{count}} 個無法在此伺服器 CPU 上執行的應用程式。",
+    "hiddenUnsupported_other": "已隱藏 {{count}} 個應用程式，因為它們沒有適用於此伺服器 CPU 的映像檔。",
+    "hideThem": "隱藏",
+    "showThem": "顯示",
+    "all": "全部",
+    "noMatchTitle": "沒有符合的應用程式",
+    "noMatchHidden_other": "已隱藏 {{count}} 個符合的應用程式，因為它們沒有適用於此伺服器 CPU 的映像檔。",
+    "noMatchHint": "試試其他搜尋或分類。",
+    "showMatches_other": "顯示"
+  },
+  "card": {
+    "installed": "已安裝"
+  },
+  "popular": {
+    "title": "目前熱門",
+    "subtitle": "多數家用伺服器一開始會安裝的應用程式。",
+    "showPage": "顯示第 {{page}} 頁，共 {{total}} 頁"
+  },
+  "installForm": {
+    "generated": "留空則自動產生",
+    "nameInvalid": "請使用小寫字母、數字、連字號或底線。",
+    "jobLabel": "安裝 {{title}}",
+    "appName": "應用程式名稱",
+    "nameHint": "如有需要，可用不同名稱安裝同一個應用程式兩次。",
+    "advanced": "進階設定",
+    "install": "安裝 {{title}}"
+  },
+  "view": {
+    "loadError": "無法載入此應用程式",
+    "notFound": "找不到應用程式",
+    "website": "網站",
+    "alreadyInstalled": "已安裝",
+    "installedAs": "名稱為",
+    "installAnother": "你可以用不同名稱再安裝一份。",
+    "beforeYouStart": "開始之前",
+    "whatYouGet": "你會得到什麼",
+    "details": "詳細資料",
+    "category": "分類",
+    "license": "授權",
+    "images": "映像檔",
+    "platforms": "平台",
+    "viewCompose": "檢視 compose.yaml",
+    "reportPrompt": "運作不如預期？",
+    "install": "安裝",
+    "installHint": "你的回答會儲存在伺服器上該應用程式的 .env 檔案中，位於 compose.yaml 旁邊。",
+    "variant": "變體",
+    "cannotInstall": "{{title}} 無法安裝在這台伺服器上：沒有適用於 {{platform}} 的映像檔。",
+    "thisCpu": "此 CPU",
+    "thisServerCpu": "此伺服器的 CPU",
+    "moreIn": "{{category}}的更多應用程式",
+    "cpu": {
+      "unsupportedTitle": "無法在此伺服器上執行",
+      "unsupportedBody": "它的映像檔發布於 {{published}}，而這台伺服器是 {{host}}。",
+      "emulatedTitle": "以模擬方式執行",
+      "emulatedBody": "沒有適用於 {{host}} 的映像檔，因此 Docker 會以模擬方式執行 {{published}} 的映像檔。可以運作，但速度較慢且會使用更多記憶體。"
+    },
+    "screenshot": {
+      "alt": "{{title}} 螢幕截圖",
+      "open": "開啟較大的 {{title}} 螢幕截圖",
+      "enlarge": "放大",
+      "show": "顯示螢幕截圖 {{number}}",
+      "description": "{{title}} 的螢幕截圖。",
+      "close": "關閉"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "自動偵測",
+    "kindAthena": "Athena 目錄",
+    "never": "從未",
+    "addFailed": "無法新增目錄",
+    "refreshFailed": "無法重新整理 {{name}}",
+    "removeFailed": "無法移除 {{name}}",
+    "removed": "已移除 {{name}}",
+    "builtIn": "內建",
+    "refreshFailedBadge": "重新整理失敗",
+    "summaryBuiltin_other": "{{count}} 個應用程式 · 隨 Athena 內建",
+    "summaryUpdated_other": "{{count}} 個應用程式 · 更新於 {{when}}",
+    "refresh": "重新整理",
+    "removeLabel": "移除 {{name}}",
+    "addTitle": "新增目錄",
+    "addDescription": "GitHub、Codeberg 或 GitLab 儲存庫，或直接的 .tar.gz/.zip 連結。",
+    "name": "名稱",
+    "namePlaceholder": "My apps",
+    "format": "格式",
+    "formatHint": "Athena 目錄使用 apps/<id>/compose.yaml；CasaOS 商店使用 Apps/<Name>/docker-compose.yml。",
+    "add": "新增目錄",
+    "removeTitle": "要移除 {{name}} 嗎？",
+    "removeDescription": "它的應用程式會從商店消失。你已從中安裝的應用程式會繼續執行。",
+    "cancel": "取消",
+    "remove": "移除"
+  }
+}

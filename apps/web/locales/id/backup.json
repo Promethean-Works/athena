@@ -1,0 +1,119 @@
+{
+  "add": "Tambah",
+  "cancel": "Batal",
+  "back": "Kembali",
+  "errors": {
+    "listDestinations": "Tidak dapat menampilkan daftar tujuan cadangan",
+    "createDestination": "Tidak dapat membuat tujuan",
+    "deleteDestination": "Tidak dapat menghapus tujuan",
+    "listPlans": "Tidak dapat menampilkan daftar rencana cadangan",
+    "createPlan": "Tidak dapat membuat rencana",
+    "updatePlan": "Tidak dapat memperbarui rencana",
+    "deletePlan": "Tidak dapat menghapus rencana",
+    "startBackup": "Tidak dapat memulai pencadangan",
+    "listVersions": "Tidak dapat menampilkan daftar versi cadangan",
+    "listVersionFiles": "Tidak dapat menampilkan file versi",
+    "restoreApp": "Tidak dapat memulihkan aplikasi"
+  },
+  "toast": {
+    "destinationCreated": "Tujuan \"{{name}}\" dibuat",
+    "planCreated": "Rencana \"{{name}}\" dibuat",
+    "planUpdated": "Rencana \"{{name}}\" diperbarui",
+    "backupStarted": "Pencadangan \"{{name}}\" dimulai"
+  },
+  "view": {
+    "unavailable": "Cadangan tidak tersedia",
+    "unsupported": "Host ini tidak mendukung pencadangan.",
+    "tabs": {
+      "versions": "Versi",
+      "destinations": "Tujuan",
+      "plans": "Rencana"
+    }
+  },
+  "destinations": {
+    "title": "Tujuan",
+    "name": "Nama",
+    "kind": "Jenis",
+    "location": "Lokasi",
+    "created": "Dibuat",
+    "empty": {
+      "title": "Belum ada tujuan",
+      "description": "Tujuan adalah folder atau remote rclone tempat cadangan disimpan. Tambahkan satu untuk mulai mencadangkan."
+    }
+  },
+  "plans": {
+    "title": "Rencana",
+    "name": "Nama",
+    "schedule": "Jadwal",
+    "lastRun": "Terakhir dijalankan",
+    "status": "Status",
+    "manual": "manual",
+    "runNow": "Jalankan sekarang",
+    "empty": {
+      "title": "Belum ada rencana",
+      "description": "Rencana memilih Athena, aplikasi, tujuan, dan jadwal, lalu berjalan sesuai waktu."
+    }
+  },
+  "versions": {
+    "title": "Versi",
+    "refresh": "Segarkan",
+    "time": "Waktu",
+    "size": "Ukuran",
+    "new": "Baru",
+    "added": "Ditambahkan",
+    "changed": "Diubah",
+    "removed": "Dihapus",
+    "os": "OS",
+    "viewFiles": "Lihat file",
+    "restore": "Pulihkan",
+    "empty": {
+      "title": "Belum ada versi",
+      "description": "Jalankan pencadangan untuk membuat yang pertama."
+    }
+  },
+  "addDestination": {
+    "title": "Tambah tujuan cadangan",
+    "kitTitle": "Simpan kit pemulihan",
+    "description": "Pilih tempat restic menyimpan repositori: folder lokal atau remote rclone.",
+    "kitDescription": "Unduh atau salin kit ini. Athena tidak akan menampilkan kata sandi ini lagi; tanpanya, host yang rusak tidak dapat dipulihkan.",
+    "prepareFailed": "Tidak dapat menyiapkan tujuan",
+    "saveKitFirst": "Simpan kit pemulihan sebelum membuat tujuan",
+    "name": "Nama",
+    "namePlaceholder": "mis. Drive USB",
+    "kind": "Jenis",
+    "local": "Folder lokal",
+    "rclone": "Remote rclone",
+    "folder": "Folder",
+    "folderHint": "Path absolut, di luar folder data Athena.",
+    "remote": "Remote",
+    "remoteHint": "Remote rclone yang sudah disiapkan di Cloud → Remote.",
+    "password": "Kata sandi repositori",
+    "passwordPlaceholder": "Kosongkan untuk membuat yang kuat",
+    "passwordHint": "Kosongkan agar Athena membuat kata sandi yang kuat. Kata sandi ditampilkan sekali di bawah, lalu tidak lagi.",
+    "kitSaved": "Saya sudah menyimpan kit pemulihan ini (kata sandi, tujuan, dan versi restic)",
+    "next": "Berikutnya: kit pemulihan",
+    "create": "Buat tujuan"
+  },
+  "addPlan": {
+    "title": "Tambah rencana cadangan",
+    "description": "Pilih apa yang dicadangkan, ke mana, dan seberapa sering. Aplikasi dihentikan selama pencadangannya kecuali \"Cadangkan saat berjalan\" aktif.",
+    "name": "Nama",
+    "namePlaceholder": "mis. Aplikasi harian",
+    "destination": "Tujuan",
+    "athena": "Cadangkan Athena (pengaturan, DB, rahasia, TLS)",
+    "athenaHint": "Disarankan: aktif secara bawaan.",
+    "apps": "Aplikasi",
+    "appsHint": "Aplikasi mana yang disertakan dalam rencana.",
+    "noApps": "Tidak ada aplikasi. Mulai aplikasi dari Toko → Aplikasi terlebih dahulu.",
+    "schedule": "Jadwal (cron)",
+    "schedulePlaceholder": "0 3 * * *  (setiap hari pukul 03:00)",
+    "scheduleHint": "Kosongkan untuk dijalankan manual saja. Jalankan terjadwal hadir di bagian 4.",
+    "retention": "Retensi",
+    "keepLast": "Simpan terakhir",
+    "keepDaily": "Simpan harian",
+    "keepWeekly": "Simpan mingguan",
+    "keepMonthly": "Simpan bulanan",
+    "retentionHint": "`restic forget --keep-…` per item. Bawaan: 7 harian / 4 mingguan / 6 bulanan.",
+    "create": "Buat rencana"
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "page": {
+    "description": "Apps zijn compose-projecten die Athena beheert."
+  },
+  "newApp": "Nieuwe app",
+  "open": "Openen",
+  "list": {
+    "failed": "Apps konden niet worden weergegeven"
+  },
+  "status": {
+    "running": "Actief",
+    "partial": "{{running}}/{{total}} actief",
+    "stopped": "Gestopt",
+    "notDeployed": "Niet gedeployed"
+  },
+  "actions": {
+    "restart": "Herstarten",
+    "stop": "Stoppen",
+    "start": "Starten",
+    "updateImages": "Images bijwerken",
+    "remove": "Verwijderen"
+  },
+  "jobs": {
+    "failed": {
+      "start": "{{name}} kon niet worden gestart",
+      "stop": "{{name}} kon niet worden gestopt",
+      "restart": "{{name}} kon niet opnieuw worden gestart",
+      "update": "{{name}} kon niet worden bijgewerkt",
+      "remove": "{{name}} kon niet worden verwijderd",
+      "save": "{{name}} kon niet worden opgeslagen",
+      "saveSettings": "De instellingen van {{name}} konden niet worden opgeslagen",
+      "deploy": "{{name}} kon niet worden gedeployed"
+    }
+  },
+  "delete": {
+    "title": "{{name}} verwijderen?",
+    "description": "De containers worden gestopt en verwijderd, en Athena vergeet de app.",
+    "deleteData": "Verwijder ook de volumes en de gegevensmap. Dit kan niet ongedaan worden gemaakt.",
+    "cancel": "Annuleren",
+    "confirm": "Verwijderen"
+  },
+  "grid": {
+    "emptyTitle": "Nog geen apps",
+    "emptyDescription": "Deploy een compose-bestand of converteer een <code>docker run</code>-commando.",
+    "containerCount_one": "{{count}} container",
+    "containerCount_other": "{{count}} containers",
+    "fromDockerRun": "via docker run",
+    "actionsFor": "Acties voor {{name}}"
+  },
+  "containerState": {
+    "running": "actief",
+    "exited": "beëindigd",
+    "dead": "dood",
+    "paused": "gepauzeerd",
+    "created": "aangemaakt",
+    "restarting": "herstarten"
+  },
+  "detail": {
+    "loadFailed": "De app kon niet worden geladen",
+    "loadFailedNamed": "{{name}} kon niet worden geladen",
+    "tabContainers": "Containers",
+    "tabCompose": "Compose",
+    "tabSettings": "Instellingen",
+    "tabBackups": "Back-ups",
+    "noContainers": "Geen containers",
+    "noContainersHint": "Start de app om de containers aan te maken.",
+    "logs": "Logs",
+    "shell": "Shell",
+    "composeHelp": "Bij opslaan blijft de vorige versie bewaard als compose.prev.yaml en wordt de app opnieuw gedeployed.",
+    "settingsHelp": "De waarden uit het installatieformulier (.env). Wijzig hier een poort of map en sla op om opnieuw te deployen. Kan gegenereerde wachtwoorden bevatten.",
+    "saveRedeploy": "Opslaan en opnieuw deployen",
+    "discard": "Wijzigingen negeren"
+  },
+  "new": {
+    "nameInvalid": "Gebruik kleine letters, cijfers, streepjes of underscores, beginnend met een letter of cijfer.",
+    "convertFailed": "Het commando kon niet worden geconverteerd",
+    "validationFailed": "Validatie mislukt",
+    "name": "Naam",
+    "nameHelp": "Ook de naam van het compose-project. Kan later niet worden gewijzigd.",
+    "tabCompose": "Compose-bestand",
+    "tabRun": "Via docker run",
+    "reviewConverted": "Controleer het geconverteerde bestand",
+    "upload": "Bestand uploaden",
+    "composeHelp": "Gebruik <code>${ATHENA_APP_DATA}</code> voor bestanden die in de gegevensmap van deze app op de server moeten staan.",
+    "runLabel": "docker run-commando",
+    "runHelp": "Het wordt geconverteerd naar een compose-bestand dat je kunt nalopen voordat je deployt. Er wordt nog niets uitgevoerd.",
+    "convert": "Converteren naar compose",
+    "valid": "Het compose-bestand is geldig",
+    "invalid": "Het compose-bestand bevat fouten",
+    "validate": "Valideren",
+    "deploy": "Deployen"
+  },
+  "compose": {
+    "serializationFailed": "Serialisatie mislukt",
+    "addService": "Service toevoegen",
+    "tabs": {
+      "settings": "Instellingen",
+      "networks": "Netwerken",
+      "volumes": "Volumes",
+      "raw": "Ruwe YAML"
+    },
+    "restart": {
+      "no": "Nee (niet herstarten)",
+      "always": "Altijd",
+      "unlessStopped": "Tenzij gestopt",
+      "onFailure": "Bij fout"
+    },
+    "volumeMode": {
+      "rw": "Lezen/schrijven",
+      "ro": "Alleen lezen"
+    },
+    "table": {
+      "actions": "Acties",
+      "empty": "Nog geen items",
+      "moveUp": "Omhoog",
+      "moveDown": "Omlaag",
+      "remove": "Verwijderen",
+      "add": "Toevoegen"
+    },
+    "service": {
+      "collapse": "Inklappen",
+      "expand": "Uitklappen",
+      "namePlaceholder": "servicenaam",
+      "noImage": "geen image",
+      "image": "Image",
+      "imageHelp": "Naam van de Docker-image. Ondersteunt Docker Hub, GHCR en andere registries.",
+      "restartPolicy": "Herstartbeleid"
+    },
+    "ports": {
+      "title": "Poorten",
+      "host": "Hostpoort",
+      "container": "Containerpoort",
+      "protocol": "Protocol",
+      "help": "Koppel hostpoorten aan containerpoorten. Laat de hostpoort leeg voor een willekeurige toewijzing."
+    },
+    "volumes": {
+      "title": "Volumes",
+      "host": "Hostpad / volumenaam",
+      "container": "Containerpad",
+      "mode": "Modus",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data of volume-name",
+      "help": "Bind-mount hostpaden of benoemde volumes. Gebruik <code>${ATHENA_APP_DATA}</code> voor de gegevensmap van deze app."
+    },
+    "env": {
+      "title": "Omgevingsvariabelen",
+      "help": "Omgevingsvariabelen die aan de container worden doorgegeven. Waarden uit het installatieformulier (.env) zijn ook beschikbaar.",
+      "valuePlaceholder": "waarde"
+    },
+    "keyValue": {
+      "key": "Sleutel",
+      "value": "Waarde"
+    },
+    "command": {
+      "command": "Commando",
+      "commandPlaceholder": "Overschrijft het standaardcommando van de image",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Overschrijft het standaard-entrypoint van de image",
+      "workingDir": "Werkmap",
+      "user": "Gebruiker"
+    },
+    "resources": {
+      "title": "Resourcelimieten",
+      "cpuLimit": "CPU-limiet",
+      "cpuCores": "CPU-cores",
+      "memoryLimit": "Geheugenlimiet",
+      "memoryLimitHelp": "bijv. 512M, 1G",
+      "cpuReservation": "CPU-reservering",
+      "memoryReservation": "Geheugenreservering",
+      "memoryReservationHelp": "bijv. 256M"
+    },
+    "health": {
+      "title": "Healthcheck",
+      "test": "Testcommando",
+      "interval": "Interval",
+      "timeout": "Time-out",
+      "retries": "Pogingen"
+    },
+    "labels": {
+      "title": "Labels",
+      "valuePlaceholder": "Mijn service"
+    },
+    "networks": {
+      "title": "Netwerken",
+      "help": "Netwerknamen gescheiden door komma's. Definieer netwerken op het tabblad Netwerken."
+    },
+    "dependsOn": {
+      "title": "Hangt af van",
+      "help": "Servicenamen gescheiden door komma's die vóór deze moeten starten."
+    },
+    "entries": {
+      "name": "Naam",
+      "driver": "Driver",
+      "external": "Extern"
+    }
+  }
+}

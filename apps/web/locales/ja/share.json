@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "このリンクは不完全です。",
+    "expiredTitle": "このリンクは有効期限が切れています",
+    "notFoundTitle": "このリンクは使用できません",
+    "errorTitle": "このリンクを開けませんでした",
+    "expiredDescription": "送信者に新しいリンクを依頼してください。"
+  },
+  "unlock": {
+    "title": "このリンクにはパスワードが設定されています",
+    "description": "共有内容を見るにはパスワードを入力してください。",
+    "password": "パスワード",
+    "open": "開く"
+  },
+  "file": {
+    "fallbackName": "ファイル",
+    "download": "ダウンロード"
+  },
+  "dropBox": {
+    "title": "{{name}} にファイルを送信",
+    "description": "追加したファイルはすぐにアップロードされます。他の人が送ったファイルは表示されず、送信したファイルが他のファイルを置き換えることもありません。",
+    "drop": "ここにファイルをドロップするか、",
+    "choose": "ファイルを選択"
+  },
+  "folder": {
+    "downloadAll": "すべてダウンロード",
+    "cantOpen": "このフォルダーを開けませんでした",
+    "empty": "このフォルダーは空です。",
+    "columnName": "名前",
+    "columnSize": "サイズ",
+    "columnModified": "更新日時",
+    "columnDownload": "ダウンロード",
+    "downloadEntry": "{{name}} をダウンロード",
+    "download": "ダウンロード"
+  }
+}

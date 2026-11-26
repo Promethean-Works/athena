@@ -1,0 +1,21 @@
+{
+  "dashboard": "Панель",
+  "apps": "Приложения",
+  "store": "Магазин",
+  "packages": "Пакеты",
+  "automation": "Автоматизация",
+  "files": "Файлы",
+  "smbShares": "Папки SMB",
+  "cloud": "Облако",
+  "containers": "Контейнеры",
+  "terminal": "Терминал",
+  "assistant": "Ассистент",
+  "backups": "Резервные копии",
+  "settings": "Настройки",
+  "help": "Справка",
+  "roleAdmin": "Администратор",
+  "roleUser": "Пользователь",
+  "tunnelAddress": "Адрес туннеля",
+  "restartAthena": "Перезапустить Athena",
+  "logOut": "Выйти"
+}

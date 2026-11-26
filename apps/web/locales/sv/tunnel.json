@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Tunneladress",
+    "description": "Öppna Athena utanför ditt nätverk, eller skanna koden med mobilen.",
+    "publicAddress": "Offentlig adress",
+    "notRunning": "Tunneln körs inte.",
+    "startInSettings": "Starta den i Inställningar."
+  },
+  "qr": {
+    "title": "QR-kod för tunneladressen"
+  }
+}

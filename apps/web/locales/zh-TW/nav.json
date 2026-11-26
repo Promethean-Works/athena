@@ -1,0 +1,21 @@
+{
+  "dashboard": "儀表板",
+  "apps": "應用程式",
+  "store": "商店",
+  "packages": "套件",
+  "automation": "自動化",
+  "files": "檔案",
+  "smbShares": "SMB 分享",
+  "cloud": "雲端",
+  "containers": "容器",
+  "terminal": "終端機",
+  "assistant": "助理",
+  "backups": "備份",
+  "settings": "設定",
+  "help": "說明",
+  "roleAdmin": "管理員",
+  "roleUser": "使用者",
+  "tunnelAddress": "通道位址",
+  "restartAthena": "重新啟動 Athena",
+  "logOut": "登出"
+}

@@ -1,0 +1,139 @@
+{
+  "title": "助手",
+  "sheet": {
+    "description": "与 AI 助手聊聊这台服务器。",
+    "openFullPage": "打开完整页面"
+  },
+  "chat": {
+    "newChat": "新对话",
+    "chats": "对话",
+    "noChats": "还没有对话。",
+    "deleteChat": "删除 {{title}}",
+    "thinking": "思考中…",
+    "stillWorking": "仍在生成回复，完成后会显示在这里。",
+    "emptyTitle": "问问这台服务器",
+    "emptyDescription": "助手可以查看应用、日志、文件和系统状态，并在你批准每项操作后安装或更改内容。",
+    "suggestions": {
+      "capabilities": "这台服务器能做什么？",
+      "disk": "还剩多少磁盘空间？",
+      "apps": "哪些应用正在运行？"
+    },
+    "message": "消息",
+    "placeholder": "问问这台服务器…",
+    "placeholderWaiting": "请回答上方的问题，或发送消息以跳过…",
+    "stop": "停止",
+    "send": "发送",
+    "pickModelFirst": "请先选择模型",
+    "changeModelFailed": "无法更改模型",
+    "startFailed": "无法开始对话",
+    "deleteFailed": "无法删除对话",
+    "failed": "助手出错了"
+  },
+  "noProviders": {
+    "title": "请先设置模型",
+    "description": "助手需要 AI 提供商：使用 API 密钥的云端提供商，或在你自己的硬件上运行的 Ollama。",
+    "openSettings": "打开设置 → AI"
+  },
+  "model": {
+    "pick": "选择模型",
+    "label": "模型：{{label}}",
+    "search": "搜索或输入模型 ID",
+    "noMatch": "没有匹配的模型。",
+    "addProvider": "请先在“设置 → AI”中添加提供商。",
+    "noTools": "不支持工具",
+    "use": "使用“{{model}}”"
+  },
+  "plan": {
+    "title": "计划",
+    "progress": "已完成 {{done}} / {{total}}",
+    "steps": "计划步骤",
+    "status": {
+      "pending": "待处理",
+      "in_progress": "进行中",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "blocked": "已受阻"
+    }
+  },
+  "spend": {
+    "usage": "本次对话的用量",
+    "usageWith": "本次对话的用量：{{label}}",
+    "unknownPrices": "此模型的价格未知，因此只统计令牌数。",
+    "estimate": "根据模型公布的价格估算。",
+    "ofLimit": "{{spent}} / {{limit}}",
+    "spent": "已花费",
+    "unknown": "未知",
+    "inputTokens": "输入令牌",
+    "outputTokens": "输出令牌",
+    "tokens_other": "{{formatted}} 个令牌",
+    "limitReached": "本次对话已达到花费上限。请开始新对话，或在<settings>设置 → AI</settings>中提高上限。",
+    "limitNotApplicable": "花费上限（{{limit}}）不适用于此模型。"
+  },
+  "steps": {
+    "thinking": "思考中",
+    "thought": "已思考",
+    "draft": "初稿，已在下方修订",
+    "approvalNeeded": "需要批准：{{title}}",
+    "run": "运行 {{name}}",
+    "approvalIntro": "助手想执行此操作。在你批准之前不会发生任何事。",
+    "deny": "拒绝",
+    "approve": "批准",
+    "approvedGoOn": "已批准。请回答其他卡片以继续。",
+    "deniedGoOn": "已拒绝。请回答其他卡片以继续。",
+    "logGone": "该日志已不存在",
+    "log": "日志",
+    "denied": "已拒绝：{{title}}",
+    "failed": "失败：{{title}}",
+    "running": "正在运行 {{name}}",
+    "ran": "已运行 {{name}}",
+    "withSubject": "{{subject}}：{{title}}",
+    "helperRunningTask": "子助手正在查看：{{task}}",
+    "helperDoneTask": "子助手已查看：{{task}}",
+    "helperRunning": "子助手正在查询",
+    "helperDone": "子助手已完成查询",
+    "tools": {
+      "getCapabilities": {
+        "running": "正在检查此服务器的功能",
+        "done": "已检查此服务器的功能"
+      },
+      "getSystemStats": { "running": "正在读取系统状态", "done": "已读取系统状态" },
+      "listApps": { "running": "正在列出应用", "done": "已列出应用" },
+      "appLogs": { "running": "正在读取应用日志", "done": "已读取应用日志" },
+      "listFileLocations": { "running": "正在列出文件位置", "done": "已列出文件位置" },
+      "listFiles": { "running": "正在列出文件", "done": "已列出文件" },
+      "readFile": { "running": "正在读取文件", "done": "已读取文件" },
+      "writeFile": { "running": "正在写入文件", "done": "已写入文件" },
+      "editFile": { "running": "正在编辑文件", "done": "已编辑文件" },
+      "listDirectory": { "running": "正在列出文件夹", "done": "已列出文件夹" },
+      "createDirectory": { "running": "正在创建文件夹", "done": "已创建文件夹" },
+      "searchStore": { "running": "正在搜索应用商店", "done": "已搜索应用商店" },
+      "readToolResult": { "running": "正在读取已保存的工具结果", "done": "已读取已保存的工具结果" },
+      "askUserQuestion": { "running": "正在等待你的回答", "done": "已向你提问" },
+      "advisor": { "running": "正在咨询顾问", "done": "已咨询顾问" },
+      "runWorkflow": {
+        "running": "多个子助手正在一起查询",
+        "done": "多个子助手已一起完成查询"
+      },
+      "getStoreApp": { "running": "正在读取商店应用", "done": "已读取商店应用" },
+      "listPackageManagers": { "running": "正在列出包管理器", "done": "已列出包管理器" },
+      "searchPackages": { "running": "正在搜索软件包", "done": "已搜索软件包" },
+      "listUpgradablePackages": {
+        "running": "正在检查软件包更新",
+        "done": "已检查软件包更新"
+      }
+    }
+  },
+  "question": {
+    "title": "问题",
+    "asks": "助手问：{{title}}",
+    "intro": "助手需要先确认再继续。切勿用密码或密钥作答。",
+    "ownAnswerLabel": "你对 {{header}} 的回答",
+    "ownAnswerPlaceholder": "或输入你自己的回答",
+    "skip": "跳过",
+    "send": "发送回答",
+    "skippedGoOn": "已跳过。请回答其他卡片以继续。",
+    "answeredGoOn": "已回答。请回答其他卡片以继续。",
+    "youAnswered": "你的回答：{{answers}}",
+    "youSkipped": "你跳过了该问题"
+  }
+}

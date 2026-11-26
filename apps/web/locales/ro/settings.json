@@ -1,0 +1,402 @@
+{
+  "language": {
+    "title": "Limbă",
+    "description": "Limba interfeței. Te urmează în contul tău pe alte browsere.",
+    "label": "Limba interfeței",
+    "auto": "Automat (limba browserului)"
+  },
+  "account": {
+    "admin": "Administrator",
+    "user": "Utilizator",
+    "signedIn": "Autentificat în acest browser",
+    "signOut": "Deconectează-te",
+    "changeFailed": "Nu s-a putut schimba parola",
+    "toast": {
+      "changed": "Parolă schimbată",
+      "changedDescription": "Celelalte browsere autentificate în acest cont au fost deconectate."
+    },
+    "password": {
+      "title": "Schimbă parola",
+      "description": "Celelalte sesiuni ale tale sunt deconectate; aceasta rămâne autentificată.",
+      "current": "Parola curentă",
+      "new": "Parola nouă",
+      "minLength_one": "Cel puțin un caracter.",
+      "minLength_few": "Cel puțin {{count}} caractere.",
+      "minLength_other": "Cel puțin {{count}} de caractere.",
+      "confirm": "Confirmă parola nouă",
+      "mismatch": "Parolele nu coincid.",
+      "submit": "Schimbă parola"
+    }
+  },
+  "copyField": {
+    "copy": "Copiază {{label}}",
+    "copied": "{{label}} copiat",
+    "failed": "Nu s-a putut copia"
+  },
+  "settingsFile": {
+    "title": "Fișier de setări",
+    "description": "Setările din aceste pagini sunt salvate într-un singur fișier pe server. Dacă o modificare împiedică pornirea Athena sau te blochează, corecteaz-o acolo în orice editor de text, apoi repornește Athena.",
+    "loadFailed": "Nu s-a putut încărca locația fișierului: {{error}}",
+    "file": "Fișier",
+    "help": "<code>athena config check</code> pe server arată ce este în neregulă cu el, cu numere de linie. Versiunea dinaintea ultimei salvări este păstrată lângă el ca <code>athena.json.bak</code>."
+  },
+  "system": {
+    "title": "Sistem",
+    "description": "Comutatoare care se aplică tuturor de pe acest server. Modificările sunt scrise în jurnalul de audit.",
+    "saveFailed": "Nu s-a putut salva",
+    "adminOnly": "Doar administratorii pot schimba asta.",
+    "terminal": {
+      "label": "Terminal web",
+      "description": "Un shell pe acest server și în containere, din browser. Dezactivarea închide și sesiunile deschise.",
+      "on": "Terminal activat",
+      "off": "Terminal dezactivat"
+    },
+    "updateCheck": {
+      "label": "Notificare de actualizare",
+      "description": "O dată pe zi, cere de la GitHub cea mai recentă versiune Athena și afișează o notificare când există una mai nouă. Nu se trimite nimic în afară de cerere: nicio versiune, nume de gazdă sau setări.",
+      "on": "Notificare de actualizare activată",
+      "off": "Notificare de actualizare dezactivată"
+    }
+  },
+  "updates": {
+    "title": "Actualizări",
+    "description": "Athena verifică o dată pe zi dacă există o versiune nouă (comutatorul de mai sus). Actualizarea repornește Athena; aplicațiile tale continuă să ruleze.",
+    "readFailed": "Nu s-a putut citi starea actualizării.",
+    "installed": "Instalată",
+    "latest": "Cea mai recentă",
+    "unknown": "Încă necunoscută",
+    "noticeOff": "Notificarea de actualizare este dezactivată",
+    "lastChecked": "Ultima verificare",
+    "never": "Niciodată",
+    "upToDate": "Athena este actualizată."
+  },
+  "localAi": {
+    "list": "{{head}} și {{last}}",
+    "running_one": "{{list}} rulează pe acest server. Modelele lui rulează pe propriul tău hardware și nimic nu părăsește serverul.",
+    "running_few": "{{list}} rulează pe acest server. Modelele lor rulează pe propriul tău hardware și nimic nu părăsește serverul.",
+    "running_other": "{{list}} rulează pe acest server. Modelele lor rulează pe propriul tău hardware și nimic nu părăsește serverul.",
+    "useNamed": "Folosește {{name}} de pe acest server",
+    "usePort": "Folosește serverul AI de pe portul {{port}}",
+    "useThis": "Folosește acest server AI"
+  },
+  "webdav": {
+    "title": "Partajare de rețea (WebDAV)",
+    "description": "Deschide locațiile managerului de fișiere ca unitate în Finder, Windows Explorer sau un manager de fișiere Linux.",
+    "label": "WebDAV",
+    "help": "Dezactivat implicit. Oricine are parola WebDAV poate citi și schimba orice locație.",
+    "adminOnly": "Doar administratorii pot schimba asta.",
+    "on": "WebDAV activat",
+    "off": "WebDAV dezactivat",
+    "saveFailed": "Nu s-a putut salva",
+    "passwordFailed": "Nu s-a putut genera o parolă",
+    "address": "Adresă",
+    "username": "Nume de utilizator",
+    "password": "Parolă",
+    "passwordHint": {
+      "copyNow": "Copiaz-o acum: nu mai este afișată.",
+      "set": "O parolă este setată. Generarea uneia noi deconectează fiecare dispozitiv care o folosește pe cea veche.",
+      "none": "Generează o parolă pentru autentificare. Este separată de parola ta Athena."
+    },
+    "newPassword": "Parolă nouă",
+    "makePassword": "Generează parolă",
+    "plainHttp": {
+      "title": "Necriptat",
+      "description": "Athena este deschisă prin HTTP simplu, așa că parola WebDAV și fișierele circulă necriptat prin rețea. Folosește-l într-o rețea de încredere sau pune Athena în spatele HTTPS."
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → Go → Connect to Server, apoi adresa.",
+      "windows": "<b>Windows:</b> File Explorer → This PC → Map network drive, apoi adresa. Prin HTTP simplu, Windows se autentifică doar după ce setezi <code>BasicAuthLevel</code> la 2 în <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> și repornești serviciul WebClient.",
+      "linux": "<b>Linux:</b> în Files (GNOME) sau Dolphin, conectează-te la <code>{{url}}</code>."
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "Mod",
+      "light": "Luminos",
+      "dark": "Întunecat",
+      "system": "Sistem"
+    },
+    "colors": {
+      "title": "Culori",
+      "saving": "Se salvează…",
+      "description": "Modificările se aplică imediat și te urmează în contul tău pe alte browsere.",
+      "matchBase": "Potrivește baza",
+      "matchTheme": "Potrivește tema",
+      "base": "Bază",
+      "baseColor": "Culoare de bază",
+      "baseHint": "Fundaluri, borduri și text estompat.",
+      "theme": "Temă",
+      "themeHint": "Butoane, contururi de focalizare și linkuri.",
+      "charts": "Grafice"
+    },
+    "type": {
+      "title": "Tipografie și formă",
+      "font": "Font",
+      "headingFont": "Font pentru titluri",
+      "sameAsBody": "La fel ca textul",
+      "radius": "Rază",
+      "style": "Stil",
+      "styleValue": "Nova, cu pictograme Lucide",
+      "styleSoon": "schimbarea stilurilor vine într-o versiune viitoare"
+    },
+    "radius": {
+      "default": "Implicită",
+      "none": "Fără",
+      "small": "Mică",
+      "medium": "Medie",
+      "large": "Mare"
+    },
+    "preset": {
+      "title": "Cod preset",
+      "description": "Un cod preset shadcn surprinde aceste setări în câteva caractere.",
+      "current": "Codul preset curent",
+      "copy": "Copiază",
+      "copied": "Copiat",
+      "copyFailed": "Nu s-a putut copia în clipboard",
+      "use": "Folosește-l cu <code>npx shadcn init --preset {{code}}</code> sau partajează-l.",
+      "apply": "Aplică un cod preset",
+      "applyButton": "Aplică",
+      "invalid": "Acesta nu este un cod preset shadcn.",
+      "applied": "Presetul {{code}} a fost aplicat",
+      "ignored": "Athena nu poate aplica încă {{parts}}, așa că acele părți au fost omise.",
+      "fill": "Completează culorile, fonturile și raza dintr-un cod creat pe <link>ui.shadcn.com/create</link>."
+    }
+  },
+  "tunnel": {
+    "hide": "Ascunde {{label}}",
+    "show": "Arată {{label}}",
+    "secretSaved": "Salvat. Scrie o valoare nouă pentru a-l înlocui",
+    "customDomain": "Domeniu personalizat (opțional)",
+    "cloudflare": {
+      "quick": "Tunel rapid",
+      "quickHelp": "O adresă trycloudflare.com aleatorie, care nu necesită cont. Se schimbă la fiecare pornire a tunelului.",
+      "apiToken": "Token API",
+      "apiTokenPlaceholder": "Un token API Cloudflare cu permisiuni Tunnel",
+      "tunnelName": "Numele tunelului",
+      "tunnelNameHelp": "Tunelul cu nume din contul tău Cloudflare.",
+      "domainHelp": "Necesită o înregistrare DNS care indică spre tunel."
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "Detectat automat",
+      "help": "Se setează cu <code>tailscale up</code> pe acest server."
+    },
+    "ngrok": {
+      "authToken": "Token de autentificare",
+      "authTokenPlaceholder": "Token-ul tău de autentificare ngrok",
+      "subdomain": "Subdomeniu (opțional)",
+      "paidPlan": "Necesită un plan ngrok plătit.",
+      "freeTitle": "Limitele planului gratuit",
+      "freeDescription": "Un tunel, 40 de conexiuni pe minut și o adresă aleatorie nouă la fiecare sesiune."
+    },
+    "status": {
+      "label": "Stare",
+      "running": "Rulează",
+      "stopped": "Oprit",
+      "notInstalled": "Neinstalat",
+      "notSetUp": "Neconfigurat"
+    },
+    "saveFailed": "Nu s-a putut salva",
+    "saved": "Setările accesului la distanță au fost salvate",
+    "autoStart": {
+      "label": "Pornește la boot",
+      "on": "Accesul la distanță pornește la boot",
+      "off": "Accesul la distanță nu mai pornește la boot",
+      "installFirst": "Instalează mai întâi {{name}}.",
+      "help": "Instalează un serviciu de sistem care pornește tunelul odată cu serverul."
+    },
+    "serviceFailed": "Nu s-a putut actualiza serviciul",
+    "title": "Acces la distanță",
+    "description": "Accesează Athena de oriunde prin Cloudflare, Tailscale sau ngrok, fără a deschide porturi pe router.",
+    "label": "Acces la distanță",
+    "help": "Oricine are adresa ajunge la pagina ta de autentificare, așa că folosește o parolă puternică.",
+    "adminOnly": "Doar administratorii pot schimba asta.",
+    "on": "Acces la distanță activat",
+    "off": "Acces la distanță dezactivat",
+    "exposed": {
+      "title": "Accesibil de pe internet",
+      "description": "Cât timp este activat, terminalul web, instalarea pachetelor și asistentul AI sunt la o parolă distanță de oricine găsește adresa. Dezactivează <terminal>terminalul</terminal> sau <assistant>asistentul</assistant> dacă nu ai nevoie de ele la distanță."
+    },
+    "provider": "Furnizor",
+    "using": "Se folosește {{name}}",
+    "port": {
+      "label": "Port local",
+      "help": "Portul pe care ascultă Athena și către care tunelul redirecționează."
+    },
+    "discard": "Renunță",
+    "saveChanges": "Salvează modificările",
+    "publicAddress": "Adresă publică",
+    "install": "Instalează {{name}}",
+    "installFailed": "Nu s-a putut instala",
+    "stop": "Oprește",
+    "stopFailed": "Nu s-a putut opri tunelul",
+    "start": "Pornește",
+    "startFailed": "Nu s-a putut porni tunelul",
+    "saveFirst": "Salvează mai întâi modificările",
+    "refresh": "Reîmprospătează starea"
+  },
+  "https": {
+    "copyFailed": "Nu s-a putut copia",
+    "adminOnly": "Doar administratorii pot schimba HTTPS",
+    "unavailable": {
+      "title": "HTTPS nu este disponibil",
+      "description": "Acest server Athena nu raportează suport HTTPS."
+    },
+    "loadFailed": "Nu s-au putut încărca setările HTTPS",
+    "status": {
+      "on": "Activ, portul {{port}}",
+      "notRunning": "Nu rulează",
+      "off": "Dezactivat",
+      "encryptedLetsEncrypt": "Athena criptează conexiunea cu un certificat de la Let's Encrypt. HTTP simplu rămâne pe portul {{port}}.",
+      "encryptedCustom": "Athena criptează conexiunea cu certificatul tău personalizat. HTTP simplu rămâne pe portul {{port}}.",
+      "encryptedSelf": "Athena criptează conexiunea cu propriul certificat. HTTP simplu rămâne pe portul {{port}}.",
+      "plain": "Athena este servită prin HTTP simplu pe portul {{port}}, așa că parolele și fișierele circulă necriptat prin rețea.",
+      "problem": "Problemă HTTPS",
+      "renewalFailed": "Reînnoirea Let's Encrypt a eșuat",
+      "renewalStillServed": "Certificatul curent este servit în continuare până expiră.",
+      "open": "Deschide prin HTTPS",
+      "expires": "Expiră",
+      "expiresIn_one": "într-o zi; reînnoit automat",
+      "expiresIn_few": "în {{count}} zile; reînnoit automat",
+      "expiresIn_other": "în {{count}} de zile; reînnoit automat",
+      "names": "Nume",
+      "alsoAt": "Și la"
+    },
+    "saveFailed": "Nu s-a putut salva",
+    "requestFailed": "Nu s-a putut solicita un certificat",
+    "certificateReady": "Certificat pregătit",
+    "certificateReadyHint": "Salvează cu Let's Encrypt selectat pentru a începe să-l servești.",
+    "turnedOff": "HTTPS dezactivat",
+    "saved": "Setările HTTPS au fost salvate",
+    "settings": {
+      "title": "Setări",
+      "description": "Modificările se aplică imediat; Athena nu repornește."
+    },
+    "mode": {
+      "label": "Mod",
+      "off": "Dezactivat",
+      "offHelp": "Doar HTTP simplu.",
+      "self": "Autosemnat",
+      "selfHelp": "Athena își creează propria autoritate de certificare (CA). Acceptă-o o dată pe fiecare dispozitiv și browserele arată un lacăt fără avertisment. Funcționează în rețeaua ta de acasă, fără domeniu.",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "Un certificat gratuit, în care are încredere orice browser, pentru un domeniu al tău care indică spre acest server. Reînnoit automat.",
+      "custom": "Personalizat",
+      "customHelp": "Încarcă propriul certificat și cheie privată (format PEM). Athena le servește ca atare; fără reînnoire automată."
+    },
+    "port": {
+      "label": "Port HTTPS",
+      "help": "Porturile sub 1024 (precum 443) pot cere ca Athena să ruleze ca root. Poate fi nevoie să permiți portul în firewall-ul gazdei.",
+      "range": "Introdu un port de la 1 la 65535.",
+      "taken": "Portul {{port}} este portul HTTP al Athena. Alege altul."
+    },
+    "redirect": {
+      "label": "Trimite browserele la HTTPS",
+      "help": "Paginile deschise pe portul {{port}} trec la HTTPS. Partajările de fișiere, webhook-urile, aplicațiile și serverul în sine continuă să folosească HTTP simplu."
+    },
+    "names": {
+      "label": "Nume suplimentare",
+      "help": "Certificatul acoperă deja numele acestui server, numele lui .local și adresele lui de rețea. Adaugă orice alt nume sau adresă cu care deschizi Athena, separate prin virgule."
+    },
+    "lockedOut": "Blocat? Rulează <code>{{command}}</code> pe server și repornește Athena.",
+    "cancel": "Anulează",
+    "needsCertificate": "Obține mai întâi un certificat",
+    "saving": "Se salvează…",
+    "save": "Salvează",
+    "confirm": {
+      "title": "Trimiți browserele la HTTPS?",
+      "redirect": "După salvare, deschiderea Athena pe portul {{port}} te duce la <url>{{url}}</url>.",
+      "letsencrypt": "Deschide acolo Athena după numele de domeniu; celelalte nume primesc un avertisment de certificat.",
+      "custom": "Certificatul tău personalizat este servit; browserele au încredere în el dacă provine de la o CA cunoscută.",
+      "self": "Până nu accepți CA-ul Athena pe un dispozitiv, browserul lui arată acolo un avertisment.",
+      "recovery": "Dacă nu mai poți intra, rulează <cmd>{{command}}</cmd> pe server și repornește Athena.",
+      "action": "Salvează și redirecționează"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "Domenii",
+      "domainsHelp": "Separă mai multe prin virgule. Fiecare trebuie să indice spre acest server în DNS-ul public. Un wildcard (*.example.com) necesită provocarea DNS.",
+      "email": "E-mail",
+      "emailHelp": "Let's Encrypt scrie aici dacă un certificat este pe cale să expire.",
+      "challenge": "Cum verifică Let's Encrypt",
+      "http": "HTTP (portul 80)",
+      "httpHelp": "Let's Encrypt se conectează la portul 80 al acestui server, deci trebuie să fie accesibil de pe internet (redirecționează-l pe router).",
+      "dns": "DNS",
+      "dnsHelp": "Athena adaugă o înregistrare DNS temporară prin furnizorul tău DNS. Fără porturi deschise; funcționează pentru wildcard.",
+      "port80Title": "Portul 80 nu poate fi deschis acum",
+      "port80Description": "Îl folosește un alt program sau Athena nu are voie să îl deschidă. Eliberează portul 80 sau folosește provocarea DNS.",
+      "provider": "Furnizor DNS",
+      "savedUnchanged": "Salvat (neschimbat)",
+      "staging": "Folosește serverul de test (staging)",
+      "stagingHelp": "Pentru încercări: browserele nu au încredere în certificatele lui, dar limitele lui sunt generoase.",
+      "getting": "Se obține certificatul…",
+      "renew": "Reînnoiește certificatul acum",
+      "get": "Obține certificat",
+      "current": "Certificat curent pentru {{names}}, valabil până la {{date}}.",
+      "getThenSave": "Obține un certificat, apoi salvează pentru a începe să-l servești.",
+      "lastFailed": "Ultima încercare a eșuat: {{error}}"
+    },
+    "custom": {
+      "legend": "Certificat personalizat",
+      "cert": "Certificat (PEM)",
+      "certHelp": "Lipește certificatul complet sau lanțul de certificate codat PEM.",
+      "key": "Cheie privată (PEM)",
+      "keyHelp": "Lipește cheia privată codată PEM. Va fi stocată criptat."
+    },
+    "trust": {
+      "title": "Acceptă Athena pe dispozitivele tale",
+      "description": "Instalează CA-ul Athena o dată pe fiecare telefon, tabletă și computer pe care le folosești. Apoi browserul are încredere în fiecare certificat creat de Athena, inclusiv în reînnoiri.",
+      "download": "Descarcă certificatul CA",
+      "validUntil": "Valabil până la {{date}}",
+      "fingerprint": "Amprentă SHA-256",
+      "copyFingerprint": "Copiază amprenta",
+      "fingerprintCopied": "Amprentă copiată",
+      "fingerprintHelp": "Verifică dacă se potrivește cu ce arată dispozitivul înainte de a avea încredere în fișier.",
+      "rotated": "CA nou creat",
+      "rotatedHint": "Descarcă-l și acceptă-l din nou pe fiecare dispozitiv.",
+      "rotateFailed": "Nu s-a putut crea un CA nou",
+      "rotateHint": "Creează un CA nou dacă cheia ar fi putut fi compromisă. Fiecare dispozitiv trebuie să îl accepte pe cel nou.",
+      "rotate": "Creează un CA nou",
+      "rotating": "Se creează…",
+      "confirmTitle": "Creezi un CA nou?",
+      "confirmDescription": "Dispozitivele care au încredere în CA-ul curent arată un avertisment până instalezi pe fiecare dintre ele CA-ul nou.",
+      "macos": {
+        "label": "macOS",
+        "step1": "Deschide fișierul descărcat. Keychain Access îl adaugă în keychain-ul de autentificare.",
+        "step2": "În Keychain Access, fă dublu clic pe <b>Athena Local CA</b>, deschide <b>Trust</b> și setează <b>When using this certificate</b> la <b>Always Trust</b>.",
+        "step3": "Închide fereastra și introdu parola Mac-ului. Repornește browserul."
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "Deschide fișierul descărcat și alege <b>Install Certificate</b>.",
+        "step2": "Alege <b>Current User</b>, apoi <b>Place all certificates in the following store</b> → <b>Trusted Root Certification Authorities</b>.",
+        "step3": "Finalizează și confirmă avertismentul de securitate. Repornește browserul."
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian sau Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Firefox și Chrome își țin propria listă pe Linux: importă fișierul în setările de certificate ale browserului, la <b>Authorities</b>."
+      },
+      "ios": {
+        "label": "iPhone și iPad",
+        "step1": "Descarcă fișierul în Safari și permite descărcarea profilului.",
+        "step2": "În Settings, deschide <b>Profile Downloaded</b> (sau <b>General → VPN & Device Management</b>) și instalează-l.",
+        "step3": "Mergi la <b>General → About → Certificate Trust Settings</b> și activează încrederea completă pentru <b>Athena Local CA</b>."
+      },
+      "android": {
+        "label": "Android",
+        "step1": "Descarcă fișierul.",
+        "step2": "În Settings, caută <b>CA certificate</b> (de obicei <b>Security → Encryption & credentials → Install a certificate → CA certificate</b>) și alege fișierul.",
+        "step3": "Confirmă avertismentul. Unele aplicații ignoră certificatele utilizatorului; browserele le folosesc."
+      }
+    }
+  },
+  "sections": {
+    "appearance": "Aspect",
+    "account": "Cont",
+    "system": "Sistem",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "Setări"
+  }
+}

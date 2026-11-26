@@ -1,0 +1,272 @@
+{
+  "common": {
+    "manage": "प्रबंधित करें"
+  },
+  "cardShell": {
+    "open": "खोलें"
+  },
+  "cards": {
+    "stats": {
+      "title": "सिस्टम",
+      "description": "लाइव CPU, मेमोरी, नेटवर्क और डिस्क गतिविधि।"
+    },
+    "apps": {
+      "title": "ऐप्स",
+      "description": "आपके ऐप्स, उनकी स्थिति और खोलें बटन के साथ।"
+    },
+    "containers": {
+      "title": "कंटेनर",
+      "description": "चल रहे और बंद कंटेनरों की गिनती, और किन पर ध्यान देना है।"
+    },
+    "automation": {
+      "title": "ऑटोमेशन",
+      "description": "अगले शेड्यूल किए गए रन और हाल के रन कैसे रहे।"
+    },
+    "storage": {
+      "title": "स्टोरेज",
+      "description": "हर डिस्क पर उपयोग की गई जगह।"
+    },
+    "server": {
+      "title": "सर्वर",
+      "description": "होस्ट नाम, ऑपरेटिंग सिस्टम, अपटाइम और वर्शन।"
+    },
+    "temperatures": {
+      "title": "तापमान",
+      "description": "सेंसर रीडिंग, जहाँ होस्ट उन्हें बताता है।"
+    },
+    "power": {
+      "title": "पावर",
+      "description": "Raspberry Pi पर अंडर-वोल्टेज और थ्रॉटलिंग।"
+    },
+    "activity": {
+      "title": "हाल की गतिविधि",
+      "description": "ऑडिट लॉग के ताज़ा बदलाव (केवल एडमिन)।"
+    },
+    "remoteAccess": {
+      "title": "रिमोट एक्सेस",
+      "description": "टनल की स्थिति और सार्वजनिक पता।"
+    },
+    "capabilities": {
+      "title": "क्षमताएँ",
+      "description": "Athena को इस होस्ट पर क्या मिला।"
+    },
+    "backups": {
+      "title": "बैकअप",
+      "description": "बैकअप प्लान, पिछले रन और अगला शेड्यूल किया गया रन।"
+    }
+  },
+  "activity": {
+    "title": "हाल की गतिविधि",
+    "description": "इस सर्वर पर किसने क्या बदला।",
+    "loadError": "हाल की गतिविधि लोड नहीं हो सकी: {{error}}",
+    "empty": "अभी कुछ नहीं। ऐप्स, कंटेनर और फ़ाइलों पर की गई कार्रवाइयाँ यहाँ दिखती हैं।",
+    "by": "{{username}} द्वारा"
+  },
+  "automation": {
+    "title": "ऑटोमेशन",
+    "description": "शेड्यूल और वेबहुक ट्रिगर, और उनके रन कैसे रहे।",
+    "succeeded": "सफल",
+    "failed": "विफल",
+    "loadError": "ऑटोमेशन लोड नहीं हो सका: {{error}}",
+    "noTriggers": "अभी कोई ट्रिगर नहीं। किसी ऐप को रीस्टार्ट करने या पैकेज शेड्यूल पर अपडेट करने के लिए एक बनाएँ।",
+    "nextRuns": "अगले रन · {{total}} में से {{enabled}} ट्रिगर चालू",
+    "nothingScheduled": "कुछ शेड्यूल नहीं है। वेबहुक ट्रिगर कॉल होने पर चलते हैं।",
+    "recentRuns": "हाल के रन",
+    "noRuns": "अभी कोई रन नहीं।",
+    "deletedTrigger": "मिटाया गया ट्रिगर"
+  },
+  "backup": {
+    "title": "बैकअप",
+    "description": "बैकअप प्लान, पिछले रन और अगला शेड्यूल किया गया रन।",
+    "succeeded": "सफल",
+    "failed": "विफल",
+    "running": "चल रहा है",
+    "loadError": "बैकअप प्लान लोड नहीं हो सके: {{error}}",
+    "empty": "अभी कोई बैकअप प्लान नहीं। सेटिंग्स → बैकअप में एक जोड़ें।",
+    "plans": "प्लान",
+    "enabled": "चालू",
+    "plansFailed_one": "{{count}} प्लान विफल",
+    "plansFailed_other": "{{count}} प्लान विफल",
+    "noFailures": "हाल में कोई विफलता नहीं",
+    "nextRuns": "अगले शेड्यूल किए गए रन",
+    "noScheduled": "कोई शेड्यूल किया गया रन नहीं"
+  },
+  "containers": {
+    "title": "कंटेनर",
+    "description": "कंटेनर इंजन जो कुछ भी चलाता है, ऐप्स समेत।",
+    "all": "सभी कंटेनर",
+    "running": "चल रहे हैं",
+    "notRunning": "चल नहीं रहे",
+    "needAttention": "ध्यान चाहिए",
+    "exited": "बंद हुआ ({{code}})",
+    "loadError": "कंटेनर लोड नहीं हो सके: {{error}}",
+    "empty": "इस सर्वर पर अभी कोई कंटेनर नहीं।",
+    "engineDown": "कंटेनर इंजन चालू नहीं है।"
+  },
+  "apps": {
+    "title": "ऐप्स",
+    "subtitle": "इस सर्वर पर क्या चल रहा है",
+    "store": "स्टोर",
+    "all": "सभी ऐप्स",
+    "emptyTitle": "अभी कोई ऐप नहीं",
+    "emptyDescription": "स्टोर से एक इंस्टॉल करें, या अपनी कंपोज़ फ़ाइल डिप्लॉय करें।",
+    "browseStore": "स्टोर ब्राउज़ करें",
+    "status": {
+      "running": "चल रहा है",
+      "partial": "आंशिक रूप से चल रहा है",
+      "stopped": "बंद",
+      "notDeployed": "डिप्लॉय नहीं किया गया"
+    },
+    "containerCount_one": "{{count}} कंटेनर",
+    "containerCount_other": "{{count}} कंटेनर",
+    "actionsFor": "{{name}} की कार्रवाइयाँ",
+    "open": "खोलें",
+    "openPort": ":{{port}} खोलें",
+    "details": "विवरण",
+    "restart": "रीस्टार्ट करें",
+    "stop": "बंद करें",
+    "start": "शुरू करें",
+    "updateImages": "इमेज अपडेट करें",
+    "remove": "हटाएँ"
+  },
+  "grid": {
+    "pickedUp": "{{title}} कार्ड उठाया गया।",
+    "overCard": "{{title}}, {{other}} के ऊपर है।",
+    "notOverCard": "{{title}} अब किसी कार्ड के ऊपर नहीं है।",
+    "moved": "{{title}} को वहाँ ले जाया गया जहाँ {{other}} था।",
+    "dropped": "{{title}} छोड़ दिया गया।",
+    "cancelled": "{{title}} को ले जाना रद्द किया गया।",
+    "move": "{{title}} को ले जाएँ",
+    "moveUp": "{{title}} को ऊपर ले जाएँ",
+    "moveDown": "{{title}} को नीचे ले जाएँ",
+    "makeHalf": "{{title}} को आधी चौड़ाई का करें",
+    "makeFull": "{{title}} को पूरी चौड़ाई का करें",
+    "remove": "{{title}} हटाएँ",
+    "nothingToShow": "इस सर्वर पर अभी दिखाने के लिए कुछ नहीं है।",
+    "addDialogTitle": "कार्ड जोड़ें",
+    "addDialogDescription": "कार्ड अंत में जोड़े जाते हैं; उन्हें जहाँ चाहें खींचकर रखें।",
+    "allAddedTitle": "हर कार्ड आपके डैशबोर्ड पर है",
+    "allAddedDescription": "बाद में दोबारा जोड़ने के लिए किसी एक को हटाएँ।",
+    "addCard": "{{title}} जोड़ें",
+    "add": "जोड़ें",
+    "editHint": "कार्ड को उनके हैंडल से खींचें, या तीरों का उपयोग करें। पूर्ण दबाने पर बदलाव सहेजे जाते हैं।",
+    "addCardButton": "कार्ड जोड़ें",
+    "reset": "रीसेट करें",
+    "cancel": "रद्द करें",
+    "done": "पूर्ण",
+    "customize": "अनुकूलित करें",
+    "emptyTitle": "आपका डैशबोर्ड खाली है",
+    "emptyDescription": "कार्ड जोड़ें, या डिफ़ॉल्ट लेआउट पर रीसेट करें।",
+    "dragInstructions": "कार्ड को ले जाने के लिए Space या Enter दबाएँ, तीर कुंजियों का उपयोग करें, फिर छोड़ने के लिए दोबारा Space या Enter दबाएँ, या रद्द करने के लिए Escape।"
+  },
+  "stats": {
+    "used": "उपयोग",
+    "download": "डाउनलोड",
+    "upload": "अपलोड",
+    "read": "पढ़ना",
+    "write": "लिखना",
+    "util": "उपयोग %",
+    "unavailableTitle": "लाइव आँकड़े उपलब्ध नहीं हैं",
+    "unavailableDescription": "सर्वर ने होस्ट के आँकड़े नहीं लौटाए।",
+    "coresThreads": "{{cores}} कोर · {{threads}} थ्रेड",
+    "cores_one": "{{count}} कोर",
+    "cores_other": "{{count}} कोर",
+    "coresLoad": "{{cores}} · लोड {{load}}",
+    "liveLabel": "लाइव होस्ट आँकड़े",
+    "system": "सिस्टम",
+    "live": "लाइव",
+    "reconnecting": "दोबारा कनेक्ट हो रहा है",
+    "chartRange": "चार्ट की अवधि",
+    "range5m": "5 मिनट",
+    "range1h": "1 घंटा",
+    "memory": "मेमोरी",
+    "memUsed": "{{used}} उपयोग में",
+    "memUsedSwap": "{{used}} उपयोग में · स्वैप {{swap}}",
+    "network": "नेटवर्क",
+    "diskActivity": "डिस्क गतिविधि",
+    "readRate": "पढ़ना {{rate}}",
+    "writeRate": "लिखना {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPU",
+    "noGpu": "कोई GPU नहीं मिला",
+    "vramOf": "{{total}} में से {{used}}"
+  },
+  "power": {
+    "title": "पावर",
+    "description": "Raspberry Pi की पावर और थ्रॉटलिंग",
+    "problemNow": "अभी समस्या",
+    "ok": "ठीक",
+    "flagNow": "{{label}} अभी",
+    "flagSinceBoot": "{{label}} बूट के बाद से",
+    "none": "इस सर्वर के बूट होने के बाद से कोई अंडर-वोल्टेज या थ्रॉटलिंग नहीं हुई।",
+    "flags": {
+      "underVoltage": {
+        "label": "अंडर-वोल्टेज",
+        "hint": "पावर सप्लाई या केबल साथ नहीं दे पा रहा। आधिकारिक सप्लाई और छोटा, मोटा केबल इस्तेमाल करें।"
+      },
+      "throttled": {
+        "label": "थ्रॉटल हुआ",
+        "hint": "CPU को खुद की सुरक्षा के लिए धीमा किया गया है।"
+      },
+      "freqCapped": {
+        "label": "फ़्रीक्वेंसी सीमित",
+        "hint": "फ़र्मवेयर ने CPU की अधिकतम गति घटा दी है।"
+      },
+      "softTempLimit": {
+        "label": "सॉफ़्ट तापमान सीमा",
+        "hint": "CPU अपनी तापमान सीमा के करीब है। कूलिंग जाँचें।"
+      }
+    }
+  },
+  "remote": {
+    "title": "रिमोट एक्सेस",
+    "description": "अपने नेटवर्क के बाहर से Athena तक पहुँचें।",
+    "settings": "सेटिंग्स",
+    "loadError": "रिमोट एक्सेस लोड नहीं हो सका: {{error}}",
+    "off": "बंद। अपने नेटवर्क के बाहर से Athena तक पहुँचने के लिए इसे सेटिंग्स → सिस्टम में चालू करें।",
+    "running": "चल रहा है",
+    "notRunning": "चल नहीं रहा",
+    "noProvider": "कोई प्रोवाइडर नहीं",
+    "warning": "टर्मिनल, पैकेज इंस्टॉल और असिस्टेंट एक पासवर्ड के साथ इंटरनेट से पहुँच योग्य हैं। अगर आपको इनकी रिमोट रूप से ज़रूरत नहीं है तो <link>इन्हें बंद करें</link>।",
+    "publicAddress": "सार्वजनिक पता",
+    "copyAddress": "सार्वजनिक पता कॉपी करें",
+    "copied": "पता कॉपी हो गया",
+    "copyFailed": "कॉपी नहीं हो सका"
+  },
+  "storage": {
+    "title": "स्टोरेज",
+    "description": "डिस्क, फ़ोल्डर, क्लाउड और नेटवर्क शेयर",
+    "noDisks": "अभी तक कोई डिस्क नहीं मिली।",
+    "diskUsage": "{{total}} में से {{used}}",
+    "folders": "फ़ोल्डर",
+    "unavailable": "उपलब्ध नहीं",
+    "cloud": "क्लाउड स्टोरेज",
+    "shares": "नेटवर्क शेयर",
+    "readOnly": "केवल पढ़ने योग्य"
+  },
+  "temperatures": {
+    "title": "तापमान",
+    "description": "हार्डवेयर सेंसर"
+  },
+  "layout": {
+    "saveFailed": "डैशबोर्ड सहेजा नहीं जा सका",
+    "saved": "डैशबोर्ड सहेजा गया"
+  },
+  "server": {
+    "title": "सर्वर",
+    "description": "वह मशीन जिस पर Athena चल रहा है",
+    "unreachableTitle": "Athena सर्वर तक पहुँच नहीं हो पा रही",
+    "unreachableDescription": "{{error}}। डेवलपमेंट में, इसे <code>apps/server</code> में <code>uv run athena serve --reload</code> से शुरू करें।",
+    "host": "होस्ट",
+    "os": "ऑपरेटिंग सिस्टम",
+    "platform": "प्लैटफ़ॉर्म",
+    "uptime": "अपटाइम",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "कनेक्ट हो रहा है…",
+    "unreachable": "सर्वर तक पहुँच नहीं",
+    "version": "Athena {{version}}"
+  }
+}

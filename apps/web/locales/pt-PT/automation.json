@@ -1,0 +1,169 @@
+{
+  "cancel": "Cancelar",
+  "view": {
+    "unavailable": "A automação não está disponível",
+    "unsupported": "Este anfitrião não suporta automação."
+  },
+  "copyUrl": {
+    "copy": "Copiar {{label}}",
+    "copied": "{{label}} copiado",
+    "failed": "Não foi possível copiar"
+  },
+  "external": {
+    "title": "Automação externa",
+    "description": "Liga o n8n, scripts ou agentes de IA ao Athena.",
+    "webhookUrl": "URL do webhook",
+    "webhookHint": "Envia um pedido POST para disparar um acionador de webhook; não é preciso iniciar sessão. Cada acionador de webhook tem o seu próprio token: copia o URL completo da lista de acionadores.",
+    "mcpServer": "Servidor MCP",
+    "mcpUrl": "URL do servidor MCP",
+    "mcpHint": "HTTP em streaming. Os clientes iniciam sessão com um cookie de sessão ou enviam o token definido na variável de ambiente <envVar>ATHENA_MCP_TOKEN</envVar> do servidor como <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Execuções de tarefas",
+    "description": "As execuções mais recentes, atualizadas a cada poucos segundos.",
+    "trigger": "Acionador",
+    "deletedTrigger": "Acionador eliminado",
+    "listFailed": "Não foi possível listar as execuções de tarefas",
+    "empty": {
+      "title": "Ainda sem execuções de tarefas",
+      "description": "As execuções aparecem aqui quando um acionador dispara."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Iniciar a app {{name}}",
+      "stop": "Parar a app {{name}}",
+      "restart": "Reiniciar a app {{name}}",
+      "update": "Atualizar a app {{name}}"
+    },
+    "package": {
+      "install": "Instalar {{name}} ({{manager}})",
+      "uninstall": "Desinstalar {{name}} ({{manager}})",
+      "upgrade": "Atualizar {{name}} ({{manager}})",
+      "refresh": "Atualizar as listas de pacotes de {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Acionadores",
+    "description": "Executa uma ação de app ou de pacote numa agenda ou a partir de um webhook.",
+    "listFailed": "Não foi possível listar os acionadores",
+    "empty": {
+      "title": "Ainda sem acionadores",
+      "description": "Um acionador executa uma ação numa agenda (cron) ou quando o seu webhook é chamado, por exemplo a partir do n8n."
+    },
+    "onWebhook": "Quando o seu webhook é chamado",
+    "noSchedule": "Sem agenda",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Próxima execução {{time}}",
+    "changeFailed": "Não foi possível alterar o acionador",
+    "enabledToast": "{{name}} ativado",
+    "pausedToast": "{{name}} em pausa",
+    "enabledLabel": "{{name}} ativado",
+    "copyWebhook": "Copiar URL do webhook",
+    "webhookCopied": "URL do webhook copiado",
+    "copyFailed": "Não foi possível copiar",
+    "deleteFailed": "Não foi possível eliminar o acionador",
+    "deleted": "Acionador eliminado",
+    "deleteLabel": "Eliminar {{name}}",
+    "delete": "Eliminar",
+    "deleteTitle": "Eliminar {{name}}?",
+    "deleteDescription": "Deixa de ser executado. As execuções anteriores ficam no registo.",
+    "deleteDescriptionWebhook": "Deixa de ser executado e o seu URL de webhook deixa de funcionar. As execuções anteriores ficam no registo."
+  },
+  "dialog": {
+    "new": "Novo acionador",
+    "description": "Executa uma ação de app ou de pacote numa agenda ou sempre que um webhook é chamado.",
+    "created": {
+      "title": "Acionador de webhook criado",
+      "description": "Envia um pedido POST para este URL para executar \"{{name}}\". Qualquer pessoa com o URL pode dispará-lo, por isso mantém-no privado. Podes copiá-lo de novo da lista de acionadores.",
+      "done": "Concluir"
+    },
+    "errors": {
+      "name": "Dá um nome ao acionador.",
+      "app": "Escolhe uma app.",
+      "manager": "Escolhe um gestor de pacotes.",
+      "packageName": "Introduz o nome de um pacote."
+    },
+    "createdToast": "Acionador {{name}} criado",
+    "createFailed": "Não foi possível criar o acionador",
+    "name": "Nome",
+    "namePlaceholder": "p. ex. Reinício noturno do Jellyfin",
+    "whenItRuns": "Quando é executado",
+    "onSchedule": "Numa agenda (cron)",
+    "onWebhook": "Quando um webhook é chamado",
+    "schedule": "Agenda",
+    "cronPlaceholder": "minuto hora dia mês dia-da-semana, p. ex. 0 2 * * *",
+    "cronHelp": "Cinco campos: minuto, hora, dia do mês, mês, dia da semana. As horas são UTC.",
+    "webhookHint": "Depois de o criares, recebes um URL secreto. Um pedido POST para esse URL (a partir do n8n, de um script ou do curl) executa a ação.",
+    "whatItDoes": "O que faz",
+    "appAction": "Ação de app",
+    "packageAction": "Ação de pacote",
+    "create": "Criar acionador",
+    "app": "App",
+    "loadingApps": "A carregar apps…",
+    "chooseApp": "Escolhe uma app",
+    "noApps": "Nenhuma app instalada",
+    "action": "Ação",
+    "appVerbs": {
+      "start": "Iniciar",
+      "stop": "Parar",
+      "restart": "Reiniciar",
+      "update": "Atualizar (transferir e recriar)"
+    },
+    "packageVerbs": {
+      "install": "Instalar",
+      "uninstall": "Desinstalar",
+      "upgrade": "Atualizar",
+      "refresh": "Atualizar listas de pacotes"
+    },
+    "packageManager": "Gestor de pacotes",
+    "loading": "A carregar…",
+    "chooseManager": "Escolhe um gestor",
+    "noManagers": "Nenhum pronto neste anfitrião",
+    "package": "Pacote",
+    "packagePlaceholder": "p. ex. jq",
+    "source": "Origem (opcional)",
+    "sourceHint": "Um remoto Flatpak, um bucket Scoop ou \"cask\" para um cask do Homebrew.",
+    "loadingInstalled": "A carregar pacotes instalados…",
+    "installedFailed": "Não foi possível listar os pacotes instalados ({{error}}); escreve o nome.",
+    "searchInstalled": "Pesquisar pacotes instalados",
+    "noMatch": "Nenhum pacote instalado corresponde."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Todas as horas",
+      "daily": "Diariamente às 02:00",
+      "sundays": "Domingos às 03:00",
+      "monthly": "Mensalmente, no dia 1"
+    },
+    "fields": {
+      "minute": "minuto",
+      "hour": "hora",
+      "dayOfMonth": "dia do mês",
+      "month": "mês",
+      "weekday": "dia da semana"
+    },
+    "errors": {
+      "empty": "Introduz uma expressão cron ou escolhe uma predefinição.",
+      "invalidField": "O valor \"{{value}}\" do campo {{field}} não é válido.",
+      "invalidStep": "O passo \"/{{step}}\" no campo {{field}} tem de ser um número.",
+      "outOfRange": "O campo {{field}} tem de estar entre {{min}} e {{max}}.",
+      "fieldCount": "Usa cinco campos (minuto hora dia mês dia-da-semana); este tem {{count}}."
+    },
+    "dayRange": "{{from}} a {{to}}",
+    "custom": "Agenda personalizada",
+    "everyMinute": "Todos os minutos",
+    "everyMinutes_one": "A cada {{count}} minuto",
+    "everyMinutes_other": "A cada {{count}} minutos",
+    "everyHourOnTheHour": "Todas as horas, em ponto",
+    "everyHourAtMinute": "Todas as horas ao minuto {{minute}}",
+    "everyHoursAtMinute_one": "A cada {{count}} hora ao minuto {{minute}}",
+    "everyHoursAtMinute_other": "A cada {{count}} horas ao minuto {{minute}}",
+    "everyDay": "Todos os dias às {{time}}",
+    "everyWeekdays": "Todas as semanas, {{days}} às {{time}}",
+    "onDayOfMonth": "No dia {{day}} de cada mês às {{time}}",
+    "everyYear": "Todos os anos a {{day}} de {{month}} às {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

@@ -1,0 +1,396 @@
+{
+  "language": {
+    "title": "言語",
+    "description": "インターフェースの言語です。アカウントに紐づき、他のブラウザーにも引き継がれます。",
+    "label": "インターフェース言語",
+    "auto": "自動（ブラウザーの言語）"
+  },
+  "account": {
+    "admin": "管理者",
+    "user": "ユーザー",
+    "signedIn": "このブラウザーでサインイン中",
+    "signOut": "サインアウト",
+    "changeFailed": "パスワードを変更できませんでした",
+    "toast": {
+      "changed": "パスワードを変更しました",
+      "changedDescription": "このアカウントでサインインしていた他のブラウザーはサインアウトされました。"
+    },
+    "password": {
+      "title": "パスワードを変更",
+      "description": "他のセッションはサインアウトされます。このセッションはサインインしたままです。",
+      "current": "現在のパスワード",
+      "new": "新しいパスワード",
+      "minLength_other": "{{count}} 文字以上で入力してください。",
+      "confirm": "新しいパスワードを確認",
+      "mismatch": "パスワードが一致しません。",
+      "submit": "パスワードを変更"
+    }
+  },
+  "copyField": {
+    "copy": "{{label}} をコピー",
+    "copied": "{{label}} をコピーしました",
+    "failed": "コピーできませんでした"
+  },
+  "settingsFile": {
+    "title": "設定ファイル",
+    "description": "これらのページの設定は、サーバー上の 1 つのファイルに保存されます。変更によって Athena が起動しなくなったり、ログインできなくなったりした場合は、任意のテキストエディターでそのファイルを修正し、Athena を再起動してください。",
+    "loadFailed": "ファイルの場所を読み込めませんでした: {{error}}",
+    "file": "ファイル",
+    "help": "サーバーで <code>athena config check</code> を実行すると、問題の内容が行番号付きで表示されます。直前の保存より前のバージョンは、隣に <code>athena.json.bak</code> として保管されます。"
+  },
+  "system": {
+    "title": "システム",
+    "description": "このサーバーを使うすべての人に適用されるスイッチです。変更は監査ログに記録されます。",
+    "saveFailed": "保存できませんでした",
+    "adminOnly": "変更できるのは管理者のみです。",
+    "terminal": {
+      "label": "Web ターミナル",
+      "description": "ブラウザーから、このサーバーやコンテナ内のシェルを使用できます。オフにすると、開いているセッションも閉じられます。",
+      "on": "ターミナルをオンにしました",
+      "off": "ターミナルをオフにしました"
+    },
+    "updateCheck": {
+      "label": "アップデート通知",
+      "description": "1 日 1 回 GitHub に Athena の最新リリースを問い合わせ、新しいバージョンがあれば通知を表示します。送信されるのはリクエストそのものだけで、バージョン、ホスト名、設定は送信されません。",
+      "on": "アップデート通知をオンにしました",
+      "off": "アップデート通知をオフにしました"
+    }
+  },
+  "updates": {
+    "title": "アップデート",
+    "description": "Athena は 1 日 1 回、新しいリリースを確認します（上のスイッチ）。アップデートすると Athena は再起動しますが、アプリは実行され続けます。",
+    "readFailed": "アップデートの状態を読み取れませんでした。",
+    "installed": "インストール済み",
+    "latest": "最新",
+    "unknown": "まだ不明",
+    "noticeOff": "アップデート通知はオフです",
+    "lastChecked": "最終確認",
+    "never": "未確認",
+    "upToDate": "Athena は最新です。"
+  },
+  "localAi": {
+    "list": "{{head}} と {{last}}",
+    "running_other": "{{list}} がこのサーバーで実行されています。モデルは自分のハードウェアで動作し、データがサーバーの外に出ることはありません。",
+    "useNamed": "このサーバーの {{name}} を使用",
+    "usePort": "ポート {{port}} の AI サーバーを使用",
+    "useThis": "この AI サーバーを使用"
+  },
+  "webdav": {
+    "title": "ネットワーク共有 (WebDAV)",
+    "description": "ファイルマネージャーの場所を、Finder、Windows エクスプローラー、Linux のファイルマネージャーでドライブとして開きます。",
+    "label": "WebDAV",
+    "help": "デフォルトではオフです。WebDAV のパスワードを知っている人は、すべての場所の読み取りと変更ができます。",
+    "adminOnly": "変更できるのは管理者のみです。",
+    "on": "WebDAV をオンにしました",
+    "off": "WebDAV をオフにしました",
+    "saveFailed": "保存できませんでした",
+    "passwordFailed": "パスワードを作成できませんでした",
+    "address": "アドレス",
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "passwordHint": {
+      "copyNow": "今すぐコピーしてください。再表示されません。",
+      "set": "パスワードが設定されています。新しく作成すると、古いパスワードを使っているすべてのデバイスがサインアウトされます。",
+      "none": "サインインするパスワードを作成してください。Athena のパスワードとは別です。"
+    },
+    "newPassword": "新しいパスワード",
+    "makePassword": "パスワードを作成",
+    "plainHttp": {
+      "title": "暗号化されていません",
+      "description": "Athena はプレーンな HTTP で開かれているため、WebDAV のパスワードとファイルは暗号化されずにネットワークを流れます。信頼できるネットワークで使用するか、Athena を HTTPS の背後に置いてください。"
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → 移動 → サーバへ接続を選び、アドレスを入力します。",
+      "windows": "<b>Windows:</b> エクスプローラー → PC → ネットワークドライブの割り当てを選び、アドレスを入力します。プレーンな HTTP の場合、<code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> の <code>BasicAuthLevel</code> を 2 に設定し、WebClient サービスを再起動しないとサインインできません。",
+      "linux": "<b>Linux:</b> ファイル (GNOME) または Dolphin で <code>{{url}}</code> に接続します。"
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "モード",
+      "light": "ライト",
+      "dark": "ダーク",
+      "system": "システム"
+    },
+    "colors": {
+      "title": "カラー",
+      "saving": "保存中…",
+      "description": "変更はすぐに反映され、アカウントに紐づいて他のブラウザーにも引き継がれます。",
+      "matchBase": "ベースに合わせる",
+      "matchTheme": "テーマに合わせる",
+      "base": "ベース",
+      "baseColor": "ベースカラー",
+      "baseHint": "背景、枠線、控えめなテキスト。",
+      "theme": "テーマ",
+      "themeHint": "ボタン、フォーカスリング、リンク。",
+      "charts": "チャート"
+    },
+    "type": {
+      "title": "タイポグラフィと形状",
+      "font": "フォント",
+      "headingFont": "見出しフォント",
+      "sameAsBody": "本文と同じ",
+      "radius": "角丸",
+      "style": "スタイル",
+      "styleValue": "Nova（Lucide アイコン）",
+      "styleSoon": "スタイルの切り替えは今後のバージョンで対応予定です"
+    },
+    "radius": {
+      "default": "デフォルト",
+      "none": "なし",
+      "small": "小",
+      "medium": "中",
+      "large": "大"
+    },
+    "preset": {
+      "title": "プリセットコード",
+      "description": "shadcn のプリセットコードは、これらの設定を数文字にまとめたものです。",
+      "current": "現在のプリセットコード",
+      "copy": "コピー",
+      "copied": "コピーしました",
+      "copyFailed": "クリップボードにコピーできませんでした",
+      "use": "<code>npx shadcn init --preset {{code}}</code> で使用するか、共有してください。",
+      "apply": "プリセットコードを適用",
+      "applyButton": "適用",
+      "invalid": "これは shadcn のプリセットコードではありません。",
+      "applied": "プリセット {{code}} を適用しました",
+      "ignored": "Athena はまだ {{parts}} を適用できないため、その部分はスキップされました。",
+      "fill": "<link>ui.shadcn.com/create</link> で作成したコードから、カラー、フォント、角丸を設定します。"
+    }
+  },
+  "tunnel": {
+    "hide": "{{label}} を隠す",
+    "show": "{{label}} を表示",
+    "secretSaved": "保存済みです。置き換えるには新しい値を入力してください",
+    "customDomain": "カスタムドメイン（任意）",
+    "cloudflare": {
+      "quick": "クイックトンネル",
+      "quickHelp": "アカウント不要のランダムな trycloudflare.com アドレスです。トンネルを開始するたびに変わります。",
+      "apiToken": "API トークン",
+      "apiTokenPlaceholder": "Tunnel 権限を持つ Cloudflare API トークン",
+      "tunnelName": "トンネル名",
+      "tunnelNameHelp": "Cloudflare アカウント内の名前付きトンネル。",
+      "domainHelp": "トンネルを指す DNS レコードが必要です。"
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "自動検出",
+      "help": "このサーバーで <code>tailscale up</code> を実行して設定します。"
+    },
+    "ngrok": {
+      "authToken": "認証トークン",
+      "authTokenPlaceholder": "ngrok の認証トークン",
+      "subdomain": "サブドメイン（任意）",
+      "paidPlan": "ngrok の有料プランが必要です。",
+      "freeTitle": "無料プランの制限",
+      "freeDescription": "トンネルは 1 つ、接続は 1 分あたり 40 回まで、セッションごとに新しいランダムなアドレスになります。"
+    },
+    "status": {
+      "label": "状態",
+      "running": "実行中",
+      "stopped": "停止中",
+      "notInstalled": "未インストール",
+      "notSetUp": "未設定"
+    },
+    "saveFailed": "保存できませんでした",
+    "saved": "リモートアクセスの設定を保存しました",
+    "autoStart": {
+      "label": "起動時に開始",
+      "on": "起動時にリモートアクセスを開始します",
+      "off": "起動時にリモートアクセスを開始しなくなりました",
+      "installFirst": "先に {{name}} をインストールしてください。",
+      "help": "サーバーと一緒にトンネルを開始するシステムサービスをインストールします。"
+    },
+    "serviceFailed": "サービスを更新できませんでした",
+    "title": "リモートアクセス",
+    "description": "ルーターのポートを開放せずに、Cloudflare、Tailscale、ngrok を通じてどこからでも Athena にアクセスできます。",
+    "label": "リモートアクセス",
+    "help": "アドレスを知っている人は誰でもサインインページに到達できるため、強力なパスワードを使用してください。",
+    "adminOnly": "変更できるのは管理者のみです。",
+    "on": "リモートアクセスをオンにしました",
+    "off": "リモートアクセスをオフにしました",
+    "exposed": {
+      "title": "インターネットから到達可能",
+      "description": "オンの間は、Web ターミナル、パッケージのインストール、AI アシスタントが、アドレスを見つけた誰でもパスワード 1 つで利用できる状態になります。リモートで不要な場合は、<terminal>ターミナル</terminal>または<assistant>アシスタント</assistant>をオフにしてください。"
+    },
+    "provider": "プロバイダー",
+    "using": "{{name}} を使用中",
+    "port": {
+      "label": "ローカルポート",
+      "help": "Athena が待ち受けるポートで、トンネルの転送先になります。"
+    },
+    "discard": "破棄",
+    "saveChanges": "変更を保存",
+    "publicAddress": "公開アドレス",
+    "install": "{{name}} をインストール",
+    "installFailed": "インストールできませんでした",
+    "stop": "停止",
+    "stopFailed": "トンネルを停止できませんでした",
+    "start": "開始",
+    "startFailed": "トンネルを開始できませんでした",
+    "saveFirst": "先に変更を保存してください",
+    "refresh": "状態を更新"
+  },
+  "https": {
+    "copyFailed": "コピーできませんでした",
+    "adminOnly": "HTTPS を変更できるのは管理者のみです",
+    "unavailable": {
+      "title": "HTTPS は利用できません",
+      "description": "この Athena サーバーは HTTPS への対応を報告していません。"
+    },
+    "loadFailed": "HTTPS の設定を読み込めませんでした",
+    "status": {
+      "on": "オン、ポート {{port}}",
+      "notRunning": "停止中",
+      "off": "オフ",
+      "encryptedLetsEncrypt": "Athena は Let's Encrypt の証明書で接続を暗号化します。プレーンな HTTP もポート {{port}} で利用できます。",
+      "encryptedCustom": "Athena はカスタム証明書で接続を暗号化します。プレーンな HTTP もポート {{port}} で利用できます。",
+      "encryptedSelf": "Athena は独自の証明書で接続を暗号化します。プレーンな HTTP もポート {{port}} で利用できます。",
+      "plain": "Athena はポート {{port}} のプレーンな HTTP で提供されているため、パスワードとファイルは暗号化されずにネットワークを流れます。",
+      "problem": "HTTPS の問題",
+      "renewalFailed": "Let's Encrypt の更新に失敗しました",
+      "renewalStillServed": "現在の証明書は、期限が切れるまで引き続き使用されます。",
+      "open": "HTTPS で開く",
+      "expires": "有効期限",
+      "expiresIn_other": "{{count}} 日後（自動更新）",
+      "names": "名前",
+      "alsoAt": "その他のアドレス"
+    },
+    "saveFailed": "保存できませんでした",
+    "requestFailed": "証明書を取得できませんでした",
+    "certificateReady": "証明書の準備ができました",
+    "certificateReadyHint": "Let's Encrypt を選択して保存すると、使用が開始されます。",
+    "turnedOff": "HTTPS をオフにしました",
+    "saved": "HTTPS の設定を保存しました",
+    "settings": {
+      "title": "設定",
+      "description": "変更はすぐに反映されます。Athena は再起動しません。"
+    },
+    "mode": {
+      "label": "モード",
+      "off": "オフ",
+      "offHelp": "プレーンな HTTP のみ。",
+      "self": "自己署名",
+      "selfHelp": "Athena が独自の認証局 (CA) を作成します。各デバイスで一度信頼すれば、ブラウザーに警告なしで鍵アイコンが表示されます。ドメインなしで、自宅のネットワークで使えます。",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "このサーバーを指す所有ドメイン向けの、すべてのブラウザーが信頼する無料の証明書です。自動的に更新されます。",
+      "custom": "カスタム",
+      "customHelp": "独自の証明書と秘密鍵（PEM 形式）をアップロードします。Athena はそのまま使用し、自動更新は行いません。"
+    },
+    "port": {
+      "label": "HTTPS ポート",
+      "help": "1024 未満のポート (443 など) では、Athena を root で実行する必要がある場合があります。ホストのファイアウォールでポートを許可する必要がある場合もあります。",
+      "range": "1 から 65535 のポートを入力してください。",
+      "taken": "ポート {{port}} は Athena の HTTP ポートです。別のポートを選択してください。"
+    },
+    "redirect": {
+      "label": "ブラウザーを HTTPS に転送",
+      "help": "ポート {{port}} で開いたページは HTTPS に移動します。ファイル共有、Webhook、アプリ、サーバー自体は引き続きプレーンな HTTP を使用します。"
+    },
+    "names": {
+      "label": "追加の名前",
+      "help": "証明書には、このサーバーの名前、.local 名、ネットワークアドレスがすでに含まれています。Athena を開くときに使う他の名前やアドレスがあれば、カンマ区切りで追加してください。"
+    },
+    "lockedOut": "ログインできなくなりましたか？サーバーで <code>{{command}}</code> を実行し、Athena を再起動してください。",
+    "cancel": "キャンセル",
+    "needsCertificate": "先に証明書を取得してください",
+    "saving": "保存中…",
+    "save": "保存",
+    "confirm": {
+      "title": "ブラウザーを HTTPS に転送しますか？",
+      "redirect": "保存後、ポート {{port}} で Athena を開くと <url>{{url}}</url> に移動します。",
+      "letsencrypt": "そこではドメイン名で Athena を開いてください。他の名前では証明書の警告が表示されます。",
+      "custom": "カスタム証明書が使用されます。既知の CA が発行したものであれば、ブラウザーは信頼します。",
+      "self": "デバイスで Athena の CA を信頼するまでは、そのデバイスのブラウザーに警告が表示されます。",
+      "recovery": "再びアクセスできなくなった場合は、サーバーで <cmd>{{command}}</cmd> を実行し、Athena を再起動してください。",
+      "action": "保存して転送"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "ドメイン",
+      "domainsHelp": "複数の場合はカンマで区切ります。それぞれ、公開 DNS でこのサーバーを指している必要があります。ワイルドカード (*.example.com) には DNS チャレンジが必要です。",
+      "email": "メールアドレス",
+      "emailHelp": "証明書の期限が近づくと、Let's Encrypt がここに連絡します。",
+      "challenge": "Let's Encrypt の確認方法",
+      "http": "HTTP (ポート 80)",
+      "httpHelp": "Let's Encrypt がこのサーバーのポート 80 に接続するため、インターネットから到達できる必要があります（ルーターで転送してください）。",
+      "dns": "DNS",
+      "dnsHelp": "Athena が DNS プロバイダーを通じて一時的な DNS レコードを追加します。ポートの開放は不要で、ワイルドカードにも対応します。",
+      "port80Title": "現在ポート 80 を開けません",
+      "port80Description": "他のプログラムが使用しているか、Athena に開く権限がありません。ポート 80 を解放するか、DNS チャレンジを使用してください。",
+      "provider": "DNS プロバイダー",
+      "savedUnchanged": "保存済み（変更なし）",
+      "staging": "ステージングサーバーを使用",
+      "stagingHelp": "試用向けです。証明書はブラウザーに信頼されませんが、制限は緩やかです。",
+      "getting": "証明書を取得中…",
+      "renew": "今すぐ証明書を更新",
+      "get": "証明書を取得",
+      "current": "{{names}} 用の現在の証明書です。有効期限は {{date}} です。",
+      "getThenSave": "証明書を取得してから保存すると、使用が開始されます。",
+      "lastFailed": "前回の試行に失敗しました: {{error}}"
+    },
+    "custom": {
+      "legend": "カスタム証明書",
+      "cert": "証明書 (PEM)",
+      "certHelp": "PEM エンコードされた証明書または証明書チェーン全体を貼り付けてください。",
+      "key": "秘密鍵 (PEM)",
+      "keyHelp": "PEM エンコードされた秘密鍵を貼り付けてください。暗号化して保存されます。"
+    },
+    "trust": {
+      "title": "デバイスで Athena を信頼する",
+      "description": "使用する各スマートフォン、タブレット、コンピューターに、Athena の CA を一度インストールしてください。以後、更新分を含め、Athena が作成するすべての証明書をブラウザーが信頼します。",
+      "download": "CA 証明書をダウンロード",
+      "validUntil": "有効期限 {{date}}",
+      "fingerprint": "SHA-256 フィンガープリント",
+      "copyFingerprint": "フィンガープリントをコピー",
+      "fingerprintCopied": "フィンガープリントをコピーしました",
+      "fingerprintHelp": "ファイルを信頼する前に、デバイスに表示される値と一致するか確認してください。",
+      "rotated": "新しい CA を作成しました",
+      "rotatedHint": "ダウンロードして、各デバイスで再度信頼してください。",
+      "rotateFailed": "新しい CA を作成できませんでした",
+      "rotateHint": "鍵が漏えいした可能性がある場合は、新しい CA を作成してください。すべてのデバイスで新しい CA を信頼する必要があります。",
+      "rotate": "新しい CA を作成",
+      "rotating": "作成中…",
+      "confirmTitle": "新しい CA を作成しますか？",
+      "confirmDescription": "現在の CA を信頼しているデバイスでは、新しい CA をインストールするまで警告が表示されます。",
+      "macos": {
+        "label": "macOS",
+        "step1": "ダウンロードしたファイルを開きます。キーチェーンアクセスがログインキーチェーンに追加します。",
+        "step2": "キーチェーンアクセスで <b>Athena Local CA</b> をダブルクリックし、<b>信頼</b>を開いて、<b>この証明書を使用するとき</b>を<b>常に信頼</b>に設定します。",
+        "step3": "ウインドウを閉じ、Mac のパスワードを入力します。ブラウザーを再起動してください。"
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "ダウンロードしたファイルを開き、<b>証明書のインストール</b>を選択します。",
+        "step2": "<b>現在のユーザー</b>を選び、<b>証明書をすべて次のストアに配置する</b> → <b>信頼されたルート証明機関</b>を選択します。",
+        "step3": "完了し、セキュリティの警告を承認します。ブラウザーを再起動してください。"
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian または Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Linux では Firefox と Chrome が独自のリストを持っています。ブラウザーの証明書設定の<b>認証局</b>でファイルをインポートしてください。"
+      },
+      "ios": {
+        "label": "iPhone と iPad",
+        "step1": "Safari でファイルをダウンロードし、プロファイルのダウンロードを許可します。",
+        "step2": "設定で<b>プロファイルがダウンロードされました</b>（または<b>一般 → VPN とデバイス管理</b>）を開き、インストールします。",
+        "step3": "<b>一般 → 情報 → 証明書信頼設定</b>を開き、<b>Athena Local CA</b> に対してフルの信頼をオンにします。"
+      },
+      "android": {
+        "label": "Android",
+        "step1": "ファイルをダウンロードします。",
+        "step2": "設定で <b>CA 証明書</b>を検索し（通常は<b>セキュリティ → 暗号化と認証情報 → 証明書のインストール → CA 証明書</b>）、ファイルを選択します。",
+        "step3": "警告を承認します。ユーザー証明書を無視するアプリもありますが、ブラウザーは使用します。"
+      }
+    }
+  },
+  "sections": {
+    "appearance": "外観",
+    "account": "アカウント",
+    "system": "システム",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "設定"
+  }
+}

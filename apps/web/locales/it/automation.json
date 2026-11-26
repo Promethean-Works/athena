@@ -1,0 +1,171 @@
+{
+  "cancel": "Annulla",
+  "view": {
+    "unavailable": "L'automazione non è disponibile",
+    "unsupported": "Questo host non supporta l'automazione."
+  },
+  "copyUrl": {
+    "copy": "Copia {{label}}",
+    "copied": "{{label}} copiato",
+    "failed": "Impossibile copiare"
+  },
+  "external": {
+    "title": "Automazione esterna",
+    "description": "Collega n8n, script o agenti AI ad Athena.",
+    "webhookUrl": "URL del webhook",
+    "webhookHint": "Invia una richiesta POST per attivare un trigger webhook; non serve accedere. Ogni trigger webhook ha il suo token: copia il suo URL completo dall'elenco dei trigger.",
+    "mcpServer": "Server MCP",
+    "mcpUrl": "URL del server MCP",
+    "mcpHint": "HTTP in streaming. I client accedono con un cookie di sessione, oppure inviano il token impostato nella variabile d'ambiente <envVar>ATHENA_MCP_TOKEN</envVar> del server come <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Esecuzioni",
+    "description": "Le ultime esecuzioni, aggiornate ogni pochi secondi.",
+    "trigger": "Trigger",
+    "deletedTrigger": "Trigger eliminato",
+    "listFailed": "Impossibile elencare le esecuzioni",
+    "empty": {
+      "title": "Ancora nessuna esecuzione",
+      "description": "Le esecuzioni compaiono qui quando un trigger scatta."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Avvia l'app {{name}}",
+      "stop": "Ferma l'app {{name}}",
+      "restart": "Riavvia l'app {{name}}",
+      "update": "Aggiorna l'app {{name}}"
+    },
+    "package": {
+      "install": "Installa {{name}} ({{manager}})",
+      "uninstall": "Disinstalla {{name}} ({{manager}})",
+      "upgrade": "Aggiorna {{name}} ({{manager}})",
+      "refresh": "Aggiorna gli elenchi dei pacchetti {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Trigger",
+    "description": "Esegui un'azione su un'app o un pacchetto con una pianificazione o da un webhook.",
+    "listFailed": "Impossibile elencare i trigger",
+    "empty": {
+      "title": "Ancora nessun trigger",
+      "description": "Un trigger esegue un'azione con una pianificazione (cron) o quando il suo webhook viene chiamato, per esempio da n8n."
+    },
+    "onWebhook": "Quando il suo webhook viene chiamato",
+    "noSchedule": "Nessuna pianificazione",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Prossima esecuzione {{time}}",
+    "changeFailed": "Impossibile modificare il trigger",
+    "enabledToast": "{{name}} attivato",
+    "pausedToast": "{{name}} in pausa",
+    "enabledLabel": "{{name}} attivo",
+    "copyWebhook": "Copia URL del webhook",
+    "webhookCopied": "URL del webhook copiato",
+    "copyFailed": "Impossibile copiare",
+    "deleteFailed": "Impossibile eliminare il trigger",
+    "deleted": "Trigger eliminato",
+    "deleteLabel": "Elimina {{name}}",
+    "delete": "Elimina",
+    "deleteTitle": "Eliminare {{name}}?",
+    "deleteDescription": "Smette di essere eseguito. Le esecuzioni passate restano nel log.",
+    "deleteDescriptionWebhook": "Smette di essere eseguito e il suo URL del webhook smette di funzionare. Le esecuzioni passate restano nel log."
+  },
+  "dialog": {
+    "new": "Nuovo trigger",
+    "description": "Esegui un'azione su un'app o un pacchetto con una pianificazione, o ogni volta che un webhook viene chiamato.",
+    "created": {
+      "title": "Trigger webhook creato",
+      "description": "Invia una richiesta POST a questo URL per eseguire \"{{name}}\". Chiunque abbia l'URL può attivarlo, quindi tienilo riservato. Puoi copiarlo di nuovo dall'elenco dei trigger.",
+      "done": "Fatto"
+    },
+    "errors": {
+      "name": "Dai un nome al trigger.",
+      "app": "Scegli un'app.",
+      "manager": "Scegli un gestore di pacchetti.",
+      "packageName": "Inserisci il nome di un pacchetto."
+    },
+    "createdToast": "Trigger {{name}} creato",
+    "createFailed": "Impossibile creare il trigger",
+    "name": "Nome",
+    "namePlaceholder": "es. Riavvio notturno di Jellyfin",
+    "whenItRuns": "Quando viene eseguito",
+    "onSchedule": "Con una pianificazione (cron)",
+    "onWebhook": "Quando un webhook viene chiamato",
+    "schedule": "Pianificazione",
+    "cronPlaceholder": "minuto ora giorno mese giorno-settimana, es. 0 2 * * *",
+    "cronHelp": "Cinque campi: minuto, ora, giorno del mese, mese, giorno della settimana. Gli orari sono in UTC.",
+    "webhookHint": "Dopo la creazione ottieni un URL segreto. Una richiesta POST a quell'URL (da n8n, uno script o curl) esegue l'azione.",
+    "whatItDoes": "Cosa fa",
+    "appAction": "Azione su un'app",
+    "packageAction": "Azione su un pacchetto",
+    "create": "Crea trigger",
+    "app": "App",
+    "loadingApps": "Caricamento delle app…",
+    "chooseApp": "Scegli un'app",
+    "noApps": "Nessuna app installata",
+    "action": "Azione",
+    "appVerbs": {
+      "start": "Avvia",
+      "stop": "Ferma",
+      "restart": "Riavvia",
+      "update": "Aggiorna (scarica e ricrea)"
+    },
+    "packageVerbs": {
+      "install": "Installa",
+      "uninstall": "Disinstalla",
+      "upgrade": "Aggiorna",
+      "refresh": "Aggiorna gli elenchi dei pacchetti"
+    },
+    "packageManager": "Gestore di pacchetti",
+    "loading": "Caricamento…",
+    "chooseManager": "Scegli un gestore",
+    "noManagers": "Nessuno pronto su questo host",
+    "package": "Pacchetto",
+    "packagePlaceholder": "es. jq",
+    "source": "Origine (facoltativa)",
+    "sourceHint": "Un remote Flatpak, un bucket Scoop, oppure \"cask\" per un cask Homebrew.",
+    "loadingInstalled": "Caricamento dei pacchetti installati…",
+    "installedFailed": "Impossibile elencare i pacchetti installati ({{error}}); digita il nome.",
+    "searchInstalled": "Cerca tra i pacchetti installati",
+    "noMatch": "Nessun pacchetto installato corrisponde."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Ogni ora",
+      "daily": "Ogni giorno alle 02:00",
+      "sundays": "La domenica alle 03:00",
+      "monthly": "Il 1° di ogni mese"
+    },
+    "fields": {
+      "minute": "minuto",
+      "hour": "ora",
+      "dayOfMonth": "giorno del mese",
+      "month": "mese",
+      "weekday": "giorno della settimana"
+    },
+    "errors": {
+      "empty": "Inserisci un'espressione cron o scegli un preset.",
+      "invalidField": "Il campo {{field}} \"{{value}}\" non è valido.",
+      "invalidStep": "Il passo \"/{{step}}\" nel campo {{field}} deve essere un numero.",
+      "outOfRange": "Il campo {{field}} deve essere compreso tra {{min}} e {{max}}.",
+      "fieldCount": "Usa cinque campi (minuto ora giorno mese giorno-settimana); questa espressione ne ha {{count}}."
+    },
+    "dayRange": "da {{from}} a {{to}}",
+    "custom": "Pianificazione personalizzata",
+    "everyMinute": "Ogni minuto",
+    "everyMinutes_one": "Ogni {{count}} minuto",
+    "everyMinutes_many": "Ogni {{count}} minuti",
+    "everyMinutes_other": "Ogni {{count}} minuti",
+    "everyHourOnTheHour": "Ogni ora, in punto",
+    "everyHourAtMinute": "Ogni ora al minuto {{minute}}",
+    "everyHoursAtMinute_one": "Ogni {{count}} ora al minuto {{minute}}",
+    "everyHoursAtMinute_many": "Ogni {{count}} ore al minuto {{minute}}",
+    "everyHoursAtMinute_other": "Ogni {{count}} ore al minuto {{minute}}",
+    "everyDay": "Ogni giorno alle {{time}}",
+    "everyWeekdays": "Ogni {{days}} alle {{time}}",
+    "onDayOfMonth": "Il giorno {{day}} di ogni mese alle {{time}}",
+    "everyYear": "Ogni anno il {{day}} {{month}} alle {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

@@ -1,0 +1,405 @@
+{
+  "language": {
+    "title": "Jazyk",
+    "description": "Jazyk rozhraní. Následuje váš účet i do dalších prohlížečů.",
+    "label": "Jazyk rozhraní",
+    "auto": "Automaticky (jazyk prohlížeče)"
+  },
+  "account": {
+    "admin": "Správce",
+    "user": "Uživatel",
+    "signedIn": "Přihlášeno v tomto prohlížeči",
+    "signOut": "Odhlásit se",
+    "changeFailed": "Heslo se nepodařilo změnit",
+    "toast": {
+      "changed": "Heslo změněno",
+      "changedDescription": "Ostatní prohlížeče přihlášené k tomuto účtu byly odhlášeny."
+    },
+    "password": {
+      "title": "Změnit heslo",
+      "description": "Vaše ostatní relace se odhlásí; tato zůstane přihlášena.",
+      "current": "Současné heslo",
+      "new": "Nové heslo",
+      "minLength_one": "Alespoň {{count}} znak.",
+      "minLength_few": "Alespoň {{count}} znaky.",
+      "minLength_many": "Alespoň {{count}} znaku.",
+      "minLength_other": "Alespoň {{count}} znaků.",
+      "confirm": "Potvrzení nového hesla",
+      "mismatch": "Hesla se neshodují.",
+      "submit": "Změnit heslo"
+    }
+  },
+  "copyField": {
+    "copy": "Kopírovat {{label}}",
+    "copied": "{{label}} zkopírováno",
+    "failed": "Kopírování se nepovedlo"
+  },
+  "settingsFile": {
+    "title": "Soubor nastavení",
+    "description": "Nastavení na těchto stránkách se ukládá do jednoho souboru na serveru. Pokud změna brání spuštění Athena nebo vás vyloučí, opravte ji tam v libovolném textovém editoru a pak Athena restartujte.",
+    "loadFailed": "Umístění souboru se nepodařilo zjistit: {{error}}",
+    "file": "Soubor",
+    "help": "<code>athena config check</code> na serveru ukáže, co je v něm špatně, včetně čísel řádků. Verze před posledním uložením se uchovává vedle něj jako <code>athena.json.bak</code>."
+  },
+  "system": {
+    "title": "Systém",
+    "description": "Přepínače platné pro všechny na tomto serveru. Změny se zapisují do auditního protokolu.",
+    "saveFailed": "Uložení se nepovedlo",
+    "adminOnly": "Toto mohou měnit jen správci.",
+    "terminal": {
+      "label": "Webový terminál",
+      "description": "Shell na tomto serveru a v kontejnerech přímo z prohlížeče. Vypnutí zavře i otevřené relace.",
+      "on": "Terminál zapnut",
+      "off": "Terminál vypnut"
+    },
+    "updateCheck": {
+      "label": "Upozornění na aktualizace",
+      "description": "Jednou denně se zeptá GitHubu na nejnovější vydání Athena a při vydání novější verze zobrazí upozornění. Odesílá se jen samotný požadavek: žádná verze, název hostitele ani nastavení.",
+      "on": "Upozornění na aktualizace zapnuto",
+      "off": "Upozornění na aktualizace vypnuto"
+    }
+  },
+  "updates": {
+    "title": "Aktualizace",
+    "description": "Athena kontroluje nové vydání jednou denně (přepínač výše). Aktualizace restartuje Athena; vaše aplikace poběží dál.",
+    "readFailed": "Stav aktualizací se nepodařilo přečíst.",
+    "installed": "Nainstalováno",
+    "latest": "Nejnovější",
+    "unknown": "Zatím neznámé",
+    "noticeOff": "Upozornění na aktualizace je vypnuto",
+    "lastChecked": "Naposledy zkontrolováno",
+    "never": "Nikdy",
+    "upToDate": "Athena je aktuální."
+  },
+  "localAi": {
+    "list": "{{head}} a {{last}}",
+    "running_one": "{{list}} běží na tomto serveru. Jeho modely běží na vašem vlastním hardwaru a nic server neopouští.",
+    "running_few": "{{list}} běží na tomto serveru. Jejich modely běží na vašem vlastním hardwaru a nic server neopouští.",
+    "running_many": "{{list}} běží na tomto serveru. Jejich modely běží na vašem vlastním hardwaru a nic server neopouští.",
+    "running_other": "{{list}} běží na tomto serveru. Jejich modely běží na vašem vlastním hardwaru a nic server neopouští.",
+    "useNamed": "Použít {{name}} na tomto serveru",
+    "usePort": "Použít server AI na portu {{port}}",
+    "useThis": "Použít tento server AI"
+  },
+  "webdav": {
+    "title": "Síťové sdílení (WebDAV)",
+    "description": "Otevřete umístění správce souborů jako jednotku ve Finderu, Průzkumníku Windows nebo správci souborů v Linuxu.",
+    "label": "WebDAV",
+    "help": "Ve výchozím stavu vypnuto. Kdokoli s heslem WebDAV může číst a měnit všechna umístění.",
+    "adminOnly": "Toto mohou měnit jen správci.",
+    "on": "WebDAV zapnut",
+    "off": "WebDAV vypnut",
+    "saveFailed": "Uložení se nepovedlo",
+    "passwordFailed": "Heslo se nepodařilo vytvořit",
+    "address": "Adresa",
+    "username": "Uživatelské jméno",
+    "password": "Heslo",
+    "passwordHint": {
+      "copyNow": "Zkopírujte si ho teď: znovu se nezobrazí.",
+      "set": "Heslo je nastaveno. Vytvořením nového se odhlásí každé zařízení, které používá staré.",
+      "none": "Pro přihlášení vytvořte heslo. Je oddělené od vašeho hesla Athena."
+    },
+    "newPassword": "Nové heslo",
+    "makePassword": "Vytvořit heslo",
+    "plainHttp": {
+      "title": "Nešifrováno",
+      "description": "Athena je otevřena přes prosté HTTP, takže heslo WebDAV i soubory putují sítí nešifrovaně. Používejte ji v důvěryhodné síti, nebo Athena umístěte za HTTPS."
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → Přejít → Připojit se k serveru, pak adresa.",
+      "windows": "<b>Windows:</b> Průzkumník souborů → Tento počítač → Připojit síťovou jednotku, pak adresa. Přes prosté HTTP se Windows přihlásí, až když nastavíte <code>BasicAuthLevel</code> na 2 v <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> a restartujete službu WebClient.",
+      "linux": "<b>Linux:</b> v Souborech (GNOME) nebo Dolphinu se připojte k <code>{{url}}</code>."
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "Režim",
+      "light": "Světlý",
+      "dark": "Tmavý",
+      "system": "Systémový"
+    },
+    "colors": {
+      "title": "Barvy",
+      "saving": "Ukládání…",
+      "description": "Změny se projeví hned a následují váš účet i do dalších prohlížečů.",
+      "matchBase": "Podle základu",
+      "matchTheme": "Podle motivu",
+      "base": "Základ",
+      "baseColor": "Základní barva",
+      "baseHint": "Pozadí, ohraničení a tlumený text.",
+      "theme": "Motiv",
+      "themeHint": "Tlačítka, orámování fokusu a odkazy.",
+      "charts": "Grafy"
+    },
+    "type": {
+      "title": "Typografie a tvar",
+      "font": "Písmo",
+      "headingFont": "Písmo nadpisů",
+      "sameAsBody": "Stejné jako text",
+      "radius": "Zaoblení",
+      "style": "Styl",
+      "styleValue": "Nova, s ikonami Lucide",
+      "styleSoon": "přepínání stylů přijde v pozdější verzi"
+    },
+    "radius": {
+      "default": "Výchozí",
+      "none": "Žádné",
+      "small": "Malé",
+      "medium": "Střední",
+      "large": "Velké"
+    },
+    "preset": {
+      "title": "Kód předvolby",
+      "description": "Kód předvolby shadcn zachytí tato nastavení v několika znacích.",
+      "current": "Aktuální kód předvolby",
+      "copy": "Kopírovat",
+      "copied": "Zkopírováno",
+      "copyFailed": "Do schránky se nepodařilo kopírovat",
+      "use": "Použijte ho s <code>npx shadcn init --preset {{code}}</code>, nebo ho sdílejte.",
+      "apply": "Použít kód předvolby",
+      "applyButton": "Použít",
+      "invalid": "To není kód předvolby shadcn.",
+      "applied": "Použita předvolba {{code}}",
+      "ignored": "Athena zatím neumí použít {{parts}}, proto byly tyto části přeskočeny.",
+      "fill": "Vyplní barvy, písma a zaoblení z kódu vytvořeného na <link>ui.shadcn.com/create</link>."
+    }
+  },
+  "tunnel": {
+    "hide": "Skrýt {{label}}",
+    "show": "Zobrazit {{label}}",
+    "secretSaved": "Uloženo. Zadáním nové hodnoty ji nahradíte",
+    "customDomain": "Vlastní doména (volitelné)",
+    "cloudflare": {
+      "quick": "Rychlý tunel",
+      "quickHelp": "Náhodná adresa trycloudflare.com, která nevyžaduje účet. Mění se při každém spuštění tunelu.",
+      "apiToken": "Token API",
+      "apiTokenPlaceholder": "Token API Cloudflare s oprávněním Tunnel",
+      "tunnelName": "Název tunelu",
+      "tunnelNameHelp": "Pojmenovaný tunel ve vašem účtu Cloudflare.",
+      "domainHelp": "Vyžaduje záznam DNS směřující na tunel."
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "Zjištěno automaticky",
+      "help": "Nastavuje se příkazem <code>tailscale up</code> na tomto serveru."
+    },
+    "ngrok": {
+      "authToken": "Autentizační token",
+      "authTokenPlaceholder": "Váš autentizační token ngrok",
+      "subdomain": "Subdoména (volitelné)",
+      "paidPlan": "Vyžaduje placený plán ngrok.",
+      "freeTitle": "Omezení bezplatného plánu",
+      "freeDescription": "Jeden tunel, 40 připojení za minutu a nová náhodná adresa při každé relaci."
+    },
+    "status": {
+      "label": "Stav",
+      "running": "Běží",
+      "stopped": "Zastaveno",
+      "notInstalled": "Nenainstalováno",
+      "notSetUp": "Nenastaveno"
+    },
+    "saveFailed": "Uložení se nepovedlo",
+    "saved": "Nastavení vzdáleného přístupu uloženo",
+    "autoStart": {
+      "label": "Spustit při startu systému",
+      "on": "Vzdálený přístup se spouští při startu systému",
+      "off": "Vzdálený přístup se už při startu systému nespouští",
+      "installFirst": "Nejdřív nainstalujte {{name}}.",
+      "help": "Nainstaluje systémovou službu, která tunel spouští spolu se serverem."
+    },
+    "serviceFailed": "Službu se nepodařilo aktualizovat",
+    "title": "Vzdálený přístup",
+    "description": "Přistupujte k Athena odkudkoli přes Cloudflare, Tailscale nebo ngrok, aniž byste na routeru otevírali porty.",
+    "label": "Vzdálený přístup",
+    "help": "Kdokoli s adresou se dostane na vaši přihlašovací stránku, proto použijte silné heslo.",
+    "adminOnly": "Toto mohou měnit jen správci.",
+    "on": "Vzdálený přístup zapnut",
+    "off": "Vzdálený přístup vypnut",
+    "exposed": {
+      "title": "Dostupné z internetu",
+      "description": "Dokud je to zapnuto, jsou webový terminál, instalace balíčků a asistent AI jedno heslo od každého, kdo adresu najde. Pokud je na dálku nepotřebujete, vypněte <terminal>terminál</terminal> nebo <assistant>asistenta</assistant>."
+    },
+    "provider": "Poskytovatel",
+    "using": "Používá se {{name}}",
+    "port": {
+      "label": "Místní port",
+      "help": "Port, na kterém Athena naslouchá a na který tunel přeposílá provoz."
+    },
+    "discard": "Zahodit",
+    "saveChanges": "Uložit změny",
+    "publicAddress": "Veřejná adresa",
+    "install": "Nainstalovat {{name}}",
+    "installFailed": "Instalace se nepovedla",
+    "stop": "Zastavit",
+    "stopFailed": "Tunel se nepodařilo zastavit",
+    "start": "Spustit",
+    "startFailed": "Tunel se nepodařilo spustit",
+    "saveFirst": "Nejdřív uložte změny",
+    "refresh": "Obnovit stav"
+  },
+  "https": {
+    "copyFailed": "Kopírování se nepovedlo",
+    "adminOnly": "HTTPS mohou měnit jen správci",
+    "unavailable": {
+      "title": "HTTPS není k dispozici",
+      "description": "Tento server Athena nehlásí podporu HTTPS."
+    },
+    "loadFailed": "Nastavení HTTPS se nepodařilo načíst",
+    "status": {
+      "on": "Zapnuto, port {{port}}",
+      "notRunning": "Neběží",
+      "off": "Vypnuto",
+      "encryptedLetsEncrypt": "Athena šifruje spojení certifikátem od Let's Encrypt. Prosté HTTP zůstává na portu {{port}}.",
+      "encryptedCustom": "Athena šifruje spojení vaším vlastním certifikátem. Prosté HTTP zůstává na portu {{port}}.",
+      "encryptedSelf": "Athena šifruje spojení vlastním certifikátem. Prosté HTTP zůstává na portu {{port}}.",
+      "plain": "Athena je poskytována přes prosté HTTP na portu {{port}}, takže hesla a soubory putují sítí nešifrovaně.",
+      "problem": "Problém s HTTPS",
+      "renewalFailed": "Obnovení u Let's Encrypt selhalo",
+      "renewalStillServed": "Současný certifikát se používá, dokud nevyprší.",
+      "open": "Otevřít přes HTTPS",
+      "expires": "Vyprší",
+      "expiresIn_one": "za {{count}} den; obnovuje se automaticky",
+      "expiresIn_few": "za {{count}} dny; obnovuje se automaticky",
+      "expiresIn_many": "za {{count}} dne; obnovuje se automaticky",
+      "expiresIn_other": "za {{count}} dní; obnovuje se automaticky",
+      "names": "Názvy",
+      "alsoAt": "Také na"
+    },
+    "saveFailed": "Uložení se nepovedlo",
+    "requestFailed": "Certifikát se nepodařilo vyžádat",
+    "certificateReady": "Certifikát je připraven",
+    "certificateReadyHint": "Uložte s vybraným Let's Encrypt a začne se používat.",
+    "turnedOff": "HTTPS vypnuto",
+    "saved": "Nastavení HTTPS uloženo",
+    "settings": {
+      "title": "Nastavení",
+      "description": "Změny se projeví hned; Athena se nerestartuje."
+    },
+    "mode": {
+      "label": "Režim",
+      "off": "Vypnuto",
+      "offHelp": "Pouze prosté HTTP.",
+      "self": "Self-signed",
+      "selfHelp": "Athena vytvoří vlastní certifikační autoritu (CA). Jednou jí na každém zařízení důvěřujte a prohlížeče zobrazí zámek bez varování. Funguje v domácí síti bez domény.",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "Bezplatný certifikát, kterému důvěřuje každý prohlížeč, pro doménu, kterou vlastníte a která míří na tento server. Obnovuje se automaticky.",
+      "custom": "Vlastní",
+      "customHelp": "Nahrajte vlastní certifikát a soukromý klíč (formát PEM). Athena je používá tak, jak jsou; bez automatického obnovení."
+    },
+    "port": {
+      "label": "Port HTTPS",
+      "help": "Porty pod 1024 (například 443) mohou vyžadovat, aby Athena běžela jako root. Port možná budete muset povolit ve firewallu hostitele.",
+      "range": "Zadejte port od 1 do 65535.",
+      "taken": "Port {{port}} je port HTTP Athena. Vyberte jiný."
+    },
+    "redirect": {
+      "label": "Přesměrovat prohlížeče na HTTPS",
+      "help": "Stránky otevřené na portu {{port}} se přesunou na HTTPS. Sdílení souborů, webhooky, aplikace a samotný server dál používají prosté HTTP."
+    },
+    "names": {
+      "label": "Další názvy",
+      "help": "Certifikát už pokrývá název tohoto serveru, jeho název .local a jeho síťové adresy. Přidejte jakýkoli další název nebo adresu, přes kterou Athena otevíráte, oddělené čárkami."
+    },
+    "lockedOut": "Vyloučeni? Spusťte na serveru <code>{{command}}</code> a restartujte Athena.",
+    "cancel": "Zrušit",
+    "needsCertificate": "Nejdřív získejte certifikát",
+    "saving": "Ukládání…",
+    "save": "Uložit",
+    "confirm": {
+      "title": "Přesměrovat prohlížeče na HTTPS?",
+      "redirect": "Po uložení vás otevření Athena na portu {{port}} přesměruje na <url>{{url}}</url>.",
+      "letsencrypt": "Athena tam otevírejte přes její doménový název; ostatní názvy zobrazí varování o certifikátu.",
+      "custom": "Používá se váš vlastní certifikát; prohlížeče mu důvěřují, pokud pochází ze známé CA.",
+      "self": "Dokud na zařízení nezačnete důvěřovat CA Athena, zobrazí tamní prohlížeč varování.",
+      "recovery": "Pokud se nemůžete vrátit, spusťte na serveru <cmd>{{command}}</cmd> a restartujte Athena.",
+      "action": "Uložit a přesměrovat"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "Domény",
+      "domainsHelp": "Více jich oddělte čárkami. Každá musí ve veřejném DNS mířit na tento server. Zástupná doména (*.example.com) vyžaduje výzvu DNS.",
+      "email": "E-mail",
+      "emailHelp": "Let's Encrypt sem píše, když se blíží konec platnosti certifikátu.",
+      "challenge": "Jak Let's Encrypt ověřuje",
+      "http": "HTTP (port 80)",
+      "httpHelp": "Let's Encrypt se připojuje na port 80 tohoto serveru, takže musí být dostupný z internetu (přesměrujte ho na routeru).",
+      "dns": "DNS",
+      "dnsHelp": "Athena přidá dočasný záznam DNS přes vašeho poskytovatele DNS. Žádné otevřené porty; funguje i pro zástupné domény.",
+      "port80Title": "Port 80 se teď nedá otevřít",
+      "port80Description": "Používá ho jiný program, nebo ho Athena nesmí otevřít. Uvolněte port 80, nebo použijte výzvu DNS.",
+      "provider": "Poskytovatel DNS",
+      "savedUnchanged": "Uloženo (beze změny)",
+      "staging": "Použít testovací server",
+      "stagingHelp": "Na zkoušení: prohlížeče jeho certifikátům nedůvěřují, ale jeho limity jsou štědré.",
+      "getting": "Získávání certifikátu…",
+      "renew": "Obnovit certifikát nyní",
+      "get": "Získat certifikát",
+      "current": "Současný certifikát pro {{names}}, platný do {{date}}.",
+      "getThenSave": "Získejte certifikát a pak uložte, aby se začal používat.",
+      "lastFailed": "Poslední pokus selhal: {{error}}"
+    },
+    "custom": {
+      "legend": "Vlastní certifikát",
+      "cert": "Certifikát (PEM)",
+      "certHelp": "Vložte celý certifikát nebo řetězec certifikátů kódovaný v PEM.",
+      "key": "Soukromý klíč (PEM)",
+      "keyHelp": "Vložte soukromý klíč kódovaný v PEM. Uloží se šifrovaně."
+    },
+    "trust": {
+      "title": "Důvěřujte Athena na svých zařízeních",
+      "description": "Nainstalujte CA Athena jednou na každý telefon, tablet a počítač, který používáte. Pak prohlížeč důvěřuje každému certifikátu, který Athena vytvoří, včetně obnovených.",
+      "download": "Stáhnout certifikát CA",
+      "validUntil": "Platný do {{date}}",
+      "fingerprint": "Otisk SHA-256",
+      "copyFingerprint": "Kopírovat otisk",
+      "fingerprintCopied": "Otisk zkopírován",
+      "fingerprintHelp": "Než souboru začnete důvěřovat, ověřte, že odpovídá tomu, co zobrazí zařízení.",
+      "rotated": "Vytvořena nová CA",
+      "rotatedHint": "Stáhněte ji a znovu jí na každém zařízení důvěřujte.",
+      "rotateFailed": "Novou CA se nepodařilo vytvořit",
+      "rotateHint": "Vytvořte novou CA, pokud mohl klíč uniknout. Každé zařízení musí důvěřovat nové.",
+      "rotate": "Vytvořit novou CA",
+      "rotating": "Vytváření…",
+      "confirmTitle": "Vytvořit novou CA?",
+      "confirmDescription": "Zařízení, která důvěřují současné CA, zobrazí varování, dokud na ně nenainstalujete novou.",
+      "macos": {
+        "label": "macOS",
+        "step1": "Otevřete stažený soubor. Přístup ke klíčence ho přidá do klíčenky přihlášení.",
+        "step2": "V Přístupu ke klíčence dvakrát klikněte na <b>Athena Local CA</b>, otevřete <b>Důvěra</b> a u <b>Při použití tohoto certifikátu</b> nastavte <b>Vždy důvěřovat</b>.",
+        "step3": "Zavřete okno a zadejte heslo k Macu. Restartujte prohlížeč."
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "Otevřete stažený soubor a zvolte <b>Nainstalovat certifikát</b>.",
+        "step2": "Vyberte <b>Aktuální uživatel</b>, pak <b>Všechny certifikáty umístit do následujícího úložiště</b> → <b>Důvěryhodné kořenové certifikační autority</b>.",
+        "step3": "Dokončete a potvrďte bezpečnostní varování. Restartujte prohlížeč."
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian nebo Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Firefox a Chrome mají v Linuxu vlastní seznam: soubor importujte v nastavení certifikátů prohlížeče, v části <b>Autority</b>."
+      },
+      "ios": {
+        "label": "iPhone a iPad",
+        "step1": "Stáhněte soubor v Safari a povolte stažení profilu.",
+        "step2": "V Nastavení otevřete <b>Profil stažen</b> (nebo <b>Obecné → VPN a správa zařízení</b>) a nainstalujte ho.",
+        "step3": "Přejděte do <b>Obecné → Informace → Nastavení důvěry certifikátů</b> a zapněte plnou důvěru pro <b>Athena Local CA</b>."
+      },
+      "android": {
+        "label": "Android",
+        "step1": "Stáhněte soubor.",
+        "step2": "V Nastavení vyhledejte <b>certifikát CA</b> (obvykle <b>Zabezpečení → Šifrování a přihlašovací údaje → Nainstalovat certifikát → Certifikát CA</b>) a vyberte soubor.",
+        "step3": "Potvrďte varování. Některé aplikace uživatelské certifikáty ignorují; prohlížeče je používají."
+      }
+    }
+  },
+  "sections": {
+    "appearance": "Vzhled",
+    "account": "Účet",
+    "system": "Systém",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "Nastavení"
+  }
+}

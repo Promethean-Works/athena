@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Adres tunelu",
+    "description": "Otwórz Athenę spoza swojej sieci lub zeskanuj kod telefonem.",
+    "publicAddress": "Adres publiczny",
+    "notRunning": "Tunel nie jest uruchomiony.",
+    "startInSettings": "Uruchom go w Ustawieniach."
+  },
+  "qr": {
+    "title": "Kod QR adresu tunelu"
+  }
+}

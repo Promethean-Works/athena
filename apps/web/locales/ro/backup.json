@@ -1,0 +1,119 @@
+{
+  "add": "Adaugă",
+  "cancel": "Anulează",
+  "back": "Înapoi",
+  "errors": {
+    "listDestinations": "Nu s-au putut lista destinațiile copiilor de rezervă",
+    "createDestination": "Nu s-a putut crea destinația",
+    "deleteDestination": "Nu s-a putut șterge destinația",
+    "listPlans": "Nu s-au putut lista planurile de copii de rezervă",
+    "createPlan": "Nu s-a putut crea planul",
+    "updatePlan": "Nu s-a putut actualiza planul",
+    "deletePlan": "Nu s-a putut șterge planul",
+    "startBackup": "Nu s-a putut porni copia de rezervă",
+    "listVersions": "Nu s-au putut lista versiunile copiilor de rezervă",
+    "listVersionFiles": "Nu s-au putut lista fișierele versiunii",
+    "restoreApp": "Nu s-a putut restaura aplicația"
+  },
+  "toast": {
+    "destinationCreated": "Destinația „{{name}}” a fost creată",
+    "planCreated": "Planul „{{name}}” a fost creat",
+    "planUpdated": "Planul „{{name}}” a fost actualizat",
+    "backupStarted": "Copia de rezervă „{{name}}” a început"
+  },
+  "view": {
+    "unavailable": "Copiile de rezervă nu sunt disponibile",
+    "unsupported": "Această gazdă nu acceptă copii de rezervă.",
+    "tabs": {
+      "versions": "Versiuni",
+      "destinations": "Destinații",
+      "plans": "Planuri"
+    }
+  },
+  "destinations": {
+    "title": "Destinații",
+    "name": "Nume",
+    "kind": "Tip",
+    "location": "Locație",
+    "created": "Creată",
+    "empty": {
+      "title": "Nicio destinație încă",
+      "description": "O destinație este un dosar sau o locație rclone la distanță unde se păstrează copiile de rezervă. Adaugă una pentru a începe."
+    }
+  },
+  "plans": {
+    "title": "Planuri",
+    "name": "Nume",
+    "schedule": "Programare",
+    "lastRun": "Ultima rulare",
+    "status": "Stare",
+    "manual": "manual",
+    "runNow": "Rulează acum",
+    "empty": {
+      "title": "Niciun plan încă",
+      "description": "Un plan alege Athena, aplicațiile, o destinație și o programare, apoi rulează automat."
+    }
+  },
+  "versions": {
+    "title": "Versiuni",
+    "refresh": "Reîmprospătează",
+    "time": "Moment",
+    "size": "Dimensiune",
+    "new": "Noi",
+    "added": "Adăugate",
+    "changed": "Modificate",
+    "removed": "Eliminate",
+    "os": "SO",
+    "viewFiles": "Vezi fișierele",
+    "restore": "Restaurează",
+    "empty": {
+      "title": "Nicio versiune încă",
+      "description": "Rulează o copie de rezervă pentru a o crea pe prima."
+    }
+  },
+  "addDestination": {
+    "title": "Adaugă destinație pentru copii de rezervă",
+    "kitTitle": "Salvează kitul de recuperare",
+    "description": "Alege unde păstrează restic depozitul: un dosar local sau o locație rclone la distanță.",
+    "kitDescription": "Descarcă sau copiază kitul. Athena nu va mai arăta niciodată această parolă; fără ea, o gazdă pierdută nu poate fi restaurată.",
+    "prepareFailed": "Nu s-a putut pregăti destinația",
+    "saveKitFirst": "Salvează kitul de recuperare înainte de a crea destinația",
+    "name": "Nume",
+    "namePlaceholder": "de ex. Stick USB",
+    "kind": "Tip",
+    "local": "Dosar local",
+    "rclone": "Locație rclone la distanță",
+    "folder": "Dosar",
+    "folderHint": "Cale absolută, în afara dosarului de date Athena.",
+    "remote": "Locație la distanță",
+    "remoteHint": "O locație rclone la distanță deja configurată în Cloud → Locații la distanță.",
+    "password": "Parola depozitului",
+    "passwordPlaceholder": "Lasă gol pentru a genera una puternică",
+    "passwordHint": "Lasă gol ca Athena să genereze o parolă puternică. Este afișată o singură dată mai jos, apoi niciodată.",
+    "kitSaved": "Am salvat acest kit de recuperare (parola, destinația și versiunea restic)",
+    "next": "Următorul: kit de recuperare",
+    "create": "Creează destinația"
+  },
+  "addPlan": {
+    "title": "Adaugă plan de copii de rezervă",
+    "description": "Alege ce se salvează, unde și cât de des. Aplicațiile sunt oprite în timpul copiei, dacă „Copiază în timpul rulării” nu este activat.",
+    "name": "Nume",
+    "namePlaceholder": "de ex. Aplicații zilnic",
+    "destination": "Destinație",
+    "athena": "Copie de rezervă pentru Athena (setări, bază de date, secrete, TLS)",
+    "athenaHint": "Recomandat: activat implicit.",
+    "apps": "Aplicații",
+    "appsHint": "Ce aplicații se includ în plan.",
+    "noApps": "Nicio aplicație găsită. Pornește mai întâi aplicații din Magazin → Aplicații.",
+    "schedule": "Programare (cron)",
+    "schedulePlaceholder": "0 3 * * *  (zilnic la 03:00)",
+    "scheduleHint": "Lasă gol pentru rulări doar manuale. Rulările programate vin cu partea 4.",
+    "retention": "Retenție",
+    "keepLast": "Păstrează ultimele",
+    "keepDaily": "Păstrează zilnice",
+    "keepWeekly": "Păstrează săptămânale",
+    "keepMonthly": "Păstrează lunare",
+    "retentionHint": "`restic forget --keep-…` pentru fiecare element. Implicit: 7 zilnice / 4 săptămânale / 6 lunare.",
+    "create": "Creează planul"
+  }
+}

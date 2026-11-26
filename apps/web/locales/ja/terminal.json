@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "接続中…",
+    "connected": "接続済み",
+    "exited": "終了 ({{code}})",
+    "disconnected": "切断されました",
+    "hostTerminal": "ホストターミナル",
+    "containerShell": "コンテナシェル",
+    "lost": "Athena との接続が失われました",
+    "closedCode": "切断されました (コード {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "ターミナルは利用できません",
+    "openSettings": "設定を開く",
+    "description": "Athena の実行ユーザーとして、このサーバー上のシェルを開きます。",
+    "newSession": "新しいセッション"
+  },
+  "access": {
+    "noSupport": "このホストはターミナルに対応していません。",
+    "adminsOnly": "ターミナルを開けるのは管理者のみです。",
+    "turnedOff": "ターミナルは「設定 → システム」でオフになっています。"
+  },
+  "shell": {
+    "title": "シェル · {{name}}",
+    "description": "bash を実行します。イメージに bash がない場合は sh を実行します。"
+  }
+}

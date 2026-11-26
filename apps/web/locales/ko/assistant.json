@@ -1,0 +1,139 @@
+{
+  "title": "어시스턴트",
+  "sheet": {
+    "description": "AI 어시스턴트와 이 서버에 대해 대화하세요.",
+    "openFullPage": "전체 페이지로 열기"
+  },
+  "chat": {
+    "newChat": "새 대화",
+    "chats": "대화",
+    "noChats": "아직 대화가 없어요.",
+    "deleteChat": "{{title}} 삭제",
+    "thinking": "생각하는 중…",
+    "stillWorking": "아직 답변을 작성 중이에요. 끝나면 여기에 표시돼요.",
+    "emptyTitle": "이 서버에 대해 물어보세요",
+    "emptyDescription": "어시스턴트는 앱, 로그, 파일, 시스템 통계를 조회할 수 있고, 각 작업을 승인하면 설치하거나 변경할 수도 있어요.",
+    "suggestions": {
+      "capabilities": "이 서버는 무엇을 할 수 있나요?",
+      "disk": "디스크 공간이 얼마나 남았나요?",
+      "apps": "어떤 앱이 실행 중인가요?"
+    },
+    "message": "메시지",
+    "placeholder": "이 서버에 대해 물어보세요…",
+    "placeholderWaiting": "위 질문에 답하거나, 메시지를 보내 건너뛰세요…",
+    "stop": "중지",
+    "send": "보내기",
+    "pickModelFirst": "먼저 모델을 선택하세요",
+    "changeModelFailed": "모델을 변경할 수 없어요",
+    "startFailed": "대화를 시작할 수 없어요",
+    "deleteFailed": "대화를 삭제할 수 없어요",
+    "failed": "어시스턴트가 실패했어요"
+  },
+  "noProviders": {
+    "title": "먼저 모델을 설정하세요",
+    "description": "어시스턴트에는 AI 제공자가 필요해요. API 키를 쓰는 클라우드 제공자나 직접 운영하는 Ollama를 사용할 수 있어요.",
+    "openSettings": "설정 → AI 열기"
+  },
+  "model": {
+    "pick": "모델 선택",
+    "label": "모델: {{label}}",
+    "search": "모델 ID 검색 또는 입력",
+    "noMatch": "일치하는 모델이 없어요.",
+    "addProvider": "먼저 설정 → AI에서 제공자를 추가하세요.",
+    "noTools": "도구를 사용할 수 없음",
+    "use": "“{{model}}” 사용"
+  },
+  "plan": {
+    "title": "플랜",
+    "progress": "{{total}}개 중 {{done}}개 완료",
+    "steps": "플랜 단계",
+    "status": {
+      "pending": "대기 중",
+      "in_progress": "진행 중",
+      "completed": "완료됨",
+      "cancelled": "취소됨",
+      "blocked": "차단됨"
+    }
+  },
+  "spend": {
+    "usage": "이 대화의 사용량",
+    "usageWith": "이 대화의 사용량: {{label}}",
+    "unknownPrices": "이 모델의 가격을 알 수 없어서 토큰만 집계해요.",
+    "estimate": "모델의 공개 가격을 바탕으로 한 추정치예요.",
+    "ofLimit": "{{limit}} 중 {{spent}}",
+    "spent": "사용 금액",
+    "unknown": "알 수 없음",
+    "inputTokens": "입력 토큰",
+    "outputTokens": "출력 토큰",
+    "tokens_other": "토큰 {{formatted}}개",
+    "limitReached": "이 대화가 지출 한도에 도달했어요. 새 대화를 시작하거나 <settings>설정 → AI</settings>에서 한도를 올리세요.",
+    "limitNotApplicable": "지출 한도({{limit}})를 이 모델에는 적용할 수 없어요."
+  },
+  "steps": {
+    "thinking": "생각 중",
+    "thought": "생각함",
+    "draft": "첫 초안, 아래에서 수정됨",
+    "approvalNeeded": "승인 필요: {{title}}",
+    "run": "{{name}} 실행",
+    "approvalIntro": "어시스턴트가 이 작업을 하려고 해요. 승인하기 전에는 아무 일도 일어나지 않아요.",
+    "deny": "거부",
+    "approve": "승인",
+    "approvedGoOn": "승인했어요. 계속하려면 다른 카드에도 답하세요.",
+    "deniedGoOn": "거부했어요. 계속하려면 다른 카드에도 답하세요.",
+    "logGone": "이 로그는 더 이상 없어요",
+    "log": "로그",
+    "denied": "거부됨: {{title}}",
+    "failed": "실패: {{title}}",
+    "running": "{{name}} 실행 중",
+    "ran": "{{name}} 실행함",
+    "withSubject": "{{subject}}의 {{title}}",
+    "helperRunningTask": "도우미가 알아보는 중: {{task}}",
+    "helperDoneTask": "도우미가 알아봄: {{task}}",
+    "helperRunning": "도우미가 정보를 찾는 중",
+    "helperDone": "도우미가 정보를 찾았어요",
+    "tools": {
+      "getCapabilities": {
+        "running": "이 서버가 할 수 있는 일을 확인하는 중",
+        "done": "이 서버가 할 수 있는 일을 확인함"
+      },
+      "getSystemStats": { "running": "시스템 통계를 읽는 중", "done": "시스템 통계를 읽음" },
+      "listApps": { "running": "앱 목록을 가져오는 중", "done": "앱 목록을 가져옴" },
+      "appLogs": { "running": "앱 로그를 읽는 중", "done": "앱 로그를 읽음" },
+      "listFileLocations": { "running": "파일 위치 목록을 가져오는 중", "done": "파일 위치 목록을 가져옴" },
+      "listFiles": { "running": "파일 목록을 가져오는 중", "done": "파일 목록을 가져옴" },
+      "readFile": { "running": "파일을 읽는 중", "done": "파일을 읽음" },
+      "writeFile": { "running": "파일을 쓰는 중", "done": "파일을 씀" },
+      "editFile": { "running": "파일을 편집하는 중", "done": "파일을 편집함" },
+      "listDirectory": { "running": "폴더 목록을 가져오는 중", "done": "폴더 목록을 가져옴" },
+      "createDirectory": { "running": "폴더를 만드는 중", "done": "폴더를 만듦" },
+      "searchStore": { "running": "앱 스토어를 검색하는 중", "done": "앱 스토어를 검색함" },
+      "readToolResult": { "running": "저장된 도구 결과를 읽는 중", "done": "저장된 도구 결과를 읽음" },
+      "askUserQuestion": { "running": "답변을 기다리는 중", "done": "질문함" },
+      "advisor": { "running": "조언자에게 묻는 중", "done": "조언자에게 물음" },
+      "runWorkflow": {
+        "running": "도우미들이 함께 정보를 찾는 중",
+        "done": "도우미들이 함께 정보를 찾았어요"
+      },
+      "getStoreApp": { "running": "스토어 앱을 읽는 중", "done": "스토어 앱을 읽음" },
+      "listPackageManagers": { "running": "패키지 관리자 목록을 가져오는 중", "done": "패키지 관리자 목록을 가져옴" },
+      "searchPackages": { "running": "패키지를 검색하는 중", "done": "패키지를 검색함" },
+      "listUpgradablePackages": {
+        "running": "패키지 업데이트를 확인하는 중",
+        "done": "패키지 업데이트를 확인함"
+      }
+    }
+  },
+  "question": {
+    "title": "질문",
+    "asks": "어시스턴트의 질문: {{title}}",
+    "intro": "어시스턴트가 계속하기 전에 묻고 있어요. 비밀번호나 키는 절대 답변에 입력하지 마세요.",
+    "ownAnswerLabel": "{{header}}에 대한 직접 입력한 답변",
+    "ownAnswerPlaceholder": "또는 직접 답변 입력",
+    "skip": "건너뛰기",
+    "send": "답변 보내기",
+    "skippedGoOn": "건너뛰었어요. 계속하려면 다른 카드에도 답하세요.",
+    "answeredGoOn": "답변했어요. 계속하려면 다른 카드에도 답하세요.",
+    "youAnswered": "내 답변: {{answers}}",
+    "youSkipped": "질문을 건너뛰었어요"
+  }
+}
