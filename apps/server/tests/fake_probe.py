@@ -47,6 +47,9 @@ class FakeProbe(Probe):
     def is_root(self) -> bool:
         return self.root
 
+    def is_admin(self) -> bool:
+        return self.root
+
     def ancestry(self) -> list[tuple[int, str]]:
         return list(self.processes)
 

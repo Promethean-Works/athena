@@ -1,5 +1,7 @@
 """SMB shares: detection, the Samba service, and the /api/shares/smb API."""
 
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -13,6 +15,7 @@ from athena.files import smb
 from athena.files.netshare import ShareReloadFailed
 from athena.files.paths import BadPath, NotFound
 from athena.platform.detect import detect
+from athena.platform.probe import Probe
 
 SHARE_NAME = "photos"
 
@@ -45,7 +48,18 @@ def test_macos_not_root_needs_privilege() -> None:
     assert caps(probe)["shares.smb"].status == "needs_privilege"
 
 
-def test_windows_is_unsupported_for_now() -> None:
+def test_windows_as_admin_is_ready_with_smbshare() -> None:
+    probe = FakeProbe(os="windows", binaries={"powershell": "C:/ps.exe"}, root=True)
+    c = caps(probe)["shares.smb"]
+    assert (c.status, c.provider) == ("ready", "smbshare")
+
+
+def test_windows_not_admin_needs_privilege() -> None:
+    probe = FakeProbe(os="windows", binaries={"powershell": "C:/ps.exe"})
+    assert caps(probe)["shares.smb"].status == "needs_privilege"
+
+
+def test_hosts_without_the_tools_are_unsupported() -> None:
     assert caps(FakeProbe(os="windows"))["shares.smb"].status == "unsupported"
     assert caps(FakeProbe(os="darwin"))["shares.smb"].status == "unsupported"  # no `sharing`
 
@@ -214,7 +228,7 @@ def test_macos_uses_sharing_to_add_and_remove(
 
 
 def test_macos_failure_is_not_tracked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    def refuse(argv: list[str], action: str) -> None:
+    def refuse(argv: list[str], action: str, env: dict[str, str] | None = None) -> None:
         raise ShareReloadFailed(f"Couldn't {action}: nope")
 
     monkeypatch.setattr("athena.files.netshare.run_command", refuse)
@@ -223,3 +237,69 @@ def test_macos_failure_is_not_tracked(tmp_path: Path, monkeypatch: pytest.Monkey
         with pytest.raises(ShareReloadFailed):
             smb.create_share(session, loc_id, SHARE_NAME, provider="sharing")
         assert smb.list_shares(session) == []
+
+
+def test_windows_uses_new_smbshare_with_name_and_path_in_the_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[tuple[list[str], dict[str, str] | None]] = []
+    monkeypatch.setattr(
+        "athena.files.netshare.run_command",
+        lambda argv, action, env=None: calls.append((argv, env)),
+    )
+    db, loc_id = _seed(tmp_path)
+
+    for session in db.session():
+        entry = smb.create_share(session, loc_id, SHARE_NAME, read_only=True, provider="smbshare")
+        argv, env = calls[-1]
+        assert argv[:4] == ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command"]
+        assert "New-SmbShare" in argv[4] and "-ReadAccess Everyone" in argv[4]
+        assert entry.path not in argv[4] and SHARE_NAME not in argv[4]
+        assert env == {"ATHENA_SHARE_NAME": SHARE_NAME, "ATHENA_SHARE_PATH": entry.path}
+
+        smb.remove_share(session, entry.id, provider="smbshare")
+        argv, env = calls[-1]
+        assert "Remove-SmbShare" in argv[4] and env == {"ATHENA_SHARE_NAME": SHARE_NAME}
+        assert smb.list_shares(session) == []
+
+
+def test_windows_read_write_gets_full_access_and_guests_are_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[list[str]] = []
+    monkeypatch.setattr(
+        "athena.files.netshare.run_command", lambda argv, action, env=None: calls.append(argv)
+    )
+    db, loc_id = _seed(tmp_path)
+    for session in db.session():
+        with pytest.raises(BadPath):
+            smb.create_share(session, loc_id, "g", guest_ok=True, provider="smbshare")
+        assert calls == []
+        smb.create_share(session, loc_id, "rw", provider="smbshare")
+        assert "-FullAccess Everyone" in calls[-1][4]
+
+
+def _is_windows_admin() -> bool:
+    return sys.platform == "win32" and Probe().is_admin()
+
+
+@pytest.mark.skipif(not _is_windows_admin(), reason="needs Windows and an administrator")
+def test_real_windows_share_round_trip(tmp_path: Path) -> None:
+    """Create, see and remove a real SMB share (CI's Windows runner is an administrator)."""
+    name = "athena-test-share"
+    db, loc_id = _seed(tmp_path)
+
+    def listed() -> str:
+        script = "Get-SmbShare | Select-Object -ExpandProperty Name"
+        out = subprocess.run(
+            [*smb.POWERSHELL, script], capture_output=True, text=True, timeout=30, check=True
+        )
+        return out.stdout
+
+    for session in db.session():
+        entry = smb.create_share(session, loc_id, name, read_only=True, provider="smbshare")
+        try:
+            assert name in listed().split()
+        finally:
+            smb.remove_share(session, entry.id, provider="smbshare")
+    assert name not in listed().split()
