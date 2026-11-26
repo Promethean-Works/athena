@@ -111,10 +111,21 @@ export const navMain: NavItem[] = [
   },
 ]
 
-/** True when `pathname` is the item's page or below it ("/" only matches itself). */
-export function isActive(item: NavItem, pathname: string): boolean {
+function matches(item: NavItem, pathname: string): boolean {
   if (item.url === "/") return pathname === "/"
   return pathname.startsWith(item.url.replace(/\/$/, ""))
+}
+
+/** The item for `pathname`: the longest url that matches, so /files/network/ isn't also Files. */
+function best(pathname: string): NavItem | undefined {
+  return [...navMain, ...navSecondary]
+    .filter((item) => !item.external && matches(item, pathname))
+    .sort((x, y) => y.url.length - x.url.length)[0]
+}
+
+/** True when `item` is the most specific nav entry for `pathname`. */
+export function isActive(item: NavItem, pathname: string): boolean {
+  return best(pathname) === item
 }
 
 export const navSecondary: NavItem[] = [
@@ -129,8 +140,5 @@ export const navSecondary: NavItem[] = [
 
 /** Title for the header, from the nav item matching the current path. */
 export function titleForPath(pathname: string): string {
-  const match = [...navMain, ...navSecondary].find(
-    (item) => !item.external && isActive(item, pathname)
-  )
-  return match?.title ?? "Athena"
+  return best(pathname)?.title ?? "Athena"
 }
