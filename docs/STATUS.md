@@ -8,6 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
+- i18n (`docs/specs/i18n.md`): in one PR. Next: native review of the Portuguese, browser-check populated pages, stable API error codes (to translate server messages), the hard-coded-text lint rule.
 - Network shares (`docs/specs/network-shares.md`): parts 1-2 (#304, #307) and 3 (Windows SMB, `feat/shares-windows`) built. Next: part 4 UI; how macOS/Windows get root/admin. Not verified: real mounts.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).
 - Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d done; `schedule` runs in part 4. Part 4 (#256) done. 2d not run against real runtime/volumes.
@@ -15,17 +16,17 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - Settings file (`docs/specs/settings-file.md`): part 1 in review; next, part 2.
 - Agent orchestration (`docs/specs/agent-orchestration.md`): parts 1–2 done. Next: a happy-path trial from `main` (`/orchestrate`, `start --issue-file`), then part 3 (PR, CI watch).
 - Windows E2E flake: `GET /api/containers` sometimes 500s under the service (`WinError 6`, see gotchas/windows.md).
-- M7 D stage 2 follow-up ideas: show delegate tool calls nested; Settings → AI page; warn on small Ollama context; phone waiting question card below plan bar.
+- M7 D stage 2 follow-ups: nest delegate tool calls; warn on small Ollama context; phone waiting-question card below the plan bar.
 - Dashboard follow-ups: touch dragging on phone; app "update available" badge (`AppOut` has no such field).
-- Webhook app restart took 10 min, `GET /api/automation/jobs` hung (Colima slow; rerun 10 s): does a run block the DB?
+- Webhook app restart took 10 min and `GET /api/automation/jobs` hung (slow Colima): does a run block the DB?
 - Agent tooling: after merge, run `node scripts/agents-setup.mjs` (Hermes guard hook, denies, aliases) and `hermes mcp remove github`; approve Hermes hook once.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
 - Not yet verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell through Docker in WSL.
 - Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not yet verified in browser: `/files/smb` (#104), compose variant picker (#109), cloud wizard (#97) and remote cards (#92) with real rclone remote.
-- Catalog smoke test (#169, #172, fixes #173–#176): every store app installed for real on macOS arm64 (Colima); 135/199 passed at first, rest fixed or marked `smoke: skip` (GPU, accounts, 12–16 GB RAM: ragflow, indextts). Next: run `Catalog smoke` workflow for `--all` on amd64/arm64. Logins/real use not verified.
-- Tunnel follow-ups (#150): ngrok service files hold `${NGROK_AUTHTOKEN}` placeholder; Cloudflare quick tunnel tested (macOS); not yet: named tunnels, ngrok, Tailscale, Windows; service files need `/etc/cloudflared/config.yml`.
-- models.dev providers left out (pydantic-ai needs their SDK): watsonx, GitLab, SAP AI Core, gateways. Google Vertex in (`google-vertex`, service-account key; not tried against real Vertex).
+- Catalog smoke test (#169–#176): every store app installed on macOS arm64 (Colima); skips marked `smoke: skip` (GPU, accounts, 12–16 GB RAM). Next: `Catalog smoke` workflow for `--all` on amd64/arm64. Logins/real use not verified.
+- Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested (macOS), not named tunnels, ngrok, Tailscale or Windows.
+- models.dev providers left out (pydantic-ai needs their SDK): watsonx, GitLab, SAP AI Core, gateways. Google Vertex in (service-account key; untried against real Vertex).
 - Raspberry Pi phase-1 memory fix (#265): assistant stack loads on demand (startup RSS ~191 MB, was ~293 MB).
 
 ## Next
