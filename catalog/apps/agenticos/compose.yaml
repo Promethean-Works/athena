@@ -1,0 +1,212 @@
+x-athena:
+  title: AgenticOS
+  description: "Self-hosted platform for AI teammates: shared team chat with agents that use files, code, a browser, RAG and MCP tools, with budgets, approvals and an audit trail."
+  tagline: Open-source AI teammates for your team, on your server.
+  tags: [AI, Agents, MCP, Team]
+  license: Apache-2.0
+  category: ai
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://raw.githubusercontent.com/vstorm-co/agenticos/main/desktop/src-tauri/app-icon.svg
+  homepage: https://github.com/vstorm-co/agenticos
+  web_port: WEB_PORT
+  notes: >-
+    Sign in with the owner email and password below. Add a model provider key in the form (or later in the
+    console) so agents can answer. This installs the core stack only: the browser, code sandbox and object-storage
+    add-ons from the upstream project are left out. Needs about 8 GB of RAM (4 vCPU). Set "Server address" to the host
+    name or IP you open Athena from (not localhost) if you use it from other devices.
+    The owner account is created by a one-off `bootstrap` container on first start; if it didn't run, check its log.
+  features:
+    - Shared chat where people and agents work in the same room
+    - Agents with files, RAG, MCP tools and subagents
+    - Works with OpenAI, Anthropic, Google, OpenRouter and local models
+    - Budgets, approvals and an audit trail
+    - Built on Pydantic AI, Apache-2.0
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8245"
+    - key: API_PORT
+      label: API port
+      type: port
+      description: The web app talks to the API from your browser, so this port must be reachable too.
+      default: "8246"
+    - key: SERVER_HOST
+      label: Server address
+      description: Host name or IP you open this app from.
+      default: localhost
+    - key: ADMIN_EMAIL
+      label: Owner email
+      default: admin@example.com
+    - key: ADMIN_PASSWORD
+      label: Owner password
+      type: password
+      generate: secret
+    - key: ORG_NAME
+      label: Organization name
+      default: Home
+    - key: PROVIDER
+      label: Model provider
+      type: select
+      options: [none, openai, anthropic, google, openrouter]
+      default: none
+    - key: PROVIDER_API_KEY
+      label: Provider API key
+      description: Stored encrypted in the app's database. Leave empty to add it later.
+      type: password
+      required: false
+    - key: SECRET_KEY
+      label: Secret key
+      type: password
+      generate: hex32
+      advanced: true
+    - key: VAULT_MASTER_KEY
+      label: Vault master key
+      description: Encrypts stored provider keys. Don't change it after first start.
+      type: password
+      generate: hex32
+      advanced: true
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
+    - key: GATEWAY_TOKEN
+      label: Subscription gateway token
+      type: password
+      generate: secret
+      advanced: true
+
+x-backend-env: &backend-env
+  ENVIRONMENT: local
+  POSTGRES_HOST: db
+  POSTGRES_USER: agenticos
+  POSTGRES_PASSWORD: ${DB_PASSWORD}
+  POSTGRES_DB: agenticos
+  REDIS_HOST: redis
+  SECRET_KEY: ${SECRET_KEY}
+  VAULT_MASTER_KEY: ${VAULT_MASTER_KEY}
+  SUBSCRIPTION_GATEWAY_URL: http://subscription-gateway:8400
+  SUBSCRIPTION_GATEWAY_TOKEN: ${GATEWAY_TOKEN}
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agenticos
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: agenticos
+    volumes:
+      - ${ATHENA_APP_DATA}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agenticos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  redis:
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    command: valkey-server --save ''
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  migrate:
+    image: ghcr.io/vstorm-co/agenticos-backend:1.93.0
+    command: agenticos db upgrade
+    restart: "no"
+    environment: *backend-env
+    depends_on:
+      db:
+        condition: service_healthy
+  app:
+    image: ghcr.io/vstorm-co/agenticos-backend:1.93.0
+    restart: unless-stopped
+    stop_grace_period: 40s
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1 --timeout-worker-healthcheck 60 --ws websockets-sansio
+    ports:
+      - "${API_PORT}:8000"
+    environment: *backend-env
+    volumes:
+      - ${ATHENA_APP_DATA}/media:/app/media
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+  worker:
+    image: ghcr.io/vstorm-co/agenticos-backend:1.93.0
+    restart: unless-stopped
+    stop_grace_period: 45s
+    command: python -m app.worker
+    environment: *backend-env
+    volumes:
+      - ${ATHENA_APP_DATA}/media:/app/media
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+  subscription-gateway:
+    image: ghcr.io/vstorm-co/agenticos-backend:1.93.0
+    restart: unless-stopped
+    init: true
+    command: python -m app.subscription_gateway
+    environment:
+      SUBSCRIPTION_GATEWAY_TOKEN: ${GATEWAY_TOKEN}
+    volumes:
+      - ${ATHENA_APP_DATA}/subscription-gateway:/data/subscription-gateway
+  bootstrap:
+    image: ghcr.io/vstorm-co/agenticos-backend:1.93.0
+    restart: "no"
+    environment:
+      <<: *backend-env
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ORG_NAME: ${ORG_NAME}
+      PROVIDER: ${PROVIDER}
+      BOOTSTRAP_API_KEY: ${PROVIDER_API_KEY}
+    command:
+      - sh
+      - -c
+      - |
+        if [ "$$PROVIDER" = none ]; then
+          agenticos cmd bootstrap --email "$$ADMIN_EMAIL" --password "$$ADMIN_PASSWORD" --org "$$ORG_NAME" || true
+        else
+          agenticos cmd bootstrap --email "$$ADMIN_EMAIL" --password "$$ADMIN_PASSWORD" --org "$$ORG_NAME" --provider "$$PROVIDER" || true
+        fi
+    depends_on:
+      app:
+        condition: service_healthy
+  frontend:
+    image: ghcr.io/vstorm-co/agenticos-frontend:1.93.0
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      BACKEND_URL: http://app:8000
+      PUBLIC_API_URL: http://${SERVER_HOST}:${API_PORT}
+      PUBLIC_WS_URL: ws://${SERVER_HOST}:${API_PORT}
+      PUBLIC_SITE_URL: http://${SERVER_HOST}:${WEB_PORT}
+      DIAGNOSTICS_ENABLED: "false"
+      OAUTH_PROVIDERS: ""
+    ports:
+      - "${WEB_PORT}:3000"
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
