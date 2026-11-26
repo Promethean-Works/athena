@@ -4,6 +4,8 @@ import * as React from "react"
 import Link from "next/link"
 import {
   EllipsisVerticalIcon,
+  ExternalLinkIcon,
+  InfoIcon,
   LayoutGridIcon,
   PlayIcon,
   RefreshCcwIcon,
@@ -19,7 +21,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
@@ -28,6 +29,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
@@ -41,12 +43,20 @@ import {
 } from "@workspace/ui/components/empty"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 
-import { AppStatusBadge, DeleteAppDialog, OpenLinks } from "@/components/apps/app-bits"
+import { AppStatusBadge, DeleteAppDialog, webPorts } from "@/components/apps/app-bits"
 import { useAppJobs } from "@/components/apps/use-app-jobs"
 import { useAppsList } from "@/components/apps/use-apps-list"
 import { isAllowed, useCapabilities } from "@/components/capabilities-provider"
 import { RuntimeEmpty } from "@/components/containers/runtime-empty"
+import { cn } from "@workspace/ui/lib/utils"
 import { AppIcon } from "@/components/store/app-icon"
+
+const STATUS_LABEL: Record<string, string> = {
+  running: "Running",
+  partial: "Partly running",
+  stopped: "Stopped",
+  not_deployed: "Not deployed",
+}
 
 function AppsList() {
   const { apps, error, load } = useAppsList()
@@ -59,9 +69,9 @@ function AppsList() {
   }
   if (!apps) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2">
         {[0, 1, 2].map((i) => (
-          <Skeleton key={i} className="h-36 w-full" />
+          <Skeleton key={i} className="h-28 w-full" />
         ))}
       </div>
     )
@@ -93,89 +103,157 @@ function AppsList() {
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {apps.map((app) => (
-          <Card key={app.name}>
-            <CardHeader>
-              <CardTitle className="flex min-w-0 items-center gap-2">
-                <AppIcon
-                  title={app.title ?? app.name}
-                  icon={app.icon}
-                  className="size-6"
-                />
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2">
+        {apps.map((app) => {
+          const running = app.status === "running"
+          const port = webPorts(app)[0]
+          const label = app.title ?? app.name
+          const info = `${label} · ${STATUS_LABEL[app.status] ?? app.status} · ${
+            app.total === 1 ? "1 container" : `${app.total} containers`
+          }`
+          const icon = (
+            <>
+              <AppIcon title={label} icon={app.icon} className="size-14" />
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute right-1 bottom-1 size-3 rounded-full ring-2 ring-background",
+                  running
+                    ? "bg-emerald-500"
+                    : app.status === "partial"
+                      ? "bg-amber-500"
+                      : "bg-muted-foreground/50",
+                )}
+              />
+            </>
+          )
+          return (
+            <div
+              key={app.name}
+              className="group relative flex flex-col items-center gap-1.5 rounded-xl p-2 text-center hover:bg-muted/50"
+            >
+              {running && port ? (
+                <a
+                  href={`${window.location.protocol}//${window.location.hostname}:${port}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={info}
+                  className="relative rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  {icon}
+                </a>
+              ) : (
                 <Link
                   href={`/apps/view/?name=${encodeURIComponent(app.name)}`}
-                  className="truncate hover:underline"
+                  title={info}
+                  className="relative rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
-                  {app.name}
+                  {icon}
                 </Link>
-              </CardTitle>
-              <CardDescription>
-                {app.total === 1 ? "1 container" : `${app.total} containers`}
-                {app.source === "docker-run" ? " · from docker run" : ""}
-              </CardDescription>
-              <CardAction>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={<Button variant="ghost" size="icon" />}
-                  >
-                    <EllipsisVerticalIcon />
-                    <span className="sr-only">Actions for {app.name}</span>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="min-w-44">
-                    <DropdownMenuGroup>
-                      {app.status === "running" ? (
-                        <>
-                          <DropdownMenuItem
-                            onClick={() => void jobs.action(app.name, "restart").then(load)}
-                          >
-                            <RotateCwIcon />
-                            Restart
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => void jobs.action(app.name, "stop").then(load)}
-                          >
-                            <SquareIcon />
-                            Stop
-                          </DropdownMenuItem>
-                        </>
-                      ) : (
+              )}
+              <span className="w-full truncate text-sm font-medium" title={info}>
+                {label}
+              </span>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100 [@media(hover:none)]:opacity-100"
+                    />
+                  }
+                >
+                  <EllipsisVerticalIcon />
+                  <span className="sr-only">Actions for {app.name}</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-48">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-foreground">
+                        {label}
+                      </span>
+                      <span className="flex flex-wrap items-center gap-1.5 font-normal">
+                        <AppStatusBadge app={app} />
+                        {app.total === 1 ? "1 container" : `${app.total} containers`}
+                        {app.source === "docker-run" ? " · docker run" : ""}
+                      </span>
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    {running &&
+                      webPorts(app).map((p) => (
                         <DropdownMenuItem
-                          onClick={() => void jobs.action(app.name, "start").then(load)}
+                          key={p}
+                          render={
+                            <a
+                              href={`${window.location.protocol}//${window.location.hostname}:${p}`}
+                              target="_blank"
+                              rel="noreferrer"
+                            />
+                          }
                         >
-                          <PlayIcon />
-                          Start
+                          <ExternalLinkIcon />
+                          {webPorts(app).length > 1 ? `Open :${p}` : "Open"}
                         </DropdownMenuItem>
-                      )}
+                      ))}
+                    <DropdownMenuItem
+                      render={
+                        <Link href={`/apps/view/?name=${encodeURIComponent(app.name)}`} />
+                      }
+                    >
+                      <InfoIcon />
+                      Details
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    {running ? (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => void jobs.action(app.name, "restart").then(load)}
+                        >
+                          <RotateCwIcon />
+                          Restart
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => void jobs.action(app.name, "stop").then(load)}
+                        >
+                          <SquareIcon />
+                          Stop
+                        </DropdownMenuItem>
+                      </>
+                    ) : (
                       <DropdownMenuItem
-                        onClick={() => void jobs.action(app.name, "update").then(load)}
+                        onClick={() => void jobs.action(app.name, "start").then(load)}
                       >
-                        <RefreshCcwIcon />
-                        Update images
+                        <PlayIcon />
+                        Start
                       </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => setRemoving(app.name)}
-                      >
-                        <Trash2Icon />
-                        Remove
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className="mt-auto flex flex-wrap items-center gap-2">
-              <AppStatusBadge app={app} />
-              <div className="ml-auto flex flex-wrap gap-2">
-                <OpenLinks app={app} />
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
+                    )}
+                    <DropdownMenuItem
+                      onClick={() => void jobs.action(app.name, "update").then(load)}
+                    >
+                      <RefreshCcwIcon />
+                      Update images
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => setRemoving(app.name)}
+                    >
+                      <Trash2Icon />
+                      Remove
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )
+        })}
       </div>
       <DeleteAppDialog
         name={removing}
