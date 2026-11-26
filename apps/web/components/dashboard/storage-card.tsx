@@ -1,6 +1,17 @@
 "use client"
 
-import { HardDriveIcon, ThermometerIcon } from "lucide-react"
+import * as React from "react"
+import Link from "next/link"
+import {
+  CloudIcon,
+  FolderIcon,
+  HardDriveIcon,
+  ServerIcon,
+  ThermometerIcon,
+} from "lucide-react"
+
+import { api } from "@workspace/api-client"
+import { Badge } from "@workspace/ui/components/badge"
 
 import {
   Card,
@@ -16,12 +27,94 @@ import {
 } from "@workspace/ui/components/progress"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 
+import { useCapabilities } from "@/components/capabilities-provider"
+import { useRemotes } from "@/components/cloud/use-remotes"
+import type { Location } from "@/components/files/file-utils"
 import { useHostStats } from "@/components/dashboard/host-stats-provider"
 import { formatBytes } from "@/lib/format"
 
-/** Usage per disk the user manages (system volumes and snaps are filtered by the server). */
+type SmbShare = {
+  id: number
+  name: string
+  location_name: string
+  read_only: boolean
+}
+
+function Section({
+  icon: Icon,
+  title,
+  href,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  href: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-2 border-t pt-3">
+      <Link
+        href={href}
+        className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+      >
+        <Icon className="size-3.5" />
+        {title}
+      </Link>
+      <ul className="flex flex-col gap-1.5 text-sm">{children}</ul>
+    </div>
+  )
+}
+
+function Row({
+  name,
+  detail,
+  badge,
+}: {
+  name: string
+  detail?: string
+  badge?: string
+}) {
+  return (
+    <li className="flex min-w-0 items-center gap-2">
+      <span className="min-w-0 truncate" title={detail}>
+        {name}
+      </span>
+      {detail ? (
+        <span className="min-w-0 truncate text-xs text-muted-foreground">
+          {detail}
+        </span>
+      ) : null}
+      {badge ? (
+        <Badge variant="outline" className="ml-auto shrink-0">
+          {badge}
+        </Badge>
+      ) : null}
+    </li>
+  )
+}
+
+/** Everything configured as storage: disks, file locations, cloud remotes, SMB shares. */
 export function StorageCard() {
   const { host } = useHostStats()
+  const { manifest } = useCapabilities()
+  const { remotes } = useRemotes()
+  const [locations, setLocations] = React.useState<Location[]>([])
+  const [smb, setSmb] = React.useState<SmbShare[]>([])
+  const smbReady =
+    manifest?.capabilities.find((c) => c.id === "shares.smb")?.status ===
+    "ready"
+
+  React.useEffect(() => {
+    void api.GET("/api/files/locations").then(({ data }) => {
+      if (data) setLocations(data)
+    })
+  }, [])
+  React.useEffect(() => {
+    if (!smbReady) return
+    void api.GET("/api/shares/smb").then(({ data }) => {
+      if (data) setSmb(data)
+    })
+  }, [smbReady])
   return (
     <Card>
       <CardHeader>
@@ -29,7 +122,7 @@ export function StorageCard() {
           <HardDriveIcon className="size-4 text-muted-foreground" />
           Storage
         </CardTitle>
-        <CardDescription>Space used on each disk</CardDescription>
+        <CardDescription>Disks, folders, cloud and network shares</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {!host ? (
@@ -55,6 +148,37 @@ export function StorageCard() {
             </Progress>
           ))
         )}
+        {locations.length > 0 ? (
+          <Section icon={FolderIcon} title="Folders" href="/files/">
+            {locations.map((l) => (
+              <Row
+                key={l.id}
+                name={l.name}
+                detail={l.path}
+                badge={!l.available ? "Unavailable" : undefined}
+              />
+            ))}
+          </Section>
+        ) : null}
+        {remotes && remotes.length > 0 ? (
+          <Section icon={CloudIcon} title="Cloud storage" href="/cloud/">
+            {remotes.map((r) => (
+              <Row key={r.name} name={r.name} detail={r.type} />
+            ))}
+          </Section>
+        ) : null}
+        {smb.length > 0 ? (
+          <Section icon={ServerIcon} title="Network shares" href="/files/smb/">
+            {smb.map((x) => (
+              <Row
+                key={x.id}
+                name={x.name}
+                detail={x.location_name}
+                badge={x.read_only ? "Read-only" : undefined}
+              />
+            ))}
+          </Section>
+        ) : null}
       </CardContent>
     </Card>
   )
