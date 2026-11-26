@@ -6,7 +6,7 @@ A static site (plain HTML and CSS, no build step, no dependencies). Open `index.
 cd site && python3 -m http.server 8422
 ```
 
-It can be published as is on GitHub Pages (set the Pages source to the `site` folder or a workflow that uploads it) or any static host. The screenshots in `assets/` are copies of `docs/user-guide/images/`; keep them in step. Documentation links point at the guide on GitHub.
+`.github/workflows/pages.yml` publishes it to GitHub Pages (https://promethean-works.github.io/athena/) on every push to `main` that touches `site/`, the guide or the build script; it rebuilds the docs pages first. It also works on any static host. The screenshots in `assets/` are copies of `docs/user-guide/images/`; keep them in step. Documentation links point at the guide on GitHub.
 
 ## Documentation pages
 
