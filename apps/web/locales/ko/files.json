@@ -70,7 +70,8 @@
     "link": "링크",
     "truncated_other": "처음 {{n}}개 항목만 표시돼요.",
     "renameTitle": "{{name}} 이름 바꾸기",
-    "create": "만들기"
+    "create": "만들기",
+    "shareFolder": "폴더 공유"
   },
   "preview": {
     "cantOpen": "여기서는 이 파일을 열 수 없어요",
@@ -149,7 +150,16 @@
     "passwordOptional": "비밀번호 (선택 사항)",
     "expires": "만료",
     "allLinks": "모든 링크",
-    "create": "링크 만들기"
+    "create": "링크 만들기",
+    "tabLink": "링크",
+    "tabNetwork": "네트워크",
+    "networkDescription": "이 폴더를 네트워크의 다른 컴퓨터와 공유합니다.",
+    "networkRootOnly": "네트워크로는 파일 위치 전체만 공유할 수 있습니다. 위치의 최상위 폴더를 여세요.",
+    "networkFolderOnly": "네트워크로는 폴더만 공유할 수 있습니다.",
+    "mountUnavailable": "이 컴퓨터에서는 아직 클라우드 폴더를 공유할 수 없습니다",
+    "mountDescription": "공유하기 전에 Athena가 이 클라우드 폴더를 이 컴퓨터에 마운트해야 합니다. 클라우드 저장소는 디스크보다 느려서 공유를 여는 모든 사람에게 영향을 줍니다.",
+    "mountReadOnly": "읽기 전용(권장)",
+    "mountAction": "마운트 후 공유"
   },
   "sharesView": {
     "files": "파일",
@@ -191,11 +201,6 @@
     "removeFailed": "삭제할 수 없어요",
     "removed": "SMB 공유를 삭제했어요",
     "files": "파일",
-    "title": "SMB 공유",
-    "unsupportedTitle": "이 컴퓨터에서는 SMB 공유를 사용할 수 없어요",
-    "unsupportedDescription": "Athena에서 SMB 공유를 만드는 기능은 아직 macOS와 Windows에 연결되어 있지 않아요. Linux에서는 Samba(<code>apt install samba</code>)를 설치하면 여기에서 사용할 수 있어요.",
-    "notSetUpTitle": "SMB 공유가 아직 설정되지 않았어요",
-    "notSetUpDescription": "이 호스트에 Samba 서버를 설치하면 공유를 \\\\\\\\server\\\\share 형식으로 네트워크에 게시할 수 있어요.",
     "createShare": "공유 만들기",
     "emptyTitle": "SMB 공유가 없어요",
     "emptyDescription": "공유를 만들어 파일 위치를 네트워크에 게시하세요.",
@@ -221,5 +226,52 @@
     "yes": "예",
     "no": "아니요",
     "removeShare": "SMB 공유 {{name}} 삭제"
+  },
+  "network": {
+    "title": "네트워크 공유",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "{{kind}} 공유에는 더 많은 권한이 필요합니다",
+      "missing": "{{kind}} 공유가 아직 설정되지 않았습니다",
+      "unsupported": "이 컴퓨터에서는 {{kind}} 공유를 사용할 수 없습니다",
+      "fallback": "이 호스트에서는 Athena로 이 공유를 만들 수 없습니다."
+    },
+    "nfs": {
+      "created": "NFS 공유를 만들었습니다",
+      "confirmRemove": "이 폴더의 NFS 공유를 중지할까요? 폴더는 그대로 남습니다.",
+      "removed": "NFS 공유를 제거했습니다",
+      "emptyTitle": "NFS 공유 없음",
+      "emptyDescription": "네트워크의 Linux 및 macOS 컴퓨터에 파일 위치를 내보냅니다.",
+      "columnMountFrom": "마운트 원본",
+      "columnClients": "클라이언트",
+      "address": "NFS 주소",
+      "removeShare": "NFS 공유 {{name}} 제거",
+      "dialogTitle": "NFS 공유 만들기",
+      "dialogDescription": "Linux 및 macOS 컴퓨터가 네트워크로 파일 위치를 마운트할 수 있게 합니다.",
+      "noPasswordsTitle": "NFS에는 비밀번호가 없습니다",
+      "noPasswordsDescription": "접근은 컴퓨터 주소로 결정되므로 신뢰하는 컴퓨터와 네트워크만 나열하세요.",
+      "whoMayMount": "마운트할 수 있는 대상",
+      "clientsHint": "IP 주소, 192.168.1.0/24 같은 네트워크 또는 호스트 이름을 쉼표로 구분해 입력하세요.",
+      "clientsRequired": "마운트를 허용할 클라이언트를 하나 이상 입력하세요",
+      "confirmEverywhere": "이 네트워크는 모든 주소를 포함합니다. 이 컴퓨터에 접속할 수 있는 누구나 폴더를 마운트할 수 있습니다. 계속할까요?"
+    },
+    "pickFolder": "공유할 폴더를 선택하세요",
+    "nameRequired": "공유 이름을 입력하세요",
+    "copy": "{{label}} 복사",
+    "copied": "{{label}} 복사됨",
+    "copyFailed": "복사하지 못했습니다",
+    "smbAddress": "공유 주소",
+    "password": {
+      "label": "컴퓨터 비밀번호",
+      "hint": "이 변경을 위해 한 번만 필요합니다. Athena는 저장하지 않습니다.",
+      "required": "컴퓨터 비밀번호를 입력하세요",
+      "systemHint": "컴퓨터가 관리자로서 승인을 요청합니다."
+    },
+    "remove": {
+      "title": "공유 제거",
+      "action": "제거"
+    },
+    "allShares": "모든 네트워크 공유"
   }
 }

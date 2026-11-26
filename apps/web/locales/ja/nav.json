@@ -5,7 +5,7 @@
   "packages": "パッケージ",
   "automation": "オートメーション",
   "files": "ファイル",
-  "smbShares": "SMB 共有",
+  "networkShares": "ネットワーク共有",
   "cloud": "クラウド",
   "containers": "コンテナ",
   "terminal": "ターミナル",

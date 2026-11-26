@@ -1,5 +1,6 @@
 """NFS shares: detection, the exports file, and the /api/shares/nfs API."""
 
+import dataclasses
 import os
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from athena.files import nfs
 from athena.files.netshare import ShareReloadFailed
 from athena.files.paths import BadPath, NotFound
 from athena.platform.detect import detect
+from athena.platform.store import CapabilityStore
 
 # ---------------------------------------------------------------- detection
 
@@ -246,3 +248,45 @@ def test_macos_refuses_quotes_in_the_path(tmp_path: Path) -> None:
             nfs.create_share(
                 session, loc.id, ["10.0.0.1"], flavor=nfs.MACOS, exports=exports, reload=_noop
             )
+
+
+def _ready_host(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
+    """A Linux host where Samba and NFS are ready, with the exports file in tmp_path."""
+    probe = FakeProbe(
+        binaries={"smbd": "/usr/sbin/smbd", "exportfs": "/usr/sbin/exportfs"}, root=True
+    )
+    monkeypatch.setattr(
+        "athena.files.nfs.LINUX",
+        dataclasses.replace(nfs.LINUX, exports=tmp_path / "athena.exports", reload=_noop),
+    )
+    store = CapabilityStore(detector=lambda: detect(probe))
+    return TestClient(make_app(tmp_path, store=store))
+
+
+def test_api_errors_come_back_as_their_own_status(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A refused share must answer with its message, not a 500 (the routes once caught
+    an exception class their module no longer exported)."""
+    with _ready_host(tmp_path, monkeypatch) as client:
+        signed_in(client)
+        (tmp_path / "media").mkdir()
+        res = client.post(
+            "/api/files/locations", json={"name": "Media", "path": str(tmp_path / "media")}
+        )
+        location = res.json()["id"]
+
+        res = client.post("/api/shares/nfs", json={"location": location, "clients": ["host!"]})
+        assert res.status_code == 400 and "host!" in res.json()["detail"]
+        res = client.post("/api/shares/nfs", json={"location": 999, "clients": ["10.0.0.1"]})
+        assert res.status_code == 404
+        res = client.post("/api/shares/smb", json={"location": 999, "name": "media"})
+        assert res.status_code == 404
+
+        ok = client.post("/api/shares/nfs", json={"location": location, "clients": ["10.0.0.0/24"]})
+        assert ok.status_code == 201, ok.text
+        again = client.post("/api/shares/nfs", json={"location": location, "clients": ["10.0.0.1"]})
+        assert again.status_code == 409
+        assert [s["id"] for s in client.get("/api/shares/nfs").json()] == [ok.json()["id"]]
+        assert client.delete(f"/api/shares/nfs/{ok.json()['id']}").status_code == 204
+        assert client.get("/api/shares/nfs").json() == []

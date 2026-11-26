@@ -70,7 +70,8 @@
     "link": "連結",
     "truncated_other": "僅顯示前 {{n}} 個項目。",
     "renameTitle": "重新命名 {{name}}",
-    "create": "建立"
+    "create": "建立",
+    "shareFolder": "共用資料夾"
   },
   "preview": {
     "cantOpen": "無法在這裡開啟此檔案",
@@ -149,7 +150,16 @@
     "passwordOptional": "密碼（選填）",
     "expires": "過期時間",
     "allLinks": "所有連結",
-    "create": "建立連結"
+    "create": "建立連結",
+    "tabLink": "連結",
+    "tabNetwork": "網路",
+    "networkDescription": "與網路上的其他電腦共用此資料夾。",
+    "networkRootOnly": "網路上只能共用整個檔案位置。請開啟該位置的最上層資料夾。",
+    "networkFolderOnly": "網路上只能共用資料夾。",
+    "mountUnavailable": "目前無法從這台電腦共用雲端資料夾",
+    "mountDescription": "共用前，Athena 需要先把這個雲端資料夾掛載到這台電腦上。雲端儲存比磁碟慢，所有開啟共用的人都會感受到。",
+    "mountReadOnly": "唯讀（建議）",
+    "mountAction": "掛載並共用"
   },
   "sharesView": {
     "files": "檔案",
@@ -191,11 +201,6 @@
     "removeFailed": "無法移除",
     "removed": "已移除 SMB 分享",
     "files": "檔案",
-    "title": "SMB 分享",
-    "unsupportedTitle": "此電腦無法使用 SMB 分享",
-    "unsupportedDescription": "從 Athena 建立 SMB 分享的功能在 macOS 或 Windows 上尚未串接。在 Linux 上，請安裝 Samba（<code>apt install samba</code>），Athena 就會在這裡提供此功能。",
-    "notSetUpTitle": "尚未設定 SMB 分享",
-    "notSetUpDescription": "在此主機上安裝 Samba 伺服器後，即可透過網路以 \\\\\\\\server\\\\share 的形式發布分享。",
     "createShare": "建立分享",
     "emptyTitle": "沒有 SMB 分享",
     "emptyDescription": "建立分享，將檔案位置發布到網路上。",
@@ -221,5 +226,52 @@
     "yes": "是",
     "no": "否",
     "removeShare": "移除 SMB 分享 {{name}}"
+  },
+  "network": {
+    "title": "網路分享",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "{{kind}} 分享需要更多權限",
+      "missing": "{{kind}} 分享尚未設定",
+      "unsupported": "此電腦無法使用 {{kind}} 分享",
+      "fallback": "此主機無法透過 Athena 建立這些分享。"
+    },
+    "nfs": {
+      "created": "已建立 NFS 分享",
+      "confirmRemove": "停止透過 NFS 分享此資料夾？資料夾會保留。",
+      "removed": "已移除 NFS 分享",
+      "emptyTitle": "沒有 NFS 分享",
+      "emptyDescription": "將檔案位置匯出給網路中的 Linux 和 macOS 電腦。",
+      "columnMountFrom": "掛載來源",
+      "columnClients": "用戶端",
+      "address": "NFS 位址",
+      "removeShare": "移除 NFS 分享 {{name}}",
+      "dialogTitle": "建立 NFS 分享",
+      "dialogDescription": "允許 Linux 和 macOS 電腦透過網路掛載檔案位置。",
+      "noPasswordsTitle": "NFS 沒有密碼",
+      "noPasswordsDescription": "存取由電腦位址決定，因此只列出你信任的裝置和網路。",
+      "whoMayMount": "誰可以掛載",
+      "clientsHint": "IP 位址、如 192.168.1.0/24 的網路或主機名稱，以逗號分隔。",
+      "clientsRequired": "請至少列出一個可以掛載的用戶端",
+      "confirmEverywhere": "該網路包含所有位址。任何連得到這台電腦的人都可以掛載該資料夾。要繼續嗎？"
+    },
+    "pickFolder": "請選擇要分享的資料夾",
+    "nameRequired": "請為分享命名",
+    "copy": "複製{{label}}",
+    "copied": "已複製{{label}}",
+    "copyFailed": "無法複製",
+    "smbAddress": "分享位址",
+    "password": {
+      "label": "電腦密碼",
+      "hint": "此變更需要輸入一次。Athena 不會儲存。",
+      "required": "請輸入電腦密碼",
+      "systemHint": "電腦會要求你以系統管理員身分確認。"
+    },
+    "remove": {
+      "title": "移除共用",
+      "action": "移除"
+    },
+    "allShares": "所有網路共用"
   }
 }

@@ -70,7 +70,8 @@
     "link": "liên kết",
     "truncated_other": "Chỉ hiển thị {{n}} mục đầu tiên.",
     "renameTitle": "Đổi tên {{name}}",
-    "create": "Tạo"
+    "create": "Tạo",
+    "shareFolder": "Chia sẻ thư mục"
   },
   "preview": {
     "cantOpen": "Không thể mở tệp này tại đây",
@@ -149,7 +150,16 @@
     "passwordOptional": "Mật khẩu (tùy chọn)",
     "expires": "Hết hạn",
     "allLinks": "Tất cả liên kết",
-    "create": "Tạo liên kết"
+    "create": "Tạo liên kết",
+    "tabLink": "Liên kết",
+    "tabNetwork": "Mạng",
+    "networkDescription": "Chia sẻ thư mục này với các máy tính khác trong mạng của bạn.",
+    "networkRootOnly": "Chỉ có thể chia sẻ cả một vị trí tệp qua mạng. Hãy mở thư mục gốc của vị trí đó.",
+    "networkFolderOnly": "Chỉ có thể chia sẻ thư mục qua mạng.",
+    "mountUnavailable": "Chưa thể chia sẻ thư mục đám mây từ máy tính này",
+    "mountDescription": "Athena phải gắn (mount) thư mục đám mây này vào máy tính trước khi chia sẻ. Bộ nhớ đám mây chậm hơn ổ đĩa với mọi người mở chia sẻ.",
+    "mountReadOnly": "Chỉ đọc (khuyến nghị)",
+    "mountAction": "Gắn và chia sẻ"
   },
   "sharesView": {
     "files": "Tệp",
@@ -191,11 +201,6 @@
     "removeFailed": "Không thể gỡ",
     "removed": "Đã gỡ chia sẻ SMB",
     "files": "Tệp",
-    "title": "Chia sẻ SMB",
-    "unsupportedTitle": "Chia sẻ SMB không khả dụng trên máy tính này",
-    "unsupportedDescription": "Việc tạo chia sẻ SMB từ Athena chưa được hỗ trợ trên macOS hoặc Windows. Trên Linux, hãy cài Samba (<code>apt install samba</code>) và Athena sẽ cung cấp tính năng này tại đây.",
-    "notSetUpTitle": "Chưa thiết lập chia sẻ SMB",
-    "notSetUpDescription": "Cài máy chủ Samba trên máy này, sau đó có thể công bố chia sẻ qua mạng dưới dạng \\\\\\\\server\\\\share.",
     "createShare": "Tạo chia sẻ",
     "emptyTitle": "Chưa có chia sẻ SMB",
     "emptyDescription": "Tạo một chia sẻ để công bố một vị trí tệp qua mạng.",
@@ -221,5 +226,52 @@
     "yes": "Có",
     "no": "Không",
     "removeShare": "Gỡ chia sẻ SMB {{name}}"
+  },
+  "network": {
+    "title": "Chia sẻ mạng",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "Chia sẻ {{kind}} cần thêm quyền",
+      "missing": "Chia sẻ {{kind}} chưa được thiết lập",
+      "unsupported": "Chia sẻ {{kind}} không khả dụng trên máy tính này",
+      "fallback": "Máy chủ này không thể tạo các chia sẻ này từ Athena."
+    },
+    "nfs": {
+      "created": "Đã tạo chia sẻ NFS",
+      "confirmRemove": "Dừng chia sẻ thư mục này qua NFS? Thư mục vẫn được giữ lại.",
+      "removed": "Đã xóa chia sẻ NFS",
+      "emptyTitle": "Chưa có chia sẻ NFS",
+      "emptyDescription": "Xuất một vị trí tệp cho các máy Linux và macOS trong mạng của bạn.",
+      "columnMountFrom": "Gắn kết từ",
+      "columnClients": "Máy khách",
+      "address": "địa chỉ NFS",
+      "removeShare": "Xóa chia sẻ NFS {{name}}",
+      "dialogTitle": "Tạo chia sẻ NFS",
+      "dialogDescription": "Cho phép các máy Linux và macOS gắn kết một vị trí tệp qua mạng.",
+      "noPasswordsTitle": "NFS không có mật khẩu",
+      "noPasswordsDescription": "Quyền truy cập được quyết định bởi địa chỉ máy tính, nên chỉ liệt kê các máy và mạng bạn tin cậy.",
+      "whoMayMount": "Ai được gắn kết",
+      "clientsHint": "Địa chỉ IP, mạng như 192.168.1.0/24 hoặc tên máy chủ, cách nhau bằng dấu phẩy.",
+      "clientsRequired": "Liệt kê ít nhất một máy khách được phép gắn kết",
+      "confirmEverywhere": "Mạng đó bao gồm mọi địa chỉ. Bất kỳ ai truy cập được máy tính này đều có thể gắn kết thư mục. Tiếp tục?"
+    },
+    "pickFolder": "Chọn một thư mục để chia sẻ",
+    "nameRequired": "Đặt tên cho chia sẻ",
+    "copy": "Sao chép {{label}}",
+    "copied": "Đã sao chép {{label}}",
+    "copyFailed": "Không thể sao chép",
+    "smbAddress": "địa chỉ chia sẻ",
+    "password": {
+      "label": "Mật khẩu máy tính của bạn",
+      "hint": "Chỉ cần một lần cho thay đổi này. Athena không lưu mật khẩu.",
+      "required": "Nhập mật khẩu máy tính của bạn",
+      "systemHint": "Máy tính sẽ yêu cầu bạn xác nhận với quyền quản trị viên."
+    },
+    "remove": {
+      "title": "Gỡ chia sẻ",
+      "action": "Gỡ"
+    },
+    "allShares": "Tất cả chia sẻ mạng"
   }
 }

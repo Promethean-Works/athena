@@ -209,7 +209,10 @@ def _disposition(kind: str, name: str) -> str:
 
 @router.get("/locations", operation_id="listFileLocations")
 def list_locations(db: DbSession) -> list[LocationOut]:
-    return [_location_out(loc) for loc in locations.all_locations(db)]
+    from athena.cloud.mounts import hidden_location_ids
+
+    hidden = hidden_location_ids(db)
+    return [_location_out(loc) for loc in locations.all_locations(db) if loc.id not in hidden]
 
 
 @router.post("/locations", operation_id="addFileLocation", status_code=status.HTTP_201_CREATED)

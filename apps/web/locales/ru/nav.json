@@ -5,7 +5,7 @@
   "packages": "Пакеты",
   "automation": "Автоматизация",
   "files": "Файлы",
-  "smbShares": "Папки SMB",
+  "networkShares": "Сетевые папки",
   "cloud": "Облако",
   "containers": "Контейнеры",
   "terminal": "Терминал",

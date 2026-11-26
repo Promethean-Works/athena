@@ -74,7 +74,8 @@
     "truncated_one": "Só é mostrada a primeira {{n}} entrada.",
     "truncated_other": "Só são mostradas as primeiras {{n}} entradas.",
     "renameTitle": "Mudar o nome de {{name}}",
-    "create": "Criar"
+    "create": "Criar",
+    "shareFolder": "Partilhar pasta"
   },
   "preview": {
     "cantOpen": "Não é possível abrir este ficheiro aqui",
@@ -154,7 +155,16 @@
     "passwordOptional": "Palavra-passe (opcional)",
     "expires": "Expira",
     "allLinks": "Todas as ligações",
-    "create": "Criar ligação"
+    "create": "Criar ligação",
+    "tabLink": "Ligação",
+    "tabNetwork": "Rede",
+    "networkDescription": "Partilhe esta pasta com outros computadores da sua rede.",
+    "networkRootOnly": "Só é possível partilhar na rede uma localização de ficheiros inteira. Abra a pasta de topo da localização.",
+    "networkFolderOnly": "Só é possível partilhar pastas na rede.",
+    "mountUnavailable": "Ainda não é possível partilhar pastas da nuvem a partir deste computador",
+    "mountDescription": "O Athena precisa de montar esta pasta da nuvem neste computador antes de a partilhar. O armazenamento na nuvem é mais lento do que um disco para todos os que abrirem a partilha.",
+    "mountReadOnly": "Só de leitura (recomendado)",
+    "mountAction": "Montar e partilhar"
   },
   "sharesView": {
     "files": "Ficheiros",
@@ -199,11 +209,6 @@
     "removeFailed": "Não foi possível remover",
     "removed": "Partilha SMB removida",
     "files": "Ficheiros",
-    "title": "Partilhas SMB",
-    "unsupportedTitle": "As partilhas SMB não estão disponíveis neste computador",
-    "unsupportedDescription": "Criar partilhas SMB a partir do Athena ainda não está implementado no macOS nem no Windows. No Linux, instala o Samba (<code>apt install samba</code>) e o Athena oferece-o aqui.",
-    "notSetUpTitle": "As partilhas SMB ainda não estão configuradas",
-    "notSetUpDescription": "Instala o servidor Samba neste anfitrião e depois as partilhas podem ser publicadas na rede como \\\\\\\\servidor\\\\partilha.",
     "createShare": "Criar partilha",
     "emptyTitle": "Sem partilhas SMB",
     "emptyDescription": "Cria uma partilha para publicar uma localização de ficheiros na rede.",
@@ -229,5 +234,52 @@
     "yes": "Sim",
     "no": "Não",
     "removeShare": "Remover partilha SMB {{name}}"
+  },
+  "network": {
+    "title": "Partilhas de rede",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "A partilha {{kind}} precisa de mais permissões",
+      "missing": "A partilha {{kind}} ainda não está configurada",
+      "unsupported": "A partilha {{kind}} não está disponível neste computador",
+      "fallback": "Este anfitrião não pode criar estas partilhas a partir do Athena."
+    },
+    "nfs": {
+      "created": "Partilha NFS criada",
+      "confirmRemove": "Deixar de partilhar esta pasta por NFS? A pasta mantém-se.",
+      "removed": "Partilha NFS removida",
+      "emptyTitle": "Nenhuma partilha NFS",
+      "emptyDescription": "Exporte uma localização de ficheiros para computadores Linux e macOS da sua rede.",
+      "columnMountFrom": "Montar a partir de",
+      "columnClients": "Clientes",
+      "address": "endereço NFS",
+      "removeShare": "Remover a partilha NFS {{name}}",
+      "dialogTitle": "Criar partilha NFS",
+      "dialogDescription": "Permita que computadores Linux e macOS montem uma localização de ficheiros pela rede.",
+      "noPasswordsTitle": "O NFS não tem palavras-passe",
+      "noPasswordsDescription": "O acesso depende do endereço do computador, por isso indique apenas máquinas e redes em que confia.",
+      "whoMayMount": "Quem pode montar",
+      "clientsHint": "Endereços IP, redes como 192.168.1.0/24 ou nomes de anfitrião, separados por vírgulas.",
+      "clientsRequired": "Indique pelo menos um cliente que a possa montar",
+      "confirmEverywhere": "Essa rede inclui todos os endereços. Qualquer pessoa que alcance este computador poderia montar a pasta. Continuar?"
+    },
+    "pickFolder": "Escolha uma pasta para partilhar",
+    "nameRequired": "Dê um nome à partilha",
+    "copy": "Copiar {{label}}",
+    "copied": "{{label}} copiado",
+    "copyFailed": "Não foi possível copiar",
+    "smbAddress": "endereço da partilha",
+    "password": {
+      "label": "A palavra-passe do seu computador",
+      "hint": "Necessária uma vez para esta alteração. O Athena não a guarda.",
+      "required": "Introduza a palavra-passe do seu computador",
+      "systemHint": "O seu computador pedirá que aprove como administrador."
+    },
+    "remove": {
+      "title": "Remover partilha",
+      "action": "Remover"
+    },
+    "allShares": "Todas as partilhas de rede"
   }
 }

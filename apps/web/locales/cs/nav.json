@@ -5,7 +5,7 @@
   "packages": "Balíčky",
   "automation": "Automatizace",
   "files": "Soubory",
-  "smbShares": "Sdílení SMB",
+  "networkShares": "Síťová sdílení",
   "cloud": "Cloud",
   "containers": "Kontejnery",
   "terminal": "Terminál",

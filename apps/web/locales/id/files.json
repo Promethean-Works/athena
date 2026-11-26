@@ -70,7 +70,8 @@
     "link": "tautan",
     "truncated_other": "Hanya {{n}} entri pertama yang ditampilkan.",
     "renameTitle": "Ubah nama {{name}}",
-    "create": "Buat"
+    "create": "Buat",
+    "shareFolder": "Bagikan folder"
   },
   "preview": {
     "cantOpen": "File ini tidak dapat dibuka di sini",
@@ -149,7 +150,16 @@
     "passwordOptional": "Kata sandi (opsional)",
     "expires": "Kedaluwarsa",
     "allLinks": "Semua tautan",
-    "create": "Buat tautan"
+    "create": "Buat tautan",
+    "tabLink": "Tautan",
+    "tabNetwork": "Jaringan",
+    "networkDescription": "Bagikan folder ini ke komputer lain di jaringan Anda.",
+    "networkRootOnly": "Hanya seluruh lokasi berkas yang dapat dibagikan lewat jaringan. Buka folder teratas lokasi tersebut.",
+    "networkFolderOnly": "Hanya folder yang dapat dibagikan lewat jaringan.",
+    "mountUnavailable": "Folder cloud belum dapat dibagikan dari komputer ini",
+    "mountDescription": "Athena harus me-mount folder cloud ini di komputer ini sebelum membagikannya. Penyimpanan cloud lebih lambat daripada disk bagi semua orang yang membuka berbagi.",
+    "mountReadOnly": "Hanya baca (disarankan)",
+    "mountAction": "Mount dan bagikan"
   },
   "sharesView": {
     "files": "File",
@@ -191,11 +201,6 @@
     "removeFailed": "Tidak dapat menghapus",
     "removed": "Berbagi SMB dihapus",
     "files": "File",
-    "title": "Berbagi SMB",
-    "unsupportedTitle": "Berbagi SMB tidak tersedia di komputer ini",
-    "unsupportedDescription": "Membuat berbagi SMB dari Athena belum didukung di macOS atau Windows. Di Linux, pasang Samba (<code>apt install samba</code>) dan Athena akan menawarkannya di sini.",
-    "notSetUpTitle": "Berbagi SMB belum disiapkan",
-    "notSetUpDescription": "Pasang server Samba di host ini, lalu berbagi dapat dipublikasikan melalui jaringan sebagai \\\\\\\\server\\\\share.",
     "createShare": "Buat berbagi",
     "emptyTitle": "Tidak ada berbagi SMB",
     "emptyDescription": "Buat berbagi untuk mempublikasikan lokasi file melalui jaringan.",
@@ -221,5 +226,52 @@
     "yes": "Ya",
     "no": "Tidak",
     "removeShare": "Hapus berbagi SMB {{name}}"
+  },
+  "network": {
+    "title": "Berbagi jaringan",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "Berbagi {{kind}} memerlukan izin lebih",
+      "missing": "Berbagi {{kind}} belum disiapkan",
+      "unsupported": "Berbagi {{kind}} tidak tersedia di komputer ini",
+      "fallback": "Host ini tidak dapat membuat berbagi ini dari Athena."
+    },
+    "nfs": {
+      "created": "Berbagi NFS dibuat",
+      "confirmRemove": "Hentikan berbagi folder ini lewat NFS? Folder tetap ada.",
+      "removed": "Berbagi NFS dihapus",
+      "emptyTitle": "Tidak ada berbagi NFS",
+      "emptyDescription": "Ekspor lokasi berkas ke komputer Linux dan macOS di jaringan Anda.",
+      "columnMountFrom": "Mount dari",
+      "columnClients": "Klien",
+      "address": "alamat NFS",
+      "removeShare": "Hapus berbagi NFS {{name}}",
+      "dialogTitle": "Buat berbagi NFS",
+      "dialogDescription": "Izinkan komputer Linux dan macOS me-mount lokasi berkas melalui jaringan.",
+      "noPasswordsTitle": "NFS tidak memakai kata sandi",
+      "noPasswordsDescription": "Akses ditentukan oleh alamat komputer, jadi cantumkan hanya mesin dan jaringan yang Anda percaya.",
+      "whoMayMount": "Siapa yang boleh mount",
+      "clientsHint": "Alamat IP, jaringan seperti 192.168.1.0/24, atau nama host, dipisahkan koma.",
+      "clientsRequired": "Cantumkan setidaknya satu klien yang boleh me-mount-nya",
+      "confirmEverywhere": "Jaringan itu mencakup semua alamat. Siapa pun yang bisa menjangkau komputer ini dapat me-mount folder. Lanjutkan?"
+    },
+    "pickFolder": "Pilih folder untuk dibagikan",
+    "nameRequired": "Beri nama pada berbagi",
+    "copy": "Salin {{label}}",
+    "copied": "{{label}} disalin",
+    "copyFailed": "Tidak dapat menyalin",
+    "smbAddress": "alamat berbagi",
+    "password": {
+      "label": "Kata sandi komputer Anda",
+      "hint": "Diperlukan sekali untuk perubahan ini. Athena tidak menyimpannya.",
+      "required": "Masukkan kata sandi komputer Anda",
+      "systemHint": "Komputer Anda akan meminta persetujuan sebagai administrator."
+    },
+    "remove": {
+      "title": "Hapus berbagi",
+      "action": "Hapus"
+    },
+    "allShares": "Semua berbagi jaringan"
   }
 }

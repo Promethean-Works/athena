@@ -78,7 +78,8 @@
     "truncated_many": "Vengono mostrate solo le prime {{n}} voci.",
     "truncated_other": "Vengono mostrate solo le prime {{n}} voci.",
     "renameTitle": "Rinomina {{name}}",
-    "create": "Crea"
+    "create": "Crea",
+    "shareFolder": "Condividi cartella"
   },
   "preview": {
     "cantOpen": "Impossibile aprire questo file qui",
@@ -159,7 +160,16 @@
     "passwordOptional": "Password (facoltativa)",
     "expires": "Scadenza",
     "allLinks": "Tutti i link",
-    "create": "Crea link"
+    "create": "Crea link",
+    "tabLink": "Link",
+    "tabNetwork": "Rete",
+    "networkDescription": "Condividi questa cartella con altri computer della tua rete.",
+    "networkRootOnly": "In rete si può condividere solo un'intera posizione di file. Apri la cartella principale della posizione.",
+    "networkFolderOnly": "In rete si possono condividere solo cartelle.",
+    "mountUnavailable": "Le cartelle cloud non possono ancora essere condivise da questo computer",
+    "mountDescription": "Athena deve prima montare questa cartella cloud su questo computer per condividerla. Lo spazio cloud è più lento di un disco per chiunque apra la condivisione.",
+    "mountReadOnly": "Sola lettura (consigliato)",
+    "mountAction": "Monta e condividi"
   },
   "sharesView": {
     "files": "File",
@@ -207,11 +217,6 @@
     "removeFailed": "Impossibile rimuovere",
     "removed": "Condivisione SMB rimossa",
     "files": "File",
-    "title": "Condivisioni SMB",
-    "unsupportedTitle": "Le condivisioni SMB non sono disponibili su questo computer",
-    "unsupportedDescription": "La creazione di condivisioni SMB da Athena non è ancora collegata su macOS o Windows. Su Linux, installa Samba (<code>apt install samba</code>) e Athena la offrirà qui.",
-    "notSetUpTitle": "Le condivisioni SMB non sono ancora configurate",
-    "notSetUpDescription": "Installa il server Samba su questo host, poi le condivisioni potranno essere pubblicate in rete come \\\\\\\\server\\\\share.",
     "createShare": "Crea condivisione",
     "emptyTitle": "Nessuna condivisione SMB",
     "emptyDescription": "Crea una condivisione per pubblicare in rete una posizione dei file.",
@@ -237,5 +242,52 @@
     "yes": "Sì",
     "no": "No",
     "removeShare": "Rimuovi la condivisione SMB {{name}}"
+  },
+  "network": {
+    "title": "Condivisioni di rete",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "La condivisione {{kind}} richiede più autorizzazioni",
+      "missing": "La condivisione {{kind}} non è ancora configurata",
+      "unsupported": "La condivisione {{kind}} non è disponibile su questo computer",
+      "fallback": "Questo host non può creare queste condivisioni da Athena."
+    },
+    "nfs": {
+      "created": "Condivisione NFS creata",
+      "confirmRemove": "Smettere di condividere questa cartella tramite NFS? La cartella resta.",
+      "removed": "Condivisione NFS rimossa",
+      "emptyTitle": "Nessuna condivisione NFS",
+      "emptyDescription": "Esporta una posizione di file ai computer Linux e macOS della tua rete.",
+      "columnMountFrom": "Monta da",
+      "columnClients": "Client",
+      "address": "indirizzo NFS",
+      "removeShare": "Rimuovi la condivisione NFS {{name}}",
+      "dialogTitle": "Crea condivisione NFS",
+      "dialogDescription": "Permetti ai computer Linux e macOS di montare una posizione di file in rete.",
+      "noPasswordsTitle": "NFS non usa password",
+      "noPasswordsDescription": "L'accesso dipende dall'indirizzo del computer: indica solo macchine e reti di cui ti fidi.",
+      "whoMayMount": "Chi può montare",
+      "clientsHint": "Indirizzi IP, reti come 192.168.1.0/24 o nomi host, separati da virgole.",
+      "clientsRequired": "Indica almeno un client che può montarla",
+      "confirmEverywhere": "Questa rete include ogni indirizzo. Chiunque raggiunga questo computer potrebbe montare la cartella. Continuare?"
+    },
+    "pickFolder": "Scegli una cartella da condividere",
+    "nameRequired": "Dai un nome alla condivisione",
+    "copy": "Copia {{label}}",
+    "copied": "{{label}} copiato",
+    "copyFailed": "Impossibile copiare",
+    "smbAddress": "indirizzo della condivisione",
+    "password": {
+      "label": "La password del tuo computer",
+      "hint": "Serve una volta per questa modifica. Athena non la memorizza.",
+      "required": "Inserisci la password del tuo computer",
+      "systemHint": "Il tuo computer ti chiederà di approvare come amministratore."
+    },
+    "remove": {
+      "title": "Rimuovi condivisione",
+      "action": "Rimuovi"
+    },
+    "allShares": "Tutte le condivisioni di rete"
   }
 }

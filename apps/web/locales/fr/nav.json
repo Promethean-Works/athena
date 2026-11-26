@@ -5,7 +5,7 @@
   "packages": "Paquets",
   "automation": "Automatisation",
   "files": "Fichiers",
-  "smbShares": "Partages SMB",
+  "networkShares": "Partages réseau",
   "cloud": "Cloud",
   "containers": "Conteneurs",
   "terminal": "Terminal",

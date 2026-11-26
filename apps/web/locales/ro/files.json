@@ -78,7 +78,8 @@
     "truncated_few": "Se afișează doar primele {{n}} intrări.",
     "truncated_other": "Se afișează doar primele {{n}} de intrări.",
     "renameTitle": "Redenumește {{name}}",
-    "create": "Creează"
+    "create": "Creează",
+    "shareFolder": "Partajează dosarul"
   },
   "preview": {
     "cantOpen": "Acest fișier nu se poate deschide aici",
@@ -159,7 +160,16 @@
     "passwordOptional": "Parolă (opțional)",
     "expires": "Expiră",
     "allLinks": "Toate linkurile",
-    "create": "Creează link"
+    "create": "Creează link",
+    "tabLink": "Link",
+    "tabNetwork": "Rețea",
+    "networkDescription": "Partajează acest dosar cu alte calculatoare din rețeaua ta.",
+    "networkRootOnly": "În rețea se poate partaja doar o locație de fișiere întreagă. Deschide dosarul principal al locației.",
+    "networkFolderOnly": "În rețea se pot partaja doar dosare.",
+    "mountUnavailable": "Dosarele din cloud nu pot fi partajate încă de pe acest calculator",
+    "mountDescription": "Athena trebuie să monteze mai întâi acest dosar din cloud pe acest calculator pentru a-l partaja. Stocarea în cloud este mai lentă decât un disc pentru oricine deschide partajarea.",
+    "mountReadOnly": "Doar citire (recomandat)",
+    "mountAction": "Montează și partajează"
   },
   "sharesView": {
     "files": "Fișiere",
@@ -207,11 +217,6 @@
     "removeFailed": "Nu s-a putut elimina",
     "removed": "Partajare SMB eliminată",
     "files": "Fișiere",
-    "title": "Partajări SMB",
-    "unsupportedTitle": "Partajările SMB nu sunt disponibile pe acest computer",
-    "unsupportedDescription": "Crearea de partajări SMB din Athena nu este încă disponibilă pe macOS sau Windows. Pe Linux, instalează Samba (<code>apt install samba</code>) și Athena o va oferi aici.",
-    "notSetUpTitle": "Partajările SMB nu sunt încă configurate",
-    "notSetUpDescription": "Instalează serverul Samba pe această gazdă, apoi partajările pot fi publicate în rețea ca \\\\\\\\server\\\\share.",
     "createShare": "Creează partajare",
     "emptyTitle": "Nicio partajare SMB",
     "emptyDescription": "Creează o partajare pentru a publica o locație de fișiere în rețea.",
@@ -237,5 +242,52 @@
     "yes": "Da",
     "no": "Nu",
     "removeShare": "Elimină partajarea SMB {{name}}"
+  },
+  "network": {
+    "title": "Partajări de rețea",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "Partajarea {{kind}} necesită mai multe permisiuni",
+      "missing": "Partajarea {{kind}} nu este încă configurată",
+      "unsupported": "Partajarea {{kind}} nu este disponibilă pe acest calculator",
+      "fallback": "Această gazdă nu poate crea aceste partajări din Athena."
+    },
+    "nfs": {
+      "created": "Partajare NFS creată",
+      "confirmRemove": "Nu mai partaja acest dosar prin NFS? Dosarul rămâne.",
+      "removed": "Partajare NFS eliminată",
+      "emptyTitle": "Nicio partajare NFS",
+      "emptyDescription": "Exportă o locație de fișiere către calculatoarele Linux și macOS din rețeaua ta.",
+      "columnMountFrom": "Montează din",
+      "columnClients": "Clienți",
+      "address": "adresa NFS",
+      "removeShare": "Elimină partajarea NFS {{name}}",
+      "dialogTitle": "Creează partajare NFS",
+      "dialogDescription": "Lasă calculatoarele Linux și macOS să monteze o locație de fișiere prin rețea.",
+      "noPasswordsTitle": "NFS nu are parole",
+      "noPasswordsDescription": "Accesul se stabilește după adresa calculatorului, deci enumeră doar mașini și rețele în care ai încredere.",
+      "whoMayMount": "Cine poate monta",
+      "clientsHint": "Adrese IP, rețele precum 192.168.1.0/24 sau nume de gazdă, separate prin virgule.",
+      "clientsRequired": "Enumeră cel puțin un client care îl poate monta",
+      "confirmEverywhere": "Acea rețea include toate adresele. Oricine poate ajunge la acest calculator ar putea monta dosarul. Continui?"
+    },
+    "pickFolder": "Alege un dosar de partajat",
+    "nameRequired": "Dă un nume partajării",
+    "copy": "Copiază {{label}}",
+    "copied": "{{label}} copiat",
+    "copyFailed": "Nu s-a putut copia",
+    "smbAddress": "adresa partajării",
+    "password": {
+      "label": "Parola calculatorului tău",
+      "hint": "Necesară o singură dată pentru această modificare. Athena nu o păstrează.",
+      "required": "Introdu parola calculatorului tău",
+      "systemHint": "Calculatorul îți va cere să aprobi ca administrator."
+    },
+    "remove": {
+      "title": "Elimină partajarea",
+      "action": "Elimină"
+    },
+    "allShares": "Toate partajările de rețea"
   }
 }

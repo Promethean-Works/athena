@@ -5,7 +5,7 @@
   "packages": "Paket",
   "automation": "Otomatisasi",
   "files": "File",
-  "smbShares": "Berbagi SMB",
+  "networkShares": "Berbagi jaringan",
   "cloud": "Cloud",
   "containers": "Kontainer",
   "terminal": "Terminal",

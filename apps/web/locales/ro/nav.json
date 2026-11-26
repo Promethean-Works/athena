@@ -5,7 +5,7 @@
   "packages": "Pachete",
   "automation": "Automatizare",
   "files": "Fișiere",
-  "smbShares": "Partajări SMB",
+  "networkShares": "Partajări de rețea",
   "cloud": "Cloud",
   "containers": "Containere",
   "terminal": "Terminal",

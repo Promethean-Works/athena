@@ -74,7 +74,8 @@
     "truncated_one": "Yalnızca ilk {{n}} öğe gösteriliyor.",
     "truncated_other": "Yalnızca ilk {{n}} öğe gösteriliyor.",
     "renameTitle": "{{name}} yeniden adlandır",
-    "create": "Oluştur"
+    "create": "Oluştur",
+    "shareFolder": "Klasörü paylaş"
   },
   "preview": {
     "cantOpen": "Bu dosya burada açılamıyor",
@@ -154,7 +155,16 @@
     "passwordOptional": "Parola (isteğe bağlı)",
     "expires": "Bitiş",
     "allLinks": "Tüm bağlantılar",
-    "create": "Bağlantı oluştur"
+    "create": "Bağlantı oluştur",
+    "tabLink": "Bağlantı",
+    "tabNetwork": "Ağ",
+    "networkDescription": "Bu klasörü ağınızdaki diğer bilgisayarlarla paylaşın.",
+    "networkRootOnly": "Ağ üzerinden yalnızca bütün bir dosya konumu paylaşılabilir. Konumun en üst klasörünü açın.",
+    "networkFolderOnly": "Ağ üzerinden yalnızca klasörler paylaşılabilir.",
+    "mountUnavailable": "Bulut klasörleri bu bilgisayardan henüz paylaşılamıyor",
+    "mountDescription": "Athena, bu bulut klasörünü paylaşmadan önce bu bilgisayara bağlamalıdır. Bulut depolama, paylaşımı açan herkes için bir diskten daha yavaştır.",
+    "mountReadOnly": "Salt okunur (önerilir)",
+    "mountAction": "Bağla ve paylaş"
   },
   "sharesView": {
     "files": "Dosyalar",
@@ -199,11 +209,6 @@
     "removeFailed": "Kaldırılamadı",
     "removed": "SMB paylaşımı kaldırıldı",
     "files": "Dosyalar",
-    "title": "SMB paylaşımları",
-    "unsupportedTitle": "SMB paylaşımları bu bilgisayarda kullanılamıyor",
-    "unsupportedDescription": "Athena'dan SMB paylaşımı oluşturma macOS ve Windows'ta henüz bağlanmadı. Linux'ta Samba'yı kurun (<code>apt install samba</code>), Athena burada sunar.",
-    "notSetUpTitle": "SMB paylaşımları henüz kurulmadı",
-    "notSetUpDescription": "Bu ana makineye Samba sunucusunu kurun; sonra paylaşımlar ağda \\\\\\\\server\\\\share olarak yayımlanabilir.",
     "createShare": "Paylaşım oluştur",
     "emptyTitle": "SMB paylaşımı yok",
     "emptyDescription": "Bir dosya konumunu ağda yayımlamak için paylaşım oluşturun.",
@@ -229,5 +234,52 @@
     "yes": "Evet",
     "no": "Hayır",
     "removeShare": "{{name}} SMB paylaşımını kaldır"
+  },
+  "network": {
+    "title": "Ağ paylaşımları",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "{{kind}} paylaşımı daha fazla izin gerektiriyor",
+      "missing": "{{kind}} paylaşımı henüz kurulmadı",
+      "unsupported": "{{kind}} paylaşımı bu bilgisayarda kullanılamıyor",
+      "fallback": "Bu ana makine Athena üzerinden bu paylaşımları oluşturamaz."
+    },
+    "nfs": {
+      "created": "NFS paylaşımı oluşturuldu",
+      "confirmRemove": "Bu klasörün NFS üzerinden paylaşımı durdurulsun mu? Klasör silinmez.",
+      "removed": "NFS paylaşımı kaldırıldı",
+      "emptyTitle": "NFS paylaşımı yok",
+      "emptyDescription": "Bir dosya konumunu ağınızdaki Linux ve macOS bilgisayarlarına dışa aktarın.",
+      "columnMountFrom": "Bağlanacak kaynak",
+      "columnClients": "İstemciler",
+      "address": "NFS adresi",
+      "removeShare": "{{name}} NFS paylaşımını kaldır",
+      "dialogTitle": "NFS paylaşımı oluştur",
+      "dialogDescription": "Linux ve macOS bilgisayarlarının bir dosya konumunu ağ üzerinden bağlamasına izin verin.",
+      "noPasswordsTitle": "NFS'de parola yoktur",
+      "noPasswordsDescription": "Erişim bilgisayarın adresine göre belirlenir, bu yüzden yalnızca güvendiğiniz makineleri ve ağları yazın.",
+      "whoMayMount": "Kimler bağlayabilir",
+      "clientsHint": "IP adresleri, 192.168.1.0/24 gibi ağlar veya ana makine adları, virgülle ayrılmış.",
+      "clientsRequired": "Bağlayabilecek en az bir istemci yazın",
+      "confirmEverywhere": "Bu ağ her adresi kapsıyor. Bu bilgisayara ulaşabilen herkes klasörü bağlayabilir. Devam edilsin mi?"
+    },
+    "pickFolder": "Paylaşılacak bir klasör seçin",
+    "nameRequired": "Paylaşıma bir ad verin",
+    "copy": "{{label}} kopyala",
+    "copied": "{{label}} kopyalandı",
+    "copyFailed": "Kopyalanamadı",
+    "smbAddress": "paylaşım adresi",
+    "password": {
+      "label": "Bilgisayarınızın parolası",
+      "hint": "Bu değişiklik için bir kez gerekir. Athena onu saklamaz.",
+      "required": "Bilgisayarınızın parolasını girin",
+      "systemHint": "Bilgisayarınız yönetici olarak onaylamanızı isteyecek."
+    },
+    "remove": {
+      "title": "Paylaşımı kaldır",
+      "action": "Kaldır"
+    },
+    "allShares": "Tüm ağ paylaşımları"
   }
 }

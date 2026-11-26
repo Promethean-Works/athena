@@ -75,11 +75,11 @@ export const navMain: NavItem[] = [
     capability: "files",
   },
   {
-    titleKey: "smbShares",
-    url: "/files/smb/",
+    titleKey: "networkShares",
+    url: "/files/network/",
     icon: Share2Icon,
-    // Shown even when Samba isn't installed yet, so the page can say how to set it
-    // up. Hidden on macOS and Windows where share creation is unsupported.
+    // Shown even when the host can't create shares yet, so the page can say why
+    // and how to set it up (SMB and NFS each have their own capability).
     capability: "shares.smb",
     showWhenUnavailable: true,
   },
@@ -113,10 +113,21 @@ export const navMain: NavItem[] = [
   },
 ]
 
-/** True when `pathname` is the item's page or below it ("/" only matches itself). */
-export function isActive(item: NavItem, pathname: string): boolean {
+function matches(item: NavItem, pathname: string): boolean {
   if (item.url === "/") return pathname === "/"
   return pathname.startsWith(item.url.replace(/\/$/, ""))
+}
+
+/** The item for `pathname`: the longest url that matches, so /files/network/ isn't also Files. */
+function best(pathname: string): NavItem | undefined {
+  return [...navMain, ...navSecondary]
+    .filter((item) => !item.external && matches(item, pathname))
+    .sort((x, y) => y.url.length - x.url.length)[0]
+}
+
+/** True when `item` is the most specific nav entry for `pathname`. */
+export function isActive(item: NavItem, pathname: string): boolean {
+  return best(pathname) === item
 }
 
 export const navSecondary: NavItem[] = [
@@ -131,8 +142,5 @@ export const navSecondary: NavItem[] = [
 
 /** Title key for the header, from the nav item matching the current path. */
 export function titleKeyForPath(pathname: string): ParseKeys<"nav"> | null {
-  const match = [...navMain, ...navSecondary].find(
-    (item) => !item.external && isActive(item, pathname)
-  )
-  return match?.titleKey ?? null
+  return best(pathname)?.titleKey ?? null
 }

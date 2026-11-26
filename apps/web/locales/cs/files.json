@@ -82,7 +82,8 @@
     "truncated_many": "Zobrazeno je jen prvních {{n}} položky.",
     "truncated_other": "Zobrazeno je jen prvních {{n}} položek.",
     "renameTitle": "Přejmenovat {{name}}",
-    "create": "Vytvořit"
+    "create": "Vytvořit",
+    "shareFolder": "Sdílet složku"
   },
   "preview": {
     "cantOpen": "Tento soubor zde nelze otevřít",
@@ -164,7 +165,16 @@
     "passwordOptional": "Heslo (volitelné)",
     "expires": "Vyprší",
     "allLinks": "Všechny odkazy",
-    "create": "Vytvořit odkaz"
+    "create": "Vytvořit odkaz",
+    "tabLink": "Odkaz",
+    "tabNetwork": "Síť",
+    "networkDescription": "Sdílejte tuto složku s ostatními počítači v síti.",
+    "networkRootOnly": "V síti lze sdílet jen celé umístění souborů. Otevřete nejvyšší složku umístění.",
+    "networkFolderOnly": "V síti lze sdílet jen složky.",
+    "mountUnavailable": "Složky v cloudu zatím nelze z tohoto počítače sdílet",
+    "mountDescription": "Athena musí tuto cloudovou složku nejdřív připojit k tomuto počítači, aby ji mohla sdílet. Cloudové úložiště je pomalejší než disk pro každého, kdo sdílení otevře.",
+    "mountReadOnly": "Jen pro čtení (doporučeno)",
+    "mountAction": "Připojit a sdílet"
   },
   "sharesView": {
     "files": "Soubory",
@@ -215,11 +225,6 @@
     "removeFailed": "Odebrání se nepovedlo",
     "removed": "Sdílení SMB odebráno",
     "files": "Soubory",
-    "title": "Sdílení SMB",
-    "unsupportedTitle": "Sdílení SMB nejsou na tomto počítači k dispozici",
-    "unsupportedDescription": "Vytváření sdílení SMB z Athena zatím není na macOS ani Windows zapojeno. Na Linuxu nainstalujte Samba (<code>apt install samba</code>) a Athena je zde nabídne.",
-    "notSetUpTitle": "Sdílení SMB zatím nejsou nastavena",
-    "notSetUpDescription": "Nainstalujte na tohoto hostitele server Samba, pak lze sdílení zveřejnit v síti jako \\\\\\\\server\\\\share.",
     "createShare": "Vytvořit sdílení",
     "emptyTitle": "Žádná sdílení SMB",
     "emptyDescription": "Vytvořte sdílení a zveřejněte umístění souborů v síti.",
@@ -245,5 +250,52 @@
     "yes": "Ano",
     "no": "Ne",
     "removeShare": "Odebrat sdílení SMB {{name}}"
+  },
+  "network": {
+    "title": "Síťová sdílení",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "Sdílení {{kind}} vyžaduje další oprávnění",
+      "missing": "Sdílení {{kind}} ještě není nastaveno",
+      "unsupported": "Sdílení {{kind}} není na tomto počítači dostupné",
+      "fallback": "Tento hostitel nemůže z Athena tato sdílení vytvářet."
+    },
+    "nfs": {
+      "created": "Sdílení NFS vytvořeno",
+      "confirmRemove": "Přestat tuto složku sdílet přes NFS? Složka zůstane zachována.",
+      "removed": "Sdílení NFS odebráno",
+      "emptyTitle": "Žádná sdílení NFS",
+      "emptyDescription": "Exportujte umístění souborů do počítačů se systémem Linux a macOS ve vaší síti.",
+      "columnMountFrom": "Připojit z",
+      "columnClients": "Klienti",
+      "address": "adresa NFS",
+      "removeShare": "Odebrat sdílení NFS {{name}}",
+      "dialogTitle": "Vytvořit sdílení NFS",
+      "dialogDescription": "Umožněte počítačům se systémem Linux a macOS připojit umístění souborů přes síť.",
+      "noPasswordsTitle": "NFS nemá hesla",
+      "noPasswordsDescription": "O přístupu rozhoduje adresa počítače, proto uveďte jen počítače a sítě, kterým důvěřujete.",
+      "whoMayMount": "Kdo se může připojit",
+      "clientsHint": "IP adresy, sítě jako 192.168.1.0/24 nebo názvy hostitelů, oddělené čárkami.",
+      "clientsRequired": "Uveďte alespoň jednoho klienta, který se může připojit",
+      "confirmEverywhere": "Tato síť zahrnuje všechny adresy. Složku by mohl připojit kdokoli, kdo se k tomuto počítači dostane. Pokračovat?"
+    },
+    "pickFolder": "Vyberte složku ke sdílení",
+    "nameRequired": "Pojmenujte sdílení",
+    "copy": "Kopírovat: {{label}}",
+    "copied": "{{label}} zkopírováno",
+    "copyFailed": "Kopírování se nezdařilo",
+    "smbAddress": "adresa sdílení",
+    "password": {
+      "label": "Heslo k počítači",
+      "hint": "Je potřeba jednou pro tuto změnu. Athena ho neukládá.",
+      "required": "Zadejte heslo k počítači",
+      "systemHint": "Počítač vás požádá o schválení jako správce."
+    },
+    "remove": {
+      "title": "Odebrat sdílení",
+      "action": "Odebrat"
+    },
+    "allShares": "Všechna síťová sdílení"
   }
 }

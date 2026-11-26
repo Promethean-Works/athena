@@ -78,7 +78,8 @@
     "truncated_many": "Solo se muestran las primeras {{n}} de entradas.",
     "truncated_other": "Solo se muestran las primeras {{n}} entradas.",
     "renameTitle": "Renombrar {{name}}",
-    "create": "Crear"
+    "create": "Crear",
+    "shareFolder": "Compartir carpeta"
   },
   "preview": {
     "cantOpen": "No se puede abrir este archivo aquí",
@@ -159,7 +160,16 @@
     "passwordOptional": "Contraseña (opcional)",
     "expires": "Caduca",
     "allLinks": "Todos los enlaces",
-    "create": "Crear enlace"
+    "create": "Crear enlace",
+    "tabLink": "Enlace",
+    "tabNetwork": "Red",
+    "networkDescription": "Comparte esta carpeta con otros equipos de tu red.",
+    "networkRootOnly": "Solo se puede compartir en red una ubicación de archivos completa. Abre la carpeta superior de la ubicación.",
+    "networkFolderOnly": "Solo se pueden compartir carpetas en red.",
+    "mountUnavailable": "Todavía no se pueden compartir carpetas de la nube desde este equipo",
+    "mountDescription": "Athena debe montar esta carpeta de la nube en este equipo antes de compartirla. El almacenamiento en la nube es más lento que un disco para todos los que abran el recurso.",
+    "mountReadOnly": "Solo lectura (recomendado)",
+    "mountAction": "Montar y compartir"
   },
   "sharesView": {
     "files": "Archivos",
@@ -207,11 +217,6 @@
     "removeFailed": "No se pudo quitar",
     "removed": "Recurso SMB quitado",
     "files": "Archivos",
-    "title": "Recursos SMB",
-    "unsupportedTitle": "Los recursos SMB no están disponibles en este equipo",
-    "unsupportedDescription": "Crear recursos SMB desde Athena aún no está integrado en macOS ni en Windows. En Linux, instala Samba (<code>apt install samba</code>) y Athena lo ofrecerá aquí.",
-    "notSetUpTitle": "Los recursos SMB aún no están configurados",
-    "notSetUpDescription": "Instala el servidor Samba en este host y podrás publicar recursos compartidos en la red como \\\\\\\\servidor\\\\recurso.",
     "createShare": "Crear recurso",
     "emptyTitle": "No hay recursos SMB",
     "emptyDescription": "Crea un recurso para publicar una ubicación de archivos en la red.",
@@ -237,5 +242,52 @@
     "yes": "Sí",
     "no": "No",
     "removeShare": "Quitar recurso SMB {{name}}"
+  },
+  "network": {
+    "title": "Recursos compartidos de red",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "Compartir por {{kind}} necesita más permisos",
+      "missing": "Compartir por {{kind}} aún no está configurado",
+      "unsupported": "Compartir por {{kind}} no está disponible en este equipo",
+      "fallback": "Este equipo no puede crear estos recursos compartidos desde Athena."
+    },
+    "nfs": {
+      "created": "Recurso NFS creado",
+      "confirmRemove": "¿Dejar de compartir esta carpeta por NFS? La carpeta se conserva.",
+      "removed": "Recurso NFS eliminado",
+      "emptyTitle": "No hay recursos NFS",
+      "emptyDescription": "Exporta una ubicación de archivos a equipos Linux y macOS de tu red.",
+      "columnMountFrom": "Montar desde",
+      "columnClients": "Clientes",
+      "address": "dirección NFS",
+      "removeShare": "Eliminar el recurso NFS {{name}}",
+      "dialogTitle": "Crear recurso NFS",
+      "dialogDescription": "Permite que equipos Linux y macOS monten una ubicación de archivos a través de la red.",
+      "noPasswordsTitle": "NFS no usa contraseñas",
+      "noPasswordsDescription": "El acceso depende de la dirección del equipo, así que indica solo equipos y redes de confianza.",
+      "whoMayMount": "Quién puede montar",
+      "clientsHint": "Direcciones IP, redes como 192.168.1.0/24 o nombres de host, separados por comas.",
+      "clientsRequired": "Indica al menos un cliente que pueda montarlo",
+      "confirmEverywhere": "Esa red incluye todas las direcciones. Cualquiera que llegue a este equipo podría montar la carpeta. ¿Continuar?"
+    },
+    "pickFolder": "Elige una carpeta para compartir",
+    "nameRequired": "Ponle un nombre al recurso compartido",
+    "copy": "Copiar {{label}}",
+    "copied": "{{label}} copiado",
+    "copyFailed": "No se pudo copiar",
+    "smbAddress": "dirección del recurso compartido",
+    "password": {
+      "label": "La contraseña de tu equipo",
+      "hint": "Se necesita una vez para este cambio. Athena no la guarda.",
+      "required": "Introduce la contraseña de tu equipo",
+      "systemHint": "Tu equipo te pedirá que lo apruebes como administrador."
+    },
+    "remove": {
+      "title": "Quitar recurso compartido",
+      "action": "Quitar"
+    },
+    "allShares": "Todos los recursos compartidos en red"
   }
 }

@@ -25,7 +25,7 @@ The CLI rewrites the block's Tabler icons to whatever icon library the preset us
 | Block file | What Athena does with it |
 |---|---|
 | `components/app-sidebar.tsx` | **Keep.** Replace the demo `data` object with nav built from the capability manifest. Missing features don't render. Put the Athena logo and name in the header |
-| `components/nav-main.tsx` | **Keep.** Primary nav from `components/nav.ts`: Dashboard, Apps, Store, Packages, Automation, Files, SMB shares, Cloud, Containers, Terminal, Assistant, each gated by its capability. Swap the "Quick Create" button for "Add app" (store / custom) |
+| `components/nav-main.tsx` | **Keep.** Primary nav from `components/nav.ts`: Dashboard, Apps, Store, Packages, Automation, Files, Network shares, Cloud, Containers, Terminal, Assistant, each gated by its capability. Swap the "Quick Create" button for "Add app" (store / custom) |
 | `components/nav-secondary.tsx` | **Keep.** Settings, plus a link to help/docs |
 | `components/nav-user.tsx` | **Keep.** Bind it to the logged-in user, with Account and Log out |
 | `components/site-header.tsx` | **Keep.** Breadcrumb/page title, ⌘K command palette trigger, runtime status badge, assistant toggle |
@@ -101,7 +101,7 @@ Every user-visible string is a key in `apps/web/locales/<lang>/<namespace>.json`
 /automation               triggers, job runs, webhook and MCP addresses
 /files                    file manager (locations + cloud remotes)
 /files/shares             share links (WebDAV is in Settings → System)
-/files/smb                SMB shares (Linux with Samba)
+/files/network            Network shares: SMB and NFS tabs, each gated by its capability
 /s/<token>                a share link's public page (the /s/ export, served for any token)
 /cloud                    rclone remotes + sync jobs
 /containers               every container on the runtime

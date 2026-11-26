@@ -70,7 +70,8 @@
     "link": "リンク",
     "truncated_other": "最初の {{n}} 件のみ表示しています。",
     "renameTitle": "{{name}} の名前を変更",
-    "create": "作成"
+    "create": "作成",
+    "shareFolder": "フォルダーを共有"
   },
   "preview": {
     "cantOpen": "このファイルはここでは開けません",
@@ -149,7 +150,16 @@
     "passwordOptional": "パスワード（任意）",
     "expires": "有効期限",
     "allLinks": "すべてのリンク",
-    "create": "リンクを作成"
+    "create": "リンクを作成",
+    "tabLink": "リンク",
+    "tabNetwork": "ネットワーク",
+    "networkDescription": "このフォルダーをネットワーク上の他のコンピューターと共有します。",
+    "networkRootOnly": "ネットワークで共有できるのはファイルの場所全体だけです。場所の最上位フォルダーを開いてください。",
+    "networkFolderOnly": "ネットワークで共有できるのはフォルダーだけです。",
+    "mountUnavailable": "このコンピューターからはまだクラウドのフォルダーを共有できません",
+    "mountDescription": "共有する前に、Athena がこのクラウドのフォルダーをこのコンピューターにマウントする必要があります。クラウドストレージはディスクより遅く、共有を開く全員に影響します。",
+    "mountReadOnly": "読み取り専用（推奨）",
+    "mountAction": "マウントして共有"
   },
   "sharesView": {
     "files": "ファイル",
@@ -191,11 +201,6 @@
     "removeFailed": "削除できませんでした",
     "removed": "SMB 共有を削除しました",
     "files": "ファイル",
-    "title": "SMB 共有",
-    "unsupportedTitle": "このコンピューターでは SMB 共有を利用できません",
-    "unsupportedDescription": "Athena からの SMB 共有の作成は、macOS と Windows ではまだ対応していません。Linux では Samba（<code>apt install samba</code>）をインストールすると、ここで利用できるようになります。",
-    "notSetUpTitle": "SMB 共有はまだセットアップされていません",
-    "notSetUpDescription": "このホストに Samba サーバーをインストールすると、共有を \\\\\\\\server\\\\share としてネットワーク上に公開できます。",
     "createShare": "共有を作成",
     "emptyTitle": "SMB 共有はありません",
     "emptyDescription": "共有を作成すると、ファイルの場所をネットワーク上に公開できます。",
@@ -221,5 +226,52 @@
     "yes": "はい",
     "no": "いいえ",
     "removeShare": "SMB 共有 {{name}} を削除"
+  },
+  "network": {
+    "title": "ネットワーク共有",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "{{kind}} 共有にはより多くの権限が必要です",
+      "missing": "{{kind}} 共有はまだセットアップされていません",
+      "unsupported": "このコンピューターでは {{kind}} 共有を利用できません",
+      "fallback": "このホストでは Athena からこれらの共有を作成できません。"
+    },
+    "nfs": {
+      "created": "NFS 共有を作成しました",
+      "confirmRemove": "このフォルダーの NFS 共有を停止しますか？フォルダーは残ります。",
+      "removed": "NFS 共有を削除しました",
+      "emptyTitle": "NFS 共有はありません",
+      "emptyDescription": "ネットワーク上の Linux と macOS のコンピューターに、ファイルの場所をエクスポートします。",
+      "columnMountFrom": "マウント元",
+      "columnClients": "クライアント",
+      "address": "NFS アドレス",
+      "removeShare": "NFS 共有 {{name}} を削除",
+      "dialogTitle": "NFS 共有を作成",
+      "dialogDescription": "Linux と macOS のコンピューターが、ネットワーク経由でファイルの場所をマウントできるようにします。",
+      "noPasswordsTitle": "NFS にはパスワードがありません",
+      "noPasswordsDescription": "アクセスはコンピューターのアドレスで決まるため、信頼できるマシンとネットワークだけを指定してください。",
+      "whoMayMount": "マウントできる相手",
+      "clientsHint": "IP アドレス、192.168.1.0/24 のようなネットワーク、またはホスト名をカンマ区切りで入力します。",
+      "clientsRequired": "マウントを許可するクライアントを少なくとも 1 つ指定してください",
+      "confirmEverywhere": "このネットワークはすべてのアドレスを含みます。このコンピューターに接続できる人なら誰でもフォルダーをマウントできます。続行しますか？"
+    },
+    "pickFolder": "共有するフォルダーを選んでください",
+    "nameRequired": "共有に名前を付けてください",
+    "copy": "{{label}} をコピー",
+    "copied": "{{label}} をコピーしました",
+    "copyFailed": "コピーできませんでした",
+    "smbAddress": "共有のアドレス",
+    "password": {
+      "label": "コンピューターのパスワード",
+      "hint": "この変更のために一度だけ必要です。Athena は保存しません。",
+      "required": "コンピューターのパスワードを入力してください",
+      "systemHint": "コンピューターが管理者としての承認を求めます。"
+    },
+    "remove": {
+      "title": "共有を削除",
+      "action": "削除"
+    },
+    "allShares": "すべてのネットワーク共有"
   }
 }

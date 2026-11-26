@@ -5,7 +5,7 @@
   "packages": "套件",
   "automation": "自動化",
   "files": "檔案",
-  "smbShares": "SMB 分享",
+  "networkShares": "網路分享",
   "cloud": "雲端",
   "containers": "容器",
   "terminal": "終端機",

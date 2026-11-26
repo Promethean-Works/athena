@@ -5,7 +5,7 @@
   "packages": "패키지",
   "automation": "자동화",
   "files": "파일",
-  "smbShares": "SMB 공유",
+  "networkShares": "네트워크 공유",
   "cloud": "클라우드",
   "containers": "컨테이너",
   "terminal": "터미널",

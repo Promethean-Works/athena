@@ -34,8 +34,8 @@ import type { Location } from "@/components/files/file-utils"
 import { useHostStats } from "@/components/dashboard/host-stats-provider"
 import { formatBytes } from "@/lib/format"
 
-type SmbShare = {
-  id: number
+type NetworkShare = {
+  key: string
   name: string
   location_name: string
   read_only: boolean
@@ -94,16 +94,20 @@ function Row({
   )
 }
 
-/** Everything configured as storage: disks, file locations, cloud remotes, SMB shares. */
+/** Everything configured as storage: disks, file locations, cloud remotes, SMB and NFS shares. */
 export function StorageCard() {
   const { t } = useTranslation("dashboard")
   const { host } = useHostStats()
   const { manifest } = useCapabilities()
   const { remotes } = useRemotes()
   const [locations, setLocations] = React.useState<Location[]>([])
-  const [smb, setSmb] = React.useState<SmbShare[]>([])
+  const [smb, setSmb] = React.useState<NetworkShare[]>([])
+  const [nfs, setNfs] = React.useState<NetworkShare[]>([])
   const smbReady =
     manifest?.capabilities.find((c) => c.id === "shares.smb")?.status ===
+    "ready"
+  const nfsReady =
+    manifest?.capabilities.find((c) => c.id === "shares.nfs")?.status ===
     "ready"
 
   React.useEffect(() => {
@@ -114,9 +118,32 @@ export function StorageCard() {
   React.useEffect(() => {
     if (!smbReady) return
     void api.GET("/api/shares/smb").then(({ data }) => {
-      if (data) setSmb(data)
+      if (data)
+        setSmb(
+          data.map((x) => ({
+            key: `smb-${x.id}`,
+            name: x.name,
+            location_name: x.location_name,
+            read_only: x.read_only,
+          }))
+        )
     })
   }, [smbReady])
+  React.useEffect(() => {
+    if (!nfsReady) return
+    void api.GET("/api/shares/nfs").then(({ data }) => {
+      if (data)
+        setNfs(
+          data.map((x) => ({
+            key: `nfs-${x.id}`,
+            name: `${x.location_name} (NFS)`,
+            location_name: x.path,
+            read_only: x.read_only,
+          }))
+        )
+    })
+  }, [nfsReady])
+  const network = [...smb, ...nfs]
   return (
     <Card>
       <CardHeader>
@@ -154,7 +181,11 @@ export function StorageCard() {
           ))
         )}
         {locations.length > 0 ? (
-          <Section icon={FolderIcon} title={t("storage.folders")} href="/files/">
+          <Section
+            icon={FolderIcon}
+            title={t("storage.folders")}
+            href="/files/"
+          >
             {locations.map((l) => (
               <Row
                 key={l.id}
@@ -172,11 +203,15 @@ export function StorageCard() {
             ))}
           </Section>
         ) : null}
-        {smb.length > 0 ? (
-          <Section icon={ServerIcon} title={t("storage.shares")} href="/files/smb/">
-            {smb.map((x) => (
+        {network.length > 0 ? (
+          <Section
+            icon={ServerIcon}
+            title={t("storage.shares")}
+            href="/files/network/"
+          >
+            {network.map((x) => (
               <Row
-                key={x.id}
+                key={x.key}
                 name={x.name}
                 detail={x.location_name}
                 badge={x.read_only ? t("storage.readOnly") : undefined}

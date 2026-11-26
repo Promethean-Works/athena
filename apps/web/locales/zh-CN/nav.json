@@ -5,7 +5,7 @@
   "packages": "软件包",
   "automation": "自动化",
   "files": "文件",
-  "smbShares": "SMB 共享",
+  "networkShares": "网络共享",
   "cloud": "云存储",
   "containers": "容器",
   "terminal": "终端",

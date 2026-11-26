@@ -74,7 +74,8 @@
     "truncated_one": "Nur der erste {{n}} Eintrag wird angezeigt.",
     "truncated_other": "Nur die ersten {{n}} Einträge werden angezeigt.",
     "renameTitle": "{{name}} umbenennen",
-    "create": "Erstellen"
+    "create": "Erstellen",
+    "shareFolder": "Ordner freigeben"
   },
   "preview": {
     "cantOpen": "Diese Datei kann hier nicht geöffnet werden",
@@ -154,7 +155,16 @@
     "passwordOptional": "Passwort (optional)",
     "expires": "Läuft ab",
     "allLinks": "Alle Links",
-    "create": "Link erstellen"
+    "create": "Link erstellen",
+    "tabLink": "Link",
+    "tabNetwork": "Netzwerk",
+    "networkDescription": "Gib diesen Ordner für andere Computer in deinem Netzwerk frei.",
+    "networkRootOnly": "Im Netzwerk kann nur ein ganzer Dateispeicherort freigegeben werden. Öffne den obersten Ordner des Speicherorts.",
+    "networkFolderOnly": "Im Netzwerk können nur Ordner freigegeben werden.",
+    "mountUnavailable": "Cloud-Ordner können von diesem Computer noch nicht freigegeben werden",
+    "mountDescription": "Athena muss diesen Cloud-Ordner zuerst auf diesem Computer einbinden, bevor er freigegeben werden kann. Cloud-Speicher ist langsamer als eine Festplatte, für alle, die die Freigabe öffnen.",
+    "mountReadOnly": "Nur lesen (empfohlen)",
+    "mountAction": "Einbinden und freigeben"
   },
   "sharesView": {
     "files": "Dateien",
@@ -199,11 +209,6 @@
     "removeFailed": "Entfernen fehlgeschlagen",
     "removed": "SMB-Freigabe entfernt",
     "files": "Dateien",
-    "title": "SMB-Freigaben",
-    "unsupportedTitle": "SMB-Freigaben sind auf diesem Computer nicht verfügbar",
-    "unsupportedDescription": "Das Erstellen von SMB-Freigaben aus Athena ist unter macOS oder Windows noch nicht angebunden. Installiere unter Linux Samba (<code>apt install samba</code>), dann bietet Athena es hier an.",
-    "notSetUpTitle": "SMB-Freigaben sind noch nicht eingerichtet",
-    "notSetUpDescription": "Installiere den Samba-Server auf diesem Host, dann können Freigaben im Netzwerk als \\\\\\\\server\\\\share veröffentlicht werden.",
     "createShare": "Freigabe erstellen",
     "emptyTitle": "Keine SMB-Freigaben",
     "emptyDescription": "Erstelle eine Freigabe, um einen Speicherort im Netzwerk zu veröffentlichen.",
@@ -229,5 +234,52 @@
     "yes": "Ja",
     "no": "Nein",
     "removeShare": "SMB-Freigabe {{name}} entfernen"
+  },
+  "network": {
+    "title": "Netzwerkfreigaben",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "Die {{kind}}-Freigabe braucht mehr Berechtigungen",
+      "missing": "Die {{kind}}-Freigabe ist noch nicht eingerichtet",
+      "unsupported": "Die {{kind}}-Freigabe ist auf diesem Computer nicht verfügbar",
+      "fallback": "Dieser Host kann diese Freigaben nicht über Athena erstellen."
+    },
+    "nfs": {
+      "created": "NFS-Freigabe erstellt",
+      "confirmRemove": "Diesen Ordner nicht mehr über NFS freigeben? Der Ordner bleibt erhalten.",
+      "removed": "NFS-Freigabe entfernt",
+      "emptyTitle": "Keine NFS-Freigaben",
+      "emptyDescription": "Exportiere einen Dateispeicherort an Linux- und macOS-Computer in deinem Netzwerk.",
+      "columnMountFrom": "Einbinden von",
+      "columnClients": "Clients",
+      "address": "NFS-Adresse",
+      "removeShare": "NFS-Freigabe {{name}} entfernen",
+      "dialogTitle": "NFS-Freigabe erstellen",
+      "dialogDescription": "Lass Linux- und macOS-Computer einen Dateispeicherort über das Netzwerk einbinden.",
+      "noPasswordsTitle": "NFS hat keine Passwörter",
+      "noPasswordsDescription": "Der Zugriff richtet sich nach der Adresse des Computers. Gib deshalb nur Rechner und Netzwerke an, denen du vertraust.",
+      "whoMayMount": "Wer darf einbinden",
+      "clientsHint": "IP-Adressen, Netzwerke wie 192.168.1.0/24 oder Hostnamen, durch Kommas getrennt.",
+      "clientsRequired": "Gib mindestens einen Client an, der den Ordner einbinden darf",
+      "confirmEverywhere": "Dieses Netzwerk umfasst jede Adresse. Jeder, der diesen Computer erreicht, könnte den Ordner einbinden. Fortfahren?"
+    },
+    "pickFolder": "Wähle einen Ordner zum Freigeben",
+    "nameRequired": "Gib der Freigabe einen Namen",
+    "copy": "{{label}} kopieren",
+    "copied": "{{label}} kopiert",
+    "copyFailed": "Kopieren fehlgeschlagen",
+    "smbAddress": "Freigabeadresse",
+    "password": {
+      "label": "Passwort deines Computers",
+      "hint": "Wird einmal für diese Änderung benötigt. Athena speichert es nicht.",
+      "required": "Gib das Passwort deines Computers ein",
+      "systemHint": "Dein Computer fragt dich nach der Bestätigung als Administrator."
+    },
+    "remove": {
+      "title": "Freigabe entfernen",
+      "action": "Entfernen"
+    },
+    "allShares": "Alle Netzwerkfreigaben"
   }
 }

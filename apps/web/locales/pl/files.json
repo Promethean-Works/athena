@@ -82,7 +82,8 @@
     "truncated_many": "Pokazano tylko pierwszych {{n}} wpisów.",
     "truncated_other": "Pokazano tylko pierwszych {{n}} wpisów.",
     "renameTitle": "Zmień nazwę {{name}}",
-    "create": "Utwórz"
+    "create": "Utwórz",
+    "shareFolder": "Udostępnij folder"
   },
   "preview": {
     "cantOpen": "Nie można tutaj otworzyć tego pliku",
@@ -164,7 +165,16 @@
     "passwordOptional": "Hasło (opcjonalnie)",
     "expires": "Wygasa",
     "allLinks": "Wszystkie linki",
-    "create": "Utwórz link"
+    "create": "Utwórz link",
+    "tabLink": "Link",
+    "tabNetwork": "Sieć",
+    "networkDescription": "Udostępnij ten folder innym komputerom w swojej sieci.",
+    "networkRootOnly": "W sieci można udostępnić tylko całą lokalizację plików. Otwórz główny folder lokalizacji.",
+    "networkFolderOnly": "W sieci można udostępniać tylko foldery.",
+    "mountUnavailable": "Folderów w chmurze nie można jeszcze udostępniać z tego komputera",
+    "mountDescription": "Athena musi najpierw zamontować ten folder w chmurze na tym komputerze, aby go udostępnić. Chmura jest wolniejsza niż dysk dla każdego, kto otworzy udział.",
+    "mountReadOnly": "Tylko do odczytu (zalecane)",
+    "mountAction": "Zamontuj i udostępnij"
   },
   "sharesView": {
     "files": "Pliki",
@@ -215,11 +225,6 @@
     "removeFailed": "Nie udało się usunąć",
     "removed": "Usunięto udział SMB",
     "files": "Pliki",
-    "title": "Udziały SMB",
-    "unsupportedTitle": "Udziały SMB nie są dostępne na tym komputerze",
-    "unsupportedDescription": "Tworzenie udziałów SMB z poziomu Athena nie jest jeszcze obsługiwane w systemach macOS ani Windows. W systemie Linux zainstaluj Sambę (<code>apt install samba</code>), a Athena zaoferuje to tutaj.",
-    "notSetUpTitle": "Udziały SMB nie są jeszcze skonfigurowane",
-    "notSetUpDescription": "Zainstaluj serwer Samba na tym hoście, a udziały będzie można publikować w sieci jako \\\\\\\\server\\\\share.",
     "createShare": "Utwórz udział",
     "emptyTitle": "Brak udziałów SMB",
     "emptyDescription": "Utwórz udział, aby opublikować lokalizację plików w sieci.",
@@ -245,5 +250,52 @@
     "yes": "Tak",
     "no": "Nie",
     "removeShare": "Usuń udział SMB {{name}}"
+  },
+  "network": {
+    "title": "Udziały sieciowe",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "Udostępnianie {{kind}} wymaga dodatkowych uprawnień",
+      "missing": "Udostępnianie {{kind}} nie jest jeszcze skonfigurowane",
+      "unsupported": "Udostępnianie {{kind}} nie jest dostępne na tym komputerze",
+      "fallback": "Ten host nie może tworzyć takich udziałów z poziomu Athena."
+    },
+    "nfs": {
+      "created": "Utworzono udział NFS",
+      "confirmRemove": "Przestać udostępniać ten folder przez NFS? Folder pozostanie.",
+      "removed": "Usunięto udział NFS",
+      "emptyTitle": "Brak udziałów NFS",
+      "emptyDescription": "Wyeksportuj lokalizację plików do komputerów z Linuksem i macOS w swojej sieci.",
+      "columnMountFrom": "Zamontuj z",
+      "columnClients": "Klienci",
+      "address": "adres NFS",
+      "removeShare": "Usuń udział NFS {{name}}",
+      "dialogTitle": "Utwórz udział NFS",
+      "dialogDescription": "Pozwól komputerom z Linuksem i macOS montować lokalizację plików przez sieć.",
+      "noPasswordsTitle": "NFS nie ma haseł",
+      "noPasswordsDescription": "O dostępie decyduje adres komputera, więc podaj tylko maszyny i sieci, którym ufasz.",
+      "whoMayMount": "Kto może montować",
+      "clientsHint": "Adresy IP, sieci takie jak 192.168.1.0/24 lub nazwy hostów, oddzielone przecinkami.",
+      "clientsRequired": "Podaj co najmniej jednego klienta, który może go zamontować",
+      "confirmEverywhere": "Ta sieć obejmuje każdy adres. Każdy, kto ma dostęp do tego komputera, mógłby zamontować folder. Kontynuować?"
+    },
+    "pickFolder": "Wybierz folder do udostępnienia",
+    "nameRequired": "Nadaj udziałowi nazwę",
+    "copy": "Kopiuj: {{label}}",
+    "copied": "Skopiowano: {{label}}",
+    "copyFailed": "Nie udało się skopiować",
+    "smbAddress": "adres udziału",
+    "password": {
+      "label": "Hasło do komputera",
+      "hint": "Potrzebne jednorazowo do tej zmiany. Athena go nie zapisuje.",
+      "required": "Wpisz hasło do komputera",
+      "systemHint": "Komputer poprosi o zatwierdzenie jako administrator."
+    },
+    "remove": {
+      "title": "Usuń udział",
+      "action": "Usuń"
+    },
+    "allShares": "Wszystkie udziały sieciowe"
   }
 }

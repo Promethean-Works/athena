@@ -5,7 +5,7 @@
   "packages": "Paketler",
   "automation": "Otomasyon",
   "files": "Dosyalar",
-  "smbShares": "SMB paylaşımları",
+  "networkShares": "Ağ paylaşımları",
   "cloud": "Bulut",
   "containers": "Konteynerler",
   "terminal": "Terminal",

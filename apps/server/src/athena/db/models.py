@@ -151,6 +151,23 @@ class SmbShare(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
 
 
+class RemoteMount(SQLModel, table=True):
+    """A cloud remote mounted as a folder so it can be shared over SMB or NFS
+    (docs/specs/share-from-explorer.md). `location_id` is a hidden file location at the
+    mount point. Athena mounts these again when it starts."""
+
+    __tablename__ = "remote_mounts"
+
+    id: int | None = Field(default=None, primary_key=True)
+    remote: str = Field(max_length=64, index=True)
+    path: str = Field(default="", max_length=1024)
+    """Folder inside the remote ("" for its top)."""
+    mount_point: str = Field(max_length=1024)
+    location_id: int = Field(foreign_key="file_locations.id", unique=True, ondelete="CASCADE")
+    read_only: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+
+
 class NfsShare(SQLModel, table=True):
     """An NFS export Athena created for a file location (docs/specs/network-shares.md).
 

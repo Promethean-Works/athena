@@ -5,7 +5,7 @@
   "packages": "Paket",
   "automation": "Automation",
   "files": "Filer",
-  "smbShares": "SMB-delningar",
+  "networkShares": "Nätverksdelningar",
   "cloud": "Moln",
   "containers": "Behållare",
   "terminal": "Terminal",

@@ -74,7 +74,8 @@
     "truncated_one": "Alleen het eerste {{n}} item wordt getoond.",
     "truncated_other": "Alleen de eerste {{n}} items worden getoond.",
     "renameTitle": "{{name}} hernoemen",
-    "create": "Aanmaken"
+    "create": "Aanmaken",
+    "shareFolder": "Map delen"
   },
   "preview": {
     "cantOpen": "Dit bestand kan hier niet worden geopend",
@@ -154,7 +155,16 @@
     "passwordOptional": "Wachtwoord (optioneel)",
     "expires": "Verloopt",
     "allLinks": "Alle links",
-    "create": "Link aanmaken"
+    "create": "Link aanmaken",
+    "tabLink": "Link",
+    "tabNetwork": "Netwerk",
+    "networkDescription": "Deel deze map met andere computers in je netwerk.",
+    "networkRootOnly": "Alleen een hele bestandslocatie kan via het netwerk worden gedeeld. Open de hoofdmap van de locatie.",
+    "networkFolderOnly": "Alleen mappen kunnen via het netwerk worden gedeeld.",
+    "mountUnavailable": "Cloudmappen kunnen nog niet vanaf deze computer worden gedeeld",
+    "mountDescription": "Athena moet deze cloudmap eerst op deze computer koppelen voordat hij gedeeld kan worden. Cloudopslag is trager dan een schijf, voor iedereen die de share opent.",
+    "mountReadOnly": "Alleen lezen (aanbevolen)",
+    "mountAction": "Koppelen en delen"
   },
   "sharesView": {
     "files": "Bestanden",
@@ -199,11 +209,6 @@
     "removeFailed": "Verwijderen mislukt",
     "removed": "SMB-share verwijderd",
     "files": "Bestanden",
-    "title": "SMB-shares",
-    "unsupportedTitle": "SMB-shares zijn niet beschikbaar op deze computer",
-    "unsupportedDescription": "SMB-shares aanmaken vanuit Athena is op macOS of Windows nog niet gekoppeld. Installeer op Linux Samba (<code>apt install samba</code>) en Athena biedt het hier aan.",
-    "notSetUpTitle": "SMB-shares zijn nog niet ingesteld",
-    "notSetUpDescription": "Installeer de Samba-server op deze host, dan kunnen shares via het netwerk worden gepubliceerd als \\\\\\\\server\\\\share.",
     "createShare": "Share aanmaken",
     "emptyTitle": "Geen SMB-shares",
     "emptyDescription": "Maak een share aan om een bestandslocatie via het netwerk te publiceren.",
@@ -229,5 +234,52 @@
     "yes": "Ja",
     "no": "Nee",
     "removeShare": "SMB-share {{name}} verwijderen"
+  },
+  "network": {
+    "title": "Netwerkshares",
+    "tabSmb": "SMB",
+    "tabNfs": "NFS",
+    "notice": {
+      "needsPrivilege": "{{kind}}-delen heeft meer rechten nodig",
+      "missing": "{{kind}}-delen is nog niet ingesteld",
+      "unsupported": "{{kind}}-delen is niet beschikbaar op deze computer",
+      "fallback": "Deze host kan deze shares niet vanuit Athena maken."
+    },
+    "nfs": {
+      "created": "NFS-share gemaakt",
+      "confirmRemove": "Deze map niet meer delen via NFS? De map blijft bestaan.",
+      "removed": "NFS-share verwijderd",
+      "emptyTitle": "Geen NFS-shares",
+      "emptyDescription": "Exporteer een bestandslocatie naar Linux- en macOS-computers in je netwerk.",
+      "columnMountFrom": "Mounten vanaf",
+      "columnClients": "Clients",
+      "address": "NFS-adres",
+      "removeShare": "NFS-share {{name}} verwijderen",
+      "dialogTitle": "NFS-share maken",
+      "dialogDescription": "Laat Linux- en macOS-computers een bestandslocatie via het netwerk mounten.",
+      "noPasswordsTitle": "NFS heeft geen wachtwoorden",
+      "noPasswordsDescription": "Toegang hangt af van het adres van de computer, dus noem alleen machines en netwerken die je vertrouwt.",
+      "whoMayMount": "Wie mag mounten",
+      "clientsHint": "IP-adressen, netwerken zoals 192.168.1.0/24 of hostnamen, gescheiden door komma's.",
+      "clientsRequired": "Geef minstens één client op die mag mounten",
+      "confirmEverywhere": "Dat netwerk omvat elk adres. Iedereen die deze computer kan bereiken, kan de map mounten. Doorgaan?"
+    },
+    "pickFolder": "Kies een map om te delen",
+    "nameRequired": "Geef de share een naam",
+    "copy": "{{label}} kopiëren",
+    "copied": "{{label}} gekopieerd",
+    "copyFailed": "Kopiëren mislukt",
+    "smbAddress": "shareadres",
+    "password": {
+      "label": "Het wachtwoord van je computer",
+      "hint": "Eénmalig nodig voor deze wijziging. Athena slaat het niet op.",
+      "required": "Voer het wachtwoord van je computer in",
+      "systemHint": "Je computer vraagt je dit goed te keuren als beheerder."
+    },
+    "remove": {
+      "title": "Share verwijderen",
+      "action": "Verwijderen"
+    },
+    "allShares": "Alle netwerkshares"
   }
 }
