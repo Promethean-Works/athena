@@ -51,7 +51,7 @@ Next.js 16 with a static export (`output: "export"`, `trailingSlash: true`), Rea
   - A missing capability renders `Empty` with its `detail`, never a broken page.
   - Pages that need containers wrap their content in `<RequireContainers>`.
 - **Text:**
-  - No hard-coded user-visible text: use `useTranslation("<area>")` and add the key to `locales/en/<area>.json` **and** `locales/pt-BR/<area>.json` (same keys, same `{{placeholders}}`; `node scripts/check-i18n.mjs` checks it).
+  - No hard-coded user-visible text: use `useTranslation("<area>")` and add the key to `locales/en/<area>.json` **and** to every other language folder (same keys, same `{{placeholders}}`, plural forms per language; `node scripts/check-i18n.mjs` checks it).
   - Never call `t` at module load (store keys, translate at render, or `i18n.t` inside a function). Plurals are `key_one`/`key_other`. Dates and numbers pass `currentLocale()` from `@/lib/i18n`.
   - Server data and API error text stay as they come. See `docs/specs/i18n.md`.
 - **Feedback:**
