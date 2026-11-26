@@ -3450,6 +3450,108 @@
         }
       }
     },
+    "/api/shares/nfs": {
+      "get": {
+        "tags": [
+          "nfs shares"
+        ],
+        "summary": "List Nfs Shares",
+        "description": "The NFS shares Athena created, newest first.",
+        "operationId": "listNfsShares",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NfsShareOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listnfsshares"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "nfs shares"
+        ],
+        "summary": "Create Nfs Share",
+        "description": "Export a location over NFS to the listed clients (501 if the host can't).",
+        "operationId": "createNfsShare",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NfsShareIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NfsShareOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shares/nfs/{share_id}": {
+      "delete": {
+        "tags": [
+          "nfs shares"
+        ],
+        "summary": "Remove Nfs Share",
+        "description": "Stop exporting a location and drop its tracking row.",
+        "operationId": "removeNfsShare",
+        "parameters": [
+          {
+            "name": "share_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Share Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/cloud/providers": {
       "get": {
         "tags": [
@@ -10310,6 +10412,81 @@
           "name"
         ],
         "title": "NewFolderIn"
+      },
+      "NfsShareIn": {
+        "properties": {
+          "location": {
+            "type": "integer",
+            "title": "Location"
+          },
+          "clients": {
+            "items": {
+              "type": "string",
+              "maxLength": 260
+            },
+            "type": "array",
+            "maxItems": 32,
+            "title": "Clients"
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "location",
+          "clients"
+        ],
+        "title": "NfsShareIn"
+      },
+      "NfsShareOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "location_id": {
+            "type": "integer",
+            "title": "Location Id"
+          },
+          "location_name": {
+            "type": "string",
+            "title": "Location Name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "clients": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Clients"
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "location_id",
+          "location_name",
+          "path",
+          "clients",
+          "read_only",
+          "created_at"
+        ],
+        "title": "NfsShareOut"
       },
       "OptionExample": {
         "properties": {

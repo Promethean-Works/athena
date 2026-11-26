@@ -151,6 +151,24 @@ class SmbShare(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
 
 
+class NfsShare(SQLModel, table=True):
+    """An NFS export Athena created for a file location (docs/specs/network-shares.md).
+
+    Athena rewrites its exports file from these rows, so the table is the source of truth.
+    """
+
+    __tablename__ = "nfs_shares"
+
+    id: int | None = Field(default=None, primary_key=True)
+    location_id: int = Field(foreign_key="file_locations.id", index=True, ondelete="CASCADE")
+    path: str = Field(unique=True, max_length=1024)
+    """The exported folder's absolute path on the host."""
+    clients: str = Field(max_length=2048)
+    """Comma-separated allow-list: addresses, CIDR networks and host names."""
+    read_only: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
+
+
 class AiProvider(SQLModel, table=True):
     """An AI provider the assistant can use (docs/design/assistant.md). Server-wide."""
 

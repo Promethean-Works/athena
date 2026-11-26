@@ -1319,6 +1319,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/shares/nfs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Nfs Shares
+         * @description The NFS shares Athena created, newest first.
+         */
+        get: operations["listNfsShares"];
+        put?: never;
+        /**
+         * Create Nfs Share
+         * @description Export a location over NFS to the listed clients (501 if the host can't).
+         */
+        post: operations["createNfsShare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shares/nfs/{share_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Nfs Share
+         * @description Stop exporting a location and drop its tracking row.
+         */
+        delete: operations["removeNfsShare"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cloud/providers": {
         parameters: {
             query?: never;
@@ -3864,6 +3908,38 @@ export interface components {
             path: string;
             /** Name */
             name: string;
+        };
+        /** NfsShareIn */
+        NfsShareIn: {
+            /** Location */
+            location: number;
+            /** Clients */
+            clients: string[];
+            /**
+             * Read Only
+             * @default false
+             */
+            read_only: boolean;
+        };
+        /** NfsShareOut */
+        NfsShareOut: {
+            /** Id */
+            id: number;
+            /** Location Id */
+            location_id: number;
+            /** Location Name */
+            location_name: string;
+            /** Path */
+            path: string;
+            /** Clients */
+            clients: string[];
+            /** Read Only */
+            read_only: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** OptionExample */
         OptionExample: {
@@ -7495,6 +7571,88 @@ export interface operations {
         };
     };
     removeSmbShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listNfsShares: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NfsShareOut"][];
+                };
+            };
+        };
+    };
+    createNfsShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NfsShareIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NfsShareOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    removeNfsShare: {
         parameters: {
             query?: never;
             header?: never;
