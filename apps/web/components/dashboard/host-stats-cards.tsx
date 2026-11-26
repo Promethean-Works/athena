@@ -43,6 +43,7 @@ import {
   formatPercent,
   formatRate,
 } from "@/lib/format"
+import { currentLocale } from "@/lib/i18n"
 
 type Range = "5m" | "1h"
 const RANGE_SECONDS: Record<Range, number> = { "5m": 300, "1h": 3600 }
@@ -219,7 +220,9 @@ export function HostStatsCards() {
     latest.vram_used != null ||
     latest.vram_total != null ||
     host.gpus?.length > 0
-  const gpuTemps = (host.gpus ?? []).map((g) => g.temp).filter((t): t is number => t != null)
+  const gpuTemps = (host.gpus ?? [])
+    .map((g) => g.temp)
+    .filter((t): t is number => t != null)
   const hottestGpuTemp = gpuTemps.length ? Math.max(...gpuTemps) : null
   const cores =
     host.cpu_count_physical && host.cpu_count_physical !== host.cpu_count
@@ -269,7 +272,16 @@ export function HostStatsCards() {
           }
           footer={
             host.load_avg
-              ? t("stats.coresLoad", { cores, load: host.load_avg.join(" ") })
+              ? t("stats.coresLoad", {
+                  cores,
+                  load: host.load_avg
+                    .map((n) =>
+                      n.toLocaleString(currentLocale(), {
+                        maximumFractionDigits: 2,
+                      })
+                    )
+                    .join(" "),
+                })
               : cores
           }
         >
@@ -324,8 +336,12 @@ export function HostStatsCards() {
         {hasDiskIo ? (
           <StatCard
             label={t("stats.diskActivity")}
-            value={t("stats.readRate", { rate: formatRate(latest.disk_read ?? 0) })}
-            footer={t("stats.writeRate", { rate: formatRate(latest.disk_write ?? 0) })}
+            value={t("stats.readRate", {
+              rate: formatRate(latest.disk_read ?? 0),
+            })}
+            footer={t("stats.writeRate", {
+              rate: formatRate(latest.disk_write ?? 0),
+            })}
           >
             <Sparkline
               data={series(history, range, (s) => ({
@@ -341,10 +357,14 @@ export function HostStatsCards() {
           <>
             <StatCard
               label="GPU"
-              value={latest.gpu_util !== null ? formatPercent(latest.gpu_util) : "—"}
+              value={
+                latest.gpu_util !== null ? formatPercent(latest.gpu_util) : "—"
+              }
               badge={
                 hottestGpuTemp !== null ? (
-                  <Badge variant="outline">{Math.round(hottestGpuTemp)} °C</Badge>
+                  <Badge variant="outline">
+                    {Math.round(hottestGpuTemp)} °C
+                  </Badge>
                 ) : undefined
               }
               footer={
@@ -378,8 +398,7 @@ export function HostStatsCards() {
             >
               <Sparkline
                 data={series(history, range, (s) => ({
-                  vram:
-                    ((s.vram_used ?? 0) / (s.vram_total ?? 1)) * 100,
+                  vram: ((s.vram_used ?? 0) / (s.vram_total ?? 1)) * 100,
                 }))}
                 config={configs.vram}
                 format={formatPercent}

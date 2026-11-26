@@ -102,5 +102,6 @@
       "lateBody": "Pode demorar mais em um host lento. Se continuar fora do ar, confira o log da atualização na pasta de dados (logs/update.log)."
     }
   },
-  "restartLateBody": "Pode demorar mais em um host lento. Se continuar fora do ar, confira o log na pasta de dados (logs/athena.log)."
+  "restartLateBody": "Pode demorar mais em um host lento. Se continuar fora do ar, confira o log na pasta de dados (logs/athena.log).",
+  "toggleSidebar": "Alternar barra lateral"
 }

@@ -102,5 +102,6 @@
       "lateBody": "It can take longer on a slow host. If it stays down, check the update log in the data folder (logs/update.log)."
     }
   },
-  "restartLateBody": "It can take longer on a slow host. If it stays down, check the log in the data folder (logs/athena.log)."
+  "restartLateBody": "It can take longer on a slow host. If it stays down, check the log in the data folder (logs/athena.log).",
+  "toggleSidebar": "Toggle sidebar"
 }

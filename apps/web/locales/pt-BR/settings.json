@@ -387,5 +387,13 @@
         "step3": "Confirme o aviso. Alguns apps ignoram certificados do usuário; os navegadores os usam."
       }
     }
+  },
+  "sections": {
+    "appearance": "Aparência",
+    "account": "Conta",
+    "system": "Sistema",
+    "https": "HTTPS",
+    "ai": "IA",
+    "label": "Configurações"
   }
 }

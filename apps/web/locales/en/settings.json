@@ -387,5 +387,13 @@
         "step3": "Confirm the warning. Some apps ignore user certificates; browsers use them."
       }
     }
+  },
+  "sections": {
+    "appearance": "Appearance",
+    "account": "Account",
+    "system": "System",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "Settings"
   }
 }
