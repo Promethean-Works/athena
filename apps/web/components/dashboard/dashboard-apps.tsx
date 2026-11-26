@@ -71,7 +71,7 @@ function AppsList() {
     return (
       <div className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2">
         {[0, 1, 2].map((i) => (
-          <Skeleton key={i} className="h-28 w-full" />
+          <Skeleton key={i} className="h-36 w-full" />
         ))}
       </div>
     )
@@ -113,7 +113,7 @@ function AppsList() {
           }`
           const icon = (
             <>
-              <AppIcon title={label} icon={app.icon} className="size-14" />
+              <AppIcon title={label} icon={app.icon} className="size-21" />
               <span
                 aria-hidden
                 className={cn(
