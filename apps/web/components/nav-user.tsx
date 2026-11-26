@@ -1,10 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { EllipsisVerticalIcon, LogOutIcon, RotateCwIcon } from "lucide-react"
+import {
+  EllipsisVerticalIcon,
+  GlobeIcon,
+  LogOutIcon,
+  RotateCwIcon,
+} from "lucide-react"
 
 import { useAuth } from "@/components/auth-provider"
 import { RestartAthenaDialog } from "@/components/restart-athena"
+import { TunnelAddressDialog } from "@/components/tunnel/tunnel-address-dialog"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
   DropdownMenu,
@@ -27,6 +33,7 @@ export function NavUser() {
   const { isMobile } = useSidebar()
   const { user, logout } = useAuth()
   const [confirmRestart, setConfirmRestart] = React.useState(false)
+  const [showTunnel, setShowTunnel] = React.useState(false)
   const initials = user.username.slice(0, 2).toUpperCase()
   const role = user.is_admin ? "Administrator" : "User"
 
@@ -83,6 +90,10 @@ export function NavUser() {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => setShowTunnel(true)}>
+                  <GlobeIcon />
+                  Tunnel address
+                </DropdownMenuItem>
                 {user.is_admin ? (
                   <DropdownMenuItem onClick={() => setConfirmRestart(true)}>
                     <RotateCwIcon />
@@ -98,6 +109,7 @@ export function NavUser() {
           </DropdownMenu>
         </SidebarMenuItem>
       </SidebarMenu>
+      <TunnelAddressDialog open={showTunnel} onOpenChange={setShowTunnel} />
       <RestartAthenaDialog
         open={confirmRestart}
         onOpenChange={setConfirmRestart}

@@ -58,6 +58,7 @@ import { useCapability } from "@/components/capabilities-provider"
 import { JobDialog } from "@/components/job-dialog"
 import { patchSystemSettings } from "@/components/settings/system-settings"
 import { CopyField } from "@/components/settings/copy-field"
+import { TunnelQr } from "@/components/tunnel/tunnel-qr"
 
 type TunnelProvider = "cloudflare" | "tailscale" | "ngrok"
 type SystemSettings = Schemas["SystemSettings"]
@@ -580,11 +581,14 @@ export function TunnelCard() {
                     <StatusBadge status={status} />
                   </div>
                   {status?.public_url && (
-                    <CopyField
-                      id="tunnel-url"
-                      label="Public address"
-                      value={status.public_url}
-                    />
+                    <>
+                      <CopyField
+                        id="tunnel-url"
+                        label="Public address"
+                        value={status.public_url}
+                      />
+                      <TunnelQr value={status.public_url} />
+                    </>
                   )}
                   {status?.detail && (
                     <p className="text-sm text-muted-foreground">
