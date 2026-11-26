@@ -1,0 +1,63 @@
+x-athena:
+  title: Miniflux
+  description: Minimalist, fast RSS and Atom feed reader with keyboard shortcuts and a clean reading view.
+  tagline: Minimalist RSS reader.
+  tags: [RSS, Feeds, Reading]
+  license: Apache-2.0
+  category: reading
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/miniflux.svg
+  homepage: https://miniflux.app
+  web_port: WEB_PORT
+  notes: >-
+    Sign in as `admin` with the password below.
+  features:
+    - Fast, distraction-free reading
+    - Fetches full article content and filters with rules
+    - Fever and Google Reader-compatible API for mobile apps
+    - Integrations with Wallabag, Linkding, Pocket and more
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8235"
+    - key: ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+    - key: DB_PASSWORD
+      label: Database password
+      type: password
+      generate: secret
+      advanced: true
+
+services:
+  miniflux:
+    image: miniflux/miniflux:2.3.5
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT}:8080"
+    environment:
+      DATABASE_URL: postgres://miniflux:${DB_PASSWORD}@db/miniflux?sslmode=disable
+      RUN_MIGRATIONS: "1"
+      CREATE_ADMIN: "1"
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: miniflux
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: miniflux
+    volumes:
+      - ${ATHENA_APP_DATA}/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U miniflux -d miniflux"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s

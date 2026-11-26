@@ -1,0 +1,35 @@
+x-athena:
+  title: SearXNG
+  description: Private metasearch engine that queries dozens of search sites without tracking you.
+  tagline: Private metasearch engine, no tracking.
+  tags: [Search, Privacy, AI]
+  license: AGPL-3.0
+  category: ai
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/searxng.svg
+  homepage: https://docs.searxng.org
+  web_port: WEB_PORT
+  notes: >-
+    Settings live in `config/settings.yml` inside the app's data folder (created on first start).
+    To use SearXNG as a web-search tool for Open WebUI or other AI apps, add `json` under
+    `search: formats:` in that file and restart the app.
+  features:
+    - Aggregates results from 70+ search engines
+    - No tracking, no profiling, no ads
+    - JSON output for AI assistants and RAG pipelines (enable in settings)
+    - Works as a browser search engine
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8218"
+
+services:
+  searxng:
+    image: docker.io/searxng/searxng:2026.11.23-a7163d091
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8080"
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/etc/searxng
+      - ${ATHENA_APP_DATA}/cache:/var/cache/searxng

@@ -1,0 +1,31 @@
+x-athena:
+  title: Kokoro TTS
+  description: Fast, natural-sounding text-to-speech with an OpenAI-compatible API, small enough to run on a CPU.
+  tagline: Local text-to-speech with OpenAI-compatible API.
+  tags: [AI, TTS, Voice]
+  license: Apache-2.0
+  category: ai
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://raw.githubusercontent.com/remsky/Kokoro-FastAPI/master/web/favicon.svg
+  homepage: https://github.com/remsky/Kokoro-FastAPI
+  web_port: WEB_PORT
+  notes: >-
+    The built-in web player is at `/web`. Point Open WebUI's text-to-speech setting at
+    `http://<server>:<port>/v1` with any API key.
+  features:
+    - OpenAI-compatible /v1/audio/speech endpoint
+    - Dozens of voices in several languages
+    - Runs on CPU, no GPU needed
+    - Built-in web player
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8222"
+
+services:
+  kokoro:
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:v0.10.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8880"

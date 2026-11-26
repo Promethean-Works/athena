@@ -1,0 +1,33 @@
+x-athena:
+  title: Beszel
+  description: Lightweight server monitoring hub with history, Docker container stats and alerts.
+  tagline: Lightweight server and container monitoring.
+  tags: [Monitoring, Docker, Alerts]
+  license: MIT
+  category: monitoring
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/beszel.svg
+  homepage: https://beszel.dev
+  web_port: WEB_PORT
+  notes: >-
+    This is the hub. Create the admin account on first open, then use "Add system" to get the agent command for
+    each server you want to watch (the hub's own machine included).
+  features:
+    - CPU, memory, disk, network and temperature history
+    - Per-container Docker stats
+    - Alerts by email, ntfy, Gotify, Discord and more
+    - Multi-user, with very low resource use
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8238"
+
+services:
+  beszel:
+    image: henrygd/beszel:0.21.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:8090"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/beszel_data

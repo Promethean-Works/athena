@@ -1,0 +1,50 @@
+x-athena:
+  title: LibreTranslate
+  description: Self-hosted machine translation API and web page, powered by open models with no cloud service.
+  tagline: Private translation API, no cloud.
+  tags: [AI, Translation, API]
+  license: AGPL-3.0
+  category: ai
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/libretranslate.svg
+  homepage: https://libretranslate.com
+  web_port: WEB_PORT
+  notes: >-
+    The first start downloads the language models, which can take several minutes. Limit the languages
+    below to save disk space and memory.
+  features:
+    - Translate text and documents in 50+ languages
+    - Detects the source language
+    - REST API compatible with many tools
+    - Runs fully offline after the first download
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8228"
+    - key: LANGUAGES
+      label: Languages
+      description: Comma-separated language codes to load. Leave empty for all.
+      default: "en,es,fr,de,pt,it"
+      required: false
+
+services:
+  init-perms:
+    image: busybox:1.37
+    command: ["sh", "-c", "chown -R 1032:65534 /models"]
+    user: root
+    volumes:
+      - ${ATHENA_APP_DATA}/models:/models
+  libretranslate:
+    depends_on:
+      init-perms:
+        condition: service_completed_successfully
+    image: libretranslate/libretranslate:v1.10.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:5000"
+    environment:
+      LT_LOAD_ONLY: ${LANGUAGES}
+      LT_UPDATE_MODELS: "true"
+    volumes:
+      - ${ATHENA_APP_DATA}/models:/home/libretranslate/.local
