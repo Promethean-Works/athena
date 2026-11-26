@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { PlusIcon, RefreshCwIcon, Trash2Icon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -50,21 +51,22 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { toast } from "@workspace/ui/components/toast"
 
 import { JobDialog } from "@/components/job-dialog"
+import { currentLocale } from "@/lib/i18n"
 
 type CatalogOut = Schemas["CatalogOut"]
 type Job = Schemas["JobOut"]
 type Kind = "auto" | "athena"
 
-const KINDS: { label: string; value: Kind }[] = [
-  { label: "Detect automatically", value: "auto" },
-  { label: "Athena catalog", value: "athena" },
-]
-
-function when(iso: string | null | undefined) {
-  return iso ? new Date(iso).toLocaleString() : "never"
+function when(iso: string | null | undefined, never: string) {
+  return iso ? new Date(iso).toLocaleString(currentLocale()) : never
 }
 
 export function CatalogsManager() {
+  const { t } = useTranslation("store")
+  const KINDS: { label: string; value: Kind }[] = [
+    { label: t("catalogs.kindAuto"), value: "auto" },
+    { label: t("catalogs.kindAthena"), value: "athena" },
+  ]
   const [catalogs, setCatalogs] = React.useState<CatalogOut[] | null>(null)
   const [job, setJob] = React.useState<Job | null>(null)
   const [removing, setRemoving] = React.useState<CatalogOut | null>(null)
@@ -88,7 +90,7 @@ export function CatalogsManager() {
     } else {
       toast.add({
         type: "error",
-        title: "Couldn't add the catalog",
+        title: t("catalogs.addFailed"),
         description: errorMessage(error),
       })
     }
@@ -103,7 +105,7 @@ export function CatalogsManager() {
     else
       toast.add({
         type: "error",
-        title: `Couldn't refresh ${c.name}`,
+        title: t("catalogs.refreshFailed", { name: c.name }),
         description: errorMessage(error),
       })
   }
@@ -116,10 +118,10 @@ export function CatalogsManager() {
     if (error)
       toast.add({
         type: "error",
-        title: `Couldn't remove ${c.name}`,
+        title: t("catalogs.removeFailed", { name: c.name }),
         description: errorMessage(error),
       })
-    else toast.add({ type: "success", title: `Removed ${c.name}` })
+    else toast.add({ type: "success", title: t("catalogs.removed", { name: c.name }) })
     void load()
   }
 
@@ -136,17 +138,19 @@ export function CatalogsManager() {
                   <ItemTitle>
                     {c.name}
                     {c.builtin ? (
-                      <Badge variant="secondary">Built in</Badge>
+                      <Badge variant="secondary">{t("catalogs.builtIn")}</Badge>
                     ) : null}
                     {c.error ? (
-                      <Badge variant="destructive">Refresh failed</Badge>
+                      <Badge variant="destructive">{t("catalogs.refreshFailedBadge")}</Badge>
                     ) : null}
                   </ItemTitle>
                   <ItemDescription>
-                    {c.app_count} apps
                     {c.builtin
-                      ? " · ships with Athena"
-                      : ` · updated ${when(c.refreshed_at)}`}
+                      ? t("catalogs.summaryBuiltin", { count: c.app_count })
+                      : t("catalogs.summaryUpdated", {
+                          count: c.app_count,
+                          when: when(c.refreshed_at, t("catalogs.never")),
+                        })}
                   </ItemDescription>
                   {c.url ? (
                     <ItemDescription className="font-mono text-xs break-all">
@@ -167,7 +171,7 @@ export function CatalogsManager() {
                       onClick={() => refresh(c)}
                     >
                       <RefreshCwIcon data-icon="inline-start" />
-                      Refresh
+                      {t("catalogs.refresh")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -175,7 +179,9 @@ export function CatalogsManager() {
                       onClick={() => setRemoving(c)}
                     >
                       <Trash2Icon />
-                      <span className="sr-only">Remove {c.name}</span>
+                      <span className="sr-only">
+                        {t("catalogs.removeLabel", { name: c.name })}
+                      </span>
                     </Button>
                   </ItemActions>
                 ) : null}
@@ -188,10 +194,9 @@ export function CatalogsManager() {
       <div className="flex flex-col gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Add a catalog</CardTitle>
+            <CardTitle>{t("catalogs.addTitle")}</CardTitle>
             <CardDescription>
-              A GitHub, Codeberg or GitLab repository, or a direct .tar.gz/.zip
-              link.
+              {t("catalogs.addDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -203,12 +208,12 @@ export function CatalogsManager() {
             >
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="catalog-name">Name</FieldLabel>
+                  <FieldLabel htmlFor="catalog-name">{t("catalogs.name")}</FieldLabel>
                   <Input
                     id="catalog-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="My apps"
+                    placeholder={t("catalogs.namePlaceholder")}
                     required
                   />
                 </Field>
@@ -224,7 +229,7 @@ export function CatalogsManager() {
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="catalog-kind">Format</FieldLabel>
+                  <FieldLabel htmlFor="catalog-kind">{t("catalogs.format")}</FieldLabel>
                   <Select
                     items={KINDS}
                     value={kind}
@@ -244,14 +249,13 @@ export function CatalogsManager() {
                     </SelectContent>
                   </Select>
                   <FieldDescription>
-                    Athena catalogs use apps/&lt;id&gt;/compose.yaml; CasaOS
-                    stores use Apps/&lt;Name&gt;/docker-compose.yml.
+                    {t("catalogs.formatHint")}
                   </FieldDescription>
                 </Field>
                 <Field>
                   <Button type="submit" disabled={!name.trim() || !url.trim()}>
                     <PlusIcon data-icon="inline-start" />
-                    Add catalog
+                    {t("catalogs.add")}
                   </Button>
                 </Field>
               </FieldGroup>
@@ -271,19 +275,20 @@ export function CatalogsManager() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove {removing?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("catalogs.removeTitle", { name: removing?.name })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Its apps disappear from the store. Apps you already installed from
-              it keep running.
+              {t("catalogs.removeDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("catalogs.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => removing && remove(removing)}
             >
-              Remove
+              {t("catalogs.remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

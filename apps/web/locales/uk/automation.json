@@ -1,0 +1,173 @@
+{
+  "cancel": "Скасувати",
+  "view": {
+    "unavailable": "Автоматизація недоступна",
+    "unsupported": "Цей хост не підтримує автоматизацію."
+  },
+  "copyUrl": {
+    "copy": "Копіювати {{label}}",
+    "copied": "{{label}} скопійовано",
+    "failed": "Не вдалося скопіювати"
+  },
+  "external": {
+    "title": "Зовнішня автоматизація",
+    "description": "Підключіть до Athena n8n, скрипти чи агентів ШІ.",
+    "webhookUrl": "URL вебхука",
+    "webhookHint": "Надішліть запит POST, щоб спрацював тригер-вебхук; входити не потрібно. Кожен тригер-вебхук має власний токен: скопіюйте його повний URL зі списку тригерів.",
+    "mcpServer": "Сервер MCP",
+    "mcpUrl": "URL сервера MCP",
+    "mcpHint": "Streamable HTTP. Клієнти входять через cookie сеансу або надсилають токен зі змінної середовища сервера <envVar>ATHENA_MCP_TOKEN</envVar> як <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Запуски завдань",
+    "description": "Останні запуски, оновлюються кожні кілька секунд.",
+    "trigger": "Тригер",
+    "deletedTrigger": "Видалений тригер",
+    "listFailed": "Не вдалося отримати список запусків завдань",
+    "empty": {
+      "title": "Запусків завдань ще немає",
+      "description": "Запуски з'являються тут, коли спрацьовує тригер."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Запустити застосунок {{name}}",
+      "stop": "Зупинити застосунок {{name}}",
+      "restart": "Перезапустити застосунок {{name}}",
+      "update": "Оновити застосунок {{name}}"
+    },
+    "package": {
+      "install": "Встановити {{name}} ({{manager}})",
+      "uninstall": "Видалити {{name}} ({{manager}})",
+      "upgrade": "Оновити {{name}} ({{manager}})",
+      "refresh": "Оновити списки пакетів {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Тригери",
+    "description": "Виконуйте дію із застосунком чи пакетом за розкладом або з вебхука.",
+    "listFailed": "Не вдалося отримати список тригерів",
+    "empty": {
+      "title": "Тригерів ще немає",
+      "description": "Тригер виконує дію за розкладом (cron) або коли викликають його вебхук, наприклад з n8n."
+    },
+    "onWebhook": "Коли викликано його вебхук",
+    "noSchedule": "Без розкладу",
+    "webhook": "Вебхук",
+    "cron": "Cron",
+    "nextRun": "Наступний запуск: {{time}}",
+    "changeFailed": "Не вдалося змінити тригер",
+    "enabledToast": "{{name}} увімкнено",
+    "pausedToast": "{{name}} призупинено",
+    "enabledLabel": "{{name}} увімкнено",
+    "copyWebhook": "Копіювати URL вебхука",
+    "webhookCopied": "URL вебхука скопійовано",
+    "copyFailed": "Не вдалося скопіювати",
+    "deleteFailed": "Не вдалося видалити тригер",
+    "deleted": "Тригер видалено",
+    "deleteLabel": "Видалити {{name}}",
+    "delete": "Видалити",
+    "deleteTitle": "Видалити {{name}}?",
+    "deleteDescription": "Він перестане виконуватися. Минулі запуски завдань залишаться в журналі.",
+    "deleteDescriptionWebhook": "Він перестане виконуватися, а URL його вебхука перестане працювати. Минулі запуски завдань залишаться в журналі."
+  },
+  "dialog": {
+    "new": "Новий тригер",
+    "description": "Виконуйте дію із застосунком чи пакетом за розкладом або щоразу, коли викликають вебхук.",
+    "created": {
+      "title": "Тригер-вебхук створено",
+      "description": "Надішліть запит POST на цей URL, щоб виконати «{{name}}». Будь-хто з цим URL може його запустити, тож тримайте його в таємниці. Скопіювати його знову можна зі списку тригерів.",
+      "done": "Готово"
+    },
+    "errors": {
+      "name": "Дайте тригеру назву.",
+      "app": "Виберіть застосунок.",
+      "manager": "Виберіть менеджер пакетів.",
+      "packageName": "Введіть назву пакета."
+    },
+    "createdToast": "Тригер {{name}} створено",
+    "createFailed": "Не вдалося створити тригер",
+    "name": "Назва",
+    "namePlaceholder": "напр. Нічний перезапуск Jellyfin",
+    "whenItRuns": "Коли виконується",
+    "onSchedule": "За розкладом (cron)",
+    "onWebhook": "Коли викликано вебхук",
+    "schedule": "Розклад",
+    "cronPlaceholder": "хвилина година день місяць день_тижня, напр. 0 2 * * *",
+    "cronHelp": "П'ять полів: хвилина, година, день місяця, місяць, день тижня. Час — UTC.",
+    "webhookHint": "Після створення ви отримаєте секретний URL. Запит POST на нього (з n8n, скрипта чи curl) виконує дію.",
+    "whatItDoes": "Що він робить",
+    "appAction": "Дія із застосунком",
+    "packageAction": "Дія з пакетом",
+    "create": "Створити тригер",
+    "app": "Застосунок",
+    "loadingApps": "Завантаження застосунків…",
+    "chooseApp": "Виберіть застосунок",
+    "noApps": "Застосунків не встановлено",
+    "action": "Дія",
+    "appVerbs": {
+      "start": "Запустити",
+      "stop": "Зупинити",
+      "restart": "Перезапустити",
+      "update": "Оновити (завантажити й створити заново)"
+    },
+    "packageVerbs": {
+      "install": "Встановити",
+      "uninstall": "Видалити",
+      "upgrade": "Оновити",
+      "refresh": "Оновити списки пакетів"
+    },
+    "packageManager": "Менеджер пакетів",
+    "loading": "Завантаження…",
+    "chooseManager": "Виберіть менеджер",
+    "noManagers": "Жодного готового на цьому хості",
+    "package": "Пакет",
+    "packagePlaceholder": "напр. jq",
+    "source": "Джерело (необов'язково)",
+    "sourceHint": "Віддалене сховище Flatpak, bucket Scoop або «cask» для cask Homebrew.",
+    "loadingInstalled": "Завантаження встановлених пакетів…",
+    "installedFailed": "Не вдалося отримати список встановлених пакетів ({{error}}); введіть назву вручну.",
+    "searchInstalled": "Пошук встановлених пакетів",
+    "noMatch": "Жоден встановлений пакет не підходить."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Щогодини",
+      "daily": "Щодня о 02:00",
+      "sundays": "У неділю о 03:00",
+      "monthly": "Щомісяця 1-го числа"
+    },
+    "fields": {
+      "minute": "хвилина",
+      "hour": "година",
+      "dayOfMonth": "день місяця",
+      "month": "місяць",
+      "weekday": "день тижня"
+    },
+    "errors": {
+      "empty": "Введіть вираз cron або виберіть шаблон.",
+      "invalidField": "Поле «{{field}}» зі значенням «{{value}}» недійсне.",
+      "invalidStep": "Крок «/{{step}}» у полі «{{field}}» має бути числом.",
+      "outOfRange": "Поле «{{field}}» має бути від {{min}} до {{max}}.",
+      "fieldCount": "Використовуйте п'ять полів (хвилина година день місяць день_тижня); тут їх {{count}}."
+    },
+    "dayRange": "{{from}} — {{to}}",
+    "custom": "Власний розклад",
+    "everyMinute": "Щохвилини",
+    "everyMinutes_one": "Кожну {{count}} хвилину",
+    "everyMinutes_few": "Кожні {{count}} хвилини",
+    "everyMinutes_many": "Кожні {{count}} хвилин",
+    "everyMinutes_other": "Кожні {{count}} хвилини",
+    "everyHourOnTheHour": "Щогодини, на початку години",
+    "everyHourAtMinute": "Щогодини на {{minute}}-й хвилині",
+    "everyHoursAtMinute_one": "Кожну {{count}} годину на {{minute}}-й хвилині",
+    "everyHoursAtMinute_few": "Кожні {{count}} години на {{minute}}-й хвилині",
+    "everyHoursAtMinute_many": "Кожні {{count}} годин на {{minute}}-й хвилині",
+    "everyHoursAtMinute_other": "Кожні {{count}} години на {{minute}}-й хвилині",
+    "everyDay": "Щодня о {{time}}",
+    "everyWeekdays": "Щотижня: {{days}}, {{time}}",
+    "onDayOfMonth": "{{day}}-го числа кожного місяця о {{time}}",
+    "everyYear": "Щороку: {{month}} {{day}}, {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

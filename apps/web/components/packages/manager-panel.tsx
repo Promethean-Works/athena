@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { useLatest } from "@/hooks/use-latest"
 import {
@@ -110,10 +111,11 @@ function sourceBadge(source?: string | null) {
 }
 
 function ListError({ error }: { error: string }) {
+  const { t } = useTranslation("packages")
   return (
     <Alert variant="destructive">
       <CircleAlertIcon />
-      <AlertTitle>Couldn&apos;t read the package list</AlertTitle>
+      <AlertTitle>{t("listError")}</AlertTitle>
       <AlertDescription className="font-mono text-xs break-all">
         {error}
       </AlertDescription>
@@ -138,6 +140,7 @@ function Confirm({
   onCancel: () => void
   onConfirm: () => void
 }) {
+  const { t } = useTranslation("packages")
   return (
     <AlertDialog open={open} onOpenChange={(o) => !o && onCancel()}>
       <AlertDialogContent>
@@ -146,7 +149,7 @@ function Confirm({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             variant={destructive ? "destructive" : "default"}
             onClick={onConfirm}
@@ -164,6 +167,7 @@ type Pending =
 
 /** One package manager: installed packages, available updates, and search. */
 export function ManagerPanel({ manager }: { manager: Manager }) {
+  const { t } = useTranslation("packages")
   const id = manager.id
   const path = { params: { path: { manager: id } } }
   const installed = useList<Installed[]>(() =>
@@ -181,12 +185,12 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
   const [searchError, setSearchError] = React.useState<string | null>(null)
   const [lastQuery, setLastQuery] = React.useState("")
 
-  const started = (result: { data?: Job; error?: unknown }, what: string) => {
+  const started = (result: { data?: Job; error?: unknown }, failTitle: string) => {
     if (result.data) setJob(result.data)
     else
       toast.add({
         type: "error",
-        title: `Couldn't ${what}`,
+        title: failTitle,
         description: errorMessage(result.error),
       })
   }
@@ -212,7 +216,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
         ...path,
         body: { name: pkg.name, source: pkg.source ?? null },
       }),
-      `install ${pkg.name}`
+      t("toast.installFailed", { name: pkg.name })
     )
   const uninstall = async (name: string) =>
     started(
@@ -220,7 +224,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
         ...path,
         body: { name },
       }),
-      `uninstall ${name}`
+      t("toast.uninstallFailed", { name })
     )
   const upgrade = async (name: string | null) =>
     started(
@@ -228,12 +232,14 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
         ...path,
         body: { name },
       }),
-      name ? `upgrade ${name}` : "upgrade packages"
+      name
+        ? t("toast.upgradeFailed", { name })
+        : t("toast.upgradeAllFailed")
     )
   const refresh = async () =>
     started(
       await api.POST("/api/packages/{manager}/refresh", path),
-      "refresh the package lists"
+      t("toast.refreshFailed")
     )
 
   const afterJob = React.useCallback(() => {
@@ -248,9 +254,9 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
     return (
       <Alert>
         <InfoIcon />
-        <AlertTitle>{manager.label} can&apos;t be used right now</AlertTitle>
+        <AlertTitle>{t("unavailable", { name: manager.label })}</AlertTitle>
         <AlertDescription>
-          {manager.detail ?? "It isn't ready on this host."}
+          {manager.detail ?? t("unavailableHint")}
         </AlertDescription>
       </Alert>
     )
@@ -278,7 +284,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
         {manager.can_refresh ? (
           <Button variant="outline" size="sm" onClick={refresh}>
             <RefreshCwIcon data-icon="inline-start" />
-            Refresh lists
+            {t("refreshLists")}
           </Button>
         ) : null}
         <Button
@@ -287,7 +293,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
           onClick={() => setPending({ kind: "upgrade-all" })}
         >
           <ArrowUpCircleIcon data-icon="inline-start" />
-          Upgrade all
+          {t("upgradeAll")}
         </Button>
       </div>
       {manager.note ? (
@@ -300,22 +306,22 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
       <Tabs defaultValue="installed">
         <TabsList>
           <TabsTrigger value="installed">
-            Installed
+            {t("tabs.installed")}
             {installed.data ? (
               <Badge variant="secondary">{installed.data.length}</Badge>
             ) : null}
           </TabsTrigger>
           <TabsTrigger value="updates">
-            Updates
+            {t("tabs.updates")}
             {updateCount ? <Badge>{updateCount}</Badge> : null}
           </TabsTrigger>
-          <TabsTrigger value="search">Search</TabsTrigger>
+          <TabsTrigger value="search">{t("tabs.search")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="installed" className="flex flex-col gap-3 pt-2">
           <Input
-            aria-label="Filter installed packages"
-            placeholder="Filter installed packages"
+            aria-label={t("installed.filter")}
+            placeholder={t("installed.filter")}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="sm:max-w-xs"
@@ -326,17 +332,17 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
             <Skeleton className="h-40 w-full" />
           ) : filtered.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {needle ? "No installed package matches." : "Nothing installed."}
+              {needle ? t("installed.noMatch") : t("installed.empty")}
             </p>
           ) : (
             <>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Package</TableHead>
-                    <TableHead>Version</TableHead>
+                    <TableHead>{t("table.package")}</TableHead>
+                    <TableHead>{t("table.version")}</TableHead>
                     <TableHead className="hidden md:table-cell">
-                      Description
+                      {t("table.description")}
                     </TableHead>
                     <TableHead className="w-0" />
                   </TableRow>
@@ -371,8 +377,8 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
-                                aria-label={`Upgrade ${p.name}`}
-                                title="Upgrade"
+                                aria-label={t("installed.upgradeLabel", { name: p.name })}
+                                title={t("installed.upgrade")}
                                 onClick={() => upgrade(p.name)}
                               >
                                 <ArrowUpCircleIcon />
@@ -381,12 +387,14 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              aria-label={`Uninstall ${p.name}`}
+                              aria-label={t("installed.uninstallLabel", { name: p.name })}
                               disabled={shortened}
                               title={
                                 shortened
-                                  ? `${manager.label} shortened this id, so it can't be uninstalled from here`
-                                  : "Uninstall"
+                                  ? t("installed.shortened", {
+                                      manager: manager.label,
+                                    })
+                                  : t("installed.uninstall")
                               }
                               onClick={() =>
                                 setPending({ kind: "uninstall", name: p.name })
@@ -403,7 +411,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
               </Table>
               {filtered.length > SHOWN ? (
                 <p className="text-sm text-muted-foreground">
-                  Showing {SHOWN} of {filtered.length}. Filter to narrow down.
+                  {t("installed.showing", { shown: SHOWN, total: filtered.length })}
                 </p>
               ) : null}
             </>
@@ -418,11 +426,11 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
           ) : updates.data.length === 0 ? (
             <Empty className="border py-8">
               <EmptyHeader>
-                <EmptyTitle>Everything is up to date</EmptyTitle>
+                <EmptyTitle>{t("updates.upToDate")}</EmptyTitle>
                 <EmptyDescription>
                   {manager.can_refresh
-                    ? "As of the last list refresh. Refresh lists to check again."
-                    : "Nothing to upgrade."}
+                    ? t("updates.upToDateRefresh")
+                    : t("updates.nothing")}
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
@@ -430,9 +438,9 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Package</TableHead>
-                  <TableHead>Installed</TableHead>
-                  <TableHead>Available</TableHead>
+                  <TableHead>{t("table.package")}</TableHead>
+                  <TableHead>{t("updates.installedColumn")}</TableHead>
+                  <TableHead>{t("updates.availableColumn")}</TableHead>
                   <TableHead className="w-0" />
                 </TableRow>
               </TableHeader>
@@ -455,7 +463,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                           size="sm"
                           onClick={() => upgrade(u.name)}
                         >
-                          Upgrade
+                          {t("installed.upgrade")}
                         </Button>
                       ) : null}
                     </TableCell>
@@ -475,14 +483,14 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
             }}
           >
             <Input
-              aria-label={`Search ${manager.label}`}
-              placeholder={`Search ${manager.label}`}
+              aria-label={t("search.label", { manager: manager.label })}
+              placeholder={t("search.label", { manager: manager.label })}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
             <Button type="submit" disabled={!query.trim() || searching}>
               <SearchIcon data-icon="inline-start" />
-              Search
+              {t("tabs.search")}
             </Button>
           </form>
           {searchError ? (
@@ -491,16 +499,16 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
             <Skeleton className="h-40 w-full" />
           ) : results === null ? null : results.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No packages match &ldquo;{lastQuery}&rdquo;.
+              {t("search.noMatch", { query: lastQuery })}
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Package</TableHead>
-                  <TableHead>Version</TableHead>
+                  <TableHead>{t("table.package")}</TableHead>
+                  <TableHead>{t("table.version")}</TableHead>
                   <TableHead className="hidden md:table-cell">
-                    Description
+                    {t("table.description")}
                   </TableHead>
                   <TableHead className="w-0" />
                 </TableRow>
@@ -524,7 +532,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                     </TableCell>
                     <TableCell>
                       {r.installed ? (
-                        <Badge variant="secondary">Installed</Badge>
+                        <Badge variant="secondary">{t("tabs.installed")}</Badge>
                       ) : (
                         <Button
                           variant="outline"
@@ -532,7 +540,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                           onClick={() => install(r)}
                         >
                           <DownloadIcon data-icon="inline-start" />
-                          Install
+                          {t("search.install")}
                         </Button>
                       )}
                     </TableCell>
@@ -546,9 +554,11 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
 
       <Confirm
         open={pending?.kind === "uninstall"}
-        title={`Uninstall ${pending?.kind === "uninstall" ? pending.name : ""}?`}
-        description="It's removed from this server. Packages that depend on it may be removed too."
-        action="Uninstall"
+        title={t("confirm.uninstallTitle", {
+          name: pending?.kind === "uninstall" ? pending.name : "",
+        })}
+        description={t("confirm.uninstallDescription")}
+        action={t("installed.uninstall")}
         destructive
         onCancel={() => setPending(null)}
         onConfirm={() => {
@@ -558,9 +568,9 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
       />
       <Confirm
         open={pending?.kind === "upgrade-all"}
-        title={`Upgrade all ${manager.label} packages?`}
-        description={`${updateCount} package${updateCount === 1 ? "" : "s"} will be upgraded. This can take a while.`}
-        action="Upgrade all"
+        title={t("confirm.upgradeAllTitle", { manager: manager.label })}
+        description={t("confirm.upgradeAllDescription", { count: updateCount })}
+        action={t("upgradeAll")}
         onCancel={() => setPending(null)}
         onConfirm={() => {
           void upgrade(null)

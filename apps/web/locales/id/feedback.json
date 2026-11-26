@@ -1,0 +1,48 @@
+{
+  "menu": "Kirim masukan",
+  "dialog": {
+    "title": "Kirim masukan",
+    "description": "Membuka isu baru di {{repo}} pada tab baru. Anda dapat memeriksa dan mengeditnya di sana sebelum dikirim; isu bersifat publik.",
+    "storeHint": "Aplikasi toko yang tidak berfungsi? Gunakan <b>Laporkan masalah</b> di halaman tokonya, agar laporan sampai ke pemeliharanya.",
+    "loadFailed": "Tidak dapat memuat detail server ini"
+  },
+  "choices": {
+    "bug": {
+      "title": "Laporkan bug",
+      "description": "Ada yang tidak berfungsi sebagaimana mestinya."
+    },
+    "change": {
+      "title": "Usulkan perubahan",
+      "description": "Sesuatu berfungsi, tetapi seharusnya bekerja berbeda."
+    },
+    "feature": {
+      "title": "Minta fitur",
+      "description": "Sesuatu yang belum bisa dilakukan Athena."
+    }
+  },
+  "diagnostics": {
+    "title": "Diisi otomatis",
+    "system": "Sistem",
+    "cpu": "CPU",
+    "containers": "Kontainer"
+  },
+  "appReport": {
+    "button": "Laporkan masalah",
+    "title": "Laporkan masalah pada {{app}}",
+    "description": "Membuka isu baru untuk {{where}} pada tab baru, dengan detail aplikasi dan server ini sudah terisi. Anda memeriksanya di sana sebelum dikirim; isu bersifat publik.",
+    "whereCatalog": "katalog {{name}}, yang memelihara aplikasi ini",
+    "includeLogs_other": "Sertakan {{count}} baris log terakhir",
+    "installedCopy": "Salinan terpasang",
+    "logsLabel": "Log yang disertakan",
+    "loadingLogs": "Memuat log…",
+    "logsWarning": "Hapus kata sandi, token, dan alamat sebelum melanjutkan.",
+    "logsTruncated": "Hanya bagian akhir log yang muat di tautan.",
+    "cancel": "Batal",
+    "openIssue": "Buka isu",
+    "preparing": "Menyiapkan…",
+    "prepareFailed": "Tidak dapat menyiapkan laporan",
+    "logsFailed": "Tidak dapat memuat log: {{error}}",
+    "appNotFound": "aplikasi tidak ditemukan",
+    "noContainers": "Tidak ada kontainer untuk aplikasi ini."
+  }
+}

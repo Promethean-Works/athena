@@ -1,0 +1,21 @@
+{
+  "dashboard": "대시보드",
+  "apps": "앱",
+  "store": "스토어",
+  "packages": "패키지",
+  "automation": "자동화",
+  "files": "파일",
+  "smbShares": "SMB 공유",
+  "cloud": "클라우드",
+  "containers": "컨테이너",
+  "terminal": "터미널",
+  "assistant": "어시스턴트",
+  "backups": "백업",
+  "settings": "설정",
+  "help": "도움말",
+  "roleAdmin": "관리자",
+  "roleUser": "사용자",
+  "tunnelAddress": "터널 주소",
+  "restartAthena": "Athena 다시 시작",
+  "logOut": "로그아웃"
+}

@@ -1,0 +1,21 @@
+{
+  "dashboard": "仪表盘",
+  "apps": "应用",
+  "store": "商店",
+  "packages": "软件包",
+  "automation": "自动化",
+  "files": "文件",
+  "smbShares": "SMB 共享",
+  "cloud": "云存储",
+  "containers": "容器",
+  "terminal": "终端",
+  "assistant": "助手",
+  "backups": "备份",
+  "settings": "设置",
+  "help": "帮助",
+  "roleAdmin": "管理员",
+  "roleUser": "用户",
+  "tunnelAddress": "隧道地址",
+  "restartAthena": "重启 Athena",
+  "logOut": "退出登录"
+}

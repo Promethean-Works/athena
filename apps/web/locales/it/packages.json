@@ -1,0 +1,60 @@
+{
+  "view": {
+    "noManagers": "Nessun gestore di pacchetti trovato",
+    "noManagersHint": "Athena non ha trovato su questo host un gestore di pacchetti supportato."
+  },
+  "listError": "Impossibile leggere l'elenco dei pacchetti",
+  "cancel": "Annulla",
+  "toast": {
+    "installFailed": "Impossibile installare {{name}}",
+    "uninstallFailed": "Impossibile disinstallare {{name}}",
+    "upgradeFailed": "Impossibile aggiornare {{name}}",
+    "upgradeAllFailed": "Impossibile aggiornare i pacchetti",
+    "refreshFailed": "Impossibile aggiornare gli elenchi dei pacchetti"
+  },
+  "unavailable": "{{name}} non può essere usato al momento",
+  "unavailableHint": "Non è pronto su questo host.",
+  "refreshLists": "Aggiorna elenchi",
+  "upgradeAll": "Aggiorna tutto",
+  "tabs": {
+    "installed": "Installati",
+    "updates": "Aggiornamenti",
+    "search": "Cerca"
+  },
+  "installed": {
+    "filter": "Filtra i pacchetti installati",
+    "noMatch": "Nessun pacchetto installato corrisponde.",
+    "empty": "Niente di installato.",
+    "upgradeLabel": "Aggiorna {{name}}",
+    "upgrade": "Aggiorna",
+    "uninstallLabel": "Disinstalla {{name}}",
+    "uninstall": "Disinstalla",
+    "shortened": "{{manager}} ha abbreviato questo id, quindi non si può disinstallare da qui",
+    "showing": "Mostrati {{shown}} di {{total}}. Filtra per restringere."
+  },
+  "table": {
+    "package": "Pacchetto",
+    "version": "Versione",
+    "description": "Descrizione"
+  },
+  "updates": {
+    "upToDate": "Tutto aggiornato",
+    "upToDateRefresh": "Allo stato dell'ultimo aggiornamento degli elenchi. Aggiornali per controllare di nuovo.",
+    "nothing": "Niente da aggiornare.",
+    "installedColumn": "Installata",
+    "availableColumn": "Disponibile"
+  },
+  "search": {
+    "label": "Cerca in {{manager}}",
+    "noMatch": "Nessun pacchetto corrisponde a “{{query}}”.",
+    "install": "Installa"
+  },
+  "confirm": {
+    "uninstallTitle": "Disinstallare {{name}}?",
+    "uninstallDescription": "Viene rimosso da questo server. Anche i pacchetti che ne dipendono potrebbero essere rimossi.",
+    "upgradeAllTitle": "Aggiornare tutti i pacchetti {{manager}}?",
+    "upgradeAllDescription_one": "Verrà aggiornato {{count}} pacchetto. Potrebbe richiedere un po' di tempo.",
+    "upgradeAllDescription_many": "Verranno aggiornati {{count}} pacchetti. Potrebbe richiedere un po' di tempo.",
+    "upgradeAllDescription_other": "Verranno aggiornati {{count}} pacchetti. Potrebbe richiedere un po' di tempo."
+  }
+}

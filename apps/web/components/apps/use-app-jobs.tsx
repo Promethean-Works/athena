@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { toast } from "@workspace/ui/components/toast"
@@ -15,15 +16,16 @@ export type AppAction = "start" | "stop" | "restart" | "update"
  * `onDone` runs after each job finishes (e.g. to reload the list).
  */
 export function useAppJobs(onDone: (succeeded: boolean) => void) {
+  const { t } = useTranslation("apps")
   const [job, setJob] = React.useState<Job | null>(null)
 
   const show = React.useCallback(
-    (result: { data?: Job; error?: unknown }, what: string) => {
+    (result: { data?: Job; error?: unknown }, failedTitle: string) => {
       if (result.data) setJob(result.data)
       else
         toast.add({
           type: "error",
-          title: `Couldn't ${what}`,
+          title: failedTitle,
           description: errorMessage(result.error),
         })
     },
@@ -36,9 +38,9 @@ export function useAppJobs(onDone: (succeeded: boolean) => void) {
         await api.POST("/api/apps/{name}/{action}", {
           params: { path: { name, action: act } },
         }),
-        `${act} ${name}`
+        t(`jobs.failed.${act}`, { name })
       ),
-    [show]
+    [show, t]
   )
 
   const remove = React.useCallback(
@@ -47,9 +49,9 @@ export function useAppJobs(onDone: (succeeded: boolean) => void) {
         await api.DELETE("/api/apps/{name}", {
           params: { path: { name }, query: { delete_data: deleteData } },
         }),
-        `remove ${name}`
+        t("jobs.failed.remove", { name })
       ),
-    [show]
+    [show, t]
   )
 
   const dialog = (

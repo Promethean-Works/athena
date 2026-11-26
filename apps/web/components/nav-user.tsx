@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import {
   EllipsisVerticalIcon,
   GlobeIcon,
@@ -30,12 +31,13 @@ import {
 
 // From the dashboard-01 block: the signed-in admin in the sidebar footer.
 export function NavUser() {
+  const { t } = useTranslation("nav")
   const { isMobile } = useSidebar()
   const { user, logout } = useAuth()
   const [confirmRestart, setConfirmRestart] = React.useState(false)
   const [showTunnel, setShowTunnel] = React.useState(false)
   const initials = user.username.slice(0, 2).toUpperCase()
-  const role = user.is_admin ? "Administrator" : "User"
+  const role = user.is_admin ? t("roleAdmin") : t("roleUser")
 
   return (
     <>
@@ -92,17 +94,17 @@ export function NavUser() {
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => setShowTunnel(true)}>
                   <GlobeIcon />
-                  Tunnel address
+                  {t("tunnelAddress")}
                 </DropdownMenuItem>
                 {user.is_admin ? (
                   <DropdownMenuItem onClick={() => setConfirmRestart(true)}>
                     <RotateCwIcon />
-                    Restart Athena
+                    {t("restartAthena")}
                   </DropdownMenuItem>
                 ) : null}
                 <DropdownMenuItem onClick={logout}>
                   <LogOutIcon />
-                  Log out
+                  {t("logOut")}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>

@@ -1,0 +1,48 @@
+{
+  "menu": "傳送意見回饋",
+  "dialog": {
+    "title": "傳送意見回饋",
+    "description": "會在新分頁中於 {{repo}} 開啟新的 issue。送出前你可以在那裡檢查並編輯；issue 是公開的。",
+    "storeHint": "商店中的應用程式無法運作？請使用其商店頁面上的<b>回報問題</b>，讓回報能送達維護者。",
+    "loadFailed": "無法載入此伺服器的詳細資料"
+  },
+  "choices": {
+    "bug": {
+      "title": "回報錯誤",
+      "description": "某些功能的運作不如預期。"
+    },
+    "change": {
+      "title": "建議變更",
+      "description": "功能可以運作，但應該有不同的做法。"
+    },
+    "feature": {
+      "title": "要求新功能",
+      "description": "Athena 目前還做不到的事。"
+    }
+  },
+  "diagnostics": {
+    "title": "已自動填寫",
+    "system": "系統",
+    "cpu": "CPU",
+    "containers": "容器"
+  },
+  "appReport": {
+    "button": "回報問題",
+    "title": "回報 {{app}} 的問題",
+    "description": "會在新分頁中為{{where}}開啟新的 issue，並填入此應用程式與這台伺服器的詳細資料。送出前你可以在那裡檢查；issue 是公開的。",
+    "whereCatalog": "維護此應用程式的 {{name}} 目錄",
+    "includeLogs_other": "包含最後 {{count}} 行記錄",
+    "installedCopy": "已安裝的副本",
+    "logsLabel": "要包含的記錄",
+    "loadingLogs": "正在載入記錄…",
+    "logsWarning": "繼續之前，請先移除密碼、權杖與位址。",
+    "logsTruncated": "連結只容納得下記錄的結尾部分。",
+    "cancel": "取消",
+    "openIssue": "開啟 issue",
+    "preparing": "準備中…",
+    "prepareFailed": "無法準備回報",
+    "logsFailed": "無法載入記錄：{{error}}",
+    "appNotFound": "找不到應用程式",
+    "noContainers": "找不到此應用程式的容器。"
+  }
+}

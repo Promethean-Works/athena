@@ -1,0 +1,119 @@
+{
+  "add": "追加",
+  "cancel": "キャンセル",
+  "back": "戻る",
+  "errors": {
+    "listDestinations": "バックアップ先を一覧表示できませんでした",
+    "createDestination": "バックアップ先を作成できませんでした",
+    "deleteDestination": "バックアップ先を削除できませんでした",
+    "listPlans": "バックアッププランを一覧表示できませんでした",
+    "createPlan": "プランを作成できませんでした",
+    "updatePlan": "プランを更新できませんでした",
+    "deletePlan": "プランを削除できませんでした",
+    "startBackup": "バックアップを開始できませんでした",
+    "listVersions": "バックアップのバージョンを一覧表示できませんでした",
+    "listVersionFiles": "バージョンのファイルを一覧表示できませんでした",
+    "restoreApp": "アプリを復元できませんでした"
+  },
+  "toast": {
+    "destinationCreated": "バックアップ先「{{name}}」を作成しました",
+    "planCreated": "プラン「{{name}}」を作成しました",
+    "planUpdated": "プラン「{{name}}」を更新しました",
+    "backupStarted": "バックアップ「{{name}}」を開始しました"
+  },
+  "view": {
+    "unavailable": "バックアップは利用できません",
+    "unsupported": "このホストはバックアップに対応していません。",
+    "tabs": {
+      "versions": "バージョン",
+      "destinations": "バックアップ先",
+      "plans": "プラン"
+    }
+  },
+  "destinations": {
+    "title": "バックアップ先",
+    "name": "名前",
+    "kind": "種類",
+    "location": "場所",
+    "created": "作成日時",
+    "empty": {
+      "title": "バックアップ先はまだありません",
+      "description": "バックアップ先は、バックアップを保管するフォルダーまたは rclone リモートです。バックアップを始めるには追加してください。"
+    }
+  },
+  "plans": {
+    "title": "プラン",
+    "name": "名前",
+    "schedule": "スケジュール",
+    "lastRun": "最終実行",
+    "status": "状態",
+    "manual": "手動",
+    "runNow": "今すぐ実行",
+    "empty": {
+      "title": "プランはまだありません",
+      "description": "プランでは Athena、アプリ、バックアップ先、スケジュールを選び、タイマーで実行します。"
+    }
+  },
+  "versions": {
+    "title": "バージョン",
+    "refresh": "更新",
+    "time": "日時",
+    "size": "サイズ",
+    "new": "新規",
+    "added": "追加",
+    "changed": "変更",
+    "removed": "削除",
+    "os": "OS",
+    "viewFiles": "ファイルを表示",
+    "restore": "復元",
+    "empty": {
+      "title": "バージョンはまだありません",
+      "description": "バックアップを実行して最初のバージョンを作成してください。"
+    }
+  },
+  "addDestination": {
+    "title": "バックアップ先を追加",
+    "kitTitle": "リカバリーキットを保存",
+    "description": "restic がリポジトリを保管する場所（ローカルフォルダーまたは rclone リモート）を選択してください。",
+    "kitDescription": "キットをダウンロードまたはコピーしてください。Athena はこのパスワードを二度と表示しません。これがないと、ホストが故障した場合に復元できません。",
+    "prepareFailed": "バックアップ先を準備できませんでした",
+    "saveKitFirst": "バックアップ先を作成する前にリカバリーキットを保存してください",
+    "name": "名前",
+    "namePlaceholder": "例: USB ドライブ",
+    "kind": "種類",
+    "local": "ローカルフォルダー",
+    "rclone": "rclone リモート",
+    "folder": "フォルダー",
+    "folderHint": "Athena のデータフォルダーの外にある絶対パス。",
+    "remote": "リモート",
+    "remoteHint": "「クラウド → リモート」で設定済みの rclone リモート。",
+    "password": "リポジトリのパスワード",
+    "passwordPlaceholder": "空欄にすると強力なパスワードを生成します",
+    "passwordHint": "空欄にすると、Athena が強力なパスワードを生成します。下に一度だけ表示され、以降は表示されません。",
+    "kitSaved": "このリカバリーキット（パスワード、バックアップ先、restic のバージョン）を保存しました",
+    "next": "次へ: リカバリーキット",
+    "create": "バックアップ先を作成"
+  },
+  "addPlan": {
+    "title": "バックアッププランを追加",
+    "description": "バックアップする対象、保存先、頻度を選択してください。「実行中にバックアップ」がオンでない限り、アプリはバックアップ中に停止されます。",
+    "name": "名前",
+    "namePlaceholder": "例: 毎日のアプリ",
+    "destination": "バックアップ先",
+    "athena": "Athena をバックアップ（設定、DB、シークレット、TLS）",
+    "athenaHint": "推奨: デフォルトでオンです。",
+    "apps": "アプリ",
+    "appsHint": "プランに含めるアプリ。",
+    "noApps": "アプリが見つかりません。先に「ストア → アプリ」でアプリを起動してください。",
+    "schedule": "スケジュール (cron)",
+    "schedulePlaceholder": "0 3 * * *  (毎日 03:00)",
+    "scheduleHint": "空欄の場合は手動実行のみです。スケジュール実行はパート 4 で対応します。",
+    "retention": "保持",
+    "keepLast": "直近を保持",
+    "keepDaily": "日次を保持",
+    "keepWeekly": "週次を保持",
+    "keepMonthly": "月次を保持",
+    "retentionHint": "項目ごとに `restic forget --keep-…` を実行します。デフォルト: 日次 7 / 週次 4 / 月次 6。",
+    "create": "プランを作成"
+  }
+}

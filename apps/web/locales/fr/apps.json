@@ -1,0 +1,196 @@
+{
+  "page": {
+    "description": "Les apps sont des projets compose gérés par Athena."
+  },
+  "newApp": "Nouvelle app",
+  "open": "Ouvrir",
+  "list": {
+    "failed": "Impossible de lister les apps"
+  },
+  "status": {
+    "running": "En cours",
+    "partial": "{{running}}/{{total}} en cours",
+    "stopped": "Arrêtée",
+    "notDeployed": "Non déployée"
+  },
+  "actions": {
+    "restart": "Redémarrer",
+    "stop": "Arrêter",
+    "start": "Démarrer",
+    "updateImages": "Mettre à jour les images",
+    "remove": "Supprimer"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Impossible de démarrer {{name}}",
+      "stop": "Impossible d'arrêter {{name}}",
+      "restart": "Impossible de redémarrer {{name}}",
+      "update": "Impossible de mettre à jour {{name}}",
+      "remove": "Impossible de supprimer {{name}}",
+      "save": "Impossible d'enregistrer {{name}}",
+      "saveSettings": "Impossible d'enregistrer les réglages de {{name}}",
+      "deploy": "Impossible de déployer {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Supprimer {{name}} ?",
+    "description": "Ses conteneurs sont arrêtés et supprimés, et Athena oublie l'app.",
+    "deleteData": "Supprimer aussi ses volumes et son dossier de données. Action irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Supprimer"
+  },
+  "grid": {
+    "emptyTitle": "Aucune app pour l'instant",
+    "emptyDescription": "Déployez un fichier compose ou convertissez une commande <code>docker run</code>.",
+    "containerCount_one": "{{count}} conteneur",
+    "containerCount_other": "{{count}} conteneurs",
+    "fromDockerRun": "depuis docker run",
+    "actionsFor": "Actions pour {{name}}"
+  },
+  "containerState": {
+    "running": "en cours",
+    "exited": "arrêté",
+    "dead": "mort",
+    "paused": "en pause",
+    "created": "créé",
+    "restarting": "redémarrage"
+  },
+  "detail": {
+    "loadFailed": "Impossible de charger l'app",
+    "loadFailedNamed": "Impossible de charger {{name}}",
+    "tabContainers": "Conteneurs",
+    "tabCompose": "Compose",
+    "tabSettings": "Paramètres",
+    "tabBackups": "Sauvegardes",
+    "noContainers": "Aucun conteneur",
+    "noContainersHint": "Démarrez l'app pour créer ses conteneurs.",
+    "logs": "Journaux",
+    "shell": "Shell",
+    "composeHelp": "L'enregistrement conserve la version précédente sous compose.prev.yaml et redéploie l'app.",
+    "settingsHelp": "Les valeurs du formulaire d'installation (.env). Modifiez un port ou un dossier ici, puis enregistrez pour redéployer. Il peut contenir des mots de passe générés.",
+    "saveRedeploy": "Enregistrer et redéployer",
+    "discard": "Annuler les modifications"
+  },
+  "new": {
+    "nameInvalid": "Utilisez des minuscules, des chiffres, des tirets ou des tirets bas, en commençant par une lettre ou un chiffre.",
+    "convertFailed": "Impossible de convertir la commande",
+    "validationFailed": "Échec de la validation",
+    "name": "Nom",
+    "nameHelp": "C'est aussi le nom du projet compose. Il ne peut pas être changé ensuite.",
+    "tabCompose": "Fichier compose",
+    "tabRun": "Depuis docker run",
+    "reviewConverted": "Relire le fichier converti",
+    "upload": "Téléverser un fichier",
+    "composeHelp": "Utilisez <code>${ATHENA_APP_DATA}</code> pour les fichiers qui doivent vivre dans le dossier de données de cette app sur le serveur.",
+    "runLabel": "Commande docker run",
+    "runHelp": "Elle est convertie en fichier compose que vous pouvez relire avant le déploiement. Rien n'est encore exécuté.",
+    "convert": "Convertir en compose",
+    "valid": "Le fichier compose est valide",
+    "invalid": "Le fichier compose contient des erreurs",
+    "validate": "Valider",
+    "deploy": "Déployer"
+  },
+  "compose": {
+    "serializationFailed": "Échec de la sérialisation",
+    "addService": "Ajouter un service",
+    "tabs": {
+      "settings": "Paramètres",
+      "networks": "Réseaux",
+      "volumes": "Volumes",
+      "raw": "YAML brut"
+    },
+    "restart": {
+      "no": "Non (ne pas redémarrer)",
+      "always": "Toujours",
+      "unlessStopped": "Sauf si arrêté",
+      "onFailure": "En cas d'échec"
+    },
+    "volumeMode": {
+      "rw": "Lecture/écriture",
+      "ro": "Lecture seule"
+    },
+    "table": {
+      "actions": "Actions",
+      "empty": "Aucun élément pour l'instant",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "remove": "Supprimer",
+      "add": "Ajouter"
+    },
+    "service": {
+      "collapse": "Réduire",
+      "expand": "Développer",
+      "namePlaceholder": "nom du service",
+      "noImage": "aucune image",
+      "image": "Image",
+      "imageHelp": "Nom de l'image Docker. Prend en charge Docker Hub, GHCR et d'autres registres.",
+      "restartPolicy": "Politique de redémarrage"
+    },
+    "ports": {
+      "title": "Ports",
+      "host": "Port de l'hôte",
+      "container": "Port du conteneur",
+      "protocol": "Protocole",
+      "help": "Associe des ports de l'hôte à des ports du conteneur. Laissez le port de l'hôte vide pour une attribution aléatoire."
+    },
+    "volumes": {
+      "title": "Volumes",
+      "host": "Chemin de l'hôte / nom du volume",
+      "container": "Chemin du conteneur",
+      "mode": "Mode",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data ou nom-du-volume",
+      "help": "Montez des chemins de l'hôte (bind mount) ou des volumes nommés. Utilisez <code>${ATHENA_APP_DATA}</code> pour le dossier de données de cette app."
+    },
+    "env": {
+      "title": "Variables d'environnement",
+      "help": "Variables d'environnement transmises au conteneur. Les valeurs du formulaire d'installation (.env) sont aussi disponibles.",
+      "valuePlaceholder": "valeur"
+    },
+    "keyValue": {
+      "key": "Clé",
+      "value": "Valeur"
+    },
+    "command": {
+      "command": "Commande",
+      "commandPlaceholder": "Remplace la commande par défaut de l'image",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Remplace l'entrypoint par défaut de l'image",
+      "workingDir": "Répertoire de travail",
+      "user": "Utilisateur"
+    },
+    "resources": {
+      "title": "Limites de ressources",
+      "cpuLimit": "Limite de CPU",
+      "cpuCores": "Cœurs de CPU",
+      "memoryLimit": "Limite de mémoire",
+      "memoryLimitHelp": "p. ex. 512M, 1G",
+      "cpuReservation": "Réservation de CPU",
+      "memoryReservation": "Réservation de mémoire",
+      "memoryReservationHelp": "p. ex. 256M"
+    },
+    "health": {
+      "title": "Vérification de santé",
+      "test": "Commande de test",
+      "interval": "Intervalle",
+      "timeout": "Délai d'expiration",
+      "retries": "Tentatives"
+    },
+    "labels": {
+      "title": "Labels",
+      "valuePlaceholder": "Mon service"
+    },
+    "networks": {
+      "title": "Réseaux",
+      "help": "Noms de réseaux séparés par des virgules. Définissez les réseaux dans l'onglet Réseaux."
+    },
+    "dependsOn": {
+      "title": "Dépend de",
+      "help": "Noms de services, séparés par des virgules, qui doivent démarrer avant celui-ci."
+    },
+    "entries": {
+      "name": "Nom",
+      "driver": "Pilote",
+      "external": "Externe"
+    }
+  }
+}

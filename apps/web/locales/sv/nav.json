@@ -1,0 +1,21 @@
+{
+  "dashboard": "Översikt",
+  "apps": "Appar",
+  "store": "Butik",
+  "packages": "Paket",
+  "automation": "Automation",
+  "files": "Filer",
+  "smbShares": "SMB-delningar",
+  "cloud": "Moln",
+  "containers": "Behållare",
+  "terminal": "Terminal",
+  "assistant": "Assistent",
+  "backups": "Säkerhetskopior",
+  "settings": "Inställningar",
+  "help": "Hjälp",
+  "roleAdmin": "Administratör",
+  "roleUser": "Användare",
+  "tunnelAddress": "Tunneladress",
+  "restartAthena": "Starta om Athena",
+  "logOut": "Logga ut"
+}

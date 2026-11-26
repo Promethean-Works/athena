@@ -1,0 +1,169 @@
+{
+  "cancel": "Cancel",
+  "view": {
+    "unavailable": "Automation isn't available",
+    "unsupported": "This host doesn't support automation."
+  },
+  "copyUrl": {
+    "copy": "Copy {{label}}",
+    "copied": "{{label}} copied",
+    "failed": "Couldn't copy"
+  },
+  "external": {
+    "title": "External automation",
+    "description": "Connect n8n, scripts or AI agents to Athena.",
+    "webhookUrl": "Webhook URL",
+    "webhookHint": "Send a POST request to fire a webhook trigger; no sign-in needed. Each webhook trigger has its own token: copy its full URL from the trigger list.",
+    "mcpServer": "MCP server",
+    "mcpUrl": "MCP server URL",
+    "mcpHint": "Streamable HTTP. Clients sign in with a session cookie, or send the token set in the server's <envVar>ATHENA_MCP_TOKEN</envVar> environment variable as <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Job runs",
+    "description": "The latest runs, refreshed every few seconds.",
+    "trigger": "Trigger",
+    "deletedTrigger": "Deleted trigger",
+    "listFailed": "Couldn't list job runs",
+    "empty": {
+      "title": "No job runs yet",
+      "description": "Runs show up here when a trigger fires."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Start app {{name}}",
+      "stop": "Stop app {{name}}",
+      "restart": "Restart app {{name}}",
+      "update": "Update app {{name}}"
+    },
+    "package": {
+      "install": "Install {{name}} ({{manager}})",
+      "uninstall": "Uninstall {{name}} ({{manager}})",
+      "upgrade": "Upgrade {{name}} ({{manager}})",
+      "refresh": "Refresh {{manager}} package lists"
+    }
+  },
+  "triggers": {
+    "title": "Triggers",
+    "description": "Run an app or package action on a schedule or from a webhook.",
+    "listFailed": "Couldn't list triggers",
+    "empty": {
+      "title": "No triggers yet",
+      "description": "A trigger runs an action on a schedule (cron) or when its webhook is called, for example from n8n."
+    },
+    "onWebhook": "When its webhook is called",
+    "noSchedule": "No schedule",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Next run {{time}}",
+    "changeFailed": "Couldn't change the trigger",
+    "enabledToast": "{{name}} enabled",
+    "pausedToast": "{{name}} paused",
+    "enabledLabel": "{{name}} enabled",
+    "copyWebhook": "Copy webhook URL",
+    "webhookCopied": "Webhook URL copied",
+    "copyFailed": "Couldn't copy",
+    "deleteFailed": "Couldn't delete the trigger",
+    "deleted": "Trigger deleted",
+    "deleteLabel": "Delete {{name}}",
+    "delete": "Delete",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteDescription": "It stops running. Past job runs stay in the log.",
+    "deleteDescriptionWebhook": "It stops running and its webhook URL stops working. Past job runs stay in the log."
+  },
+  "dialog": {
+    "new": "New trigger",
+    "description": "Run an app or package action on a schedule, or whenever a webhook is called.",
+    "created": {
+      "title": "Webhook trigger created",
+      "description": "Send a POST request to this URL to run \"{{name}}\". Anyone with the URL can fire it, so keep it private. You can copy it again from the trigger list.",
+      "done": "Done"
+    },
+    "errors": {
+      "name": "Give the trigger a name.",
+      "app": "Pick an app.",
+      "manager": "Pick a package manager.",
+      "packageName": "Enter a package name."
+    },
+    "createdToast": "Trigger {{name}} created",
+    "createFailed": "Couldn't create the trigger",
+    "name": "Name",
+    "namePlaceholder": "e.g. Nightly Jellyfin restart",
+    "whenItRuns": "When it runs",
+    "onSchedule": "On a schedule (cron)",
+    "onWebhook": "When a webhook is called",
+    "schedule": "Schedule",
+    "cronPlaceholder": "minute hour day month weekday, e.g. 0 2 * * *",
+    "cronHelp": "Five fields: minute, hour, day of month, month, weekday. Times are UTC.",
+    "webhookHint": "After you create it you get a secret URL. A POST request to it (from n8n, a script or curl) runs the action.",
+    "whatItDoes": "What it does",
+    "appAction": "App action",
+    "packageAction": "Package action",
+    "create": "Create trigger",
+    "app": "App",
+    "loadingApps": "Loading apps…",
+    "chooseApp": "Choose an app",
+    "noApps": "No apps installed",
+    "action": "Action",
+    "appVerbs": {
+      "start": "Start",
+      "stop": "Stop",
+      "restart": "Restart",
+      "update": "Update (pull and recreate)"
+    },
+    "packageVerbs": {
+      "install": "Install",
+      "uninstall": "Uninstall",
+      "upgrade": "Upgrade",
+      "refresh": "Refresh package lists"
+    },
+    "packageManager": "Package manager",
+    "loading": "Loading…",
+    "chooseManager": "Choose a manager",
+    "noManagers": "None ready on this host",
+    "package": "Package",
+    "packagePlaceholder": "e.g. jq",
+    "source": "Source (optional)",
+    "sourceHint": "A Flatpak remote, a Scoop bucket, or \"cask\" for a Homebrew cask.",
+    "loadingInstalled": "Loading installed packages…",
+    "installedFailed": "Couldn't list installed packages ({{error}}); type the name.",
+    "searchInstalled": "Search installed packages",
+    "noMatch": "No installed package matches."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Every hour",
+      "daily": "Daily at 02:00",
+      "sundays": "Sundays at 03:00",
+      "monthly": "Monthly on the 1st"
+    },
+    "fields": {
+      "minute": "minute",
+      "hour": "hour",
+      "dayOfMonth": "day of month",
+      "month": "month",
+      "weekday": "weekday"
+    },
+    "errors": {
+      "empty": "Enter a cron expression or pick a preset.",
+      "invalidField": "The {{field}} field \"{{value}}\" isn't valid.",
+      "invalidStep": "The step \"/{{step}}\" in the {{field}} field must be a number.",
+      "outOfRange": "The {{field}} must be between {{min}} and {{max}}.",
+      "fieldCount": "Use five fields (minute hour day month weekday); this has {{count}}."
+    },
+    "dayRange": "{{from}} to {{to}}",
+    "custom": "Custom schedule",
+    "everyMinute": "Every minute",
+    "everyMinutes_one": "Every {{count}} minute",
+    "everyMinutes_other": "Every {{count}} minutes",
+    "everyHourOnTheHour": "Every hour, on the hour",
+    "everyHourAtMinute": "Every hour at minute {{minute}}",
+    "everyHoursAtMinute_one": "Every {{count}} hour at minute {{minute}}",
+    "everyHoursAtMinute_other": "Every {{count}} hours at minute {{minute}}",
+    "everyDay": "Every day at {{time}}",
+    "everyWeekdays": "Every {{days}} at {{time}}",
+    "onDayOfMonth": "On day {{day}} of every month at {{time}}",
+    "everyYear": "Every year on {{month}} {{day}} at {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

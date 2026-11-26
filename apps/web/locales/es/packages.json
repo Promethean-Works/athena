@@ -1,0 +1,60 @@
+{
+  "view": {
+    "noManagers": "No se encontraron gestores de paquetes",
+    "noManagersHint": "Athena no encontró en este host ningún gestor de paquetes compatible."
+  },
+  "listError": "No se pudo leer la lista de paquetes",
+  "cancel": "Cancelar",
+  "toast": {
+    "installFailed": "No se pudo instalar {{name}}",
+    "uninstallFailed": "No se pudo desinstalar {{name}}",
+    "upgradeFailed": "No se pudo actualizar {{name}}",
+    "upgradeAllFailed": "No se pudieron actualizar los paquetes",
+    "refreshFailed": "No se pudieron refrescar las listas de paquetes"
+  },
+  "unavailable": "{{name}} no se puede usar ahora mismo",
+  "unavailableHint": "No está listo en este host.",
+  "refreshLists": "Refrescar listas",
+  "upgradeAll": "Actualizar todo",
+  "tabs": {
+    "installed": "Instalados",
+    "updates": "Actualizaciones",
+    "search": "Buscar"
+  },
+  "installed": {
+    "filter": "Filtrar paquetes instalados",
+    "noMatch": "Ningún paquete instalado coincide.",
+    "empty": "No hay nada instalado.",
+    "upgradeLabel": "Actualizar {{name}}",
+    "upgrade": "Actualizar",
+    "uninstallLabel": "Desinstalar {{name}}",
+    "uninstall": "Desinstalar",
+    "shortened": "{{manager}} acortó este id, así que no se puede desinstalar desde aquí",
+    "showing": "Mostrando {{shown}} de {{total}}. Filtra para acotar."
+  },
+  "table": {
+    "package": "Paquete",
+    "version": "Versión",
+    "description": "Descripción"
+  },
+  "updates": {
+    "upToDate": "Todo está actualizado",
+    "upToDateRefresh": "Según el último refresco de listas. Refresca las listas para comprobar de nuevo.",
+    "nothing": "No hay nada que actualizar.",
+    "installedColumn": "Instalada",
+    "availableColumn": "Disponible"
+  },
+  "search": {
+    "label": "Buscar en {{manager}}",
+    "noMatch": "Ningún paquete coincide con «{{query}}».",
+    "install": "Instalar"
+  },
+  "confirm": {
+    "uninstallTitle": "¿Desinstalar {{name}}?",
+    "uninstallDescription": "Se quita de este servidor. Los paquetes que dependen de él también pueden quitarse.",
+    "upgradeAllTitle": "¿Actualizar todos los paquetes de {{manager}}?",
+    "upgradeAllDescription_one": "Se actualizará {{count}} paquete. Esto puede tardar un rato.",
+    "upgradeAllDescription_many": "Se actualizarán {{count}} de paquetes. Esto puede tardar un rato.",
+    "upgradeAllDescription_other": "Se actualizarán {{count}} paquetes. Esto puede tardar un rato."
+  }
+}

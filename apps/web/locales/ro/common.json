@@ -1,0 +1,108 @@
+{
+  "save": "Salvează",
+  "cancel": "Anulează",
+  "close": "Închide",
+  "loading": "Se încarcă…",
+  "back": "Înapoi",
+  "delete": "Șterge",
+  "log": {
+    "empty": "Nicio ieșire încă.",
+    "copy": "Copiază jurnalul",
+    "title": "Jurnal",
+    "copied": "Jurnal copiat",
+    "copyFailed": "Nu s-a putut copia"
+  },
+  "capabilities": {
+    "title": "Capabilități",
+    "summary": "{{ready}} din {{total}} pregătite. Funcțiile apar doar unde pot funcționa.",
+    "loadingSummary": "Ce a găsit Athena pe această gazdă.",
+    "redetect": "Detectează din nou",
+    "loadFailed": "Nu s-au putut încărca capabilitățile: {{error}}",
+    "details": "Detalii",
+    "status": {
+      "ready": "Pregătit",
+      "stopped": "Oprit",
+      "missing": "Neinstalat",
+      "unsupported": "Neacceptat",
+      "needs_privilege": "Necesită root"
+    }
+  },
+  "job": {
+    "working": "Se lucrează… Poți închide; rulează în continuare.",
+    "done": "Gata.",
+    "connectionLost": "Conexiunea cu sarcina s-a pierdut.",
+    "progress": "Progres",
+    "finishing": " · se finalizează…",
+    "cancel": "Anulează sarcina",
+    "stopFailed": "Nu s-a putut opri"
+  },
+  "restart": {
+    "title": "Repornești Athena?",
+    "description": "Sarcinile în curs sunt oprite. Pagina se reconectează în câteva secunde. Aplicațiile tale continuă să ruleze.",
+    "confirm": "Repornește",
+    "failed": "Nu s-a putut reporni Athena",
+    "waitingTitle": "Se repornește Athena…",
+    "waitingBody": "Această pagină se reîncarcă după ce Athena revine."
+  },
+  "update": {
+    "notBackYet": "Athena nu a revenit încă",
+    "reload": "Reîncarcă pagina",
+    "notice": {
+      "title": "Athena {{latest}} este disponibilă",
+      "runs": "Acest server rulează {{current}}.",
+      "whatsNew": "Vezi ce e nou"
+    },
+    "action": {
+      "updateNow": "Actualizează acum",
+      "cannotSelf": "Această instanță Athena nu se poate actualiza singură",
+      "howTo": "{{reason}}. Pentru a actualiza, rulează asta pe server (instalează noua versiune și repornește Athena; datele și setările tale rămân):",
+      "commandLabel": "Comandă de actualizare"
+    },
+    "interrupted": {
+      "title": "Ultima actualizare nu s-a încheiat",
+      "body": "O actualizare de la {{from}} la {{to}} a început, dar nu a raportat niciodată rezultatul (gazda poate să fi rămas fără curent sau actualizarea a fost oprită). Athena rulează, dar verifică dacă este versiunea așteptată. Jurnalul actualizării este în dosarul de date (logs/update.log). Pentru a repara o instalare, rulează pe server comanda de instalare din README.",
+      "dismiss": "Ignoră",
+      "oldVersion": "versiunea veche",
+      "newVersion": "cea nouă"
+    },
+    "dialog": {
+      "steps": "Pașii actualizării",
+      "stepPrepare": "Descarcă și verifică versiunea",
+      "stepSwap": "Oprește Athena, instalează și pornește-o din nou",
+      "stepCheck": "Așteaptă răspunsul noii versiuni",
+      "newVersion": "noua versiune",
+      "oldVersion": "cea veche",
+      "updated": "Actualizat la {{to}}",
+      "reloading": "Se reîncarcă pagina…",
+      "rolledBackTitle": "Actualizarea la {{to}} a eșuat, rămâne {{from}}",
+      "rolledBackBody": "Athena a revenit la versiunea pe care o aveai, cu datele așa cum erau înainte de actualizare.",
+      "reason": " Motiv: {{reason}}",
+      "abortedTitle": "Actualizarea la {{to}} a fost oprită",
+      "failedTitle": "Actualizarea la {{to}} a eșuat și Athena nu rulează",
+      "abortedBody": "Nu s-a instalat nimic. Pornește Athena din nou sau rulează comanda de instalare din README.",
+      "failedBody": "Rulează pe server comanda de instalare din README pentru a o repara.",
+      "back": "Athena a revenit",
+      "backBody": "Reîncarcă pagina pentru a vedea ce versiune rulează.",
+      "confirmTitle": "Actualizezi Athena?",
+      "notStartedTitle": "Actualizarea nu a început",
+      "preparingTitle": "Se pregătește actualizarea",
+      "versions": "Athena {{current}} la {{latest}}.",
+      "confirmBody": "Athena repornește timp de un minut sau două, iar pagina se reconectează. Aplicațiile și containerele tale continuă să ruleze. Dacă noua versiune nu pornește, Athena revine la aceasta.",
+      "stopsTitle": "Acestea se opresc când Athena repornește:",
+      "terminals_one": "un terminal deschis",
+      "terminals_few": "{{count}} terminale deschise",
+      "terminals_other": "{{count}} de terminale deschise",
+      "backupFirst": "Fă mai întâi o copie de rezervă Athena",
+      "backupFirstHelp": "Salvează setările și datele Athena cu planul de copii de rezervă „{{plan}}” înainte de a opri ceva. Aplicațiile tale nu sunt atinse.",
+      "notChanged": "{{error}}. Nu s-a schimbat nimic; Athena rulează în continuare {{current}}.",
+      "prepareFailed": "Actualizarea nu a putut fi pregătită",
+      "updateAnyway": "Actualizează oricum",
+      "update": "Actualizează",
+      "restarting": "Se repornește…",
+      "updatingTo": "Se actualizează la {{latest}}. Această pagină se reîncarcă după ce Athena revine.",
+      "lateBody": "Poate dura mai mult pe o gazdă lentă. Dacă rămâne oprită, verifică jurnalul actualizării în dosarul de date (logs/update.log)."
+    }
+  },
+  "restartLateBody": "Poate dura mai mult pe o gazdă lentă. Dacă rămâne oprită, verifică jurnalul din dosarul de date (logs/athena.log).",
+  "toggleSidebar": "Comută bara laterală"
+}

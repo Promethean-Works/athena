@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ArrowDownIcon, TriangleAlertIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import {
@@ -58,6 +59,7 @@ export function SyncDialog({
   onClose: () => void
   onStarted: (job: Job) => void
 }) {
+  const { t } = useTranslation("cloud")
   const [source, setSource] = React.useState<Folder>({
     source: { location: 0 },
     path: "",
@@ -116,16 +118,14 @@ export function SyncDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Sync folders</DialogTitle>
+          <DialogTitle>{t("sync.title")}</DialogTitle>
           <DialogDescription>
-            Makes the destination match the source: new and changed files are
-            copied, and files that aren&apos;t in the source are deleted from
-            the destination.
+            {t("sync.description")}
           </DialogDescription>
         </DialogHeader>
         <FolderPicker
           id="sync-source"
-          label="From"
+          label={t("sync.from")}
           value={source}
           onChange={setSource}
           locations={locations}
@@ -134,7 +134,7 @@ export function SyncDialog({
         <ArrowDownIcon className="mx-auto text-muted-foreground" />
         <FolderPicker
           id="sync-dest"
-          label="To"
+          label={t("sync.to")}
           value={dest}
           onChange={setDest}
           locations={locations}
@@ -145,9 +145,10 @@ export function SyncDialog({
             <Alert variant="destructive">
               <TriangleAlertIcon />
               <AlertTitle>
-                {preview.delete_count} file
-                {preview.delete_count === 1 ? "" : "s"} will be deleted from{" "}
-                {destLabel}
+                {t("sync.willDelete", {
+                  count: preview.delete_count,
+                  dest: destLabel,
+                })}
               </AlertTitle>
               <AlertDescription>
                 <ul className="max-h-32 overflow-y-auto font-mono text-xs">
@@ -158,21 +159,25 @@ export function SyncDialog({
                   ))}
                   {preview.delete_count > preview.deletes.length ? (
                     <li>
-                      and {preview.delete_count - preview.deletes.length} more
+                      {t("sync.andMore", {
+                        count: preview.delete_count - preview.deletes.length,
+                      })}
                     </li>
                   ) : null}
                 </ul>
-                {preview.copy_count} file{preview.copy_count === 1 ? "" : "s"}{" "}
-                will be copied.
+                {t("sync.willCopy", { count: preview.copy_count })}
               </AlertDescription>
             </Alert>
           ) : (
             <Alert>
-              <AlertTitle>Nothing will be deleted</AlertTitle>
+              <AlertTitle>{t("sync.nothingDeleted")}</AlertTitle>
               <AlertDescription>
                 {preview.copy_count
-                  ? `${preview.copy_count} file${preview.copy_count === 1 ? "" : "s"} will be copied to ${destLabel}.`
-                  : "The folders already match."}
+                  ? t("sync.willCopyTo", {
+                      count: preview.copy_count,
+                      dest: destLabel,
+                    })
+                  : t("sync.alreadyMatch")}
               </AlertDescription>
             </Alert>
           )
@@ -180,7 +185,7 @@ export function SyncDialog({
         {error ? <FieldError>{error}</FieldError> : null}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           {preview ? (
             <Button
@@ -190,13 +195,13 @@ export function SyncDialog({
             >
               {pending ? <Spinner data-icon="inline-start" /> : null}
               {preview.delete_count
-                ? `Sync and delete ${preview.delete_count}`
-                : "Sync"}
+                ? t("sync.syncAndDelete", { count: preview.delete_count })
+                : t("sync.sync")}
             </Button>
           ) : (
             <Button disabled={pending} onClick={() => void check()}>
               {pending ? <Spinner data-icon="inline-start" /> : null}
-              Check changes
+              {t("sync.check")}
             </Button>
           )}
         </DialogFooter>

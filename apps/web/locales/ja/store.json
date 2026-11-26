@@ -1,0 +1,106 @@
+{
+  "support": {
+    "emulated": "エミュレーション",
+    "emulatedTitle": "この CPU 用のイメージがないため、Docker が別のイメージをエミュレーションで実行します（低速になります）",
+    "unsupported": "ここでは動作しません",
+    "unsupportedTitle": "このサーバーの CPU 用のイメージがありません"
+  },
+  "browser": {
+    "loadError": "ストアを読み込めませんでした",
+    "filteredCount": "{{total}} 個中 {{shown}} 個のアプリ",
+    "totalCount_other": "{{count}} 個のアプリ。いずれも Athena がセットアップする compose プロジェクトです。",
+    "browsePrompt": "インストールするアプリを探しましょう。",
+    "searchPlaceholder": "アプリを検索",
+    "catalogs": "カタログ",
+    "showingUnsupported_other": "このサーバーの CPU で動作しないアプリ {{count}} 個を表示しています。",
+    "hiddenUnsupported_other": "このサーバーの CPU 用のイメージがないため、{{count}} 個のアプリを非表示にしています。",
+    "hideThem": "非表示にする",
+    "showThem": "表示する",
+    "all": "すべて",
+    "noMatchTitle": "一致するアプリはありません",
+    "noMatchHidden_other": "このサーバーの CPU 用のイメージがないため、一致する {{count}} 個のアプリを非表示にしています。",
+    "noMatchHint": "別の検索語またはカテゴリをお試しください。",
+    "showMatches_other": "表示する"
+  },
+  "card": {
+    "installed": "インストール済み"
+  },
+  "popular": {
+    "title": "いま人気",
+    "subtitle": "多くのホームサーバーが最初に導入するアプリです。",
+    "showPage": "{{total}} ページ中 {{page}} ページ目を表示"
+  },
+  "installForm": {
+    "generated": "空欄の場合は自動生成されます",
+    "nameInvalid": "小文字、数字、ハイフン、アンダースコアを使用してください。",
+    "jobLabel": "{{title}} をインストール",
+    "appName": "アプリ名",
+    "nameHint": "必要に応じて、同じアプリを別の名前で 2 つインストールできます。",
+    "advanced": "詳細設定",
+    "install": "{{title}} をインストール"
+  },
+  "view": {
+    "loadError": "このアプリを読み込めませんでした",
+    "notFound": "アプリが見つかりません",
+    "website": "ウェブサイト",
+    "alreadyInstalled": "インストール済み",
+    "installedAs": "名前:",
+    "installAnother": "別の名前でもう 1 つインストールできます。",
+    "beforeYouStart": "始める前に",
+    "whatYouGet": "できること",
+    "details": "詳細",
+    "category": "カテゴリ",
+    "license": "ライセンス",
+    "images": "イメージ",
+    "platforms": "プラットフォーム",
+    "viewCompose": "compose.yaml を表示",
+    "reportPrompt": "期待どおりに動作しませんか？",
+    "install": "インストール",
+    "installHint": "入力内容は、サーバー上のアプリの compose.yaml の隣にある .env ファイルに保存されます。",
+    "variant": "バリアント",
+    "cannotInstall": "{{title}} はこのサーバーにインストールできません。{{platform}} 用のイメージがありません。",
+    "thisCpu": "この CPU",
+    "thisServerCpu": "このサーバーの CPU",
+    "moreIn": "{{category}} のその他のアプリ",
+    "cpu": {
+      "unsupportedTitle": "このサーバーでは動作しません",
+      "unsupportedBody": "イメージは {{published}} 向けに公開されていますが、このサーバーは {{host}} です。",
+      "emulatedTitle": "エミュレーションで実行されます",
+      "emulatedBody": "{{host}} 用のイメージがないため、Docker が {{published}} 用のイメージをエミュレーションで実行します。動作はしますが、低速でメモリ使用量も増えます。"
+    },
+    "screenshot": {
+      "alt": "{{title}} のスクリーンショット",
+      "open": "{{title}} のスクリーンショットを拡大して開く",
+      "enlarge": "拡大",
+      "show": "スクリーンショット {{number}} を表示",
+      "description": "{{title}} のスクリーンショット。",
+      "close": "閉じる"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "自動検出",
+    "kindAthena": "Athena カタログ",
+    "never": "なし",
+    "addFailed": "カタログを追加できませんでした",
+    "refreshFailed": "{{name}} を更新できませんでした",
+    "removeFailed": "{{name}} を削除できませんでした",
+    "removed": "{{name}} を削除しました",
+    "builtIn": "組み込み",
+    "refreshFailedBadge": "更新に失敗",
+    "summaryBuiltin_other": "{{count}} 個のアプリ · Athena に同梱",
+    "summaryUpdated_other": "{{count}} 個のアプリ · {{when}} に更新",
+    "refresh": "更新",
+    "removeLabel": "{{name}} を削除",
+    "addTitle": "カタログを追加",
+    "addDescription": "GitHub、Codeberg、GitLab のリポジトリ、または .tar.gz/.zip への直接リンク。",
+    "name": "名前",
+    "namePlaceholder": "マイアプリ",
+    "format": "形式",
+    "formatHint": "Athena カタログは apps/<id>/compose.yaml、CasaOS ストアは Apps/<Name>/docker-compose.yml を使用します。",
+    "add": "カタログを追加",
+    "removeTitle": "{{name}} を削除しますか？",
+    "removeDescription": "このカタログのアプリはストアから消えます。すでにインストールしたアプリは引き続き実行されます。",
+    "cancel": "キャンセル",
+    "remove": "削除"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Ansluter…",
+    "connected": "Ansluten",
+    "exited": "Avslutad ({{code}})",
+    "disconnected": "Frånkopplad",
+    "hostTerminal": "Värdterminal",
+    "containerShell": "Behållarskal",
+    "lost": "Anslutningen till Athena bröts",
+    "closedCode": "Frånkopplad (kod {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminalen är inte tillgänglig",
+    "openSettings": "Öppna Inställningar",
+    "description": "Ett skal på den här servern, som den användare Athena körs som.",
+    "newSession": "Ny session"
+  },
+  "access": {
+    "noSupport": "Den här värden saknar stöd för terminal.",
+    "adminsOnly": "Bara administratörer kan öppna en terminal.",
+    "turnedOff": "Terminalen är avstängd i Inställningar → System."
+  },
+  "shell": {
+    "title": "Skal · {{name}}",
+    "description": "Kör bash, eller sh om avbilden saknar bash."
+  }
+}

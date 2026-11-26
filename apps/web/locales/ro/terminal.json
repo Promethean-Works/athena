@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Se conectează…",
+    "connected": "Conectat",
+    "exited": "Închis ({{code}})",
+    "disconnected": "Deconectat",
+    "hostTerminal": "Terminalul gazdei",
+    "containerShell": "Shell container",
+    "lost": "Conexiunea cu Athena s-a pierdut",
+    "closedCode": "Deconectat (cod {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminal indisponibil",
+    "openSettings": "Deschide Setări",
+    "description": "Un shell pe acest server, cu utilizatorul sub care rulează Athena.",
+    "newSession": "Sesiune nouă"
+  },
+  "access": {
+    "noSupport": "Această gazdă nu acceptă terminal.",
+    "adminsOnly": "Doar administratorii pot deschide un terminal.",
+    "turnedOff": "Terminalul este dezactivat în Setări → Sistem."
+  },
+  "shell": {
+    "title": "Shell · {{name}}",
+    "description": "Rulează bash sau sh când imaginea nu are bash."
+  }
+}

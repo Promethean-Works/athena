@@ -1,0 +1,50 @@
+{
+  "menu": "Invia feedback",
+  "dialog": {
+    "title": "Invia feedback",
+    "description": "Apre una nuova issue su {{repo}} in una nuova scheda. Puoi rivederla e modificarla lì prima che venga pubblicata; le issue sono pubbliche.",
+    "storeHint": "Un'app dello store che non funziona? Usa <b>Segnala un problema</b> nella sua pagina dello store, così la segnalazione arriva a chi la mantiene.",
+    "loadFailed": "Impossibile caricare i dettagli di questo server"
+  },
+  "choices": {
+    "bug": {
+      "title": "Segnala un bug",
+      "description": "Qualcosa non funziona come dovrebbe."
+    },
+    "change": {
+      "title": "Suggerisci una modifica",
+      "description": "Qualcosa funziona, ma dovrebbe funzionare diversamente."
+    },
+    "feature": {
+      "title": "Richiedi una funzionalità",
+      "description": "Qualcosa che Athena non sa ancora fare."
+    }
+  },
+  "diagnostics": {
+    "title": "Compilato per te",
+    "system": "Sistema",
+    "cpu": "CPU",
+    "containers": "Container"
+  },
+  "appReport": {
+    "button": "Segnala un problema",
+    "title": "Segnala un problema con {{app}}",
+    "description": "Apre una nuova issue per {{where}} in una nuova scheda, con i dettagli dell'app e di questo server già compilati. La rivedi lì prima che venga pubblicata; le issue sono pubbliche.",
+    "whereCatalog": "il catalogo {{name}}, che mantiene questa app",
+    "includeLogs_one": "Includi l'ultima riga di log",
+    "includeLogs_many": "Includi le ultime {{count}} righe di log",
+    "includeLogs_other": "Includi le ultime {{count}} righe di log",
+    "installedCopy": "Copia installata",
+    "logsLabel": "Log da includere",
+    "loadingLogs": "Caricamento dei log…",
+    "logsWarning": "Rimuovi password, token e indirizzi prima di continuare.",
+    "logsTruncated": "Nel link entra solo la parte finale dei log.",
+    "cancel": "Annulla",
+    "openIssue": "Apri issue",
+    "preparing": "Preparazione…",
+    "prepareFailed": "Impossibile preparare la segnalazione",
+    "logsFailed": "Impossibile caricare i log: {{error}}",
+    "appNotFound": "app non trovata",
+    "noContainers": "Nessun container trovato per questa app."
+  }
+}

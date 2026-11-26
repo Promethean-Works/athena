@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Este link está incompleto.",
+    "expiredTitle": "Este link expirou",
+    "notFoundTitle": "Este link não funciona",
+    "errorTitle": "Não foi possível abrir este link",
+    "expiredDescription": "Peça um novo a quem enviou."
+  },
+  "unlock": {
+    "title": "Este link tem senha",
+    "description": "Digite a senha para ver o que foi compartilhado.",
+    "password": "Senha",
+    "open": "Abrir"
+  },
+  "file": {
+    "fallbackName": "arquivo",
+    "download": "Baixar"
+  },
+  "dropBox": {
+    "title": "Enviar arquivos para {{name}}",
+    "description": "Os arquivos que você adicionar são enviados na hora. Você não vê o que outras pessoas enviaram, e nada do que você enviar substitui outro arquivo.",
+    "drop": "Solte os arquivos aqui ou",
+    "choose": "Escolher arquivos"
+  },
+  "folder": {
+    "downloadAll": "Baixar tudo",
+    "cantOpen": "Não foi possível abrir esta pasta",
+    "empty": "Esta pasta está vazia.",
+    "columnName": "Nome",
+    "columnSize": "Tamanho",
+    "columnModified": "Modificado",
+    "columnDownload": "Baixar",
+    "downloadEntry": "Baixar {{name}}",
+    "download": "Baixar"
+  }
+}

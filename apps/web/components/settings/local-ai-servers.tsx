@@ -13,6 +13,7 @@ import type {
   ProviderEditing,
   ProviderKind,
 } from "@/components/settings/ai-provider-dialog"
+import i18n from "@/lib/i18n"
 
 export type LocalAiServer = { capability: Capability; kind: ProviderKind }
 
@@ -40,9 +41,12 @@ export function localServersSentence(servers: LocalAiServer[]): string {
   const names = servers.map((s) => s.capability.label)
   const list =
     names.length > 1
-      ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`
+      ? i18n.t("settings:localAi.list", {
+          head: names.slice(0, -1).join(", "),
+          last: names[names.length - 1],
+        })
       : names[0]
-  return `${list} ${names.length > 1 ? "are" : "is"} running on this server. Their models run on your own hardware and nothing leaves the server.`
+  return i18n.t("settings:localAi.running", { list, count: names.length })
 }
 
 /** The provider form for a detected server, filled in with where it answers. */
@@ -78,7 +82,9 @@ export function LocalServerButtons({
 
 function buttonLabel({ capability, kind }: LocalAiServer): string {
   if (kind.id !== "openai-compatible")
-    return `Use ${capability.label} on this server`
+    return i18n.t("settings:localAi.useNamed", { name: capability.label })
   const port = capability.endpoint ? new URL(capability.endpoint).port : ""
-  return port ? `Use the AI server on port ${port}` : "Use this AI server"
+  return port
+    ? i18n.t("settings:localAi.usePort", { port })
+    : i18n.t("settings:localAi.useThis")
 }

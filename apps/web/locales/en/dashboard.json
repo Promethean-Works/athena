@@ -1,0 +1,272 @@
+{
+  "common": {
+    "manage": "Manage"
+  },
+  "cardShell": {
+    "open": "Open"
+  },
+  "cards": {
+    "stats": {
+      "title": "System",
+      "description": "Live CPU, memory, network and disk activity."
+    },
+    "apps": {
+      "title": "Apps",
+      "description": "Your apps, with their status and an Open button."
+    },
+    "containers": {
+      "title": "Containers",
+      "description": "Running and stopped counts, and which ones need attention."
+    },
+    "automation": {
+      "title": "Automation",
+      "description": "Next scheduled runs and how recent runs went."
+    },
+    "storage": {
+      "title": "Storage",
+      "description": "Space used on each disk."
+    },
+    "server": {
+      "title": "Server",
+      "description": "Host name, operating system, uptime and versions."
+    },
+    "temperatures": {
+      "title": "Temperatures",
+      "description": "Sensor readings, where the host reports them."
+    },
+    "power": {
+      "title": "Power",
+      "description": "Under-voltage and throttling on a Raspberry Pi."
+    },
+    "activity": {
+      "title": "Recent activity",
+      "description": "The latest changes from the audit log (admins only)."
+    },
+    "remoteAccess": {
+      "title": "Remote access",
+      "description": "Tunnel status and the public address."
+    },
+    "capabilities": {
+      "title": "Capabilities",
+      "description": "What Athena found on this host."
+    },
+    "backups": {
+      "title": "Backups",
+      "description": "Backup plans, last runs and the next scheduled run."
+    }
+  },
+  "activity": {
+    "title": "Recent activity",
+    "description": "Who changed what on this server.",
+    "loadError": "Couldn't load recent activity: {{error}}",
+    "empty": "Nothing yet. Actions on apps, containers and files show up here.",
+    "by": "by {{username}}"
+  },
+  "automation": {
+    "title": "Automation",
+    "description": "Scheduled and webhook triggers, and how their runs went.",
+    "succeeded": "Succeeded",
+    "failed": "Failed",
+    "loadError": "Couldn't load automation: {{error}}",
+    "noTriggers": "No triggers yet. Create one to restart an app or update packages on a schedule.",
+    "nextRuns": "Next runs · {{enabled}} of {{total}} triggers on",
+    "nothingScheduled": "Nothing scheduled. Webhook triggers run when they're called.",
+    "recentRuns": "Recent runs",
+    "noRuns": "No runs yet.",
+    "deletedTrigger": "Deleted trigger"
+  },
+  "backup": {
+    "title": "Backups",
+    "description": "Backup plans, last runs and the next scheduled run.",
+    "succeeded": "Succeeded",
+    "failed": "Failed",
+    "running": "Running",
+    "loadError": "Couldn't load backup plans: {{error}}",
+    "empty": "No backup plans yet. Add one in Settings → Backups.",
+    "plans": "Plans",
+    "enabled": "Enabled",
+    "plansFailed_one": "{{count}} plan failed",
+    "plansFailed_other": "{{count}} plans failed",
+    "noFailures": "No recent failures",
+    "nextRuns": "Next scheduled runs",
+    "noScheduled": "No scheduled runs"
+  },
+  "containers": {
+    "title": "Containers",
+    "description": "Everything the container engine runs, apps included.",
+    "all": "All containers",
+    "running": "Running",
+    "notRunning": "Not running",
+    "needAttention": "Need attention",
+    "exited": "Exited ({{code}})",
+    "loadError": "Couldn't load containers: {{error}}",
+    "empty": "No containers on this server yet.",
+    "engineDown": "The container engine isn't running."
+  },
+  "apps": {
+    "title": "Apps",
+    "subtitle": "What's running on this server",
+    "store": "Store",
+    "all": "All apps",
+    "emptyTitle": "No apps yet",
+    "emptyDescription": "Install one from the store, or deploy your own compose file.",
+    "browseStore": "Browse the store",
+    "status": {
+      "running": "Running",
+      "partial": "Partly running",
+      "stopped": "Stopped",
+      "notDeployed": "Not deployed"
+    },
+    "containerCount_one": "{{count}} container",
+    "containerCount_other": "{{count}} containers",
+    "actionsFor": "Actions for {{name}}",
+    "open": "Open",
+    "openPort": "Open :{{port}}",
+    "details": "Details",
+    "restart": "Restart",
+    "stop": "Stop",
+    "start": "Start",
+    "updateImages": "Update images",
+    "remove": "Remove"
+  },
+  "grid": {
+    "pickedUp": "Picked up the {{title}} card.",
+    "overCard": "{{title}} is over {{other}}.",
+    "notOverCard": "{{title}} is no longer over a card.",
+    "moved": "{{title}} moved to where {{other}} was.",
+    "dropped": "{{title}} dropped.",
+    "cancelled": "Moving {{title}} was cancelled.",
+    "move": "Move {{title}}",
+    "moveUp": "Move {{title}} up",
+    "moveDown": "Move {{title}} down",
+    "makeHalf": "Make {{title}} half width",
+    "makeFull": "Make {{title}} full width",
+    "remove": "Remove {{title}}",
+    "nothingToShow": "Nothing to show on this server right now.",
+    "addDialogTitle": "Add a card",
+    "addDialogDescription": "Cards are added at the end; drag them where you want them.",
+    "allAddedTitle": "Every card is on your dashboard",
+    "allAddedDescription": "Remove one to add it again later.",
+    "addCard": "Add {{title}}",
+    "add": "Add",
+    "editHint": "Drag cards by their handle, or use the arrows. Changes save when you press Done.",
+    "addCardButton": "Add card",
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "done": "Done",
+    "customize": "Customize",
+    "emptyTitle": "Your dashboard is empty",
+    "emptyDescription": "Add cards, or reset to the default layout.",
+    "dragInstructions": "To move a card, press Space or Enter, use the arrow keys, then press Space or Enter again to drop it, or Escape to cancel."
+  },
+  "stats": {
+    "used": "Used",
+    "download": "Download",
+    "upload": "Upload",
+    "read": "Read",
+    "write": "Write",
+    "util": "Util",
+    "unavailableTitle": "Live stats are unavailable",
+    "unavailableDescription": "The server didn't return host statistics.",
+    "coresThreads": "{{cores}} cores · {{threads}} threads",
+    "cores_one": "{{count}} core",
+    "cores_other": "{{count}} cores",
+    "coresLoad": "{{cores}} · load {{load}}",
+    "liveLabel": "Live host stats",
+    "system": "System",
+    "live": "Live",
+    "reconnecting": "Reconnecting",
+    "chartRange": "Chart range",
+    "range5m": "5 min",
+    "range1h": "1 hour",
+    "memory": "Memory",
+    "memUsed": "{{used}} used",
+    "memUsedSwap": "{{used}} used · swap {{swap}}",
+    "network": "Network",
+    "diskActivity": "Disk activity",
+    "readRate": "R {{rate}}",
+    "writeRate": "W {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPUs",
+    "noGpu": "no GPU reported",
+    "vramOf": "{{used}} of {{total}}"
+  },
+  "power": {
+    "title": "Power",
+    "description": "Raspberry Pi power and throttling",
+    "problemNow": "Problem now",
+    "ok": "OK",
+    "flagNow": "{{label}} now",
+    "flagSinceBoot": "{{label}} since boot",
+    "none": "No under-voltage or throttling since this server booted.",
+    "flags": {
+      "underVoltage": {
+        "label": "Under-voltage",
+        "hint": "The power supply or cable can't keep up. Use the official supply and a short, thick cable."
+      },
+      "throttled": {
+        "label": "Throttled",
+        "hint": "The CPU is slowed down to protect itself."
+      },
+      "freqCapped": {
+        "label": "Frequency capped",
+        "hint": "The firmware lowered the maximum CPU speed."
+      },
+      "softTempLimit": {
+        "label": "Soft temperature limit",
+        "hint": "The CPU is close to its temperature limit. Check cooling."
+      }
+    }
+  },
+  "remote": {
+    "title": "Remote access",
+    "description": "Reach Athena from outside your network.",
+    "settings": "Settings",
+    "loadError": "Couldn't load remote access: {{error}}",
+    "off": "Off. Turn it on in Settings → System to reach Athena from outside your network.",
+    "running": "Running",
+    "notRunning": "Not running",
+    "noProvider": "No provider",
+    "warning": "The terminal, package installs and the assistant are reachable from the internet with one password. <link>Turn them off</link> if you don't need them remotely.",
+    "publicAddress": "Public address",
+    "copyAddress": "Copy public address",
+    "copied": "Address copied",
+    "copyFailed": "Couldn't copy"
+  },
+  "storage": {
+    "title": "Storage",
+    "description": "Disks, folders, cloud and network shares",
+    "noDisks": "No disks reported yet.",
+    "diskUsage": "{{used}} of {{total}}",
+    "folders": "Folders",
+    "unavailable": "Unavailable",
+    "cloud": "Cloud storage",
+    "shares": "Network shares",
+    "readOnly": "Read-only"
+  },
+  "temperatures": {
+    "title": "Temperatures",
+    "description": "Hardware sensors"
+  },
+  "layout": {
+    "saveFailed": "Couldn't save the dashboard",
+    "saved": "Dashboard saved"
+  },
+  "server": {
+    "title": "Server",
+    "description": "The machine Athena is running on",
+    "unreachableTitle": "Can't reach the Athena server",
+    "unreachableDescription": "{{error}}. In development, start it with <code>uv run athena serve --reload</code> in <code>apps/server</code>.",
+    "host": "Host",
+    "os": "Operating system",
+    "platform": "Platform",
+    "uptime": "Uptime",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Connecting…",
+    "unreachable": "Server unreachable",
+    "version": "Athena {{version}}"
+  }
+}

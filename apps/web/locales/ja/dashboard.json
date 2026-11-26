@@ -1,0 +1,268 @@
+{
+  "common": {
+    "manage": "管理"
+  },
+  "cardShell": {
+    "open": "開く"
+  },
+  "cards": {
+    "stats": {
+      "title": "システム",
+      "description": "CPU、メモリ、ネットワーク、ディスクのリアルタイムの動作状況。"
+    },
+    "apps": {
+      "title": "アプリ",
+      "description": "アプリの状態と「開く」ボタンを表示します。"
+    },
+    "containers": {
+      "title": "コンテナ",
+      "description": "実行中・停止中の数と、対応が必要なコンテナ。"
+    },
+    "automation": {
+      "title": "オートメーション",
+      "description": "次回のスケジュール実行と、最近の実行結果。"
+    },
+    "storage": {
+      "title": "ストレージ",
+      "description": "各ディスクの使用量。"
+    },
+    "server": {
+      "title": "サーバー",
+      "description": "ホスト名、オペレーティングシステム、稼働時間、バージョン。"
+    },
+    "temperatures": {
+      "title": "温度",
+      "description": "ホストが報告するセンサーの値。"
+    },
+    "power": {
+      "title": "電源",
+      "description": "Raspberry Pi の電圧低下とスロットリング。"
+    },
+    "activity": {
+      "title": "最近のアクティビティ",
+      "description": "監査ログの最新の変更（管理者のみ）。"
+    },
+    "remoteAccess": {
+      "title": "リモートアクセス",
+      "description": "トンネルの状態と公開アドレス。"
+    },
+    "capabilities": {
+      "title": "機能",
+      "description": "Athena がこのホストで検出した内容。"
+    },
+    "backups": {
+      "title": "バックアップ",
+      "description": "バックアッププラン、最終実行、次回のスケジュール実行。"
+    }
+  },
+  "activity": {
+    "title": "最近のアクティビティ",
+    "description": "このサーバーで誰が何を変更したか。",
+    "loadError": "最近のアクティビティを読み込めませんでした: {{error}}",
+    "empty": "まだありません。アプリ、コンテナ、ファイルの操作がここに表示されます。",
+    "by": "{{username}} による操作"
+  },
+  "automation": {
+    "title": "オートメーション",
+    "description": "スケジュールと Webhook のトリガー、およびその実行結果。",
+    "succeeded": "成功",
+    "failed": "失敗",
+    "loadError": "オートメーションを読み込めませんでした: {{error}}",
+    "noTriggers": "トリガーはまだありません。作成すると、アプリの再起動やパッケージのアップデートをスケジュール実行できます。",
+    "nextRuns": "次回の実行 · {{total}} 件中 {{enabled}} 件のトリガーが有効",
+    "nothingScheduled": "スケジュールはありません。Webhook トリガーは呼び出されたときに実行されます。",
+    "recentRuns": "最近の実行",
+    "noRuns": "実行履歴はまだありません。",
+    "deletedTrigger": "削除されたトリガー"
+  },
+  "backup": {
+    "title": "バックアップ",
+    "description": "バックアッププラン、最終実行、次回のスケジュール実行。",
+    "succeeded": "成功",
+    "failed": "失敗",
+    "running": "実行中",
+    "loadError": "バックアッププランを読み込めませんでした: {{error}}",
+    "empty": "バックアッププランはまだありません。「設定 → バックアップ」で追加してください。",
+    "plans": "プラン",
+    "enabled": "有効",
+    "plansFailed_other": "{{count}} 件のプランが失敗",
+    "noFailures": "最近の失敗はありません",
+    "nextRuns": "次回のスケジュール実行",
+    "noScheduled": "スケジュールされた実行はありません"
+  },
+  "containers": {
+    "title": "コンテナ",
+    "description": "アプリを含め、コンテナエンジンが実行しているすべてのもの。",
+    "all": "すべてのコンテナ",
+    "running": "実行中",
+    "notRunning": "停止中",
+    "needAttention": "要確認",
+    "exited": "終了 ({{code}})",
+    "loadError": "コンテナを読み込めませんでした: {{error}}",
+    "empty": "このサーバーにコンテナはまだありません。",
+    "engineDown": "コンテナエンジンが実行されていません。"
+  },
+  "apps": {
+    "title": "アプリ",
+    "subtitle": "このサーバーで実行中のもの",
+    "store": "ストア",
+    "all": "すべてのアプリ",
+    "emptyTitle": "アプリはまだありません",
+    "emptyDescription": "ストアからインストールするか、独自の compose ファイルをデプロイしてください。",
+    "browseStore": "ストアを見る",
+    "status": {
+      "running": "実行中",
+      "partial": "一部実行中",
+      "stopped": "停止中",
+      "notDeployed": "未デプロイ"
+    },
+    "containerCount_other": "{{count}} 個のコンテナ",
+    "actionsFor": "{{name}} の操作",
+    "open": "開く",
+    "openPort": ":{{port}} を開く",
+    "details": "詳細",
+    "restart": "再起動",
+    "stop": "停止",
+    "start": "起動",
+    "updateImages": "イメージを更新",
+    "remove": "削除"
+  },
+  "grid": {
+    "pickedUp": "{{title}} カードを持ち上げました。",
+    "overCard": "{{title}} は {{other}} の上にあります。",
+    "notOverCard": "{{title}} はカードの上にありません。",
+    "moved": "{{title}} を {{other}} があった位置に移動しました。",
+    "dropped": "{{title}} を置きました。",
+    "cancelled": "{{title}} の移動をキャンセルしました。",
+    "move": "{{title}} を移動",
+    "moveUp": "{{title}} を上へ移動",
+    "moveDown": "{{title}} を下へ移動",
+    "makeHalf": "{{title}} を半分の幅にする",
+    "makeFull": "{{title}} を全幅にする",
+    "remove": "{{title}} を削除",
+    "nothingToShow": "このサーバーには現在表示できるものがありません。",
+    "addDialogTitle": "カードを追加",
+    "addDialogDescription": "カードは末尾に追加されます。ドラッグして好きな位置に移動してください。",
+    "allAddedTitle": "すべてのカードがダッシュボードにあります",
+    "allAddedDescription": "後で再追加するには、いずれかのカードを削除してください。",
+    "addCard": "{{title}} を追加",
+    "add": "追加",
+    "editHint": "ハンドルでカードをドラッグするか、矢印を使用してください。変更は「完了」を押すと保存されます。",
+    "addCardButton": "カードを追加",
+    "reset": "リセット",
+    "cancel": "キャンセル",
+    "done": "完了",
+    "customize": "カスタマイズ",
+    "emptyTitle": "ダッシュボードは空です",
+    "emptyDescription": "カードを追加するか、デフォルトのレイアウトにリセットしてください。",
+    "dragInstructions": "カードを移動するには、Space または Enter を押し、矢印キーで移動してから、もう一度 Space または Enter で置きます。Escape でキャンセルします。"
+  },
+  "stats": {
+    "used": "使用中",
+    "download": "ダウンロード",
+    "upload": "アップロード",
+    "read": "読み取り",
+    "write": "書き込み",
+    "util": "使用率",
+    "unavailableTitle": "リアルタイム統計は利用できません",
+    "unavailableDescription": "サーバーがホストの統計を返しませんでした。",
+    "coresThreads": "{{cores}} コア · {{threads}} スレッド",
+    "cores_other": "{{count}} コア",
+    "coresLoad": "{{cores}} · 負荷 {{load}}",
+    "liveLabel": "ホストのリアルタイム統計",
+    "system": "システム",
+    "live": "ライブ",
+    "reconnecting": "再接続中",
+    "chartRange": "グラフの範囲",
+    "range5m": "5 分",
+    "range1h": "1 時間",
+    "memory": "メモリ",
+    "memUsed": "{{used}} 使用中",
+    "memUsedSwap": "{{used}} 使用中 · スワップ {{swap}}",
+    "network": "ネットワーク",
+    "diskActivity": "ディスクアクティビティ",
+    "readRate": "読 {{rate}}",
+    "writeRate": "書 {{rate}}",
+    "gpuCount_other": "{{count}} 基の GPU",
+    "noGpu": "GPU が報告されていません",
+    "vramOf": "{{total}} 中 {{used}}"
+  },
+  "power": {
+    "title": "電源",
+    "description": "Raspberry Pi の電源とスロットリング",
+    "problemNow": "現在問題あり",
+    "ok": "正常",
+    "flagNow": "{{label}}（現在）",
+    "flagSinceBoot": "{{label}}（起動後）",
+    "none": "このサーバーの起動後、電圧低下やスロットリングはありません。",
+    "flags": {
+      "underVoltage": {
+        "label": "電圧低下",
+        "hint": "電源アダプターまたはケーブルの供給能力が不足しています。公式の電源アダプターと、短くて太いケーブルを使用してください。"
+      },
+      "throttled": {
+        "label": "スロットリング",
+        "hint": "CPU が自身を保護するために速度を落としています。"
+      },
+      "freqCapped": {
+        "label": "周波数制限",
+        "hint": "ファームウェアが CPU の最大速度を引き下げました。"
+      },
+      "softTempLimit": {
+        "label": "ソフト温度制限",
+        "hint": "CPU が温度の上限に近づいています。冷却を確認してください。"
+      }
+    }
+  },
+  "remote": {
+    "title": "リモートアクセス",
+    "description": "ネットワークの外から Athena にアクセスします。",
+    "settings": "設定",
+    "loadError": "リモートアクセスを読み込めませんでした: {{error}}",
+    "off": "オフです。ネットワークの外から Athena にアクセスするには、「設定 → システム」でオンにしてください。",
+    "running": "実行中",
+    "notRunning": "停止中",
+    "noProvider": "プロバイダーなし",
+    "warning": "ターミナル、パッケージのインストール、アシスタントが、1 つのパスワードだけでインターネットから利用できます。リモートで不要な場合は<link>オフにしてください</link>。",
+    "publicAddress": "公開アドレス",
+    "copyAddress": "公開アドレスをコピー",
+    "copied": "アドレスをコピーしました",
+    "copyFailed": "コピーできませんでした"
+  },
+  "storage": {
+    "title": "ストレージ",
+    "description": "ディスク、フォルダー、クラウド、ネットワーク共有",
+    "noDisks": "ディスクはまだ報告されていません。",
+    "diskUsage": "{{total}} 中 {{used}}",
+    "folders": "フォルダー",
+    "unavailable": "利用不可",
+    "cloud": "クラウドストレージ",
+    "shares": "ネットワーク共有",
+    "readOnly": "読み取り専用"
+  },
+  "temperatures": {
+    "title": "温度",
+    "description": "ハードウェアセンサー"
+  },
+  "layout": {
+    "saveFailed": "ダッシュボードを保存できませんでした",
+    "saved": "ダッシュボードを保存しました"
+  },
+  "server": {
+    "title": "サーバー",
+    "description": "Athena が動作しているマシン",
+    "unreachableTitle": "Athena サーバーに接続できません",
+    "unreachableDescription": "{{error}}。開発環境では、<code>apps/server</code> で <code>uv run athena serve --reload</code> を実行して起動してください。",
+    "host": "ホスト",
+    "os": "オペレーティングシステム",
+    "platform": "プラットフォーム",
+    "uptime": "稼働時間",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "接続中…",
+    "unreachable": "サーバーに接続できません",
+    "version": "Athena {{version}}"
+  }
+}

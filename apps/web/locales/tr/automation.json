@@ -1,0 +1,169 @@
+{
+  "cancel": "İptal",
+  "view": {
+    "unavailable": "Otomasyon kullanılamıyor",
+    "unsupported": "Bu ana makine otomasyonu desteklemiyor."
+  },
+  "copyUrl": {
+    "copy": "{{label}} kopyala",
+    "copied": "{{label}} kopyalandı",
+    "failed": "Kopyalanamadı"
+  },
+  "external": {
+    "title": "Harici otomasyon",
+    "description": "n8n'i, betikleri veya yapay zekâ ajanlarını Athena'ya bağlayın.",
+    "webhookUrl": "Webhook URL'si",
+    "webhookHint": "Bir webhook tetikleyicisini çalıştırmak için POST isteği gönderin; oturum açmak gerekmez. Her webhook tetikleyicisinin kendi belirteci vardır: tam URL'sini tetikleyici listesinden kopyalayın.",
+    "mcpServer": "MCP sunucusu",
+    "mcpUrl": "MCP sunucusu URL'si",
+    "mcpHint": "Streamable HTTP. İstemciler oturum çerezi ile giriş yapar ya da sunucunun <envVar>ATHENA_MCP_TOKEN</envVar> ortam değişkeninde ayarlanan belirteci <authHeader>Authorization: Bearer &lt;token&gt;</authHeader> olarak gönderir."
+  },
+  "jobRuns": {
+    "title": "İş çalıştırmaları",
+    "description": "En son çalıştırmalar, birkaç saniyede bir yenilenir.",
+    "trigger": "Tetikleyici",
+    "deletedTrigger": "Silinmiş tetikleyici",
+    "listFailed": "İş çalıştırmaları listelenemedi",
+    "empty": {
+      "title": "Henüz iş çalıştırması yok",
+      "description": "Bir tetikleyici çalışınca çalıştırmalar burada görünür."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "{{name}} uygulamasını başlat",
+      "stop": "{{name}} uygulamasını durdur",
+      "restart": "{{name}} uygulamasını yeniden başlat",
+      "update": "{{name}} uygulamasını güncelle"
+    },
+    "package": {
+      "install": "{{name}} kur ({{manager}})",
+      "uninstall": "{{name}} kaldır ({{manager}})",
+      "upgrade": "{{name}} yükselt ({{manager}})",
+      "refresh": "{{manager}} paket listelerini yenile"
+    }
+  },
+  "triggers": {
+    "title": "Tetikleyiciler",
+    "description": "Bir uygulama veya paket eylemini zamanlamayla ya da webhook ile çalıştırın.",
+    "listFailed": "Tetikleyiciler listelenemedi",
+    "empty": {
+      "title": "Henüz tetikleyici yok",
+      "description": "Bir tetikleyici, bir eylemi zamanlamayla (cron) ya da webhook'u çağrıldığında, örneğin n8n'den, çalıştırır."
+    },
+    "onWebhook": "Webhook'u çağrıldığında",
+    "noSchedule": "Zamanlama yok",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Sonraki çalıştırma {{time}}",
+    "changeFailed": "Tetikleyici değiştirilemedi",
+    "enabledToast": "{{name}} etkinleştirildi",
+    "pausedToast": "{{name}} duraklatıldı",
+    "enabledLabel": "{{name}} etkin",
+    "copyWebhook": "Webhook URL'sini kopyala",
+    "webhookCopied": "Webhook URL'si kopyalandı",
+    "copyFailed": "Kopyalanamadı",
+    "deleteFailed": "Tetikleyici silinemedi",
+    "deleted": "Tetikleyici silindi",
+    "deleteLabel": "{{name}} sil",
+    "delete": "Sil",
+    "deleteTitle": "{{name}} silinsin mi?",
+    "deleteDescription": "Çalışmayı durdurur. Geçmiş iş çalıştırmaları günlükte kalır.",
+    "deleteDescriptionWebhook": "Çalışmayı durdurur ve webhook URL'si çalışmaz olur. Geçmiş iş çalıştırmaları günlükte kalır."
+  },
+  "dialog": {
+    "new": "Yeni tetikleyici",
+    "description": "Bir uygulama veya paket eylemini zamanlamayla ya da bir webhook çağrıldığında çalıştırın.",
+    "created": {
+      "title": "Webhook tetikleyicisi oluşturuldu",
+      "description": "\"{{name}}\" tetikleyicisini çalıştırmak için bu URL'ye POST isteği gönderin. URL'ye sahip herkes onu çalıştırabilir, bu yüzden gizli tutun. Tetikleyici listesinden yeniden kopyalayabilirsiniz.",
+      "done": "Tamam"
+    },
+    "errors": {
+      "name": "Tetikleyiciye bir ad verin.",
+      "app": "Bir uygulama seçin.",
+      "manager": "Bir paket yöneticisi seçin.",
+      "packageName": "Bir paket adı girin."
+    },
+    "createdToast": "{{name}} tetikleyicisi oluşturuldu",
+    "createFailed": "Tetikleyici oluşturulamadı",
+    "name": "Ad",
+    "namePlaceholder": "ör. Jellyfin'i her gece yeniden başlat",
+    "whenItRuns": "Ne zaman çalışır",
+    "onSchedule": "Zamanlamayla (cron)",
+    "onWebhook": "Bir webhook çağrıldığında",
+    "schedule": "Zamanlama",
+    "cronPlaceholder": "dakika saat gün ay haftanın günü, ör. 0 2 * * *",
+    "cronHelp": "Beş alan: dakika, saat, ayın günü, ay, haftanın günü. Saatler UTC'dir.",
+    "webhookHint": "Oluşturduktan sonra gizli bir URL alırsınız. Bu URL'ye gönderilen POST isteği (n8n'den, bir betikten veya curl ile) eylemi çalıştırır.",
+    "whatItDoes": "Ne yapar",
+    "appAction": "Uygulama eylemi",
+    "packageAction": "Paket eylemi",
+    "create": "Tetikleyici oluştur",
+    "app": "Uygulama",
+    "loadingApps": "Uygulamalar yükleniyor…",
+    "chooseApp": "Bir uygulama seçin",
+    "noApps": "Kurulu uygulama yok",
+    "action": "Eylem",
+    "appVerbs": {
+      "start": "Başlat",
+      "stop": "Durdur",
+      "restart": "Yeniden başlat",
+      "update": "Güncelle (çek ve yeniden oluştur)"
+    },
+    "packageVerbs": {
+      "install": "Kur",
+      "uninstall": "Kaldır",
+      "upgrade": "Yükselt",
+      "refresh": "Paket listelerini yenile"
+    },
+    "packageManager": "Paket yöneticisi",
+    "loading": "Yükleniyor…",
+    "chooseManager": "Bir yönetici seçin",
+    "noManagers": "Bu ana makinede hazır olan yok",
+    "package": "Paket",
+    "packagePlaceholder": "ör. jq",
+    "source": "Kaynak (isteğe bağlı)",
+    "sourceHint": "Bir Flatpak remote'u, bir Scoop bucket'ı ya da bir Homebrew cask'ı için \"cask\".",
+    "loadingInstalled": "Kurulu paketler yükleniyor…",
+    "installedFailed": "Kurulu paketler listelenemedi ({{error}}); adı yazın.",
+    "searchInstalled": "Kurulu paketlerde ara",
+    "noMatch": "Eşleşen kurulu paket yok."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Her saat",
+      "daily": "Her gün 02:00'de",
+      "sundays": "Pazarları 03:00'te",
+      "monthly": "Her ayın 1'inde"
+    },
+    "fields": {
+      "minute": "dakika",
+      "hour": "saat",
+      "dayOfMonth": "ayın günü",
+      "month": "ay",
+      "weekday": "haftanın günü"
+    },
+    "errors": {
+      "empty": "Bir cron ifadesi girin ya da hazır bir ayar seçin.",
+      "invalidField": "{{field}} alanındaki \"{{value}}\" geçerli değil.",
+      "invalidStep": "{{field}} alanındaki \"/{{step}}\" adımı bir sayı olmalı.",
+      "outOfRange": "{{field}} {{min}} ile {{max}} arasında olmalı.",
+      "fieldCount": "Beş alan kullanın (dakika saat gün ay haftanın günü); bunda {{count}} var."
+    },
+    "dayRange": "{{from}}–{{to}}",
+    "custom": "Özel zamanlama",
+    "everyMinute": "Her dakika",
+    "everyMinutes_one": "Her {{count}} dakikada bir",
+    "everyMinutes_other": "Her {{count}} dakikada bir",
+    "everyHourOnTheHour": "Her saat başı",
+    "everyHourAtMinute": "Her saat {{minute}}. dakikada",
+    "everyHoursAtMinute_one": "Her {{count}} saatte bir, {{minute}}. dakikada",
+    "everyHoursAtMinute_other": "Her {{count}} saatte bir, {{minute}}. dakikada",
+    "everyDay": "Her gün {{time}}'de",
+    "everyWeekdays": "Her {{days}}, saat {{time}}",
+    "onDayOfMonth": "Her ayın {{day}}. günü, saat {{time}}",
+    "everyYear": "Her yıl {{day}} {{month}}, saat {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

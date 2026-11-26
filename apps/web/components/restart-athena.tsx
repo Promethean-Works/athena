@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage } from "@workspace/api-client"
 import {
@@ -40,6 +41,7 @@ export function RestartAthenaDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t } = useTranslation()
   const [phase, setPhase] = React.useState<
     "idle" | "sending" | "waiting" | "late"
   >("idle")
@@ -53,7 +55,7 @@ export function RestartAthenaDialog({
       onOpenChange(false)
       toast.add({
         type: "error",
-        title: "Couldn't restart Athena",
+        title: t("restart.failed"),
         description: errorMessage(error),
       })
       return
@@ -80,18 +82,17 @@ export function RestartAthenaDialog({
       <AlertDialog open={open} onOpenChange={onOpenChange}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Restart Athena?</AlertDialogTitle>
+            <AlertDialogTitle>{t("restart.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Running jobs are stopped. The page reconnects in a few seconds.
-              Your apps keep running.
+              {t("restart.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={phase === "sending"}>
-              Cancel
+              {t("cancel")}
             </AlertDialogCancel>
             <AlertDialogAction onClick={restart} disabled={phase === "sending"}>
-              Restart
+              {t("restart.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -105,22 +106,21 @@ export function RestartAthenaDialog({
           {phase === "waiting" ? (
             <>
               <Spinner className="size-6" />
-              <p className="text-lg font-medium">Restarting Athena…</p>
+              <p className="text-lg font-medium">{t("restart.waitingTitle")}</p>
               <p className="text-sm text-muted-foreground">
-                This page reloads when Athena is back.
+                {t("restart.waitingBody")}
               </p>
             </>
           ) : (
             <>
               <p className="text-lg font-medium">
-                Athena hasn&apos;t come back yet
+                {t("update.notBackYet")}
               </p>
               <p className="max-w-sm text-sm text-muted-foreground">
-                It can take longer on a slow host. If it stays down, check the
-                log in the data folder (logs/athena.log).
+                {t("restartLateBody")}
               </p>
               <Button onClick={() => window.location.reload()}>
-                Reload the page
+                {t("update.reload")}
               </Button>
             </>
           )}

@@ -1,0 +1,167 @@
+{
+  "cancel": "取消",
+  "view": {
+    "unavailable": "自動化無法使用",
+    "unsupported": "此主機不支援自動化。"
+  },
+  "copyUrl": {
+    "copy": "複製{{label}}",
+    "copied": "已複製{{label}}",
+    "failed": "無法複製"
+  },
+  "external": {
+    "title": "外部自動化",
+    "description": "將 n8n、指令碼或 AI 代理程式連接到 Athena。",
+    "webhookUrl": "Webhook URL",
+    "webhookHint": "傳送 POST 請求即可觸發 webhook 觸發器，不需登入。每個 webhook 觸發器都有自己的權杖：請從觸發器清單複製其完整 URL。",
+    "mcpServer": "MCP 伺服器",
+    "mcpUrl": "MCP 伺服器 URL",
+    "mcpHint": "Streamable HTTP。用戶端以工作階段 cookie 登入，或將伺服器環境變數 <envVar>ATHENA_MCP_TOKEN</envVar> 中設定的權杖以 <authHeader>Authorization: Bearer &lt;token&gt;</authHeader> 傳送。"
+  },
+  "jobRuns": {
+    "title": "工作執行紀錄",
+    "description": "最新的執行紀錄，每隔幾秒重新整理。",
+    "trigger": "觸發器",
+    "deletedTrigger": "已刪除的觸發器",
+    "listFailed": "無法列出工作執行紀錄",
+    "empty": {
+      "title": "尚無工作執行紀錄",
+      "description": "觸發器觸發後，執行紀錄會顯示在這裡。"
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "啟動應用程式 {{name}}",
+      "stop": "停止應用程式 {{name}}",
+      "restart": "重新啟動應用程式 {{name}}",
+      "update": "更新應用程式 {{name}}"
+    },
+    "package": {
+      "install": "安裝 {{name}}（{{manager}}）",
+      "uninstall": "解除安裝 {{name}}（{{manager}}）",
+      "upgrade": "升級 {{name}}（{{manager}}）",
+      "refresh": "重新整理 {{manager}} 套件清單"
+    }
+  },
+  "triggers": {
+    "title": "觸發器",
+    "description": "依排程或透過 webhook 執行應用程式或套件動作。",
+    "listFailed": "無法列出觸發器",
+    "empty": {
+      "title": "尚無觸發器",
+      "description": "觸發器會依排程（cron）或在其 webhook 被呼叫時（例如從 n8n）執行動作。"
+    },
+    "onWebhook": "當其 webhook 被呼叫時",
+    "noSchedule": "無排程",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "下次執行 {{time}}",
+    "changeFailed": "無法變更觸發器",
+    "enabledToast": "已啟用 {{name}}",
+    "pausedToast": "已暫停 {{name}}",
+    "enabledLabel": "{{name}} 已啟用",
+    "copyWebhook": "複製 webhook URL",
+    "webhookCopied": "已複製 webhook URL",
+    "copyFailed": "無法複製",
+    "deleteFailed": "無法刪除觸發器",
+    "deleted": "已刪除觸發器",
+    "deleteLabel": "刪除 {{name}}",
+    "delete": "刪除",
+    "deleteTitle": "要刪除 {{name}} 嗎？",
+    "deleteDescription": "它會停止執行。過去的工作執行紀錄會保留在記錄中。",
+    "deleteDescriptionWebhook": "它會停止執行，其 webhook URL 也會失效。過去的工作執行紀錄會保留在記錄中。"
+  },
+  "dialog": {
+    "new": "新增觸發器",
+    "description": "依排程，或在 webhook 被呼叫時，執行應用程式或套件動作。",
+    "created": {
+      "title": "已建立 Webhook 觸發器",
+      "description": "向此 URL 傳送 POST 請求即可執行「{{name}}」。任何擁有此 URL 的人都能觸發它，請妥善保密。你可以再從觸發器清單複製。",
+      "done": "完成"
+    },
+    "errors": {
+      "name": "請為觸發器命名。",
+      "app": "請選擇應用程式。",
+      "manager": "請選擇套件管理員。",
+      "packageName": "請輸入套件名稱。"
+    },
+    "createdToast": "已建立觸發器 {{name}}",
+    "createFailed": "無法建立觸發器",
+    "name": "名稱",
+    "namePlaceholder": "例如：每晚重新啟動 Jellyfin",
+    "whenItRuns": "執行時機",
+    "onSchedule": "依排程（cron）",
+    "onWebhook": "當 webhook 被呼叫時",
+    "schedule": "排程",
+    "cronPlaceholder": "分 時 日 月 週，例如 0 2 * * *",
+    "cronHelp": "五個欄位：分、時、日、月、星期。時間為 UTC。",
+    "webhookHint": "建立後會取得一個私密 URL。向它傳送 POST 請求（從 n8n、指令碼或 curl）即可執行動作。",
+    "whatItDoes": "執行內容",
+    "appAction": "應用程式動作",
+    "packageAction": "套件動作",
+    "create": "建立觸發器",
+    "app": "應用程式",
+    "loadingApps": "正在載入應用程式…",
+    "chooseApp": "選擇應用程式",
+    "noApps": "尚未安裝應用程式",
+    "action": "動作",
+    "appVerbs": {
+      "start": "啟動",
+      "stop": "停止",
+      "restart": "重新啟動",
+      "update": "更新（拉取並重新建立）"
+    },
+    "packageVerbs": {
+      "install": "安裝",
+      "uninstall": "解除安裝",
+      "upgrade": "升級",
+      "refresh": "重新整理套件清單"
+    },
+    "packageManager": "套件管理員",
+    "loading": "載入中…",
+    "chooseManager": "選擇管理員",
+    "noManagers": "此主機上沒有已就緒的管理員",
+    "package": "套件",
+    "packagePlaceholder": "例如 jq",
+    "source": "來源（選填）",
+    "sourceHint": "Flatpak remote、Scoop bucket，或代表 Homebrew cask 的 \"cask\"。",
+    "loadingInstalled": "正在載入已安裝的套件…",
+    "installedFailed": "無法列出已安裝的套件（{{error}}）；請輸入名稱。",
+    "searchInstalled": "搜尋已安裝的套件",
+    "noMatch": "沒有符合的已安裝套件。"
+  },
+  "cron": {
+    "presets": {
+      "hourly": "每小時",
+      "daily": "每天 02:00",
+      "sundays": "每週日 03:00",
+      "monthly": "每月 1 日"
+    },
+    "fields": {
+      "minute": "分",
+      "hour": "時",
+      "dayOfMonth": "日",
+      "month": "月",
+      "weekday": "星期"
+    },
+    "errors": {
+      "empty": "請輸入 cron 運算式或選擇預設值。",
+      "invalidField": "「{{field}}」欄位的「{{value}}」無效。",
+      "invalidStep": "「{{field}}」欄位中的步進值「/{{step}}」必須是數字。",
+      "outOfRange": "「{{field}}」必須介於 {{min}} 與 {{max}} 之間。",
+      "fieldCount": "請使用五個欄位（分 時 日 月 星期）；目前有 {{count}} 個。"
+    },
+    "dayRange": "{{from}}至{{to}}",
+    "custom": "自訂排程",
+    "everyMinute": "每分鐘",
+    "everyMinutes_other": "每 {{count}} 分鐘",
+    "everyHourOnTheHour": "每小時整點",
+    "everyHourAtMinute": "每小時第 {{minute}} 分",
+    "everyHoursAtMinute_other": "每 {{count}} 小時，於第 {{minute}} 分",
+    "everyDay": "每天 {{time}}",
+    "everyWeekdays": "每{{days}} {{time}}",
+    "onDayOfMonth": "每月 {{day}} 日 {{time}}",
+    "everyYear": "每年 {{month}} {{day}} 日 {{time}}",
+    "utc": "{{description}}（UTC）"
+  }
+}

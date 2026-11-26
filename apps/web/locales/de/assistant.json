@@ -1,0 +1,140 @@
+{
+  "title": "Assistent",
+  "sheet": {
+    "description": "Chatte mit dem KI-Assistenten über diesen Server.",
+    "openFullPage": "Vollständige Seite öffnen"
+  },
+  "chat": {
+    "newChat": "Neuer Chat",
+    "chats": "Chats",
+    "noChats": "Noch keine Chats.",
+    "deleteChat": "{{title}} löschen",
+    "thinking": "Denkt nach…",
+    "stillWorking": "Arbeitet noch an einer Antwort. Sie erscheint hier, sobald sie fertig ist.",
+    "emptyTitle": "Frag zu diesem Server",
+    "emptyDescription": "Der Assistent kann Apps, Logs, Dateien und Systemwerte nachschlagen und Dinge installieren oder ändern, sobald du jede Aktion genehmigst.",
+    "suggestions": {
+      "capabilities": "Was kann dieser Server?",
+      "disk": "Wie viel Speicherplatz ist noch frei?",
+      "apps": "Welche Apps laufen?"
+    },
+    "message": "Nachricht",
+    "placeholder": "Frag zu diesem Server…",
+    "placeholderWaiting": "Oben antworten oder eine Nachricht senden, um zu überspringen…",
+    "stop": "Stoppen",
+    "send": "Senden",
+    "pickModelFirst": "Wähle zuerst ein Modell",
+    "changeModelFailed": "Modell konnte nicht geändert werden",
+    "startFailed": "Chat konnte nicht gestartet werden",
+    "deleteFailed": "Chat konnte nicht gelöscht werden",
+    "failed": "Der Assistent ist fehlgeschlagen"
+  },
+  "noProviders": {
+    "title": "Richte zuerst ein Modell ein",
+    "description": "Der Assistent braucht einen KI-Anbieter: einen Cloud-Anbieter mit API-Schlüssel oder Ollama auf deiner eigenen Hardware.",
+    "openSettings": "Einstellungen → KI öffnen"
+  },
+  "model": {
+    "pick": "Modell wählen",
+    "label": "Modell: {{label}}",
+    "search": "Modell-ID suchen oder eingeben",
+    "noMatch": "Kein Modell passt.",
+    "addProvider": "Füge zuerst unter Einstellungen → KI einen Anbieter hinzu.",
+    "noTools": "kann keine Tools nutzen",
+    "use": "„{{model}}“ verwenden"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "{{done}} von {{total}} erledigt",
+    "steps": "Planschritte",
+    "status": {
+      "pending": "offen",
+      "in_progress": "in Arbeit",
+      "completed": "abgeschlossen",
+      "cancelled": "abgebrochen",
+      "blocked": "blockiert"
+    }
+  },
+  "spend": {
+    "usage": "Nutzung dieses Chats",
+    "usageWith": "Nutzung dieses Chats: {{label}}",
+    "unknownPrices": "Die Preise dieses Modells sind nicht bekannt, daher werden nur Tokens gezählt.",
+    "estimate": "Eine Schätzung anhand der veröffentlichten Preise des Modells.",
+    "ofLimit": "{{spent}} von {{limit}}",
+    "spent": "Ausgegeben",
+    "unknown": "Unbekannt",
+    "inputTokens": "Eingabe-Tokens",
+    "outputTokens": "Ausgabe-Tokens",
+    "tokens_one": "{{formatted}} Token",
+    "tokens_other": "{{formatted}} Tokens",
+    "limitReached": "Dieser Chat hat sein Ausgabenlimit erreicht. Starte einen neuen Chat oder erhöhe das Limit unter <settings>Einstellungen → KI</settings>.",
+    "limitNotApplicable": "Das Ausgabenlimit ({{limit}}) kann für dieses Modell nicht gelten."
+  },
+  "steps": {
+    "thinking": "Denkt nach",
+    "thought": "Nachgedacht",
+    "draft": "Erster Entwurf, unten überarbeitet",
+    "approvalNeeded": "Genehmigung nötig: {{title}}",
+    "run": "{{name}} ausführen",
+    "approvalIntro": "Der Assistent möchte dies tun. Nichts geschieht, bis du genehmigst.",
+    "deny": "Ablehnen",
+    "approve": "Genehmigen",
+    "approvedGoOn": "Genehmigt. Beantworte die anderen Karten, um fortzufahren.",
+    "deniedGoOn": "Abgelehnt. Beantworte die anderen Karten, um fortzufahren.",
+    "logGone": "Dieses Log ist nicht mehr vorhanden",
+    "log": "Log",
+    "denied": "Abgelehnt: {{title}}",
+    "failed": "Fehlgeschlagen: {{title}}",
+    "running": "{{name}} läuft",
+    "ran": "{{name}} ausgeführt",
+    "withSubject": "{{title}} von {{subject}}",
+    "helperRunningTask": "Helfer recherchiert: {{task}}",
+    "helperDoneTask": "Helfer hat recherchiert: {{task}}",
+    "helperRunning": "Helfer schlägt nach",
+    "helperDone": "Helfer hat nachgeschlagen",
+    "tools": {
+      "getCapabilities": {
+        "running": "Prüft, was dieser Server kann",
+        "done": "Geprüft, was dieser Server kann"
+      },
+      "getSystemStats": { "running": "Liest Systemwerte", "done": "Systemwerte gelesen" },
+      "listApps": { "running": "Listet Apps auf", "done": "Apps aufgelistet" },
+      "appLogs": { "running": "Liest App-Logs", "done": "App-Logs gelesen" },
+      "listFileLocations": { "running": "Listet Dateiorte auf", "done": "Dateiorte aufgelistet" },
+      "listFiles": { "running": "Listet Dateien auf", "done": "Dateien aufgelistet" },
+      "readFile": { "running": "Liest eine Datei", "done": "Datei gelesen" },
+      "writeFile": { "running": "Schreibt eine Datei", "done": "Datei geschrieben" },
+      "editFile": { "running": "Bearbeitet eine Datei", "done": "Datei bearbeitet" },
+      "listDirectory": { "running": "Listet einen Ordner auf", "done": "Ordner aufgelistet" },
+      "createDirectory": { "running": "Erstellt einen Ordner", "done": "Ordner erstellt" },
+      "searchStore": { "running": "Durchsucht den App-Store", "done": "App-Store durchsucht" },
+      "readToolResult": { "running": "Liest ein gespeichertes Tool-Ergebnis", "done": "Gespeichertes Tool-Ergebnis gelesen" },
+      "askUserQuestion": { "running": "Wartet auf deine Antwort", "done": "Dich gefragt" },
+      "advisor": { "running": "Fragt den Berater", "done": "Den Berater gefragt" },
+      "runWorkflow": {
+        "running": "Helfer schlagen gemeinsam nach",
+        "done": "Helfer haben gemeinsam nachgeschlagen"
+      },
+      "getStoreApp": { "running": "Liest eine Store-App", "done": "Store-App gelesen" },
+      "listPackageManagers": { "running": "Listet Paketmanager auf", "done": "Paketmanager aufgelistet" },
+      "searchPackages": { "running": "Durchsucht Pakete", "done": "Pakete durchsucht" },
+      "listUpgradablePackages": {
+        "running": "Sucht nach Paket-Updates",
+        "done": "Nach Paket-Updates gesucht"
+      }
+    }
+  },
+  "question": {
+    "title": "Fragen",
+    "asks": "Der Assistent fragt: {{title}}",
+    "intro": "Der Assistent fragt nach, bevor er fortfährt. Antworte nie mit einem Passwort oder Schlüssel.",
+    "ownAnswerLabel": "Deine eigene Antwort auf {{header}}",
+    "ownAnswerPlaceholder": "Oder gib eine eigene Antwort ein",
+    "skip": "Überspringen",
+    "send": "Antworten senden",
+    "skippedGoOn": "Übersprungen. Beantworte die anderen Karten, um fortzufahren.",
+    "answeredGoOn": "Beantwortet. Beantworte die anderen Karten, um fortzufahren.",
+    "youAnswered": "Du hast geantwortet: {{answers}}",
+    "youSkipped": "Du hast die Frage übersprungen"
+  }
+}

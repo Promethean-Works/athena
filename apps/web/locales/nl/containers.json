@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Actief",
+    "dead": "Dood",
+    "exited": "Beëindigd",
+    "exitedWithCode": "Beëindigd ({{code}})",
+    "paused": "gepauzeerd",
+    "created": "aangemaakt",
+    "restarting": "herstarten"
+  },
+  "logs": {
+    "following": "Nieuwe uitvoer wordt gevolgd",
+    "stopped": "De container is gestopt",
+    "disconnected": "Verbinding verbroken",
+    "connecting": "Verbinden…",
+    "title": "Logs · {{name}}",
+    "empty": "Geen loguitvoer."
+  },
+  "runtime": {
+    "startFailed": "De runtime kon niet worden gestart",
+    "running": "Containerruntime draait",
+    "providerStopped": "{{provider}} draait niet",
+    "stopped": "De containerruntime draait niet",
+    "none": "Geen containerruntime",
+    "notFound": "Athena heeft geen container-engine op deze host gevonden.",
+    "start": "{{provider}} starten",
+    "redetect": "Opnieuw detecteren",
+    "setup": {
+      "darwin": {
+        "title": "Colima installeren"
+      },
+      "linux": {
+        "title": "Docker Engine installeren"
+      },
+      "windows": {
+        "title": "Een containerruntime installeren",
+        "wsl": "Docker Engine in WSL2: wsl --install, installeer daarna docker-ce in de distro",
+        "podman": "of Podman: winget install RedHat.Podman, daarna podman machine init; podman machine start",
+        "rancher": "of Rancher Desktop: winget install SUSE.RancherDesktop (kies de dockerd-engine)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Containers konden niet worden weergegeven",
+    "actionFailed": {
+      "start": "{{name}} kon niet worden gestart",
+      "stop": "{{name}} kon niet worden gestopt",
+      "restart": "{{name}} kon niet opnieuw worden gestart"
+    },
+    "removeFailed": "{{name}} kon niet worden verwijderd",
+    "removed": "{{name}} verwijderd",
+    "emptyTitle": "Nog geen containers",
+    "emptyDescription": "Containers op deze runtime verschijnen hier, ook die buiten Athena zijn gestart.",
+    "name": "Naam",
+    "image": "Image",
+    "state": "Status",
+    "ports": "Poorten",
+    "actions": "Acties",
+    "standalone": "Losse containers",
+    "actionsFor": "Acties voor {{name}}",
+    "logs": "Logs",
+    "shell": "Shell",
+    "restart": "Herstarten",
+    "stop": "Stoppen",
+    "start": "Starten",
+    "remove": "Verwijderen",
+    "removeTitle": "{{name}} verwijderen?",
+    "removeRunningDescription": "Hij wordt eerst gestopt. De container wordt verwijderd. Benoemde volumes en de image blijven bewaard.",
+    "removeDescription": "De container wordt verwijderd. Benoemde volumes en de image blijven bewaard.",
+    "cancel": "Annuleren"
+  }
+}

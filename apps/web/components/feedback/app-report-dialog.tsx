@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { ExternalLinkIcon, FlagIcon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -30,6 +31,7 @@ import {
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Diagnostics } from "@/components/feedback/feedback-dialog"
+import i18n from "@/lib/i18n"
 
 type Detail = Schemas["StoreAppDetail"]
 
@@ -37,12 +39,13 @@ const LOG_LINES = 50
 
 /** "Report a problem" on a store app page, and its dialog. */
 export function AppReportButton({ app }: { app: Detail }) {
+  const { t } = useTranslation("feedback")
   const [open, setOpen] = React.useState(false)
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
         <FlagIcon data-icon="inline-start" />
-        Report a problem
+        {t("appReport.button")}
       </Button>
       {open ? (
         <AppReportDialog app={app} onClose={() => setOpen(false)} />
@@ -58,6 +61,7 @@ function AppReportDialog({
   app: Detail
   onClose: () => void
 }) {
+  const { t } = useTranslation("feedback")
   const [info, setInfo] = React.useState<Schemas["FeedbackInfo"] | null>(null)
   const [issue, setIssue] = React.useState<Schemas["IssueUrl"] | null>(null)
   const [building, setBuilding] = React.useState(true)
@@ -79,7 +83,10 @@ function AppReportDialog({
     loadLogs(installName)
       .then((text) => !cancelled && setLogs(text))
       .catch((err: unknown) => {
-        if (!cancelled) setLogs(`Couldn't load logs: ${String(err)}`)
+        if (!cancelled)
+          setLogs(
+            i18n.t("feedback:appReport.logsFailed", { error: String(err) })
+          )
       })
       .finally(() => !cancelled && setLoadingLogs(false))
     return () => {
@@ -106,7 +113,9 @@ function AppReportDialog({
           if (cancelled) return
           setIssue(data ?? null)
           setError(
-            data ? null : errorMessage(err, "Couldn't prepare the report")
+            data
+              ? null
+              : errorMessage(err, i18n.t("feedback:appReport.prepareFailed"))
           )
           setBuilding(false)
         })
@@ -119,18 +128,16 @@ function AppReportDialog({
 
   const where =
     issue?.target === "catalog"
-      ? `the ${issue.target_name} catalog, which maintains this app`
+      ? t("appReport.whereCatalog", { name: issue.target_name })
       : (issue?.target_name ?? "Athena")
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Report a problem with {app.title}</DialogTitle>
+          <DialogTitle>{t("appReport.title", { app: app.title })}</DialogTitle>
           <DialogDescription>
-            Opens a new issue for {where} in a new tab, with the app and this
-            server&apos;s details filled in. You review it there before
-            it&apos;s posted; issues are public.
+            {t("appReport.description", { where })}
           </DialogDescription>
         </DialogHeader>
 
@@ -143,7 +150,7 @@ function AppReportDialog({
                 onCheckedChange={(checked) => setIncludeLogs(checked === true)}
               />
               <FieldLabel htmlFor="report-logs">
-                Include the last {LOG_LINES} log lines
+                {t("appReport.includeLogs", { count: LOG_LINES })}
               </FieldLabel>
             </div>
             {includeLogs ? (
@@ -155,7 +162,7 @@ function AppReportDialog({
                       setInstallName(String(value ?? ""))
                     }
                   >
-                    <SelectTrigger aria-label="Installed copy">
+                    <SelectTrigger aria-label={t("appReport.installedCopy")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -170,16 +177,16 @@ function AppReportDialog({
                   </Select>
                 ) : null}
                 <Textarea
-                  aria-label="Logs to include"
-                  value={loadingLogs ? "Loading logs…" : logs}
+                  aria-label={t("appReport.logsLabel")}
+                  value={loadingLogs ? t("appReport.loadingLogs") : logs}
                   disabled={loadingLogs}
                   onChange={(e) => setLogs(e.target.value)}
                   className="max-h-60 min-h-32 font-mono text-xs"
                 />
                 <FieldDescription>
-                  Remove passwords, tokens and addresses before you continue.
+                  {t("appReport.logsWarning")}
                   {issue?.logs_truncated
-                    ? " Only the end of the logs fits in the link."
+                    ? ` ${t("appReport.logsTruncated")}`
                     : null}
                 </FieldDescription>
               </>
@@ -192,7 +199,7 @@ function AppReportDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("appReport.cancel")}
           </Button>
           {issue && !building && !loadingLogs ? (
             <Button
@@ -206,13 +213,13 @@ function AppReportDialog({
                 />
               }
             >
-              Open issue
+              {t("appReport.openIssue")}
               <ExternalLinkIcon data-icon="inline-end" />
             </Button>
           ) : (
             <Button aria-disabled>
               <Spinner data-icon="inline-start" />
-              Preparing…
+              {t("appReport.preparing")}
             </Button>
           )}
         </DialogFooter>
@@ -225,7 +232,10 @@ async function loadLogs(name: string): Promise<string> {
   const { data, error } = await api.GET("/api/apps/{name}", {
     params: { path: { name } },
   })
-  if (!data) throw new Error(errorMessage(error, "app not found"))
+  if (!data)
+    throw new Error(
+      errorMessage(error, i18n.t("feedback:appReport.appNotFound"))
+    )
   const parts = await Promise.all(
     data.containers.map(async (c) => {
       const res = await api.GET("/api/containers/{ref}/logs", {
@@ -235,5 +245,5 @@ async function loadLogs(name: string): Promise<string> {
       return `== ${c.name} (${c.image}, ${c.state}) ==\n${lines.join("\n")}`
     })
   )
-  return parts.join("\n\n") || "No containers found for this app."
+  return parts.join("\n\n") || i18n.t("feedback:appReport.noContainers")
 }

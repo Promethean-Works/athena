@@ -1,0 +1,119 @@
+{
+  "add": "Añadir",
+  "cancel": "Cancelar",
+  "back": "Atrás",
+  "errors": {
+    "listDestinations": "No se pudieron listar los destinos de copia de seguridad",
+    "createDestination": "No se pudo crear el destino",
+    "deleteDestination": "No se pudo eliminar el destino",
+    "listPlans": "No se pudieron listar los planes de copia de seguridad",
+    "createPlan": "No se pudo crear el plan",
+    "updatePlan": "No se pudo actualizar el plan",
+    "deletePlan": "No se pudo eliminar el plan",
+    "startBackup": "No se pudo iniciar la copia de seguridad",
+    "listVersions": "No se pudieron listar las versiones de la copia de seguridad",
+    "listVersionFiles": "No se pudieron listar los archivos de la versión",
+    "restoreApp": "No se pudo restaurar la app"
+  },
+  "toast": {
+    "destinationCreated": "Destino \"{{name}}\" creado",
+    "planCreated": "Plan \"{{name}}\" creado",
+    "planUpdated": "Plan \"{{name}}\" actualizado",
+    "backupStarted": "Copia de seguridad \"{{name}}\" iniciada"
+  },
+  "view": {
+    "unavailable": "Las copias de seguridad no están disponibles",
+    "unsupported": "Este host no admite copias de seguridad.",
+    "tabs": {
+      "versions": "Versiones",
+      "destinations": "Destinos",
+      "plans": "Planes"
+    }
+  },
+  "destinations": {
+    "title": "Destinos",
+    "name": "Nombre",
+    "kind": "Tipo",
+    "location": "Ubicación",
+    "created": "Creado",
+    "empty": {
+      "title": "Aún no hay destinos",
+      "description": "Un destino es una carpeta o un remoto de rclone donde se guardan las copias de seguridad. Añade uno para empezar a hacer copias."
+    }
+  },
+  "plans": {
+    "title": "Planes",
+    "name": "Nombre",
+    "schedule": "Programación",
+    "lastRun": "Última ejecución",
+    "status": "Estado",
+    "manual": "manual",
+    "runNow": "Ejecutar ahora",
+    "empty": {
+      "title": "Aún no hay planes",
+      "description": "Un plan elige Athena, apps, un destino y una programación, y se ejecuta con un temporizador."
+    }
+  },
+  "versions": {
+    "title": "Versiones",
+    "refresh": "Refrescar",
+    "time": "Hora",
+    "size": "Tamaño",
+    "new": "Nuevos",
+    "added": "Añadidos",
+    "changed": "Modificados",
+    "removed": "Eliminados",
+    "os": "SO",
+    "viewFiles": "Ver archivos",
+    "restore": "Restaurar",
+    "empty": {
+      "title": "Aún no hay versiones",
+      "description": "Haz una copia de seguridad para crear la primera."
+    }
+  },
+  "addDestination": {
+    "title": "Añadir destino de copia de seguridad",
+    "kitTitle": "Guarda el kit de recuperación",
+    "description": "Elige dónde guarda restic el repositorio: una carpeta local o un remoto de rclone.",
+    "kitDescription": "Descarga o copia el kit. Athena no volverá a mostrar esta contraseña; sin ella, un host perdido no puede restaurarse.",
+    "prepareFailed": "No se pudo preparar el destino",
+    "saveKitFirst": "Guarda el kit de recuperación antes de crear el destino",
+    "name": "Nombre",
+    "namePlaceholder": "p. ej. Unidad USB",
+    "kind": "Tipo",
+    "local": "Carpeta local",
+    "rclone": "Remoto de rclone",
+    "folder": "Carpeta",
+    "folderHint": "Ruta absoluta, fuera de la carpeta de datos de Athena.",
+    "remote": "Remoto",
+    "remoteHint": "Un remoto de rclone ya configurado en Nube → Remotos.",
+    "password": "Contraseña del repositorio",
+    "passwordPlaceholder": "Déjalo vacío para generar una segura",
+    "passwordHint": "Déjalo vacío para que Athena genere una contraseña segura. Se muestra una vez abajo y no vuelve a mostrarse.",
+    "kitSaved": "He guardado este kit de recuperación (contraseña, destino y versión de restic)",
+    "next": "Siguiente: kit de recuperación",
+    "create": "Crear destino"
+  },
+  "addPlan": {
+    "title": "Añadir plan de copia de seguridad",
+    "description": "Elige qué copiar, dónde y con qué frecuencia. Las apps se detienen durante su copia salvo que \"Copiar en ejecución\" esté activado.",
+    "name": "Nombre",
+    "namePlaceholder": "p. ej. Apps diarias",
+    "destination": "Destino",
+    "athena": "Copiar Athena (ajustes, BD, secretos, TLS)",
+    "athenaHint": "Recomendado: activado por defecto.",
+    "apps": "Apps",
+    "appsHint": "Qué apps incluir en el plan.",
+    "noApps": "No se encontraron apps. Primero inicia apps desde Tienda → Apps.",
+    "schedule": "Programación (cron)",
+    "schedulePlaceholder": "0 3 * * *  (a diario a las 03:00)",
+    "scheduleHint": "Déjalo vacío para ejecuciones solo manuales. Las ejecuciones programadas llegan con la parte 4.",
+    "retention": "Retención",
+    "keepLast": "Conservar últimas",
+    "keepDaily": "Conservar diarias",
+    "keepWeekly": "Conservar semanales",
+    "keepMonthly": "Conservar mensuales",
+    "retentionHint": "`restic forget --keep-…` por elemento. Valores por defecto: 7 diarias / 4 semanales / 6 mensuales.",
+    "create": "Crear plan"
+  }
+}

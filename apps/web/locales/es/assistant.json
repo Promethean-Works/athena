@@ -1,0 +1,192 @@
+{
+  "title": "Asistente",
+  "sheet": {
+    "description": "Chatea con el asistente de IA sobre este servidor.",
+    "openFullPage": "Abrir la página completa"
+  },
+  "chat": {
+    "newChat": "Nuevo chat",
+    "chats": "Chats",
+    "noChats": "Aún no hay chats.",
+    "deleteChat": "Eliminar {{title}}",
+    "thinking": "Pensando…",
+    "stillWorking": "Aún está preparando una respuesta. Aparecerá aquí cuando termine.",
+    "emptyTitle": "Pregunta sobre este servidor",
+    "emptyDescription": "El asistente puede consultar apps, registros, archivos y estadísticas del sistema, e instalar o cambiar cosas cuando apruebes cada acción.",
+    "suggestions": {
+      "capabilities": "¿Qué puede hacer este servidor?",
+      "disk": "¿Cuánto espacio en disco queda?",
+      "apps": "¿Qué apps están en ejecución?"
+    },
+    "message": "Mensaje",
+    "placeholder": "Pregunta sobre este servidor…",
+    "placeholderWaiting": "Responde arriba o envía un mensaje para omitirla…",
+    "stop": "Detener",
+    "send": "Enviar",
+    "pickModelFirst": "Elige primero un modelo",
+    "changeModelFailed": "No se pudo cambiar el modelo",
+    "startFailed": "No se pudo iniciar un chat",
+    "deleteFailed": "No se pudo eliminar el chat",
+    "failed": "El asistente falló"
+  },
+  "noProviders": {
+    "title": "Configura primero un modelo",
+    "description": "El asistente necesita un proveedor de IA: uno en la nube con una clave de API, o Ollama funcionando en tu propio hardware.",
+    "openSettings": "Abrir Ajustes → IA"
+  },
+  "model": {
+    "pick": "Elige un modelo",
+    "label": "Modelo: {{label}}",
+    "search": "Busca o escribe un id de modelo",
+    "noMatch": "Ningún modelo coincide.",
+    "addProvider": "Primero añade un proveedor en Ajustes → IA.",
+    "noTools": "no puede usar herramientas",
+    "use": "Usar «{{model}}»"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "{{done}} de {{total}} hechos",
+    "steps": "Pasos del plan",
+    "status": {
+      "pending": "pendiente",
+      "in_progress": "en curso",
+      "completed": "completado",
+      "cancelled": "cancelado",
+      "blocked": "bloqueado"
+    }
+  },
+  "spend": {
+    "usage": "Uso de este chat",
+    "usageWith": "Uso de este chat: {{label}}",
+    "unknownPrices": "No se conocen los precios de este modelo, así que solo se cuentan los tokens.",
+    "estimate": "Una estimación a partir de los precios publicados del modelo.",
+    "ofLimit": "{{spent}} de {{limit}}",
+    "spent": "Gastado",
+    "unknown": "Desconocido",
+    "inputTokens": "Tokens de entrada",
+    "outputTokens": "Tokens de salida",
+    "tokens_one": "{{formatted}} token",
+    "tokens_many": "{{formatted}} de tokens",
+    "tokens_other": "{{formatted}} tokens",
+    "limitReached": "Este chat alcanzó su límite de gasto. Empieza un chat nuevo o sube el límite en <settings>Ajustes → IA</settings>.",
+    "limitNotApplicable": "El límite de gasto ({{limit}}) no se puede aplicar a este modelo."
+  },
+  "steps": {
+    "thinking": "Pensando",
+    "thought": "Pensó",
+    "draft": "Primer borrador, revisado más abajo",
+    "approvalNeeded": "Se necesita aprobación: {{title}}",
+    "run": "Ejecutar {{name}}",
+    "approvalIntro": "El asistente quiere hacer esto. No pasa nada hasta que lo apruebes.",
+    "deny": "Denegar",
+    "approve": "Aprobar",
+    "approvedGoOn": "Aprobado. Responde las demás tarjetas para continuar.",
+    "deniedGoOn": "Denegado. Responde las demás tarjetas para continuar.",
+    "logGone": "Ese registro ya no existe",
+    "log": "Registro",
+    "denied": "Denegado: {{title}}",
+    "failed": "Falló: {{title}}",
+    "running": "Ejecutando {{name}}",
+    "ran": "Ejecutó {{name}}",
+    "withSubject": "{{title}} de {{subject}}",
+    "helperRunningTask": "Ayudante investigando: {{task}}",
+    "helperDoneTask": "Ayudante investigó: {{task}}",
+    "helperRunning": "Ayudante consultando datos",
+    "helperDone": "Ayudante consultó datos",
+    "tools": {
+      "getCapabilities": {
+        "running": "Comprobando qué puede hacer este servidor",
+        "done": "Comprobó qué puede hacer este servidor"
+      },
+      "getSystemStats": {
+        "running": "Leyendo estadísticas del sistema",
+        "done": "Leyó estadísticas del sistema"
+      },
+      "listApps": {
+        "running": "Listando apps",
+        "done": "Listó apps"
+      },
+      "appLogs": {
+        "running": "Leyendo registros de apps",
+        "done": "Leyó registros de apps"
+      },
+      "listFileLocations": {
+        "running": "Listando ubicaciones de archivos",
+        "done": "Listó ubicaciones de archivos"
+      },
+      "listFiles": {
+        "running": "Listando archivos",
+        "done": "Listó archivos"
+      },
+      "readFile": {
+        "running": "Leyendo un archivo",
+        "done": "Leyó un archivo"
+      },
+      "writeFile": {
+        "running": "Escribiendo un archivo",
+        "done": "Escribió un archivo"
+      },
+      "editFile": {
+        "running": "Editando un archivo",
+        "done": "Editó un archivo"
+      },
+      "listDirectory": {
+        "running": "Listando una carpeta",
+        "done": "Listó una carpeta"
+      },
+      "createDirectory": {
+        "running": "Creando una carpeta",
+        "done": "Creó una carpeta"
+      },
+      "searchStore": {
+        "running": "Buscando en la tienda de apps",
+        "done": "Buscó en la tienda de apps"
+      },
+      "readToolResult": {
+        "running": "Leyendo un resultado guardado de una herramienta",
+        "done": "Leyó un resultado guardado de una herramienta"
+      },
+      "askUserQuestion": {
+        "running": "Esperando tu respuesta",
+        "done": "Te preguntó"
+      },
+      "advisor": {
+        "running": "Consultando al asesor",
+        "done": "Consultó al asesor"
+      },
+      "runWorkflow": {
+        "running": "Ayudantes consultando datos en conjunto",
+        "done": "Ayudantes consultaron datos en conjunto"
+      },
+      "getStoreApp": {
+        "running": "Leyendo una app de la tienda",
+        "done": "Leyó una app de la tienda"
+      },
+      "listPackageManagers": {
+        "running": "Listando gestores de paquetes",
+        "done": "Listó gestores de paquetes"
+      },
+      "searchPackages": {
+        "running": "Buscando paquetes",
+        "done": "Buscó paquetes"
+      },
+      "listUpgradablePackages": {
+        "running": "Buscando actualizaciones de paquetes",
+        "done": "Buscó actualizaciones de paquetes"
+      }
+    }
+  },
+  "question": {
+    "title": "Preguntas",
+    "asks": "El asistente pregunta: {{title}}",
+    "intro": "El asistente pregunta antes de continuar. Nunca respondas con una contraseña o una clave.",
+    "ownAnswerLabel": "Tu propia respuesta a {{header}}",
+    "ownAnswerPlaceholder": "O escribe tu propia respuesta",
+    "skip": "Omitir",
+    "send": "Enviar respuestas",
+    "skippedGoOn": "Omitida. Responde las demás tarjetas para continuar.",
+    "answeredGoOn": "Respondida. Responde las demás tarjetas para continuar.",
+    "youAnswered": "Respondiste: {{answers}}",
+    "youSkipped": "Omitiste la pregunta"
+  }
+}

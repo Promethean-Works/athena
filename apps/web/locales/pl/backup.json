@@ -1,0 +1,119 @@
+{
+  "add": "Dodaj",
+  "cancel": "Anuluj",
+  "back": "Wstecz",
+  "errors": {
+    "listDestinations": "Nie udało się wyświetlić listy celów kopii zapasowych",
+    "createDestination": "Nie udało się utworzyć celu",
+    "deleteDestination": "Nie udało się usunąć celu",
+    "listPlans": "Nie udało się wyświetlić listy planów kopii zapasowych",
+    "createPlan": "Nie udało się utworzyć planu",
+    "updatePlan": "Nie udało się zaktualizować planu",
+    "deletePlan": "Nie udało się usunąć planu",
+    "startBackup": "Nie udało się rozpocząć kopii zapasowej",
+    "listVersions": "Nie udało się wyświetlić wersji kopii zapasowych",
+    "listVersionFiles": "Nie udało się wyświetlić plików wersji",
+    "restoreApp": "Nie udało się przywrócić aplikacji"
+  },
+  "toast": {
+    "destinationCreated": "Utworzono cel „{{name}}”",
+    "planCreated": "Utworzono plan „{{name}}”",
+    "planUpdated": "Zaktualizowano plan „{{name}}”",
+    "backupStarted": "Rozpoczęto kopię zapasową „{{name}}”"
+  },
+  "view": {
+    "unavailable": "Kopie zapasowe są niedostępne",
+    "unsupported": "Ten host nie obsługuje kopii zapasowych.",
+    "tabs": {
+      "versions": "Wersje",
+      "destinations": "Cele",
+      "plans": "Plany"
+    }
+  },
+  "destinations": {
+    "title": "Cele",
+    "name": "Nazwa",
+    "kind": "Rodzaj",
+    "location": "Lokalizacja",
+    "created": "Utworzono",
+    "empty": {
+      "title": "Brak celów",
+      "description": "Cel to folder lub zasób zdalny rclone, w którym przechowywane są kopie zapasowe. Dodaj jeden, aby zacząć tworzyć kopie."
+    }
+  },
+  "plans": {
+    "title": "Plany",
+    "name": "Nazwa",
+    "schedule": "Harmonogram",
+    "lastRun": "Ostatnie uruchomienie",
+    "status": "Stan",
+    "manual": "ręcznie",
+    "runNow": "Uruchom teraz",
+    "empty": {
+      "title": "Brak planów",
+      "description": "Plan wybiera Athenę, aplikacje, cel i harmonogram, a potem działa według zegara."
+    }
+  },
+  "versions": {
+    "title": "Wersje",
+    "refresh": "Odśwież",
+    "time": "Czas",
+    "size": "Rozmiar",
+    "new": "Nowe",
+    "added": "Dodane",
+    "changed": "Zmienione",
+    "removed": "Usunięte",
+    "os": "System",
+    "viewFiles": "Pokaż pliki",
+    "restore": "Przywróć",
+    "empty": {
+      "title": "Brak wersji",
+      "description": "Wykonaj kopię zapasową, aby utworzyć pierwszą."
+    }
+  },
+  "addDestination": {
+    "title": "Dodaj cel kopii zapasowych",
+    "kitTitle": "Zapisz zestaw odzyskiwania",
+    "description": "Wybierz, gdzie restic ma przechowywać repozytorium: w folderze lokalnym lub zasobie zdalnym rclone.",
+    "kitDescription": "Pobierz lub skopiuj zestaw. Athena nigdy więcej nie pokaże tego hasła; bez niego nie da się odtworzyć danych po awarii hosta.",
+    "prepareFailed": "Nie udało się przygotować celu",
+    "saveKitFirst": "Zapisz zestaw odzyskiwania przed utworzeniem celu",
+    "name": "Nazwa",
+    "namePlaceholder": "np. Dysk USB",
+    "kind": "Rodzaj",
+    "local": "Folder lokalny",
+    "rclone": "Zasób zdalny rclone",
+    "folder": "Folder",
+    "folderHint": "Ścieżka bezwzględna, poza folderem danych Athena.",
+    "remote": "Zasób zdalny",
+    "remoteHint": "Zasób zdalny rclone już skonfigurowany w Chmura → Zasoby zdalne.",
+    "password": "Hasło repozytorium",
+    "passwordPlaceholder": "Zostaw puste, aby wygenerować silne hasło",
+    "passwordHint": "Zostaw puste, aby Athena wygenerowała silne hasło. Zostanie pokazane raz poniżej, a potem już nigdy.",
+    "kitSaved": "Zapisałem(-am) ten zestaw odzyskiwania (hasło, cel i wersję restic)",
+    "next": "Dalej: zestaw odzyskiwania",
+    "create": "Utwórz cel"
+  },
+  "addPlan": {
+    "title": "Dodaj plan kopii zapasowych",
+    "description": "Wybierz, co archiwizować, gdzie i jak często. Aplikacje są zatrzymywane na czas kopii, chyba że włączono „Kopia podczas działania”.",
+    "name": "Nazwa",
+    "namePlaceholder": "np. Aplikacje codziennie",
+    "destination": "Cel",
+    "athena": "Kopia Athena (ustawienia, baza danych, sekrety, TLS)",
+    "athenaHint": "Zalecane: domyślnie włączone.",
+    "apps": "Aplikacje",
+    "appsHint": "Które aplikacje uwzględnić w planie.",
+    "noApps": "Nie znaleziono aplikacji. Najpierw uruchom aplikacje w Sklep → Aplikacje.",
+    "schedule": "Harmonogram (cron)",
+    "schedulePlaceholder": "0 3 * * *  (codziennie o 03:00)",
+    "scheduleHint": "Zostaw puste, aby uruchamiać tylko ręcznie. Zaplanowane uruchomienia pojawią się w części 4.",
+    "retention": "Retencja",
+    "keepLast": "Zachowaj ostatnie",
+    "keepDaily": "Zachowaj dzienne",
+    "keepWeekly": "Zachowaj tygodniowe",
+    "keepMonthly": "Zachowaj miesięczne",
+    "retentionHint": "`restic forget --keep-…` dla każdej pozycji. Domyślnie: 7 dziennych / 4 tygodniowe / 6 miesięcznych.",
+    "create": "Utwórz plan"
+  }
+}

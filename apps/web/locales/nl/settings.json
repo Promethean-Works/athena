@@ -1,0 +1,399 @@
+{
+  "language": {
+    "title": "Taal",
+    "description": "De taal van de interface. Ze volgt je account naar andere browsers.",
+    "label": "Interfacetaal",
+    "auto": "Automatisch (browsertaal)"
+  },
+  "account": {
+    "admin": "Beheerder",
+    "user": "Gebruiker",
+    "signedIn": "Aangemeld in deze browser",
+    "signOut": "Afmelden",
+    "changeFailed": "Het wachtwoord kon niet worden gewijzigd",
+    "toast": {
+      "changed": "Wachtwoord gewijzigd",
+      "changedDescription": "Andere browsers die bij dit account waren aangemeld, zijn afgemeld."
+    },
+    "password": {
+      "title": "Wachtwoord wijzigen",
+      "description": "Je andere sessies worden afgemeld; deze blijft aangemeld.",
+      "current": "Huidig wachtwoord",
+      "new": "Nieuw wachtwoord",
+      "minLength_one": "Minstens {{count}} teken.",
+      "minLength_other": "Minstens {{count}} tekens.",
+      "confirm": "Nieuw wachtwoord bevestigen",
+      "mismatch": "Wachtwoorden komen niet overeen.",
+      "submit": "Wachtwoord wijzigen"
+    }
+  },
+  "copyField": {
+    "copy": "{{label}} kopiëren",
+    "copied": "{{label}} gekopieerd",
+    "failed": "Kopiëren mislukt"
+  },
+  "settingsFile": {
+    "title": "Instellingenbestand",
+    "description": "De instellingen op deze pagina's worden in één bestand op de server bewaard. Als een wijziging voorkomt dat Athena start of je buitensluit, herstel het daar dan in een teksteditor en start Athena opnieuw.",
+    "loadFailed": "Kon niet laden waar het bestand staat: {{error}}",
+    "file": "Bestand",
+    "help": "<code>athena config check</code> op de server toont wat er mis mee is, met regelnummers. De versie van vóór de laatste keer opslaan blijft ernaast bewaard als <code>athena.json.bak</code>."
+  },
+  "system": {
+    "title": "Systeem",
+    "description": "Schakelaars die gelden voor iedereen op deze server. Wijzigingen worden vastgelegd in het auditlog.",
+    "saveFailed": "Opslaan mislukt",
+    "adminOnly": "Alleen beheerders kunnen dit wijzigen.",
+    "terminal": {
+      "label": "Webterminal",
+      "description": "Een shell op deze server en in containers, vanuit de browser. Uitschakelen sluit ook open sessies.",
+      "on": "Terminal ingeschakeld",
+      "off": "Terminal uitgeschakeld"
+    },
+    "updateCheck": {
+      "label": "Updatemelding",
+      "description": "Vraagt één keer per dag aan GitHub de nieuwste Athena-release en toont een melding als er een nieuwere is. Er wordt niets verstuurd behalve het verzoek zelf: geen versie, hostnaam of instellingen.",
+      "on": "Updatemelding ingeschakeld",
+      "off": "Updatemelding uitgeschakeld"
+    }
+  },
+  "updates": {
+    "title": "Updates",
+    "description": "Athena controleert één keer per dag op een nieuwe release (de schakelaar hierboven). Bijwerken start Athena opnieuw; je apps blijven draaien.",
+    "readFailed": "De updatestatus kon niet worden gelezen.",
+    "installed": "Geïnstalleerd",
+    "latest": "Nieuwste",
+    "unknown": "Nog niet bekend",
+    "noticeOff": "De updatemelding staat uit",
+    "lastChecked": "Laatst gecontroleerd",
+    "never": "Nooit",
+    "upToDate": "Athena is up-to-date."
+  },
+  "localAi": {
+    "list": "{{head}} en {{last}}",
+    "running_one": "{{list}} draait op deze server. De modellen draaien op je eigen hardware en er verlaat niets de server.",
+    "running_other": "{{list}} draaien op deze server. Hun modellen draaien op je eigen hardware en er verlaat niets de server.",
+    "useNamed": "{{name}} op deze server gebruiken",
+    "usePort": "De AI-server op poort {{port}} gebruiken",
+    "useThis": "Deze AI-server gebruiken"
+  },
+  "webdav": {
+    "title": "Netwerkshare (WebDAV)",
+    "description": "Open de locaties van het bestandsbeheer als schijf in Finder, Windows Verkenner of een Linux-bestandsbeheerder.",
+    "label": "WebDAV",
+    "help": "Standaard uit. Iedereen met het WebDAV-wachtwoord kan elke locatie lezen en wijzigen.",
+    "adminOnly": "Alleen beheerders kunnen dit wijzigen.",
+    "on": "WebDAV ingeschakeld",
+    "off": "WebDAV uitgeschakeld",
+    "saveFailed": "Opslaan mislukt",
+    "passwordFailed": "Er kon geen wachtwoord worden gemaakt",
+    "address": "Adres",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "passwordHint": {
+      "copyNow": "Kopieer het nu: het wordt niet opnieuw getoond.",
+      "set": "Er is een wachtwoord ingesteld. Een nieuw wachtwoord maken meldt elk apparaat af dat het oude gebruikt.",
+      "none": "Maak een wachtwoord om in te loggen. Het staat los van je Athena-wachtwoord."
+    },
+    "newPassword": "Nieuw wachtwoord",
+    "makePassword": "Wachtwoord maken",
+    "plainHttp": {
+      "title": "Niet versleuteld",
+      "description": "Athena is geopend via gewone HTTP, dus het WebDAV-wachtwoord en de bestanden gaan onversleuteld over het netwerk. Gebruik het op een netwerk dat je vertrouwt, of zet Athena achter HTTPS."
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → Ga → Verbind met server, en dan het adres.",
+      "windows": "<b>Windows:</b> Verkenner → Deze pc → Netwerkverbinding maken, en dan het adres. Via gewone HTTP meldt Windows zich alleen aan nadat je <code>BasicAuthLevel</code> op 2 hebt gezet onder <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> en de WebClient-service opnieuw hebt gestart.",
+      "linux": "<b>Linux:</b> maak in Bestanden (GNOME) of Dolphin verbinding met <code>{{url}}</code>."
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "Modus",
+      "light": "Licht",
+      "dark": "Donker",
+      "system": "Systeem"
+    },
+    "colors": {
+      "title": "Kleuren",
+      "saving": "Opslaan…",
+      "description": "Wijzigingen gelden direct en volgen je account naar andere browsers.",
+      "matchBase": "Basis volgen",
+      "matchTheme": "Thema volgen",
+      "base": "Basis",
+      "baseColor": "Basiskleur",
+      "baseHint": "Achtergronden, randen en gedempte tekst.",
+      "theme": "Thema",
+      "themeHint": "Knoppen, focusringen en links.",
+      "charts": "Grafieken"
+    },
+    "type": {
+      "title": "Typografie en vorm",
+      "font": "Lettertype",
+      "headingFont": "Koplettertype",
+      "sameAsBody": "Gelijk aan lopende tekst",
+      "radius": "Afronding",
+      "style": "Stijl",
+      "styleValue": "Nova, met Lucide-iconen",
+      "styleSoon": "van stijl wisselen komt in een latere versie"
+    },
+    "radius": {
+      "default": "Standaard",
+      "none": "Geen",
+      "small": "Klein",
+      "medium": "Middel",
+      "large": "Groot"
+    },
+    "preset": {
+      "title": "Presetcode",
+      "description": "Een shadcn-presetcode legt deze instellingen vast in een paar tekens.",
+      "current": "Huidige presetcode",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd",
+      "copyFailed": "Kopiëren naar het klembord mislukt",
+      "use": "Gebruik hem met <code>npx shadcn init --preset {{code}}</code>, of deel hem.",
+      "apply": "Een presetcode toepassen",
+      "applyButton": "Toepassen",
+      "invalid": "Dat is geen shadcn-presetcode.",
+      "applied": "Preset {{code}} toegepast",
+      "ignored": "Athena kan {{parts}} nog niet toepassen, dus die onderdelen zijn overgeslagen.",
+      "fill": "Vult de kleuren, lettertypen en afronding in vanuit een code gemaakt op <link>ui.shadcn.com/create</link>."
+    }
+  },
+  "tunnel": {
+    "hide": "{{label}} verbergen",
+    "show": "{{label}} tonen",
+    "secretSaved": "Opgeslagen. Typ een nieuwe waarde om hem te vervangen",
+    "customDomain": "Eigen domein (optioneel)",
+    "cloudflare": {
+      "quick": "Snelle tunnel",
+      "quickHelp": "Een willekeurig trycloudflare.com-adres waarvoor geen account nodig is. Het verandert elke keer dat de tunnel start.",
+      "apiToken": "API-token",
+      "apiTokenPlaceholder": "Een Cloudflare API-token met Tunnel-rechten",
+      "tunnelName": "Tunnelnaam",
+      "tunnelNameHelp": "De benoemde tunnel in je Cloudflare-account.",
+      "domainHelp": "Vereist een DNS-record dat naar de tunnel wijst."
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "Automatisch gedetecteerd",
+      "help": "Instellen met <code>tailscale up</code> op deze server."
+    },
+    "ngrok": {
+      "authToken": "Authtoken",
+      "authTokenPlaceholder": "Je ngrok-authtoken",
+      "subdomain": "Subdomein (optioneel)",
+      "paidPlan": "Vereist een betaald ngrok-abonnement.",
+      "freeTitle": "Limieten van het gratis abonnement",
+      "freeDescription": "Eén tunnel, 40 verbindingen per minuut en een nieuw willekeurig adres per sessie."
+    },
+    "status": {
+      "label": "Status",
+      "running": "Actief",
+      "stopped": "Gestopt",
+      "notInstalled": "Niet geïnstalleerd",
+      "notSetUp": "Niet ingesteld"
+    },
+    "saveFailed": "Opslaan mislukt",
+    "saved": "Instellingen voor externe toegang opgeslagen",
+    "autoStart": {
+      "label": "Starten bij opstarten",
+      "on": "Externe toegang start bij het opstarten",
+      "off": "Externe toegang start niet meer bij het opstarten",
+      "installFirst": "Installeer eerst {{name}}.",
+      "help": "Installeert een systeemservice die de tunnel samen met de server start."
+    },
+    "serviceFailed": "De service kon niet worden bijgewerkt",
+    "title": "Externe toegang",
+    "description": "Bereik Athena overal via Cloudflare, Tailscale of ngrok, zonder poorten op je router te openen.",
+    "label": "Externe toegang",
+    "help": "Iedereen met het adres bereikt je inlogpagina, dus gebruik een sterk wachtwoord.",
+    "adminOnly": "Alleen beheerders kunnen dit wijzigen.",
+    "on": "Externe toegang ingeschakeld",
+    "off": "Externe toegang uitgeschakeld",
+    "exposed": {
+      "title": "Bereikbaar vanaf internet",
+      "description": "Zolang dit aan staat, zijn de webterminal, pakketinstallaties en de AI-assistent één wachtwoord verwijderd van iedereen die het adres vindt. Schakel <terminal>de terminal</terminal> of de <assistant>assistent</assistant> uit als je ze niet op afstand nodig hebt."
+    },
+    "provider": "Provider",
+    "using": "{{name}} wordt gebruikt",
+    "port": {
+      "label": "Lokale poort",
+      "help": "De poort waarop Athena luistert en waar de tunnel naartoe doorstuurt."
+    },
+    "discard": "Negeren",
+    "saveChanges": "Wijzigingen opslaan",
+    "publicAddress": "Openbaar adres",
+    "install": "{{name}} installeren",
+    "installFailed": "Installeren mislukt",
+    "stop": "Stoppen",
+    "stopFailed": "De tunnel kon niet worden gestopt",
+    "start": "Starten",
+    "startFailed": "De tunnel kon niet worden gestart",
+    "saveFirst": "Sla eerst je wijzigingen op",
+    "refresh": "Status vernieuwen"
+  },
+  "https": {
+    "copyFailed": "Kopiëren mislukt",
+    "adminOnly": "Alleen beheerders kunnen HTTPS wijzigen",
+    "unavailable": {
+      "title": "HTTPS is niet beschikbaar",
+      "description": "Deze Athena-server meldt geen HTTPS-ondersteuning."
+    },
+    "loadFailed": "HTTPS-instellingen konden niet worden geladen",
+    "status": {
+      "on": "Aan, poort {{port}}",
+      "notRunning": "Niet actief",
+      "off": "Uit",
+      "encryptedLetsEncrypt": "Athena versleutelt de verbinding met een certificaat van Let's Encrypt. Gewone HTTP blijft beschikbaar op poort {{port}}.",
+      "encryptedCustom": "Athena versleutelt de verbinding met je eigen certificaat. Gewone HTTP blijft beschikbaar op poort {{port}}.",
+      "encryptedSelf": "Athena versleutelt de verbinding met een eigen certificaat. Gewone HTTP blijft beschikbaar op poort {{port}}.",
+      "plain": "Athena wordt aangeboden via gewone HTTP op poort {{port}}, dus wachtwoorden en bestanden gaan onversleuteld over het netwerk.",
+      "problem": "HTTPS-probleem",
+      "renewalFailed": "Verlengen bij Let's Encrypt mislukt",
+      "renewalStillServed": "Het huidige certificaat wordt nog gebruikt tot het verloopt.",
+      "open": "Openen via HTTPS",
+      "expires": "Verloopt",
+      "expiresIn_one": "over {{count}} dag; wordt automatisch verlengd",
+      "expiresIn_other": "over {{count}} dagen; wordt automatisch verlengd",
+      "names": "Namen",
+      "alsoAt": "Ook op"
+    },
+    "saveFailed": "Opslaan mislukt",
+    "requestFailed": "Er kon geen certificaat worden aangevraagd",
+    "certificateReady": "Certificaat gereed",
+    "certificateReadyHint": "Sla op met Let's Encrypt geselecteerd om het te gaan gebruiken.",
+    "turnedOff": "HTTPS uitgeschakeld",
+    "saved": "HTTPS-instellingen opgeslagen",
+    "settings": {
+      "title": "Instellingen",
+      "description": "Wijzigingen gelden direct; Athena start niet opnieuw."
+    },
+    "mode": {
+      "label": "Modus",
+      "off": "Uit",
+      "offHelp": "Alleen gewone HTTP.",
+      "self": "Zelfondertekend",
+      "selfHelp": "Athena maakt een eigen certificeringsinstantie (CA). Vertrouw die één keer op elk apparaat en browsers tonen een slotje zonder waarschuwing. Werkt op je thuisnetwerk zonder domein.",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "Een gratis certificaat dat elke browser vertrouwt, voor een domein dat van jou is en naar deze server wijst. Wordt automatisch verlengd.",
+      "custom": "Eigen",
+      "customHelp": "Upload je eigen certificaat en privésleutel (PEM-formaat). Athena gebruikt ze zoals ze zijn; geen automatische verlenging."
+    },
+    "port": {
+      "label": "HTTPS-poort",
+      "help": "Poorten onder 1024 (zoals 443) kunnen vereisen dat Athena als root draait. Mogelijk moet je de poort toestaan in de firewall van de host.",
+      "range": "Voer een poort van 1 tot 65535 in.",
+      "taken": "Poort {{port}} is de HTTP-poort van Athena. Kies een andere."
+    },
+    "redirect": {
+      "label": "Browsers naar HTTPS sturen",
+      "help": "Pagina's die op poort {{port}} worden geopend, gaan door naar HTTPS. Bestandsshares, webhooks, apps en de server zelf blijven gewone HTTP gebruiken."
+    },
+    "names": {
+      "label": "Extra namen",
+      "help": "Het certificaat dekt al de naam van deze server, zijn .local-naam en zijn netwerkadressen. Voeg elke andere naam of elk ander adres toe waarmee je Athena opent, gescheiden door komma's."
+    },
+    "lockedOut": "Buitengesloten? Voer <code>{{command}}</code> uit op de server en start Athena opnieuw.",
+    "cancel": "Annuleren",
+    "needsCertificate": "Haal eerst een certificaat op",
+    "saving": "Opslaan…",
+    "save": "Opslaan",
+    "confirm": {
+      "title": "Browsers naar HTTPS sturen?",
+      "redirect": "Na het opslaan brengt het openen van Athena op poort {{port}} je naar <url>{{url}}</url>.",
+      "letsencrypt": "Open Athena daar met de domeinnaam; andere namen geven een certificaatwaarschuwing.",
+      "custom": "Je eigen certificaat wordt gebruikt; browsers vertrouwen het als het van een bekende CA komt.",
+      "self": "Zolang je de CA van Athena niet op een apparaat vertrouwt, toont de browser daar een waarschuwing.",
+      "recovery": "Als je er niet meer in kunt, voer dan <cmd>{{command}}</cmd> uit op de server en start Athena opnieuw.",
+      "action": "Opslaan en doorsturen"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "Domeinen",
+      "domainsHelp": "Scheid meerdere met komma's. Elk moet in het openbare DNS naar deze server wijzen. Een wildcard (*.example.com) vereist de DNS-uitdaging.",
+      "email": "E-mail",
+      "emailHelp": "Let's Encrypt schrijft hierheen als een certificaat bijna verloopt.",
+      "challenge": "Hoe Let's Encrypt controleert",
+      "http": "HTTP (poort 80)",
+      "httpHelp": "Let's Encrypt maakt verbinding met poort 80 op deze server, dus die moet vanaf internet bereikbaar zijn (stuur hem door op je router).",
+      "dns": "DNS",
+      "dnsHelp": "Athena voegt via je DNS-provider een tijdelijk DNS-record toe. Geen open poorten; werkt voor wildcards.",
+      "port80Title": "Poort 80 kan nu niet worden geopend",
+      "port80Description": "Een ander programma gebruikt hem, of Athena mag hem niet openen. Maak poort 80 vrij of gebruik de DNS-uitdaging.",
+      "provider": "DNS-provider",
+      "savedUnchanged": "Opgeslagen (ongewijzigd)",
+      "staging": "De staging-server gebruiken",
+      "stagingHelp": "Om dingen uit te proberen: browsers vertrouwen de certificaten niet, maar de limieten zijn ruim.",
+      "getting": "Certificaat ophalen…",
+      "renew": "Certificaat nu verlengen",
+      "get": "Certificaat ophalen",
+      "current": "Huidig certificaat voor {{names}}, geldig tot {{date}}.",
+      "getThenSave": "Haal een certificaat op en sla daarna op om het te gaan gebruiken.",
+      "lastFailed": "Laatste poging mislukt: {{error}}"
+    },
+    "custom": {
+      "legend": "Eigen certificaat",
+      "cert": "Certificaat (PEM)",
+      "certHelp": "Plak het volledige PEM-gecodeerde certificaat of de certificaatketen.",
+      "key": "Privésleutel (PEM)",
+      "keyHelp": "Plak de PEM-gecodeerde privésleutel. Hij wordt versleuteld opgeslagen."
+    },
+    "trust": {
+      "title": "Vertrouw Athena op je apparaten",
+      "description": "Installeer de CA van Athena één keer op elke telefoon, tablet en computer die je gebruikt. Daarna vertrouwt de browser elk certificaat dat Athena maakt, ook verlengingen.",
+      "download": "CA-certificaat downloaden",
+      "validUntil": "Geldig tot {{date}}",
+      "fingerprint": "SHA-256-vingerafdruk",
+      "copyFingerprint": "Vingerafdruk kopiëren",
+      "fingerprintCopied": "Vingerafdruk gekopieerd",
+      "fingerprintHelp": "Controleer of hij overeenkomt met wat het apparaat toont voordat je het bestand vertrouwt.",
+      "rotated": "Nieuwe CA gemaakt",
+      "rotatedHint": "Download hem en vertrouw hem opnieuw op elk apparaat.",
+      "rotateFailed": "Er kon geen nieuwe CA worden gemaakt",
+      "rotateHint": "Maak een nieuwe CA als de sleutel mogelijk is uitgelekt. Elk apparaat moet de nieuwe vertrouwen.",
+      "rotate": "Een nieuwe CA maken",
+      "rotating": "Maken…",
+      "confirmTitle": "Een nieuwe CA maken?",
+      "confirmDescription": "Apparaten die de huidige CA vertrouwen tonen een waarschuwing totdat je de nieuwe op elk ervan installeert.",
+      "macos": {
+        "label": "macOS",
+        "step1": "Open het gedownloade bestand. Sleutelhangertoegang voegt het toe aan de inlogsleutelhanger.",
+        "step2": "Dubbelklik in Sleutelhangertoegang op <b>Athena Local CA</b>, open <b>Vertrouwen</b> en stel <b>Bij gebruik van dit certificaat</b> in op <b>Altijd vertrouwen</b>.",
+        "step3": "Sluit het venster en voer je Mac-wachtwoord in. Start de browser opnieuw."
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "Open het gedownloade bestand en kies <b>Certificaat installeren</b>.",
+        "step2": "Kies <b>Huidige gebruiker</b>, dan <b>Alle certificaten in het volgende archief plaatsen</b> → <b>Vertrouwde basiscertificeringsinstanties</b>.",
+        "step3": "Rond af en bevestig de beveiligingswaarschuwing. Start de browser opnieuw."
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian of Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Firefox en Chrome houden op Linux hun eigen lijst bij: importeer het bestand onder de certificaatinstellingen van de browser, bij <b>Instanties</b>."
+      },
+      "ios": {
+        "label": "iPhone en iPad",
+        "step1": "Download het bestand in Safari en sta het downloaden van het profiel toe.",
+        "step2": "Open in Instellingen <b>Profiel gedownload</b> (of <b>Algemeen → VPN en apparaatbeheer</b>) en installeer het.",
+        "step3": "Ga naar <b>Algemeen → Info → Instellingen voor certificaatvertrouwen</b> en schakel volledig vertrouwen in voor <b>Athena Local CA</b>."
+      },
+      "android": {
+        "label": "Android",
+        "step1": "Download het bestand.",
+        "step2": "Zoek in Instellingen naar <b>CA-certificaat</b> (meestal <b>Beveiliging → Versleuteling en inloggegevens → Een certificaat installeren → CA-certificaat</b>) en kies het bestand.",
+        "step3": "Bevestig de waarschuwing. Sommige apps negeren gebruikerscertificaten; browsers gebruiken ze."
+      }
+    }
+  },
+  "sections": {
+    "appearance": "Weergave",
+    "account": "Account",
+    "system": "Systeem",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "Instellingen"
+  }
+}

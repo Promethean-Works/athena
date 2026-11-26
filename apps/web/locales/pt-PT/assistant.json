@@ -1,0 +1,140 @@
+{
+  "title": "Assistente",
+  "sheet": {
+    "description": "Conversa com o assistente de IA sobre este servidor.",
+    "openFullPage": "Abrir a página completa"
+  },
+  "chat": {
+    "newChat": "Nova conversa",
+    "chats": "Conversas",
+    "noChats": "Ainda sem conversas.",
+    "deleteChat": "Eliminar {{title}}",
+    "thinking": "A pensar…",
+    "stillWorking": "Ainda a preparar uma resposta. Aparece aqui quando estiver pronta.",
+    "emptyTitle": "Pergunta sobre este servidor",
+    "emptyDescription": "O assistente pode consultar apps, registos, ficheiros e estatísticas do sistema, e instalar ou alterar coisas depois de aprovares cada ação.",
+    "suggestions": {
+      "capabilities": "O que pode este servidor fazer?",
+      "disk": "Quanto espaço em disco resta?",
+      "apps": "Que apps estão em execução?"
+    },
+    "message": "Mensagem",
+    "placeholder": "Pergunta sobre este servidor…",
+    "placeholderWaiting": "Responde acima ou envia uma mensagem para a ignorar…",
+    "stop": "Parar",
+    "send": "Enviar",
+    "pickModelFirst": "Escolhe primeiro um modelo",
+    "changeModelFailed": "Não foi possível alterar o modelo",
+    "startFailed": "Não foi possível iniciar uma conversa",
+    "deleteFailed": "Não foi possível eliminar a conversa",
+    "failed": "O assistente falhou"
+  },
+  "noProviders": {
+    "title": "Configura primeiro um modelo",
+    "description": "O assistente precisa de um fornecedor de IA: um na nuvem com chave de API, ou o Ollama a correr no teu próprio hardware.",
+    "openSettings": "Abrir Definições → IA"
+  },
+  "model": {
+    "pick": "Escolher um modelo",
+    "label": "Modelo: {{label}}",
+    "search": "Pesquisa ou escreve o id de um modelo",
+    "noMatch": "Nenhum modelo corresponde.",
+    "addProvider": "Adiciona primeiro um fornecedor em Definições → IA.",
+    "noTools": "não pode usar ferramentas",
+    "use": "Usar “{{model}}”"
+  },
+  "plan": {
+    "title": "Plano",
+    "progress": "{{done}} de {{total}} concluídos",
+    "steps": "Passos do plano",
+    "status": {
+      "pending": "pendente",
+      "in_progress": "em curso",
+      "completed": "concluído",
+      "cancelled": "cancelado",
+      "blocked": "bloqueado"
+    }
+  },
+  "spend": {
+    "usage": "Utilização desta conversa",
+    "usageWith": "Utilização desta conversa: {{label}}",
+    "unknownPrices": "Os preços deste modelo são desconhecidos, por isso só se contam tokens.",
+    "estimate": "Uma estimativa com base nos preços publicados do modelo.",
+    "ofLimit": "{{spent}} de {{limit}}",
+    "spent": "Gasto",
+    "unknown": "Desconhecido",
+    "inputTokens": "Tokens de entrada",
+    "outputTokens": "Tokens de saída",
+    "tokens_one": "{{formatted}} token",
+    "tokens_other": "{{formatted}} tokens",
+    "limitReached": "Esta conversa atingiu o limite de gastos. Inicia uma nova conversa ou aumenta o limite em <settings>Definições → IA</settings>.",
+    "limitNotApplicable": "O limite de gastos ({{limit}}) não se pode aplicar a este modelo."
+  },
+  "steps": {
+    "thinking": "A pensar",
+    "thought": "Pensou",
+    "draft": "Primeiro rascunho, revisto abaixo",
+    "approvalNeeded": "Aprovação necessária: {{title}}",
+    "run": "Executar {{name}}",
+    "approvalIntro": "O assistente quer fazer isto. Nada acontece até aprovares.",
+    "deny": "Recusar",
+    "approve": "Aprovar",
+    "approvedGoOn": "Aprovado. Responde aos outros cartões para continuar.",
+    "deniedGoOn": "Recusado. Responde aos outros cartões para continuar.",
+    "logGone": "Esse registo já não existe",
+    "log": "Registo",
+    "denied": "Recusado: {{title}}",
+    "failed": "Falhou: {{title}}",
+    "running": "A executar {{name}}",
+    "ran": "Executou {{name}}",
+    "withSubject": "{{title}} de {{subject}}",
+    "helperRunningTask": "Auxiliar a investigar: {{task}}",
+    "helperDoneTask": "Auxiliar investigou: {{task}}",
+    "helperRunning": "Auxiliar a consultar",
+    "helperDone": "Auxiliar consultou",
+    "tools": {
+      "getCapabilities": {
+        "running": "A verificar o que este servidor pode fazer",
+        "done": "Verificou o que este servidor pode fazer"
+      },
+      "getSystemStats": { "running": "A ler estatísticas do sistema", "done": "Leu estatísticas do sistema" },
+      "listApps": { "running": "A listar apps", "done": "Listou apps" },
+      "appLogs": { "running": "A ler registos de apps", "done": "Leu registos de apps" },
+      "listFileLocations": { "running": "A listar localizações de ficheiros", "done": "Listou localizações de ficheiros" },
+      "listFiles": { "running": "A listar ficheiros", "done": "Listou ficheiros" },
+      "readFile": { "running": "A ler um ficheiro", "done": "Leu um ficheiro" },
+      "writeFile": { "running": "A escrever um ficheiro", "done": "Escreveu um ficheiro" },
+      "editFile": { "running": "A editar um ficheiro", "done": "Editou um ficheiro" },
+      "listDirectory": { "running": "A listar uma pasta", "done": "Listou uma pasta" },
+      "createDirectory": { "running": "A criar uma pasta", "done": "Criou uma pasta" },
+      "searchStore": { "running": "A pesquisar na loja de apps", "done": "Pesquisou na loja de apps" },
+      "readToolResult": { "running": "A ler um resultado de ferramenta guardado", "done": "Leu um resultado de ferramenta guardado" },
+      "askUserQuestion": { "running": "A aguardar a tua resposta", "done": "Perguntou-te" },
+      "advisor": { "running": "A consultar o conselheiro", "done": "Consultou o conselheiro" },
+      "runWorkflow": {
+        "running": "Auxiliares a consultar em conjunto",
+        "done": "Auxiliares consultaram em conjunto"
+      },
+      "getStoreApp": { "running": "A ler uma app da loja", "done": "Leu uma app da loja" },
+      "listPackageManagers": { "running": "A listar gestores de pacotes", "done": "Listou gestores de pacotes" },
+      "searchPackages": { "running": "A pesquisar pacotes", "done": "Pesquisou pacotes" },
+      "listUpgradablePackages": {
+        "running": "A verificar atualizações de pacotes",
+        "done": "Verificou atualizações de pacotes"
+      }
+    }
+  },
+  "question": {
+    "title": "Perguntas",
+    "asks": "O assistente pergunta: {{title}}",
+    "intro": "O assistente está a perguntar antes de continuar. Nunca respondas com uma palavra-passe ou chave.",
+    "ownAnswerLabel": "A tua própria resposta a {{header}}",
+    "ownAnswerPlaceholder": "Ou escreve a tua própria resposta",
+    "skip": "Ignorar",
+    "send": "Enviar respostas",
+    "skippedGoOn": "Ignorada. Responde aos outros cartões para continuar.",
+    "answeredGoOn": "Respondida. Responde aos outros cartões para continuar.",
+    "youAnswered": "Respondeste: {{answers}}",
+    "youSkipped": "Ignoraste a pergunta"
+  }
+}

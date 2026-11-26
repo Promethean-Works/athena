@@ -1,0 +1,21 @@
+{
+  "dashboard": "Panel",
+  "apps": "Apps",
+  "store": "Tienda",
+  "packages": "Paquetes",
+  "automation": "Automatización",
+  "files": "Archivos",
+  "smbShares": "Recursos SMB",
+  "cloud": "Nube",
+  "containers": "Contenedores",
+  "terminal": "Terminal",
+  "assistant": "Asistente",
+  "backups": "Copias de seguridad",
+  "settings": "Ajustes",
+  "help": "Ayuda",
+  "roleAdmin": "Administrador",
+  "roleUser": "Usuario",
+  "tunnelAddress": "Dirección del túnel",
+  "restartAthena": "Reiniciar Athena",
+  "logOut": "Cerrar sesión"
+}

@@ -3,6 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import type { ParseKeys } from "i18next"
+import { useTranslation } from "react-i18next"
 import {
   ArrowUpIcon,
   MessageCircleDashedIcon,
@@ -70,10 +72,10 @@ import { useModels, type ModelRef } from "@/components/assistant/use-models"
 
 type Conversation = Schemas["ConversationOut"]
 
-const SUGGESTIONS = [
-  "What can this server do?",
-  "How much disk space is left?",
-  "Which apps are running?",
+const SUGGESTIONS: ParseKeys<"assistant">[] = [
+  "chat.suggestions.capabilities",
+  "chat.suggestions.disk",
+  "chat.suggestions.apps",
 ]
 
 /** Groups a reply's parts: runs of steps (reasoning, tools, revised drafts), and text
@@ -99,9 +101,12 @@ function Reply({
   message: ChatMessage
   streaming: boolean
 }) {
+  const { t } = useTranslation("assistant")
   const groups = blocks(message.parts.filter(isShown))
   if (groups.length === 0 && streaming) {
-    return <p className="shimmer text-sm text-muted-foreground">Thinking…</p>
+    return <p className="shimmer text-sm text-muted-foreground">
+        {t("chat.thinking")}
+      </p>
   }
   return (
     <div className="flex min-w-0 flex-col gap-3">
@@ -133,21 +138,22 @@ function ChatList({
   onNew: () => void
   onDelete: (c: Conversation) => void
 }) {
+  const { t } = useTranslation("assistant")
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
       <Button variant="outline" className="justify-start" onClick={onNew}>
         <PlusIcon />
-        New chat
+        {t("chat.newChat")}
       </Button>
       <nav
-        aria-label="Chats"
+        aria-label={t("chat.chats")}
         className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto"
       >
         {conversations === null ? (
           <Skeleton className="h-8 w-full" />
         ) : conversations.length === 0 ? (
           <p className="px-2 py-1 text-sm text-muted-foreground">
-            No chats yet.
+            {t("chat.noChats")}
           </p>
         ) : (
           conversations.map((c) => (
@@ -169,7 +175,7 @@ function ChatList({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label={`Delete ${c.title}`}
+                aria-label={t("chat.deleteChat", { title: c.title })}
                 className="opacity-0 group-hover/chat:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
                 onClick={() => onDelete(c)}
               >
@@ -184,21 +190,21 @@ function ChatList({
 }
 
 function NoProviders() {
+  const { t } = useTranslation("assistant")
   return (
     <Empty className="h-full border">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <SparklesIcon />
         </EmptyMedia>
-        <EmptyTitle>Set up a model first</EmptyTitle>
+        <EmptyTitle>{t("noProviders.title")}</EmptyTitle>
         <EmptyDescription>
-          The assistant needs an AI provider: a cloud one with an API key, or
-          Ollama running on your own hardware.
+          {t("noProviders.description")}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button render={<Link href="/settings/ai/" />} nativeButton={false}>
-          Open Settings → AI
+          {t("noProviders.openSettings")}
         </Button>
       </EmptyContent>
     </Empty>
@@ -219,6 +225,7 @@ export function AssistantChat({
   onOpen: (id: string | null) => void
   compact?: boolean
 }) {
+  const { t } = useTranslation("assistant")
   const { providers } = useModels()
   const [conversations, setConversations] = React.useState<
     Conversation[] | null
@@ -279,7 +286,7 @@ export function AssistantChat({
     if (error)
       toast.add({
         type: "error",
-        title: "Couldn't change the model",
+        title: t("chat.changeModelFailed"),
         description: errorMessage(error),
       })
     else void loadList()
@@ -289,7 +296,7 @@ export function AssistantChat({
     text = text.trim()
     if (!text || busy) return
     if (!model) {
-      toast.add({ type: "error", title: "Pick a model first" })
+      toast.add({ type: "error", title: t("chat.pickModelFirst") })
       return
     }
     let id = current
@@ -300,7 +307,7 @@ export function AssistantChat({
       if (!data) {
         toast.add({
           type: "error",
-          title: "Couldn't start a chat",
+          title: t("chat.startFailed"),
           description: errorMessage(error),
         })
         return
@@ -327,7 +334,7 @@ export function AssistantChat({
     if (error) {
       toast.add({
         type: "error",
-        title: "Couldn't delete the chat",
+        title: t("chat.deleteFailed"),
         description: errorMessage(error),
       })
       return
@@ -375,7 +382,7 @@ export function AssistantChat({
             <Popover open={listOpen} onOpenChange={setListOpen}>
               <PopoverTrigger render={<Button variant="outline" size="sm" />}>
                 <MessagesSquareIcon />
-                Chats
+                {t("chat.chats")}
               </PopoverTrigger>
               <PopoverContent align="start" className="flex h-80 w-64 p-2">
                 {list}
@@ -385,18 +392,18 @@ export function AssistantChat({
             <Sheet open={listOpen} onOpenChange={setListOpen}>
               <SheetTrigger render={<Button variant="outline" size="sm" />}>
                 <MessagesSquareIcon />
-                Chats
+                {t("chat.chats")}
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-4">
                 <SheetHeader className="p-0">
-                  <SheetTitle>Chats</SheetTitle>
+                  <SheetTitle>{t("chat.chats")}</SheetTitle>
                 </SheetHeader>
                 {list}
               </SheetContent>
             </Sheet>
           )}
           <span className="min-w-0 truncate text-sm font-medium">
-            {currentConv?.title ?? "New chat"}
+            {currentConv?.title ?? t("chat.newChat")}
           </span>
         </div>
         <div className="min-h-0 flex-1">
@@ -405,7 +412,7 @@ export function AssistantChat({
           ) : chat.messages.length === 0 && busy ? (
             // Reopened mid-reply: the server saves the turn only when it ends.
             <p className="shimmer p-2 text-sm text-muted-foreground">
-              Still working on a reply. It shows here when it&apos;s done.
+              {t("chat.stillWorking")}
             </p>
           ) : chat.messages.length === 0 ? (
             <Empty className="h-full">
@@ -413,21 +420,20 @@ export function AssistantChat({
                 <EmptyMedia variant="icon">
                   <MessageCircleDashedIcon />
                 </EmptyMedia>
-                <EmptyTitle>Ask about this server</EmptyTitle>
+                <EmptyTitle>{t("chat.emptyTitle")}</EmptyTitle>
                 <EmptyDescription>
-                  The assistant can look up apps, logs, files and system stats,
-                  and install or change things once you approve each action.
+                  {t("chat.emptyDescription")}
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent className="flex-row flex-wrap justify-center">
-                {SUGGESTIONS.map((s) => (
+                {SUGGESTIONS.map((key) => (
                   <Button
-                    key={s}
+                    key={key}
                     variant="outline"
                     size="sm"
-                    onClick={() => void submit(s)}
+                    onClick={() => void submit(t(key))}
                   >
-                    {s}
+                    {t(key)}
                   </Button>
                 ))}
               </EmptyContent>
@@ -498,10 +504,10 @@ export function AssistantChat({
               onChange={(e) => setDraft(e.target.value)}
               placeholder={
                 waiting
-                  ? "Answer above, or send a message to skip it…"
-                  : "Ask about this server…"
+                  ? t("chat.placeholderWaiting")
+                  : t("chat.placeholder")
               }
-              aria-label="Message"
+              aria-label={t("chat.message")}
               className="max-h-48 min-h-14"
               onKeyDown={(e) => {
                 if (
@@ -527,7 +533,7 @@ export function AssistantChat({
                   variant="outline"
                   size="icon-sm"
                   className="ml-auto rounded-full"
-                  aria-label="Stop"
+                  aria-label={t("chat.stop")}
                   onClick={() => void chat.stop()}
                 >
                   <SquareIcon />
@@ -540,7 +546,7 @@ export function AssistantChat({
                   className="ml-auto rounded-full aria-disabled:opacity-50"
                   // Not `disabled`: InputGroup fades entirely when it holds a disabled control.
                   aria-disabled={!draft.trim() || !model}
-                  aria-label="Send"
+                  aria-label={t("chat.send")}
                 >
                   <ArrowUpIcon />
                 </InputGroupButton>

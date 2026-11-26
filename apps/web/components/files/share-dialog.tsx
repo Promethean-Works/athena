@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -49,16 +50,7 @@ export type ShareTarget = {
   kind: "dir" | "file" | "other"
 }
 
-const MODES = [
-  { value: "read", label: "View and download" },
-  { value: "upload", label: "Upload only (a drop box)" },
-]
-const EXPIRY = [
-  { value: "0", label: "Never" },
-  { value: "1", label: "In 1 day" },
-  { value: "7", label: "In 7 days" },
-  { value: "30", label: "In 30 days" },
-]
+const EXPIRY_DAYS = [1, 7, 30]
 
 /** Links to one file or folder: the existing ones, and a form for a new one. */
 export function ShareDialog({
@@ -68,6 +60,18 @@ export function ShareDialog({
   target: ShareTarget | null
   onClose: () => void
 }) {
+  const { t } = useTranslation("files")
+  const MODES = [
+    { value: "read", label: t("shareDialog.modeRead") },
+    { value: "upload", label: t("shareDialog.modeUpload") },
+  ]
+  const EXPIRY = [
+    { value: "0", label: t("shareDialog.expiryNever") },
+    ...EXPIRY_DAYS.map((d) => ({
+      value: String(d),
+      label: t("shareDialog.expiryDays", { count: d }),
+    })),
+  ]
   const [links, setLinks] = React.useState<ShareLink[] | null>(null)
   const [mode, setMode] = React.useState("read")
   const [password, setPassword] = React.useState("")
@@ -119,8 +123,8 @@ export function ShareDialog({
     const copied = await copyText(shareUrl(data))
     toast.add({
       type: "success",
-      title: "Link created",
-      description: copied ? "It's copied to the clipboard." : undefined,
+      title: t("shareDialog.created"),
+      description: copied ? t("shareDialog.copiedToClipboard") : undefined,
     })
   }
 
@@ -130,17 +134,18 @@ export function ShareDialog({
     <Dialog open={target !== null} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="truncate">Share {target?.name}</DialogTitle>
+          <DialogTitle className="truncate">
+            {t("shareDialog.title", { name: target?.name })}
+          </DialogTitle>
           <DialogDescription>
-            Anyone with a link can use it without an Athena account. Links use
-            the address you opened Athena with.
+            {t("shareDialog.description")}
           </DialogDescription>
         </DialogHeader>
 
         {links === null ? (
           <Skeleton className="h-12 w-full" />
         ) : links.length ? (
-          <ul className="flex flex-col gap-2" aria-label="Links">
+          <ul className="flex flex-col gap-2" aria-label={t("shareDialog.links")}>
             {links.map((link) => (
               <li
                 key={link.id}
@@ -154,7 +159,9 @@ export function ShareDialog({
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted-foreground">No links yet.</p>
+          <p className="text-sm text-muted-foreground">
+            {t("shareDialog.noLinks")}
+          </p>
         )}
 
         <Separator />
@@ -162,7 +169,9 @@ export function ShareDialog({
         <form id="new-share" onSubmit={create}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="share-mode">What visitors can do</FieldLabel>
+              <FieldLabel htmlFor="share-mode">
+                {t("shareDialog.visitorsCan")}
+              </FieldLabel>
               <Select
                 items={MODES}
                 value={mode}
@@ -184,16 +193,16 @@ export function ShareDialog({
               </Select>
               <FieldDescription>
                 {!isFolder
-                  ? "Upload links need a folder."
+                  ? t("shareDialog.needsFolder")
                   : mode === "upload"
-                    ? "Visitors can add files but can't see what's there."
-                    : "Visitors can browse, preview and download."}
+                    ? t("shareDialog.uploadHint")
+                    : t("shareDialog.readHint")}
               </FieldDescription>
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="share-password">
-                  Password (optional)
+                  {t("shareDialog.passwordOptional")}
                 </FieldLabel>
                 <Input
                   id="share-password"
@@ -204,7 +213,9 @@ export function ShareDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="share-expiry">Expires</FieldLabel>
+                <FieldLabel htmlFor="share-expiry">
+                  {t("shareDialog.expires")}
+                </FieldLabel>
                 <Select
                   items={EXPIRY}
                   value={days}
@@ -235,11 +246,11 @@ export function ShareDialog({
             render={<Link href="/files/shares/" />}
             nativeButton={false}
           >
-            All links
+            {t("shareDialog.allLinks")}
           </Button>
           <Button type="submit" form="new-share" disabled={pending}>
             {pending ? <Spinner /> : null}
-            Create link
+            {t("shareDialog.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

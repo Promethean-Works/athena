@@ -1,0 +1,48 @@
+{
+  "menu": "Gửi phản hồi",
+  "dialog": {
+    "title": "Gửi phản hồi",
+    "description": "Mở một issue mới trên {{repo}} trong tab mới. Bạn có thể xem và chỉnh sửa trước khi đăng; issue là công khai.",
+    "storeHint": "Ứng dụng trong cửa hàng không hoạt động? Dùng <b>Báo cáo sự cố</b> trên trang cửa hàng của ứng dụng đó, để báo cáo đến đúng người bảo trì.",
+    "loadFailed": "Không thể tải thông tin của máy chủ này"
+  },
+  "choices": {
+    "bug": {
+      "title": "Báo lỗi",
+      "description": "Có thứ không hoạt động như mong đợi."
+    },
+    "change": {
+      "title": "Đề xuất thay đổi",
+      "description": "Có thứ đang hoạt động, nhưng nên hoạt động khác đi."
+    },
+    "feature": {
+      "title": "Yêu cầu tính năng",
+      "description": "Điều mà Athena chưa làm được."
+    }
+  },
+  "diagnostics": {
+    "title": "Đã điền sẵn",
+    "system": "Hệ thống",
+    "cpu": "CPU",
+    "containers": "Container"
+  },
+  "appReport": {
+    "button": "Báo cáo sự cố",
+    "title": "Báo cáo sự cố với {{app}}",
+    "description": "Mở một issue mới cho {{where}} trong tab mới, đã điền sẵn thông tin ứng dụng và máy chủ này. Bạn xem lại ở đó trước khi đăng; issue là công khai.",
+    "whereCatalog": "danh mục {{name}}, nơi bảo trì ứng dụng này",
+    "includeLogs_other": "Kèm {{count}} dòng nhật ký cuối",
+    "installedCopy": "Bản đã cài đặt",
+    "logsLabel": "Nhật ký cần kèm",
+    "loadingLogs": "Đang tải nhật ký…",
+    "logsWarning": "Hãy xóa mật khẩu, token và địa chỉ trước khi tiếp tục.",
+    "logsTruncated": "Liên kết chỉ chứa được phần cuối của nhật ký.",
+    "cancel": "Hủy",
+    "openIssue": "Mở issue",
+    "preparing": "Đang chuẩn bị…",
+    "prepareFailed": "Không thể chuẩn bị báo cáo",
+    "logsFailed": "Không thể tải nhật ký: {{error}}",
+    "appNotFound": "không tìm thấy ứng dụng",
+    "noContainers": "Không tìm thấy container nào của ứng dụng này."
+  }
+}

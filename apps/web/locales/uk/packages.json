@@ -1,0 +1,61 @@
+{
+  "view": {
+    "noManagers": "Менеджерів пакетів не знайдено",
+    "noManagersHint": "Athena не знайшла на цьому хості підтримуваного менеджера пакетів."
+  },
+  "listError": "Не вдалося прочитати список пакетів",
+  "cancel": "Скасувати",
+  "toast": {
+    "installFailed": "Не вдалося встановити {{name}}",
+    "uninstallFailed": "Не вдалося видалити {{name}}",
+    "upgradeFailed": "Не вдалося оновити {{name}}",
+    "upgradeAllFailed": "Не вдалося оновити пакети",
+    "refreshFailed": "Не вдалося оновити списки пакетів"
+  },
+  "unavailable": "{{name}} зараз недоступний",
+  "unavailableHint": "Він не готовий на цьому хості.",
+  "refreshLists": "Оновити списки",
+  "upgradeAll": "Оновити все",
+  "tabs": {
+    "installed": "Встановлені",
+    "updates": "Оновлення",
+    "search": "Пошук"
+  },
+  "installed": {
+    "filter": "Фільтр встановлених пакетів",
+    "noMatch": "Жоден встановлений пакет не підходить.",
+    "empty": "Нічого не встановлено.",
+    "upgradeLabel": "Оновити {{name}}",
+    "upgrade": "Оновити",
+    "uninstallLabel": "Видалити {{name}}",
+    "uninstall": "Видалити",
+    "shortened": "{{manager}} скоротив цей ідентифікатор, тому звідси пакет видалити не можна",
+    "showing": "Показано {{shown}} із {{total}}. Скористайтеся фільтром, щоб звузити список."
+  },
+  "table": {
+    "package": "Пакет",
+    "version": "Версія",
+    "description": "Опис"
+  },
+  "updates": {
+    "upToDate": "Усе оновлено",
+    "upToDateRefresh": "Станом на останнє оновлення списків. Оновіть списки, щоб перевірити знову.",
+    "nothing": "Нічого оновлювати.",
+    "installedColumn": "Встановлено",
+    "availableColumn": "Доступно"
+  },
+  "search": {
+    "label": "Пошук у {{manager}}",
+    "noMatch": "Жоден пакет не відповідає «{{query}}».",
+    "install": "Встановити"
+  },
+  "confirm": {
+    "uninstallTitle": "Видалити {{name}}?",
+    "uninstallDescription": "Його буде видалено з цього сервера. Пакети, що від нього залежать, також можуть бути видалені.",
+    "upgradeAllTitle": "Оновити всі пакети {{manager}}?",
+    "upgradeAllDescription_one": "Буде оновлено {{count}} пакет. Це може тривати певний час.",
+    "upgradeAllDescription_few": "Буде оновлено {{count}} пакети. Це може тривати певний час.",
+    "upgradeAllDescription_many": "Буде оновлено {{count}} пакетів. Це може тривати певний час.",
+    "upgradeAllDescription_other": "Буде оновлено {{count}} пакета. Це може тривати певний час."
+  }
+}

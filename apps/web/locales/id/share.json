@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Tautan ini tidak lengkap.",
+    "expiredTitle": "Tautan ini sudah kedaluwarsa",
+    "notFoundTitle": "Tautan ini tidak berfungsi",
+    "errorTitle": "Tidak dapat membuka tautan ini",
+    "expiredDescription": "Minta tautan baru kepada pengirimnya."
+  },
+  "unlock": {
+    "title": "Tautan ini memakai kata sandi",
+    "description": "Masukkan kata sandi untuk melihat isi yang dibagikan.",
+    "password": "Kata sandi",
+    "open": "Buka"
+  },
+  "file": {
+    "fallbackName": "file",
+    "download": "Unduh"
+  },
+  "dropBox": {
+    "title": "Kirim file ke {{name}}",
+    "description": "File yang Anda tambahkan langsung diunggah. Anda tidak dapat melihat apa yang dikirim orang lain, dan file yang Anda kirim tidak akan menggantikan file lain.",
+    "drop": "Letakkan file di sini, atau",
+    "choose": "Pilih file"
+  },
+  "folder": {
+    "downloadAll": "Unduh semua",
+    "cantOpen": "Tidak dapat membuka folder ini",
+    "empty": "Folder ini kosong.",
+    "columnName": "Nama",
+    "columnSize": "Ukuran",
+    "columnModified": "Diubah",
+    "columnDownload": "Unduh",
+    "downloadEntry": "Unduh {{name}}",
+    "download": "Unduh"
+  }
+}

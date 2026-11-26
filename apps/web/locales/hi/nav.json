@@ -1,0 +1,21 @@
+{
+  "dashboard": "डैशबोर्ड",
+  "apps": "ऐप्स",
+  "store": "स्टोर",
+  "packages": "पैकेज",
+  "automation": "ऑटोमेशन",
+  "files": "फ़ाइलें",
+  "smbShares": "SMB शेयर",
+  "cloud": "क्लाउड",
+  "containers": "कंटेनर",
+  "terminal": "टर्मिनल",
+  "assistant": "असिस्टेंट",
+  "backups": "बैकअप",
+  "settings": "सेटिंग्स",
+  "help": "सहायता",
+  "roleAdmin": "एडमिनिस्ट्रेटर",
+  "roleUser": "उपयोगकर्ता",
+  "tunnelAddress": "टनल पता",
+  "restartAthena": "Athena रीस्टार्ट करें",
+  "logOut": "लॉग आउट"
+}

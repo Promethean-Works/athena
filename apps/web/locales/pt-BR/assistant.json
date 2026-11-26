@@ -1,0 +1,140 @@
+{
+  "title": "Assistente",
+  "sheet": {
+    "description": "Converse com o assistente de IA sobre este servidor.",
+    "openFullPage": "Abrir a página completa"
+  },
+  "chat": {
+    "newChat": "Novo chat",
+    "chats": "Chats",
+    "noChats": "Nenhum chat ainda.",
+    "deleteChat": "Excluir {{title}}",
+    "thinking": "Pensando…",
+    "stillWorking": "Ainda trabalhando na resposta. Ela aparece aqui quando terminar.",
+    "emptyTitle": "Pergunte sobre este servidor",
+    "emptyDescription": "O assistente pode consultar apps, logs, arquivos e estatísticas do sistema, e instalar ou alterar coisas depois que você aprovar cada ação.",
+    "suggestions": {
+      "capabilities": "O que este servidor pode fazer?",
+      "disk": "Quanto espaço em disco ainda resta?",
+      "apps": "Quais apps estão rodando?"
+    },
+    "message": "Mensagem",
+    "placeholder": "Pergunte sobre este servidor…",
+    "placeholderWaiting": "Responda acima ou envie uma mensagem para pular…",
+    "stop": "Parar",
+    "send": "Enviar",
+    "pickModelFirst": "Escolha um modelo primeiro",
+    "changeModelFailed": "Não foi possível trocar o modelo",
+    "startFailed": "Não foi possível iniciar um chat",
+    "deleteFailed": "Não foi possível excluir o chat",
+    "failed": "O assistente falhou"
+  },
+  "noProviders": {
+    "title": "Configure um modelo primeiro",
+    "description": "O assistente precisa de um provedor de IA: um na nuvem, com chave de API, ou o Ollama rodando no seu próprio hardware.",
+    "openSettings": "Abrir Configurações → IA"
+  },
+  "model": {
+    "pick": "Escolha um modelo",
+    "label": "Modelo: {{label}}",
+    "search": "Busque ou digite o id de um modelo",
+    "noMatch": "Nenhum modelo encontrado.",
+    "addProvider": "Primeiro adicione um provedor em Configurações → IA.",
+    "noTools": "não usa ferramentas",
+    "use": "Usar “{{model}}”"
+  },
+  "plan": {
+    "title": "Plano",
+    "progress": "{{done}} de {{total}} concluídos",
+    "steps": "Etapas do plano",
+    "status": {
+      "pending": "pendente",
+      "in_progress": "em andamento",
+      "completed": "concluída",
+      "cancelled": "cancelada",
+      "blocked": "bloqueada"
+    }
+  },
+  "spend": {
+    "usage": "Uso deste chat",
+    "usageWith": "Uso deste chat: {{label}}",
+    "unknownPrices": "Os preços deste modelo não são conhecidos, então só os tokens são contados.",
+    "estimate": "Uma estimativa com base nos preços publicados do modelo.",
+    "ofLimit": "{{spent}} de {{limit}}",
+    "spent": "Gasto",
+    "unknown": "Desconhecido",
+    "inputTokens": "Tokens de entrada",
+    "outputTokens": "Tokens de saída",
+    "tokens_one": "{{formatted}} token",
+    "tokens_other": "{{formatted}} tokens",
+    "limitReached": "Este chat atingiu o limite de gastos. Comece um novo chat ou aumente o limite em <settings>Configurações → IA</settings>.",
+    "limitNotApplicable": "O limite de gastos ({{limit}}) não se aplica a este modelo."
+  },
+  "steps": {
+    "thinking": "Pensando",
+    "thought": "Pensou",
+    "draft": "Primeiro rascunho, revisado abaixo",
+    "approvalNeeded": "Aprovação necessária: {{title}}",
+    "run": "Executar {{name}}",
+    "approvalIntro": "O assistente quer fazer isto. Nada acontece até você aprovar.",
+    "deny": "Negar",
+    "approve": "Aprovar",
+    "approvedGoOn": "Aprovado. Responda aos outros cartões para continuar.",
+    "deniedGoOn": "Negado. Responda aos outros cartões para continuar.",
+    "logGone": "Esse log não existe mais",
+    "log": "Log",
+    "denied": "Negado: {{title}}",
+    "failed": "Falhou: {{title}}",
+    "running": "Executando {{name}}",
+    "ran": "Executou {{name}}",
+    "withSubject": "{{title}} de {{subject}}",
+    "helperRunningTask": "Ajudante investigando: {{task}}",
+    "helperDoneTask": "Ajudante investigou: {{task}}",
+    "helperRunning": "Ajudante consultando informações",
+    "helperDone": "Ajudante consultou informações",
+    "tools": {
+      "getCapabilities": {
+        "running": "Verificando o que este servidor pode fazer",
+        "done": "Verificou o que este servidor pode fazer"
+      },
+      "getSystemStats": { "running": "Lendo estatísticas do sistema", "done": "Leu estatísticas do sistema" },
+      "listApps": { "running": "Listando apps", "done": "Listou apps" },
+      "appLogs": { "running": "Lendo logs do app", "done": "Leu logs do app" },
+      "listFileLocations": { "running": "Listando locais de arquivos", "done": "Listou locais de arquivos" },
+      "listFiles": { "running": "Listando arquivos", "done": "Listou arquivos" },
+      "readFile": { "running": "Lendo um arquivo", "done": "Leu um arquivo" },
+      "writeFile": { "running": "Gravando um arquivo", "done": "Gravou um arquivo" },
+      "editFile": { "running": "Editando um arquivo", "done": "Editou um arquivo" },
+      "listDirectory": { "running": "Listando uma pasta", "done": "Listou uma pasta" },
+      "createDirectory": { "running": "Criando uma pasta", "done": "Criou uma pasta" },
+      "searchStore": { "running": "Buscando na loja de apps", "done": "Buscou na loja de apps" },
+      "readToolResult": { "running": "Lendo um resultado de ferramenta salvo", "done": "Leu um resultado de ferramenta salvo" },
+      "askUserQuestion": { "running": "Aguardando sua resposta", "done": "Perguntou a você" },
+      "advisor": { "running": "Consultando o conselheiro", "done": "Consultou o conselheiro" },
+      "runWorkflow": {
+        "running": "Ajudantes consultando informações juntos",
+        "done": "Ajudantes consultaram informações juntos"
+      },
+      "getStoreApp": { "running": "Lendo um app da loja", "done": "Leu um app da loja" },
+      "listPackageManagers": { "running": "Listando gerenciadores de pacotes", "done": "Listou gerenciadores de pacotes" },
+      "searchPackages": { "running": "Buscando pacotes", "done": "Buscou pacotes" },
+      "listUpgradablePackages": {
+        "running": "Verificando atualizações de pacotes",
+        "done": "Verificou atualizações de pacotes"
+      }
+    }
+  },
+  "question": {
+    "title": "Perguntas",
+    "asks": "O assistente pergunta: {{title}}",
+    "intro": "O assistente está perguntando antes de continuar. Nunca responda com uma senha ou chave.",
+    "ownAnswerLabel": "Sua própria resposta para {{header}}",
+    "ownAnswerPlaceholder": "Ou digite sua própria resposta",
+    "skip": "Pular",
+    "send": "Enviar respostas",
+    "skippedGoOn": "Pulado. Responda aos outros cartões para continuar.",
+    "answeredGoOn": "Respondido. Responda aos outros cartões para continuar.",
+    "youAnswered": "Você respondeu: {{answers}}",
+    "youSkipped": "Você pulou a pergunta"
+  }
+}

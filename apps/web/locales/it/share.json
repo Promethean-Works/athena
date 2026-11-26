@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Questo link è incompleto.",
+    "expiredTitle": "Questo link è scaduto",
+    "notFoundTitle": "Questo link non funziona",
+    "errorTitle": "Impossibile aprire questo link",
+    "expiredDescription": "Chiedine uno nuovo a chi te l'ha inviato."
+  },
+  "unlock": {
+    "title": "Questo link è protetto da password",
+    "description": "Inseriscila per vedere cosa è condiviso.",
+    "password": "Password",
+    "open": "Apri"
+  },
+  "file": {
+    "fallbackName": "file",
+    "download": "Scarica"
+  },
+  "dropBox": {
+    "title": "Invia file a {{name}}",
+    "description": "I file che aggiungi vengono caricati subito. Non puoi vedere cosa hanno inviato gli altri e nulla di ciò che invii sostituisce un altro file.",
+    "drop": "Trascina qui i file, oppure",
+    "choose": "Scegli i file"
+  },
+  "folder": {
+    "downloadAll": "Scarica tutto",
+    "cantOpen": "Impossibile aprire questa cartella",
+    "empty": "Questa cartella è vuota.",
+    "columnName": "Nome",
+    "columnSize": "Dimensione",
+    "columnModified": "Modificato",
+    "columnDownload": "Download",
+    "downloadEntry": "Scarica {{name}}",
+    "download": "Scarica"
+  }
+}

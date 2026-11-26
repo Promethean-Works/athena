@@ -1,0 +1,71 @@
+{
+  "cancel": "取消",
+  "remove": "移除",
+  "noRclone": {
+    "title": "云存储需要 rclone",
+    "missing": "此主机未安装 rclone",
+    "description": "{{detail}} Athena 使用 rclone 连接 Google Drive、OneDrive、Dropbox、S3 等众多存储。",
+    "install": "在服务器上安装 rclone",
+    "redetect": "重新检测"
+  },
+  "view": {
+    "refresh": "刷新",
+    "syncFolders": "同步文件夹",
+    "addRemote": "添加远程",
+    "cantReach": "无法连接 rclone",
+    "removeFailed": "无法移除 {{name}}",
+    "removed": "已移除 {{name}}",
+    "removeTitle": "移除 {{name}}？",
+    "removeDescription": "Athena 将忘记如何连接它。其中存储的内容不会被删除。",
+    "empty": {
+      "title": "还没有远程",
+      "description": "添加 Google Drive、OneDrive、Dropbox、S3 存储桶、WebDAV 服务器或 rclone 支持的任何其他存储，然后在“文件”中浏览，并向其复制或同步文件夹。"
+    }
+  },
+  "remote": {
+    "actions": "{{name}} 的操作",
+    "browse": "浏览",
+    "edit": "编辑",
+    "browseFiles": "浏览文件",
+    "settingCount_other": "{{count}} 项设置",
+    "optional": "（可选）",
+    "choose": "选择…",
+    "unchanged": "未更改",
+    "pasteResult": "粘贴结果",
+    "no": "否",
+    "yes": "是",
+    "continue": "继续",
+    "refused": "rclone 拒绝了该操作",
+    "added": "已添加 {{name}}",
+    "saved": "已保存 {{name}}",
+    "addTitle": "添加远程",
+    "editTitle": "编辑 {{name}}",
+    "oneMoreAnswer": "rclone 还需要再回答一个问题才能完成设置。",
+    "loading": "正在加载存储提供商…",
+    "pickKind": "选择要连接的存储类型。",
+    "genericDescription": "rclone 连接的云存储：Google Drive、OneDrive、Dropbox、S3、WebDAV 等众多存储。",
+    "back": "返回",
+    "add": "添加",
+    "save": "保存",
+    "catalogHint": "选择要连接的存储，然后为它命名并填写设置。",
+    "name": "名称",
+    "nameHint": "它在“文件”中显示的名称，例如 gdrive 或 backups。",
+    "storage": "存储",
+    "advanced": "高级设置（{{count}}）"
+  },
+  "sync": {
+    "title": "同步文件夹",
+    "description": "让目标与源保持一致：复制新增和已更改的文件，并从目标中删除源里没有的文件。",
+    "from": "源",
+    "to": "目标",
+    "willDelete_other": "将从 {{dest}} 删除 {{count}} 个文件",
+    "andMore": "以及另外 {{count}} 个",
+    "willCopy_other": "将复制 {{count}} 个文件。",
+    "nothingDeleted": "不会删除任何内容",
+    "willCopyTo_other": "将复制 {{count}} 个文件到 {{dest}}。",
+    "alreadyMatch": "两个文件夹已经一致。",
+    "syncAndDelete": "同步并删除 {{count}} 个",
+    "sync": "同步",
+    "check": "检查更改"
+  }
+}

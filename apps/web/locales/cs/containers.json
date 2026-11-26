@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Běží",
+    "dead": "Mrtvý",
+    "exited": "Ukončen",
+    "exitedWithCode": "Ukončen ({{code}})",
+    "paused": "pozastaven",
+    "created": "vytvořen",
+    "restarting": "restartuje se"
+  },
+  "logs": {
+    "following": "Sledování nového výstupu",
+    "stopped": "Kontejner se zastavil",
+    "disconnected": "Odpojeno",
+    "connecting": "Připojování…",
+    "title": "Protokoly · {{name}}",
+    "empty": "Žádný výstup protokolu."
+  },
+  "runtime": {
+    "startFailed": "Runtime se nepodařilo spustit",
+    "running": "Runtime kontejnerů běží",
+    "providerStopped": "{{provider}} neběží",
+    "stopped": "Runtime kontejnerů neběží",
+    "none": "Žádný runtime kontejnerů",
+    "notFound": "Athena na tomto hostiteli nenašla kontejnerový engine.",
+    "start": "Spustit {{provider}}",
+    "redetect": "Zjistit znovu",
+    "setup": {
+      "darwin": {
+        "title": "Nainstalovat Colima"
+      },
+      "linux": {
+        "title": "Nainstalovat Docker Engine"
+      },
+      "windows": {
+        "title": "Nainstalovat runtime kontejnerů",
+        "wsl": "Docker Engine ve WSL2: wsl --install, pak uvnitř distribuce nainstalujte docker-ce",
+        "podman": "nebo Podman: winget install RedHat.Podman, pak podman machine init; podman machine start",
+        "rancher": "nebo Rancher Desktop: winget install SUSE.RancherDesktop (zvolte engine dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Kontejnery se nepodařilo vypsat",
+    "actionFailed": {
+      "start": "{{name}} se nepodařilo spustit",
+      "stop": "{{name}} se nepodařilo zastavit",
+      "restart": "{{name}} se nepodařilo restartovat"
+    },
+    "removeFailed": "{{name}} se nepodařilo odebrat",
+    "removed": "{{name}} odebrán",
+    "emptyTitle": "Zatím žádné kontejnery",
+    "emptyDescription": "Kontejnery v tomto runtime se zobrazí zde, včetně těch spuštěných mimo Athena.",
+    "name": "Název",
+    "image": "Obraz",
+    "state": "Stav",
+    "ports": "Porty",
+    "actions": "Akce",
+    "standalone": "Samostatné kontejnery",
+    "actionsFor": "Akce pro {{name}}",
+    "logs": "Protokoly",
+    "shell": "Shell",
+    "restart": "Restartovat",
+    "stop": "Zastavit",
+    "start": "Spustit",
+    "remove": "Odebrat",
+    "removeTitle": "Odebrat {{name}}?",
+    "removeRunningDescription": "Nejdřív se zastaví. Kontejner se smaže. Pojmenované svazky a obraz zůstanou.",
+    "removeDescription": "Kontejner se smaže. Pojmenované svazky a obraz zůstanou.",
+    "cancel": "Zrušit"
+  }
+}

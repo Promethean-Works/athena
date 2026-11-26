@@ -1,0 +1,169 @@
+{
+  "cancel": "रद्द करें",
+  "view": {
+    "unavailable": "ऑटोमेशन उपलब्ध नहीं है",
+    "unsupported": "यह होस्ट ऑटोमेशन का समर्थन नहीं करता।"
+  },
+  "copyUrl": {
+    "copy": "{{label}} कॉपी करें",
+    "copied": "{{label}} कॉपी हो गया",
+    "failed": "कॉपी नहीं हो सका"
+  },
+  "external": {
+    "title": "बाहरी ऑटोमेशन",
+    "description": "n8n, स्क्रिप्ट या AI एजेंट को Athena से जोड़ें।",
+    "webhookUrl": "वेबहुक URL",
+    "webhookHint": "वेबहुक ट्रिगर चलाने के लिए POST अनुरोध भेजें; साइन इन की ज़रूरत नहीं। हर वेबहुक ट्रिगर का अपना टोकन होता है: उसका पूरा URL ट्रिगर सूची से कॉपी करें।",
+    "mcpServer": "MCP सर्वर",
+    "mcpUrl": "MCP सर्वर URL",
+    "mcpHint": "Streamable HTTP। क्लाइंट सेशन कुकी से साइन इन करते हैं, या सर्वर के <envVar>ATHENA_MCP_TOKEN</envVar> एनवायरनमेंट वेरिएबल में सेट टोकन को <authHeader>Authorization: Bearer &lt;token&gt;</authHeader> के रूप में भेजते हैं।"
+  },
+  "jobRuns": {
+    "title": "जॉब रन",
+    "description": "सबसे हाल के रन, हर कुछ सेकंड में रिफ़्रेश होते हैं।",
+    "trigger": "ट्रिगर",
+    "deletedTrigger": "मिटाया गया ट्रिगर",
+    "listFailed": "जॉब रन की सूची नहीं मिल सकी",
+    "empty": {
+      "title": "अभी कोई जॉब रन नहीं",
+      "description": "ट्रिगर चलने पर रन यहाँ दिखते हैं।"
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "ऐप {{name}} शुरू करें",
+      "stop": "ऐप {{name}} बंद करें",
+      "restart": "ऐप {{name}} रीस्टार्ट करें",
+      "update": "ऐप {{name}} अपडेट करें"
+    },
+    "package": {
+      "install": "{{name}} इंस्टॉल करें ({{manager}})",
+      "uninstall": "{{name}} अनइंस्टॉल करें ({{manager}})",
+      "upgrade": "{{name}} अपग्रेड करें ({{manager}})",
+      "refresh": "{{manager}} पैकेज सूचियाँ रिफ़्रेश करें"
+    }
+  },
+  "triggers": {
+    "title": "ट्रिगर",
+    "description": "किसी ऐप या पैकेज की कार्रवाई को शेड्यूल पर या वेबहुक से चलाएँ।",
+    "listFailed": "ट्रिगर की सूची नहीं मिल सकी",
+    "empty": {
+      "title": "अभी कोई ट्रिगर नहीं",
+      "description": "ट्रिगर किसी कार्रवाई को शेड्यूल (cron) पर या उसका वेबहुक कॉल होने पर चलाता है, उदाहरण के लिए n8n से।"
+    },
+    "onWebhook": "उसका वेबहुक कॉल होने पर",
+    "noSchedule": "कोई शेड्यूल नहीं",
+    "webhook": "वेबहुक",
+    "cron": "Cron",
+    "nextRun": "अगला रन {{time}}",
+    "changeFailed": "ट्रिगर बदला नहीं जा सका",
+    "enabledToast": "{{name}} चालू किया गया",
+    "pausedToast": "{{name}} रोका गया",
+    "enabledLabel": "{{name}} चालू",
+    "copyWebhook": "वेबहुक URL कॉपी करें",
+    "webhookCopied": "वेबहुक URL कॉपी हो गया",
+    "copyFailed": "कॉपी नहीं हो सका",
+    "deleteFailed": "ट्रिगर मिटाया नहीं जा सका",
+    "deleted": "ट्रिगर मिटा दिया गया",
+    "deleteLabel": "{{name}} मिटाएँ",
+    "delete": "मिटाएँ",
+    "deleteTitle": "{{name}} मिटाएँ?",
+    "deleteDescription": "यह चलना बंद कर देता है। पिछले जॉब रन लॉग में बने रहते हैं।",
+    "deleteDescriptionWebhook": "यह चलना बंद कर देता है और इसका वेबहुक URL काम करना बंद कर देता है। पिछले जॉब रन लॉग में बने रहते हैं।"
+  },
+  "dialog": {
+    "new": "नया ट्रिगर",
+    "description": "किसी ऐप या पैकेज की कार्रवाई को शेड्यूल पर, या जब भी वेबहुक कॉल हो, चलाएँ।",
+    "created": {
+      "title": "वेबहुक ट्रिगर बन गया",
+      "description": "\"{{name}}\" चलाने के लिए इस URL पर POST अनुरोध भेजें। URL रखने वाला कोई भी इसे चला सकता है, इसलिए इसे निजी रखें। आप इसे ट्रिगर सूची से दोबारा कॉपी कर सकते हैं।",
+      "done": "हो गया"
+    },
+    "errors": {
+      "name": "ट्रिगर को एक नाम दें।",
+      "app": "कोई ऐप चुनें।",
+      "manager": "कोई पैकेज मैनेजर चुनें।",
+      "packageName": "पैकेज का नाम दर्ज करें।"
+    },
+    "createdToast": "ट्रिगर {{name}} बन गया",
+    "createFailed": "ट्रिगर नहीं बन सका",
+    "name": "नाम",
+    "namePlaceholder": "जैसे रात का Jellyfin रीस्टार्ट",
+    "whenItRuns": "कब चलेगा",
+    "onSchedule": "शेड्यूल पर (cron)",
+    "onWebhook": "जब वेबहुक कॉल हो",
+    "schedule": "शेड्यूल",
+    "cronPlaceholder": "मिनट घंटा दिन महीना सप्ताह-दिन, जैसे 0 2 * * *",
+    "cronHelp": "पाँच फ़ील्ड: मिनट, घंटा, महीने का दिन, महीना, सप्ताह का दिन। समय UTC में हैं।",
+    "webhookHint": "बनाने के बाद आपको एक गोपनीय URL मिलता है। उस पर POST अनुरोध (n8n, स्क्रिप्ट या curl से) कार्रवाई चलाता है।",
+    "whatItDoes": "यह क्या करता है",
+    "appAction": "ऐप की कार्रवाई",
+    "packageAction": "पैकेज की कार्रवाई",
+    "create": "ट्रिगर बनाएँ",
+    "app": "ऐप",
+    "loadingApps": "ऐप्स लोड हो रहे हैं…",
+    "chooseApp": "कोई ऐप चुनें",
+    "noApps": "कोई ऐप इंस्टॉल नहीं है",
+    "action": "कार्रवाई",
+    "appVerbs": {
+      "start": "शुरू करें",
+      "stop": "बंद करें",
+      "restart": "रीस्टार्ट करें",
+      "update": "अपडेट करें (पुल करें और दोबारा बनाएँ)"
+    },
+    "packageVerbs": {
+      "install": "इंस्टॉल करें",
+      "uninstall": "अनइंस्टॉल करें",
+      "upgrade": "अपग्रेड करें",
+      "refresh": "पैकेज सूचियाँ रिफ़्रेश करें"
+    },
+    "packageManager": "पैकेज मैनेजर",
+    "loading": "लोड हो रहा है…",
+    "chooseManager": "कोई मैनेजर चुनें",
+    "noManagers": "इस होस्ट पर कोई तैयार नहीं",
+    "package": "पैकेज",
+    "packagePlaceholder": "जैसे jq",
+    "source": "स्रोत (वैकल्पिक)",
+    "sourceHint": "Flatpak रिमोट, Scoop बकेट, या Homebrew cask के लिए \"cask\"।",
+    "loadingInstalled": "इंस्टॉल किए गए पैकेज लोड हो रहे हैं…",
+    "installedFailed": "इंस्टॉल किए गए पैकेजों की सूची नहीं मिल सकी ({{error}}); नाम लिखें।",
+    "searchInstalled": "इंस्टॉल किए गए पैकेज खोजें",
+    "noMatch": "कोई इंस्टॉल किया गया पैकेज मेल नहीं खाता।"
+  },
+  "cron": {
+    "presets": {
+      "hourly": "हर घंटे",
+      "daily": "रोज़ 02:00 बजे",
+      "sundays": "रविवार को 03:00 बजे",
+      "monthly": "हर महीने की 1 तारीख़ को"
+    },
+    "fields": {
+      "minute": "मिनट",
+      "hour": "घंटा",
+      "dayOfMonth": "महीने का दिन",
+      "month": "महीना",
+      "weekday": "सप्ताह का दिन"
+    },
+    "errors": {
+      "empty": "cron एक्सप्रेशन दर्ज करें या कोई प्रीसेट चुनें।",
+      "invalidField": "{{field}} फ़ील्ड \"{{value}}\" मान्य नहीं है।",
+      "invalidStep": "{{field}} फ़ील्ड में स्टेप \"/{{step}}\" एक संख्या होनी चाहिए।",
+      "outOfRange": "{{field}} {{min}} और {{max}} के बीच होना चाहिए।",
+      "fieldCount": "पाँच फ़ील्ड का उपयोग करें (मिनट घंटा दिन महीना सप्ताह-दिन); इसमें {{count}} हैं।"
+    },
+    "dayRange": "{{from}} से {{to}}",
+    "custom": "कस्टम शेड्यूल",
+    "everyMinute": "हर मिनट",
+    "everyMinutes_one": "हर {{count}} मिनट",
+    "everyMinutes_other": "हर {{count}} मिनट",
+    "everyHourOnTheHour": "हर घंटे, ठीक घंटे पर",
+    "everyHourAtMinute": "हर घंटे {{minute}} मिनट पर",
+    "everyHoursAtMinute_one": "हर {{count}} घंटे में {{minute}} मिनट पर",
+    "everyHoursAtMinute_other": "हर {{count}} घंटे में {{minute}} मिनट पर",
+    "everyDay": "रोज़ {{time}} बजे",
+    "everyWeekdays": "हर {{days}} को {{time}} बजे",
+    "onDayOfMonth": "हर महीने की {{day}} तारीख़ को {{time}} बजे",
+    "everyYear": "हर साल {{day}} {{month}} को {{time}} बजे",
+    "utc": "{{description}} (UTC)"
+  }
+}

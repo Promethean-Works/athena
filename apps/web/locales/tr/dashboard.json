@@ -1,0 +1,272 @@
+{
+  "common": {
+    "manage": "Yönet"
+  },
+  "cardShell": {
+    "open": "Aç"
+  },
+  "cards": {
+    "stats": {
+      "title": "Sistem",
+      "description": "Canlı CPU, bellek, ağ ve disk etkinliği."
+    },
+    "apps": {
+      "title": "Uygulamalar",
+      "description": "Uygulamalarınız, durumları ve bir Aç düğmesiyle."
+    },
+    "containers": {
+      "title": "Konteynerler",
+      "description": "Çalışan ve durmuş sayıları, hangilerinin ilgi beklediği."
+    },
+    "automation": {
+      "title": "Otomasyon",
+      "description": "Sıradaki zamanlanmış çalıştırmalar ve son çalıştırmaların sonucu."
+    },
+    "storage": {
+      "title": "Depolama",
+      "description": "Her diskte kullanılan alan."
+    },
+    "server": {
+      "title": "Sunucu",
+      "description": "Ana makine adı, işletim sistemi, çalışma süresi ve sürümler."
+    },
+    "temperatures": {
+      "title": "Sıcaklıklar",
+      "description": "Ana makinenin bildirdiği yerlerde sensör okumaları."
+    },
+    "power": {
+      "title": "Güç",
+      "description": "Raspberry Pi'de düşük voltaj ve kısıtlama."
+    },
+    "activity": {
+      "title": "Son etkinlik",
+      "description": "Denetim günlüğündeki son değişiklikler (yalnızca yöneticiler)."
+    },
+    "remoteAccess": {
+      "title": "Uzaktan erişim",
+      "description": "Tünel durumu ve genel adres."
+    },
+    "capabilities": {
+      "title": "Yetenekler",
+      "description": "Athena'nın bu ana makinede bulduğu şeyler."
+    },
+    "backups": {
+      "title": "Yedekler",
+      "description": "Yedekleme planları, son çalıştırmalar ve sıradaki zamanlanmış çalıştırma."
+    }
+  },
+  "activity": {
+    "title": "Son etkinlik",
+    "description": "Bu sunucuda kim neyi değiştirdi.",
+    "loadError": "Son etkinlik yüklenemedi: {{error}}",
+    "empty": "Henüz bir şey yok. Uygulamalar, konteynerler ve dosyalar üzerindeki eylemler burada görünür.",
+    "by": "{{username}} tarafından"
+  },
+  "automation": {
+    "title": "Otomasyon",
+    "description": "Zamanlanmış ve webhook tetikleyicileri ile çalıştırmalarının sonucu.",
+    "succeeded": "Başarılı",
+    "failed": "Başarısız",
+    "loadError": "Otomasyon yüklenemedi: {{error}}",
+    "noTriggers": "Henüz tetikleyici yok. Bir uygulamayı yeniden başlatmak veya paketleri zamanlamayla güncellemek için bir tane oluşturun.",
+    "nextRuns": "Sonraki çalıştırmalar · {{total}} tetikleyicinin {{enabled}} tanesi açık",
+    "nothingScheduled": "Zamanlanmış bir şey yok. Webhook tetikleyicileri çağrıldıklarında çalışır.",
+    "recentRuns": "Son çalıştırmalar",
+    "noRuns": "Henüz çalıştırma yok.",
+    "deletedTrigger": "Silinmiş tetikleyici"
+  },
+  "backup": {
+    "title": "Yedekler",
+    "description": "Yedekleme planları, son çalıştırmalar ve sıradaki zamanlanmış çalıştırma.",
+    "succeeded": "Başarılı",
+    "failed": "Başarısız",
+    "running": "Çalışıyor",
+    "loadError": "Yedekleme planları yüklenemedi: {{error}}",
+    "empty": "Henüz yedekleme planı yok. Ayarlar → Yedekler bölümünden ekleyin.",
+    "plans": "Planlar",
+    "enabled": "Etkin",
+    "plansFailed_one": "{{count}} plan başarısız oldu",
+    "plansFailed_other": "{{count}} plan başarısız oldu",
+    "noFailures": "Son zamanlarda hata yok",
+    "nextRuns": "Sonraki zamanlanmış çalıştırmalar",
+    "noScheduled": "Zamanlanmış çalıştırma yok"
+  },
+  "containers": {
+    "title": "Konteynerler",
+    "description": "Konteyner motorunun çalıştırdığı her şey, uygulamalar dahil.",
+    "all": "Tüm konteynerler",
+    "running": "Çalışıyor",
+    "notRunning": "Çalışmıyor",
+    "needAttention": "İlgi bekliyor",
+    "exited": "Çıktı ({{code}})",
+    "loadError": "Konteynerler yüklenemedi: {{error}}",
+    "empty": "Bu sunucuda henüz konteyner yok.",
+    "engineDown": "Konteyner motoru çalışmıyor."
+  },
+  "apps": {
+    "title": "Uygulamalar",
+    "subtitle": "Bu sunucuda neler çalışıyor",
+    "store": "Mağaza",
+    "all": "Tüm uygulamalar",
+    "emptyTitle": "Henüz uygulama yok",
+    "emptyDescription": "Mağazadan bir tane kurun ya da kendi compose dosyanızı dağıtın.",
+    "browseStore": "Mağazaya göz at",
+    "status": {
+      "running": "Çalışıyor",
+      "partial": "Kısmen çalışıyor",
+      "stopped": "Durduruldu",
+      "notDeployed": "Dağıtılmadı"
+    },
+    "containerCount_one": "{{count}} konteyner",
+    "containerCount_other": "{{count}} konteyner",
+    "actionsFor": "{{name}} için eylemler",
+    "open": "Aç",
+    "openPort": ":{{port}} aç",
+    "details": "Ayrıntılar",
+    "restart": "Yeniden başlat",
+    "stop": "Durdur",
+    "start": "Başlat",
+    "updateImages": "İmajları güncelle",
+    "remove": "Kaldır"
+  },
+  "grid": {
+    "pickedUp": "{{title}} kartı alındı.",
+    "overCard": "{{title}}, {{other}} üzerinde.",
+    "notOverCard": "{{title}} artık bir kartın üzerinde değil.",
+    "moved": "{{title}}, {{other}} kartının yerine taşındı.",
+    "dropped": "{{title}} bırakıldı.",
+    "cancelled": "{{title}} taşıma iptal edildi.",
+    "move": "{{title}} taşı",
+    "moveUp": "{{title}} yukarı taşı",
+    "moveDown": "{{title}} aşağı taşı",
+    "makeHalf": "{{title}} yarım genişlik yap",
+    "makeFull": "{{title}} tam genişlik yap",
+    "remove": "{{title}} kaldır",
+    "nothingToShow": "Şu an bu sunucuda gösterilecek bir şey yok.",
+    "addDialogTitle": "Kart ekle",
+    "addDialogDescription": "Kartlar sona eklenir; istediğiniz yere sürükleyin.",
+    "allAddedTitle": "Tüm kartlar panonuzda",
+    "allAddedDescription": "Daha sonra yeniden eklemek için birini kaldırın.",
+    "addCard": "{{title}} ekle",
+    "add": "Ekle",
+    "editHint": "Kartları tutamaçlarından sürükleyin ya da oklarla taşıyın. Değişiklikler Bitti'ye bastığınızda kaydedilir.",
+    "addCardButton": "Kart ekle",
+    "reset": "Sıfırla",
+    "cancel": "İptal",
+    "done": "Bitti",
+    "customize": "Özelleştir",
+    "emptyTitle": "Panonuz boş",
+    "emptyDescription": "Kart ekleyin ya da varsayılan düzene sıfırlayın.",
+    "dragInstructions": "Bir kartı taşımak için Boşluk veya Enter'a basın, ok tuşlarını kullanın, sonra bırakmak için yeniden Boşluk veya Enter'a, iptal için Escape'e basın."
+  },
+  "stats": {
+    "used": "Kullanılan",
+    "download": "İndirme",
+    "upload": "Yükleme",
+    "read": "Okuma",
+    "write": "Yazma",
+    "util": "Kullanım",
+    "unavailableTitle": "Canlı istatistikler kullanılamıyor",
+    "unavailableDescription": "Sunucu ana makine istatistiklerini döndürmedi.",
+    "coresThreads": "{{cores}} çekirdek · {{threads}} iş parçacığı",
+    "cores_one": "{{count}} çekirdek",
+    "cores_other": "{{count}} çekirdek",
+    "coresLoad": "{{cores}} · yük {{load}}",
+    "liveLabel": "Canlı ana makine istatistikleri",
+    "system": "Sistem",
+    "live": "Canlı",
+    "reconnecting": "Yeniden bağlanıyor",
+    "chartRange": "Grafik aralığı",
+    "range5m": "5 dk",
+    "range1h": "1 saat",
+    "memory": "Bellek",
+    "memUsed": "{{used}} kullanılıyor",
+    "memUsedSwap": "{{used}} kullanılıyor · takas {{swap}}",
+    "network": "Ağ",
+    "diskActivity": "Disk etkinliği",
+    "readRate": "O {{rate}}",
+    "writeRate": "Y {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPU",
+    "noGpu": "GPU bildirilmedi",
+    "vramOf": "{{total}} içinden {{used}}"
+  },
+  "power": {
+    "title": "Güç",
+    "description": "Raspberry Pi gücü ve kısıtlama",
+    "problemNow": "Şu an sorun var",
+    "ok": "Tamam",
+    "flagNow": "{{label}} şu an",
+    "flagSinceBoot": "{{label}} açılıştan beri",
+    "none": "Bu sunucu açıldığından beri düşük voltaj veya kısıtlama olmadı.",
+    "flags": {
+      "underVoltage": {
+        "label": "Düşük voltaj",
+        "hint": "Güç kaynağı veya kablo yetersiz kalıyor. Resmi güç kaynağını ve kısa, kalın bir kablo kullanın."
+      },
+      "throttled": {
+        "label": "Kısıtlandı",
+        "hint": "CPU kendini korumak için yavaşlatıldı."
+      },
+      "freqCapped": {
+        "label": "Frekans sınırlandı",
+        "hint": "Üretici yazılım en yüksek CPU hızını düşürdü."
+      },
+      "softTempLimit": {
+        "label": "Yumuşak sıcaklık sınırı",
+        "hint": "CPU sıcaklık sınırına yakın. Soğutmayı denetleyin."
+      }
+    }
+  },
+  "remote": {
+    "title": "Uzaktan erişim",
+    "description": "Athena'ya ağınızın dışından erişin.",
+    "settings": "Ayarlar",
+    "loadError": "Uzaktan erişim yüklenemedi: {{error}}",
+    "off": "Kapalı. Athena'ya ağınızın dışından erişmek için Ayarlar → Sistem bölümünden açın.",
+    "running": "Çalışıyor",
+    "notRunning": "Çalışmıyor",
+    "noProvider": "Sağlayıcı yok",
+    "warning": "Terminale, paket kurulumlarına ve asistana tek bir parolayla internetten erişilebiliyor. Uzaktan ihtiyacınız yoksa <link>kapatın</link>.",
+    "publicAddress": "Genel adres",
+    "copyAddress": "Genel adresi kopyala",
+    "copied": "Adres kopyalandı",
+    "copyFailed": "Kopyalanamadı"
+  },
+  "storage": {
+    "title": "Depolama",
+    "description": "Diskler, klasörler, bulut ve ağ paylaşımları",
+    "noDisks": "Henüz bildirilen disk yok.",
+    "diskUsage": "{{total}} içinden {{used}}",
+    "folders": "Klasörler",
+    "unavailable": "Kullanılamıyor",
+    "cloud": "Bulut depolama",
+    "shares": "Ağ paylaşımları",
+    "readOnly": "Salt okunur"
+  },
+  "temperatures": {
+    "title": "Sıcaklıklar",
+    "description": "Donanım sensörleri"
+  },
+  "layout": {
+    "saveFailed": "Pano kaydedilemedi",
+    "saved": "Pano kaydedildi"
+  },
+  "server": {
+    "title": "Sunucu",
+    "description": "Athena'nın çalıştığı makine",
+    "unreachableTitle": "Athena sunucusuna ulaşılamıyor",
+    "unreachableDescription": "{{error}}. Geliştirmede <code>apps/server</code> içinde <code>uv run athena serve --reload</code> ile başlatın.",
+    "host": "Ana makine",
+    "os": "İşletim sistemi",
+    "platform": "Platform",
+    "uptime": "Çalışma süresi",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Bağlanıyor…",
+    "unreachable": "Sunucuya ulaşılamıyor",
+    "version": "Athena {{version}}"
+  }
+}

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Autoplay from "embla-carousel-autoplay"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
@@ -91,14 +92,15 @@ function CarouselHeader({
   headingId: string
   children?: React.ReactNode
 }) {
+  const { t } = useTranslation("store")
   return (
     <div className="flex items-end justify-between gap-4">
       <div className="flex min-w-0 flex-col gap-0.5">
         <h2 id={headingId} className="font-heading text-base font-medium">
-          Popular right now
+          {t("popular.title")}
         </h2>
         <p className="text-sm text-muted-foreground">
-          The apps most home servers start with.
+          {t("popular.subtitle")}
         </p>
       </div>
       {children}
@@ -113,6 +115,7 @@ function PopularCarouselLoaded({
   popular: StoreApp[]
   headingId: string
 }) {
+  const { t } = useTranslation("store")
   const [api, setApi] = React.useState<CarouselApi | null>(null)
   const [snapCount, setSnapCount] = React.useState(0)
   const [selected, setSelected] = React.useState(0)
@@ -237,7 +240,7 @@ function PopularCarouselLoaded({
               key={i}
               variant="ghost"
               size="icon-xs"
-              aria-label={`Show page ${i + 1} of ${snapCount}`}
+              aria-label={t("popular.showPage", { page: i + 1, total: snapCount })}
               aria-current={i === selected ? "true" : undefined}
               onClick={() => {
                 setStopped(true)

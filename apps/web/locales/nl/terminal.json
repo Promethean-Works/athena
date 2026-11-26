@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Verbinden…",
+    "connected": "Verbonden",
+    "exited": "Beëindigd ({{code}})",
+    "disconnected": "Verbinding verbroken",
+    "hostTerminal": "Hostterminal",
+    "containerShell": "Containershell",
+    "lost": "De verbinding met Athena is verbroken",
+    "closedCode": "Verbinding verbroken (code {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminal niet beschikbaar",
+    "openSettings": "Instellingen openen",
+    "description": "Een shell op deze server, als de gebruiker waarmee Athena draait.",
+    "newSession": "Nieuwe sessie"
+  },
+  "access": {
+    "noSupport": "Deze host ondersteunt geen terminal.",
+    "adminsOnly": "Alleen beheerders kunnen een terminal openen.",
+    "turnedOff": "De terminal is uitgeschakeld in Instellingen → Systeem."
+  },
+  "shell": {
+    "title": "Shell · {{name}}",
+    "description": "Draait bash, of sh als de image geen bash heeft."
+  }
+}

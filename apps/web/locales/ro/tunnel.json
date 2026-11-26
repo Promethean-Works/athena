@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Adresă tunel",
+    "description": "Deschide Athena din afara rețelei tale sau scanează codul cu telefonul.",
+    "publicAddress": "Adresă publică",
+    "notRunning": "Tunelul nu rulează.",
+    "startInSettings": "Pornește-l din Setări."
+  },
+  "qr": {
+    "title": "Cod QR pentru adresa tunelului"
+  }
+}

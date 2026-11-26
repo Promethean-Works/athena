@@ -1,0 +1,119 @@
+{
+  "add": "Přidat",
+  "cancel": "Zrušit",
+  "back": "Zpět",
+  "errors": {
+    "listDestinations": "Cíle záloh se nepodařilo vypsat",
+    "createDestination": "Cíl se nepodařilo vytvořit",
+    "deleteDestination": "Cíl se nepodařilo smazat",
+    "listPlans": "Plány záloh se nepodařilo vypsat",
+    "createPlan": "Plán se nepodařilo vytvořit",
+    "updatePlan": "Plán se nepodařilo aktualizovat",
+    "deletePlan": "Plán se nepodařilo smazat",
+    "startBackup": "Zálohu se nepodařilo spustit",
+    "listVersions": "Verze záloh se nepodařilo vypsat",
+    "listVersionFiles": "Soubory verze se nepodařilo vypsat",
+    "restoreApp": "Aplikaci se nepodařilo obnovit"
+  },
+  "toast": {
+    "destinationCreated": "Cíl „{{name}}“ vytvořen",
+    "planCreated": "Plán „{{name}}“ vytvořen",
+    "planUpdated": "Plán „{{name}}“ aktualizován",
+    "backupStarted": "Záloha „{{name}}“ spuštěna"
+  },
+  "view": {
+    "unavailable": "Zálohy nejsou k dispozici",
+    "unsupported": "Tento hostitel zálohy nepodporuje.",
+    "tabs": {
+      "versions": "Verze",
+      "destinations": "Cíle",
+      "plans": "Plány"
+    }
+  },
+  "destinations": {
+    "title": "Cíle",
+    "name": "Název",
+    "kind": "Druh",
+    "location": "Umístění",
+    "created": "Vytvořeno",
+    "empty": {
+      "title": "Zatím žádné cíle",
+      "description": "Cíl je složka nebo vzdálené úložiště rclone, kde se uchovávají zálohy. Přidejte jeden a začněte zálohovat."
+    }
+  },
+  "plans": {
+    "title": "Plány",
+    "name": "Název",
+    "schedule": "Plán spouštění",
+    "lastRun": "Poslední spuštění",
+    "status": "Stav",
+    "manual": "ručně",
+    "runNow": "Spustit nyní",
+    "empty": {
+      "title": "Zatím žádné plány",
+      "description": "Plán vybere Athena, aplikace, cíl a rozvrh a pak se spouští podle časovače."
+    }
+  },
+  "versions": {
+    "title": "Verze",
+    "refresh": "Obnovit",
+    "time": "Čas",
+    "size": "Velikost",
+    "new": "Nové",
+    "added": "Přidáno",
+    "changed": "Změněno",
+    "removed": "Odebráno",
+    "os": "OS",
+    "viewFiles": "Zobrazit soubory",
+    "restore": "Obnovit",
+    "empty": {
+      "title": "Zatím žádné verze",
+      "description": "Spusťte zálohu a vytvořte první."
+    }
+  },
+  "addDestination": {
+    "title": "Přidat cíl zálohy",
+    "kitTitle": "Uložte obnovovací sadu",
+    "description": "Vyberte, kde restic uchovává repozitář: místní složka nebo vzdálené úložiště rclone.",
+    "kitDescription": "Sadu stáhněte nebo zkopírujte. Athena toto heslo už nikdy nezobrazí; bez něj nelze po zániku hostitele nic obnovit.",
+    "prepareFailed": "Cíl se nepodařilo připravit",
+    "saveKitFirst": "Před vytvořením cíle uložte obnovovací sadu",
+    "name": "Název",
+    "namePlaceholder": "např. Disk USB",
+    "kind": "Druh",
+    "local": "Místní složka",
+    "rclone": "Vzdálené úložiště rclone",
+    "folder": "Složka",
+    "folderHint": "Absolutní cesta mimo datovou složku Athena.",
+    "remote": "Vzdálené úložiště",
+    "remoteHint": "Vzdálené úložiště rclone již nastavené v Cloud → Vzdálená úložiště.",
+    "password": "Heslo repozitáře",
+    "passwordPlaceholder": "Nechte prázdné pro vygenerování silného hesla",
+    "passwordHint": "Nechte prázdné a Athena vygeneruje silné heslo. Níže se zobrazí jednou a pak už nikdy.",
+    "kitSaved": "Tuto obnovovací sadu jsem uložil(a) (heslo, cíl a verze restic)",
+    "next": "Další: obnovovací sada",
+    "create": "Vytvořit cíl"
+  },
+  "addPlan": {
+    "title": "Přidat plán zálohování",
+    "description": "Vyberte, co zálohovat, kam a jak často. Aplikace se po dobu zálohy zastaví, pokud není zapnuto „Zálohovat za běhu“.",
+    "name": "Název",
+    "namePlaceholder": "např. Denní aplikace",
+    "destination": "Cíl",
+    "athena": "Zálohovat Athena (nastavení, DB, tajné klíče, TLS)",
+    "athenaHint": "Doporučeno: ve výchozím stavu zapnuto.",
+    "apps": "Aplikace",
+    "appsHint": "Které aplikace zahrnout do plánu.",
+    "noApps": "Nenalezeny žádné aplikace. Nejdřív spusťte aplikace v Obchod → Aplikace.",
+    "schedule": "Rozvrh (cron)",
+    "schedulePlaceholder": "0 3 * * *  (denně ve 03:00)",
+    "scheduleHint": "Nechte prázdné pro pouze ruční spouštění. Plánovaná spuštění přijdou s částí 4.",
+    "retention": "Uchovávání",
+    "keepLast": "Ponechat poslední",
+    "keepDaily": "Ponechat denní",
+    "keepWeekly": "Ponechat týdenní",
+    "keepMonthly": "Ponechat měsíční",
+    "retentionHint": "`restic forget --keep-…` pro každou položku. Výchozí: 7 denních / 4 týdenní / 6 měsíčních.",
+    "create": "Vytvořit plán"
+  }
+}

@@ -1,0 +1,268 @@
+{
+  "common": {
+    "manage": "管理"
+  },
+  "cardShell": {
+    "open": "打开"
+  },
+  "cards": {
+    "stats": {
+      "title": "系统",
+      "description": "CPU、内存、网络和磁盘的实时活动。"
+    },
+    "apps": {
+      "title": "应用",
+      "description": "你的应用，含状态和“打开”按钮。"
+    },
+    "containers": {
+      "title": "容器",
+      "description": "运行中和已停止的数量，以及需要关注的容器。"
+    },
+    "automation": {
+      "title": "自动化",
+      "description": "接下来的计划运行，以及近期运行的结果。"
+    },
+    "storage": {
+      "title": "存储",
+      "description": "每块磁盘的已用空间。"
+    },
+    "server": {
+      "title": "服务器",
+      "description": "主机名、操作系统、运行时间和版本。"
+    },
+    "temperatures": {
+      "title": "温度",
+      "description": "传感器读数（取决于主机是否提供）。"
+    },
+    "power": {
+      "title": "电源",
+      "description": "树莓派的欠压和降频情况。"
+    },
+    "activity": {
+      "title": "最近活动",
+      "description": "审计日志中的最新更改（仅管理员）。"
+    },
+    "remoteAccess": {
+      "title": "远程访问",
+      "description": "隧道状态和公网地址。"
+    },
+    "capabilities": {
+      "title": "功能支持",
+      "description": "Athena 在此主机上发现的内容。"
+    },
+    "backups": {
+      "title": "备份",
+      "description": "备份计划、上次运行和下次计划运行。"
+    }
+  },
+  "activity": {
+    "title": "最近活动",
+    "description": "谁在此服务器上更改了什么。",
+    "loadError": "无法加载最近活动：{{error}}",
+    "empty": "暂无内容。对应用、容器和文件的操作会显示在这里。",
+    "by": "由 {{username}}"
+  },
+  "automation": {
+    "title": "自动化",
+    "description": "计划和 webhook 触发器，以及它们的运行结果。",
+    "succeeded": "成功",
+    "failed": "失败",
+    "loadError": "无法加载自动化：{{error}}",
+    "noTriggers": "还没有触发器。创建一个，即可按计划重启应用或更新软件包。",
+    "nextRuns": "接下来的运行 · {{total}} 个触发器中 {{enabled}} 个已启用",
+    "nothingScheduled": "没有计划任务。Webhook 触发器在被调用时运行。",
+    "recentRuns": "最近运行",
+    "noRuns": "还没有运行记录。",
+    "deletedTrigger": "已删除的触发器"
+  },
+  "backup": {
+    "title": "备份",
+    "description": "备份计划、上次运行和下次计划运行。",
+    "succeeded": "成功",
+    "failed": "失败",
+    "running": "运行中",
+    "loadError": "无法加载备份计划：{{error}}",
+    "empty": "还没有备份计划。请在“设置 → 备份”中添加。",
+    "plans": "计划",
+    "enabled": "已启用",
+    "plansFailed_other": "{{count}} 个计划失败",
+    "noFailures": "近期没有失败",
+    "nextRuns": "接下来的计划运行",
+    "noScheduled": "没有计划运行"
+  },
+  "containers": {
+    "title": "容器",
+    "description": "容器引擎运行的所有内容，包括应用。",
+    "all": "所有容器",
+    "running": "运行中",
+    "notRunning": "未运行",
+    "needAttention": "需要关注",
+    "exited": "已退出（{{code}}）",
+    "loadError": "无法加载容器：{{error}}",
+    "empty": "此服务器上还没有容器。",
+    "engineDown": "容器引擎未运行。"
+  },
+  "apps": {
+    "title": "应用",
+    "subtitle": "此服务器上正在运行的内容",
+    "store": "商店",
+    "all": "所有应用",
+    "emptyTitle": "还没有应用",
+    "emptyDescription": "从商店安装一个，或部署你自己的 compose 文件。",
+    "browseStore": "浏览商店",
+    "status": {
+      "running": "运行中",
+      "partial": "部分运行",
+      "stopped": "已停止",
+      "notDeployed": "未部署"
+    },
+    "containerCount_other": "{{count}} 个容器",
+    "actionsFor": "{{name}} 的操作",
+    "open": "打开",
+    "openPort": "打开 :{{port}}",
+    "details": "详情",
+    "restart": "重启",
+    "stop": "停止",
+    "start": "启动",
+    "updateImages": "更新镜像",
+    "remove": "移除"
+  },
+  "grid": {
+    "pickedUp": "已拿起“{{title}}”卡片。",
+    "overCard": "“{{title}}”位于“{{other}}”上方。",
+    "notOverCard": "“{{title}}”不再位于任何卡片上方。",
+    "moved": "“{{title}}”已移到“{{other}}”的位置。",
+    "dropped": "“{{title}}”已放下。",
+    "cancelled": "已取消移动“{{title}}”。",
+    "move": "移动{{title}}",
+    "moveUp": "上移{{title}}",
+    "moveDown": "下移{{title}}",
+    "makeHalf": "将{{title}}设为半宽",
+    "makeFull": "将{{title}}设为全宽",
+    "remove": "移除{{title}}",
+    "nothingToShow": "此服务器目前没有可显示的内容。",
+    "addDialogTitle": "添加卡片",
+    "addDialogDescription": "卡片会添加到末尾；将它们拖到你想要的位置。",
+    "allAddedTitle": "所有卡片都已在仪表盘上",
+    "allAddedDescription": "移除一张，之后即可重新添加。",
+    "addCard": "添加{{title}}",
+    "add": "添加",
+    "editHint": "拖动卡片的手柄，或使用方向键。点击“完成”后保存更改。",
+    "addCardButton": "添加卡片",
+    "reset": "重置",
+    "cancel": "取消",
+    "done": "完成",
+    "customize": "自定义",
+    "emptyTitle": "你的仪表盘是空的",
+    "emptyDescription": "添加卡片，或重置为默认布局。",
+    "dragInstructions": "要移动卡片，请按空格键或回车键，用方向键移动，再按空格键或回车键放下，或按 Esc 取消。"
+  },
+  "stats": {
+    "used": "已用",
+    "download": "下载",
+    "upload": "上传",
+    "read": "读取",
+    "write": "写入",
+    "util": "利用率",
+    "unavailableTitle": "实时统计不可用",
+    "unavailableDescription": "服务器没有返回主机统计信息。",
+    "coresThreads": "{{cores}} 核 · {{threads}} 线程",
+    "cores_other": "{{count}} 核",
+    "coresLoad": "{{cores}} · 负载 {{load}}",
+    "liveLabel": "实时主机统计",
+    "system": "系统",
+    "live": "实时",
+    "reconnecting": "正在重新连接",
+    "chartRange": "图表范围",
+    "range5m": "5 分钟",
+    "range1h": "1 小时",
+    "memory": "内存",
+    "memUsed": "已用 {{used}}",
+    "memUsedSwap": "已用 {{used}} · 交换 {{swap}}",
+    "network": "网络",
+    "diskActivity": "磁盘活动",
+    "readRate": "读 {{rate}}",
+    "writeRate": "写 {{rate}}",
+    "gpuCount_other": "{{count}} 个 GPU",
+    "noGpu": "未报告 GPU",
+    "vramOf": "{{used}} / {{total}}"
+  },
+  "power": {
+    "title": "电源",
+    "description": "树莓派电源和降频",
+    "problemNow": "当前有问题",
+    "ok": "正常",
+    "flagNow": "当前{{label}}",
+    "flagSinceBoot": "启动以来{{label}}",
+    "none": "此服务器启动以来没有出现欠压或降频。",
+    "flags": {
+      "underVoltage": {
+        "label": "欠压",
+        "hint": "电源或线缆供电不足。请使用官方电源和短而粗的线缆。"
+      },
+      "throttled": {
+        "label": "降频",
+        "hint": "CPU 已降速以保护自身。"
+      },
+      "freqCapped": {
+        "label": "频率受限",
+        "hint": "固件降低了 CPU 的最高速度。"
+      },
+      "softTempLimit": {
+        "label": "软温度限制",
+        "hint": "CPU 接近温度上限。请检查散热。"
+      }
+    }
+  },
+  "remote": {
+    "title": "远程访问",
+    "description": "从外部网络访问 Athena。",
+    "settings": "设置",
+    "loadError": "无法加载远程访问：{{error}}",
+    "off": "已关闭。在“设置 → 系统”中开启，即可从外部网络访问 Athena。",
+    "running": "运行中",
+    "notRunning": "未运行",
+    "noProvider": "没有提供商",
+    "warning": "终端、软件包安装和助手可通过互联网以同一个密码访问。如果不需要远程使用，请<link>关闭它们</link>。",
+    "publicAddress": "公网地址",
+    "copyAddress": "复制公网地址",
+    "copied": "地址已复制",
+    "copyFailed": "无法复制"
+  },
+  "storage": {
+    "title": "存储",
+    "description": "磁盘、文件夹、云存储和网络共享",
+    "noDisks": "尚未报告任何磁盘。",
+    "diskUsage": "{{used}} / {{total}}",
+    "folders": "文件夹",
+    "unavailable": "不可用",
+    "cloud": "云存储",
+    "shares": "网络共享",
+    "readOnly": "只读"
+  },
+  "temperatures": {
+    "title": "温度",
+    "description": "硬件传感器"
+  },
+  "layout": {
+    "saveFailed": "无法保存仪表盘",
+    "saved": "仪表盘已保存"
+  },
+  "server": {
+    "title": "服务器",
+    "description": "运行 Athena 的机器",
+    "unreachableTitle": "无法连接 Athena 服务器",
+    "unreachableDescription": "{{error}}。开发时，请在 <code>apps/server</code> 中运行 <code>uv run athena serve --reload</code> 启动它。",
+    "host": "主机",
+    "os": "操作系统",
+    "platform": "平台",
+    "uptime": "运行时间",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "正在连接…",
+    "unreachable": "无法连接服务器",
+    "version": "Athena {{version}}"
+  }
+}

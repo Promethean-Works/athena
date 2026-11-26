@@ -1,0 +1,21 @@
+{
+  "dashboard": "ダッシュボード",
+  "apps": "アプリ",
+  "store": "ストア",
+  "packages": "パッケージ",
+  "automation": "オートメーション",
+  "files": "ファイル",
+  "smbShares": "SMB 共有",
+  "cloud": "クラウド",
+  "containers": "コンテナ",
+  "terminal": "ターミナル",
+  "assistant": "アシスタント",
+  "backups": "バックアップ",
+  "settings": "設定",
+  "help": "ヘルプ",
+  "roleAdmin": "管理者",
+  "roleUser": "ユーザー",
+  "tunnelAddress": "トンネルアドレス",
+  "restartAthena": "Athena を再起動",
+  "logOut": "ログアウト"
+}

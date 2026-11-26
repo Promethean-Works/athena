@@ -1,0 +1,113 @@
+{
+  "support": {
+    "emulated": "Öykünmeli",
+    "emulatedTitle": "Bu CPU için imaj yok; Docker başka birini öykünmeyle çalıştırır, bu daha yavaştır",
+    "unsupported": "Burada çalışmaz",
+    "unsupportedTitle": "Bu sunucunun CPU'su için imaj yok"
+  },
+  "browser": {
+    "loadError": "Mağaza yüklenemedi",
+    "filteredCount": "{{total}} uygulamadan {{shown}} tanesi",
+    "totalCount_one": "{{count}} uygulama; her biri Athena'nın sizin için kurduğu bir compose projesi.",
+    "totalCount_other": "{{count}} uygulama; her biri Athena'nın sizin için kurduğu bir compose projesi.",
+    "browsePrompt": "Kurulacak uygulamalara göz atın.",
+    "searchPlaceholder": "Uygulama ara",
+    "catalogs": "Kataloglar",
+    "showingUnsupported_one": "Bu sunucunun CPU'sunda çalışamayan {{count}} uygulama gösteriliyor.",
+    "showingUnsupported_other": "Bu sunucunun CPU'sunda çalışamayan {{count}} uygulama gösteriliyor.",
+    "hiddenUnsupported_one": "{{count}} uygulama, bu sunucunun CPU'su için imajı olmadığından gizli.",
+    "hiddenUnsupported_other": "{{count}} uygulama, bu sunucunun CPU'su için imajı olmadığından gizli.",
+    "hideThem": "Gizle",
+    "showThem": "Göster",
+    "all": "Tümü",
+    "noMatchTitle": "Eşleşen uygulama yok",
+    "noMatchHidden_one": "Eşleşen {{count}} uygulama, bu sunucunun CPU'su için imajı olmadığından gizli.",
+    "noMatchHidden_other": "Eşleşen {{count}} uygulama, bu sunucunun CPU'su için imajı olmadığından gizli.",
+    "noMatchHint": "Başka bir arama ya da kategori deneyin.",
+    "showMatches_one": "Göster",
+    "showMatches_other": "Göster"
+  },
+  "card": {
+    "installed": "Kurulu"
+  },
+  "popular": {
+    "title": "Şu an popüler",
+    "subtitle": "Çoğu ev sunucusunun başladığı uygulamalar.",
+    "showPage": "{{total}} sayfadan {{page}}. sayfayı göster"
+  },
+  "installForm": {
+    "generated": "Boş bırakılırsa oluşturulur",
+    "nameInvalid": "Küçük harf, rakam, tire veya alt çizgi kullanın.",
+    "jobLabel": "{{title}} kur",
+    "appName": "Uygulama adı",
+    "nameHint": "Gerekirse aynı uygulamayı farklı adlarla iki kez kurun.",
+    "advanced": "Gelişmiş ayarlar",
+    "install": "{{title}} kur"
+  },
+  "view": {
+    "loadError": "Bu uygulama yüklenemedi",
+    "notFound": "Uygulama bulunamadı",
+    "website": "Web sitesi",
+    "alreadyInstalled": "Zaten kurulu",
+    "installedAs": "Adı",
+    "installAnother": "Farklı bir adla başka bir kopya kurabilirsiniz.",
+    "beforeYouStart": "Başlamadan önce",
+    "whatYouGet": "Neler elde edersiniz",
+    "details": "Ayrıntılar",
+    "category": "Kategori",
+    "license": "Lisans",
+    "images": "İmajlar",
+    "platforms": "Platformlar",
+    "viewCompose": "compose.yaml'i gör",
+    "reportPrompt": "Beklendiği gibi çalışmıyor mu?",
+    "install": "Kur",
+    "installHint": "Yanıtlarınız, sunucuda uygulamanın compose.yaml dosyasının yanındaki .env dosyasına kaydedilir.",
+    "variant": "Varyant",
+    "cannotInstall": "{{title}} bu sunucuya kurulamaz: {{platform}} için imajı yok.",
+    "thisCpu": "bu CPU",
+    "thisServerCpu": "bu sunucunun CPU'su",
+    "moreIn": "{{category}} kategorisinde daha fazlası",
+    "cpu": {
+      "unsupportedTitle": "Bu sunucuda çalışmaz",
+      "unsupportedBody": "İmajları {{published}} için yayımlanmış, bu sunucu ise {{host}}.",
+      "emulatedTitle": "Öykünmeyle çalışır",
+      "emulatedBody": "{{host}} için imaj yok, bu yüzden Docker {{published}} imajını öykünmeyle çalıştırır. Çalışır, ama daha yavaştır ve daha fazla bellek kullanır."
+    },
+    "screenshot": {
+      "alt": "{{title}} ekran görüntüsü",
+      "open": "{{title}} ekran görüntüsünü büyük aç",
+      "enlarge": "Büyüt",
+      "show": "{{number}}. ekran görüntüsünü göster",
+      "description": "{{title}} ekran görüntüsü.",
+      "close": "Kapat"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "Otomatik algıla",
+    "kindAthena": "Athena kataloğu",
+    "never": "hiç",
+    "addFailed": "Katalog eklenemedi",
+    "refreshFailed": "{{name}} yenilenemedi",
+    "removeFailed": "{{name}} kaldırılamadı",
+    "removed": "{{name}} kaldırıldı",
+    "builtIn": "Yerleşik",
+    "refreshFailedBadge": "Yenileme başarısız",
+    "summaryBuiltin_one": "{{count}} uygulama · Athena ile gelir",
+    "summaryBuiltin_other": "{{count}} uygulama · Athena ile gelir",
+    "summaryUpdated_one": "{{count}} uygulama · güncellendi {{when}}",
+    "summaryUpdated_other": "{{count}} uygulama · güncellendi {{when}}",
+    "refresh": "Yenile",
+    "removeLabel": "{{name}} kaldır",
+    "addTitle": "Katalog ekle",
+    "addDescription": "Bir GitHub, Codeberg veya GitLab deposu ya da doğrudan bir .tar.gz/.zip bağlantısı.",
+    "name": "Ad",
+    "namePlaceholder": "Uygulamalarım",
+    "format": "Biçim",
+    "formatHint": "Athena katalogları apps/<id>/compose.yaml kullanır; CasaOS mağazaları Apps/<Name>/docker-compose.yml kullanır.",
+    "add": "Katalog ekle",
+    "removeTitle": "{{name}} kaldırılsın mı?",
+    "removeDescription": "Uygulamaları mağazadan kaybolur. Ondan zaten kurduğunuz uygulamalar çalışmaya devam eder.",
+    "cancel": "İptal",
+    "remove": "Kaldır"
+  }
+}

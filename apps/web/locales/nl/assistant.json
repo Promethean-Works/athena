@@ -1,0 +1,140 @@
+{
+  "title": "Assistent",
+  "sheet": {
+    "description": "Chat met de AI-assistent over deze server.",
+    "openFullPage": "Volledige pagina openen"
+  },
+  "chat": {
+    "newChat": "Nieuwe chat",
+    "chats": "Chats",
+    "noChats": "Nog geen chats.",
+    "deleteChat": "{{title}} verwijderen",
+    "thinking": "Denken…",
+    "stillWorking": "Nog bezig met een antwoord. Het verschijnt hier als het klaar is.",
+    "emptyTitle": "Vraag iets over deze server",
+    "emptyDescription": "De assistent kan apps, logs, bestanden en systeemstatistieken opzoeken, en dingen installeren of wijzigen zodra je elke actie goedkeurt.",
+    "suggestions": {
+      "capabilities": "Wat kan deze server?",
+      "disk": "Hoeveel schijfruimte is er nog?",
+      "apps": "Welke apps draaien er?"
+    },
+    "message": "Bericht",
+    "placeholder": "Vraag iets over deze server…",
+    "placeholderWaiting": "Antwoord hierboven, of stuur een bericht om over te slaan…",
+    "stop": "Stoppen",
+    "send": "Versturen",
+    "pickModelFirst": "Kies eerst een model",
+    "changeModelFailed": "Het model kon niet worden gewijzigd",
+    "startFailed": "Er kon geen chat worden gestart",
+    "deleteFailed": "De chat kon niet worden verwijderd",
+    "failed": "De assistent is mislukt"
+  },
+  "noProviders": {
+    "title": "Stel eerst een model in",
+    "description": "De assistent heeft een AI-provider nodig: een clouddienst met een API-sleutel, of Ollama op je eigen hardware.",
+    "openSettings": "Instellingen → AI openen"
+  },
+  "model": {
+    "pick": "Kies een model",
+    "label": "Model: {{label}}",
+    "search": "Zoek of typ een model-id",
+    "noMatch": "Geen model gevonden.",
+    "addProvider": "Voeg eerst een provider toe in Instellingen → AI.",
+    "noTools": "kan geen tools gebruiken",
+    "use": "“{{model}}” gebruiken"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "{{done}} van {{total}} klaar",
+    "steps": "Planstappen",
+    "status": {
+      "pending": "in afwachting",
+      "in_progress": "bezig",
+      "completed": "voltooid",
+      "cancelled": "geannuleerd",
+      "blocked": "geblokkeerd"
+    }
+  },
+  "spend": {
+    "usage": "Verbruik van deze chat",
+    "usageWith": "Verbruik van deze chat: {{label}}",
+    "unknownPrices": "De prijzen van dit model zijn onbekend, dus alleen tokens worden geteld.",
+    "estimate": "Een schatting op basis van de gepubliceerde prijzen van het model.",
+    "ofLimit": "{{spent}} van {{limit}}",
+    "spent": "Uitgegeven",
+    "unknown": "Onbekend",
+    "inputTokens": "Invoertokens",
+    "outputTokens": "Uitvoertokens",
+    "tokens_one": "{{formatted}} token",
+    "tokens_other": "{{formatted}} tokens",
+    "limitReached": "Deze chat heeft zijn bestedingslimiet bereikt. Start een nieuwe chat, of verhoog de limiet in <settings>Instellingen → AI</settings>.",
+    "limitNotApplicable": "De bestedingslimiet ({{limit}}) kan niet op dit model worden toegepast."
+  },
+  "steps": {
+    "thinking": "Denken",
+    "thought": "Gedacht",
+    "draft": "Eerste versie, hieronder herzien",
+    "approvalNeeded": "Goedkeuring nodig: {{title}}",
+    "run": "{{name}} uitvoeren",
+    "approvalIntro": "De assistent wil dit doen. Er gebeurt niets totdat je goedkeurt.",
+    "deny": "Weigeren",
+    "approve": "Goedkeuren",
+    "approvedGoOn": "Goedgekeurd. Beantwoord de andere kaarten om verder te gaan.",
+    "deniedGoOn": "Geweigerd. Beantwoord de andere kaarten om verder te gaan.",
+    "logGone": "Die log is verdwenen",
+    "log": "Log",
+    "denied": "Geweigerd: {{title}}",
+    "failed": "Mislukt: {{title}}",
+    "running": "{{name}} wordt uitgevoerd",
+    "ran": "{{name}} uitgevoerd",
+    "withSubject": "{{title}} van {{subject}}",
+    "helperRunningTask": "Helper zoekt uit: {{task}}",
+    "helperDoneTask": "Helper heeft uitgezocht: {{task}}",
+    "helperRunning": "Helper zoekt dingen op",
+    "helperDone": "Helper heeft dingen opgezocht",
+    "tools": {
+      "getCapabilities": {
+        "running": "Controleren wat deze server kan",
+        "done": "Gecontroleerd wat deze server kan"
+      },
+      "getSystemStats": { "running": "Systeemstatistieken lezen", "done": "Systeemstatistieken gelezen" },
+      "listApps": { "running": "Apps weergeven", "done": "Apps weergegeven" },
+      "appLogs": { "running": "App-logs lezen", "done": "App-logs gelezen" },
+      "listFileLocations": { "running": "Bestandslocaties weergeven", "done": "Bestandslocaties weergegeven" },
+      "listFiles": { "running": "Bestanden weergeven", "done": "Bestanden weergegeven" },
+      "readFile": { "running": "Een bestand lezen", "done": "Een bestand gelezen" },
+      "writeFile": { "running": "Een bestand schrijven", "done": "Een bestand geschreven" },
+      "editFile": { "running": "Een bestand bewerken", "done": "Een bestand bewerkt" },
+      "listDirectory": { "running": "Een map weergeven", "done": "Een map weergegeven" },
+      "createDirectory": { "running": "Een map aanmaken", "done": "Een map aangemaakt" },
+      "searchStore": { "running": "De appstore doorzoeken", "done": "De appstore doorzocht" },
+      "readToolResult": { "running": "Een opgeslagen toolresultaat lezen", "done": "Een opgeslagen toolresultaat gelezen" },
+      "askUserQuestion": { "running": "Wachten op je antwoord", "done": "Jou gevraagd" },
+      "advisor": { "running": "De adviseur raadplegen", "done": "De adviseur geraadpleegd" },
+      "runWorkflow": {
+        "running": "Helpers zoeken samen dingen op",
+        "done": "Helpers hebben samen dingen opgezocht"
+      },
+      "getStoreApp": { "running": "Een storeapp lezen", "done": "Een storeapp gelezen" },
+      "listPackageManagers": { "running": "Pakketbeheerders weergeven", "done": "Pakketbeheerders weergegeven" },
+      "searchPackages": { "running": "Pakketten zoeken", "done": "Pakketten gezocht" },
+      "listUpgradablePackages": {
+        "running": "Controleren op pakketupdates",
+        "done": "Gecontroleerd op pakketupdates"
+      }
+    }
+  },
+  "question": {
+    "title": "Vragen",
+    "asks": "De assistent vraagt: {{title}}",
+    "intro": "De assistent vraagt iets voordat hij verdergaat. Antwoord nooit met een wachtwoord of sleutel.",
+    "ownAnswerLabel": "Je eigen antwoord op {{header}}",
+    "ownAnswerPlaceholder": "Of typ je eigen antwoord",
+    "skip": "Overslaan",
+    "send": "Antwoorden versturen",
+    "skippedGoOn": "Overgeslagen. Beantwoord de andere kaarten om verder te gaan.",
+    "answeredGoOn": "Beantwoord. Beantwoord de andere kaarten om verder te gaan.",
+    "youAnswered": "Je antwoordde: {{answers}}",
+    "youSkipped": "Je hebt de vraag overgeslagen"
+  }
+}

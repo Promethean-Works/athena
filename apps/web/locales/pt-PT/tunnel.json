@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Endereço do túnel",
+    "description": "Abre o Athena fora da tua rede ou lê o código com o telemóvel.",
+    "publicAddress": "Endereço público",
+    "notRunning": "O túnel não está em execução.",
+    "startInSettings": "Inicia-o nas Definições."
+  },
+  "qr": {
+    "title": "Código QR do endereço do túnel"
+  }
+}

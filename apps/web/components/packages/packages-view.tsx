@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { PackageIcon } from "lucide-react"
 
 import { api, type Schemas } from "@workspace/api-client"
@@ -26,6 +27,7 @@ type Manager = Schemas["ManagerOut"]
 
 /** A tab per package manager detected on this host (docs/design/platform.md). */
 export function PackagesView() {
+  const { t } = useTranslation("packages")
   const managers = useApi(() => api.GET("/api/packages"))
   const [tab, setTab] = React.useState<string | null>(null)
 
@@ -37,11 +39,11 @@ export function PackagesView() {
           <EmptyMedia variant="icon">
             <PackageIcon />
           </EmptyMedia>
-          <EmptyTitle>No package managers found</EmptyTitle>
+          <EmptyTitle>{t("view.noManagers")}</EmptyTitle>
           <EmptyDescription>
             {managers.status === "error"
               ? managers.error
-              : "Athena didn't find a package manager it supports on this host."}
+              : t("view.noManagersHint")}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

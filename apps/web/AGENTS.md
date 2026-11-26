@@ -50,6 +50,10 @@ Next.js 16 with a static export (`output: "export"`, `trailingSlash: true`), Rea
   - Use `useAuth()` and `useCapability(id)`, and give nav items a `capability`.
   - A missing capability renders `Empty` with its `detail`, never a broken page.
   - Pages that need containers wrap their content in `<RequireContainers>`.
+- **Text:**
+  - No hard-coded user-visible text: use `useTranslation("<area>")` and add the key to `locales/en/<area>.json` **and** to every other language folder (same keys, same `{{placeholders}}`, plural forms per language; `node scripts/check-i18n.mjs` checks it).
+  - Never call `t` at module load (store keys, translate at render, or `i18n.t` inside a function). Plurals are `key_one`/`key_other`. Dates and numbers pass `currentLocale()` from `@/lib/i18n`.
+  - Server data and API error text stay as they come. See `docs/specs/i18n.md`.
 - **Feedback:**
   - Notifications use `toast.add({ type, title, description })` from `@workspace/ui/components/toast` (Base UI), not sonner.
   - Errors show next to the field or in a toast, never silently.

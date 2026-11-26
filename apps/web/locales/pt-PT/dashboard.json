@@ -1,0 +1,272 @@
+{
+  "common": {
+    "manage": "Gerir"
+  },
+  "cardShell": {
+    "open": "Abrir"
+  },
+  "cards": {
+    "stats": {
+      "title": "Sistema",
+      "description": "Atividade em direto de CPU, memória, rede e disco."
+    },
+    "apps": {
+      "title": "Apps",
+      "description": "As tuas apps, com o estado e um botão Abrir."
+    },
+    "containers": {
+      "title": "Contentores",
+      "description": "Contagens de em execução e parados, e quais precisam de atenção."
+    },
+    "automation": {
+      "title": "Automação",
+      "description": "Próximas execuções agendadas e como correram as recentes."
+    },
+    "storage": {
+      "title": "Armazenamento",
+      "description": "Espaço usado em cada disco."
+    },
+    "server": {
+      "title": "Servidor",
+      "description": "Nome do anfitrião, sistema operativo, tempo de atividade e versões."
+    },
+    "temperatures": {
+      "title": "Temperaturas",
+      "description": "Leituras dos sensores, quando o anfitrião as comunica."
+    },
+    "power": {
+      "title": "Energia",
+      "description": "Subtensão e limitação de desempenho num Raspberry Pi."
+    },
+    "activity": {
+      "title": "Atividade recente",
+      "description": "As alterações mais recentes do registo de auditoria (só administradores)."
+    },
+    "remoteAccess": {
+      "title": "Acesso remoto",
+      "description": "Estado do túnel e endereço público."
+    },
+    "capabilities": {
+      "title": "Capacidades",
+      "description": "O que o Athena encontrou neste anfitrião."
+    },
+    "backups": {
+      "title": "Cópias de segurança",
+      "description": "Planos de cópia de segurança, últimas execuções e a próxima execução agendada."
+    }
+  },
+  "activity": {
+    "title": "Atividade recente",
+    "description": "Quem alterou o quê neste servidor.",
+    "loadError": "Não foi possível carregar a atividade recente: {{error}}",
+    "empty": "Ainda nada. As ações em apps, contentores e ficheiros aparecem aqui.",
+    "by": "por {{username}}"
+  },
+  "automation": {
+    "title": "Automação",
+    "description": "Acionadores agendados e de webhook, e como correram as suas execuções.",
+    "succeeded": "Com êxito",
+    "failed": "Falhou",
+    "loadError": "Não foi possível carregar a automação: {{error}}",
+    "noTriggers": "Ainda sem acionadores. Cria um para reiniciar uma app ou atualizar pacotes numa agenda.",
+    "nextRuns": "Próximas execuções · {{enabled}} de {{total}} acionadores ativos",
+    "nothingScheduled": "Nada agendado. Os acionadores de webhook são executados quando são chamados.",
+    "recentRuns": "Execuções recentes",
+    "noRuns": "Ainda sem execuções.",
+    "deletedTrigger": "Acionador eliminado"
+  },
+  "backup": {
+    "title": "Cópias de segurança",
+    "description": "Planos de cópia de segurança, últimas execuções e a próxima execução agendada.",
+    "succeeded": "Com êxito",
+    "failed": "Falhou",
+    "running": "Em execução",
+    "loadError": "Não foi possível carregar os planos de cópia de segurança: {{error}}",
+    "empty": "Ainda sem planos de cópia de segurança. Adiciona um em Definições → Cópias de segurança.",
+    "plans": "Planos",
+    "enabled": "Ativos",
+    "plansFailed_one": "{{count}} plano falhou",
+    "plansFailed_other": "{{count}} planos falharam",
+    "noFailures": "Sem falhas recentes",
+    "nextRuns": "Próximas execuções agendadas",
+    "noScheduled": "Sem execuções agendadas"
+  },
+  "containers": {
+    "title": "Contentores",
+    "description": "Tudo o que o motor de contentores executa, incluindo apps.",
+    "all": "Todos os contentores",
+    "running": "Em execução",
+    "notRunning": "Não em execução",
+    "needAttention": "Precisam de atenção",
+    "exited": "Terminado ({{code}})",
+    "loadError": "Não foi possível carregar os contentores: {{error}}",
+    "empty": "Ainda sem contentores neste servidor.",
+    "engineDown": "O motor de contentores não está em execução."
+  },
+  "apps": {
+    "title": "Apps",
+    "subtitle": "O que está em execução neste servidor",
+    "store": "Loja",
+    "all": "Todas as apps",
+    "emptyTitle": "Ainda sem apps",
+    "emptyDescription": "Instala uma a partir da loja ou implementa o teu próprio ficheiro compose.",
+    "browseStore": "Explorar a loja",
+    "status": {
+      "running": "Em execução",
+      "partial": "Parcialmente em execução",
+      "stopped": "Parada",
+      "notDeployed": "Não implementada"
+    },
+    "containerCount_one": "{{count}} contentor",
+    "containerCount_other": "{{count}} contentores",
+    "actionsFor": "Ações para {{name}}",
+    "open": "Abrir",
+    "openPort": "Abrir :{{port}}",
+    "details": "Detalhes",
+    "restart": "Reiniciar",
+    "stop": "Parar",
+    "start": "Iniciar",
+    "updateImages": "Atualizar imagens",
+    "remove": "Remover"
+  },
+  "grid": {
+    "pickedUp": "Pegaste no cartão {{title}}.",
+    "overCard": "{{title}} está sobre {{other}}.",
+    "notOverCard": "{{title}} já não está sobre um cartão.",
+    "moved": "{{title}} foi movido para onde estava {{other}}.",
+    "dropped": "{{title}} largado.",
+    "cancelled": "A movimentação de {{title}} foi cancelada.",
+    "move": "Mover {{title}}",
+    "moveUp": "Mover {{title}} para cima",
+    "moveDown": "Mover {{title}} para baixo",
+    "makeHalf": "Dar meia largura a {{title}}",
+    "makeFull": "Dar largura total a {{title}}",
+    "remove": "Remover {{title}}",
+    "nothingToShow": "Nada para mostrar neste servidor neste momento.",
+    "addDialogTitle": "Adicionar um cartão",
+    "addDialogDescription": "Os cartões são adicionados no fim; arrasta-os para onde quiseres.",
+    "allAddedTitle": "Todos os cartões estão no teu painel",
+    "allAddedDescription": "Remove um para o adicionares de novo mais tarde.",
+    "addCard": "Adicionar {{title}}",
+    "add": "Adicionar",
+    "editHint": "Arrasta os cartões pela pega ou usa as setas. As alterações são guardadas quando carregares em Concluído.",
+    "addCardButton": "Adicionar cartão",
+    "reset": "Repor",
+    "cancel": "Cancelar",
+    "done": "Concluído",
+    "customize": "Personalizar",
+    "emptyTitle": "O teu painel está vazio",
+    "emptyDescription": "Adiciona cartões ou repõe a disposição predefinida.",
+    "dragInstructions": "Para mover um cartão, carrega em Espaço ou Enter, usa as teclas de seta e volta a carregar em Espaço ou Enter para o largar, ou em Escape para cancelar."
+  },
+  "stats": {
+    "used": "Usado",
+    "download": "Transferência",
+    "upload": "Envio",
+    "read": "Leitura",
+    "write": "Escrita",
+    "util": "Util.",
+    "unavailableTitle": "As estatísticas em direto não estão disponíveis",
+    "unavailableDescription": "O servidor não devolveu estatísticas do anfitrião.",
+    "coresThreads": "{{cores}} núcleos · {{threads}} threads",
+    "cores_one": "{{count}} núcleo",
+    "cores_other": "{{count}} núcleos",
+    "coresLoad": "{{cores}} · carga {{load}}",
+    "liveLabel": "Estatísticas do anfitrião em direto",
+    "system": "Sistema",
+    "live": "Em direto",
+    "reconnecting": "A voltar a ligar",
+    "chartRange": "Intervalo do gráfico",
+    "range5m": "5 min",
+    "range1h": "1 hora",
+    "memory": "Memória",
+    "memUsed": "{{used}} usados",
+    "memUsedSwap": "{{used}} usados · swap {{swap}}",
+    "network": "Rede",
+    "diskActivity": "Atividade do disco",
+    "readRate": "L {{rate}}",
+    "writeRate": "E {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPUs",
+    "noGpu": "nenhuma GPU comunicada",
+    "vramOf": "{{used}} de {{total}}"
+  },
+  "power": {
+    "title": "Energia",
+    "description": "Energia e limitação de desempenho do Raspberry Pi",
+    "problemNow": "Problema agora",
+    "ok": "OK",
+    "flagNow": "{{label}} agora",
+    "flagSinceBoot": "{{label}} desde o arranque",
+    "none": "Sem subtensão nem limitação de desempenho desde que este servidor arrancou.",
+    "flags": {
+      "underVoltage": {
+        "label": "Subtensão",
+        "hint": "A fonte de alimentação ou o cabo não chega. Usa a fonte oficial e um cabo curto e grosso."
+      },
+      "throttled": {
+        "label": "Desempenho limitado",
+        "hint": "O CPU foi abrandado para se proteger."
+      },
+      "freqCapped": {
+        "label": "Frequência limitada",
+        "hint": "O firmware reduziu a velocidade máxima do CPU."
+      },
+      "softTempLimit": {
+        "label": "Limite de temperatura suave",
+        "hint": "O CPU está perto do limite de temperatura. Verifica a refrigeração."
+      }
+    }
+  },
+  "remote": {
+    "title": "Acesso remoto",
+    "description": "Acede ao Athena a partir de fora da tua rede.",
+    "settings": "Definições",
+    "loadError": "Não foi possível carregar o acesso remoto: {{error}}",
+    "off": "Desativado. Ativa-o em Definições → Sistema para aceder ao Athena a partir de fora da tua rede.",
+    "running": "Em execução",
+    "notRunning": "Não em execução",
+    "noProvider": "Sem fornecedor",
+    "warning": "O terminal, as instalações de pacotes e o assistente ficam acessíveis a partir da internet com uma única palavra-passe. <link>Desativa-os</link> se não precisares deles remotamente.",
+    "publicAddress": "Endereço público",
+    "copyAddress": "Copiar endereço público",
+    "copied": "Endereço copiado",
+    "copyFailed": "Não foi possível copiar"
+  },
+  "storage": {
+    "title": "Armazenamento",
+    "description": "Discos, pastas, nuvem e partilhas de rede",
+    "noDisks": "Ainda sem discos comunicados.",
+    "diskUsage": "{{used}} de {{total}}",
+    "folders": "Pastas",
+    "unavailable": "Indisponível",
+    "cloud": "Armazenamento na nuvem",
+    "shares": "Partilhas de rede",
+    "readOnly": "Só de leitura"
+  },
+  "temperatures": {
+    "title": "Temperaturas",
+    "description": "Sensores de hardware"
+  },
+  "layout": {
+    "saveFailed": "Não foi possível guardar o painel",
+    "saved": "Painel guardado"
+  },
+  "server": {
+    "title": "Servidor",
+    "description": "A máquina onde o Athena está a ser executado",
+    "unreachableTitle": "Não é possível contactar o servidor Athena",
+    "unreachableDescription": "{{error}}. Em desenvolvimento, inicia-o com <code>uv run athena serve --reload</code> em <code>apps/server</code>.",
+    "host": "Anfitrião",
+    "os": "Sistema operativo",
+    "platform": "Plataforma",
+    "uptime": "Tempo de atividade",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "A ligar…",
+    "unreachable": "Servidor inacessível",
+    "version": "Athena {{version}}"
+  }
+}

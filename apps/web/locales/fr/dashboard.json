@@ -1,0 +1,272 @@
+{
+  "common": {
+    "manage": "Gérer"
+  },
+  "cardShell": {
+    "open": "Ouvrir"
+  },
+  "cards": {
+    "stats": {
+      "title": "Système",
+      "description": "Activité en direct du CPU, de la mémoire, du réseau et des disques."
+    },
+    "apps": {
+      "title": "Apps",
+      "description": "Vos apps, avec leur statut et un bouton Ouvrir."
+    },
+    "containers": {
+      "title": "Conteneurs",
+      "description": "Nombre de conteneurs en cours et arrêtés, et lesquels demandent de l'attention."
+    },
+    "automation": {
+      "title": "Automatisation",
+      "description": "Prochaines exécutions planifiées et résultat des dernières."
+    },
+    "storage": {
+      "title": "Stockage",
+      "description": "Espace utilisé sur chaque disque."
+    },
+    "server": {
+      "title": "Serveur",
+      "description": "Nom d'hôte, système d'exploitation, durée de fonctionnement et versions."
+    },
+    "temperatures": {
+      "title": "Températures",
+      "description": "Mesures des capteurs, quand l'hôte les fournit."
+    },
+    "power": {
+      "title": "Alimentation",
+      "description": "Sous-tension et bridage sur un Raspberry Pi."
+    },
+    "activity": {
+      "title": "Activité récente",
+      "description": "Les derniers changements du journal d'audit (administrateurs uniquement)."
+    },
+    "remoteAccess": {
+      "title": "Accès à distance",
+      "description": "État du tunnel et adresse publique."
+    },
+    "capabilities": {
+      "title": "Capacités",
+      "description": "Ce qu'Athena a trouvé sur cet hôte."
+    },
+    "backups": {
+      "title": "Sauvegardes",
+      "description": "Plans de sauvegarde, dernières exécutions et prochaine exécution planifiée."
+    }
+  },
+  "activity": {
+    "title": "Activité récente",
+    "description": "Qui a changé quoi sur ce serveur.",
+    "loadError": "Impossible de charger l'activité récente : {{error}}",
+    "empty": "Rien pour l'instant. Les actions sur les apps, conteneurs et fichiers apparaissent ici.",
+    "by": "par {{username}}"
+  },
+  "automation": {
+    "title": "Automatisation",
+    "description": "Déclencheurs planifiés et webhooks, et résultat de leurs exécutions.",
+    "succeeded": "Réussie",
+    "failed": "Échec",
+    "loadError": "Impossible de charger l'automatisation : {{error}}",
+    "noTriggers": "Aucun déclencheur pour l'instant. Créez-en un pour redémarrer une app ou mettre à jour des paquets selon un calendrier.",
+    "nextRuns": "Prochaines exécutions · {{enabled}} déclencheurs actifs sur {{total}}",
+    "nothingScheduled": "Rien de planifié. Les déclencheurs webhook s'exécutent quand ils sont appelés.",
+    "recentRuns": "Exécutions récentes",
+    "noRuns": "Aucune exécution pour l'instant.",
+    "deletedTrigger": "Déclencheur supprimé"
+  },
+  "backup": {
+    "title": "Sauvegardes",
+    "description": "Plans de sauvegarde, dernières exécutions et prochaine exécution planifiée.",
+    "succeeded": "Réussie",
+    "failed": "Échec",
+    "running": "En cours",
+    "loadError": "Impossible de charger les plans de sauvegarde : {{error}}",
+    "empty": "Aucun plan de sauvegarde pour l'instant. Ajoutez-en un dans Paramètres → Sauvegardes.",
+    "plans": "Plans",
+    "enabled": "Activés",
+    "plansFailed_one": "{{count}} plan en échec",
+    "plansFailed_other": "{{count}} plans en échec",
+    "noFailures": "Aucun échec récent",
+    "nextRuns": "Prochaines exécutions planifiées",
+    "noScheduled": "Aucune exécution planifiée"
+  },
+  "containers": {
+    "title": "Conteneurs",
+    "description": "Tout ce que le moteur de conteneurs exécute, apps comprises.",
+    "all": "Tous les conteneurs",
+    "running": "En cours",
+    "notRunning": "À l'arrêt",
+    "needAttention": "À surveiller",
+    "exited": "Arrêté ({{code}})",
+    "loadError": "Impossible de charger les conteneurs : {{error}}",
+    "empty": "Aucun conteneur sur ce serveur pour l'instant.",
+    "engineDown": "Le moteur de conteneurs n'est pas actif."
+  },
+  "apps": {
+    "title": "Apps",
+    "subtitle": "Ce qui tourne sur ce serveur",
+    "store": "Store",
+    "all": "Toutes les apps",
+    "emptyTitle": "Aucune app pour l'instant",
+    "emptyDescription": "Installez-en une depuis le store, ou déployez votre propre fichier compose.",
+    "browseStore": "Parcourir le store",
+    "status": {
+      "running": "En cours",
+      "partial": "Partiellement en cours",
+      "stopped": "Arrêtée",
+      "notDeployed": "Non déployée"
+    },
+    "containerCount_one": "{{count}} conteneur",
+    "containerCount_other": "{{count}} conteneurs",
+    "actionsFor": "Actions pour {{name}}",
+    "open": "Ouvrir",
+    "openPort": "Ouvrir :{{port}}",
+    "details": "Détails",
+    "restart": "Redémarrer",
+    "stop": "Arrêter",
+    "start": "Démarrer",
+    "updateImages": "Mettre à jour les images",
+    "remove": "Supprimer"
+  },
+  "grid": {
+    "pickedUp": "Carte {{title}} saisie.",
+    "overCard": "{{title}} est au-dessus de {{other}}.",
+    "notOverCard": "{{title}} n'est plus au-dessus d'une carte.",
+    "moved": "{{title}} déplacée à la place de {{other}}.",
+    "dropped": "{{title}} déposée.",
+    "cancelled": "Le déplacement de {{title}} a été annulé.",
+    "move": "Déplacer {{title}}",
+    "moveUp": "Monter {{title}}",
+    "moveDown": "Descendre {{title}}",
+    "makeHalf": "Réduire {{title}} à la moitié de la largeur",
+    "makeFull": "Étendre {{title}} à toute la largeur",
+    "remove": "Retirer {{title}}",
+    "nothingToShow": "Rien à afficher sur ce serveur pour le moment.",
+    "addDialogTitle": "Ajouter une carte",
+    "addDialogDescription": "Les cartes sont ajoutées à la fin ; faites-les glisser où vous voulez.",
+    "allAddedTitle": "Toutes les cartes sont sur votre tableau de bord",
+    "allAddedDescription": "Retirez-en une pour pouvoir la rajouter plus tard.",
+    "addCard": "Ajouter {{title}}",
+    "add": "Ajouter",
+    "editHint": "Faites glisser les cartes par leur poignée, ou utilisez les flèches. Les changements sont enregistrés quand vous appuyez sur Terminé.",
+    "addCardButton": "Ajouter une carte",
+    "reset": "Réinitialiser",
+    "cancel": "Annuler",
+    "done": "Terminé",
+    "customize": "Personnaliser",
+    "emptyTitle": "Votre tableau de bord est vide",
+    "emptyDescription": "Ajoutez des cartes, ou rétablissez la disposition par défaut.",
+    "dragInstructions": "Pour déplacer une carte, appuyez sur Espace ou Entrée, utilisez les flèches, puis appuyez de nouveau sur Espace ou Entrée pour la déposer, ou sur Échap pour annuler."
+  },
+  "stats": {
+    "used": "Utilisé",
+    "download": "Réception",
+    "upload": "Envoi",
+    "read": "Lecture",
+    "write": "Écriture",
+    "util": "Util.",
+    "unavailableTitle": "Les statistiques en direct sont indisponibles",
+    "unavailableDescription": "Le serveur n'a pas renvoyé de statistiques de l'hôte.",
+    "coresThreads": "{{cores}} cœurs · {{threads}} threads",
+    "cores_one": "{{count}} cœur",
+    "cores_other": "{{count}} cœurs",
+    "coresLoad": "{{cores}} · charge {{load}}",
+    "liveLabel": "Statistiques de l'hôte en direct",
+    "system": "Système",
+    "live": "En direct",
+    "reconnecting": "Reconnexion",
+    "chartRange": "Période du graphique",
+    "range5m": "5 min",
+    "range1h": "1 heure",
+    "memory": "Mémoire",
+    "memUsed": "{{used}} utilisés",
+    "memUsedSwap": "{{used}} utilisés · swap {{swap}}",
+    "network": "Réseau",
+    "diskActivity": "Activité des disques",
+    "readRate": "L {{rate}}",
+    "writeRate": "É {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPU",
+    "noGpu": "aucun GPU détecté",
+    "vramOf": "{{used}} sur {{total}}"
+  },
+  "power": {
+    "title": "Alimentation",
+    "description": "Alimentation et bridage du Raspberry Pi",
+    "problemNow": "Problème en ce moment",
+    "ok": "OK",
+    "flagNow": "{{label}} en ce moment",
+    "flagSinceBoot": "{{label}} depuis le démarrage",
+    "none": "Aucune sous-tension ni aucun bridage depuis le démarrage de ce serveur.",
+    "flags": {
+      "underVoltage": {
+        "label": "Sous-tension",
+        "hint": "L'alimentation ou le câble ne suffit pas. Utilisez l'alimentation officielle et un câble court et épais."
+      },
+      "throttled": {
+        "label": "Bridé",
+        "hint": "Le CPU est ralenti pour se protéger."
+      },
+      "freqCapped": {
+        "label": "Fréquence plafonnée",
+        "hint": "Le firmware a abaissé la vitesse maximale du CPU."
+      },
+      "softTempLimit": {
+        "label": "Limite de température souple",
+        "hint": "Le CPU approche de sa limite de température. Vérifiez le refroidissement."
+      }
+    }
+  },
+  "remote": {
+    "title": "Accès à distance",
+    "description": "Accédez à Athena depuis l'extérieur de votre réseau.",
+    "settings": "Paramètres",
+    "loadError": "Impossible de charger l'accès à distance : {{error}}",
+    "off": "Désactivé. Activez-le dans Paramètres → Système pour accéder à Athena depuis l'extérieur de votre réseau.",
+    "running": "Actif",
+    "notRunning": "Inactif",
+    "noProvider": "Aucun fournisseur",
+    "warning": "Le terminal, l'installation de paquets et l'assistant sont accessibles depuis Internet avec un seul mot de passe. <link>Désactivez-les</link> si vous n'en avez pas besoin à distance.",
+    "publicAddress": "Adresse publique",
+    "copyAddress": "Copier l'adresse publique",
+    "copied": "Adresse copiée",
+    "copyFailed": "Copie impossible"
+  },
+  "storage": {
+    "title": "Stockage",
+    "description": "Disques, dossiers, cloud et partages réseau",
+    "noDisks": "Aucun disque détecté pour l'instant.",
+    "diskUsage": "{{used}} sur {{total}}",
+    "folders": "Dossiers",
+    "unavailable": "Indisponible",
+    "cloud": "Stockage cloud",
+    "shares": "Partages réseau",
+    "readOnly": "Lecture seule"
+  },
+  "temperatures": {
+    "title": "Températures",
+    "description": "Capteurs matériels"
+  },
+  "layout": {
+    "saveFailed": "Impossible d'enregistrer le tableau de bord",
+    "saved": "Tableau de bord enregistré"
+  },
+  "server": {
+    "title": "Serveur",
+    "description": "La machine sur laquelle Athena s'exécute",
+    "unreachableTitle": "Le serveur Athena est injoignable",
+    "unreachableDescription": "{{error}}. En développement, lancez-le avec <code>uv run athena serve --reload</code> dans <code>apps/server</code>.",
+    "host": "Hôte",
+    "os": "Système d'exploitation",
+    "platform": "Plateforme",
+    "uptime": "Durée de fonctionnement",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Connexion…",
+    "unreachable": "Serveur injoignable",
+    "version": "Athena {{version}}"
+  }
+}

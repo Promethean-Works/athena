@@ -42,6 +42,7 @@ import {
   MailIcon,
   Share2Icon,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 type Provider = Schemas["Provider"]
 type Option = Schemas["ProviderOption"]
@@ -123,6 +124,7 @@ function ProviderCard({
   provider: Provider
   onSelect: (provider: Provider) => void
 }) {
+  const { t } = useTranslation("cloud")
   return (
     <button
       onClick={() => onSelect(provider)}
@@ -136,8 +138,7 @@ function ProviderCard({
             {provider.name}
           </p>
           <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-            {provider.options.length} setting
-            {provider.options.length === 1 ? "" : "s"}
+            {t("remote.settingCount", { count: provider.options.length })}
           </p>
         </div>
       </div>
@@ -168,13 +169,16 @@ function OptionField({
   secretSet?: boolean
   error?: string
 }) {
+  const { t } = useTranslation("cloud")
   const id = `opt-${option.name}`
   const examples = option.examples ?? []
   const label = (
     <FieldLabel htmlFor={id} title={option.name}>
       {optionLabel(option.name)}
       {option.required ? null : (
-        <span className="font-normal text-muted-foreground">(optional)</span>
+        <span className="font-normal text-muted-foreground">
+          {t("remote.optional")}
+        </span>
       )}
     </FieldLabel>
   )
@@ -216,7 +220,7 @@ function OptionField({
           onValueChange={(v) => onChange(v ?? "")}
         >
           <SelectTrigger id={id} className="w-full">
-            <SelectValue placeholder="Choose…" />
+            <SelectValue placeholder={t("remote.choose")} />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -245,7 +249,7 @@ function OptionField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={
-          secretSet ? "Unchanged" : option.default ? option.default : undefined
+          secretSet ? t("remote.unchanged") : option.default ? option.default : undefined
         }
         list={listId}
         aria-invalid={error ? true : undefined}
@@ -278,6 +282,7 @@ function QuestionForm({
   onAnswer: (answer: string) => Promise<void>
   onCancel: () => void
 }) {
+  const { t } = useTranslation("cloud")
   const option = question.option
   const [value, setValue] = React.useState("")
   const [pending, setPending] = React.useState(false)
@@ -311,7 +316,9 @@ function QuestionForm({
         <OptionField option={option} value={value} onChange={setValue} />
       ) : long ? (
         <Field>
-          <FieldLabel htmlFor="answer">Paste the result</FieldLabel>
+          <FieldLabel htmlFor="answer">
+            {t("remote.pasteResult")}
+          </FieldLabel>
           <Textarea
             id="answer"
             value={value}
@@ -325,7 +332,7 @@ function QuestionForm({
       )}
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t("cancel")}
         </Button>
         {yesNo ? (
           <>
@@ -335,7 +342,7 @@ function QuestionForm({
               disabled={pending}
               onClick={() => void send("false")}
             >
-              No
+              {t("remote.no")}
             </Button>
             <Button
               type="button"
@@ -343,13 +350,13 @@ function QuestionForm({
               onClick={() => void send("true")}
             >
               {pending ? <Spinner data-icon="inline-start" /> : null}
-              Yes
+              {t("remote.yes")}
             </Button>
           </>
         ) : (
           <Button type="submit" disabled={pending}>
             {pending ? <Spinner data-icon="inline-start" /> : null}
-            Continue
+            {t("remote.continue")}
           </Button>
         )}
       </DialogFooter>
@@ -372,6 +379,7 @@ export function RemoteDialog({
   onClose: () => void
   onSaved: () => void
 }) {
+  const { t } = useTranslation("cloud")
   const [providers, setProviders] = React.useState<Provider[] | null>(null)
   const [detail, setDetail] = React.useState<Schemas["RemoteDetail"] | null>(
     null
@@ -441,15 +449,15 @@ export function RemoteDialog({
     setRefused(result.data.error ?? "")
     if (!result.data.done && !result.data.question) {
       // Refused: keep asking the same question.
-      if (!configStep) setError(result.data.error || "rclone refused that")
+      if (!configStep) setError(result.data.error || t("remote.refused"))
       return
     }
     if (result.data.done) {
       toast.add({
         type: "success",
         title: isNew
-          ? `Added ${result.data.remote}`
-          : `Saved ${result.data.remote}`,
+          ? t("remote.added", { name: result.data.remote })
+          : t("remote.saved", { name: result.data.remote }),
       })
       setConfigStep(null)
       onSaved()
@@ -521,10 +529,12 @@ export function RemoteDialog({
         <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>
-              {isNew ? "Add a remote" : `Edit ${editing?.name ?? ""}`}
+              {isNew
+                ? t("remote.addTitle")
+                : t("remote.editTitle", { name: editing?.name ?? "" })}
             </DialogTitle>
             <DialogDescription>
-              rclone needs one more answer to finish setting it up.
+              {t("remote.oneMoreAnswer")}
             </DialogDescription>
           </DialogHeader>
           <QuestionForm
@@ -546,16 +556,18 @@ export function RemoteDialog({
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>
-            {isNew ? "Add a remote" : `Edit ${editing?.name ?? ""}`}
+            {isNew
+              ? t("remote.addTitle")
+              : t("remote.editTitle", { name: editing?.name ?? "" })}
           </DialogTitle>
           <DialogDescription>
             {loading
-              ? "Loading storage providers…"
+              ? t("remote.loading")
               : phase === "provider"
-                ? "Pick the kind of storage to connect to."
+                ? t("remote.pickKind")
                 : provider
                   ? provider.description
-                  : "Cloud storage that rclone connects to: Google Drive, OneDrive, Dropbox, S3, WebDAV and many more."}
+                  : t("remote.genericDescription")}
           </DialogDescription>
         </DialogHeader>
         {loading || error ? (
@@ -593,16 +605,16 @@ export function RemoteDialog({
               variant="outline"
               onClick={() => setPhase("provider")}
             >
-              Back
+              {t("remote.back")}
             </Button>
           )}
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           {phase === "provider" ? null : (
             <Button type="submit" disabled={pending || !type || !remoteName}>
               {pending ? <Spinner data-icon="inline-start" /> : null}
-              {isNew ? "Add" : "Save"}
+              {isNew ? t("remote.add") : t("remote.save")}
             </Button>
           )}
         </DialogFooter>
@@ -618,11 +630,11 @@ function ProviderCatalog({
   providers: Provider[]
   onSelect: (provider: Provider) => void
 }) {
+  const { t } = useTranslation("cloud")
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-muted-foreground">
-        Choose the storage you want to connect to, then give it a name and fill
-        in its settings.
+        {t("remote.catalogHint")}
       </p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {providers.map((provider) => (
@@ -666,13 +678,14 @@ function SettingsForm({
   error: string | null
   onSubmit: (event: React.FormEvent) => void
 }) {
+  const { t } = useTranslation("cloud")
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <FieldGroup>
         {isNew ? (
           <>
             <Field>
-              <FieldLabel htmlFor="remote-name">Name</FieldLabel>
+              <FieldLabel htmlFor="remote-name">{t("remote.name")}</FieldLabel>
               <Input
                 id="remote-name"
                 value={name}
@@ -682,11 +695,11 @@ function SettingsForm({
                 autoComplete="off"
               />
               <FieldDescription>
-                How it shows in Files, e.g. gdrive or backups.
+                {t("remote.nameHint")}
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="remote-type">Storage</FieldLabel>
+              <FieldLabel htmlFor="remote-type">{t("remote.storage")}</FieldLabel>
               <p className="text-sm text-muted-foreground">
                 {provider.description}
               </p>
@@ -710,7 +723,7 @@ function SettingsForm({
               onCheckedChange={setAdvanced}
             />
             <FieldLabel htmlFor="show-advanced">
-              Advanced settings ({extra.length})
+              {t("remote.advanced", { count: extra.length })}
             </FieldLabel>
           </Field>
         ) : null}

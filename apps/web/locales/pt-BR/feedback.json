@@ -1,0 +1,49 @@
+{
+  "menu": "Enviar feedback",
+  "dialog": {
+    "title": "Enviar feedback",
+    "description": "Abre uma nova issue em {{repo}} em uma nova aba. Você pode revisar e editar lá antes de publicar; as issues são públicas.",
+    "storeHint": "Um app da loja que não funciona? Use <b>Relatar um problema</b> na página dele na loja, para que o relato chegue a quem o mantém.",
+    "loadFailed": "Não foi possível carregar os detalhes deste servidor"
+  },
+  "choices": {
+    "bug": {
+      "title": "Relatar um bug",
+      "description": "Algo não funciona como deveria."
+    },
+    "change": {
+      "title": "Sugerir uma mudança",
+      "description": "Algo funciona, mas deveria funcionar de outro jeito."
+    },
+    "feature": {
+      "title": "Pedir um recurso",
+      "description": "Algo que o Athena ainda não consegue fazer."
+    }
+  },
+  "diagnostics": {
+    "title": "Preenchido para você",
+    "system": "Sistema",
+    "cpu": "CPU",
+    "containers": "Contêineres"
+  },
+  "appReport": {
+    "button": "Relatar um problema",
+    "title": "Relatar um problema com {{app}}",
+    "description": "Abre uma nova issue para {{where}} em uma nova aba, com os detalhes do app e deste servidor já preenchidos. Você revisa lá antes de publicar; as issues são públicas.",
+    "whereCatalog": "o catálogo {{name}}, que mantém este app",
+    "includeLogs_one": "Incluir a última {{count}} linha de log",
+    "includeLogs_other": "Incluir as últimas {{count}} linhas de log",
+    "installedCopy": "Cópia instalada",
+    "logsLabel": "Logs a incluir",
+    "loadingLogs": "Carregando logs…",
+    "logsWarning": "Remova senhas, tokens e endereços antes de continuar.",
+    "logsTruncated": "Só o final dos logs cabe no link.",
+    "cancel": "Cancelar",
+    "openIssue": "Abrir issue",
+    "preparing": "Preparando…",
+    "prepareFailed": "Não foi possível preparar o relato",
+    "logsFailed": "Não foi possível carregar os logs: {{error}}",
+    "appNotFound": "app não encontrado",
+    "noContainers": "Nenhum contêiner encontrado para este app."
+  }
+}

@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { LogOutIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage } from "@workspace/api-client"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
@@ -40,6 +41,7 @@ const MIN_LENGTH = 8
 
 /** Settings → Account: who you are, and changing your password. */
 export function AccountForm() {
+  const { t } = useTranslation("settings")
   const { user, logout } = useAuth()
   const formRef = React.useRef<HTMLFormElement>(null)
   const [pending, setPending] = React.useState(false)
@@ -66,13 +68,12 @@ export function AccountForm() {
       formRef.current?.reset()
       toast.add({
         type: "success",
-        title: "Password changed",
-        description:
-          "Other browsers signed in to this account were signed out.",
+        title: t("account.toast.changed"),
+        description: t("account.toast.changedDescription"),
       })
       return
     }
-    setError(errorMessage(err, "Couldn't change the password"))
+    setError(errorMessage(err, t("account.changeFailed")))
   }
 
   return (
@@ -91,15 +92,15 @@ export function AccountForm() {
               <ItemTitle>
                 {user.username}
                 <Badge variant="secondary">
-                  {user.is_admin ? "Administrator" : "User"}
+                  {user.is_admin ? t("account.admin") : t("account.user")}
                 </Badge>
               </ItemTitle>
-              <ItemDescription>Signed in on this browser</ItemDescription>
+              <ItemDescription>{t("account.signedIn")}</ItemDescription>
             </ItemContent>
             <ItemActions>
               <Button variant="outline" onClick={() => void logout()}>
                 <LogOutIcon data-icon="inline-start" />
-                Sign out
+                {t("account.signOut")}
               </Button>
             </ItemActions>
           </Item>
@@ -108,10 +109,8 @@ export function AccountForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Change password</CardTitle>
-          <CardDescription>
-            Your other sessions are signed out; this one stays signed in.
-          </CardDescription>
+          <CardTitle>{t("account.password.title")}</CardTitle>
+          <CardDescription>{t("account.password.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form ref={formRef} onSubmit={submit} className="max-w-sm">
@@ -126,7 +125,9 @@ export function AccountForm() {
             />
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="current">Current password</FieldLabel>
+                <FieldLabel htmlFor="current">
+                  {t("account.password.current")}
+                </FieldLabel>
                 <Input
                   id="current"
                   name="current"
@@ -136,7 +137,9 @@ export function AccountForm() {
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="new">New password</FieldLabel>
+                <FieldLabel htmlFor="new">
+                  {t("account.password.new")}
+                </FieldLabel>
                 <Input
                   id="new"
                   name="new"
@@ -146,11 +149,13 @@ export function AccountForm() {
                   required
                 />
                 <FieldDescription>
-                  At least {MIN_LENGTH} characters.
+                  {t("account.password.minLength", { count: MIN_LENGTH })}
                 </FieldDescription>
               </Field>
               <Field data-invalid={mismatch || undefined}>
-                <FieldLabel htmlFor="confirm">Confirm new password</FieldLabel>
+                <FieldLabel htmlFor="confirm">
+                  {t("account.password.confirm")}
+                </FieldLabel>
                 <Input
                   id="confirm"
                   name="confirm"
@@ -160,7 +165,7 @@ export function AccountForm() {
                   required
                 />
                 {mismatch ? (
-                  <FieldError>Passwords don&apos;t match.</FieldError>
+                  <FieldError>{t("account.password.mismatch")}</FieldError>
                 ) : null}
               </Field>
               {error ? (
@@ -171,7 +176,7 @@ export function AccountForm() {
               <Field orientation="horizontal">
                 <Button type="submit" disabled={pending}>
                   {pending ? <Spinner data-icon="inline-start" /> : null}
-                  Change password
+                  {t("account.password.submit")}
                 </Button>
               </Field>
             </FieldGroup>

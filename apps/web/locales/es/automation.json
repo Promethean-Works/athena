@@ -1,0 +1,171 @@
+{
+  "cancel": "Cancelar",
+  "view": {
+    "unavailable": "La automatización no está disponible",
+    "unsupported": "Este host no admite la automatización."
+  },
+  "copyUrl": {
+    "copy": "Copiar {{label}}",
+    "copied": "{{label}} copiada",
+    "failed": "No se pudo copiar"
+  },
+  "external": {
+    "title": "Automatización externa",
+    "description": "Conecta n8n, scripts o agentes de IA a Athena.",
+    "webhookUrl": "URL del webhook",
+    "webhookHint": "Envía una petición POST para activar un disparador de webhook; no hace falta iniciar sesión. Cada disparador de webhook tiene su propio token: copia su URL completa de la lista de disparadores.",
+    "mcpServer": "Servidor MCP",
+    "mcpUrl": "URL del servidor MCP",
+    "mcpHint": "Streamable HTTP. Los clientes inician sesión con una cookie de sesión, o envían el token definido en la variable de entorno <envVar>ATHENA_MCP_TOKEN</envVar> del servidor como <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Ejecuciones de tareas",
+    "description": "Las últimas ejecuciones, actualizadas cada pocos segundos.",
+    "trigger": "Disparador",
+    "deletedTrigger": "Disparador eliminado",
+    "listFailed": "No se pudieron listar las ejecuciones de tareas",
+    "empty": {
+      "title": "Aún no hay ejecuciones de tareas",
+      "description": "Las ejecuciones aparecen aquí cuando se activa un disparador."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Iniciar la app {{name}}",
+      "stop": "Detener la app {{name}}",
+      "restart": "Reiniciar la app {{name}}",
+      "update": "Actualizar la app {{name}}"
+    },
+    "package": {
+      "install": "Instalar {{name}} ({{manager}})",
+      "uninstall": "Desinstalar {{name}} ({{manager}})",
+      "upgrade": "Actualizar {{name}} ({{manager}})",
+      "refresh": "Refrescar las listas de paquetes de {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Disparadores",
+    "description": "Ejecuta una acción de una app o de un paquete según una programación o desde un webhook.",
+    "listFailed": "No se pudieron listar los disparadores",
+    "empty": {
+      "title": "Aún no hay disparadores",
+      "description": "Un disparador ejecuta una acción según una programación (cron) o cuando se llama a su webhook, por ejemplo desde n8n."
+    },
+    "onWebhook": "Cuando se llama a su webhook",
+    "noSchedule": "Sin programación",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Próxima ejecución {{time}}",
+    "changeFailed": "No se pudo cambiar el disparador",
+    "enabledToast": "{{name}} activado",
+    "pausedToast": "{{name}} en pausa",
+    "enabledLabel": "{{name}} activado",
+    "copyWebhook": "Copiar URL del webhook",
+    "webhookCopied": "URL del webhook copiada",
+    "copyFailed": "No se pudo copiar",
+    "deleteFailed": "No se pudo eliminar el disparador",
+    "deleted": "Disparador eliminado",
+    "deleteLabel": "Eliminar {{name}}",
+    "delete": "Eliminar",
+    "deleteTitle": "¿Eliminar {{name}}?",
+    "deleteDescription": "Deja de ejecutarse. Las ejecuciones anteriores se quedan en el registro.",
+    "deleteDescriptionWebhook": "Deja de ejecutarse y su URL de webhook deja de funcionar. Las ejecuciones anteriores se quedan en el registro."
+  },
+  "dialog": {
+    "new": "Nuevo disparador",
+    "description": "Ejecuta una acción de una app o de un paquete según una programación, o cada vez que se llame a un webhook.",
+    "created": {
+      "title": "Disparador de webhook creado",
+      "description": "Envía una petición POST a esta URL para ejecutar \"{{name}}\". Cualquiera que tenga la URL puede activarlo, así que mantenla privada. Puedes volver a copiarla de la lista de disparadores.",
+      "done": "Listo"
+    },
+    "errors": {
+      "name": "Ponle un nombre al disparador.",
+      "app": "Elige una app.",
+      "manager": "Elige un gestor de paquetes.",
+      "packageName": "Introduce un nombre de paquete."
+    },
+    "createdToast": "Disparador {{name}} creado",
+    "createFailed": "No se pudo crear el disparador",
+    "name": "Nombre",
+    "namePlaceholder": "p. ej. Reinicio nocturno de Jellyfin",
+    "whenItRuns": "Cuándo se ejecuta",
+    "onSchedule": "Según una programación (cron)",
+    "onWebhook": "Cuando se llama a un webhook",
+    "schedule": "Programación",
+    "cronPlaceholder": "minuto hora día mes día de la semana, p. ej. 0 2 * * *",
+    "cronHelp": "Cinco campos: minuto, hora, día del mes, mes, día de la semana. Las horas son UTC.",
+    "webhookHint": "Al crearlo obtienes una URL secreta. Una petición POST a ella (desde n8n, un script o curl) ejecuta la acción.",
+    "whatItDoes": "Qué hace",
+    "appAction": "Acción de app",
+    "packageAction": "Acción de paquete",
+    "create": "Crear disparador",
+    "app": "App",
+    "loadingApps": "Cargando apps…",
+    "chooseApp": "Elige una app",
+    "noApps": "No hay apps instaladas",
+    "action": "Acción",
+    "appVerbs": {
+      "start": "Iniciar",
+      "stop": "Detener",
+      "restart": "Reiniciar",
+      "update": "Actualizar (descargar y recrear)"
+    },
+    "packageVerbs": {
+      "install": "Instalar",
+      "uninstall": "Desinstalar",
+      "upgrade": "Actualizar",
+      "refresh": "Refrescar listas de paquetes"
+    },
+    "packageManager": "Gestor de paquetes",
+    "loading": "Cargando…",
+    "chooseManager": "Elige un gestor",
+    "noManagers": "Ninguno listo en este host",
+    "package": "Paquete",
+    "packagePlaceholder": "p. ej. jq",
+    "source": "Origen (opcional)",
+    "sourceHint": "Un remoto de Flatpak, un bucket de Scoop o \"cask\" para un cask de Homebrew.",
+    "loadingInstalled": "Cargando paquetes instalados…",
+    "installedFailed": "No se pudieron listar los paquetes instalados ({{error}}); escribe el nombre.",
+    "searchInstalled": "Buscar paquetes instalados",
+    "noMatch": "Ningún paquete instalado coincide."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Cada hora",
+      "daily": "Diario a las 02:00",
+      "sundays": "Domingos a las 03:00",
+      "monthly": "Mensual el día 1"
+    },
+    "fields": {
+      "minute": "minuto",
+      "hour": "hora",
+      "dayOfMonth": "día del mes",
+      "month": "mes",
+      "weekday": "día de la semana"
+    },
+    "errors": {
+      "empty": "Introduce una expresión cron o elige un ajuste predefinido.",
+      "invalidField": "El campo {{field}} \"{{value}}\" no es válido.",
+      "invalidStep": "El paso \"/{{step}}\" del campo {{field}} debe ser un número.",
+      "outOfRange": "El campo {{field}} debe estar entre {{min}} y {{max}}.",
+      "fieldCount": "Usa cinco campos (minuto hora día mes día de la semana); este tiene {{count}}."
+    },
+    "dayRange": "{{from}} a {{to}}",
+    "custom": "Programación personalizada",
+    "everyMinute": "Cada minuto",
+    "everyMinutes_one": "Cada {{count}} minuto",
+    "everyMinutes_many": "Cada {{count}} de minutos",
+    "everyMinutes_other": "Cada {{count}} minutos",
+    "everyHourOnTheHour": "Cada hora, en punto",
+    "everyHourAtMinute": "Cada hora en el minuto {{minute}}",
+    "everyHoursAtMinute_one": "Cada {{count}} hora en el minuto {{minute}}",
+    "everyHoursAtMinute_many": "Cada {{count}} de horas en el minuto {{minute}}",
+    "everyHoursAtMinute_other": "Cada {{count}} horas en el minuto {{minute}}",
+    "everyDay": "Cada día a las {{time}}",
+    "everyWeekdays": "Cada {{days}} a las {{time}}",
+    "onDayOfMonth": "El día {{day}} de cada mes a las {{time}}",
+    "everyYear": "Cada año el {{day}} de {{month}} a las {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

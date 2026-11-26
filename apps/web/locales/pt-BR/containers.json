@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Em execução",
+    "dead": "Morto",
+    "exited": "Encerrado",
+    "exitedWithCode": "Encerrado ({{code}})",
+    "paused": "pausado",
+    "created": "criado",
+    "restarting": "reiniciando"
+  },
+  "logs": {
+    "following": "Acompanhando novas saídas",
+    "stopped": "O contêiner parou",
+    "disconnected": "Desconectado",
+    "connecting": "Conectando…",
+    "title": "Logs · {{name}}",
+    "empty": "Sem saída de log."
+  },
+  "runtime": {
+    "startFailed": "Não foi possível iniciar o runtime",
+    "running": "O runtime de contêineres está em execução",
+    "providerStopped": "{{provider}} não está em execução",
+    "stopped": "O runtime de contêineres não está em execução",
+    "none": "Nenhum runtime de contêineres",
+    "notFound": "O Athena não encontrou um mecanismo de contêineres neste host.",
+    "start": "Iniciar {{provider}}",
+    "redetect": "Detectar novamente",
+    "setup": {
+      "darwin": {
+        "title": "Instalar o Colima"
+      },
+      "linux": {
+        "title": "Instalar o Docker Engine"
+      },
+      "windows": {
+        "title": "Instalar um runtime de contêineres",
+        "wsl": "Docker Engine no WSL2: wsl --install e depois instale o docker-ce dentro da distro",
+        "podman": "ou Podman: winget install RedHat.Podman e depois podman machine init; podman machine start",
+        "rancher": "ou Rancher Desktop: winget install SUSE.RancherDesktop (escolha o mecanismo dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Não foi possível listar os contêineres",
+    "actionFailed": {
+      "start": "Não foi possível iniciar {{name}}",
+      "stop": "Não foi possível parar {{name}}",
+      "restart": "Não foi possível reiniciar {{name}}"
+    },
+    "removeFailed": "Não foi possível remover {{name}}",
+    "removed": "{{name}} removido",
+    "emptyTitle": "Nenhum contêiner ainda",
+    "emptyDescription": "Os contêineres deste runtime aparecem aqui, inclusive os iniciados fora do Athena.",
+    "name": "Nome",
+    "image": "Imagem",
+    "state": "Estado",
+    "ports": "Portas",
+    "actions": "Ações",
+    "standalone": "Contêineres avulsos",
+    "actionsFor": "Ações para {{name}}",
+    "logs": "Logs",
+    "shell": "Shell",
+    "restart": "Reiniciar",
+    "stop": "Parar",
+    "start": "Iniciar",
+    "remove": "Remover",
+    "removeTitle": "Remover {{name}}?",
+    "removeRunningDescription": "Ele será parado primeiro. O contêiner é excluído. Os volumes nomeados e a imagem são mantidos.",
+    "removeDescription": "O contêiner é excluído. Os volumes nomeados e a imagem são mantidos.",
+    "cancel": "Cancelar"
+  }
+}

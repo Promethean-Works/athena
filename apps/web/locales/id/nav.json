@@ -1,0 +1,21 @@
+{
+  "dashboard": "Dasbor",
+  "apps": "Aplikasi",
+  "store": "Toko",
+  "packages": "Paket",
+  "automation": "Otomatisasi",
+  "files": "File",
+  "smbShares": "Berbagi SMB",
+  "cloud": "Cloud",
+  "containers": "Kontainer",
+  "terminal": "Terminal",
+  "assistant": "Asisten",
+  "backups": "Cadangan",
+  "settings": "Pengaturan",
+  "help": "Bantuan",
+  "roleAdmin": "Administrator",
+  "roleUser": "Pengguna",
+  "tunnelAddress": "Alamat tunnel",
+  "restartAthena": "Mulai ulang Athena",
+  "logOut": "Keluar"
+}

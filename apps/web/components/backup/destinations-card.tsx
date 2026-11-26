@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { FolderIcon, PlusIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -26,6 +27,7 @@ import { useDestinations } from "./use-backup"
 
 /** The list of backup destinations (repositories). */
 export function DestinationsCard({ onAdd }: { onAdd: () => void }) {
+  const { t } = useTranslation("backup")
   const { destinations, error } = useDestinations()
 
   if (!destinations) {
@@ -39,10 +41,10 @@ export function DestinationsCard({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="flex min-w-0 flex-col gap-4 md:gap-6">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold">Destinations</h2>
+        <h2 className="text-sm font-semibold">{t("destinations.title")}</h2>
         <Button size="sm" onClick={onAdd}>
           <PlusIcon data-icon="inline-start" />
-          Add
+          {t("add")}
         </Button>
       </div>
       {destinations.length === 0 ? (
@@ -51,10 +53,9 @@ export function DestinationsCard({ onAdd }: { onAdd: () => void }) {
             <EmptyMedia variant="icon">
               <FolderIcon />
             </EmptyMedia>
-            <EmptyTitle>No destinations yet</EmptyTitle>
+            <EmptyTitle>{t("destinations.empty.title")}</EmptyTitle>
             <EmptyDescription>
-              A destination is a folder or an rclone remote where backups are
-              kept. Add one to start backing up.
+              {t("destinations.empty.description")}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -62,10 +63,14 @@ export function DestinationsCard({ onAdd }: { onAdd: () => void }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Kind</TableHead>
-              <TableHead className="text-left">Location</TableHead>
-              <TableHead className="text-right">Created</TableHead>
+              <TableHead>{t("destinations.name")}</TableHead>
+              <TableHead>{t("destinations.kind")}</TableHead>
+              <TableHead className="text-left">
+                {t("destinations.location")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("destinations.created")}
+              </TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>

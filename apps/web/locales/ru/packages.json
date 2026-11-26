@@ -1,0 +1,61 @@
+{
+  "view": {
+    "noManagers": "Менеджеры пакетов не найдены",
+    "noManagersHint": "Athena не нашла на этом хосте поддерживаемый менеджер пакетов."
+  },
+  "listError": "Не удалось прочитать список пакетов",
+  "cancel": "Отмена",
+  "toast": {
+    "installFailed": "Не удалось установить {{name}}",
+    "uninstallFailed": "Не удалось удалить {{name}}",
+    "upgradeFailed": "Не удалось обновить {{name}}",
+    "upgradeAllFailed": "Не удалось обновить пакеты",
+    "refreshFailed": "Не удалось обновить списки пакетов"
+  },
+  "unavailable": "{{name}} сейчас недоступен",
+  "unavailableHint": "Он не готов на этом хосте.",
+  "refreshLists": "Обновить списки",
+  "upgradeAll": "Обновить все",
+  "tabs": {
+    "installed": "Установленные",
+    "updates": "Обновления",
+    "search": "Поиск"
+  },
+  "installed": {
+    "filter": "Фильтр установленных пакетов",
+    "noMatch": "Подходящих установленных пакетов нет.",
+    "empty": "Ничего не установлено.",
+    "upgradeLabel": "Обновить {{name}}",
+    "upgrade": "Обновить",
+    "uninstallLabel": "Удалить {{name}}",
+    "uninstall": "Удалить",
+    "shortened": "{{manager}} сократил этот идентификатор, поэтому удалить пакет отсюда нельзя",
+    "showing": "Показано {{shown}} из {{total}}. Уточните фильтр."
+  },
+  "table": {
+    "package": "Пакет",
+    "version": "Версия",
+    "description": "Описание"
+  },
+  "updates": {
+    "upToDate": "Всё обновлено",
+    "upToDateRefresh": "По состоянию на последнее обновление списков. Обновите списки, чтобы проверить снова.",
+    "nothing": "Обновлять нечего.",
+    "installedColumn": "Установлена",
+    "availableColumn": "Доступна"
+  },
+  "search": {
+    "label": "Поиск в {{manager}}",
+    "noMatch": "Нет пакетов по запросу «{{query}}».",
+    "install": "Установить"
+  },
+  "confirm": {
+    "uninstallTitle": "Удалить {{name}}?",
+    "uninstallDescription": "Пакет будет удалён с этого сервера. Зависящие от него пакеты тоже могут быть удалены.",
+    "upgradeAllTitle": "Обновить все пакеты {{manager}}?",
+    "upgradeAllDescription_one": "Будет обновлён {{count}} пакет. Это может занять некоторое время.",
+    "upgradeAllDescription_few": "Будет обновлено {{count}} пакета. Это может занять некоторое время.",
+    "upgradeAllDescription_many": "Будет обновлено {{count}} пакетов. Это может занять некоторое время.",
+    "upgradeAllDescription_other": "Будет обновлено {{count}} пакета. Это может занять некоторое время."
+  }
+}

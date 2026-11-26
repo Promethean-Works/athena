@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 
 import { api, errorMessage } from "@workspace/api-client"
@@ -44,6 +45,7 @@ function LocationForm({
   onCancel: () => void
   onSaved: () => void
 }) {
+  const { t } = useTranslation("files")
   const [name, setName] = React.useState(editing.name)
   const [path, setPath] = React.useState(editing.path)
   const [error, setError] = React.useState<string | null>(null)
@@ -70,18 +72,22 @@ function LocationForm({
     <form onSubmit={submit} className="rounded-lg border p-4">
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="location-name">Name</FieldLabel>
+          <FieldLabel htmlFor="location-name">
+            {t("locationsDialog.name")}
+          </FieldLabel>
           <Input
             id="location-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Media"
+            placeholder={t("locationsDialog.namePlaceholder")}
             maxLength={64}
             required
           />
         </Field>
         <Field data-invalid={error ? true : undefined}>
-          <FieldLabel htmlFor="location-path">Folder on the server</FieldLabel>
+          <FieldLabel htmlFor="location-path">
+            {t("locationsDialog.folder")}
+          </FieldLabel>
           <Input
             id="location-path"
             value={path}
@@ -96,10 +102,12 @@ function LocationForm({
         <Field orientation="horizontal">
           <Button type="submit" disabled={pending}>
             {pending ? <Spinner data-icon="inline-start" /> : null}
-            {editing.id === null ? "Add location" : "Save"}
+            {editing.id === null
+              ? t("locationsDialog.add")
+              : t("locationsDialog.save")}
           </Button>
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {t("locationsDialog.cancel")}
           </Button>
         </Field>
       </FieldGroup>
@@ -119,6 +127,7 @@ export function LocationsDialog({
   onOpenChange: (open: boolean) => void
   onChanged: () => void
 }) {
+  const { t } = useTranslation("files")
   const [editing, setEditing] = React.useState<Editing | null>(null)
   const [removing, setRemoving] = React.useState<number | null>(null)
 
@@ -132,14 +141,14 @@ export function LocationsDialog({
     if (response.ok) {
       toast.add({
         type: "success",
-        title: `Removed ${loc.name}`,
-        description: "The folder and its files are still on the server.",
+        title: t("locationsDialog.removed", { name: loc.name }),
+        description: t("locationsDialog.removedDescription"),
       })
       onChanged()
     } else {
       toast.add({
         type: "error",
-        title: `Couldn't remove ${loc.name}`,
+        title: t("locationsDialog.removeFailed", { name: loc.name }),
         description: errorMessage(error),
       })
     }
@@ -155,10 +164,9 @@ export function LocationsDialog({
     >
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Locations</DialogTitle>
+          <DialogTitle>{t("locationsDialog.title")}</DialogTitle>
           <DialogDescription>
-            The file manager only reaches these folders. Removing one
-            doesn&apos;t touch its files.
+            {t("locationsDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <ItemGroup className="max-h-80 gap-2 overflow-y-auto">
@@ -168,9 +176,13 @@ export function LocationsDialog({
                 <ItemTitle>
                   {loc.name}
                   {!loc.available ? (
-                    <Badge variant="destructive">Missing</Badge>
+                    <Badge variant="destructive">
+                      {t("locationsDialog.missing")}
+                    </Badge>
                   ) : !loc.writable ? (
-                    <Badge variant="secondary">Read-only</Badge>
+                    <Badge variant="secondary">
+                      {t("locationsDialog.readOnly")}
+                    </Badge>
                   ) : null}
                 </ItemTitle>
                 <ItemDescription className="truncate font-mono text-xs">
@@ -181,7 +193,7 @@ export function LocationsDialog({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={`Edit ${loc.name}`}
+                  aria-label={t("locationsDialog.edit", { name: loc.name })}
                   onClick={() =>
                     setEditing({ id: loc.id, name: loc.name, path: loc.path })
                   }
@@ -191,7 +203,7 @@ export function LocationsDialog({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={`Remove ${loc.name}`}
+                  aria-label={t("locationsDialog.remove", { name: loc.name })}
                   disabled={removing === loc.id}
                   onClick={() => remove(loc)}
                 >
@@ -218,7 +230,7 @@ export function LocationsDialog({
             onClick={() => setEditing({ id: null, name: "", path: "" })}
           >
             <PlusIcon />
-            Add location
+            {t("locationsDialog.add")}
           </Button>
         )}
       </DialogContent>

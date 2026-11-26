@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
+
 import { api } from "@workspace/api-client"
 
 import { useAuth } from "@/components/auth-provider"
@@ -16,6 +18,7 @@ export type TerminalAccess =
  * and it's on in Settings → System. The server checks all of this again.
  */
 export function useTerminalAccess(): TerminalAccess {
+  const { t } = useTranslation("terminal")
   const { user } = useAuth()
   const capability = useCapability("terminal.host")
   const settings = useApi(() => api.GET("/api/settings/system"))
@@ -24,16 +27,16 @@ export function useTerminalAccess(): TerminalAccess {
   if (!capability.available) {
     return {
       state: "unavailable",
-      reason: capability.detail ?? "This host has no terminal support.",
+      reason: capability.detail ?? t("access.noSupport"),
     }
   }
   if (!user.is_admin) {
-    return { state: "unavailable", reason: "Only admins can open a terminal." }
+    return { state: "unavailable", reason: t("access.adminsOnly") }
   }
   if (settings.status === "ok" && !settings.data.terminal_enabled) {
     return {
       state: "unavailable",
-      reason: "The terminal is turned off in Settings → System.",
+      reason: t("access.turnedOff"),
       settingsLink: true,
     }
   }

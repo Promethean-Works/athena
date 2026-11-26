@@ -1,0 +1,280 @@
+{
+  "common": {
+    "manage": "Spravovat"
+  },
+  "cardShell": {
+    "open": "Otevřít"
+  },
+  "cards": {
+    "stats": {
+      "title": "Systém",
+      "description": "Aktuální vytížení CPU, paměti, sítě a disků."
+    },
+    "apps": {
+      "title": "Aplikace",
+      "description": "Vaše aplikace s jejich stavem a tlačítkem Otevřít."
+    },
+    "containers": {
+      "title": "Kontejnery",
+      "description": "Počty běžících a zastavených kontejnerů a které vyžadují pozornost."
+    },
+    "automation": {
+      "title": "Automatizace",
+      "description": "Další plánovaná spuštění a jak dopadla poslední."
+    },
+    "storage": {
+      "title": "Úložiště",
+      "description": "Využité místo na každém disku."
+    },
+    "server": {
+      "title": "Server",
+      "description": "Název hostitele, operační systém, doba běhu a verze."
+    },
+    "temperatures": {
+      "title": "Teploty",
+      "description": "Hodnoty senzorů, pokud je hostitel hlásí."
+    },
+    "power": {
+      "title": "Napájení",
+      "description": "Podpětí a omezení výkonu na Raspberry Pi."
+    },
+    "activity": {
+      "title": "Nedávná aktivita",
+      "description": "Nejnovější změny z auditního protokolu (jen správci)."
+    },
+    "remoteAccess": {
+      "title": "Vzdálený přístup",
+      "description": "Stav tunelu a veřejná adresa."
+    },
+    "capabilities": {
+      "title": "Schopnosti",
+      "description": "Co Athena na tomto hostiteli našla."
+    },
+    "backups": {
+      "title": "Zálohy",
+      "description": "Plány záloh, poslední spuštění a další plánované spuštění."
+    }
+  },
+  "activity": {
+    "title": "Nedávná aktivita",
+    "description": "Kdo na tomto serveru co změnil.",
+    "loadError": "Nedávnou aktivitu se nepodařilo načíst: {{error}}",
+    "empty": "Zatím nic. Akce s aplikacemi, kontejnery a soubory se zobrazí zde.",
+    "by": "uživatel {{username}}"
+  },
+  "automation": {
+    "title": "Automatizace",
+    "description": "Plánované spouštěče a spouštěče webhooků a jak dopadla jejich spuštění.",
+    "succeeded": "Úspěšné",
+    "failed": "Neúspěšné",
+    "loadError": "Automatizaci se nepodařilo načíst: {{error}}",
+    "noTriggers": "Zatím žádné spouštěče. Vytvořte jeden, který podle plánu restartuje aplikaci nebo aktualizuje balíčky.",
+    "nextRuns": "Další spuštění · zapnuto {{enabled}} z {{total}} spouštěčů",
+    "nothingScheduled": "Nic není naplánováno. Spouštěče webhooků se spustí při zavolání.",
+    "recentRuns": "Nedávná spuštění",
+    "noRuns": "Zatím žádná spuštění.",
+    "deletedTrigger": "Smazaný spouštěč"
+  },
+  "backup": {
+    "title": "Zálohy",
+    "description": "Plány záloh, poslední spuštění a další plánované spuštění.",
+    "succeeded": "Úspěšné",
+    "failed": "Neúspěšné",
+    "running": "Běží",
+    "loadError": "Plány záloh se nepodařilo načíst: {{error}}",
+    "empty": "Zatím žádné plány záloh. Přidejte jeden v Nastavení → Zálohy.",
+    "plans": "Plány",
+    "enabled": "Povoleno",
+    "plansFailed_one": "{{count}} plán selhal",
+    "plansFailed_few": "{{count}} plány selhaly",
+    "plansFailed_many": "{{count}} plánu selhalo",
+    "plansFailed_other": "{{count}} plánů selhalo",
+    "noFailures": "Žádná nedávná selhání",
+    "nextRuns": "Další plánovaná spuštění",
+    "noScheduled": "Žádná plánovaná spuštění"
+  },
+  "containers": {
+    "title": "Kontejnery",
+    "description": "Vše, co běží v kontejnerovém enginu, včetně aplikací.",
+    "all": "Všechny kontejnery",
+    "running": "Běží",
+    "notRunning": "Neběží",
+    "needAttention": "Vyžadují pozornost",
+    "exited": "Ukončen ({{code}})",
+    "loadError": "Kontejnery se nepodařilo načíst: {{error}}",
+    "empty": "Na tomto serveru zatím nejsou žádné kontejnery.",
+    "engineDown": "Kontejnerový engine neběží."
+  },
+  "apps": {
+    "title": "Aplikace",
+    "subtitle": "Co běží na tomto serveru",
+    "store": "Obchod",
+    "all": "Všechny aplikace",
+    "emptyTitle": "Zatím žádné aplikace",
+    "emptyDescription": "Nainstalujte některou z obchodu, nebo nasaďte vlastní soubor compose.",
+    "browseStore": "Procházet obchod",
+    "status": {
+      "running": "Běží",
+      "partial": "Běží částečně",
+      "stopped": "Zastaveno",
+      "notDeployed": "Nenasazeno"
+    },
+    "containerCount_one": "{{count}} kontejner",
+    "containerCount_few": "{{count}} kontejnery",
+    "containerCount_many": "{{count}} kontejneru",
+    "containerCount_other": "{{count}} kontejnerů",
+    "actionsFor": "Akce pro {{name}}",
+    "open": "Otevřít",
+    "openPort": "Otevřít :{{port}}",
+    "details": "Podrobnosti",
+    "restart": "Restartovat",
+    "stop": "Zastavit",
+    "start": "Spustit",
+    "updateImages": "Aktualizovat obrazy",
+    "remove": "Odebrat"
+  },
+  "grid": {
+    "pickedUp": "Karta {{title}} zvednuta.",
+    "overCard": "{{title}} je nad {{other}}.",
+    "notOverCard": "{{title}} už není nad kartou.",
+    "moved": "{{title}} přesunuto na místo, kde bylo {{other}}.",
+    "dropped": "{{title}} upuštěno.",
+    "cancelled": "Přesun {{title}} byl zrušen.",
+    "move": "Přesunout {{title}}",
+    "moveUp": "Posunout {{title}} nahoru",
+    "moveDown": "Posunout {{title}} dolů",
+    "makeHalf": "Zúžit {{title}} na poloviční šířku",
+    "makeFull": "Roztáhnout {{title}} na plnou šířku",
+    "remove": "Odebrat {{title}}",
+    "nothingToShow": "Na tomto serveru teď není co zobrazit.",
+    "addDialogTitle": "Přidat kartu",
+    "addDialogDescription": "Karty se přidávají na konec; přetáhněte je, kam chcete.",
+    "allAddedTitle": "Všechny karty jsou na vašem přehledu",
+    "allAddedDescription": "Odeberte některou, abyste ji mohli později přidat znovu.",
+    "addCard": "Přidat {{title}}",
+    "add": "Přidat",
+    "editHint": "Karty přetahujte za úchyt, nebo použijte šipky. Změny se uloží po stisknutí Hotovo.",
+    "addCardButton": "Přidat kartu",
+    "reset": "Obnovit výchozí",
+    "cancel": "Zrušit",
+    "done": "Hotovo",
+    "customize": "Přizpůsobit",
+    "emptyTitle": "Váš přehled je prázdný",
+    "emptyDescription": "Přidejte karty, nebo obnovte výchozí rozvržení.",
+    "dragInstructions": "Kartu přesunete stisknutím mezerníku nebo Enteru, šipkami a dalším stisknutím mezerníku nebo Enteru ji upustíte, nebo Escape zrušíte."
+  },
+  "stats": {
+    "used": "Využito",
+    "download": "Stahování",
+    "upload": "Odesílání",
+    "read": "Čtení",
+    "write": "Zápis",
+    "util": "Vytížení",
+    "unavailableTitle": "Živé statistiky nejsou k dispozici",
+    "unavailableDescription": "Server nevrátil statistiky hostitele.",
+    "coresThreads": "{{cores}} jader · {{threads}} vláken",
+    "cores_one": "{{count}} jádro",
+    "cores_few": "{{count}} jádra",
+    "cores_many": "{{count}} jádra",
+    "cores_other": "{{count}} jader",
+    "coresLoad": "{{cores}} · zátěž {{load}}",
+    "liveLabel": "Živé statistiky hostitele",
+    "system": "Systém",
+    "live": "Živě",
+    "reconnecting": "Znovu se připojuje",
+    "chartRange": "Rozsah grafu",
+    "range5m": "5 min",
+    "range1h": "1 hodina",
+    "memory": "Paměť",
+    "memUsed": "využito {{used}}",
+    "memUsedSwap": "využito {{used}} · swap {{swap}}",
+    "network": "Síť",
+    "diskActivity": "Aktivita disku",
+    "readRate": "Č {{rate}}",
+    "writeRate": "Z {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_few": "{{count}} GPU",
+    "gpuCount_many": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPU",
+    "noGpu": "GPU nehlášena",
+    "vramOf": "{{used}} z {{total}}"
+  },
+  "power": {
+    "title": "Napájení",
+    "description": "Napájení a omezování výkonu Raspberry Pi",
+    "problemNow": "Problém právě teď",
+    "ok": "OK",
+    "flagNow": "{{label}} právě teď",
+    "flagSinceBoot": "{{label}} od spuštění",
+    "none": "Od spuštění tohoto serveru nedošlo k podpětí ani omezení výkonu.",
+    "flags": {
+      "underVoltage": {
+        "label": "Podpětí",
+        "hint": "Napájecí zdroj nebo kabel nestačí. Použijte oficiální zdroj a krátký, tlustý kabel."
+      },
+      "throttled": {
+        "label": "Omezený výkon",
+        "hint": "CPU je zpomalen, aby se ochránil."
+      },
+      "freqCapped": {
+        "label": "Omezená frekvence",
+        "hint": "Firmware snížil maximální rychlost CPU."
+      },
+      "softTempLimit": {
+        "label": "Měkký teplotní limit",
+        "hint": "CPU se blíží teplotnímu limitu. Zkontrolujte chlazení."
+      }
+    }
+  },
+  "remote": {
+    "title": "Vzdálený přístup",
+    "description": "Přistupujte k Athena zvenčí vaší sítě.",
+    "settings": "Nastavení",
+    "loadError": "Vzdálený přístup se nepodařilo načíst: {{error}}",
+    "off": "Vypnuto. Zapněte v Nastavení → Systém a získáte přístup k Athena zvenčí vaší sítě.",
+    "running": "Běží",
+    "notRunning": "Neběží",
+    "noProvider": "Žádný poskytovatel",
+    "warning": "Terminál, instalace balíčků a asistent jsou z internetu dostupné s jedním heslem. <link>Vypněte je</link>, pokud je na dálku nepotřebujete.",
+    "publicAddress": "Veřejná adresa",
+    "copyAddress": "Kopírovat veřejnou adresu",
+    "copied": "Adresa zkopírována",
+    "copyFailed": "Kopírování se nepovedlo"
+  },
+  "storage": {
+    "title": "Úložiště",
+    "description": "Disky, složky, cloud a síťová sdílení",
+    "noDisks": "Zatím nejsou hlášeny žádné disky.",
+    "diskUsage": "{{used}} z {{total}}",
+    "folders": "Složky",
+    "unavailable": "Nedostupné",
+    "cloud": "Cloudové úložiště",
+    "shares": "Síťová sdílení",
+    "readOnly": "Jen pro čtení"
+  },
+  "temperatures": {
+    "title": "Teploty",
+    "description": "Hardwarové senzory"
+  },
+  "layout": {
+    "saveFailed": "Přehled se nepodařilo uložit",
+    "saved": "Přehled uložen"
+  },
+  "server": {
+    "title": "Server",
+    "description": "Počítač, na kterém Athena běží",
+    "unreachableTitle": "Server Athena není dostupný",
+    "unreachableDescription": "{{error}}. Při vývoji ho spusťte příkazem <code>uv run athena serve --reload</code> v <code>apps/server</code>.",
+    "host": "Hostitel",
+    "os": "Operační systém",
+    "platform": "Platforma",
+    "uptime": "Doba běhu",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Připojování…",
+    "unreachable": "Server nedostupný",
+    "version": "Athena {{version}}"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Bu bağlantı eksik.",
+    "expiredTitle": "Bu bağlantının süresi doldu",
+    "notFoundTitle": "Bu bağlantı çalışmıyor",
+    "errorTitle": "Bu bağlantı açılamadı",
+    "expiredDescription": "Gönderen kişiden yenisini isteyin."
+  },
+  "unlock": {
+    "title": "Bu bağlantının parolası var",
+    "description": "Paylaşılanları görmek için girin.",
+    "password": "Parola",
+    "open": "Aç"
+  },
+  "file": {
+    "fallbackName": "dosya",
+    "download": "İndir"
+  },
+  "dropBox": {
+    "title": "{{name}} konumuna dosya gönderin",
+    "description": "Eklediğiniz dosyalar hemen yüklenir. Başkalarının gönderdiklerini göremezsiniz ve gönderdiğiniz hiçbir şey başka bir dosyanın yerini almaz.",
+    "drop": "Dosyaları buraya bırakın ya da",
+    "choose": "Dosya seçin"
+  },
+  "folder": {
+    "downloadAll": "Tümünü indir",
+    "cantOpen": "Bu klasör açılamadı",
+    "empty": "Bu klasör boş.",
+    "columnName": "Ad",
+    "columnSize": "Boyut",
+    "columnModified": "Değiştirilme",
+    "columnDownload": "İndir",
+    "downloadEntry": "{{name}} indir",
+    "download": "İndir"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "view": {
+    "noManagers": "Geen pakketbeheerders gevonden",
+    "noManagersHint": "Athena heeft op deze host geen ondersteunde pakketbeheerder gevonden."
+  },
+  "listError": "De pakketlijst kon niet worden gelezen",
+  "cancel": "Annuleren",
+  "toast": {
+    "installFailed": "{{name}} kon niet worden geïnstalleerd",
+    "uninstallFailed": "{{name}} kon niet worden gedeïnstalleerd",
+    "upgradeFailed": "{{name}} kon niet worden bijgewerkt",
+    "upgradeAllFailed": "Pakketten konden niet worden bijgewerkt",
+    "refreshFailed": "De pakketlijsten konden niet worden vernieuwd"
+  },
+  "unavailable": "{{name}} kan nu niet worden gebruikt",
+  "unavailableHint": "Het is niet gereed op deze host.",
+  "refreshLists": "Lijsten vernieuwen",
+  "upgradeAll": "Alles bijwerken",
+  "tabs": {
+    "installed": "Geïnstalleerd",
+    "updates": "Updates",
+    "search": "Zoeken"
+  },
+  "installed": {
+    "filter": "Geïnstalleerde pakketten filteren",
+    "noMatch": "Geen geïnstalleerd pakket komt overeen.",
+    "empty": "Niets geïnstalleerd.",
+    "upgradeLabel": "{{name}} bijwerken",
+    "upgrade": "Bijwerken",
+    "uninstallLabel": "{{name}} deïnstalleren",
+    "uninstall": "Deïnstalleren",
+    "shortened": "{{manager}} heeft deze id ingekort, dus hij kan hier niet worden gedeïnstalleerd",
+    "showing": "{{shown}} van {{total}} getoond. Filter om te verfijnen."
+  },
+  "table": {
+    "package": "Pakket",
+    "version": "Versie",
+    "description": "Beschrijving"
+  },
+  "updates": {
+    "upToDate": "Alles is up-to-date",
+    "upToDateRefresh": "Zoals bij de laatste vernieuwing van de lijsten. Vernieuw de lijsten om opnieuw te controleren.",
+    "nothing": "Niets om bij te werken.",
+    "installedColumn": "Geïnstalleerd",
+    "availableColumn": "Beschikbaar"
+  },
+  "search": {
+    "label": "{{manager}} doorzoeken",
+    "noMatch": "Geen pakketten gevonden voor “{{query}}”.",
+    "install": "Installeren"
+  },
+  "confirm": {
+    "uninstallTitle": "{{name}} deïnstalleren?",
+    "uninstallDescription": "Het wordt van deze server verwijderd. Pakketten die ervan afhangen kunnen ook worden verwijderd.",
+    "upgradeAllTitle": "Alle {{manager}}-pakketten bijwerken?",
+    "upgradeAllDescription_one": "{{count}} pakket wordt bijgewerkt. Dit kan even duren.",
+    "upgradeAllDescription_other": "{{count}} pakketten worden bijgewerkt. Dit kan even duren."
+  }
+}

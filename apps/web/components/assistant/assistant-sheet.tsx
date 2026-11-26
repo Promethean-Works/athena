@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslation } from "react-i18next"
 import { Maximize2Icon, SparklesIcon } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -25,6 +26,7 @@ import { useAuth } from "@/components/auth-provider"
  * reply keeps running on the server while the sheet is closed.
  */
 export function AssistantSheet() {
+  const { t } = useTranslation("assistant")
   const { user } = useAuth()
   const pathname = usePathname()
   const [open, setOpen] = React.useState(false)
@@ -38,10 +40,10 @@ export function AssistantSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
-        render={<Button variant="ghost" size="sm" aria-label="Assistant" />}
+        render={<Button variant="ghost" size="sm" aria-label={t("title")} />}
       >
         <SparklesIcon />
-        <span className="hidden sm:inline">Assistant</span>
+        <span className="hidden sm:inline">{t("title")}</span>
       </SheetTrigger>
       <SheetContent
         side="right"
@@ -49,16 +51,16 @@ export function AssistantSheet() {
       >
         <SheetHeader className="flex-row items-center gap-2 pr-12">
           <div className="min-w-0 flex-1">
-            <SheetTitle>Assistant</SheetTitle>
+            <SheetTitle>{t("title")}</SheetTitle>
             <SheetDescription className="sr-only">
-              Chat with the AI assistant about this server.
+              {t("sheet.description")}
             </SheetDescription>
           </div>
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Open the full page"
-            title="Open the full page"
+            aria-label={t("sheet.openFullPage")}
+            title={t("sheet.openFullPage")}
             nativeButton={false}
             render={
               <Link

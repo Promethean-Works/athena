@@ -1,0 +1,119 @@
+{
+  "add": "Add",
+  "cancel": "Cancel",
+  "back": "Back",
+  "errors": {
+    "listDestinations": "Couldn't list backup destinations",
+    "createDestination": "Couldn't create destination",
+    "deleteDestination": "Couldn't delete destination",
+    "listPlans": "Couldn't list backup plans",
+    "createPlan": "Couldn't create plan",
+    "updatePlan": "Couldn't update plan",
+    "deletePlan": "Couldn't delete plan",
+    "startBackup": "Couldn't start backup",
+    "listVersions": "Couldn't list backup versions",
+    "listVersionFiles": "Couldn't list version files",
+    "restoreApp": "Couldn't restore app"
+  },
+  "toast": {
+    "destinationCreated": "Destination \"{{name}}\" created",
+    "planCreated": "Plan \"{{name}}\" created",
+    "planUpdated": "Plan \"{{name}}\" updated",
+    "backupStarted": "Backup \"{{name}}\" started"
+  },
+  "view": {
+    "unavailable": "Backups aren't available",
+    "unsupported": "This host doesn't support backups.",
+    "tabs": {
+      "versions": "Versions",
+      "destinations": "Destinations",
+      "plans": "Plans"
+    }
+  },
+  "destinations": {
+    "title": "Destinations",
+    "name": "Name",
+    "kind": "Kind",
+    "location": "Location",
+    "created": "Created",
+    "empty": {
+      "title": "No destinations yet",
+      "description": "A destination is a folder or an rclone remote where backups are kept. Add one to start backing up."
+    }
+  },
+  "plans": {
+    "title": "Plans",
+    "name": "Name",
+    "schedule": "Schedule",
+    "lastRun": "Last run",
+    "status": "Status",
+    "manual": "manual",
+    "runNow": "Run now",
+    "empty": {
+      "title": "No plans yet",
+      "description": "A plan picks Athena, apps, a destination and a schedule, then runs on a timer."
+    }
+  },
+  "versions": {
+    "title": "Versions",
+    "refresh": "Refresh",
+    "time": "Time",
+    "size": "Size",
+    "new": "New",
+    "added": "Added",
+    "changed": "Changed",
+    "removed": "Removed",
+    "os": "OS",
+    "viewFiles": "View files",
+    "restore": "Restore",
+    "empty": {
+      "title": "No versions yet",
+      "description": "Run a backup to create the first one."
+    }
+  },
+  "addDestination": {
+    "title": "Add backup destination",
+    "kitTitle": "Save the recovery kit",
+    "description": "Pick where restic keeps the repository: a local folder or an rclone remote.",
+    "kitDescription": "Download or copy the kit. Athena never shows this password again; without it a dead host can't restore.",
+    "prepareFailed": "Couldn't prepare destination",
+    "saveKitFirst": "Save the recovery kit before creating the destination",
+    "name": "Name",
+    "namePlaceholder": "e.g. USB drive",
+    "kind": "Kind",
+    "local": "Local folder",
+    "rclone": "rclone remote",
+    "folder": "Folder",
+    "folderHint": "Absolute path, outside the Athena data folder.",
+    "remote": "Remote",
+    "remoteHint": "An rclone remote already set up on Cloud → Remotes.",
+    "password": "Repository password",
+    "passwordPlaceholder": "Leave empty to generate a strong one",
+    "passwordHint": "Leave empty to have Athena generate a strong password. It's shown once below, then never again.",
+    "kitSaved": "I saved this recovery kit (password, destination and restic version)",
+    "next": "Next: recovery kit",
+    "create": "Create destination"
+  },
+  "addPlan": {
+    "title": "Add backup plan",
+    "description": "Pick what to back up, where, and how often. Apps are stopped during their backup unless \"Back up while running\" is on.",
+    "name": "Name",
+    "namePlaceholder": "e.g. Daily apps",
+    "destination": "Destination",
+    "athena": "Back up Athena (settings, DB, secrets, TLS)",
+    "athenaHint": "Recommended: on by default.",
+    "apps": "Apps",
+    "appsHint": "Which apps to include in the plan.",
+    "noApps": "No apps found. Start apps from Store → Apps first.",
+    "schedule": "Schedule (cron)",
+    "schedulePlaceholder": "0 3 * * *  (daily at 03:00)",
+    "scheduleHint": "Leave empty for manual runs only. Scheduled runs come with part 4.",
+    "retention": "Retention",
+    "keepLast": "Keep last",
+    "keepDaily": "Keep daily",
+    "keepWeekly": "Keep weekly",
+    "keepMonthly": "Keep monthly",
+    "retentionHint": "`restic forget --keep-…` per item. Defaults: 7 daily / 4 weekly / 6 monthly.",
+    "create": "Create plan"
+  }
+}

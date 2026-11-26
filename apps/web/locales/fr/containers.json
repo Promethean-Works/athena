@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "En cours",
+    "dead": "Mort",
+    "exited": "Arrêté",
+    "exitedWithCode": "Arrêté ({{code}})",
+    "paused": "en pause",
+    "created": "créé",
+    "restarting": "redémarrage"
+  },
+  "logs": {
+    "following": "Suivi des nouvelles sorties",
+    "stopped": "Le conteneur s'est arrêté",
+    "disconnected": "Déconnecté",
+    "connecting": "Connexion…",
+    "title": "Journaux · {{name}}",
+    "empty": "Aucune sortie de journal."
+  },
+  "runtime": {
+    "startFailed": "Impossible de démarrer le runtime",
+    "running": "Le runtime de conteneurs est actif",
+    "providerStopped": "{{provider}} n'est pas actif",
+    "stopped": "Le runtime de conteneurs n'est pas actif",
+    "none": "Aucun runtime de conteneurs",
+    "notFound": "Athena n'a trouvé aucun moteur de conteneurs sur cet hôte.",
+    "start": "Démarrer {{provider}}",
+    "redetect": "Détecter à nouveau",
+    "setup": {
+      "darwin": {
+        "title": "Installer Colima"
+      },
+      "linux": {
+        "title": "Installer Docker Engine"
+      },
+      "windows": {
+        "title": "Installer un runtime de conteneurs",
+        "wsl": "Docker Engine dans WSL2 : wsl --install, puis installez docker-ce dans la distribution",
+        "podman": "ou Podman : winget install RedHat.Podman, puis podman machine init; podman machine start",
+        "rancher": "ou Rancher Desktop : winget install SUSE.RancherDesktop (choisissez le moteur dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Impossible de lister les conteneurs",
+    "actionFailed": {
+      "start": "Impossible de démarrer {{name}}",
+      "stop": "Impossible d'arrêter {{name}}",
+      "restart": "Impossible de redémarrer {{name}}"
+    },
+    "removeFailed": "Impossible de supprimer {{name}}",
+    "removed": "{{name}} supprimé",
+    "emptyTitle": "Aucun conteneur pour l'instant",
+    "emptyDescription": "Les conteneurs de ce runtime apparaissent ici, y compris ceux lancés en dehors d'Athena.",
+    "name": "Nom",
+    "image": "Image",
+    "state": "État",
+    "ports": "Ports",
+    "actions": "Actions",
+    "standalone": "Conteneurs autonomes",
+    "actionsFor": "Actions pour {{name}}",
+    "logs": "Journaux",
+    "shell": "Shell",
+    "restart": "Redémarrer",
+    "stop": "Arrêter",
+    "start": "Démarrer",
+    "remove": "Supprimer",
+    "removeTitle": "Supprimer {{name}} ?",
+    "removeRunningDescription": "Il sera d'abord arrêté. Le conteneur est supprimé. Les volumes nommés et l'image sont conservés.",
+    "removeDescription": "Le conteneur est supprimé. Les volumes nommés et l'image sont conservés.",
+    "cancel": "Annuler"
+  }
+}

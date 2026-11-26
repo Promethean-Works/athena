@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { ExternalLinkIcon } from "lucide-react"
 
 import type { Schemas } from "@workspace/api-client"
@@ -22,19 +23,20 @@ import { Field, FieldLabel } from "@workspace/ui/components/field"
 type AppOut = Schemas["AppOut"]
 
 export function AppStatusBadge({ app }: { app: AppOut }) {
+  const { t } = useTranslation("apps")
   switch (app.status) {
     case "running":
-      return <Badge variant="secondary">Running</Badge>
+      return <Badge variant="secondary">{t("status.running")}</Badge>
     case "partial":
       return (
         <Badge variant="outline">
-          {app.running}/{app.total} running
+          {t("status.partial", { running: app.running, total: app.total })}
         </Badge>
       )
     case "stopped":
-      return <Badge variant="outline">Stopped</Badge>
+      return <Badge variant="outline">{t("status.stopped")}</Badge>
     default:
-      return <Badge variant="outline">Not deployed</Badge>
+      return <Badge variant="outline">{t("status.notDeployed")}</Badge>
   }
 }
 
@@ -52,6 +54,7 @@ export function webPorts(app: AppOut): string[] {
 
 /** "Open" links to the app's published ports on the host Athena is served from. */
 export function OpenLinks({ app }: { app: AppOut }) {
+  const { t } = useTranslation("apps")
   const ports = webPorts(app)
   if (app.status === "stopped" || app.status === "not_deployed") return null
   return (
@@ -71,7 +74,7 @@ export function OpenLinks({ app }: { app: AppOut }) {
           }
         >
           <ExternalLinkIcon data-icon="inline-start" />
-          {ports.length > 1 ? `:${port}` : "Open"}
+          {ports.length > 1 ? `:${port}` : t("open")}
         </Button>
       ))}
     </>
@@ -87,6 +90,7 @@ export function DeleteAppDialog({
   onCancel: () => void
   onConfirm: (deleteData: boolean) => void
 }) {
+  const { t } = useTranslation("apps")
   const [deleteData, setDeleteData] = React.useState(false)
   React.useEffect(() => setDeleteData(false), [name])
 
@@ -97,9 +101,11 @@ export function DeleteAppDialog({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Remove {name}?</AlertDialogTitle>
+          <AlertDialogTitle>
+            {t("delete.title", { name: name ?? "" })}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Its containers are stopped and removed, and Athena forgets the app.
+            {t("delete.description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <Field orientation="horizontal">
@@ -109,16 +115,16 @@ export function DeleteAppDialog({
             onCheckedChange={(checked) => setDeleteData(checked === true)}
           />
           <FieldLabel htmlFor="delete-data" className="font-normal">
-            Also delete its volumes and data folder. This can&apos;t be undone.
+            {t("delete.deleteData")}
           </FieldLabel>
         </Field>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("delete.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={() => name && onConfirm(deleteData)}
           >
-            Remove
+            {t("delete.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

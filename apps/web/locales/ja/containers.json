@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "実行中",
+    "dead": "停止（異常）",
+    "exited": "終了",
+    "exitedWithCode": "終了 ({{code}})",
+    "paused": "一時停止",
+    "created": "作成済み",
+    "restarting": "再起動中"
+  },
+  "logs": {
+    "following": "新しい出力を追跡中",
+    "stopped": "コンテナが停止しました",
+    "disconnected": "切断されました",
+    "connecting": "接続中…",
+    "title": "ログ · {{name}}",
+    "empty": "ログ出力はありません。"
+  },
+  "runtime": {
+    "startFailed": "ランタイムを起動できませんでした",
+    "running": "コンテナランタイムは実行中です",
+    "providerStopped": "{{provider}} は実行されていません",
+    "stopped": "コンテナランタイムは実行されていません",
+    "none": "コンテナランタイムがありません",
+    "notFound": "このホストにコンテナエンジンが見つかりませんでした。",
+    "start": "{{provider}} を起動",
+    "redetect": "再検出",
+    "setup": {
+      "darwin": {
+        "title": "Colima をインストール"
+      },
+      "linux": {
+        "title": "Docker Engine をインストール"
+      },
+      "windows": {
+        "title": "コンテナランタイムをインストール",
+        "wsl": "WSL2 の Docker Engine: wsl --install を実行し、ディストロ内に docker-ce をインストール",
+        "podman": "または Podman: winget install RedHat.Podman を実行し、続けて podman machine init; podman machine start を実行",
+        "rancher": "または Rancher Desktop: winget install SUSE.RancherDesktop を実行（dockerd エンジンを選択）"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "コンテナを一覧表示できませんでした",
+    "actionFailed": {
+      "start": "{{name}} を起動できませんでした",
+      "stop": "{{name}} を停止できませんでした",
+      "restart": "{{name}} を再起動できませんでした"
+    },
+    "removeFailed": "{{name}} を削除できませんでした",
+    "removed": "{{name}} を削除しました",
+    "emptyTitle": "コンテナはまだありません",
+    "emptyDescription": "このランタイム上のコンテナがここに表示されます。Athena の外で起動したものも含まれます。",
+    "name": "名前",
+    "image": "イメージ",
+    "state": "状態",
+    "ports": "ポート",
+    "actions": "操作",
+    "standalone": "単独のコンテナ",
+    "actionsFor": "{{name}} の操作",
+    "logs": "ログ",
+    "shell": "シェル",
+    "restart": "再起動",
+    "stop": "停止",
+    "start": "起動",
+    "remove": "削除",
+    "removeTitle": "{{name}} を削除しますか？",
+    "removeRunningDescription": "先に停止されます。コンテナは削除されます。名前付きボリュームとイメージは保持されます。",
+    "removeDescription": "コンテナは削除されます。名前付きボリュームとイメージは保持されます。",
+    "cancel": "キャンセル"
+  }
+}

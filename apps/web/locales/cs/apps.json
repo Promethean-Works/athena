@@ -1,0 +1,198 @@
+{
+  "page": {
+    "description": "Aplikace jsou projekty compose spravované Athena."
+  },
+  "newApp": "Nová aplikace",
+  "open": "Otevřít",
+  "list": {
+    "failed": "Aplikace se nepodařilo vypsat"
+  },
+  "status": {
+    "running": "Běží",
+    "partial": "Běží {{running}}/{{total}}",
+    "stopped": "Zastaveno",
+    "notDeployed": "Nenasazeno"
+  },
+  "actions": {
+    "restart": "Restartovat",
+    "stop": "Zastavit",
+    "start": "Spustit",
+    "updateImages": "Aktualizovat obrazy",
+    "remove": "Odebrat"
+  },
+  "jobs": {
+    "failed": {
+      "start": "{{name}} se nepodařilo spustit",
+      "stop": "{{name}} se nepodařilo zastavit",
+      "restart": "{{name}} se nepodařilo restartovat",
+      "update": "{{name}} se nepodařilo aktualizovat",
+      "remove": "{{name}} se nepodařilo odebrat",
+      "save": "{{name}} se nepodařilo uložit",
+      "saveSettings": "Nastavení aplikace {{name}} se nepodařilo uložit",
+      "deploy": "{{name}} se nepodařilo nasadit"
+    }
+  },
+  "delete": {
+    "title": "Odebrat {{name}}?",
+    "description": "Její kontejnery se zastaví a odeberou a Athena na aplikaci zapomene.",
+    "deleteData": "Smazat také její svazky a datovou složku. Nelze vrátit zpět.",
+    "cancel": "Zrušit",
+    "confirm": "Odebrat"
+  },
+  "grid": {
+    "emptyTitle": "Zatím žádné aplikace",
+    "emptyDescription": "Nasaďte soubor compose nebo převeďte příkaz <code>docker run</code>.",
+    "containerCount_one": "{{count}} kontejner",
+    "containerCount_few": "{{count}} kontejnery",
+    "containerCount_many": "{{count}} kontejneru",
+    "containerCount_other": "{{count}} kontejnerů",
+    "fromDockerRun": "z docker run",
+    "actionsFor": "Akce pro {{name}}"
+  },
+  "containerState": {
+    "running": "běží",
+    "exited": "ukončen",
+    "dead": "mrtvý",
+    "paused": "pozastaven",
+    "created": "vytvořen",
+    "restarting": "restartuje se"
+  },
+  "detail": {
+    "loadFailed": "Aplikaci se nepodařilo načíst",
+    "loadFailedNamed": "{{name}} se nepodařilo načíst",
+    "tabContainers": "Kontejnery",
+    "tabCompose": "Compose",
+    "tabSettings": "Nastavení",
+    "tabBackups": "Zálohy",
+    "noContainers": "Žádné kontejnery",
+    "noContainersHint": "Spusťte aplikaci a vytvoří se její kontejnery.",
+    "logs": "Protokoly",
+    "shell": "Shell",
+    "composeHelp": "Uložením se předchozí verze zachová jako compose.prev.yaml a aplikace se znovu nasadí.",
+    "settingsHelp": "Hodnoty z instalačního formuláře (.env). Zde změňte port nebo složku a uložením aplikaci znovu nasaďte. Mohou obsahovat vygenerovaná hesla.",
+    "saveRedeploy": "Uložit a znovu nasadit",
+    "discard": "Zahodit změny"
+  },
+  "new": {
+    "nameInvalid": "Použijte malá písmena, číslice, pomlčky nebo podtržítka, začínající písmenem nebo číslicí.",
+    "convertFailed": "Příkaz se nepodařilo převést",
+    "validationFailed": "Ověření se nezdařilo",
+    "name": "Název",
+    "nameHelp": "Zároveň název projektu compose. Později ho nelze změnit.",
+    "tabCompose": "Soubor compose",
+    "tabRun": "Z docker run",
+    "reviewConverted": "Zkontrolujte převedený soubor",
+    "upload": "Nahrát soubor",
+    "composeHelp": "Pro soubory, které mají být v datové složce této aplikace na serveru, použijte <code>${ATHENA_APP_DATA}</code>.",
+    "runLabel": "Příkaz docker run",
+    "runHelp": "Převede se na soubor compose, který před nasazením zkontrolujete. Zatím se nic nespouští.",
+    "convert": "Převést na compose",
+    "valid": "Soubor compose je platný",
+    "invalid": "Soubor compose obsahuje chyby",
+    "validate": "Ověřit",
+    "deploy": "Nasadit"
+  },
+  "compose": {
+    "serializationFailed": "Serializace se nezdařila",
+    "addService": "Přidat službu",
+    "tabs": {
+      "settings": "Nastavení",
+      "networks": "Sítě",
+      "volumes": "Svazky",
+      "raw": "Surové YAML"
+    },
+    "restart": {
+      "no": "Ne (nerestartovat)",
+      "always": "Vždy",
+      "unlessStopped": "Pokud nebyl zastaven",
+      "onFailure": "Při selhání"
+    },
+    "volumeMode": {
+      "rw": "Čtení/zápis",
+      "ro": "Jen pro čtení"
+    },
+    "table": {
+      "actions": "Akce",
+      "empty": "Zatím žádné položky",
+      "moveUp": "Posunout nahoru",
+      "moveDown": "Posunout dolů",
+      "remove": "Odebrat",
+      "add": "Přidat"
+    },
+    "service": {
+      "collapse": "Sbalit",
+      "expand": "Rozbalit",
+      "namePlaceholder": "název služby",
+      "noImage": "bez obrazu",
+      "image": "Obraz",
+      "imageHelp": "Název obrazu Dockeru. Podporuje Docker Hub, GHCR a další registry.",
+      "restartPolicy": "Zásada restartu"
+    },
+    "ports": {
+      "title": "Porty",
+      "host": "Port hostitele",
+      "container": "Port kontejneru",
+      "protocol": "Protokol",
+      "help": "Mapujte porty hostitele na porty kontejneru. Pro náhodné přiřazení nechte port hostitele prázdný."
+    },
+    "volumes": {
+      "title": "Svazky",
+      "host": "Cesta hostitele / název svazku",
+      "container": "Cesta v kontejneru",
+      "mode": "Režim",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data nebo volume-name",
+      "help": "Připojte cesty hostitele (bind mount) nebo pojmenované svazky. Pro datovou složku této aplikace použijte <code>${ATHENA_APP_DATA}</code>."
+    },
+    "env": {
+      "title": "Proměnné prostředí",
+      "help": "Proměnné prostředí předané kontejneru. K dispozici jsou i hodnoty z instalačního formuláře (.env).",
+      "valuePlaceholder": "hodnota"
+    },
+    "keyValue": {
+      "key": "Klíč",
+      "value": "Hodnota"
+    },
+    "command": {
+      "command": "Příkaz",
+      "commandPlaceholder": "Přepíše výchozí příkaz obrazu",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Přepíše výchozí entrypoint obrazu",
+      "workingDir": "Pracovní adresář",
+      "user": "Uživatel"
+    },
+    "resources": {
+      "title": "Limity prostředků",
+      "cpuLimit": "Limit CPU",
+      "cpuCores": "Jádra CPU",
+      "memoryLimit": "Limit paměti",
+      "memoryLimitHelp": "např. 512M, 1G",
+      "cpuReservation": "Rezervace CPU",
+      "memoryReservation": "Rezervace paměti",
+      "memoryReservationHelp": "např. 256M"
+    },
+    "health": {
+      "title": "Kontrola stavu",
+      "test": "Testovací příkaz",
+      "interval": "Interval",
+      "timeout": "Časový limit",
+      "retries": "Počet pokusů"
+    },
+    "labels": {
+      "title": "Štítky",
+      "valuePlaceholder": "Moje služba"
+    },
+    "networks": {
+      "title": "Sítě",
+      "help": "Názvy sítí oddělené čárkami. Sítě definujte na kartě Sítě."
+    },
+    "dependsOn": {
+      "title": "Závisí na",
+      "help": "Názvy služeb oddělené čárkami, které se musí spustit před touto."
+    },
+    "entries": {
+      "name": "Název",
+      "driver": "Ovladač",
+      "external": "Externí"
+    }
+  }
+}

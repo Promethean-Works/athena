@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "正在连接…",
+    "connected": "已连接",
+    "exited": "已退出（{{code}}）",
+    "disconnected": "已断开连接",
+    "hostTerminal": "主机终端",
+    "containerShell": "容器 Shell",
+    "lost": "与 Athena 的连接已断开",
+    "closedCode": "已断开连接（代码 {{code}}）"
+  },
+  "view": {
+    "unavailableTitle": "终端不可用",
+    "openSettings": "打开设置",
+    "description": "此服务器上的 Shell，以运行 Athena 的用户身份登录。",
+    "newSession": "新建会话"
+  },
+  "access": {
+    "noSupport": "此主机不支持终端。",
+    "adminsOnly": "只有管理员可以打开终端。",
+    "turnedOff": "终端已在“设置 → 系统”中关闭。"
+  },
+  "shell": {
+    "title": "Shell · {{name}}",
+    "description": "运行 bash；镜像中没有 bash 时运行 sh。"
+  }
+}
