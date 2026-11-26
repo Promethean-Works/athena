@@ -29,7 +29,16 @@ x-athena:
       required: false
 
 services:
+  init-perms:
+    image: busybox:1.37
+    command: ["sh", "-c", "chown -R 1032:65534 /models"]
+    user: root
+    volumes:
+      - ${ATHENA_APP_DATA}/models:/models
   libretranslate:
+    depends_on:
+      init-perms:
+        condition: service_completed_successfully
     image: libretranslate/libretranslate:v1.10.0
     restart: unless-stopped
     ports:

@@ -46,7 +46,17 @@ x-athena:
       advanced: true
 
 services:
+  init-perms:
+    image: busybox:1.37
+    command: ["sh", "-c", "chown -R ${PUID}:${PGID} /files /db"]
+    user: root
+    volumes:
+      - ${ATHENA_APP_DATA}/files:/files
+      - ${ATHENA_APP_DATA}/db:/db
   vikunja:
+    depends_on:
+      init-perms:
+        condition: service_completed_successfully
     image: vikunja/vikunja:2.8.0
     restart: unless-stopped
     user: "${PUID}:${PGID}"

@@ -35,7 +35,16 @@ x-athena:
       advanced: true
 
 services:
+  init-perms:
+    image: busybox:1.37
+    command: ["sh", "-c", "chown -R ${PUID}:${PGID} /config"]
+    user: root
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/config
   seerr:
+    depends_on:
+      init-perms:
+        condition: service_completed_successfully
     image: ghcr.io/seerr-team/seerr:v3.5.2
     restart: unless-stopped
     init: true
