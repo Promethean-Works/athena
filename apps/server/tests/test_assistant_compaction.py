@@ -215,7 +215,8 @@ def test_results_cleared_mid_turn_stay_whole_in_the_transcript(tmp_path, monkeyp
     small_window(monkeypatch, 7000)  # each result is ~230 tokens; tool schemas count too
     # (a narrow band: about 4,550 to 4,750 with stage 2's tools; the `shares.smb`
     # and `automation` capabilities added to get_capabilities shift it up; retune
-    # after prompt changes; raised to 6500, then 7000 when `shares.nfs` joined; 6500 fails, 6600 to 8000 pass)
+    # after prompt changes; raised to 6500, then 7000 when `shares.nfs` joined:
+    # 6500 fails, 6600 to 8000 pass)
     calls = 10
     cleared_seen = []
 
