@@ -41,6 +41,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { LogView } from "@/components/log-view"
 import { useEventStream } from "@/hooks/use-event-stream"
 import { copyText } from "@/lib/clipboard"
+import i18n from "@/lib/i18n"
 
 type Status = Schemas["UpdateStatus"]
 
@@ -75,7 +76,10 @@ function StepList({ active }: { active: Step }) {
     check: t("update.dialog.stepCheck"),
   }
   return (
-    <ol className="flex flex-col gap-2 text-sm" aria-label={t("update.dialog.steps")}>
+    <ol
+      className="flex flex-col gap-2 text-sm"
+      aria-label={t("update.dialog.steps")}
+    >
       {order.map((step, index) => {
         const done = index < order.indexOf(active)
         const running = step === active
@@ -148,8 +152,12 @@ function Result({ status }: { status: Status | null }) {
     return (
       <>
         <CircleCheckIcon className="size-8 text-primary" />
-        <p className="text-lg font-medium">{t("update.dialog.updated", { to })}</p>
-        <p className="text-sm text-muted-foreground">{t("update.dialog.reloading")}</p>
+        <p className="text-lg font-medium">
+          {t("update.dialog.updated", { to })}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {t("update.dialog.reloading")}
+        </p>
       </>
     )
   }
@@ -241,9 +249,9 @@ export function UpdateAthenaDialog({
     if (jobStatus === "succeeded" || (stream.phase === "error" && !jobStatus)) {
       setStage("waiting")
     } else if (jobStatus === "failed") {
-      setError(stream.final?.error ?? t("update.dialog.prepareFailed"))
+      setError(stream.final?.error ?? i18n.t("update.dialog.prepareFailed"))
     }
-  }, [stage, jobStatus, stream.phase, stream.final, t])
+  }, [stage, jobStatus, stream.phase, stream.final])
 
   // The swap: wait for a server with a new start time, then for the helper's last word.
   React.useEffect(() => {
@@ -356,9 +364,7 @@ export function UpdateAthenaDialog({
           </DialogHeader>
           {stage === "confirm" ? (
             <div className="flex flex-col gap-3 text-sm">
-              <p>
-                {t("update.dialog.confirmBody")}
-              </p>
+              <p>{t("update.dialog.confirmBody")}</p>
               {stops.length || terminals ? (
                 <Alert>
                   <TriangleAlertIcon />
@@ -455,7 +461,9 @@ export function UpdateAthenaDialog({
           {stage === "waiting" ? (
             <>
               <Spinner className="size-6" />
-              <p className="text-lg font-medium">{t("update.dialog.restarting")}</p>
+              <p className="text-lg font-medium">
+                {t("update.dialog.restarting")}
+              </p>
               <p className="text-sm text-muted-foreground">
                 {t("update.dialog.updatingTo", { latest })}
               </p>
@@ -463,9 +471,7 @@ export function UpdateAthenaDialog({
             </>
           ) : stage === "late" ? (
             <>
-              <p className="text-lg font-medium">
-                {t("update.notBackYet")}
-              </p>
+              <p className="text-lg font-medium">{t("update.notBackYet")}</p>
               <p className="max-w-sm text-sm text-muted-foreground">
                 {t("update.dialog.lateBody")}
               </p>

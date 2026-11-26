@@ -103,20 +103,33 @@ void i18n.use(initReactI18next).init({
   returnNull: false,
 })
 
-/** Switch the UI (loading the language first) and set `<html lang>`. */
+let latestRequest = 0
+
+/**
+ * Switch the UI (loading the language first) and set `<html lang>`. Calls can overlap
+ * (browser copy, then the account's setting, then a click); only the latest one counts.
+ * A language that fails to load leaves the UI as it was.
+ */
 export async function setLanguage(setting: string): Promise<void> {
+  const request = ++latestRequest
   const code = resolveLanguage(
     setting,
     typeof navigator === "undefined" ? [] : navigator.languages
   )
   if (code !== i18n.resolvedLanguage) {
     if (!i18n.hasResourceBundle(code, "common")) {
-      const { default: bundles } = await loaders[code]()
-      for (const [ns, bundle] of Object.entries(bundles)) {
-        i18n.addResourceBundle(code, ns, bundle, true, true)
+      try {
+        const { default: bundles } = await loaders[code]()
+        for (const [ns, bundle] of Object.entries(bundles)) {
+          i18n.addResourceBundle(code, ns, bundle, true, true)
+        }
+      } catch {
+        return // network or chunk error: stay in the current language
       }
+      if (request !== latestRequest) return
     }
     await i18n.changeLanguage(code)
+    if (request !== latestRequest) return
   }
   if (typeof document !== "undefined") document.documentElement.lang = code
 }

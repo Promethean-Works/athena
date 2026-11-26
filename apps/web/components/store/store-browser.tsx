@@ -11,6 +11,7 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { PopularCarousel } from "@/components/store/popular-carousel"
 import { StoreAppCard } from "@/components/store/store-app-card"
+import i18n from "@/lib/i18n"
 import {
   Empty,
   EmptyContent,
@@ -37,10 +38,7 @@ export function SupportBadge({ support }: { support: StoreApp["support"] }) {
   const { t } = useTranslation("store")
   if (support === "emulated") {
     return (
-      <Badge
-        variant="outline"
-        title={t("support.emulatedTitle")}
-      >
+      <Badge variant="outline" title={t("support.emulatedTitle")}>
         {t("support.emulated")}
       </Badge>
     )
@@ -77,10 +75,11 @@ export function StoreBrowser() {
       api.GET("/api/store/categories"),
     ]).then(([appsRes, catsRes]) => {
       if (appsRes.data) setApps(appsRes.data)
-      else setError(errorMessage(appsRes.error, t("browser.loadError")))
+      else
+        setError(errorMessage(appsRes.error, i18n.t("store:browser.loadError")))
       if (catsRes.data) setCategories(catsRes.data)
     })
-  }, [t])
+  }, [])
 
   const runnable = React.useMemo(
     () =>
@@ -180,7 +179,9 @@ export function StoreBrowser() {
           <p className="text-sm text-muted-foreground">
             {showUnsupported
               ? t("browser.showingUnsupported", { count: unsupportedCount })
-              : t("browser.hiddenUnsupported", { count: unsupportedCount })}{" "}
+              : t("browser.hiddenUnsupported", {
+                  count: unsupportedCount,
+                })}{" "}
             <Button
               variant="link"
               size="sm"

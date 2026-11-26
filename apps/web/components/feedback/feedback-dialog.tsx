@@ -1,4 +1,5 @@
-"use client"
+import i18n from "@/lib/i18n"
+;("use client")
 
 import * as React from "react"
 import { Trans, useTranslation } from "react-i18next"
@@ -83,7 +84,7 @@ export function FeedbackDialog({
     api.GET("/api/feedback").then(({ data, error: err }) => {
       if (cancelled) return
       if (data) setInfo(data)
-      else setError(errorMessage(err, t("dialog.loadFailed")))
+      else setError(errorMessage(err, i18n.t("feedback:dialog.loadFailed")))
     })
     // Links are built up front so each choice is a real link: a tab opened after an
     // await would be caught by popup blockers.
@@ -99,7 +100,7 @@ export function FeedbackDialog({
     return () => {
       cancelled = true
     }
-  }, [open, t])
+  }, [open])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -191,7 +192,9 @@ export function Diagnostics({
           </dd>
           <dt className="text-muted-foreground">{t("diagnostics.cpu")}</dt>
           <dd className="font-mono">{info.arch}</dd>
-          <dt className="text-muted-foreground">{t("diagnostics.containers")}</dt>
+          <dt className="text-muted-foreground">
+            {t("diagnostics.containers")}
+          </dt>
           <dd className="min-w-0 font-mono [overflow-wrap:anywhere]">
             {info.runtime}
           </dd>

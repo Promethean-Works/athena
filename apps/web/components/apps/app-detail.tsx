@@ -52,6 +52,7 @@ import { useAppJobs } from "@/components/apps/use-app-jobs"
 import { LogsSheet } from "@/components/containers/logs-sheet"
 import { ShellSheet } from "@/components/terminal/shell-sheet"
 import { useTerminalAccess } from "@/components/terminal/use-terminal-access"
+import i18n from "@/lib/i18n"
 
 type AppDetailOut = Schemas["AppDetail"]
 type Container = Schemas["ContainerOut"]
@@ -76,8 +77,8 @@ export function AppDetail({ name }: { name: string }) {
     if (data) {
       setApp(data)
       setError(null)
-    } else setError(errorMessage(err, t("detail.loadFailed")))
-  }, [name, t])
+    } else setError(errorMessage(err, i18n.t("apps:detail.loadFailed")))
+  }, [name])
 
   React.useEffect(() => {
     void load()

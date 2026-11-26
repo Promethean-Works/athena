@@ -54,6 +54,7 @@ import { toast } from "@workspace/ui/components/toast"
 import { LogsSheet } from "@/components/containers/logs-sheet"
 import { ShellSheet } from "@/components/terminal/shell-sheet"
 import { useTerminalAccess } from "@/components/terminal/use-terminal-access"
+import i18n from "@/lib/i18n"
 
 type Container = Schemas["ContainerOut"]
 type Action = "start" | "stop" | "restart"
@@ -111,9 +112,9 @@ export function ContainersTable() {
       setContainers(data)
       setError(null)
     } else {
-      setError(errorMessage(err, t("table.listFailed")))
+      setError(errorMessage(err, i18n.t("containers:table.listFailed")))
     }
-  }, [t])
+  }, [])
 
   React.useEffect(() => {
     void load()

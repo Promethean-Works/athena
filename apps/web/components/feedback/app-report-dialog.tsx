@@ -83,13 +83,16 @@ function AppReportDialog({
     loadLogs(installName)
       .then((text) => !cancelled && setLogs(text))
       .catch((err: unknown) => {
-        if (!cancelled) setLogs(t("appReport.logsFailed", { error: String(err) }))
+        if (!cancelled)
+          setLogs(
+            i18n.t("feedback:appReport.logsFailed", { error: String(err) })
+          )
       })
       .finally(() => !cancelled && setLoadingLogs(false))
     return () => {
       cancelled = true
     }
-  }, [includeLogs, installName, t])
+  }, [includeLogs, installName])
 
   // Rebuild the link (debounced) whenever what goes into it changes.
   React.useEffect(() => {
@@ -110,7 +113,9 @@ function AppReportDialog({
           if (cancelled) return
           setIssue(data ?? null)
           setError(
-            data ? null : errorMessage(err, t("appReport.prepareFailed"))
+            data
+              ? null
+              : errorMessage(err, i18n.t("feedback:appReport.prepareFailed"))
           )
           setBuilding(false)
         })
@@ -119,7 +124,7 @@ function AppReportDialog({
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [app.catalog, app.id, includeLogs, logs, t])
+  }, [app.catalog, app.id, includeLogs, logs])
 
   const where =
     issue?.target === "catalog"
@@ -227,7 +232,10 @@ async function loadLogs(name: string): Promise<string> {
   const { data, error } = await api.GET("/api/apps/{name}", {
     params: { path: { name } },
   })
-  if (!data) throw new Error(errorMessage(error, i18n.t("feedback:appReport.appNotFound")))
+  if (!data)
+    throw new Error(
+      errorMessage(error, i18n.t("feedback:appReport.appNotFound"))
+    )
   const parts = await Promise.all(
     data.containers.map(async (c) => {
       const res = await api.GET("/api/containers/{ref}/logs", {

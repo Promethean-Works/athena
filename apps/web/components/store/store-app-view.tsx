@@ -66,6 +66,7 @@ import { AppIcon } from "@/components/store/app-icon"
 import { InstallForm } from "@/components/store/install-form"
 import { StoreCover } from "@/components/store/store-cover"
 import { storeAppHref, SupportBadge } from "@/components/store/store-browser"
+import i18n from "@/lib/i18n"
 
 type Detail = Schemas["StoreAppDetail"]
 type StoreApp = Schemas["StoreApp"]
@@ -83,9 +84,9 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
       })
       .then(({ data, error: err }) => {
         if (data) setApp(data)
-        else setError(errorMessage(err, t("view.loadError")))
+        else setError(errorMessage(err, i18n.t("store:view.loadError")))
       })
-  }, [catalog, id, t])
+  }, [catalog, id])
 
   React.useEffect(() => {
     if (app) {
@@ -186,7 +187,9 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
 
         {app.features.length ? (
           <section className="flex flex-col gap-2">
-            <h3 className="font-heading text-sm font-medium">{t("view.whatYouGet")}</h3>
+            <h3 className="font-heading text-sm font-medium">
+              {t("view.whatYouGet")}
+            </h3>
             <ul className="grid gap-2 sm:grid-cols-2">
               {app.features.map((feature) => (
                 <li key={feature} className="flex gap-2 text-sm">
@@ -203,7 +206,9 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
         ) : null}
 
         <section className="flex flex-col gap-2">
-          <h3 className="font-heading text-sm font-medium">{t("view.details")}</h3>
+          <h3 className="font-heading text-sm font-medium">
+            {t("view.details")}
+          </h3>
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
             <dt className="text-muted-foreground">{t("view.category")}</dt>
             <dd>{app.category_label || app.category}</dd>
@@ -271,9 +276,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
         <CardHeader>
           <CardTitle>{t("view.install")}</CardTitle>
           {app.support !== "unsupported" ? (
-            <CardDescription>
-              {t("view.installHint")}
-            </CardDescription>
+            <CardDescription>{t("view.installHint")}</CardDescription>
           ) : null}
         </CardHeader>
         <CardContent>
