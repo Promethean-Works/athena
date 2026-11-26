@@ -95,3 +95,9 @@ One PR for the whole feature (maintainer preference); commits follow these parts
 3. **Does the runtime layer honour `COMPOSE_PROFILES` in `.env`?** Answered: yes on Docker Compose 5.8 (checked for real). Also found: `up --remove-orphans` leaves a switched-off profile's containers running, so switching removes them explicitly, and `down` removes every container of the project even with profiles off. Podman's compose wasn't checked.
 4. **Windows: allow the sandbox profile under WSL2?** Recommendation: not in this feature; disabled with a reason until the Windows container runtime reports a Linux-path workspace.
 5. **Should profile toggles be allowed after install?** Recommendation: yes (part 2); it's what admins will want after trying the browser.
+
+## Not verified yet
+
+- AgenticOS with the browser, page-preview and sandbox parts on: Colima's 2 GB VM kills it, so only `docker compose --profile "*" config` ran. Needs a Docker VM with 8 GB.
+- Podman's compose and `COMPOSE_PROFILES`; the Windows disabled state for the sandbox; `@docker_gid` on a real Linux host.
+- Left out: AgenticOS object store (MinIO). Next: those checks, then mark this spec Done with the PR numbers.
