@@ -1,6 +1,7 @@
 import common from "./common.json"
 import nav from "./nav.json"
 import auth from "./auth.json"
+import ai from "./ai.json"
 import apps from "./apps.json"
 import assistant from "./assistant.json"
 import automation from "./automation.json"
@@ -21,6 +22,7 @@ const resources = {
   common,
   nav,
   auth,
+  ai,
   apps,
   assistant,
   automation,
