@@ -2,7 +2,9 @@
 
 **A self-hosted home server dashboard for Linux, macOS and Windows.**
 
-Athena manages containers, apps, host packages, files and cloud storage from one web dashboard, and includes an AI assistant that can operate it all. It's in the spirit of [CasaOS](https://github.com/IceWhaleTech/CasaOS), but cross-platform: it detects what your machine has and only shows what works there.
+Athena manages containers, apps, host packages, files and cloud storage from one web dashboard, and includes an AI assistant that can operate it all. It runs on Linux, macOS and Windows: it detects what your machine has and only shows what works there. See [how it compares](docs/user-guide/comparison.md) with other home server panels.
+
+![The Athena dashboard](docs/user-guide/images/dashboard.png)
 
 ## What 0.1.0 does
 
@@ -25,7 +27,7 @@ Athena manages containers, apps, host packages, files and cloud storage from one
 - **Python and uv:** the installer installs [uv](https://docs.astral.sh/uv/) if missing, and uv provides Python.
 - On macOS, run the installer as your normal user, not root.
 
-Athena uses open-source dependencies only. See the full design in [docs/design/README.md](docs/design/README.md).
+Athena uses open-source dependencies only. Read the [user guide](docs/user-guide/README.md) for how to use each page, or the design in [docs/design/README.md](docs/design/README.md).
 
 ## Install
 

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Athena: a self-hosted home server dashboard for Linux, macOS and Windows</title>
+<meta name="description" content="Athena manages containers, apps, packages, files and cloud storage from one web dashboard, with an AI assistant that asks before it changes anything. Open source, for Linux, macOS and Windows.">
+<meta property="og:title" content="Athena: your home server, in one dashboard">
+<meta property="og:description" content="Self-hosted control panel for Linux, macOS and Windows. App store, files, backups, automation and an AI assistant.">
+<meta property="og:image" content="assets/dashboard.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="#top">Athena</a>
+  <a class="l" href="#features">Features</a>
+  <a class="l" href="#install">Install</a>
+  <a class="l" href="#requirements">Requirements</a>
+  <a class="l" href="#compare">Compare</a>
+  <a class="l" href="docs/index.html">Docs</a>
+  <a class="l" href="#faq">FAQ</a>
+  <a class="btn sm" href="https://github.com/Promethean-Works/athena">GitHub</a>
+</div></header>
+
+<main id="top">
+<div class="hero"><div class="wrap">
+  <h1>Your home server,<br>in one dashboard.</h1>
+  <p class="lead">Athena is a self-hosted control panel for Linux, macOS and Windows. Install apps, manage files and cloud storage, schedule backups, and let an AI assistant do the chores, with your approval first.</p>
+  <div class="cta">
+    <a class="btn" href="#install">Install Athena</a>
+    <a class="btn ghost" href="docs/index.html">Read the guide</a>
+  </div>
+  <div class="badges">Open source · Apache-2.0 · amd64 and arm64 · Runs on a Raspberry Pi 4 or 5</div>
+  <div class="shot"><img src="assets/dashboard.png" alt="The Athena dashboard with live CPU, memory, network and disk charts" width="1360" height="840"></div>
+</div></div>
+
+<section id="why"><div class="wrap">
+  <h2>One dashboard, every system</h2>
+  <p class="sub">Athena detects what your machine has (a container runtime, a package manager, rclone, a tunnel tool) and shows only what works there. No dead buttons.</p>
+  <div class="grid">
+    <div class="card"><h3>Cross-platform</h3><p>Linux with systemd, macOS with launchd and Homebrew, and Windows. One dashboard everywhere.</p></div>
+    <div class="card"><h3>Private by default</h3><p>Runs on your hardware. The assistant can use a local model so nothing leaves the machine. Secrets are encrypted at rest.</p></div>
+    <div class="card"><h3>Safe to hand over</h3><p>The assistant asks before it changes anything, and every admin action goes to an audit log.</p></div>
+    <div class="card"><h3>Open source only</h3><p>Apache-2.0, built on open-source dependencies. Self-update and a one-line installer included.</p></div>
+  </div>
+</div></section>
+
+<section id="features" class="alt"><div class="wrap">
+  <h2>Everything a home server needs</h2>
+  <p class="sub">One place for the work you would otherwise do over SSH.</p>
+
+  <div class="feature">
+    <div class="text">
+      <h3>An app store with about 190 apps</h3>
+      <p>Install Jellyfin, Immich, Home Assistant, Grafana, Nextcloud and more with a short form. Or deploy your own from a <code>compose.yaml</code> or a <code>docker run</code> command.</p>
+      <ul><li>Uses Docker Engine, Colima, WSL2 or Podman, whichever you have</li><li>Add your own catalogs from a Git repository or URL</li><li>Apps that don't fit your CPU are hidden</li></ul>
+      <p><a class="more" href="docs/apps-and-store.html">Apps and the store →</a></p>
+    </div>
+    <div class="shot"><img src="assets/store.png" alt="The Athena app store" loading="lazy" width="1360" height="840"></div>
+  </div>
+
+  <div class="feature flip">
+    <div class="text">
+      <h3>An assistant that asks first</h3>
+      <p>Say "install Jellyfin" or "what is using the disk?". It works with cloud models or a local Ollama or llama.cpp server, and shows an approval card before it installs, edits or runs anything.</p>
+      <p><a class="more" href="docs/assistant.html">The assistant →</a></p>
+    </div>
+    <div class="shot"><img src="assets/settings-ai.png" alt="AI settings, with Ollama and llama.cpp offered as local providers" loading="lazy" width="1360" height="840"></div>
+  </div>
+
+  <div class="feature">
+    <div class="text">
+      <h3>Files, shares and cloud storage</h3>
+      <p>A file manager for your server, share links, and WebDAV and SMB shares. Connect Google Drive, OneDrive, Dropbox, S3 and more through rclone, and browse them like local folders.</p>
+      <p><a class="more" href="docs/files-and-sharing.html">Files →</a> · <a class="more" href="docs/cloud-storage.html">Cloud storage →</a></p>
+    </div>
+    <div class="shot"><img src="assets/cloud.png" alt="The Cloud page for adding rclone remotes" loading="lazy" width="1360" height="840"></div>
+  </div>
+
+  <div class="feature flip">
+    <div class="text">
+      <h3>Backups you can restore</h3>
+      <p>Encrypted, deduplicated backups of Athena and each app, to a local disk or any cloud remote. Restore one app after a bad update, or all of Athena on a new machine.</p>
+      <p><a class="more" href="docs/backups.html">Backups →</a></p>
+    </div>
+    <div class="shot"><img src="assets/backups.png" alt="The Backups page with versions, destinations and plans" loading="lazy" width="1360" height="840"></div>
+  </div>
+
+  <div class="feature">
+    <div class="text">
+      <h3>Automation and an MCP server</h3>
+      <p>Run app and package actions on a cron schedule or from a webhook (n8n works). Athena is also an MCP server, so your own AI agents can use it.</p>
+      <p><a class="more" href="docs/automation.html">Automation →</a></p>
+    </div>
+    <div class="shot"><img src="assets/automation.png" alt="The Automation page with triggers, job runs and the webhook and MCP addresses" loading="lazy" width="1360" height="840"></div>
+  </div>
+
+  <div class="feature flip">
+    <div class="text">
+      <h3>Host packages</h3>
+      <p>Install and update software on the host itself with apt, dnf, pacman, zypper, apk, flatpak, snap, Homebrew, winget, Scoop or Chocolatey.</p>
+      <p><a class="more" href="docs/packages.html">Packages →</a></p>
+    </div>
+    <div class="shot"><img src="assets/packages.png" alt="The Packages page (list blurred)" loading="lazy" width="1360" height="840"></div>
+  </div>
+</div></section>
+
+<section id="more"><div class="wrap">
+  <h2>And the rest</h2>
+  <p class="sub">Small things that make it feel finished. Here is a look around.</p>
+  <div class="grid">
+    <div class="card"><h3>Live dashboard</h3><p>CPU, memory, disk and network charts, and the status of every app.</p></div>
+    <div class="card"><h3>Web terminal</h3><p>A shell on the host or inside any container, admin only and audited.</p></div>
+    <div class="card"><h3>Remote access</h3><p>Cloudflare Tunnel, Tailscale Funnel or ngrok. No port forwarding.</p></div>
+    <div class="card"><h3>HTTPS</h3><p>A local certificate authority or Let's Encrypt, renewed for you.</p></div>
+    <div class="card"><h3>Make it yours</h3><p>Base color, theme, chart colors, fonts and radius, changed live.</p></div>
+    <div class="card"><h3>Command line</h3><p><code>athena doctor</code>, <code>service</code>, <code>config</code>, <code>restore</code> and more for when you're in a shell.</p></div>
+  </div>
+  <div class="slider" role="region" aria-roledescription="carousel" aria-label="Screenshots of Athena" tabindex="0">
+    <div class="viewport"><div class="track">
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="1 of 9"><img src="assets/dashboard.png" alt="Dashboard: Live CPU, memory, network and disk" width="1360" height="840"><figcaption><strong>Dashboard</strong> Live CPU, memory, network and disk</figcaption></figure>
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="2 of 9"><img src="assets/store.png" alt="App store: About 190 apps, one form to install" loading="lazy" width="1360" height="840"><figcaption><strong>App store</strong> About 190 apps, one form to install</figcaption></figure>
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="3 of 9"><img src="assets/files.png" alt="Files: Browse, upload and share (names blurred)" loading="lazy" width="1360" height="840"><figcaption><strong>Files</strong> Browse, upload and share (names blurred)</figcaption></figure>
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="4 of 9"><img src="assets/packages.png" alt="Packages: Host software through your package manager (list blurred)" loading="lazy" width="1360" height="840"><figcaption><strong>Packages</strong> Host software through your package manager (list blurred)</figcaption></figure>
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="5 of 9"><img src="assets/cloud.png" alt="Cloud storage: Google Drive, OneDrive, S3 and more" loading="lazy" width="1360" height="840"><figcaption><strong>Cloud storage</strong> Google Drive, OneDrive, S3 and more</figcaption></figure>
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="6 of 9"><img src="assets/automation.png" alt="Automation: Cron, webhooks and an MCP server" loading="lazy" width="1360" height="840"><figcaption><strong>Automation</strong> Cron, webhooks and an MCP server</figcaption></figure>
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="7 of 9"><img src="assets/backups.png" alt="Backups: Encrypted versions of Athena and each app" loading="lazy" width="1360" height="840"><figcaption><strong>Backups</strong> Encrypted versions of Athena and each app</figcaption></figure>
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="8 of 9"><img src="assets/settings-system.png" alt="Settings: Terminal, updates, remote access and WebDAV" loading="lazy" width="1360" height="840"><figcaption><strong>Settings</strong> Terminal, updates, remote access and WebDAV</figcaption></figure>
+      <figure class="slide" role="group" aria-roledescription="slide" aria-label="9 of 9"><img src="assets/settings-appearance.png" alt="Appearance: Colors, fonts and corners, changed live" loading="lazy" width="1360" height="840"><figcaption><strong>Appearance</strong> Colors, fonts and corners, changed live</figcaption></figure>
+    </div></div>
+    <button class="nav-btn prev" type="button" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <button class="nav-btn next" type="button" aria-label="Next screenshot"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+    <div class="dots" role="group" aria-label="Choose a screenshot"></div>
+  </div>
+</div></section>
+
+<section id="compare" class="alt"><div class="wrap">
+  <h2>How Athena compares</h2>
+  <p class="sub">Other panels are good at different things. Here is Athena next to four of them, as of 26 November 2026.</p>
+  <div style="overflow-x:auto"><table style="min-width:760px">
+    <tr><th></th><th>Athena</th><th>CasaOS</th><th>Cosmos Server</th><th>Udon</th><th>umbrelOS</th></tr>
+    <tr><th>Runs on</th><td>Linux, macOS, Windows</td><td>Linux</td><td>Linux</td><td>macOS</td><td>Its own OS</td></tr>
+    <tr><th>App store</th><td>About 190 apps + your own</td><td>About 150</td><td>Market + compose</td><td>Curated</td><td>300+</td></tr>
+    <tr><th>Backup and restore</th><td>Yes</td><td>No</td><td>Yes</td><td>Not confirmed</td><td>Yes</td></tr>
+    <tr><th>HTTPS</th><td>Yes</td><td>No</td><td>Yes</td><td>Via Tailscale</td><td>No</td></tr>
+    <tr><th>Two-factor sign-in</th><td>Not yet</td><td>No</td><td>Yes</td><td>Not confirmed</td><td>Yes</td></tr>
+    <tr><th>Several users</th><td>Admins only</td><td>No</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+    <tr><th>AI assistant</th><td>Yes, asks first</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+    <tr><th>Host packages and automation</th><td>Yes</td><td>No</td><td>No</td><td>Not confirmed</td><td>No</td></tr>
+    <tr><th>License</th><td>Apache-2.0</td><td>Apache-2.0</td><td>Apache-2.0 + Commons Clause</td><td>Proprietary</td><td>Non-commercial</td></tr>
+  </table></div>
+  <p style="margin-top:18px">"Not confirmed" means we couldn't find a clear answer. <a href="docs/comparison.html">Read the full comparison</a>, including where another panel fits you better.</p>
+</div></section>
+
+<section id="install"><div class="wrap">
+  <h2>Install in one line</h2>
+  <p class="sub">The installer checks the download against the release checksums, sets up a container runtime where it can, and starts Athena automatically at boot.</p>
+  <div class="tabs">
+    <div><h3>Linux and macOS</h3><div class="cmd"><code>curl -fsSL https://github.com/Promethean-Works/athena/releases/latest/download/install.sh | bash</code></div></div>
+    <div><h3>Windows (PowerShell)</h3><div class="cmd"><code>irm https://github.com/Promethean-Works/athena/releases/latest/download/install.ps1 | iex</code></div></div>
+  </div>
+  <p>Then open <code>http://&lt;your-server-ip&gt;:8420</code>. The first visit asks you to create the administrator account.</p>
+  <p><strong>Upgrade</strong> by running the same command again; your data is kept. <strong>Uninstall</strong> with <code>--uninstall</code>, and add <code>--purge</code> to delete the data too. Run the script with <code>--help</code> to see every option.</p>
+</div></section>
+
+<section id="requirements" class="alt"><div class="wrap">
+  <h2>Requirements</h2>
+  <table>
+    <tr><th>Systems</th><td>Linux (systemd), macOS (launchd, Homebrew) and Windows.</td></tr>
+    <tr><th>CPUs</th><td>64-bit amd64 or arm64, including a Raspberry Pi 4 or 5 on 64-bit Raspberry Pi OS. 32-bit systems are refused.</td></tr>
+    <tr><th>Container runtime</th><td>Installed for you on Linux (Docker Engine) and macOS (Colima). On Windows bring Docker Engine in WSL2, Podman or Rancher Desktop.</td></tr>
+    <tr><th>Python</th><td>Nothing to do. The installer adds <a href="https://docs.astral.sh/uv/">uv</a>, which provides it.</td></tr>
+    <tr><th>macOS note</th><td>Run the installer as your normal user, not root.</td></tr>
+  </table>
+</div></section>
+
+<section id="docs"><div class="wrap">
+  <h2>Documentation</h2>
+  <p class="sub">A guide for each part of Athena.</p>
+  <div class="docs">
+    <a href="docs/getting-started.html">Getting started<span>Install, sign in, upgrade</span></a>
+    <a href="docs/dashboard.html">Dashboard<span>Live stats and apps</span></a>
+    <a href="docs/apps-and-store.html">Apps and the store<span>Install and manage apps</span></a>
+    <a href="docs/packages.html">Packages<span>Host software</span></a>
+    <a href="docs/files-and-sharing.html">Files and sharing<span>File manager, links, WebDAV</span></a>
+    <a href="docs/cloud-storage.html">Cloud storage<span>rclone remotes</span></a>
+    <a href="docs/containers-and-terminal.html">Containers and terminal<span>Shells and logs</span></a>
+    <a href="docs/assistant.html">AI assistant<span>Models and approvals</span></a>
+    <a href="docs/automation.html">Automation<span>Cron, webhooks, MCP</span></a>
+    <a href="docs/backups.html">Backups<span>Back up and restore</span></a>
+    <a href="docs/remote-access-and-https.html">Remote access and HTTPS<span>Tunnels and certificates</span></a>
+    <a href="docs/settings.html">Settings<span>Appearance, account, system</span></a>
+    <a href="docs/command-line.html">Command line<span>The athena command</span></a>
+    <a href="docs/troubleshooting.html">Troubleshooting<span>Fix common problems</span></a>
+    <a href="docs/comparison.html">Comparison<span>Athena next to other panels</span></a>
+    <a href="https://github.com/Promethean-Works/athena/blob/main/docs/design/README.md">Design notes<span>How Athena is built</span></a>
+  </div>
+</div></section>
+
+<section id="faq" class="alt"><div class="wrap">
+  <h2>Questions</h2>
+  <details><summary>Is Athena free?</summary><p>Yes. It is open source under the Apache-2.0 license and uses open-source dependencies only.</p></details>
+  <details><summary>Does my data leave my server?</summary><p>No, unless you choose it: a cloud AI model, a cloud backup destination or a tunnel. With a local Ollama or llama.cpp model and a local backup destination, nothing leaves the machine.</p></details>
+  <details><summary>Can the assistant break my server?</summary><p>It asks for your approval before it changes anything, and its shell tool is off by default. Every action is in the audit log. Still read each approval card before you accept it.</p></details>
+  <details><summary>Is it safe to put on the internet?</summary><p>Don't forward port 8420. Use a tunnel (Cloudflare, Tailscale or ngrok) and HTTPS, and a long administrator password.</p></details>
+  <details><summary>Do I need Docker?</summary><p>For apps, yes: a container runtime. Athena installs one on Linux and macOS. Files, packages, terminal, automation and the assistant work without it.</p></details>
+  <details><summary>What isn't tested yet?</summary><p>Athena is at a 0.1.0 release candidate. Package install on Linux was checked with apt only (dnf, pacman, zypper, apk and the Windows managers are untested on real hosts); Let's Encrypt, named tunnels, ngrok and Tailscale are unverified; and the assistant's browser tool is off. The <a href="https://github.com/Promethean-Works/athena#known-limitations">README</a> keeps the full list.</p></details>
+  <details><summary>How do I get help or report a bug?</summary><p>Use <strong>Send feedback</strong> in the Athena sidebar, or open an issue on <a href="https://github.com/Promethean-Works/athena/issues">GitHub</a>.</p></details>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>Athena, by Promethean Works. Apache-2.0.<br>Some store apps were ported from the <a href="https://github.com/IceWhaleTech/CasaOS-AppStore">CasaOS AppStore</a> (Apache-2.0). Athena is independent and not affiliated with its authors.</span>
+  <span><a href="https://github.com/Promethean-Works/athena">GitHub</a> · <a href="https://github.com/Promethean-Works/athena/releases">Releases</a> · <a href="https://github.com/Promethean-Works/athena/issues">Issues</a> · <a href="docs/index.html">Docs</a></span>
+</div></footer>
+<script src="copy.js" defer></script>
+<script src="slider.js" defer></script>
+</body>
+</html>
