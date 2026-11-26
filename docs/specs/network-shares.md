@@ -1,6 +1,6 @@
 # Spec: NFS and SMB shares on every OS that supports them
 
-**Status:** Draft · **Milestone:** M6 follow-up (shares) · **Design:** `docs/design/files.md`
+**Status:** Approved (2026-11-26), part 1 in progress · **Milestone:** M6 follow-up (shares) · **Design:** `docs/design/files.md`
 
 ## Goal
 
@@ -29,7 +29,7 @@ Needs root/administrator on every OS. The macOS service is a per-user LaunchAgen
   - Routes: keep `/api/shares/smb`; add `GET/POST /api/shares/nfs` and `DELETE /api/shares/nfs/{id}` (`listNfsShares`, `createNfsShare`, `deleteNfsShare`). NFS create takes `locationId`, `readOnly`, and `clients` (CIDR/host list, default: the host's LAN subnet is **not** assumed; an empty list is refused). `pnpm gen:api` after.
   - Model: `nfs_shares` table (Alembic migration), mirroring `smb_shares`.
   - Config edits are rewritten atomically (temp file + replace), only touch lines/sections Athena owns (marker comments for exports), and validate every value (share name regex, client entries parsed with `ipaddress`/hostname regex, path comes from a stored location, never from the request). Commands use argument lists.
-  - Audit `shares.smb.create|remove` (missing today) and `shares.nfs.create|remove`.
+  - Audit `nfs.share.create|remove` (SMB already audits `smb.share.*`).
   - On startup, drop tracking rows whose config entry vanished? No: show them as "missing on host" with a remove button, so nothing deletes silently.
 - **Web:** `/files/smb` becomes a "Network shares" page with SMB and NFS tabs (the shadcn tabs already in `packages/ui`), reusing `smb-shares-view.tsx` as a generic list. Each tab shows capability state, the connection string to copy (`\\host\name`, `smb://host/name`, `host:/path`), and the NFS clients field. Sidebar entry gated on either capability.
 - **Assistant / MCP:** none in part 1. Later: `create_network_share` in `actions.py` (approval card).
