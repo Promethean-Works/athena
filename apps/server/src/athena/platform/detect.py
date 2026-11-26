@@ -299,7 +299,11 @@ def detect_smb(probe: Probe) -> Capability:
             label=label,
             status="needs_privilege",
             provider="sharing",
-            detail="Sharing folders over SMB needs Athena to run as root.",
+            detail=(
+                "Sharing folders over SMB needs administrator rights. "
+                "Athena asks for your password when you create one."
+            ),
+            elevation="password",
         )
     if probe.os == "windows" and probe.which("powershell"):
         if probe.is_admin():
@@ -309,7 +313,11 @@ def detect_smb(probe: Probe) -> Capability:
             label=label,
             status="needs_privilege",
             provider="smbshare",
-            detail="Sharing folders over SMB needs Athena to run as an administrator.",
+            detail=(
+                "Sharing folders over SMB needs administrator rights. "
+                "Windows asks you to approve when you create one."
+            ),
+            elevation="system",
         )
     return Capability(
         id="shares.smb",
@@ -354,7 +362,11 @@ def detect_nfs(probe: Probe) -> Capability:
             label=label,
             status="needs_privilege",
             provider="nfsd",
-            detail="Exporting folders over NFS needs Athena to run as root.",
+            detail=(
+                "Exporting folders over NFS needs administrator rights. "
+                "Athena asks for your password when you create one."
+            ),
+            elevation="password",
         )
     return Capability(
         id="shares.nfs",
