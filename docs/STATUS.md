@@ -9,7 +9,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 ## In progress
 
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
-- Network shares (`docs/specs/network-shares.md`, #312 UI in review) and share-from-explorer (`docs/specs/share-from-explorer.md`): parts 1-2 built (password/UAC elevation, explorer Network tab). Next: part 3, share cloud remotes via `rclone mount`. Not verified: real sudo/UAC, real mounts.
+- Network shares (#312 UI in review) + share-from-explorer (`docs/specs/share-from-explorer.md`): parts 1-2 built. Next: part 3, share cloud remotes (`rclone mount`). Not verified: real sudo/UAC, real mounts.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).
 - Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d done; `schedule` runs in part 4. Part 4 (#256) done. 2d not run against real runtime/volumes.
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt/Cloudflare, trusting CA on real devices. Renewal/error live in memory only (restart forgets). Follow-up: own-certificate upload.
