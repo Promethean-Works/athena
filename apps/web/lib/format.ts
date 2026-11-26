@@ -1,3 +1,5 @@
+import { currentLocale } from "@/lib/i18n"
+
 const UNITS = ["B", "KB", "MB", "GB", "TB", "PB"]
 
 /** 1536 → "1.5 KB", 999 → "999 B", 1023.6 → "1.0 KB" (never "1024 B"). */
@@ -10,7 +12,11 @@ export function formatBytes(bytes: number, digits = 1): string {
     value /= 1024
     i++
   }
-  return `${value.toFixed(i === 0 || value >= 100 ? 0 : digits)} ${UNITS[i]}`
+  const n = value.toLocaleString(currentLocale(), {
+    minimumFractionDigits: i === 0 || value >= 100 ? 0 : digits,
+    maximumFractionDigits: i === 0 || value >= 100 ? 0 : digits,
+  })
+  return `${n} ${UNITS[i]}`
 }
 
 export function formatRate(bytesPerSecond: number): string {
@@ -34,7 +40,7 @@ export function formatDuration(seconds: number): string {
 
 /** Unix seconds → local "14:05:32". */
 export function formatClock(unixSeconds: number): string {
-  return new Date(unixSeconds * 1000).toLocaleTimeString([], {
+  return new Date(unixSeconds * 1000).toLocaleTimeString(currentLocale(), {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",

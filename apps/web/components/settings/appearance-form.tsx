@@ -39,6 +39,7 @@ import {
   ToggleGroupItem,
 } from "@workspace/ui/components/toggle-group"
 
+import { LanguageCard } from "@/components/settings/language-card"
 import { useAppearance } from "@/components/settings/appearance-provider"
 import {
   type Appearance,
@@ -270,6 +271,7 @@ export function AppearanceForm() {
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
+      <LanguageCard />
       <Card>
         <CardHeader>
           <CardTitle>Colors</CardTitle>

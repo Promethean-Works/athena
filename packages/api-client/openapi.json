@@ -7305,6 +7305,12 @@
             "pattern": "^[a-z0-9-]{1,32}$",
             "title": "Radius",
             "default": "default"
+          },
+          "language": {
+            "type": "string",
+            "pattern": "^(auto|[a-z]{2,3}(-[A-Z]{2})?)$",
+            "title": "Language",
+            "default": "auto"
           }
         },
         "type": "object",

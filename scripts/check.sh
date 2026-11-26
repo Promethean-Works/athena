@@ -125,6 +125,7 @@ for part in "${PARTS[@]}"; do
     web)
       [ -d node_modules ] || step "pnpm install" pnpm install --frozen-lockfile
       step "API client up to date (pnpm gen:api)" api_client_up_to_date
+      step "i18n key parity" node scripts/check-i18n.mjs
       step "web lint" pnpm lint
       step "web typecheck" pnpm typecheck
       if [ "$QUICK" = 1 ]; then skip "web build" "--quick"; else step "web build (static export)" pnpm build; fi

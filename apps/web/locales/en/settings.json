@@ -1,0 +1,8 @@
+{
+  "language": {
+    "title": "Language",
+    "description": "The language of the interface. It follows your account to other browsers.",
+    "label": "Interface language",
+    "auto": "Automatic (browser language)"
+  }
+}

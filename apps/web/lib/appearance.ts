@@ -8,6 +8,8 @@ import {
 import type { Schemas } from "@workspace/api-client"
 import manifest from "@workspace/ui/themes.json"
 
+import { isLanguageCode, setLanguage } from "@/lib/i18n"
+
 /**
  * Runtime appearance (docs/design/frontend.md §5.4). The options come from
  * packages/ui/src/styles/themes.json, which `pnpm gen:theme` writes from the shadcn
@@ -26,6 +28,7 @@ export const DEFAULT_APPEARANCE: Appearance = {
   font: "inter",
   font_heading: "inherit",
   radius: "default",
+  language: "auto",
 }
 
 export const BASES = manifest.bases
@@ -91,6 +94,7 @@ export function normalize(
         ? a.font_heading
         : "inherit",
     radius: radiusIds.has(a.radius) ? a.radius : DEFAULT_APPEARANCE.radius,
+    language: isLanguageCode(a.language) ? a.language : "auto",
   }
 }
 
@@ -147,6 +151,7 @@ export function applyAppearance(a: Appearance): void {
     if (value === null) root.removeAttribute(name)
     else root.setAttribute(name, value)
   }
+  void setLanguage(a.language)
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(a))
   } catch {
@@ -170,7 +175,7 @@ export function storedAppearance(): Appearance | null {
  */
 export const APPEARANCE_SCRIPT = `(function(){try{var a=JSON.parse(localStorage.getItem(${escapeForInlineScript(JSON.stringify(
   STORAGE_KEY
-))})||"null");if(!a)return;var r=document.documentElement,ok=/^[a-z0-9-]{1,32}$/,m={"data-base":a.base_color,"data-theme":a.theme,"data-chart":a.chart_color,"data-radius":a.radius,"data-font":a.font,"data-font-heading":a.font_heading};for(var k in m){var v=m[k];if(k==="data-chart"&&v==="neutral"){r.removeAttribute(k);continue}if(typeof v==="string"&&ok.test(v))r.setAttribute(k,v)}}catch(e){}})()`
+))})||"null");if(!a)return;var r=document.documentElement,ok=/^[a-z0-9-]{1,32}$/,m={"data-base":a.base_color,"data-theme":a.theme,"data-chart":a.chart_color,"data-radius":a.radius,"data-font":a.font,"data-font-heading":a.font_heading};if(typeof a.language==="string"&&/^[a-z]{2,3}(-[A-Z]{2})?$/.test(a.language))r.setAttribute("lang",a.language);for(var k in m){var v=m[k];if(k==="data-chart"&&v==="neutral"){r.removeAttribute(k);continue}if(typeof v==="string"&&ok.test(v))r.setAttribute(k,v)}}catch(e){}})()`
 
 // ------------------------------------------------------------------ preset codes
 

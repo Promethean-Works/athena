@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslation } from "react-i18next"
 
 import { isAllowed, useCapabilities } from "@/components/capabilities-provider"
 import { isActive, type NavItem } from "@/components/nav"
@@ -16,6 +17,7 @@ import {
 // The block's "Quick Create" button becomes "Add app" when the store lands (M3).
 export function NavMain({ items }: { items: NavItem[] }) {
   const pathname = usePathname()
+  const { t } = useTranslation("nav")
   const { manifest } = useCapabilities()
   return (
     <SidebarGroup>
@@ -28,14 +30,14 @@ export function NavMain({ items }: { items: NavItem[] }) {
             .map((item) => {
               const active = isActive(item, pathname)
               return (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
-                    tooltip={item.title}
+                    tooltip={t(item.titleKey)}
                     isActive={active}
                     render={<Link href={item.url} />}
                   >
                     <item.icon />
-                    <span>{item.title}</span>
+                    <span>{t(item.titleKey)}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )
