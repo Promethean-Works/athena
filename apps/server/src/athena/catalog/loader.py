@@ -3,6 +3,7 @@
 import logging
 import os
 import secrets
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -123,6 +124,23 @@ def host_timezone() -> str:
     return time.tzname[0] if time.tzname[0] and "/" in time.tzname[0] else "UTC"
 
 
+DOCKER_SOCKET = Path("/var/run/docker.sock")
+
+
+def docker_socket_gid() -> str:
+    """The group that owns the Docker socket, for ``group_add`` in apps that use it.
+
+    Only Linux has a socket whose owner matters; Docker Desktop, Colima and WSL proxy it
+    and let group 0 through, so everything else gets ``0``.
+    """
+    if not sys.platform.startswith("linux"):
+        return "0"
+    try:
+        return str(DOCKER_SOCKET.stat().st_gid)
+    except OSError:
+        return "0"
+
+
 def resolve_default(field: EnvField, app_data: Path) -> str:
     """Turn a field's default (literal or @token) into a concrete value."""
     default = field.default or ""
@@ -133,6 +151,8 @@ def resolve_default(field: EnvField, app_data: Path) -> str:
         uid = getter() if getter else 1000
         # Root (the Linux service) would make app files root-owned; use the usual first user.
         return str(uid if uid != 0 else 1000)
+    if default == "@docker_gid":
+        return docker_socket_gid()
     if default == "@app_data" or default.startswith("@app_data/"):
         sub = default.removeprefix("@app_data").lstrip("/")
         return str(app_data / sub) if sub else str(app_data)

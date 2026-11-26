@@ -124,3 +124,34 @@ def test_changed_apps(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (root / "apps" / "new").mkdir()
     (root / "apps" / "new" / "compose.yaml").write_text("c\n")  # untracked
     assert smoke.changed_apps(root, "base") == {"edited", "new"}
+
+
+def test_profiles_flag_adds_one_run_per_app_with_optional_parts() -> None:
+    import yaml
+
+    from athena.catalog.model import parse_app
+    from athena.catalog.smoke import select
+
+    plain = "services:\n  a:\n    image: x:1\n"
+    head = "x-athena:\n  title: T\n  description: d\n  category: utilities\n"
+    with_profile = (
+        head
+        + "  profiles:\n    - {id: extra, label: Extra}\n"
+        + plain
+        + "  b:\n    image: y:1\n    profiles: [extra]\n"
+    )
+    apps = [
+        parse_app(name, "builtin", [("compose.yaml", text, yaml.safe_load(text))])
+        for name, text in (("plain", head + plain), ("rich", with_profile))
+    ]
+    assert [t.project for t in select(apps, [], False, None)] == [
+        "athena-test-plain",
+        "athena-test-rich",
+    ]
+    targets = select(apps, [], False, None, with_profiles=True)
+    assert [t.project for t in targets] == [
+        "athena-test-plain",
+        "athena-test-rich",
+        "athena-test-rich-profiles",
+    ]
+    assert targets[-1].with_profiles

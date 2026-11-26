@@ -5,7 +5,8 @@
     uv run python -m athena.catalog.smoke --changed           # apps changed vs origin/main
     uv run python -m athena.catalog.smoke --all --jobs 2      # every app (hours, many GB)
 
-For each app (and with ``--variants`` each compose variant) it writes the compose file
+For each app (with ``--variants`` each compose variant, with ``--profiles`` once more with
+every optional part switched on) it writes the compose file
 and a ``.env`` from the install form's defaults into a temporary folder, with every
 port field moved to a free port and every path field moved inside that folder. Then
 it pulls the images, runs ``compose up``, and waits until the web port answers over
@@ -45,6 +46,7 @@ from typing import Literal
 import httpx2
 
 from athena.apps.store import parse_compose, seed_files
+from athena.catalog import profiles
 from athena.catalog.loader import builtin_catalog_dir, env_file, load_catalog, resolve_values
 from athena.catalog.model import CatalogApp, CatalogAppVariant
 from athena.catalog.platforms import support
@@ -85,10 +87,14 @@ class Result:
 class Target:
     app: CatalogApp
     variant: CatalogAppVariant
+    with_profiles: bool = False
+    """Switch on every optional part (``x-athena.profiles``) of the app."""
     project: str = field(init=False)
 
     def __post_init__(self) -> None:
         suffix = "" if self.variant.slug == "default" else f"-{self.variant.slug}"
+        if self.with_profiles:
+            suffix += "-profiles"
         self.project = f"{PREFIX}{self.app.id}{suffix}"[:63].rstrip("-_")
 
 
@@ -302,7 +308,12 @@ def run_one(
     target: Target, engine: Engine, work: Path, out: Path, os_name: str, arch: str, opts
 ) -> Result:
     app, variant = target.app, target.variant
-    result = Result(app.id, variant.slug, "skipped", check=app.meta.smoke)
+    result = Result(
+        app.id,
+        "profiles" if target.with_profiles else variant.slug,
+        "skipped",
+        check=app.meta.smoke,
+    )
     if app.meta.smoke == "skip":
         result.stage, result.detail = "marked skip", app.meta.smoke_note or ""
         return result
@@ -323,7 +334,12 @@ def run_one(
     compose_path = folder / "compose.yaml"
     compose_path.write_text(variant.compose, encoding="utf-8")
     values = install_values(target, folder, engine)
-    (folder / ".env").write_text(env_file(values), encoding="utf-8")
+    env_values = dict(values)
+    if target.with_profiles:
+        every = [p.id for p in app.meta.profiles]
+        env_values.update(profiles.env_for(app, every))
+        result.detail = f"profiles: {', '.join(every)}"
+    (folder / ".env").write_text(env_file(env_values), encoding="utf-8")
     seed_files(folder, target.app.files)
     env = {**os.environ, "ATHENA_APP_DATA": str(folder / "data")}
     compose = ["compose", "--project-name", target.project, "--file", str(compose_path)]
@@ -412,11 +428,18 @@ def changed_apps(root: Path, base: str) -> set[str]:
 
 
 def select(
-    apps: list[CatalogApp], ids: Iterable[str], variants: bool, shard: tuple[int, int] | None
+    apps: list[CatalogApp],
+    ids: Iterable[str],
+    variants: bool,
+    shard: tuple[int, int] | None,
+    with_profiles: bool = False,
 ) -> list[Target]:
     wanted = set(ids)
     chosen = [a for a in apps if a.id in wanted] if wanted else list(apps)
     targets = [Target(a, v) for a in chosen for v in (a.variants if variants else a.variants[:1])]
+    if with_profiles:
+        # One more run per app that has optional parts, with all of them on.
+        targets += [Target(a, a.variants[0], with_profiles=True) for a in chosen if a.meta.profiles]
     if shard:
         index, count = shard
         targets = targets[index - 1 :: count]
@@ -467,6 +490,11 @@ def main(argv: list[str] | None = None) -> int:
         help="test the apps changed against BASE (default origin/main), including uncommitted",
     )
     parser.add_argument("--variants", action="store_true", help="test every compose variant")
+    parser.add_argument(
+        "--profiles",
+        action="store_true",
+        help="also test each app that has optional parts with all of them switched on",
+    )
     parser.add_argument("--shard", type=_shard, help="run part K of N, e.g. 2/6 (for CI)")
     parser.add_argument("--jobs", type=int, default=1, help="apps tested at once (default 1)")
     parser.add_argument(
@@ -504,7 +532,7 @@ def main(argv: list[str] | None = None) -> int:
     if missing := ids - known:
         print(f"unknown apps: {', '.join(sorted(missing))}", file=sys.stderr)
         return 2
-    targets = select(apps, ids, args.variants, args.shard)
+    targets = select(apps, ids, args.variants, args.shard, args.profiles)
 
     engine = find_engine()
     if engine is None:

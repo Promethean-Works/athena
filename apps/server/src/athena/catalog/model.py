@@ -17,7 +17,7 @@ A catalog app is a plain compose file plus an `x-athena` block:
           default: "8096"
         - key: TZ
           label: Timezone
-          default: "@timezone"    # tokens: @timezone @uid @gid @app_data[/sub]
+          default: "@timezone"    # tokens: @timezone @uid @gid @docker_gid @app_data[/sub]
         - key: DB_PASSWORD
           label: Database password
           type: password
@@ -86,7 +86,7 @@ class EnvField(BaseModel):
     description: str | None = None
     type: FieldType = "text"
     default: str | None = None
-    """A literal, or a token: @timezone, @uid, @gid, @app_data, @app_data/<sub>."""
+    """A literal, or a token: @timezone, @uid, @gid, @docker_gid, @app_data, @app_data/<sub>."""
     required: bool = True
     options: list[str] | None = None
     """For type: select."""
@@ -239,7 +239,8 @@ class InvalidCatalogAppError(ValueError):
     pass
 
 
-_INTERP = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)")
+# `$${X}` is Compose's escape for a literal `${X}`, not a variable.
+_INTERP = re.compile(r"(?<!\$)\$\{([A-Za-z_][A-Za-z0-9_]*)")
 
 
 def _slug_of(compose_file_name: str) -> str:

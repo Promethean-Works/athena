@@ -96,8 +96,10 @@ def test_every_builtin_app_passes_compose_config(tmp_path: Path) -> None:
         values = resolve_values(app.meta.env, user_entries(app), folder / "data")
         (folder / ".env").write_text(env_file(values))
         seed_files(folder, app.files)
+        quiet = ["config", "--quiet"]
         result = subprocess.run(
-            [*cli, "compose", "--file", str(folder / "compose.yaml"), "config", "--quiet"],
+            # --profile "*": check the optional parts' services too.
+            [*cli, "compose", "--file", str(folder / "compose.yaml"), "--profile", "*", *quiet],
             capture_output=True,
             text=True,
             env={**os.environ, "ATHENA_APP_DATA": str(folder / "data")},
@@ -132,6 +134,12 @@ def test_undeclared_variables_are_rejected() -> None:
     text, d = doc([PORT], "${WEB_PORT}:${OTHER}")
     with pytest.raises(InvalidCatalogAppError, match="undeclared variables OTHER"):
         parse_app("a", "builtin", [("compose.yaml", text, d)])
+
+
+def test_escaped_dollars_are_not_variables() -> None:
+    text, d = doc([PORT], "${WEB_PORT}")
+    text += "    command: echo $${not_declared}\n"
+    parse_app("a", "builtin", [("compose.yaml", text, d)])  # no "undeclared variables"
 
 
 def test_web_port_must_be_a_field() -> None:
@@ -206,6 +214,27 @@ def test_default_tokens(tmp_path: Path) -> None:
     assert values["TZ"]
     assert values["DATA"] == str(tmp_path / "media")
     assert values["UID"].isdigit() and values["UID"] != "0"
+
+
+def test_docker_gid_token(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    from athena.catalog import loader
+
+    field = {"key": "DOCKER_GID", "label": "G", "default": "@docker_gid"}
+    text, d = doc([PORT, field])
+    app = parse_app("a", "builtin", [("compose.yaml", text, d)])
+
+    socket = tmp_path / "docker.sock"
+    socket.touch()
+    monkeypatch.setattr(loader, "DOCKER_SOCKET", socket)
+    monkeypatch.setattr(loader.sys, "platform", "linux")
+    assert resolve_values(app.meta.env, {}, tmp_path)["DOCKER_GID"] == str(socket.stat().st_gid)
+
+    monkeypatch.setattr(loader, "DOCKER_SOCKET", tmp_path / "missing.sock")
+    assert resolve_values(app.meta.env, {}, tmp_path)["DOCKER_GID"] == "0"
+
+    monkeypatch.setattr(loader.sys, "platform", "darwin")
+    monkeypatch.setattr(loader, "DOCKER_SOCKET", socket)
+    assert resolve_values(app.meta.env, {}, tmp_path)["DOCKER_GID"] == "0"
 
 
 def test_env_file_quoting() -> None:
