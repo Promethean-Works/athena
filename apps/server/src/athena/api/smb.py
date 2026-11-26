@@ -10,11 +10,12 @@ is wired.
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from athena import audit
 from athena.api.files import _fail, _run
+from athena.api.netshares import require_share_capability
 from athena.auth.deps import Authed, DbSession
 from athena.db.models import SmbShare
 from athena.files import smb
@@ -63,9 +64,12 @@ def list_smb_shares(db: DbSession) -> list[SmbShareOut]:
 
 
 @router.post("", operation_id="createSmbShare", status_code=status.HTTP_201_CREATED)
-async def create_smb_share(body: SmbShareIn, user: Authed, db: DbSession) -> SmbShareOut:
+async def create_smb_share(
+    body: SmbShareIn, request: Request, user: Authed, db: DbSession
+) -> SmbShareOut:
     """Share a location over SMB. On Linux this writes a section to
     /etc/samba/smb.conf and reloads smbd; on other operating systems it's 501."""
+    await require_share_capability(request, "shares.smb")
     try:
         entry = await _run(
             lambda: smb.create_share(
@@ -76,8 +80,6 @@ async def create_smb_share(body: SmbShareIn, user: Authed, db: DbSession) -> Smb
                 guest_ok=body.guest_ok,
             )
         )
-    except smb.SmbUnsupported as exc:
-        raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, exc.message) from exc
     except smb.FileError as exc:
         raise _fail(exc) from exc
     audit.record(
@@ -91,13 +93,14 @@ async def create_smb_share(body: SmbShareIn, user: Authed, db: DbSession) -> Smb
 
 
 @router.delete("/{share_id}", operation_id="removeSmbShare", status_code=status.HTTP_204_NO_CONTENT)
-async def remove_smb_share(share_id: int, user: Authed, db: DbSession) -> None:
+async def remove_smb_share(share_id: int, request: Request, user: Authed, db: DbSession) -> None:
     """Remove an SMB share: drop its smb.conf section and the tracking row."""
     share = db.get(SmbShare, share_id)
     if share is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such SMB share")
+    await require_share_capability(request, "shares.smb")
     try:
         await _run(lambda: smb.remove_share(db, share_id))
-    except smb.SmbUnsupported as exc:
-        raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, exc.message) from exc
+    except smb.FileError as exc:
+        raise _fail(exc) from exc
     audit.record(db, user.user.username, "smb.share.remove", f"SMB:{share.name}")

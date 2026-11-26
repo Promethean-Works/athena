@@ -18,7 +18,7 @@ apps/server/
     catalog/                # model.py (x-athena), loader.py, registry.py, remote.py, casaos.py
     packages/               # base.py, linux.py, apps.py (brew, flatpak, snap), windows.py
     terminal/               # pty.py (POSIX pty and ConPTY), shells.py
-    files/                  # paths.py, locations.py, ops.py, shares.py, smb.py, webdav.py
+    files/                  # paths.py, locations.py, ops.py, shares.py, smb.py, nfs.py, netshare.py, webdav.py
     cloud/                  # rclone.py (sidecar), remotes.py, transfers.py
     assistant/              # kinds.py, models_dev.py, providers.py, chat.py, tools.py,
                             # actions.py, and the harness capabilities (§4.5)
@@ -52,7 +52,7 @@ WS   /api/terminal/ws?target=host|container:{ref}
 GET/POST /api/files/locations   PUT/DELETE …/{id}
 GET  /api/files/{list|download}   GET/PUT /api/files/text
 POST /api/files/{folder|rename|delete|transfer}   POST/DELETE /api/files/upload
-GET/POST /api/shares   PUT/DELETE /api/shares/{id}   GET/POST /api/shares/smb   DELETE …/smb/{id}
+GET/POST /api/shares   PUT/DELETE /api/shares/{id}   GET/POST /api/shares/smb   DELETE …/smb/{id}   GET/POST /api/shares/nfs   DELETE …/nfs/{id}
 GET  /api/public/shares/{token}[/list|/download]   POST …/unlock   POST/DELETE …/upload
 GET/PUT /api/webdav   POST /api/webdav/password   /dav/… (WebDAV)   /s/{token} (share page)
 GET  /api/cloud/providers   GET/POST /api/cloud/remotes   GET/PUT/DELETE …/{name}   POST …/{name}/answer

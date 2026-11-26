@@ -300,6 +300,42 @@ def detect_smb(probe: Probe) -> Capability:
     )
 
 
+def detect_nfs(probe: Probe) -> Capability:
+    """NFS shares: export a file location from the host's NFS server
+    (docs/specs/network-shares.md). Linux only for now; Windows client editions have no
+    NFS server, and the macOS provider comes in a later part."""
+    label = "NFS shares"
+    if probe.os == "linux":
+        if not probe.which("exportfs"):
+            return Capability(
+                id="shares.nfs",
+                label=label,
+                status="missing",
+                provider="nfs-kernel-server",
+                detail="NFS server not installed. Install it (apt install nfs-kernel-server).",
+                actions=["setup"],
+            )
+        if not probe.is_root():
+            return Capability(
+                id="shares.nfs",
+                label=label,
+                status="needs_privilege",
+                provider="nfs-kernel-server",
+                detail="Exporting folders over NFS needs Athena to run as root.",
+            )
+        return Capability(
+            id="shares.nfs", label=label, status="ready", provider="nfs-kernel-server"
+        )
+    detail = (
+        "Windows has no NFS server outside Windows Server. Use SMB or WebDAV instead."
+        if probe.os == "windows"
+        else "Creating NFS shares from Athena isn't available on this operating system yet."
+    )
+    return Capability(
+        id="shares.nfs", label=label, status="unsupported", provider="built-in", detail=detail
+    )
+
+
 def detect_rclone(probe: Probe) -> Capability:
     path = probe.which("rclone")
     if not path:
@@ -680,6 +716,7 @@ def detectors_for(probe: Probe) -> list[Detector]:
         detect_rclone,
         detect_power,
         detect_smb,
+        detect_nfs,
         detect_ollama,
         detect_local_ai,
         detect_tunnel_cloudflare,

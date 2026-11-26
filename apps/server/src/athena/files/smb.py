@@ -3,17 +3,15 @@
 Linux (Athena runs as a root systemd service there): Athena adds a share section to
 /etc/samba/smb.conf and reloads smbd, so the folder is available as
 \\\\server\\share on the LAN. macOS and Windows have SMB sharing built in, but
-creating a share from Athena isn't wired on those operating systems yet.
+creating a share from Athena isn't wired on those operating systems yet. The API checks
+the `shares.smb` capability before calling in here.
 
 See docs/design/files.md ("SMB/NFS where the OS supports it").
 """
 
 from __future__ import annotations
 
-import contextlib
 import re
-import subprocess
-import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -21,17 +19,12 @@ from pathlib import Path
 from sqlmodel import Session, select
 
 from athena.db.models import FileLocation, SmbShare
+from athena.files import netshare
 from athena.files.locations import get as get_location
-from athena.files.paths import BadPath, Conflict, FileError, NotFound
+from athena.files.paths import BadPath, Conflict, NotFound
 
 SMB_CONF = Path("/etc/samba/smb.conf")
 SHARE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,62}$")
-
-
-class SmbUnsupported(FileError):
-    """Creating or removing SMB shares isn't available on this operating system."""
-
-    status = 501
 
 
 class ShareNameTaken(Conflict):
@@ -76,26 +69,13 @@ def list_shares(db: Session) -> list[SmbShareEntry]:
 # ------------------------------------------------------------------ Samba config
 
 
-def _on_linux() -> bool:
-    return sys.platform.startswith("linux")
-
-
 def _reload_smbd() -> None:
-    """Tell Samba to pick up smb.conf changes. Best effort: a share works once
-    smbd is reloaded or restarted, so a failed reload isn't fatal."""
-    with contextlib.suppress(OSError, subprocess.TimeoutExpired):
-        subprocess.run(
-            ["systemctl", "reload", "smbd"],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
+    netshare.run_reload(["systemctl", "reload", "smbd"], "Samba")
 
 
-def _append_share_section(
-    conf: Path, name: str, share_path: str, read_only: bool, guest_ok: bool
-) -> None:
+def _with_share_section(
+    text: str | None, name: str, share_path: str, read_only: bool, guest_ok: bool
+) -> str:
     section = (
         "\n"
         f"[{name}]\n"
@@ -104,22 +84,16 @@ def _append_share_section(
         f"   guest ok = {'yes' if guest_ok else 'no'}\n"
         f"   comment = Athena share\n"
     )
-    if not conf.exists():
-        # smbd needs at least a [global] section; add a minimal one so a brand-new
-        # smb.conf is valid.
-        conf.write_text("[global]\n" + section, encoding="utf-8")
-    else:
-        conf.write_text(conf.read_text(encoding="utf-8") + section, encoding="utf-8")
+    # smbd needs at least a [global] section; add a minimal one so a brand-new
+    # smb.conf is valid.
+    return ("[global]\n" if text is None else text) + section
 
 
-def _remove_share_section(conf: Path, name: str) -> None:
-    if not conf.exists():
-        return
+def _without_share_section(text: str, name: str) -> str:
     marker = re.compile(r"\[" + re.escape(name) + r"\]")
-    lines = conf.read_text(encoding="utf-8").splitlines(keepends=True)
     out: list[str] = []
     skip = False
-    for line in lines:
+    for line in text.splitlines(keepends=True):
         if skip:
             if line.startswith("[") and line.endswith("]\n"):
                 skip = False
@@ -129,7 +103,7 @@ def _remove_share_section(conf: Path, name: str) -> None:
             skip = True
             continue
         out.append(line)
-    conf.write_text("".join(out), encoding="utf-8")
+    return "".join(out)
 
 
 # ------------------------------------------------------------------ public API
@@ -146,8 +120,8 @@ def create_share(
 ) -> SmbShareEntry:
     """Create an SMB share for `location_id` and publish it through Samba.
 
-    Raises `SmbUnsupported` on operating systems where Athena can't create SMB
-    shares yet (macOS, Windows).
+    The caller has checked the `shares.smb` capability. If Samba refuses the new
+    configuration it is rolled back and `ShareReloadFailed` is raised.
     """
     loc = get_location(db, location_id)
     if not SHARE_NAME.fullmatch(name):
@@ -158,13 +132,9 @@ def create_share(
     if taken is not None:
         raise ShareNameTaken(f"An SMB share named {name} already exists")
 
-    if _on_linux():
-        _append_share_section(conf, name, loc.path, read_only, guest_ok)
-        _reload_smbd()
-    else:
-        raise SmbUnsupported(
-            "Creating SMB shares from Athena isn't available on this operating system yet"
-        )
+    old = conf.read_text(encoding="utf-8") if conf.exists() else None
+    new = _with_share_section(old, name, loc.path, read_only, guest_ok)
+    netshare.swap_config(conf, new, _reload_smbd)
 
     share = SmbShare(
         name=name,
@@ -190,13 +160,9 @@ def remove_share(
     if share is None:
         raise NotFound("No such SMB share")
 
-    if _on_linux():
-        _remove_share_section(conf, share.name)
-        _reload_smbd()
-    else:
-        raise SmbUnsupported(
-            "Removing SMB shares from Athena isn't available on this operating system yet"
-        )
+    if conf.exists():
+        new = _without_share_section(conf.read_text(encoding="utf-8"), share.name)
+        netshare.swap_config(conf, new, _reload_smbd)
 
     db.delete(share)
     db.commit()

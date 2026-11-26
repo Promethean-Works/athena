@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from athena.db import Database
 from athena.db.models import FileLocation
 from athena.files import smb
+from athena.files.netshare import ShareReloadFailed
 from athena.files.paths import BadPath, NotFound
 from athena.platform.detect import detect
 
@@ -58,7 +59,6 @@ def _seed(tmp_path: Path) -> tuple[Database, int]:
 
 
 def _linux(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("athena.files.smb._on_linux", lambda: True)
     monkeypatch.setattr("athena.files.smb._reload_smbd", lambda: None)
 
 
@@ -139,13 +139,8 @@ def test_invalid_share_name_is_refused(tmp_path: Path, monkeypatch: pytest.Monke
 # ---------------------------------------------------------------- API
 
 
-def test_api_list_and_create_on_unsupported_os(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_api_list_and_create_on_unsupported_os(tmp_path: Path) -> None:
     """On this machine (macOS) SMB share creation isn't wired, so it's 501."""
-    # Pretend we're not on Linux: _on_linux() reads sys.platform (the real host),
-    # which would be Linux on CI and would try to write /etc/samba/smb.conf.
-    monkeypatch.setattr("athena.files.smb._on_linux", lambda: False)
     with TestClient(make_app(tmp_path)) as client:
         signed_in(client)
         (tmp_path / "media").mkdir()
@@ -166,3 +161,21 @@ def test_api_list_and_create_on_unsupported_os(
 
         res = client.delete("/api/shares/smb/1")
         assert res.status_code == 404, res.text
+
+
+def test_failed_reload_rolls_the_config_back(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def refuse() -> None:
+        raise ShareReloadFailed("Couldn't reload Samba: bad config")
+
+    monkeypatch.setattr("athena.files.smb._reload_smbd", refuse)
+    conf = tmp_path / "smb.conf"
+    conf.write_text("[global]\n", encoding="utf-8")
+    db, loc_id = _seed(tmp_path)
+
+    for session in db.session():
+        with pytest.raises(ShareReloadFailed):
+            smb.create_share(session, loc_id, SHARE_NAME, conf=conf)
+        assert smb.list_shares(session) == []
+    assert conf.read_text(encoding="utf-8") == "[global]\n"
