@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 
+import { api, errorMessage } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
@@ -12,8 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog"
+import { FieldError } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
+import { Spinner } from "@workspace/ui/components/spinner"
 
 /** How long the password is kept after it was last used. */
 export const HOST_PASSWORD_IDLE_MS = 5 * 60 * 1000
@@ -51,6 +54,8 @@ export function HostPasswordProvider({
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const [asking, setAsking] = React.useState<Asking | null>(null)
   const [value, setValue] = React.useState("")
+  const [checking, setChecking] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
 
   const forget = React.useCallback(() => {
     kept.current = null
@@ -76,6 +81,7 @@ export function HostPasswordProvider({
       }
       return new Promise<string | null>((resolve) => {
         setValue("")
+        setError(null)
         // A second request while the dialog is open replaces the first, which is cancelled.
         setAsking((previous) => {
           previous?.resolve(null)
@@ -98,6 +104,24 @@ export function HostPasswordProvider({
     asking?.resolve(password)
     setAsking(null)
     setValue("")
+    setError(null)
+  }
+
+  // Check the password with the server before the action runs, so a typo is caught here.
+  async function submit(event: React.FormEvent) {
+    event.preventDefault()
+    if (!value || checking) return
+    setChecking(true)
+    setError(null)
+    const { response, error: err } = await api.POST(
+      "/api/system/host-password/check",
+      { body: { password: value } }
+    )
+    setChecking(false)
+    // 409: this host doesn't ask for a password, so there is nothing to check.
+    if (response.ok || response.status === 409) return finish(value)
+    setError(errorMessage(err))
+    setValue("")
   }
 
   const session = React.useMemo(
@@ -112,10 +136,7 @@ export function HostPasswordProvider({
         <DialogContent>
           <form
             className="flex flex-col gap-4"
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (value) finish(value)
-            }}
+            onSubmit={(e) => void submit(e)}
           >
             <DialogHeader>
               <DialogTitle>{t("hostPassword.title")}</DialogTitle>
@@ -134,7 +155,10 @@ export function HostPasswordProvider({
                 autoFocus
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
+                readOnly={checking}
+                aria-invalid={error !== null}
               />
+              {error ? <FieldError>{error}</FieldError> : null}
               <p className="text-sm text-muted-foreground">
                 {t("hostPassword.keep", {
                   minutes: HOST_PASSWORD_IDLE_MS / 60000,
@@ -149,7 +173,8 @@ export function HostPasswordProvider({
               >
                 {t("cancel")}
               </Button>
-              <Button type="submit" disabled={!value}>
+              <Button type="submit" disabled={!value || checking}>
+                {checking ? <Spinner /> : null}
                 {t("hostPassword.continue")}
               </Button>
             </DialogFooter>

@@ -3870,6 +3870,50 @@
         }
       }
     },
+    "/api/system/host-password/check": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Check Host Password",
+        "description": "Run a harmless `sudo true` with the password, so the UI can reject a typo before the\nreal action. The password is used for this request only; never stored or logged.\n\nOnly offered when some capability on this host asks for a password (`elevation:\n\"password\"`), and throttled per admin like a sign-in.",
+        "operationId": "checkHostPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HostPasswordIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "403": {
+            "description": "The password didn't work"
+          },
+          "409": {
+            "description": "This host doesn't ask for a password"
+          },
+          "429": {
+            "description": "Too many wrong passwords"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/shares/smb": {
       "get": {
         "tags": [
@@ -9929,6 +9973,21 @@
           "started_at"
         ],
         "title": "Health"
+      },
+      "HostPasswordIn": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "title": "HostPasswordIn"
       },
       "HttpsSettings": {
         "properties": {

@@ -18,6 +18,7 @@ from athena.api import backup as backup_api
 from athena.api import cloud as cloud_api
 from athena.api import feedback as feedback_api
 from athena.api import files as files_api
+from athena.api import host_password as host_password_api
 from athena.api import https as https_api
 from athena.api import mounts as mounts_api
 from athena.api import nfs as nfs_api
@@ -189,6 +190,7 @@ def create_app(
     app.state.settings_file = settings_file
     app.state.login_throttle = LoginThrottle()
     app.state.share_throttle = LoginThrottle(limit=10)
+    app.state.host_password_throttle = LoginThrottle()
     app.state.jobs = JobManager()
     app.state.app_jobs = {}
     app.state.backup_locks = {}
@@ -236,6 +238,7 @@ def create_app(
     app.include_router(packages_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(files_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(shares_api.public_router, prefix="/api")
+    app.include_router(host_password_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(smb_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(nfs_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(mounts_api.router, prefix="/api", dependencies=[require_admin])
