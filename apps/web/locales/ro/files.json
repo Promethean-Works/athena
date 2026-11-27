@@ -164,7 +164,6 @@
     "tabLink": "Link",
     "tabNetwork": "Rețea",
     "networkDescription": "Partajează acest dosar cu alte calculatoare din rețeaua ta.",
-    "networkRootOnly": "În rețea se poate partaja doar o locație de fișiere întreagă. Deschide dosarul principal al locației.",
     "networkFolderOnly": "În rețea se pot partaja doar dosare.",
     "mountUnavailable": "Dosarele din cloud nu pot fi partajate încă de pe acest calculator",
     "mountDescription": "Athena trebuie să monteze mai întâi acest dosar din cloud pe acest calculator pentru a-l partaja. Stocarea în cloud este mai lentă decât un disc pentru oricine deschide partajarea.",

@@ -4019,6 +4019,11 @@ export interface components {
         NfsShareIn: {
             /** Location */
             location: number;
+            /**
+             * Folder
+             * @default
+             */
+            folder: string;
             /** Clients */
             clients: string[];
             /**
@@ -4037,6 +4042,8 @@ export interface components {
             location_name: string;
             /** Path */
             path: string;
+            /** Folder */
+            folder: string;
             /** Clients */
             clients: string[];
             /** Read Only */
@@ -4618,6 +4625,11 @@ export interface components {
         SmbShareIn: {
             /** Location */
             location: number;
+            /**
+             * Folder
+             * @default
+             */
+            folder: string;
             /** Name */
             name: string;
             /**
@@ -4643,6 +4655,8 @@ export interface components {
             location_name: string;
             /** Path */
             path: string;
+            /** Folder */
+            folder: string;
             /** Read Only */
             read_only: boolean;
             /** Guest Ok */

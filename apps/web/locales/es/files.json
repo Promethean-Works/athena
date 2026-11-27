@@ -164,7 +164,6 @@
     "tabLink": "Enlace",
     "tabNetwork": "Red",
     "networkDescription": "Comparte esta carpeta con otros equipos de tu red.",
-    "networkRootOnly": "Solo se puede compartir en red una ubicación de archivos completa. Abre la carpeta superior de la ubicación.",
     "networkFolderOnly": "Solo se pueden compartir carpetas en red.",
     "mountUnavailable": "Todavía no se pueden compartir carpetas de la nube desde este equipo",
     "mountDescription": "Athena debe montar esta carpeta de la nube en este equipo antes de compartirla. El almacenamiento en la nube es más lento que un disco para todos los que abran el recurso.",

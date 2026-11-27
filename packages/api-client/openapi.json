@@ -10741,6 +10741,11 @@
             "type": "integer",
             "title": "Location"
           },
+          "folder": {
+            "type": "string",
+            "title": "Folder",
+            "default": ""
+          },
           "clients": {
             "items": {
               "type": "string",
@@ -10781,6 +10786,10 @@
             "type": "string",
             "title": "Path"
           },
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
           "clients": {
             "items": {
               "type": "string"
@@ -10804,6 +10813,7 @@
           "location_id",
           "location_name",
           "path",
+          "folder",
           "clients",
           "read_only",
           "created_at"
@@ -12265,6 +12275,11 @@
             "type": "integer",
             "title": "Location"
           },
+          "folder": {
+            "type": "string",
+            "title": "Folder",
+            "default": ""
+          },
           "name": {
             "type": "string",
             "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,62}$",
@@ -12310,6 +12325,10 @@
             "type": "string",
             "title": "Path"
           },
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
           "read_only": {
             "type": "boolean",
             "title": "Read Only"
@@ -12331,6 +12350,7 @@
           "location_id",
           "location_name",
           "path",
+          "folder",
           "read_only",
           "guest_ok",
           "created_at"

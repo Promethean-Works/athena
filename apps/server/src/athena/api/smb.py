@@ -38,6 +38,8 @@ class SmbShareOut(BaseModel):
     location_name: str
     path: str
     """The shared folder's absolute path on the host."""
+    folder: str
+    """Where it sits inside the location, `/`-separated; empty for the whole location."""
     read_only: bool
     guest_ok: bool
     created_at: datetime
@@ -45,6 +47,8 @@ class SmbShareOut(BaseModel):
 
 class SmbShareIn(BaseModel):
     location: int
+    folder: str = ""
+    """A folder inside the location to share, relative to it; empty shares the whole location."""
     name: Annotated[str, Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,62}$")]
     """The share name as it appears on the network."""
     read_only: bool = False
@@ -58,6 +62,7 @@ def _out(entry: smb.SmbShareEntry) -> SmbShareOut:
         location_id=entry.location_id,
         location_name=entry.location_name,
         path=entry.path,
+        folder=entry.folder,
         read_only=entry.read_only,
         guest_ok=entry.guest_ok,
         created_at=entry.created_at,
@@ -93,6 +98,7 @@ async def create_smb_share(
                     read_only=body.read_only,
                     guest_ok=body.guest_ok,
                     provider=cap.provider or "samba",
+                    folder=body.folder,
                 ),
             )
         )
