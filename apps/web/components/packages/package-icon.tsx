@@ -34,7 +34,7 @@ export function ManagerLogo({
   className?: string
 }) {
   return (
-    <Avatar size="sm" className={cn("rounded-md after:rounded-md", className)}>
+    <Avatar size="sm" className={cn("rounded-md after:hidden", className)}>
       {hasLogo ? (
         <AvatarImage
           src={src ?? `/api/packages/${id}/logo`}
@@ -66,7 +66,7 @@ export function PackageIcon({
   size?: "default" | "sm" | "lg"
 }) {
   return (
-    <Avatar size={size} className="rounded-lg after:rounded-lg">
+    <Avatar size={size} className="rounded-lg after:hidden">
       {hasIcon ? (
         <AvatarImage
           src={`/api/packages/${manager}/icon?${query(name, source)}`}
