@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Bağlanıyor…",
+    "connected": "Bağlandı",
+    "exited": "Çıktı ({{code}})",
+    "disconnected": "Bağlantı kesildi",
+    "hostTerminal": "Ana makine terminali",
+    "containerShell": "Konteyner kabuğu",
+    "lost": "Athena ile bağlantı kesildi",
+    "closedCode": "Bağlantı kesildi (kod {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminal kullanılamıyor",
+    "openSettings": "Ayarlar'ı aç",
+    "description": "Bu sunucuda, Athena'nın çalıştığı kullanıcı olarak bir kabuk.",
+    "newSession": "Yeni oturum"
+  },
+  "access": {
+    "noSupport": "Bu ana makinede terminal desteği yok.",
+    "adminsOnly": "Terminali yalnızca yöneticiler açabilir.",
+    "turnedOff": "Terminal Ayarlar → Sistem bölümünde kapatılmış."
+  },
+  "shell": {
+    "title": "Kabuk · {{name}}",
+    "description": "bash çalıştırır; imajda bash yoksa sh."
+  }
+}

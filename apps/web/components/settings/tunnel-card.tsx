@@ -10,6 +10,7 @@ import {
   RotateCcwIcon,
   SquareIcon,
 } from "lucide-react"
+import { Trans, useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import {
@@ -87,6 +88,7 @@ function SecretInput({
   disabled?: boolean
   placeholder?: string
 }) {
+  const { t } = useTranslation("settings")
   const [show, setShow] = React.useState(false)
   return (
     <Field>
@@ -104,7 +106,9 @@ function SecretInput({
         <InputGroupAddon align="inline-end">
           <InputGroupButton
             size="icon-xs"
-            aria-label={show ? `Hide ${label}` : `Show ${label}`}
+            aria-label={
+              show ? t("tunnel.hide", { label }) : t("tunnel.show", { label })
+            }
             onClick={() => setShow(!show)}
           >
             {show ? <EyeOffIcon /> : <EyeIcon />}
@@ -161,11 +165,12 @@ function ProviderConfigForm({
   onChange: (config: Config) => void
   disabled: boolean
 }) {
+  const { t } = useTranslation("settings")
   const set = (key: string) => (value: unknown) =>
     onChange({ ...config, [key]: value })
   const str = (key: string) => (config[key] as string | undefined) ?? ""
   const secretPlaceholder = (key: string, empty: string) =>
-    secretsSet.includes(key) ? "Saved. Type a new value to replace it" : empty
+    secretsSet.includes(key) ? t("tunnel.secretSaved") : empty
 
   if (provider === "cloudflare") {
     const quickTunnel = (config.quick_tunnel as boolean | undefined) ?? true
@@ -173,10 +178,11 @@ function ProviderConfigForm({
       <>
         <Field orientation="horizontal">
           <FieldContent>
-            <FieldLabel htmlFor="cf-quick">Quick tunnel</FieldLabel>
+            <FieldLabel htmlFor="cf-quick">
+              {t("tunnel.cloudflare.quick")}
+            </FieldLabel>
             <FieldDescription>
-              A random trycloudflare.com address that needs no account. It
-              changes every time the tunnel starts.
+              {t("tunnel.cloudflare.quickHelp")}
             </FieldDescription>
           </FieldContent>
           <Switch
@@ -190,32 +196,32 @@ function ProviderConfigForm({
           <>
             <SecretInput
               id="cf-api-token"
-              label="API token"
+              label={t("tunnel.cloudflare.apiToken")}
               value={str("api_token")}
               onChange={set("api_token")}
               disabled={disabled}
               placeholder={secretPlaceholder(
                 "api_token",
-                "A Cloudflare API token with Tunnel permissions"
+                t("tunnel.cloudflare.apiTokenPlaceholder")
               )}
             />
             <TextField
               id="cf-tunnel-name"
-              label="Tunnel name"
+              label={t("tunnel.cloudflare.tunnelName")}
               value={str("tunnel_name")}
               onChange={set("tunnel_name")}
               disabled={disabled}
               placeholder="my-tunnel"
-              description="The named tunnel in your Cloudflare account."
+              description={t("tunnel.cloudflare.tunnelNameHelp")}
             />
             <TextField
               id="cf-domain"
-              label="Custom domain (optional)"
+              label={t("tunnel.customDomain")}
               value={str("domain")}
               onChange={set("domain")}
               disabled={disabled}
               placeholder="athena.example.com"
-              description="Needs a DNS record pointing at the tunnel."
+              description={t("tunnel.cloudflare.domainHelp")}
             />
           </>
         )}
@@ -226,14 +232,20 @@ function ProviderConfigForm({
   if (provider === "tailscale") {
     return (
       <Field>
-        <FieldLabel htmlFor="ts-tailnet">Tailnet</FieldLabel>
+        <FieldLabel htmlFor="ts-tailnet">
+          {t("tunnel.tailscale.tailnet")}
+        </FieldLabel>
         <Input
           id="ts-tailnet"
           readOnly
-          value={str("tailnet_name") || "Detected automatically"}
+          value={str("tailnet_name") || t("tunnel.tailscale.auto")}
         />
         <FieldDescription>
-          Set with <code>tailscale up</code> on this server.
+          <Trans
+            i18nKey="tunnel.tailscale.help"
+            ns="settings"
+            components={{ code: <code /> }}
+          />
         </FieldDescription>
       </Field>
     )
@@ -243,52 +255,55 @@ function ProviderConfigForm({
     <>
       <SecretInput
         id="ngrok-auth-token"
-        label="Auth token"
+        label={t("tunnel.ngrok.authToken")}
         value={str("auth_token")}
         onChange={set("auth_token")}
         disabled={disabled}
-        placeholder={secretPlaceholder("auth_token", "Your ngrok auth token")}
+        placeholder={secretPlaceholder(
+          "auth_token",
+          t("tunnel.ngrok.authTokenPlaceholder")
+        )}
       />
       <TextField
         id="ngrok-domain"
-        label="Custom domain (optional)"
+        label={t("tunnel.customDomain")}
         value={str("domain")}
         onChange={set("domain")}
         disabled={disabled}
         placeholder="athena.example.com"
-        description="Needs a paid ngrok plan."
+        description={t("tunnel.ngrok.paidPlan")}
       />
       <TextField
         id="ngrok-subdomain"
-        label="Subdomain (optional)"
+        label={t("tunnel.ngrok.subdomain")}
         value={str("subdomain")}
         onChange={set("subdomain")}
         disabled={disabled}
         placeholder="my-athena"
-        description="Needs a paid ngrok plan."
+        description={t("tunnel.ngrok.paidPlan")}
       />
       <Alert>
         <AlertTriangleIcon />
-        <AlertTitle>Free plan limits</AlertTitle>
-        <AlertDescription>
-          One tunnel, 40 connections a minute, and a new random address each
-          session.
-        </AlertDescription>
+        <AlertTitle>{t("tunnel.ngrok.freeTitle")}</AlertTitle>
+        <AlertDescription>{t("tunnel.ngrok.freeDescription")}</AlertDescription>
       </Alert>
     </>
   )
 }
 
 function StatusBadge({ status }: { status: TunnelStatus | null }) {
+  const { t } = useTranslation("settings")
   if (!status) return <Skeleton className="h-5 w-20" />
-  if (status.running) return <Badge>Running</Badge>
+  if (status.running) return <Badge>{t("tunnel.status.running")}</Badge>
   switch (status.capability_status) {
     case "stopped":
-      return <Badge variant="secondary">Stopped</Badge>
+      return <Badge variant="secondary">{t("tunnel.status.stopped")}</Badge>
     case "not_installed":
-      return <Badge variant="destructive">Not installed</Badge>
+      return (
+        <Badge variant="destructive">{t("tunnel.status.notInstalled")}</Badge>
+      )
     default:
-      return <Badge variant="outline">Not set up</Badge>
+      return <Badge variant="outline">{t("tunnel.status.notSetUp")}</Badge>
   }
 }
 
@@ -296,6 +311,7 @@ const sameJson = (a: unknown, b: unknown) =>
   JSON.stringify(a) === JSON.stringify(b)
 
 export function TunnelCard() {
+  const { t } = useTranslation("settings")
   const { user } = useAuth()
   // Call each hook on every render: `a || b || c` skipped calls and broke
   // React's rules of hooks.
@@ -355,7 +371,7 @@ export function TunnelCard() {
     if (!data) {
       toast.add({
         type: "error",
-        title: "Couldn't save",
+        title: t("tunnel.saveFailed"),
         description: errorMessage(error),
       })
       return null
@@ -370,7 +386,7 @@ export function TunnelCard() {
     if (!portValid) return
     const data = await save(
       { tunnel_config: config, tunnel_port: portNumber },
-      "Remote access settings saved"
+      t("tunnel.saved")
     )
     // The server never returns secrets, so this also clears typed tokens and
     // shows their "Saved" placeholder instead.
@@ -402,14 +418,12 @@ export function TunnelCard() {
   async function changeAutoStart(enabled: boolean) {
     const saved = await save(
       { tunnel_auto_start: enabled },
-      enabled
-        ? "Remote access starts on boot"
-        : "Remote access no longer starts on boot"
+      enabled ? t("tunnel.autoStart.on") : t("tunnel.autoStart.off")
     )
     if (!saved) return
     await runJob(
       api.PUT("/api/tunnel/service", { params: { query: { enabled } } }),
-      "Couldn't update the service"
+      t("tunnel.serviceFailed")
     )
   }
 
@@ -421,11 +435,8 @@ export function TunnelCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Remote access</CardTitle>
-        <CardDescription>
-          Reach Athena from anywhere through Cloudflare, Tailscale or ngrok,
-          without opening ports on your router.
-        </CardDescription>
+        <CardTitle>{t("tunnel.title")}</CardTitle>
+        <CardDescription>{t("tunnel.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {settings === null ? (
@@ -434,11 +445,12 @@ export function TunnelCard() {
           <FieldGroup>
             <Field orientation="horizontal">
               <FieldContent>
-                <FieldLabel htmlFor="tunnel-enabled">Remote access</FieldLabel>
+                <FieldLabel htmlFor="tunnel-enabled">
+                  {t("tunnel.label")}
+                </FieldLabel>
                 <FieldDescription>
-                  Anyone with the address reaches your sign-in page, so use a
-                  strong password.
-                  {!user.is_admin && " Only admins can change this."}
+                  {t("tunnel.help")}
+                  {!user.is_admin && ` ${t("tunnel.adminOnly")}`}
                 </FieldDescription>
               </FieldContent>
               <Switch
@@ -448,9 +460,7 @@ export function TunnelCard() {
                 onCheckedChange={(checked) =>
                   void save(
                     { tunnel_enabled: checked },
-                    checked
-                      ? "Remote access turned on"
-                      : "Remote access turned off"
+                    checked ? t("tunnel.on") : t("tunnel.off")
                   )
                 }
               />
@@ -460,25 +470,28 @@ export function TunnelCard() {
               <>
                 <Alert variant="destructive">
                   <AlertTriangleIcon />
-                  <AlertTitle>Reachable from the internet</AlertTitle>
+                  <AlertTitle>{t("tunnel.exposed.title")}</AlertTitle>
                   <AlertDescription>
-                    While this is on, the web terminal, package installs and
-                    the AI assistant are one password away from anyone who
-                    finds the address. Turn off{" "}
-                    <a className="underline" href="#terminal-enabled">
-                      the terminal
-                    </a>{" "}
-                    or the{" "}
-                    <a className="underline" href="/settings/ai/">
-                      assistant
-                    </a>{" "}
-                    if you don&apos;t need them remotely.
+                    <Trans
+                      i18nKey="tunnel.exposed.description"
+                      ns="settings"
+                      components={{
+                        terminal: (
+                          <a className="underline" href="#terminal-enabled" />
+                        ),
+                        assistant: (
+                          <a className="underline" href="/settings/ai/" />
+                        ),
+                      }}
+                    />
                   </AlertDescription>
                 </Alert>
                 <FieldSeparator />
                 <Field orientation="horizontal">
                   <FieldContent>
-                    <FieldLabel htmlFor="tunnel-provider">Provider</FieldLabel>
+                    <FieldLabel htmlFor="tunnel-provider">
+                      {t("tunnel.provider")}
+                    </FieldLabel>
                   </FieldContent>
                   <Select
                     value={provider}
@@ -486,7 +499,9 @@ export function TunnelCard() {
                       value &&
                       void save(
                         { tunnel_provider: value },
-                        `Using ${PROVIDER_LABELS[value as TunnelProvider]}`
+                        t("tunnel.using", {
+                          name: PROVIDER_LABELS[value as TunnelProvider],
+                        })
                       )
                     }
                     disabled={!canEdit}
@@ -518,10 +533,10 @@ export function TunnelCard() {
 
                 <Field orientation="horizontal">
                   <FieldContent>
-                    <FieldLabel htmlFor="tunnel-port">Local port</FieldLabel>
-                    <FieldDescription>
-                      The port Athena listens on, which the tunnel forwards to.
-                    </FieldDescription>
+                    <FieldLabel htmlFor="tunnel-port">
+                      {t("tunnel.port.label")}
+                    </FieldLabel>
+                    <FieldDescription>{t("tunnel.port.help")}</FieldDescription>
                   </FieldContent>
                   <Input
                     id="tunnel-port"
@@ -540,13 +555,13 @@ export function TunnelCard() {
                       variant="outline"
                       onClick={() => loadDraft(settings)}
                     >
-                      Discard
+                      {t("tunnel.discard")}
                     </Button>
                     <Button
                       onClick={() => void saveDraft()}
                       disabled={!canEdit || !portValid}
                     >
-                      Save changes
+                      {t("tunnel.saveChanges")}
                     </Button>
                   </div>
                 )}
@@ -554,12 +569,14 @@ export function TunnelCard() {
                 <Field orientation="horizontal">
                   <FieldContent>
                     <FieldLabel htmlFor="tunnel-auto-start">
-                      Start on boot
+                      {t("tunnel.autoStart.label")}
                     </FieldLabel>
                     <FieldDescription>
                       {needsInstall
-                        ? `Install ${PROVIDER_LABELS[provider]} first.`
-                        : "Installs a system service that starts the tunnel with the server."}
+                        ? t("tunnel.autoStart.installFirst", {
+                            name: PROVIDER_LABELS[provider],
+                          })
+                        : t("tunnel.autoStart.help")}
                     </FieldDescription>
                   </FieldContent>
                   <Switch
@@ -577,14 +594,16 @@ export function TunnelCard() {
 
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">Status</span>
+                    <span className="text-muted-foreground">
+                      {t("tunnel.status.label")}
+                    </span>
                     <StatusBadge status={status} />
                   </div>
                   {status?.public_url && (
                     <>
                       <CopyField
                         id="tunnel-url"
-                        label="Public address"
+                        label={t("tunnel.publicAddress")}
                         value={status.public_url}
                       />
                       <TunnelQr value={status.public_url} />
@@ -610,12 +629,12 @@ export function TunnelCard() {
               onClick={() =>
                 void runJob(
                   api.POST("/api/tunnel/install", { body: { provider } }),
-                  "Couldn't install"
+                  t("tunnel.installFailed")
                 )
               }
             >
               <DownloadIcon data-icon="inline-start" />
-              Install {PROVIDER_LABELS[provider]}
+              {t("tunnel.install", { name: PROVIDER_LABELS[provider] })}
             </Button>
           ) : running ? (
             <Button
@@ -624,31 +643,31 @@ export function TunnelCard() {
               onClick={() =>
                 void runJob(
                   api.POST("/api/tunnel/stop"),
-                  "Couldn't stop the tunnel"
+                  t("tunnel.stopFailed")
                 )
               }
             >
               <SquareIcon data-icon="inline-start" />
-              Stop
+              {t("tunnel.stop")}
             </Button>
           ) : (
             <Button
               disabled={!canEdit || dirty}
-              title={dirty ? "Save your changes first" : undefined}
+              title={dirty ? t("tunnel.saveFirst") : undefined}
               onClick={() =>
                 void runJob(
                   api.POST("/api/tunnel/start"),
-                  "Couldn't start the tunnel"
+                  t("tunnel.startFailed")
                 )
               }
             >
               <PlayIcon data-icon="inline-start" />
-              Start
+              {t("tunnel.start")}
             </Button>
           )}
           <Button variant="ghost" onClick={() => void refreshStatus()}>
             <RotateCcwIcon data-icon="inline-start" />
-            Refresh status
+            {t("tunnel.refresh")}
           </Button>
         </CardFooter>
       )}

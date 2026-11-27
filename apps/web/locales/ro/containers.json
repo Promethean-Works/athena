@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "În execuție",
+    "dead": "Mort",
+    "exited": "Oprit",
+    "exitedWithCode": "Oprit ({{code}})",
+    "paused": "în pauză",
+    "created": "creat",
+    "restarting": "repornește"
+  },
+  "logs": {
+    "following": "Se urmărește ieșirea nouă",
+    "stopped": "Containerul s-a oprit",
+    "disconnected": "Deconectat",
+    "connecting": "Se conectează…",
+    "title": "Jurnale · {{name}}",
+    "empty": "Nicio ieșire în jurnal."
+  },
+  "runtime": {
+    "startFailed": "Nu s-a putut porni runtime-ul",
+    "running": "Runtime-ul de containere rulează",
+    "providerStopped": "{{provider}} nu rulează",
+    "stopped": "Runtime-ul de containere nu rulează",
+    "none": "Niciun runtime de containere",
+    "notFound": "Athena nu a găsit un motor de containere pe această gazdă.",
+    "start": "Pornește {{provider}}",
+    "redetect": "Detectează din nou",
+    "setup": {
+      "darwin": {
+        "title": "Instalează Colima"
+      },
+      "linux": {
+        "title": "Instalează Docker Engine"
+      },
+      "windows": {
+        "title": "Instalează un runtime de containere",
+        "wsl": "Docker Engine în WSL2: wsl --install, apoi instalează docker-ce în distribuție",
+        "podman": "sau Podman: winget install RedHat.Podman, apoi podman machine init; podman machine start",
+        "rancher": "sau Rancher Desktop: winget install SUSE.RancherDesktop (alege motorul dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Nu s-au putut lista containerele",
+    "actionFailed": {
+      "start": "Nu s-a putut porni {{name}}",
+      "stop": "Nu s-a putut opri {{name}}",
+      "restart": "Nu s-a putut reporni {{name}}"
+    },
+    "removeFailed": "Nu s-a putut elimina {{name}}",
+    "removed": "{{name}} a fost eliminat",
+    "emptyTitle": "Niciun container încă",
+    "emptyDescription": "Containerele de pe acest runtime apar aici, inclusiv cele pornite în afara Athena.",
+    "name": "Nume",
+    "image": "Imagine",
+    "state": "Stare",
+    "ports": "Porturi",
+    "actions": "Acțiuni",
+    "standalone": "Containere independente",
+    "actionsFor": "Acțiuni pentru {{name}}",
+    "logs": "Jurnale",
+    "shell": "Shell",
+    "restart": "Repornește",
+    "stop": "Oprește",
+    "start": "Pornește",
+    "remove": "Elimină",
+    "removeTitle": "Elimini {{name}}?",
+    "removeRunningDescription": "Va fi oprit mai întâi. Containerul este șters. Volumele cu nume și imaginea sunt păstrate.",
+    "removeDescription": "Containerul este șters. Volumele cu nume și imaginea sunt păstrate.",
+    "cancel": "Anulează"
+  }
+}

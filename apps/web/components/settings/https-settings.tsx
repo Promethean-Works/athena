@@ -10,6 +10,8 @@ import {
   LockOpenIcon,
   RefreshCwIcon,
 } from "lucide-react"
+import type { ParseKeys } from "i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import {
@@ -79,6 +81,7 @@ import { useAuth } from "@/components/auth-provider"
 import { useCapability } from "@/components/capabilities-provider"
 import { JobDialog } from "@/components/job-dialog"
 import { copyText } from "@/lib/clipboard"
+import i18n, { currentLocale } from "@/lib/i18n"
 
 type Status = Schemas["HttpsStatus"]
 type Settings = Schemas["HttpsSettings"]
@@ -156,7 +159,7 @@ function parseNames(text: string): string[] {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
+  return new Date(iso).toLocaleDateString(currentLocale(), {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -230,17 +233,18 @@ function defaultDeviceTab(): string {
   return "macos"
 }
 
-async function copy(value: string, what: string) {
+async function copy(value: string, copiedTitle: string) {
   const ok = await copyText(value)
   toast.add(
     ok
-      ? { type: "success", title: `${what} copied` }
-      : { type: "error", title: "Couldn't copy" }
+      ? { type: "success", title: copiedTitle }
+      : { type: "error", title: i18n.t("settings:https.copyFailed") }
   )
 }
 
 /** Settings → HTTPS (docs/specs/https.md). Admins only. */
 export function HttpsSettings() {
+  const { t } = useTranslation("settings")
   const { user } = useAuth()
   const capability = useCapability("https")
   const [status, setStatus] = React.useState<Status | null>(null)
@@ -270,7 +274,7 @@ export function HttpsSettings() {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>Only admins can change HTTPS</EmptyTitle>
+          <EmptyTitle>{t("https.adminOnly")}</EmptyTitle>
         </EmptyHeader>
       </Empty>
     )
@@ -279,9 +283,9 @@ export function HttpsSettings() {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>HTTPS isn&apos;t available</EmptyTitle>
+          <EmptyTitle>{t("https.unavailable.title")}</EmptyTitle>
           <EmptyDescription>
-            This Athena server doesn&apos;t report HTTPS support.
+            {t("https.unavailable.description")}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -290,7 +294,7 @@ export function HttpsSettings() {
   if (loadError) {
     return (
       <Alert variant="destructive">
-        <AlertTitle>Couldn&apos;t load HTTPS settings</AlertTitle>
+        <AlertTitle>{t("https.loadFailed")}</AlertTitle>
         <AlertDescription>{loadError}</AlertDescription>
       </Alert>
     )
@@ -315,6 +319,7 @@ export function HttpsSettings() {
 }
 
 function StatusCard({ status }: { status: Status }) {
+  const { t } = useTranslation("settings")
   const on = status.settings.mode !== "off"
   const url = preferredUrl(status)
   const cert = status.certificate
@@ -336,38 +341,37 @@ function StatusCard({ status }: { status: Status }) {
           HTTPS
           <Badge variant={status.listening ? "default" : "secondary"}>
             {status.listening
-              ? `On, port ${status.settings.port}`
+              ? t("https.status.on", { port: status.settings.port })
               : on
-                ? "Not running"
-                : "Off"}
+                ? t("https.status.notRunning")
+                : t("https.status.off")}
           </Badge>
         </CardTitle>
         <CardDescription>
           {on
-            ? `Athena encrypts the connection with ${
-                status.settings.mode === "letsencrypt"
-                  ? "a certificate from Let's Encrypt"
-                  : status.settings.mode === "custom"
-                  ? "your custom certificate"
-                  : "its own certificate"
-              }. Plain HTTP stays on port ${status.http_port}.`
-            : `Athena is served over plain HTTP on port ${status.http_port}, so passwords and files cross the network unencrypted.`}
+            ? status.settings.mode === "letsencrypt"
+              ? t("https.status.encryptedLetsEncrypt", {
+                  port: status.http_port,
+                })
+              : status.settings.mode === "custom"
+                ? t("https.status.encryptedCustom", { port: status.http_port })
+                : t("https.status.encryptedSelf", { port: status.http_port })
+            : t("https.status.plain", { port: status.http_port })}
         </CardDescription>
       </CardHeader>
       {status.last_error || renewalError || (on && (url || cert)) ? (
         <CardContent className="flex flex-col gap-4">
           {status.last_error ? (
             <Alert variant="destructive">
-              <AlertTitle>HTTPS problem</AlertTitle>
+              <AlertTitle>{t("https.status.problem")}</AlertTitle>
               <AlertDescription>{status.last_error}</AlertDescription>
             </Alert>
           ) : null}
           {renewalError ? (
             <Alert variant="destructive">
-              <AlertTitle>Let&apos;s Encrypt renewal failed</AlertTitle>
+              <AlertTitle>{t("https.status.renewalFailed")}</AlertTitle>
               <AlertDescription>
-                {renewalError} The current certificate is still served until it
-                expires.
+                {renewalError} {t("https.status.renewalStillServed")}
               </AlertDescription>
             </Alert>
           ) : null}
@@ -378,7 +382,7 @@ function StatusCard({ status }: { status: Status }) {
                 nativeButton={false}
               >
                 <ExternalLinkIcon data-icon="inline-start" />
-                Open over HTTPS
+                {t("https.status.open")}
               </Button>
               <code className="text-sm break-all text-muted-foreground">
                 {url}
@@ -387,17 +391,17 @@ function StatusCard({ status }: { status: Status }) {
           ) : null}
           {on && cert ? (
             <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
-              <dt className="text-muted-foreground">Expires</dt>
+              <dt className="text-muted-foreground">{t("https.status.expires")}</dt>
               <dd>
                 {formatDate(cert.not_after)}
                 {left !== null && left <= 30 ? (
                   <span className="text-muted-foreground">
                     {" "}
-                    (in {Math.max(left, 0)} days; renewed automatically)
+                    ({t("https.status.expiresIn", { count: Math.max(left, 0) })})
                   </span>
                 ) : null}
               </dd>
-              <dt className="text-muted-foreground">Names</dt>
+              <dt className="text-muted-foreground">{t("https.status.names")}</dt>
               <dd className="flex flex-wrap gap-1">
                 {cert.names.map((n) => (
                   <Badge key={n} variant="outline" className="font-mono">
@@ -407,7 +411,7 @@ function StatusCard({ status }: { status: Status }) {
               </dd>
               {status.urls.length > 1 ? (
                 <>
-                  <dt className="text-muted-foreground">Also at</dt>
+                  <dt className="text-muted-foreground">{t("https.status.alsoAt")}</dt>
                   <dd className="flex flex-col gap-0.5">
                     {status.urls
                       .filter((u) => u !== url)
@@ -442,13 +446,14 @@ function SettingsCard({
   onSaved: (s: Status) => void
   reload: () => Promise<void>
 }) {
+  const { t } = useTranslation("settings")
   const [draft, setDraft] = React.useState<Draft>(() =>
     toDraft(status.settings)
   )
   const [saving, setSaving] = React.useState(false)
   const [confirming, setConfirming] = React.useState(false)
   const [serverError, setServerError] = React.useState<string | null>(null)
-  const [errorTitle, setErrorTitle] = React.useState("Couldn't save")
+  const [errorTitle, setErrorTitle] = React.useState(() => t("https.saveFailed"))
   const [job, setJob] = React.useState<Job | null>(null)
   const [requesting, setRequesting] = React.useState(false)
 
@@ -459,9 +464,9 @@ function SettingsCard({
   const portError = !on
     ? null
     : !Number.isInteger(port) || port < 1 || port > 65535
-      ? "Enter a port from 1 to 65535."
+      ? t("https.port.range")
       : port === status.http_port
-        ? `Port ${port} is Athena's HTTP port. Pick another one.`
+        ? t("https.port.taken", { port })
         : null
   const needsCertificate =
     (draft.mode === "letsencrypt" && !status.letsencrypt_certificate) ||
@@ -501,7 +506,7 @@ function SettingsCard({
         ),
       })
     } else {
-      setErrorTitle("Couldn't request a certificate")
+      setErrorTitle(t("https.requestFailed"))
       setServerError(errorMessage(error))
     }
   }
@@ -511,8 +516,8 @@ function SettingsCard({
     if (succeeded && status.settings.mode !== "letsencrypt") {
       toast.add({
         type: "success",
-        title: "Certificate ready",
-        description: "Save with Let's Encrypt selected to start serving it.",
+        title: t("https.certificateReady"),
+        description: t("https.certificateReadyHint"),
       })
     }
   }
@@ -529,7 +534,7 @@ function SettingsCard({
     setConfirming(false)
     setSaving(true)
     setServerError(null)
-    setErrorTitle("Couldn't save")
+    setErrorTitle(t("https.saveFailed"))
     const { data, error } = await api.PUT("/api/https", { body: next() })
     setSaving(false)
     if (data) {
@@ -540,8 +545,8 @@ function SettingsCard({
         type: "success",
         title:
           data.settings.mode === "off"
-            ? "HTTPS turned off"
-            : "HTTPS settings saved",
+            ? t("https.turnedOff")
+            : t("https.saved"),
       })
     } else {
       setServerError(errorMessage(error))
@@ -556,9 +561,9 @@ function SettingsCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Settings</CardTitle>
+        <CardTitle>{t("https.settings.title")}</CardTitle>
         <CardDescription>
-          Changes apply right away; Athena doesn&apos;t restart.
+          {t("https.settings.description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -573,7 +578,7 @@ function SettingsCard({
         >
           <FieldGroup>
             <FieldSet>
-              <FieldLegend variant="label">Mode</FieldLegend>
+              <FieldLegend variant="label">{t("https.mode.label")}</FieldLegend>
               <RadioGroup
                 value={draft.mode}
                 onValueChange={(v) => setDraft({ ...draft, mode: v as Mode })}
@@ -585,9 +590,11 @@ function SettingsCard({
                       htmlFor="https-mode-off"
                       className="font-normal"
                     >
-                      Off
+                      {t("https.mode.off")}
                     </FieldLabel>
-                    <FieldDescription>Plain HTTP only.</FieldDescription>
+                    <FieldDescription>
+                      {t("https.mode.offHelp")}
+                    </FieldDescription>
                   </FieldContent>
                 </Field>
                 <Field orientation="horizontal">
@@ -597,12 +604,10 @@ function SettingsCard({
                       htmlFor="https-mode-self"
                       className="font-normal"
                     >
-                      Self-signed
+                      {t("https.mode.self")}
                     </FieldLabel>
                     <FieldDescription>
-                      Athena makes its own certificate authority (CA). Trust it
-                      once on each device and browsers show a padlock with no
-                      warning. Works on your home network with no domain.
+                      {t("https.mode.selfHelp")}
                     </FieldDescription>
                   </FieldContent>
                 </Field>
@@ -610,11 +615,10 @@ function SettingsCard({
                   <RadioGroupItem value="letsencrypt" id="https-mode-le" />
                   <FieldContent>
                     <FieldLabel htmlFor="https-mode-le" className="font-normal">
-                      Let&apos;s Encrypt
+                      {t("https.mode.letsencrypt")}
                     </FieldLabel>
                     <FieldDescription>
-                      A free certificate every browser trusts, for a domain you
-                      own that points at this server. Renewed automatically.
+                      {t("https.mode.letsencryptHelp")}
                     </FieldDescription>
                   </FieldContent>
                 </Field>
@@ -625,11 +629,10 @@ function SettingsCard({
                       htmlFor="https-mode-custom"
                       className="font-normal"
                     >
-                      Custom
+                      {t("https.mode.custom")}
                     </FieldLabel>
                     <FieldDescription>
-                      Upload your own certificate and private key (PEM format).
-                      Athena serves them as-is; no automatic renewal.
+                      {t("https.mode.customHelp")}
                     </FieldDescription>
                   </FieldContent>
                 </Field>
@@ -639,7 +642,9 @@ function SettingsCard({
             {on ? (
               <>
                 <Field data-invalid={!!portError}>
-                  <FieldLabel htmlFor="https-port">HTTPS port</FieldLabel>
+                  <FieldLabel htmlFor="https-port">
+                    {t("https.port.label")}
+                  </FieldLabel>
                   <Input
                     id="https-port"
                     inputMode="numeric"
@@ -651,8 +656,7 @@ function SettingsCard({
                     }
                   />
                   <FieldDescription>
-                    Ports below 1024 (like 443) may need Athena to run as root.
-                    You may have to allow the port in the host&apos;s firewall.
+                    {t("https.port.help")}
                   </FieldDescription>
                   {portError ? <FieldError>{portError}</FieldError> : null}
                 </Field>
@@ -660,12 +664,10 @@ function SettingsCard({
                 <Field orientation="horizontal">
                   <FieldContent>
                     <FieldLabel htmlFor="https-redirect">
-                      Send browsers to HTTPS
+                      {t("https.redirect.label")}
                     </FieldLabel>
                     <FieldDescription>
-                      Pages opened on port {status.http_port} move to HTTPS.
-                      File shares, webhooks, apps and the server itself keep
-                      using plain HTTP.
+                      {t("https.redirect.help", { port: status.http_port })}
                     </FieldDescription>
                   </FieldContent>
                   <Switch
@@ -689,7 +691,9 @@ function SettingsCard({
 
                 {draft.mode === "self_signed" ? (
                   <Field>
-                    <FieldLabel htmlFor="https-names">Extra names</FieldLabel>
+                    <FieldLabel htmlFor="https-names">
+                      {t("https.names.label")}
+                    </FieldLabel>
                     <Input
                       id="https-names"
                       placeholder="nas.home.lan, 10.0.0.5"
@@ -699,9 +703,7 @@ function SettingsCard({
                       }
                     />
                     <FieldDescription>
-                      The certificate already covers this server&apos;s name,
-                      its .local name and its network addresses. Add any other
-                      name or address you open Athena with, separated by commas.
+                      {t("https.names.help")}
                     </FieldDescription>
                   </Field>
                 ) : null}
@@ -726,8 +728,12 @@ function SettingsCard({
       </CardContent>
       <CardFooter className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Locked out? Run <code className="font-mono">{RECOVERY_COMMAND}</code>{" "}
-          on the server and restart Athena.
+          <Trans
+            i18nKey="https.lockedOut"
+            ns="settings"
+            values={{ command: RECOVERY_COMMAND }}
+            components={{ code: <code className="font-mono" /> }}
+          />
         </p>
         <div className="flex gap-2">
           {dirty ? (
@@ -740,16 +746,16 @@ function SettingsCard({
                 setServerError(null)
               }}
             >
-              Cancel
+              {t("https.cancel")}
             </Button>
           ) : null}
           <Button
             type="submit"
             form="https-settings"
             disabled={!dirty || saving || !!portError || needsCertificate}
-            title={needsCertificate ? "Get a certificate first" : undefined}
+            title={needsCertificate ? t("https.needsCertificate") : undefined}
           >
-            {saving ? "Saving…" : "Save"}
+            {saving ? t("https.saving") : t("https.save")}
           </Button>
         </div>
       </CardFooter>
@@ -757,24 +763,31 @@ function SettingsCard({
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Send browsers to HTTPS?</AlertDialogTitle>
+            <AlertDialogTitle>{t("https.confirm.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              After saving, opening Athena on port {status.http_port} takes you
-              to <span className="font-mono break-all">{newUrl}</span>.{" "}
+              <Trans
+                i18nKey="https.confirm.redirect"
+                ns="settings"
+                values={{ port: status.http_port, url: newUrl }}
+                components={{ url: <span className="font-mono break-all" /> }}
+              />{" "}
               {draft.mode === "letsencrypt"
-                ? "Open Athena by its domain name there; other names get a certificate warning."
+                ? t("https.confirm.letsencrypt")
                 : draft.mode === "custom"
-                ? "Your custom certificate is served; browsers trust it if it's from a known CA."
-                : "Until you trust Athena's CA on a device, its browser shows a warning there."}{" "}
-              If you can&apos;t get back in, run{" "}
-              <span className="font-mono">{RECOVERY_COMMAND}</span> on the
-              server and restart Athena.
+                  ? t("https.confirm.custom")
+                  : t("https.confirm.self")}{" "}
+              <Trans
+                i18nKey="https.confirm.recovery"
+                ns="settings"
+                values={{ command: RECOVERY_COMMAND }}
+                components={{ cmd: <span className="font-mono" /> }}
+              />
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("https.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={() => void save()}>
-              Save and redirect
+              {t("https.confirm.action")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -801,6 +814,7 @@ function LetsEncryptFields({
   requesting: boolean
   onRequest: () => void
 }) {
+  const { t } = useTranslation("settings")
   const provider: DnsProvider | undefined = status.dns_providers.find(
     (p) => p.id === draft.provider
   )
@@ -809,10 +823,10 @@ function LetsEncryptFields({
   const running = requesting || status.renewal_job !== null
   return (
     <FieldSet>
-      <FieldLegend variant="label">Let&apos;s Encrypt</FieldLegend>
+      <FieldLegend variant="label">{t("https.le.legend")}</FieldLegend>
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="le-domains">Domains</FieldLabel>
+          <FieldLabel htmlFor="le-domains">{t("https.le.domains")}</FieldLabel>
           <Input
             id="le-domains"
             placeholder="nas.example.com"
@@ -820,12 +834,11 @@ function LetsEncryptFields({
             onChange={(e) => setDraft({ ...draft, domains: e.target.value })}
           />
           <FieldDescription>
-            Separate several with commas. Each must point at this server in
-            public DNS. A wildcard (*.example.com) needs the DNS challenge.
+            {t("https.le.domainsHelp")}
           </FieldDescription>
         </Field>
         <Field>
-          <FieldLabel htmlFor="le-email">Email</FieldLabel>
+          <FieldLabel htmlFor="le-email">{t("https.le.email")}</FieldLabel>
           <Input
             id="le-email"
             type="email"
@@ -834,14 +847,12 @@ function LetsEncryptFields({
             onChange={(e) => setDraft({ ...draft, email: e.target.value })}
           />
           <FieldDescription>
-            Let&apos;s Encrypt writes here if a certificate is about to expire.
+            {t("https.le.emailHelp")}
           </FieldDescription>
         </Field>
 
         <FieldSet>
-          <FieldLegend variant="label">
-            How Let&apos;s Encrypt checks
-          </FieldLegend>
+          <FieldLegend variant="label">{t("https.le.challenge")}</FieldLegend>
           <RadioGroup
             value={draft.challenge}
             onValueChange={(v) =>
@@ -852,12 +863,10 @@ function LetsEncryptFields({
               <RadioGroupItem value="http" id="le-challenge-http" />
               <FieldContent>
                 <FieldLabel htmlFor="le-challenge-http" className="font-normal">
-                  HTTP (port 80)
+                  {t("https.le.http")}
                 </FieldLabel>
                 <FieldDescription>
-                  Let&apos;s Encrypt connects to port 80 on this server, so it
-                  must be reachable from the internet (forward it on your
-                  router).
+                  {t("https.le.httpHelp")}
                 </FieldDescription>
               </FieldContent>
             </Field>
@@ -865,11 +874,10 @@ function LetsEncryptFields({
               <RadioGroupItem value="dns" id="le-challenge-dns" />
               <FieldContent>
                 <FieldLabel htmlFor="le-challenge-dns" className="font-normal">
-                  DNS
+                  {t("https.le.dns")}
                 </FieldLabel>
                 <FieldDescription>
-                  Athena adds a temporary DNS record through your DNS provider.
-                  No open ports; works for wildcards.
+                  {t("https.le.dnsHelp")}
                 </FieldDescription>
               </FieldContent>
             </Field>
@@ -878,10 +886,9 @@ function LetsEncryptFields({
 
         {draft.challenge === "http" && !status.port80_free ? (
           <Alert>
-            <AlertTitle>Port 80 can&apos;t be opened right now</AlertTitle>
+            <AlertTitle>{t("https.le.port80Title")}</AlertTitle>
             <AlertDescription>
-              Another program uses it, or Athena isn&apos;t allowed to open it.
-              Free port 80 or use the DNS challenge.
+              {t("https.le.port80Description")}
             </AlertDescription>
           </Alert>
         ) : null}
@@ -889,7 +896,9 @@ function LetsEncryptFields({
         {draft.challenge === "dns" ? (
           <>
             <Field>
-              <FieldLabel htmlFor="le-provider">DNS provider</FieldLabel>
+              <FieldLabel htmlFor="le-provider">
+                {t("https.le.provider")}
+              </FieldLabel>
               <Select
                 value={draft.provider}
                 onValueChange={(v) =>
@@ -921,7 +930,7 @@ function LetsEncryptFields({
                   type={f.secret ? "password" : "text"}
                   autoComplete="off"
                   placeholder={
-                    f.secret && secretsSet.has(f.key) ? "Saved (unchanged)" : ""
+                    f.secret && secretsSet.has(f.key) ? t("https.le.savedUnchanged") : ""
                   }
                   value={draft.dns[f.key] ?? ""}
                   onChange={(e) =>
@@ -939,10 +948,11 @@ function LetsEncryptFields({
 
         <Field orientation="horizontal">
           <FieldContent>
-            <FieldLabel htmlFor="le-staging">Use the staging server</FieldLabel>
+            <FieldLabel htmlFor="le-staging">
+              {t("https.le.staging")}
+            </FieldLabel>
             <FieldDescription>
-              For trying things out: browsers don&apos;t trust its certificates,
-              but its limits are generous.
+              {t("https.le.stagingHelp")}
             </FieldDescription>
           </FieldContent>
           <Switch
@@ -963,19 +973,24 @@ function LetsEncryptFields({
           >
             <FileBadgeIcon data-icon="inline-start" />
             {running
-              ? "Getting certificate…"
+              ? t("https.le.getting")
               : cert
-                ? "Renew certificate now"
-                : "Get certificate"}
+                ? t("https.le.renew")
+                : t("https.le.get")}
           </Button>
           <span className="text-sm text-muted-foreground">
             {cert
-              ? `Current certificate for ${cert.names.join(", ")}, valid until ${formatDate(cert.not_after)}.`
-              : "Get a certificate, then save to start serving it."}
+              ? t("https.le.current", {
+                  names: cert.names.join(", "),
+                  date: formatDate(cert.not_after),
+                })
+              : t("https.le.getThenSave")}
           </span>
         </div>
         {status.renewal_error ? (
-          <FieldError>Last attempt failed: {status.renewal_error}</FieldError>
+          <FieldError>
+            {t("https.le.lastFailed", { error: status.renewal_error })}
+          </FieldError>
         ) : null}
       </FieldGroup>
     </FieldSet>
@@ -989,12 +1004,15 @@ function CustomFields({
   draft: Draft
   setDraft: (d: Draft) => void
 }) {
+  const { t } = useTranslation("settings")
   return (
     <FieldSet>
-      <FieldLegend variant="label">Custom Certificate</FieldLegend>
+      <FieldLegend variant="label">{t("https.custom.legend")}</FieldLegend>
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="custom-cert">Certificate (PEM)</FieldLabel>
+          <FieldLabel htmlFor="custom-cert">
+            {t("https.custom.cert")}
+          </FieldLabel>
           <textarea
             id="custom-cert"
             className="w-full h-40 font-mono text-sm p-2 border rounded-md bg-background"
@@ -1003,11 +1021,13 @@ function CustomFields({
             onChange={(e) => setDraft({ ...draft, custom_cert: e.target.value })}
           />
           <FieldDescription>
-            Paste the full PEM-encoded certificate or certificate chain.
+            {t("https.custom.certHelp")}
           </FieldDescription>
         </Field>
         <Field>
-          <FieldLabel htmlFor="custom-key">Private Key (PEM)</FieldLabel>
+          <FieldLabel htmlFor="custom-key">
+            {t("https.custom.key")}
+          </FieldLabel>
           <textarea
             id="custom-key"
             className="w-full h-40 font-mono text-sm p-2 border rounded-md bg-background"
@@ -1016,7 +1036,7 @@ function CustomFields({
             onChange={(e) => setDraft({ ...draft, custom_key: e.target.value })}
           />
           <FieldDescription>
-            Paste the PEM-encoded private key. It will be stored encrypted.
+            {t("https.custom.keyHelp")}
           </FieldDescription>
         </Field>
       </FieldGroup>
@@ -1024,92 +1044,68 @@ function CustomFields({
   )
 }
 
-const DEVICE_STEPS: { id: string; label: string; steps: React.ReactNode[] }[] =
-  [
-    {
-      id: "macos",
-      label: "macOS",
-      steps: [
-        "Open the downloaded file. Keychain Access adds it to the login keychain.",
-        <>
-          In Keychain Access, double-click <b>Athena Local CA</b>, open{" "}
-          <b>Trust</b>, and set <b>When using this certificate</b> to{" "}
-          <b>Always Trust</b>.
-        </>,
-        "Close the window and enter your Mac password. Restart the browser.",
-      ],
-    },
-    {
-      id: "windows",
-      label: "Windows",
-      steps: [
-        <>
-          Open the downloaded file and choose <b>Install Certificate</b>.
-        </>,
-        <>
-          Pick <b>Current User</b>, then{" "}
-          <b>Place all certificates in the following store</b> →{" "}
-          <b>Trusted Root Certification Authorities</b>.
-        </>,
-        "Finish and confirm the security warning. Restart the browser.",
-      ],
-    },
-    {
-      id: "linux",
-      label: "Linux",
-      steps: [
-        <>
-          Debian or Ubuntu:{" "}
-          <code className="font-mono break-all">
-            sudo cp athena-local-ca.crt /usr/local/share/ca-certificates/
-            &amp;&amp; sudo update-ca-certificates
-          </code>
-        </>,
-        <>
-          Fedora:{" "}
-          <code className="font-mono break-all">
-            sudo cp athena-local-ca.crt /etc/pki/ca-trust/source/anchors/
-            &amp;&amp; sudo update-ca-trust
-          </code>
-        </>,
-        <>
-          Firefox and Chrome keep their own list on Linux: import the file under
-          the browser&apos;s certificate settings, in <b>Authorities</b>.
-        </>,
-      ],
-    },
-    {
-      id: "ios",
-      label: "iPhone and iPad",
-      steps: [
-        "Download the file in Safari and allow the profile download.",
-        <>
-          In Settings, open <b>Profile Downloaded</b> (or{" "}
-          <b>General → VPN &amp; Device Management</b>) and install it.
-        </>,
-        <>
-          Go to <b>General → About → Certificate Trust Settings</b> and turn on
-          full trust for <b>Athena Local CA</b>.
-        </>,
-      ],
-    },
-    {
-      id: "android",
-      label: "Android",
-      steps: [
-        "Download the file.",
-        <>
-          In Settings, search for <b>CA certificate</b> (usually{" "}
-          <b>
-            Security → Encryption &amp; credentials → Install a certificate → CA
-            certificate
-          </b>
-          ) and pick the file.
-        </>,
-        "Confirm the warning. Some apps ignore user certificates; browsers use them.",
-      ],
-    },
-  ]
+type SettingsKey = ParseKeys<"settings">
+type DeviceStep = { key: SettingsKey; values?: Record<string, string> }
+
+const DEVICE_STEPS: { id: string; label: SettingsKey; steps: DeviceStep[] }[] = [
+  {
+    id: "macos",
+    label: "https.trust.macos.label",
+    steps: [
+      { key: "https.trust.macos.step1" },
+      { key: "https.trust.macos.step2" },
+      { key: "https.trust.macos.step3" },
+    ],
+  },
+  {
+    id: "windows",
+    label: "https.trust.windows.label",
+    steps: [
+      { key: "https.trust.windows.step1" },
+      { key: "https.trust.windows.step2" },
+      { key: "https.trust.windows.step3" },
+    ],
+  },
+  {
+    id: "linux",
+    label: "https.trust.linux.label",
+    steps: [
+      {
+        key: "https.trust.linux.step1",
+        values: {
+          command:
+            "sudo cp athena-local-ca.crt /usr/local/share/ca-certificates/ && sudo update-ca-certificates",
+        },
+      },
+      {
+        key: "https.trust.linux.step2",
+        values: {
+          command:
+            "sudo cp athena-local-ca.crt /etc/pki/ca-trust/source/anchors/ && sudo update-ca-trust",
+        },
+      },
+      { key: "https.trust.linux.step3" },
+    ],
+  },
+  {
+    id: "ios",
+    label: "https.trust.ios.label",
+    steps: [
+      { key: "https.trust.ios.step1" },
+      { key: "https.trust.ios.step2" },
+      { key: "https.trust.ios.step3" },
+    ],
+  },
+  {
+    id: "android",
+    label: "https.trust.android.label",
+    steps: [
+      { key: "https.trust.android.step1" },
+      { key: "https.trust.android.step2" },
+      { key: "https.trust.android.step3" },
+    ],
+  },
+]
 
 function TrustCard({
   status,
@@ -1118,6 +1114,7 @@ function TrustCard({
   status: Status
   onRotated: (s: Status) => void
 }) {
+  const { t } = useTranslation("settings")
   const [rotating, setRotating] = React.useState(false)
   const [confirming, setConfirming] = React.useState(false)
   const ca = status.ca
@@ -1132,13 +1129,13 @@ function TrustCard({
       onRotated(data)
       toast.add({
         type: "success",
-        title: "New CA made",
-        description: "Download it and trust it again on each device.",
+        title: t("https.trust.rotated"),
+        description: t("https.trust.rotatedHint"),
       })
     } else {
       toast.add({
         type: "error",
-        title: "Couldn't make a new CA",
+        title: t("https.trust.rotateFailed"),
         description: errorMessage(error),
       })
     }
@@ -1147,25 +1144,23 @@ function TrustCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Trust Athena on your devices</CardTitle>
+        <CardTitle>{t("https.trust.title")}</CardTitle>
         <CardDescription>
-          Install Athena&apos;s CA once on each phone, tablet and computer you
-          use. Then the browser trusts every certificate Athena makes, including
-          renewals.
+          {t("https.trust.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         <div className="flex flex-wrap items-center gap-3">
           <Button render={<a href={CA_URL} download />} nativeButton={false}>
             <DownloadIcon data-icon="inline-start" />
-            Download CA certificate
+            {t("https.trust.download")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            Valid until {formatDate(ca.not_after)}
+            {t("https.trust.validUntil", { date: formatDate(ca.not_after) })}
           </span>
         </div>
         <Field>
-          <FieldLabel>SHA-256 fingerprint</FieldLabel>
+          <FieldLabel>{t("https.trust.fingerprint")}</FieldLabel>
           <div className="flex items-start gap-2">
             <code className="min-w-0 flex-1 font-mono text-xs break-all text-muted-foreground">
               {ca.sha256}
@@ -1173,21 +1168,21 @@ function TrustCard({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Copy fingerprint"
-              onClick={() => void copy(ca.sha256, "Fingerprint")}
+              aria-label={t("https.trust.copyFingerprint")}
+              onClick={() => void copy(ca.sha256, t("https.trust.fingerprintCopied"))}
             >
               <CopyIcon />
             </Button>
           </div>
           <FieldDescription>
-            Check it matches what the device shows before trusting the file.
+            {t("https.trust.fingerprintHelp")}
           </FieldDescription>
         </Field>
         <Tabs defaultValue={defaultDeviceTab()}>
           <TabsList className="flex-wrap group-data-horizontal/tabs:h-auto">
             {DEVICE_STEPS.map((d) => (
               <TabsTrigger key={d.id} value={d.id}>
-                {d.label}
+                {t(d.label)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -1195,7 +1190,17 @@ function TrustCard({
             <TabsContent key={d.id} value={d.id} className="pt-2">
               <ol className="ml-5 flex list-decimal flex-col gap-1.5 text-sm">
                 {d.steps.map((step, i) => (
-                  <li key={i}>{step}</li>
+                  <li key={i}>
+                    <Trans
+                      i18nKey={step.key}
+                      ns="settings"
+                      values={step.values}
+                      components={{
+                        b: <b />,
+                        code: <code className="font-mono break-all" />,
+                      }}
+                    />
+                  </li>
                 ))}
               </ol>
             </TabsContent>
@@ -1204,8 +1209,7 @@ function TrustCard({
       </CardContent>
       <CardFooter className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Make a new CA if the key may have leaked. Every device has to trust
-          the new one.
+          {t("https.trust.rotateHint")}
         </p>
         <Button
           variant="outline"
@@ -1213,26 +1217,25 @@ function TrustCard({
           onClick={() => setConfirming(true)}
         >
           <RefreshCwIcon data-icon="inline-start" />
-          {rotating ? "Making…" : "Make a new CA"}
+          {rotating ? t("https.trust.rotating") : t("https.trust.rotate")}
         </Button>
       </CardFooter>
 
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Make a new CA?</AlertDialogTitle>
+            <AlertDialogTitle>{t("https.trust.confirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Devices that trust the current CA show a warning until you install
-              the new one on each of them.
+              {t("https.trust.confirmDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("https.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => void rotate()}
             >
-              Make a new CA
+              {t("https.trust.rotate")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -89,6 +89,13 @@ class Probe:
         except OSError:
             return False
 
+    def real_path(self, path: str | Path) -> str:
+        """`path` with links resolved (where a Homebrew link really points)."""
+        try:
+            return str(Path(path).resolve())
+        except OSError:
+            return str(path)
+
     def read_text(self, path: str | Path, limit: int = 4096) -> str | None:
         """The start of a small text file (sysfs, /proc), or None when it can't be read."""
         try:
@@ -103,6 +110,17 @@ class Probe:
     def is_root(self) -> bool:
         geteuid = getattr(os, "geteuid", None)
         return bool(geteuid and geteuid() == 0)
+
+    def is_admin(self) -> bool:
+        """Running elevated: root on Linux and macOS, an administrator token on Windows."""
+        if self.os == "windows":
+            try:
+                import ctypes
+
+                return bool(ctypes.windll.shell32.IsUserAnAdmin())  # type: ignore[attr-defined]
+            except (AttributeError, OSError):
+                return False
+        return self.is_root()
 
     def ancestry(self) -> list[tuple[int, str]]:
         """(pid, process name) of this process and its parents, nearest first."""

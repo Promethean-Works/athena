@@ -1,0 +1,21 @@
+{
+  "dashboard": "Pulpit",
+  "apps": "Aplikacje",
+  "store": "Sklep",
+  "packages": "Pakiety",
+  "automation": "Automatyzacja",
+  "files": "Pliki",
+  "networkShares": "Udziały sieciowe",
+  "cloud": "Chmura",
+  "containers": "Kontenery",
+  "terminal": "Terminal",
+  "assistant": "Asystent",
+  "backups": "Kopie zapasowe",
+  "settings": "Ustawienia",
+  "help": "Pomoc",
+  "roleAdmin": "Administrator",
+  "roleUser": "Użytkownik",
+  "tunnelAddress": "Adres tunelu",
+  "restartAthena": "Uruchom ponownie Athenę",
+  "logOut": "Wyloguj się"
+}

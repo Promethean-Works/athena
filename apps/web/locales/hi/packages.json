@@ -1,0 +1,59 @@
+{
+  "view": {
+    "noManagers": "कोई पैकेज मैनेजर नहीं मिला",
+    "noManagersHint": "Athena को इस होस्ट पर कोई समर्थित पैकेज मैनेजर नहीं मिला।"
+  },
+  "listError": "पैकेज सूची नहीं पढ़ी जा सकी",
+  "cancel": "रद्द करें",
+  "toast": {
+    "installFailed": "{{name}} इंस्टॉल नहीं हो सका",
+    "uninstallFailed": "{{name}} अनइंस्टॉल नहीं हो सका",
+    "upgradeFailed": "{{name}} अपग्रेड नहीं हो सका",
+    "upgradeAllFailed": "पैकेज अपग्रेड नहीं हो सके",
+    "refreshFailed": "पैकेज सूचियाँ रिफ़्रेश नहीं हो सकीं"
+  },
+  "unavailable": "{{name}} अभी उपयोग नहीं किया जा सकता",
+  "unavailableHint": "यह इस होस्ट पर तैयार नहीं है।",
+  "refreshLists": "सूचियाँ रिफ़्रेश करें",
+  "upgradeAll": "सभी अपग्रेड करें",
+  "tabs": {
+    "installed": "इंस्टॉल किए गए",
+    "updates": "अपडेट",
+    "search": "खोजें"
+  },
+  "installed": {
+    "filter": "इंस्टॉल किए गए पैकेज फ़िल्टर करें",
+    "noMatch": "कोई इंस्टॉल किया गया पैकेज मेल नहीं खाता।",
+    "empty": "कुछ भी इंस्टॉल नहीं है।",
+    "upgradeLabel": "{{name}} अपग्रेड करें",
+    "upgrade": "अपग्रेड करें",
+    "uninstallLabel": "{{name}} अनइंस्टॉल करें",
+    "uninstall": "अनइंस्टॉल करें",
+    "shortened": "{{manager}} ने इस आईडी को छोटा कर दिया है, इसलिए इसे यहाँ से अनइंस्टॉल नहीं किया जा सकता",
+    "showing": "{{total}} में से {{shown}} दिख रहे हैं। सीमित करने के लिए फ़िल्टर करें।"
+  },
+  "table": {
+    "package": "पैकेज",
+    "version": "वर्शन",
+    "description": "विवरण"
+  },
+  "updates": {
+    "upToDate": "सब कुछ अप टू डेट है",
+    "upToDateRefresh": "पिछली सूची रिफ़्रेश के अनुसार। दोबारा जाँचने के लिए सूचियाँ रिफ़्रेश करें।",
+    "nothing": "अपग्रेड करने के लिए कुछ नहीं है।",
+    "installedColumn": "इंस्टॉल किया हुआ",
+    "availableColumn": "उपलब्ध"
+  },
+  "search": {
+    "label": "{{manager}} में खोजें",
+    "noMatch": "“{{query}}” से कोई पैकेज मेल नहीं खाता।",
+    "install": "इंस्टॉल करें"
+  },
+  "confirm": {
+    "uninstallTitle": "{{name}} अनइंस्टॉल करें?",
+    "uninstallDescription": "इसे इस सर्वर से हटा दिया जाएगा। इस पर निर्भर पैकेज भी हट सकते हैं।",
+    "upgradeAllTitle": "{{manager}} के सभी पैकेज अपग्रेड करें?",
+    "upgradeAllDescription_one": "{{count}} पैकेज अपग्रेड किया जाएगा। इसमें समय लग सकता है।",
+    "upgradeAllDescription_other": "{{count}} पैकेज अपग्रेड किए जाएँगे। इसमें समय लग सकता है।"
+  }
+}

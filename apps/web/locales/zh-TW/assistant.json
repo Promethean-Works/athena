@@ -1,0 +1,139 @@
+{
+  "title": "助理",
+  "sheet": {
+    "description": "與 AI 助理聊聊這台伺服器。",
+    "openFullPage": "開啟完整頁面"
+  },
+  "chat": {
+    "newChat": "新對話",
+    "chats": "對話",
+    "noChats": "尚無對話。",
+    "deleteChat": "刪除 {{title}}",
+    "thinking": "思考中…",
+    "stillWorking": "仍在處理回覆，完成後會顯示在這裡。",
+    "emptyTitle": "詢問關於這台伺服器的問題",
+    "emptyDescription": "助理可以查詢應用程式、記錄、檔案與系統統計資料，並在你核准每個動作後安裝或變更項目。",
+    "suggestions": {
+      "capabilities": "這台伺服器能做什麼？",
+      "disk": "還剩多少磁碟空間？",
+      "apps": "哪些應用程式正在執行？"
+    },
+    "message": "訊息",
+    "placeholder": "詢問關於這台伺服器的問題…",
+    "placeholderWaiting": "請回答上方的問題，或傳送訊息以略過…",
+    "stop": "停止",
+    "send": "傳送",
+    "pickModelFirst": "請先選擇模型",
+    "changeModelFailed": "無法變更模型",
+    "startFailed": "無法開始對話",
+    "deleteFailed": "無法刪除對話",
+    "failed": "助理發生錯誤"
+  },
+  "noProviders": {
+    "title": "請先設定模型",
+    "description": "助理需要 AI 供應商：使用 API 金鑰的雲端供應商，或在你自己的硬體上執行的 Ollama。",
+    "openSettings": "開啟「設定」→「AI」"
+  },
+  "model": {
+    "pick": "選擇模型",
+    "label": "模型：{{label}}",
+    "search": "搜尋或輸入模型 ID",
+    "noMatch": "沒有符合的模型。",
+    "addProvider": "請先到「設定」→「AI」新增供應商。",
+    "noTools": "無法使用工具",
+    "use": "使用「{{model}}」"
+  },
+  "plan": {
+    "title": "計畫",
+    "progress": "已完成 {{done}} / {{total}}",
+    "steps": "計畫步驟",
+    "status": {
+      "pending": "待處理",
+      "in_progress": "進行中",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "blocked": "受阻"
+    }
+  },
+  "spend": {
+    "usage": "此對話的用量",
+    "usageWith": "此對話的用量：{{label}}",
+    "unknownPrices": "不清楚此模型的價格，因此只計算 token。",
+    "estimate": "依模型公布的價格估算。",
+    "ofLimit": "{{spent}} / {{limit}}",
+    "spent": "已花費",
+    "unknown": "未知",
+    "inputTokens": "輸入 token",
+    "outputTokens": "輸出 token",
+    "tokens_other": "{{formatted}} 個 token",
+    "limitReached": "此對話已達花費上限。請開始新對話，或在<settings>「設定」→「AI」</settings>中提高上限。",
+    "limitNotApplicable": "花費上限（{{limit}}）不適用於此模型。"
+  },
+  "steps": {
+    "thinking": "思考中",
+    "thought": "已思考",
+    "draft": "初稿，已在下方修訂",
+    "approvalNeeded": "需要核准：{{title}}",
+    "run": "執行 {{name}}",
+    "approvalIntro": "助理想執行這個動作。在你核准之前不會發生任何事。",
+    "deny": "拒絕",
+    "approve": "核准",
+    "approvedGoOn": "已核准。請回答其他卡片以繼續。",
+    "deniedGoOn": "已拒絕。請回答其他卡片以繼續。",
+    "logGone": "該記錄已不存在",
+    "log": "記錄",
+    "denied": "已拒絕：{{title}}",
+    "failed": "失敗：{{title}}",
+    "running": "正在執行 {{name}}",
+    "ran": "已執行 {{name}}",
+    "withSubject": "{{subject}}的{{title}}",
+    "helperRunningTask": "小幫手正在查詢：{{task}}",
+    "helperDoneTask": "小幫手已查詢：{{task}}",
+    "helperRunning": "小幫手正在查詢資料",
+    "helperDone": "小幫手已查詢資料",
+    "tools": {
+      "getCapabilities": {
+        "running": "正在檢查這台伺服器能做什麼",
+        "done": "已檢查這台伺服器能做什麼"
+      },
+      "getSystemStats": { "running": "正在讀取系統統計資料", "done": "已讀取系統統計資料" },
+      "listApps": { "running": "正在列出應用程式", "done": "已列出應用程式" },
+      "appLogs": { "running": "正在讀取應用程式記錄", "done": "已讀取應用程式記錄" },
+      "listFileLocations": { "running": "正在列出檔案位置", "done": "已列出檔案位置" },
+      "listFiles": { "running": "正在列出檔案", "done": "已列出檔案" },
+      "readFile": { "running": "正在讀取檔案", "done": "已讀取檔案" },
+      "writeFile": { "running": "正在寫入檔案", "done": "已寫入檔案" },
+      "editFile": { "running": "正在編輯檔案", "done": "已編輯檔案" },
+      "listDirectory": { "running": "正在列出資料夾", "done": "已列出資料夾" },
+      "createDirectory": { "running": "正在建立資料夾", "done": "已建立資料夾" },
+      "searchStore": { "running": "正在搜尋應用程式商店", "done": "已搜尋應用程式商店" },
+      "readToolResult": { "running": "正在讀取已儲存的工具結果", "done": "已讀取已儲存的工具結果" },
+      "askUserQuestion": { "running": "正在等待你的回答", "done": "已詢問你" },
+      "advisor": { "running": "正在詢問顧問", "done": "已詢問顧問" },
+      "runWorkflow": {
+        "running": "小幫手們正在一起查詢資料",
+        "done": "小幫手們已一起查詢資料"
+      },
+      "getStoreApp": { "running": "正在讀取商店應用程式", "done": "已讀取商店應用程式" },
+      "listPackageManagers": { "running": "正在列出套件管理員", "done": "已列出套件管理員" },
+      "searchPackages": { "running": "正在搜尋套件", "done": "已搜尋套件" },
+      "listUpgradablePackages": {
+        "running": "正在檢查套件更新",
+        "done": "已檢查套件更新"
+      }
+    }
+  },
+  "question": {
+    "title": "問題",
+    "asks": "助理詢問：{{title}}",
+    "intro": "助理在繼續之前想先確認。請勿以密碼或金鑰作為回答。",
+    "ownAnswerLabel": "你對「{{header}}」的自訂回答",
+    "ownAnswerPlaceholder": "或輸入你自己的回答",
+    "skip": "略過",
+    "send": "傳送回答",
+    "skippedGoOn": "已略過。請回答其他卡片以繼續。",
+    "answeredGoOn": "已回答。請回答其他卡片以繼續。",
+    "youAnswered": "你的回答：{{answers}}",
+    "youSkipped": "你略過了這個問題"
+  }
+}

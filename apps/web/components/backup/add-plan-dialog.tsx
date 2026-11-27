@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -43,6 +44,7 @@ export function AddPlanDialog({
   /** Called with the created plan. */
   onAdded: (plan: Schemas["PlanOut"]) => void
 }) {
+  const { t } = useTranslation("backup")
   const { destinations } = useDestinations()
   const [apps, setApps] = React.useState<string[] | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
@@ -96,13 +98,16 @@ export function AddPlanDialog({
         },
       })
       if (data) {
-        toast.add({ title: `Plan "${data.name}" created`, type: "success" })
+        toast.add({
+          title: t("toast.planCreated", { name: data.name }),
+          type: "success",
+        })
         onAdded(data)
         onClose()
         return
       }
       toast.add({
-        title: errorMessage(err, "Couldn't create plan"),
+        title: errorMessage(err, t("errors.createPlan")),
         type: "error",
       })
       return
@@ -119,24 +124,23 @@ export function AddPlanDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add backup plan</DialogTitle>
+          <DialogTitle>{t("addPlan.title")}</DialogTitle>
           <DialogDescription>
-            Pick what to back up, where, and how often. Apps are stopped during
-            their backup unless "Back up while running" is on.
+            {t("addPlan.description")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit}>
           <Field>
-            <FieldLabel>Name</FieldLabel>
+            <FieldLabel>{t("addPlan.name")}</FieldLabel>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Daily apps"
+              placeholder={t("addPlan.namePlaceholder")}
               required
             />
           </Field>
           <Field>
-            <FieldLabel>Destination</FieldLabel>
+            <FieldLabel>{t("addPlan.destination")}</FieldLabel>
             <Select
               value={destinationId}
               onValueChange={(v: string | null) => setDestinationId(v ?? "")}
@@ -161,16 +165,16 @@ export function AddPlanDialog({
                 onCheckedChange={(v) => setAthena(v)}
                 required
               />
-              Back up Athena (settings, DB, secrets, TLS)
+              {t("addPlan.athena")}
             </FieldLabel>
-            <FieldDescription>Recommended: on by default.</FieldDescription>
+            <FieldDescription>{t("addPlan.athenaHint")}</FieldDescription>
           </Field>
           {apps.length ? (
             <>
               <Field>
-                <FieldLabel>Apps</FieldLabel>
+                <FieldLabel>{t("addPlan.apps")}</FieldLabel>
                 <FieldDescription>
-                  Which apps to include in the plan.
+                  {t("addPlan.appsHint")}
                 </FieldDescription>
                 <div className="max-h-48 space-y-1 overflow-y-auto rounded-md border p-2">
                   {apps.map((appName) => (
@@ -188,26 +192,26 @@ export function AddPlanDialog({
             </>
           ) : (
             <FieldDescription>
-              No apps found. Start apps from Store → Apps first.
+              {t("addPlan.noApps")}
             </FieldDescription>
           )}
           <Separator />
           <Field>
-            <FieldLabel>Schedule (cron)</FieldLabel>
+            <FieldLabel>{t("addPlan.schedule")}</FieldLabel>
             <Input
               value={schedule}
               onChange={(e) => setSchedule(e.target.value)}
-              placeholder="0 3 * * *  (daily at 03:00)"
+              placeholder={t("addPlan.schedulePlaceholder")}
             />
             <FieldDescription>
-              Leave empty for manual runs only. Scheduled runs come with part 4.
+              {t("addPlan.scheduleHint")}
             </FieldDescription>
           </Field>
           <Field>
-            <FieldLabel>Retention</FieldLabel>
+            <FieldLabel>{t("addPlan.retention")}</FieldLabel>
             <FieldGroup>
               <Field>
-                <FieldLabel>Keep last</FieldLabel>
+                <FieldLabel>{t("addPlan.keepLast")}</FieldLabel>
                 <Input
                   type="number"
                   value={keepLast}
@@ -216,7 +220,7 @@ export function AddPlanDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel>Keep daily</FieldLabel>
+                <FieldLabel>{t("addPlan.keepDaily")}</FieldLabel>
                 <Input
                   type="number"
                   value={keepDaily}
@@ -225,7 +229,7 @@ export function AddPlanDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel>Keep weekly</FieldLabel>
+                <FieldLabel>{t("addPlan.keepWeekly")}</FieldLabel>
                 <Input
                   type="number"
                   value={keepWeekly}
@@ -234,7 +238,7 @@ export function AddPlanDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel>Keep monthly</FieldLabel>
+                <FieldLabel>{t("addPlan.keepMonthly")}</FieldLabel>
                 <Input
                   type="number"
                   value={keepMonthly}
@@ -244,14 +248,13 @@ export function AddPlanDialog({
               </Field>
             </FieldGroup>
             <FieldDescription>
-              `restic forget --keep-…` per item. Defaults: 7 daily / 4 weekly /
-              6 monthly.
+              {t("addPlan.retentionHint")}
             </FieldDescription>
           </Field>
         </form>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
@@ -262,7 +265,7 @@ export function AddPlanDialog({
               (!athena && selectedApps.length === 0)
             }
           >
-            Create plan
+            {t("addPlan.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

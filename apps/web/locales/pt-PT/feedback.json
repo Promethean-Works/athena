@@ -1,0 +1,49 @@
+{
+  "menu": "Enviar comentários",
+  "dialog": {
+    "title": "Enviar comentários",
+    "description": "Abre um novo problema em {{repo}} num novo separador. Podes revê-lo e editá-lo lá antes de ser publicado; os problemas são públicos.",
+    "storeHint": "Uma app da loja que não funciona? Usa <b>Comunicar um problema</b> na página da app na loja, para que o relatório chegue a quem a mantém.",
+    "loadFailed": "Não foi possível carregar os detalhes deste servidor"
+  },
+  "choices": {
+    "bug": {
+      "title": "Comunicar um erro",
+      "description": "Algo não funciona como devia."
+    },
+    "change": {
+      "title": "Sugerir uma alteração",
+      "description": "Algo funciona, mas devia funcionar de outra forma."
+    },
+    "feature": {
+      "title": "Pedir uma funcionalidade",
+      "description": "Algo que o Athena ainda não faz."
+    }
+  },
+  "diagnostics": {
+    "title": "Preenchido por nós",
+    "system": "Sistema",
+    "cpu": "CPU",
+    "containers": "Contentores"
+  },
+  "appReport": {
+    "button": "Comunicar um problema",
+    "title": "Comunicar um problema com {{app}}",
+    "description": "Abre um novo problema para {{where}} num novo separador, com os detalhes da app e deste servidor preenchidos. Revês tudo lá antes de ser publicado; os problemas são públicos.",
+    "whereCatalog": "o catálogo {{name}}, que mantém esta app",
+    "includeLogs_one": "Incluir a última {{count}} linha de registo",
+    "includeLogs_other": "Incluir as últimas {{count}} linhas de registo",
+    "installedCopy": "Cópia instalada",
+    "logsLabel": "Registos a incluir",
+    "loadingLogs": "A carregar registos…",
+    "logsWarning": "Remove palavras-passe, tokens e endereços antes de continuares.",
+    "logsTruncated": "Só o fim dos registos cabe na ligação.",
+    "cancel": "Cancelar",
+    "openIssue": "Abrir problema",
+    "preparing": "A preparar…",
+    "prepareFailed": "Não foi possível preparar o relatório",
+    "logsFailed": "Não foi possível carregar os registos: {{error}}",
+    "appNotFound": "app não encontrada",
+    "noContainers": "Não foram encontrados contentores para esta app."
+  }
+}

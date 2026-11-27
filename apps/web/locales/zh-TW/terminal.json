@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "連線中…",
+    "connected": "已連線",
+    "exited": "已結束（{{code}}）",
+    "disconnected": "已中斷連線",
+    "hostTerminal": "主機終端機",
+    "containerShell": "容器 Shell",
+    "lost": "與 Athena 的連線已中斷",
+    "closedCode": "已中斷連線（代碼 {{code}}）"
+  },
+  "view": {
+    "unavailableTitle": "終端機無法使用",
+    "openSettings": "開啟設定",
+    "description": "此伺服器上的 Shell，以執行 Athena 的使用者身分運作。",
+    "newSession": "新增工作階段"
+  },
+  "access": {
+    "noSupport": "此主機不支援終端機。",
+    "adminsOnly": "只有管理員可以開啟終端機。",
+    "turnedOff": "終端機已在「設定」→「系統」中關閉。"
+  },
+  "shell": {
+    "title": "Shell · {{name}}",
+    "description": "執行 bash；映像檔沒有 bash 時改用 sh。"
+  }
+}

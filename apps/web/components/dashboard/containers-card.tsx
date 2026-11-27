@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
 import { BoxIcon } from "lucide-react"
 
 import { api, type Schemas } from "@workspace/api-client"
@@ -24,11 +25,12 @@ function rank(c: Container): number {
 }
 
 function StateBadge({ c }: { c: Container }) {
-  if (c.state === "running") return <Badge variant="secondary">Running</Badge>
+  const { t } = useTranslation("dashboard")
+  if (c.state === "running") return <Badge variant="secondary">{t("containers.running")}</Badge>
   if (rank(c) === 0)
     return (
       <Badge variant="destructive">
-        {c.state === "exited" ? `Exited (${c.exit_code})` : c.state}
+        {c.state === "exited" ? t("containers.exited", { code: c.exit_code }) : c.state}
       </Badge>
     )
   return <Badge variant="outline">{c.state}</Badge>
@@ -46,11 +48,12 @@ function Count({ value, label }: { value: number; label: string }) {
 }
 
 function ContainersBody() {
+  const { t } = useTranslation("dashboard")
   // Refreshed every 15 s; the full list lives on /containers.
   const state = useApi(() => api.GET("/api/containers"), 15000)
   if (state.status === "loading") return <RowsSkeleton />
   if (state.status === "error")
-    return <Quiet>Couldn&apos;t load containers: {state.error}</Quiet>
+    return <Quiet>{t("containers.loadError", { error: state.error })}</Quiet>
   const all = state.data
   const running = all.filter((c) => c.state === "running").length
   const attention = all.filter((c) => rank(c) === 0).length
@@ -58,12 +61,12 @@ function ContainersBody() {
   return (
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-3 gap-2">
-        <Count value={running} label="Running" />
-        <Count value={all.length - running} label="Not running" />
-        <Count value={attention} label="Need attention" />
+        <Count value={running} label={t("containers.running")} />
+        <Count value={all.length - running} label={t("containers.notRunning")} />
+        <Count value={attention} label={t("containers.needAttention")} />
       </div>
       {top.length === 0 ? (
-        <Quiet>No containers on this server yet.</Quiet>
+        <Quiet>{t("containers.empty")}</Quiet>
       ) : (
         <ul className="flex flex-col divide-y">
           {top.map((c) => (
@@ -84,21 +87,22 @@ function ContainersBody() {
 }
 
 export function ContainersCard() {
+  const { t } = useTranslation("dashboard")
   const containers = useCapability("containers")
   return (
     <DashboardCard
       icon={BoxIcon}
-      title="Containers"
-      description="Everything the container engine runs, apps included."
+      title={t("containers.title")}
+      description={t("containers.description")}
       href="/containers/"
-      linkLabel="All containers"
+      linkLabel={t("containers.all")}
     >
       {!containers ? (
         <RowsSkeleton />
       ) : containers.available ? (
         <ContainersBody />
       ) : (
-        <Quiet>{containers.detail ?? "The container engine isn't running."}</Quiet>
+        <Quiet>{containers.detail ?? t("containers.engineDown")}</Quiet>
       )}
     </DashboardCard>
   )

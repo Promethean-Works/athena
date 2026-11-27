@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
 import { ShieldCheckIcon } from "lucide-react"
 
 import { Badge } from "@workspace/ui/components/badge"
@@ -13,25 +14,25 @@ import { formatRelative, parseServerTime } from "@/lib/time"
 import { usePlans } from "@/components/backup/use-backup"
 
 function RunBadge({ status }: { status: string | null }) {
+  const { t } = useTranslation("dashboard")
   if (status === "succeeded")
-    return <Badge variant="secondary">Succeeded</Badge>
-  if (status === "failed") return <Badge variant="destructive">Failed</Badge>
-  if (status === "running") return <Badge variant="outline">Running</Badge>
+    return <Badge variant="secondary">{t("backup.succeeded")}</Badge>
+  if (status === "failed") return <Badge variant="destructive">{t("backup.failed")}</Badge>
+  if (status === "running") return <Badge variant="outline">{t("backup.running")}</Badge>
   return <Badge variant="outline">—</Badge>
 }
 
 function BackupBody() {
+  const { t } = useTranslation("dashboard")
   const { plans, error } = usePlans()
   if (!plans) return <RowsSkeleton rows={3} />
-  if (error) return <Quiet>Couldn&apos;t load backup plans: {error}</Quiet>
+  if (error) return <Quiet>{t("backup.loadError", { error })}</Quiet>
 
   const enabled = plans.filter((p) => p.enabled).length
   const failed = plans.filter((p) => p.last_status === "failed").length
 
   if (plans.length === 0)
-    return (
-      <Quiet>No backup plans yet. Add one in Settings &rarr; Backups.</Quiet>
-    )
+    return <Quiet>{t("backup.empty")}</Quiet>
 
   const upcoming = plans
     .filter((p) => p.enabled && p.next_run_at !== null)
@@ -43,13 +44,13 @@ function BackupBody() {
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-muted-foreground">
-            Plans
+            {t("backup.plans")}
           </span>
           <span className="text-lg font-semibold">{plans.length}</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-muted-foreground">
-            Enabled
+            {t("backup.enabled")}
           </span>
           <span className="text-lg font-semibold">{enabled}</span>
         </div>
@@ -57,12 +58,14 @@ function BackupBody() {
       <div className="flex items-center gap-2 border-t pt-2">
         <RunBadge status={failed > 0 ? "failed" : null} />
         <span className="ml-auto text-xs text-muted-foreground">
-          {failed > 0 ? `${failed} plan(s) failed` : "No recent failures"}
+          {failed > 0
+            ? t("backup.plansFailed", { count: failed })
+            : t("backup.noFailures")}
         </span>
       </div>
       <div>
         <span className="mb-1 block text-xs font-medium text-muted-foreground">
-          Next scheduled runs
+          {t("backup.nextRuns")}
         </span>
         {upcoming.length > 0 ? (
           <ul className="space-y-1 text-sm">
@@ -79,7 +82,7 @@ function BackupBody() {
             ))}
           </ul>
         ) : (
-          <p className="text-xs text-muted-foreground">No scheduled runs</p>
+          <p className="text-xs text-muted-foreground">{t("backup.noScheduled")}</p>
         )}
       </div>
     </div>
@@ -87,13 +90,14 @@ function BackupBody() {
 }
 
 export function BackupCard() {
+  const { t } = useTranslation("dashboard")
   return (
     <DashboardCard
       icon={ShieldCheckIcon}
-      title="Backups"
-      description="Backup plans, last runs and the next scheduled run."
+      title={t("backup.title")}
+      description={t("backup.description")}
       href="/settings/backups"
-      linkLabel="Manage"
+      linkLabel={t("common.manage")}
     >
       <BackupBody />
     </DashboardCard>

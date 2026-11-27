@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { PlugIcon, ServerIcon, WebhookIcon } from "lucide-react"
+import { Trans, useTranslation } from "react-i18next"
 
 import {
   Card,
@@ -27,56 +28,59 @@ function useOrigin(): string {
 
 /** How n8n, scripts and MCP clients reach Athena. */
 export function ExternalAutomationCard() {
+  const { t } = useTranslation("automation")
   const origin = useOrigin()
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <PlugIcon className="size-4 text-muted-foreground" /> External
-          automation
+          <PlugIcon className="size-4 text-muted-foreground" />{" "}
+          {t("external.title")}
         </CardTitle>
         <CardDescription>
-          Connect n8n, scripts or AI agents to Athena.
+          {t("external.description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup className="gap-5">
           <Field>
             <FieldLabel htmlFor="automation-webhook-url">
-              <WebhookIcon className="size-4 text-muted-foreground" /> Webhook
-              URL
+              <WebhookIcon className="size-4 text-muted-foreground" />{" "}
+              {t("external.webhookUrl")}
             </FieldLabel>
             <CopyUrl
               id="automation-webhook-url"
-              label="Webhook URL"
+              label={t("external.webhookUrl")}
               value={`${origin}/api/automation/webhook/<token>`}
             />
             <FieldDescription>
-              Send a POST request to fire a webhook trigger; no sign-in needed.
-              Each webhook trigger has its own token: copy its full URL from the
-              trigger list.
+              {t("external.webhookHint")}
             </FieldDescription>
           </Field>
           <Field>
             <FieldLabel htmlFor="automation-mcp-url">
-              <ServerIcon className="size-4 text-muted-foreground" /> MCP server
+              <ServerIcon className="size-4 text-muted-foreground" />{" "}
+              {t("external.mcpServer")}
             </FieldLabel>
             <CopyUrl
               id="automation-mcp-url"
-              label="MCP server URL"
+              label={t("external.mcpUrl")}
               value={`${origin}/api/mcp`}
             />
             <FieldDescription>
-              Streamable HTTP. Clients sign in with a session cookie, or send
-              the token set in the server&apos;s{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
-                ATHENA_MCP_TOKEN
-              </code>{" "}
-              environment variable as{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
-                Authorization: Bearer &lt;token&gt;
-              </code>
-              .
+              <Trans
+                i18nKey="external.mcpHint"
+                ns="automation"
+                shouldUnescape
+                components={{
+                  envVar: (
+                    <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs" />
+                  ),
+                  authHeader: (
+                    <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs" />
+                  ),
+                }}
+              />
             </FieldDescription>
           </Field>
         </FieldGroup>

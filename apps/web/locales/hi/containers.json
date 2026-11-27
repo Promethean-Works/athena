@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "चल रहा है",
+    "dead": "डेड",
+    "exited": "बंद हुआ",
+    "exitedWithCode": "बंद हुआ ({{code}})",
+    "paused": "रुका हुआ",
+    "created": "बनाया गया",
+    "restarting": "रीस्टार्ट हो रहा है"
+  },
+  "logs": {
+    "following": "नया आउटपुट फ़ॉलो किया जा रहा है",
+    "stopped": "कंटेनर बंद हो गया",
+    "disconnected": "डिस्कनेक्ट हो गया",
+    "connecting": "कनेक्ट हो रहा है…",
+    "title": "लॉग · {{name}}",
+    "empty": "कोई लॉग आउटपुट नहीं।"
+  },
+  "runtime": {
+    "startFailed": "रनटाइम शुरू नहीं हो सका",
+    "running": "कंटेनर रनटाइम चल रहा है",
+    "providerStopped": "{{provider}} चालू नहीं है",
+    "stopped": "कंटेनर रनटाइम चालू नहीं है",
+    "none": "कोई कंटेनर रनटाइम नहीं",
+    "notFound": "Athena को इस होस्ट पर कोई कंटेनर इंजन नहीं मिला।",
+    "start": "{{provider}} शुरू करें",
+    "redetect": "दोबारा खोजें",
+    "setup": {
+      "darwin": {
+        "title": "Colima इंस्टॉल करें"
+      },
+      "linux": {
+        "title": "Docker Engine इंस्टॉल करें"
+      },
+      "windows": {
+        "title": "कंटेनर रनटाइम इंस्टॉल करें",
+        "wsl": "WSL2 में Docker Engine: wsl --install, फिर डिस्ट्रो के अंदर docker-ce इंस्टॉल करें",
+        "podman": "या Podman: winget install RedHat.Podman, फिर podman machine init; podman machine start",
+        "rancher": "या Rancher Desktop: winget install SUSE.RancherDesktop (dockerd इंजन चुनें)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "कंटेनरों की सूची नहीं मिल सकी",
+    "actionFailed": {
+      "start": "{{name}} शुरू नहीं हो सका",
+      "stop": "{{name}} बंद नहीं हो सका",
+      "restart": "{{name}} रीस्टार्ट नहीं हो सका"
+    },
+    "removeFailed": "{{name}} हटाया नहीं जा सका",
+    "removed": "{{name}} हटा दिया गया",
+    "emptyTitle": "अभी कोई कंटेनर नहीं",
+    "emptyDescription": "इस रनटाइम के कंटेनर यहाँ दिखते हैं, Athena के बाहर शुरू किए गए कंटेनर भी।",
+    "name": "नाम",
+    "image": "इमेज",
+    "state": "स्थिति",
+    "ports": "पोर्ट",
+    "actions": "कार्रवाइयाँ",
+    "standalone": "स्टैंडअलोन कंटेनर",
+    "actionsFor": "{{name}} की कार्रवाइयाँ",
+    "logs": "लॉग",
+    "shell": "शेल",
+    "restart": "रीस्टार्ट करें",
+    "stop": "बंद करें",
+    "start": "शुरू करें",
+    "remove": "हटाएँ",
+    "removeTitle": "{{name}} हटाएँ?",
+    "removeRunningDescription": "इसे पहले बंद किया जाएगा। कंटेनर हटा दिया जाता है। नामित वॉल्यूम और इमेज बने रहते हैं।",
+    "removeDescription": "कंटेनर हटा दिया जाता है। नामित वॉल्यूम और इमेज बने रहते हैं।",
+    "cancel": "रद्द करें"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "隧道地址",
+    "description": "在外网访问 Athena，或用手机扫描二维码。",
+    "publicAddress": "公网地址",
+    "notRunning": "隧道未运行。",
+    "startInSettings": "请在设置中启动。"
+  },
+  "qr": {
+    "title": "隧道地址二维码"
+  }
+}

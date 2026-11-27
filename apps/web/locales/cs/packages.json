@@ -1,0 +1,61 @@
+{
+  "view": {
+    "noManagers": "Nenalezen žádný správce balíčků",
+    "noManagersHint": "Athena na tomto hostiteli nenašla žádného podporovaného správce balíčků."
+  },
+  "listError": "Seznam balíčků se nepodařilo přečíst",
+  "cancel": "Zrušit",
+  "toast": {
+    "installFailed": "{{name}} se nepodařilo nainstalovat",
+    "uninstallFailed": "{{name}} se nepodařilo odinstalovat",
+    "upgradeFailed": "{{name}} se nepodařilo upgradovat",
+    "upgradeAllFailed": "Balíčky se nepodařilo upgradovat",
+    "refreshFailed": "Seznamy balíčků se nepodařilo obnovit"
+  },
+  "unavailable": "{{name}} teď nelze použít",
+  "unavailableHint": "Na tomto hostiteli není připraven.",
+  "refreshLists": "Obnovit seznamy",
+  "upgradeAll": "Upgradovat vše",
+  "tabs": {
+    "installed": "Nainstalované",
+    "updates": "Aktualizace",
+    "search": "Hledat"
+  },
+  "installed": {
+    "filter": "Filtrovat nainstalované balíčky",
+    "noMatch": "Žádný nainstalovaný balíček neodpovídá.",
+    "empty": "Nic není nainstalováno.",
+    "upgradeLabel": "Upgradovat {{name}}",
+    "upgrade": "Upgradovat",
+    "uninstallLabel": "Odinstalovat {{name}}",
+    "uninstall": "Odinstalovat",
+    "shortened": "{{manager}} toto ID zkrátil, proto ho odsud nelze odinstalovat",
+    "showing": "Zobrazeno {{shown}} z {{total}}. Zúžíte filtrem."
+  },
+  "table": {
+    "package": "Balíček",
+    "version": "Verze",
+    "description": "Popis"
+  },
+  "updates": {
+    "upToDate": "Vše je aktuální",
+    "upToDateRefresh": "K poslednímu obnovení seznamů. Pro novou kontrolu seznamy obnovte.",
+    "nothing": "Není co upgradovat.",
+    "installedColumn": "Nainstalováno",
+    "availableColumn": "K dispozici"
+  },
+  "search": {
+    "label": "Hledat v {{manager}}",
+    "noMatch": "Žádné balíčky neodpovídají „{{query}}“.",
+    "install": "Nainstalovat"
+  },
+  "confirm": {
+    "uninstallTitle": "Odinstalovat {{name}}?",
+    "uninstallDescription": "Odstraní se z tohoto serveru. Mohou se odstranit i balíčky, které na něm závisí.",
+    "upgradeAllTitle": "Upgradovat všechny balíčky {{manager}}?",
+    "upgradeAllDescription_one": "Upgraduje se {{count}} balíček. Může to chvíli trvat.",
+    "upgradeAllDescription_few": "Upgradují se {{count}} balíčky. Může to chvíli trvat.",
+    "upgradeAllDescription_many": "Upgraduje se {{count}} balíčku. Může to chvíli trvat.",
+    "upgradeAllDescription_other": "Upgraduje se {{count}} balíčků. Může to chvíli trvat."
+  }
+}

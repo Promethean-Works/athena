@@ -1,6 +1,7 @@
 "use client"
 
 import { CopyIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import {
   InputGroup,
@@ -22,6 +23,7 @@ export function CopyUrl({
   label: string
   value: string
 }) {
+  const { t } = useTranslation("automation")
   return (
     <InputGroup>
       <InputGroupInput
@@ -35,13 +37,13 @@ export function CopyUrl({
       <InputGroupAddon align="inline-end">
         <InputGroupButton
           size="icon-xs"
-          aria-label={`Copy ${label.toLowerCase()}`}
+          aria-label={t("copyUrl.copy", { label })}
           onClick={async () => {
             const ok = await copyText(value)
             toast.add(
               ok
-                ? { type: "success", title: `${label} copied` }
-                : { type: "error", title: "Couldn't copy" }
+                ? { type: "success", title: t("copyUrl.copied", { label }) }
+                : { type: "error", title: t("copyUrl.failed") }
             )
           }}
         >

@@ -1,0 +1,268 @@
+{
+  "common": {
+    "manage": "Kelola"
+  },
+  "cardShell": {
+    "open": "Buka"
+  },
+  "cards": {
+    "stats": {
+      "title": "Sistem",
+      "description": "Aktivitas CPU, memori, jaringan, dan disk secara langsung."
+    },
+    "apps": {
+      "title": "Aplikasi",
+      "description": "Aplikasi Anda, dengan statusnya dan tombol Buka."
+    },
+    "containers": {
+      "title": "Kontainer",
+      "description": "Jumlah yang berjalan dan berhenti, serta mana yang perlu perhatian."
+    },
+    "automation": {
+      "title": "Otomatisasi",
+      "description": "Jadwal eksekusi berikutnya dan hasil eksekusi terbaru."
+    },
+    "storage": {
+      "title": "Penyimpanan",
+      "description": "Ruang yang terpakai di setiap disk."
+    },
+    "server": {
+      "title": "Server",
+      "description": "Nama host, sistem operasi, uptime, dan versi."
+    },
+    "temperatures": {
+      "title": "Suhu",
+      "description": "Pembacaan sensor, jika dilaporkan oleh host."
+    },
+    "power": {
+      "title": "Daya",
+      "description": "Tegangan rendah dan throttling pada Raspberry Pi."
+    },
+    "activity": {
+      "title": "Aktivitas terbaru",
+      "description": "Perubahan terbaru dari log audit (hanya admin)."
+    },
+    "remoteAccess": {
+      "title": "Akses jarak jauh",
+      "description": "Status tunnel dan alamat publik."
+    },
+    "capabilities": {
+      "title": "Kapabilitas",
+      "description": "Apa yang ditemukan Athena di host ini."
+    },
+    "backups": {
+      "title": "Cadangan",
+      "description": "Rencana cadangan, eksekusi terakhir, dan eksekusi terjadwal berikutnya."
+    }
+  },
+  "activity": {
+    "title": "Aktivitas terbaru",
+    "description": "Siapa mengubah apa di server ini.",
+    "loadError": "Tidak dapat memuat aktivitas terbaru: {{error}}",
+    "empty": "Belum ada. Aksi pada aplikasi, kontainer, dan file muncul di sini.",
+    "by": "oleh {{username}}"
+  },
+  "automation": {
+    "title": "Otomatisasi",
+    "description": "Pemicu terjadwal dan webhook, serta hasil eksekusinya.",
+    "succeeded": "Berhasil",
+    "failed": "Gagal",
+    "loadError": "Tidak dapat memuat otomatisasi: {{error}}",
+    "noTriggers": "Belum ada pemicu. Buat satu untuk memulai ulang aplikasi atau memperbarui paket sesuai jadwal.",
+    "nextRuns": "Eksekusi berikutnya · {{enabled}} dari {{total}} pemicu aktif",
+    "nothingScheduled": "Tidak ada yang dijadwalkan. Pemicu webhook berjalan saat dipanggil.",
+    "recentRuns": "Eksekusi terbaru",
+    "noRuns": "Belum ada eksekusi.",
+    "deletedTrigger": "Pemicu yang dihapus"
+  },
+  "backup": {
+    "title": "Cadangan",
+    "description": "Rencana cadangan, eksekusi terakhir, dan eksekusi terjadwal berikutnya.",
+    "succeeded": "Berhasil",
+    "failed": "Gagal",
+    "running": "Berjalan",
+    "loadError": "Tidak dapat memuat rencana cadangan: {{error}}",
+    "empty": "Belum ada rencana cadangan. Tambahkan di Pengaturan → Cadangan.",
+    "plans": "Rencana",
+    "enabled": "Aktif",
+    "plansFailed_other": "{{count}} rencana gagal",
+    "noFailures": "Tidak ada kegagalan baru-baru ini",
+    "nextRuns": "Eksekusi terjadwal berikutnya",
+    "noScheduled": "Tidak ada eksekusi terjadwal"
+  },
+  "containers": {
+    "title": "Kontainer",
+    "description": "Semua yang dijalankan mesin kontainer, termasuk aplikasi.",
+    "all": "Semua kontainer",
+    "running": "Berjalan",
+    "notRunning": "Tidak berjalan",
+    "needAttention": "Perlu perhatian",
+    "exited": "Selesai ({{code}})",
+    "loadError": "Tidak dapat memuat kontainer: {{error}}",
+    "empty": "Belum ada kontainer di server ini.",
+    "engineDown": "Mesin kontainer tidak berjalan."
+  },
+  "apps": {
+    "title": "Aplikasi",
+    "subtitle": "Yang berjalan di server ini",
+    "store": "Toko",
+    "all": "Semua aplikasi",
+    "emptyTitle": "Belum ada aplikasi",
+    "emptyDescription": "Pasang dari toko, atau deploy file compose Anda sendiri.",
+    "browseStore": "Jelajahi toko",
+    "status": {
+      "running": "Berjalan",
+      "partial": "Sebagian berjalan",
+      "stopped": "Berhenti",
+      "notDeployed": "Belum di-deploy"
+    },
+    "containerCount_other": "{{count}} kontainer",
+    "actionsFor": "Aksi untuk {{name}}",
+    "open": "Buka",
+    "openPort": "Buka :{{port}}",
+    "details": "Detail",
+    "restart": "Mulai ulang",
+    "stop": "Hentikan",
+    "start": "Mulai",
+    "updateImages": "Perbarui image",
+    "remove": "Hapus"
+  },
+  "grid": {
+    "pickedUp": "Kartu {{title}} diangkat.",
+    "overCard": "{{title}} berada di atas {{other}}.",
+    "notOverCard": "{{title}} tidak lagi di atas kartu.",
+    "moved": "{{title}} dipindahkan ke posisi {{other}}.",
+    "dropped": "{{title}} diletakkan.",
+    "cancelled": "Pemindahan {{title}} dibatalkan.",
+    "move": "Pindahkan {{title}}",
+    "moveUp": "Pindahkan {{title}} ke atas",
+    "moveDown": "Pindahkan {{title}} ke bawah",
+    "makeHalf": "Ubah {{title}} menjadi setengah lebar",
+    "makeFull": "Ubah {{title}} menjadi lebar penuh",
+    "remove": "Hapus {{title}}",
+    "nothingToShow": "Tidak ada yang ditampilkan di server ini saat ini.",
+    "addDialogTitle": "Tambah kartu",
+    "addDialogDescription": "Kartu ditambahkan di akhir; seret ke posisi yang diinginkan.",
+    "allAddedTitle": "Semua kartu ada di dasbor Anda",
+    "allAddedDescription": "Hapus satu untuk menambahkannya lagi nanti.",
+    "addCard": "Tambah {{title}}",
+    "add": "Tambah",
+    "editHint": "Seret kartu dengan gagangnya, atau gunakan tanda panah. Perubahan disimpan saat Anda menekan Selesai.",
+    "addCardButton": "Tambah kartu",
+    "reset": "Atur ulang",
+    "cancel": "Batal",
+    "done": "Selesai",
+    "customize": "Sesuaikan",
+    "emptyTitle": "Dasbor Anda kosong",
+    "emptyDescription": "Tambahkan kartu, atau atur ulang ke tata letak bawaan.",
+    "dragInstructions": "Untuk memindahkan kartu, tekan Spasi atau Enter, gunakan tombol panah, lalu tekan Spasi atau Enter lagi untuk meletakkannya, atau Escape untuk membatalkan."
+  },
+  "stats": {
+    "used": "Terpakai",
+    "download": "Unduh",
+    "upload": "Unggah",
+    "read": "Baca",
+    "write": "Tulis",
+    "util": "Util",
+    "unavailableTitle": "Statistik langsung tidak tersedia",
+    "unavailableDescription": "Server tidak mengembalikan statistik host.",
+    "coresThreads": "{{cores}} inti · {{threads}} thread",
+    "cores_other": "{{count}} inti",
+    "coresLoad": "{{cores}} · beban {{load}}",
+    "liveLabel": "Statistik host langsung",
+    "system": "Sistem",
+    "live": "Langsung",
+    "reconnecting": "Menyambung ulang",
+    "chartRange": "Rentang grafik",
+    "range5m": "5 mnt",
+    "range1h": "1 jam",
+    "memory": "Memori",
+    "memUsed": "{{used}} terpakai",
+    "memUsedSwap": "{{used}} terpakai · swap {{swap}}",
+    "network": "Jaringan",
+    "diskActivity": "Aktivitas disk",
+    "readRate": "B {{rate}}",
+    "writeRate": "T {{rate}}",
+    "gpuCount_other": "{{count}} GPU",
+    "noGpu": "tidak ada GPU dilaporkan",
+    "vramOf": "{{used}} dari {{total}}"
+  },
+  "power": {
+    "title": "Daya",
+    "description": "Daya dan throttling Raspberry Pi",
+    "problemNow": "Bermasalah sekarang",
+    "ok": "OK",
+    "flagNow": "{{label}} sekarang",
+    "flagSinceBoot": "{{label}} sejak boot",
+    "none": "Tidak ada tegangan rendah atau throttling sejak server ini boot.",
+    "flags": {
+      "underVoltage": {
+        "label": "Tegangan rendah",
+        "hint": "Adaptor daya atau kabel tidak mencukupi. Gunakan adaptor resmi dan kabel yang pendek dan tebal."
+      },
+      "throttled": {
+        "label": "Throttling",
+        "hint": "CPU diperlambat untuk melindungi dirinya."
+      },
+      "freqCapped": {
+        "label": "Frekuensi dibatasi",
+        "hint": "Firmware menurunkan kecepatan maksimum CPU."
+      },
+      "softTempLimit": {
+        "label": "Batas suhu lunak",
+        "hint": "CPU mendekati batas suhunya. Periksa pendinginan."
+      }
+    }
+  },
+  "remote": {
+    "title": "Akses jarak jauh",
+    "description": "Jangkau Athena dari luar jaringan Anda.",
+    "settings": "Pengaturan",
+    "loadError": "Tidak dapat memuat akses jarak jauh: {{error}}",
+    "off": "Nonaktif. Aktifkan di Pengaturan → Sistem untuk menjangkau Athena dari luar jaringan Anda.",
+    "running": "Berjalan",
+    "notRunning": "Tidak berjalan",
+    "noProvider": "Tanpa penyedia",
+    "warning": "Terminal, pemasangan paket, dan asisten dapat dijangkau dari internet dengan satu kata sandi. <link>Nonaktifkan</link> jika Anda tidak memerlukannya dari jarak jauh.",
+    "publicAddress": "Alamat publik",
+    "copyAddress": "Salin alamat publik",
+    "copied": "Alamat disalin",
+    "copyFailed": "Tidak dapat menyalin"
+  },
+  "storage": {
+    "title": "Penyimpanan",
+    "description": "Disk, folder, cloud, dan berbagi jaringan",
+    "noDisks": "Belum ada disk yang dilaporkan.",
+    "diskUsage": "{{used}} dari {{total}}",
+    "folders": "Folder",
+    "unavailable": "Tidak tersedia",
+    "cloud": "Penyimpanan cloud",
+    "shares": "Berbagi jaringan",
+    "readOnly": "Hanya baca"
+  },
+  "temperatures": {
+    "title": "Suhu",
+    "description": "Sensor perangkat keras"
+  },
+  "layout": {
+    "saveFailed": "Tidak dapat menyimpan dasbor",
+    "saved": "Dasbor disimpan"
+  },
+  "server": {
+    "title": "Server",
+    "description": "Mesin tempat Athena berjalan",
+    "unreachableTitle": "Tidak dapat menjangkau server Athena",
+    "unreachableDescription": "{{error}}. Saat pengembangan, jalankan dengan <code>uv run athena serve --reload</code> di <code>apps/server</code>.",
+    "host": "Host",
+    "os": "Sistem operasi",
+    "platform": "Platform",
+    "uptime": "Uptime",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Menghubungkan…",
+    "unreachable": "Server tidak terjangkau",
+    "version": "Athena {{version}}"
+  }
+}

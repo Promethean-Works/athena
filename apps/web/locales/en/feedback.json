@@ -1,0 +1,49 @@
+{
+  "menu": "Send feedback",
+  "dialog": {
+    "title": "Send feedback",
+    "description": "Opens a new issue on {{repo}} in a new tab. You can review and edit it there before it's posted; issues are public.",
+    "storeHint": "A store app that doesn't work? Use <b>Report a problem</b> on its store page, so the report reaches whoever maintains it.",
+    "loadFailed": "Couldn't load this server's details"
+  },
+  "choices": {
+    "bug": {
+      "title": "Report a bug",
+      "description": "Something doesn't work the way it should."
+    },
+    "change": {
+      "title": "Suggest a change",
+      "description": "Something works, but it should work differently."
+    },
+    "feature": {
+      "title": "Request a feature",
+      "description": "Something Athena can't do yet."
+    }
+  },
+  "diagnostics": {
+    "title": "Filled in for you",
+    "system": "System",
+    "cpu": "CPU",
+    "containers": "Containers"
+  },
+  "appReport": {
+    "button": "Report a problem",
+    "title": "Report a problem with {{app}}",
+    "description": "Opens a new issue for {{where}} in a new tab, with the app and this server's details filled in. You review it there before it's posted; issues are public.",
+    "whereCatalog": "the {{name}} catalog, which maintains this app",
+    "includeLogs_one": "Include the last {{count}} log line",
+    "includeLogs_other": "Include the last {{count}} log lines",
+    "installedCopy": "Installed copy",
+    "logsLabel": "Logs to include",
+    "loadingLogs": "Loading logs…",
+    "logsWarning": "Remove passwords, tokens and addresses before you continue.",
+    "logsTruncated": "Only the end of the logs fits in the link.",
+    "cancel": "Cancel",
+    "openIssue": "Open issue",
+    "preparing": "Preparing…",
+    "prepareFailed": "Couldn't prepare the report",
+    "logsFailed": "Couldn't load logs: {{error}}",
+    "appNotFound": "app not found",
+    "noContainers": "No containers found for this app."
+  }
+}

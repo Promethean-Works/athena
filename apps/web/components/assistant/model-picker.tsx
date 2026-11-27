@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import type { TFunction } from "i18next"
+import { useTranslation } from "react-i18next"
 import { cn } from "@workspace/ui/lib/utils"
 import {
   Combobox,
@@ -29,7 +31,11 @@ type Choice = {
   typed?: boolean
 }
 
-function choicesFor(providers: ProviderModels[], query: string): Choice[] {
+function choicesFor(
+  providers: ProviderModels[],
+  query: string,
+  t: TFunction<"assistant">
+): Choice[] {
   const out: Choice[] = []
   for (const p of providers) {
     for (const m of p.models) {
@@ -49,7 +55,7 @@ function choicesFor(providers: ProviderModels[], query: string): Choice[] {
       out.push({
         key: `${p.provider_id}/typed`,
         ref: { provider_id: p.provider_id, model: typed },
-        label: `Use “${typed}”`,
+        label: t("model.use", { model: typed }),
         provider: p.provider_name,
         usable: true,
         typed: true,
@@ -80,10 +86,11 @@ export function ModelPicker({
   id?: string
   className?: string
 }) {
+  const { t } = useTranslation("assistant")
   const [query, setQuery] = React.useState("")
   const items = React.useMemo(
-    () => choicesFor(providers ?? [], query),
-    [providers, query]
+    () => choicesFor(providers ?? [], query, t),
+    [providers, query, t]
   )
   const selected = items.find((c) => sameModel(c.ref, value)) ?? null
   const label = modelLabel(value, providers)
@@ -107,7 +114,7 @@ export function ModelPicker({
     >
       <ComboboxTrigger
         id={id}
-        aria-label={`Model: ${label}`}
+        aria-label={t("model.label", { label })}
         className={cn(
           "inline-flex min-w-0 items-center gap-1.5 rounded-md text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
           variant === "button"
@@ -125,19 +132,19 @@ export function ModelPicker({
       >
         <ComboboxInput
           showTrigger={false}
-          placeholder="Search or type a model id"
+          placeholder={t("model.search")}
         />
         <ComboboxEmpty>
           {providers?.length
-            ? "No model matches."
-            : "Add a provider in Settings → AI first."}
+            ? t("model.noMatch")
+            : t("model.addProvider")}
         </ComboboxEmpty>
         <ComboboxList>
           {(c: Choice) => (
             <ComboboxItem key={c.key} value={c} disabled={!c.usable}>
               <span className="min-w-0 flex-1 truncate">{c.label}</span>
               <span className="shrink-0 text-xs text-muted-foreground">
-                {c.usable ? c.provider : "can't use tools"}
+                {c.usable ? c.provider : t("model.noTools")}
               </span>
             </ComboboxItem>
           )}

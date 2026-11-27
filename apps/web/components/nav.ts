@@ -1,3 +1,4 @@
+import type { ParseKeys } from "i18next"
 import type { LucideIcon } from "lucide-react"
 import {
   BoxIcon,
@@ -17,7 +18,8 @@ import {
 } from "lucide-react"
 
 export type NavItem = {
-  title: string
+  /** Key in the `nav` namespace. */
+  titleKey: ParseKeys<"nav">
   url: string
   icon: LucideIcon
   /**
@@ -36,23 +38,23 @@ export type NavItem = {
 // Sections are added here as their milestones land (Apps, Store, Packages, Files,
 // Cloud, Terminal, Assistant, Settings), so the sidebar never links to a missing page.
 export const navMain: NavItem[] = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboardIcon },
+  { titleKey: "dashboard", url: "/", icon: LayoutDashboardIcon },
   {
-    title: "Apps",
+    titleKey: "apps",
     url: "/apps/",
     icon: LayoutGridIcon,
     capability: "containers",
     showWhenUnavailable: true,
   },
   {
-    title: "Store",
+    titleKey: "store",
     url: "/store/",
     icon: StoreIcon,
     capability: "containers",
     showWhenUnavailable: true,
   },
   {
-    title: "Packages",
+    titleKey: "packages",
     url: "/packages/",
     icon: PackageIcon,
     // Shown when any package manager is installed, even one that needs root, so the
@@ -61,28 +63,28 @@ export const navMain: NavItem[] = [
     showWhenUnavailable: true,
   },
   {
-    title: "Automation",
+    titleKey: "automation",
     url: "/automation/",
     icon: ClockIcon,
     capability: "automation",
   },
   {
-    title: "Files",
+    titleKey: "files",
     url: "/files/",
     icon: FolderIcon,
     capability: "files",
   },
   {
-    title: "SMB shares",
-    url: "/files/smb/",
+    titleKey: "networkShares",
+    url: "/files/network/",
     icon: Share2Icon,
-    // Shown even when Samba isn't installed yet, so the page can say how to set it
-    // up. Hidden on macOS and Windows where share creation is unsupported.
+    // Shown even when the host can't create shares yet, so the page can say why
+    // and how to set it up (SMB and NFS each have their own capability).
     capability: "shares.smb",
     showWhenUnavailable: true,
   },
   {
-    title: "Cloud",
+    titleKey: "cloud",
     url: "/cloud/",
     icon: CloudIcon,
     // Shown without rclone too, so the page can say how to install it.
@@ -90,47 +92,55 @@ export const navMain: NavItem[] = [
     showWhenUnavailable: true,
   },
   {
-    title: "Containers",
+    titleKey: "containers",
     url: "/containers/",
     icon: BoxIcon,
     capability: "containers",
     showWhenUnavailable: true,
   },
   {
-    title: "Terminal",
+    titleKey: "terminal",
     url: "/terminal/",
     icon: SquareTerminalIcon,
     capability: "terminal.host",
   },
-  { title: "Assistant", url: "/assistant/", icon: SparklesIcon },
+  { titleKey: "assistant", url: "/assistant/", icon: SparklesIcon },
   {
-    title: "Backups",
+    titleKey: "backups",
     url: "/backups/",
     icon: LayoutListIcon,
     capability: "backup",
   },
 ]
 
-/** True when `pathname` is the item's page or below it ("/" only matches itself). */
-export function isActive(item: NavItem, pathname: string): boolean {
+function matches(item: NavItem, pathname: string): boolean {
   if (item.url === "/") return pathname === "/"
   return pathname.startsWith(item.url.replace(/\/$/, ""))
 }
 
+/** The item for `pathname`: the longest url that matches, so /files/network/ isn't also Files. */
+function best(pathname: string): NavItem | undefined {
+  return [...navMain, ...navSecondary]
+    .filter((item) => !item.external && matches(item, pathname))
+    .sort((x, y) => y.url.length - x.url.length)[0]
+}
+
+/** True when `item` is the most specific nav entry for `pathname`. */
+export function isActive(item: NavItem, pathname: string): boolean {
+  return best(pathname) === item
+}
+
 export const navSecondary: NavItem[] = [
-  { title: "Settings", url: "/settings/", icon: Settings2Icon },
+  { titleKey: "settings", url: "/settings/", icon: Settings2Icon },
   {
-    title: "Help",
+    titleKey: "help",
     url: "https://github.com/Promethean-Works/athena#readme",
     icon: CircleHelpIcon,
     external: true,
   },
 ]
 
-/** Title for the header, from the nav item matching the current path. */
-export function titleForPath(pathname: string): string {
-  const match = [...navMain, ...navSecondary].find(
-    (item) => !item.external && isActive(item, pathname)
-  )
-  return match?.title ?? "Athena"
+/** Title key for the header, from the nav item matching the current path. */
+export function titleKeyForPath(pathname: string): ParseKeys<"nav"> | null {
+  return best(pathname)?.titleKey ?? null
 }

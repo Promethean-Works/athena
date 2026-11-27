@@ -1,0 +1,195 @@
+{
+  "page": {
+    "description": "Ứng dụng là các dự án compose do Athena quản lý."
+  },
+  "newApp": "Ứng dụng mới",
+  "open": "Mở",
+  "list": {
+    "failed": "Không thể liệt kê ứng dụng"
+  },
+  "status": {
+    "running": "Đang chạy",
+    "partial": "{{running}}/{{total}} đang chạy",
+    "stopped": "Đã dừng",
+    "notDeployed": "Chưa triển khai"
+  },
+  "actions": {
+    "restart": "Khởi động lại",
+    "stop": "Dừng",
+    "start": "Khởi động",
+    "updateImages": "Cập nhật image",
+    "remove": "Gỡ"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Không thể khởi động {{name}}",
+      "stop": "Không thể dừng {{name}}",
+      "restart": "Không thể khởi động lại {{name}}",
+      "update": "Không thể cập nhật {{name}}",
+      "remove": "Không thể gỡ {{name}}",
+      "save": "Không thể lưu {{name}}",
+      "saveSettings": "Không thể lưu cài đặt của {{name}}",
+      "deploy": "Không thể triển khai {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Gỡ {{name}}?",
+    "description": "Các container của ứng dụng sẽ được dừng và gỡ, và Athena không còn quản lý ứng dụng này.",
+    "deleteData": "Xóa cả volume và thư mục dữ liệu của ứng dụng. Không thể hoàn tác.",
+    "cancel": "Hủy",
+    "confirm": "Gỡ"
+  },
+  "grid": {
+    "emptyTitle": "Chưa có ứng dụng",
+    "emptyDescription": "Triển khai một tệp compose hoặc chuyển đổi lệnh <code>docker run</code>.",
+    "containerCount_other": "{{count}} container",
+    "fromDockerRun": "từ docker run",
+    "actionsFor": "Thao tác cho {{name}}"
+  },
+  "containerState": {
+    "running": "đang chạy",
+    "exited": "đã thoát",
+    "dead": "đã chết",
+    "paused": "tạm dừng",
+    "created": "đã tạo",
+    "restarting": "đang khởi động lại"
+  },
+  "detail": {
+    "loadFailed": "Không thể tải ứng dụng",
+    "loadFailedNamed": "Không thể tải {{name}}",
+    "tabContainers": "Container",
+    "tabCompose": "Compose",
+    "tabSettings": "Cài đặt",
+    "tabBackups": "Sao lưu",
+    "noContainers": "Không có container",
+    "noContainersHint": "Khởi động ứng dụng để tạo các container.",
+    "logs": "Nhật ký",
+    "shell": "Shell",
+    "composeHelp": "Khi lưu, phiên bản trước được giữ lại thành compose.prev.yaml và ứng dụng được triển khai lại.",
+    "settingsHelp": "Các giá trị từ biểu mẫu cài đặt (.env). Đổi cổng hoặc thư mục tại đây, rồi lưu để triển khai lại. Có thể chứa mật khẩu được tạo tự động.",
+    "saveRedeploy": "Lưu và triển khai lại",
+    "discard": "Hủy thay đổi"
+  },
+  "new": {
+    "nameInvalid": "Dùng chữ thường, chữ số, dấu gạch ngang hoặc gạch dưới, bắt đầu bằng chữ cái hoặc chữ số.",
+    "convertFailed": "Không thể chuyển đổi lệnh",
+    "validationFailed": "Kiểm tra hợp lệ thất bại",
+    "name": "Tên",
+    "nameHelp": "Cũng là tên dự án compose. Không thể đổi sau này.",
+    "tabCompose": "Tệp compose",
+    "tabRun": "Từ docker run",
+    "reviewConverted": "Xem lại tệp đã chuyển đổi",
+    "upload": "Tải tệp lên",
+    "composeHelp": "Dùng <code>${ATHENA_APP_DATA}</code> cho các tệp cần nằm trong thư mục dữ liệu của ứng dụng này trên máy chủ.",
+    "runLabel": "Lệnh docker run",
+    "runHelp": "Lệnh được chuyển thành tệp compose để bạn xem lại trước khi triển khai. Chưa có gì được chạy.",
+    "convert": "Chuyển thành compose",
+    "valid": "Tệp compose hợp lệ",
+    "invalid": "Tệp compose có lỗi",
+    "validate": "Kiểm tra",
+    "deploy": "Triển khai"
+  },
+  "compose": {
+    "serializationFailed": "Tuần tự hóa thất bại",
+    "addService": "Thêm dịch vụ",
+    "tabs": {
+      "settings": "Cài đặt",
+      "networks": "Mạng",
+      "volumes": "Volume",
+      "raw": "YAML thô"
+    },
+    "restart": {
+      "no": "Không (không khởi động lại)",
+      "always": "Luôn luôn",
+      "unlessStopped": "Trừ khi đã dừng",
+      "onFailure": "Khi lỗi"
+    },
+    "volumeMode": {
+      "rw": "Đọc/Ghi",
+      "ro": "Chỉ đọc"
+    },
+    "table": {
+      "actions": "Thao tác",
+      "empty": "Chưa có mục nào",
+      "moveUp": "Lên",
+      "moveDown": "Xuống",
+      "remove": "Gỡ",
+      "add": "Thêm"
+    },
+    "service": {
+      "collapse": "Thu gọn",
+      "expand": "Mở rộng",
+      "namePlaceholder": "tên dịch vụ",
+      "noImage": "không có image",
+      "image": "Image",
+      "imageHelp": "Tên image Docker. Hỗ trợ Docker Hub, GHCR và các registry khác.",
+      "restartPolicy": "Chính sách khởi động lại"
+    },
+    "ports": {
+      "title": "Cổng",
+      "host": "Cổng máy chủ",
+      "container": "Cổng container",
+      "protocol": "Giao thức",
+      "help": "Ánh xạ cổng máy chủ sang cổng container. Để trống cổng máy chủ để gán ngẫu nhiên."
+    },
+    "volumes": {
+      "title": "Volume",
+      "host": "Đường dẫn máy chủ / Tên volume",
+      "container": "Đường dẫn container",
+      "mode": "Chế độ",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data hoặc volume-name",
+      "help": "Bind-mount đường dẫn máy chủ hoặc volume có tên. Dùng <code>${ATHENA_APP_DATA}</code> cho thư mục dữ liệu của ứng dụng này."
+    },
+    "env": {
+      "title": "Biến môi trường",
+      "help": "Các biến môi trường truyền vào container. Các giá trị từ biểu mẫu cài đặt (.env) cũng khả dụng.",
+      "valuePlaceholder": "giá trị"
+    },
+    "keyValue": {
+      "key": "Khóa",
+      "value": "Giá trị"
+    },
+    "command": {
+      "command": "Lệnh",
+      "commandPlaceholder": "Ghi đè lệnh mặc định của image",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Ghi đè entrypoint mặc định của image",
+      "workingDir": "Thư mục làm việc",
+      "user": "Người dùng"
+    },
+    "resources": {
+      "title": "Giới hạn tài nguyên",
+      "cpuLimit": "Giới hạn CPU",
+      "cpuCores": "Nhân CPU",
+      "memoryLimit": "Giới hạn bộ nhớ",
+      "memoryLimitHelp": "ví dụ 512M, 1G",
+      "cpuReservation": "CPU dành riêng",
+      "memoryReservation": "Bộ nhớ dành riêng",
+      "memoryReservationHelp": "ví dụ 256M"
+    },
+    "health": {
+      "title": "Kiểm tra tình trạng",
+      "test": "Lệnh kiểm tra",
+      "interval": "Khoảng cách",
+      "timeout": "Thời gian chờ",
+      "retries": "Số lần thử lại"
+    },
+    "labels": {
+      "title": "Nhãn",
+      "valuePlaceholder": "Dịch vụ của tôi"
+    },
+    "networks": {
+      "title": "Mạng",
+      "help": "Tên các mạng, cách nhau bằng dấu phẩy. Định nghĩa mạng trong tab Mạng."
+    },
+    "dependsOn": {
+      "title": "Phụ thuộc vào",
+      "help": "Tên các dịch vụ phải khởi động trước dịch vụ này, cách nhau bằng dấu phẩy."
+    },
+    "entries": {
+      "name": "Tên",
+      "driver": "Driver",
+      "external": "Bên ngoài"
+    }
+  }
+}

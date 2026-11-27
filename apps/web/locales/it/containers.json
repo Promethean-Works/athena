@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "In esecuzione",
+    "dead": "Morto",
+    "exited": "Terminato",
+    "exitedWithCode": "Terminato ({{code}})",
+    "paused": "in pausa",
+    "created": "creato",
+    "restarting": "in riavvio"
+  },
+  "logs": {
+    "following": "Segue il nuovo output",
+    "stopped": "Il container si è fermato",
+    "disconnected": "Disconnesso",
+    "connecting": "Connessione…",
+    "title": "Log · {{name}}",
+    "empty": "Nessun output nei log."
+  },
+  "runtime": {
+    "startFailed": "Impossibile avviare il runtime",
+    "running": "Il runtime dei container è in esecuzione",
+    "providerStopped": "{{provider}} non è in esecuzione",
+    "stopped": "Il runtime dei container non è in esecuzione",
+    "none": "Nessun runtime di container",
+    "notFound": "Athena non ha trovato un motore di container su questo host.",
+    "start": "Avvia {{provider}}",
+    "redetect": "Rileva di nuovo",
+    "setup": {
+      "darwin": {
+        "title": "Installa Colima"
+      },
+      "linux": {
+        "title": "Installa Docker Engine"
+      },
+      "windows": {
+        "title": "Installa un runtime di container",
+        "wsl": "Docker Engine in WSL2: wsl --install, poi installa docker-ce dentro la distro",
+        "podman": "oppure Podman: winget install RedHat.Podman, poi podman machine init; podman machine start",
+        "rancher": "oppure Rancher Desktop: winget install SUSE.RancherDesktop (scegli il motore dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Impossibile elencare i container",
+    "actionFailed": {
+      "start": "Impossibile avviare {{name}}",
+      "stop": "Impossibile fermare {{name}}",
+      "restart": "Impossibile riavviare {{name}}"
+    },
+    "removeFailed": "Impossibile rimuovere {{name}}",
+    "removed": "{{name}} rimosso",
+    "emptyTitle": "Ancora nessun container",
+    "emptyDescription": "I container di questo runtime compaiono qui, compresi quelli avviati fuori da Athena.",
+    "name": "Nome",
+    "image": "Immagine",
+    "state": "Stato",
+    "ports": "Porte",
+    "actions": "Azioni",
+    "standalone": "Container indipendenti",
+    "actionsFor": "Azioni per {{name}}",
+    "logs": "Log",
+    "shell": "Shell",
+    "restart": "Riavvia",
+    "stop": "Ferma",
+    "start": "Avvia",
+    "remove": "Rimuovi",
+    "removeTitle": "Rimuovere {{name}}?",
+    "removeRunningDescription": "Verrà prima fermato. Il container viene eliminato. I volumi con nome e l'immagine restano.",
+    "removeDescription": "Il container viene eliminato. I volumi con nome e l'immagine restano.",
+    "cancel": "Annulla"
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "common": {
+    "manage": "Hantera"
+  },
+  "cardShell": {
+    "open": "Öppna"
+  },
+  "cards": {
+    "stats": {
+      "title": "System",
+      "description": "CPU-, minnes-, nätverks- och diskaktivitet i realtid."
+    },
+    "apps": {
+      "title": "Appar",
+      "description": "Dina appar, med status och en Öppna-knapp."
+    },
+    "containers": {
+      "title": "Behållare",
+      "description": "Antal körande och stoppade, och vilka som behöver uppmärksamhet."
+    },
+    "automation": {
+      "title": "Automation",
+      "description": "Nästa schemalagda körningar och hur de senaste gick."
+    },
+    "storage": {
+      "title": "Lagring",
+      "description": "Använt utrymme på varje disk."
+    },
+    "server": {
+      "title": "Server",
+      "description": "Värdnamn, operativsystem, drifttid och versioner."
+    },
+    "temperatures": {
+      "title": "Temperaturer",
+      "description": "Sensoravläsningar, där värden rapporterar dem."
+    },
+    "power": {
+      "title": "Ström",
+      "description": "Underspänning och strypning på en Raspberry Pi."
+    },
+    "activity": {
+      "title": "Senaste aktivitet",
+      "description": "De senaste ändringarna från granskningsloggen (endast administratörer)."
+    },
+    "remoteAccess": {
+      "title": "Fjärråtkomst",
+      "description": "Tunnelstatus och den offentliga adressen."
+    },
+    "capabilities": {
+      "title": "Funktioner",
+      "description": "Det Athena hittade på den här värden."
+    },
+    "backups": {
+      "title": "Säkerhetskopior",
+      "description": "Säkerhetskopieringsplaner, senaste körningar och nästa schemalagda körning."
+    }
+  },
+  "activity": {
+    "title": "Senaste aktivitet",
+    "description": "Vem som ändrade vad på den här servern.",
+    "loadError": "Det gick inte att läsa in senaste aktivitet: {{error}}",
+    "empty": "Inget än. Åtgärder på appar, behållare och filer visas här.",
+    "by": "av {{username}}"
+  },
+  "automation": {
+    "title": "Automation",
+    "description": "Schemalagda utlösare och webhook-utlösare, och hur deras körningar gick.",
+    "succeeded": "Lyckades",
+    "failed": "Misslyckades",
+    "loadError": "Det gick inte att läsa in automation: {{error}}",
+    "noTriggers": "Inga utlösare än. Skapa en för att starta om en app eller uppdatera paket enligt schema.",
+    "nextRuns": "Nästa körningar · {{enabled}} av {{total}} utlösare på",
+    "nothingScheduled": "Inget schemalagt. Webhook-utlösare körs när de anropas.",
+    "recentRuns": "Senaste körningar",
+    "noRuns": "Inga körningar än.",
+    "deletedTrigger": "Raderad utlösare"
+  },
+  "backup": {
+    "title": "Säkerhetskopior",
+    "description": "Säkerhetskopieringsplaner, senaste körningar och nästa schemalagda körning.",
+    "succeeded": "Lyckades",
+    "failed": "Misslyckades",
+    "running": "Körs",
+    "loadError": "Det gick inte att läsa in säkerhetskopieringsplaner: {{error}}",
+    "empty": "Inga säkerhetskopieringsplaner än. Lägg till en under Inställningar → Säkerhetskopior.",
+    "plans": "Planer",
+    "enabled": "Aktiverade",
+    "plansFailed_one": "{{count}} plan misslyckades",
+    "plansFailed_other": "{{count}} planer misslyckades",
+    "noFailures": "Inga senaste fel",
+    "nextRuns": "Nästa schemalagda körningar",
+    "noScheduled": "Inga schemalagda körningar"
+  },
+  "containers": {
+    "title": "Behållare",
+    "description": "Allt som behållarmotorn kör, appar inkluderade.",
+    "all": "Alla behållare",
+    "running": "Körs",
+    "notRunning": "Körs inte",
+    "needAttention": "Behöver uppmärksamhet",
+    "exited": "Avslutad ({{code}})",
+    "loadError": "Det gick inte att läsa in behållare: {{error}}",
+    "empty": "Inga behållare på den här servern än.",
+    "engineDown": "Behållarmotorn körs inte."
+  },
+  "apps": {
+    "title": "Appar",
+    "subtitle": "Det som körs på den här servern",
+    "store": "Butik",
+    "all": "Alla appar",
+    "emptyTitle": "Inga appar än",
+    "emptyDescription": "Installera en från butiken, eller driftsätt din egen compose-fil.",
+    "browseStore": "Bläddra i butiken",
+    "status": {
+      "running": "Körs",
+      "partial": "Delvis igång",
+      "stopped": "Stoppad",
+      "notDeployed": "Inte driftsatt"
+    },
+    "containerCount_one": "{{count}} behållare",
+    "containerCount_other": "{{count}} behållare",
+    "actionsFor": "Åtgärder för {{name}}",
+    "open": "Öppna",
+    "openPort": "Öppna :{{port}}",
+    "details": "Detaljer",
+    "restart": "Starta om",
+    "stop": "Stoppa",
+    "start": "Starta",
+    "updateImages": "Uppdatera avbilder",
+    "remove": "Ta bort"
+  },
+  "grid": {
+    "pickedUp": "Tog upp kortet {{title}}.",
+    "overCard": "{{title}} är över {{other}}.",
+    "notOverCard": "{{title}} är inte längre över ett kort.",
+    "moved": "{{title}} flyttades dit {{other}} var.",
+    "dropped": "{{title}} släpptes.",
+    "cancelled": "Flytten av {{title}} avbröts.",
+    "move": "Flytta {{title}}",
+    "moveUp": "Flytta {{title}} upp",
+    "moveDown": "Flytta {{title}} ned",
+    "makeHalf": "Gör {{title}} halv bredd",
+    "makeFull": "Gör {{title}} full bredd",
+    "remove": "Ta bort {{title}}",
+    "nothingToShow": "Inget att visa på den här servern just nu.",
+    "addDialogTitle": "Lägg till ett kort",
+    "addDialogDescription": "Kort läggs till i slutet; dra dem dit du vill ha dem.",
+    "allAddedTitle": "Alla kort finns på din översikt",
+    "allAddedDescription": "Ta bort ett för att lägga till det igen senare.",
+    "addCard": "Lägg till {{title}}",
+    "add": "Lägg till",
+    "editHint": "Dra korten i handtaget, eller använd pilarna. Ändringarna sparas när du trycker på Klar.",
+    "addCardButton": "Lägg till kort",
+    "reset": "Återställ",
+    "cancel": "Avbryt",
+    "done": "Klar",
+    "customize": "Anpassa",
+    "emptyTitle": "Din översikt är tom",
+    "emptyDescription": "Lägg till kort, eller återställ till standardlayouten.",
+    "dragInstructions": "Flytta ett kort genom att trycka på mellanslag eller Enter, använd piltangenterna och tryck sedan på mellanslag eller Enter igen för att släppa det, eller Escape för att avbryta."
+  },
+  "stats": {
+    "used": "Använt",
+    "download": "Nedladdning",
+    "upload": "Uppladdning",
+    "read": "Läs",
+    "write": "Skriv",
+    "util": "Belastn.",
+    "unavailableTitle": "Statistik i realtid är inte tillgänglig",
+    "unavailableDescription": "Servern returnerade ingen värdstatistik.",
+    "coresThreads": "{{cores}} kärnor · {{threads}} trådar",
+    "cores_one": "{{count}} kärna",
+    "cores_other": "{{count}} kärnor",
+    "coresLoad": "{{cores}} · belastning {{load}}",
+    "liveLabel": "Värdstatistik i realtid",
+    "system": "System",
+    "live": "Live",
+    "reconnecting": "Återansluter",
+    "chartRange": "Diagramintervall",
+    "range5m": "5 min",
+    "range1h": "1 timme",
+    "memory": "Minne",
+    "memUsed": "{{used}} använt",
+    "memUsedSwap": "{{used}} använt · växlingsminne {{swap}}",
+    "network": "Nätverk",
+    "diskActivity": "Diskaktivitet",
+    "readRate": "L {{rate}}",
+    "writeRate": "S {{rate}}",
+    "gpuCount_one": "{{count}} GPU",
+    "gpuCount_other": "{{count}} GPU:er",
+    "noGpu": "ingen GPU rapporterad",
+    "vramOf": "{{used}} av {{total}}"
+  },
+  "power": {
+    "title": "Ström",
+    "description": "Raspberry Pi-ström och strypning",
+    "problemNow": "Problem nu",
+    "ok": "OK",
+    "flagNow": "{{label}} nu",
+    "flagSinceBoot": "{{label}} sedan start",
+    "none": "Ingen underspänning eller strypning sedan servern startade.",
+    "flags": {
+      "underVoltage": {
+        "label": "Underspänning",
+        "hint": "Nätadaptern eller kabeln räcker inte till. Använd den officiella adaptern och en kort, tjock kabel."
+      },
+      "throttled": {
+        "label": "Strypt",
+        "hint": "CPU:n bromsas ned för att skydda sig själv."
+      },
+      "freqCapped": {
+        "label": "Frekvensbegränsad",
+        "hint": "Firmware sänkte CPU:ns maxhastighet."
+      },
+      "softTempLimit": {
+        "label": "Mjuk temperaturgräns",
+        "hint": "CPU:n närmar sig sin temperaturgräns. Kontrollera kylningen."
+      }
+    }
+  },
+  "remote": {
+    "title": "Fjärråtkomst",
+    "description": "Nå Athena utanför ditt nätverk.",
+    "settings": "Inställningar",
+    "loadError": "Det gick inte att läsa in fjärråtkomst: {{error}}",
+    "off": "Av. Slå på det under Inställningar → System för att nå Athena utanför ditt nätverk.",
+    "running": "Körs",
+    "notRunning": "Körs inte",
+    "noProvider": "Ingen leverantör",
+    "warning": "Terminalen, paketinstallationer och assistenten kan nås från internet med ett enda lösenord. <link>Stäng av dem</link> om du inte behöver dem på distans.",
+    "publicAddress": "Offentlig adress",
+    "copyAddress": "Kopiera offentlig adress",
+    "copied": "Adressen kopierades",
+    "copyFailed": "Det gick inte att kopiera"
+  },
+  "storage": {
+    "title": "Lagring",
+    "description": "Diskar, mappar, moln och nätverksdelningar",
+    "noDisks": "Inga diskar rapporterade än.",
+    "diskUsage": "{{used}} av {{total}}",
+    "folders": "Mappar",
+    "unavailable": "Inte tillgänglig",
+    "cloud": "Molnlagring",
+    "shares": "Nätverksdelningar",
+    "readOnly": "Skrivskyddad"
+  },
+  "temperatures": {
+    "title": "Temperaturer",
+    "description": "Hårdvarusensorer"
+  },
+  "layout": {
+    "saveFailed": "Det gick inte att spara översikten",
+    "saved": "Översikten sparades"
+  },
+  "server": {
+    "title": "Server",
+    "description": "Maskinen Athena körs på",
+    "unreachableTitle": "Det går inte att nå Athena-servern",
+    "unreachableDescription": "{{error}}. Under utveckling startar du den med <code>uv run athena serve --reload</code> i <code>apps/server</code>.",
+    "host": "Värd",
+    "os": "Operativsystem",
+    "platform": "Plattform",
+    "uptime": "Drifttid",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Ansluter…",
+    "unreachable": "Servern kan inte nås",
+    "version": "Athena {{version}}"
+  }
+}

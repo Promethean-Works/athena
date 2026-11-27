@@ -1,0 +1,106 @@
+{
+  "save": "保存",
+  "cancel": "キャンセル",
+  "close": "閉じる",
+  "loading": "読み込み中…",
+  "back": "戻る",
+  "delete": "削除",
+  "log": {
+    "empty": "出力はまだありません。",
+    "copy": "ログをコピー",
+    "title": "ログ",
+    "copied": "ログをコピーしました",
+    "copyFailed": "コピーできませんでした"
+  },
+  "capabilities": {
+    "title": "機能",
+    "summary": "{{total}} 件中 {{ready}} 件が利用可能です。機能は動作できる環境でのみ表示されます。",
+    "loadingSummary": "Athena がこのホストで検出した内容です。",
+    "redetect": "再検出",
+    "loadFailed": "機能を読み込めませんでした: {{error}}",
+    "details": "詳細",
+    "status": {
+      "ready": "利用可能",
+      "stopped": "停止中",
+      "missing": "未インストール",
+      "unsupported": "非対応",
+      "needs_privilege": "root 権限が必要"
+    }
+  },
+  "job": {
+    "working": "処理中… 閉じても処理は続行されます。",
+    "done": "完了しました。",
+    "connectionLost": "ジョブとの接続が失われました。",
+    "progress": "進行状況",
+    "finishing": " · 終了処理中…",
+    "cancel": "ジョブをキャンセル",
+    "stopFailed": "停止できませんでした"
+  },
+  "restart": {
+    "title": "Athena を再起動しますか？",
+    "description": "実行中のジョブは停止します。ページは数秒で再接続されます。アプリは実行され続けます。",
+    "confirm": "再起動",
+    "failed": "Athena を再起動できませんでした",
+    "waitingTitle": "Athena を再起動中…",
+    "waitingBody": "Athena が戻るとこのページが再読み込みされます。"
+  },
+  "update": {
+    "notBackYet": "Athena はまだ戻っていません",
+    "reload": "ページを再読み込み",
+    "notice": {
+      "title": "Athena {{latest}} が利用可能です",
+      "runs": "このサーバーは {{current}} を実行しています。",
+      "whatsNew": "新機能を見る"
+    },
+    "action": {
+      "updateNow": "今すぐアップデート",
+      "cannotSelf": "この Athena は自己アップデートできません",
+      "howTo": "{{reason}}。アップグレードするには、サーバーで次のコマンドを実行してください（新バージョンをインストールして Athena を再起動します。データと設定は保持されます）:",
+      "commandLabel": "アップグレードコマンド"
+    },
+    "interrupted": {
+      "title": "前回のアップデートが完了しませんでした",
+      "body": "{{from}} から {{to}} へのアップデートが開始されましたが、結果が報告されませんでした（ホストの電源が切れたか、アップデートが中断された可能性があります）。Athena は起動していますが、想定しているバージョンか確認してください。アップデートログはデータフォルダー (logs/update.log) にあります。インストールを修復するには、サーバーで README のインストーラーコマンドを実行してください。",
+      "dismiss": "閉じる",
+      "oldVersion": "旧バージョン",
+      "newVersion": "新バージョン"
+    },
+    "dialog": {
+      "steps": "アップデートの手順",
+      "stepPrepare": "リリースをダウンロードして確認",
+      "stepSwap": "Athena を停止し、インストールして再起動",
+      "stepCheck": "新バージョンの応答を待機",
+      "newVersion": "新バージョン",
+      "oldVersion": "旧バージョン",
+      "updated": "{{to}} にアップデートしました",
+      "reloading": "ページを再読み込み中…",
+      "rolledBackTitle": "{{to}} へのアップデートに失敗しました。{{from}} のままです",
+      "rolledBackBody": "Athena は元のバージョンに戻り、データもアップデート前の状態です。",
+      "reason": " 理由: {{reason}}",
+      "abortedTitle": "{{to}} へのアップデートは中断されました",
+      "failedTitle": "{{to}} へのアップデートに失敗し、Athena は実行されていません",
+      "abortedBody": "何もインストールされていません。Athena を再度起動するか、README のインストーラーコマンドを実行してください。",
+      "failedBody": "修復するには、サーバーで README のインストーラーコマンドを実行してください。",
+      "back": "Athena が戻りました",
+      "backBody": "ページを再読み込みして、実行中のバージョンを確認してください。",
+      "confirmTitle": "Athena をアップデートしますか？",
+      "notStartedTitle": "アップデートを開始できませんでした",
+      "preparingTitle": "アップデートを準備中",
+      "versions": "Athena {{current}} から {{latest}} へ。",
+      "confirmBody": "Athena は 1～2 分間再起動し、ページが再接続されます。アプリとコンテナは実行され続けます。新バージョンが起動しない場合は、このバージョンに戻ります。",
+      "stopsTitle": "Athena の再起動時に次のものが停止します:",
+      "terminals_other": "開いているターミナル {{count}} 件",
+      "backupFirst": "先に Athena をバックアップ",
+      "backupFirstHelp": "何かを停止する前に、バックアッププラン「{{plan}}」で Athena の設定とデータを保存します。アプリには影響しません。",
+      "notChanged": "{{error}}。何も変更されておらず、Athena は引き続き {{current}} を実行しています。",
+      "prepareFailed": "アップデートを準備できませんでした",
+      "updateAnyway": "このままアップデート",
+      "update": "アップデート",
+      "restarting": "再起動中…",
+      "updatingTo": "{{latest}} にアップデート中です。Athena が戻るとこのページが再読み込みされます。",
+      "lateBody": "ホストが遅い場合は時間がかかることがあります。停止したままの場合は、データフォルダーのアップデートログ (logs/update.log) を確認してください。"
+    }
+  },
+  "restartLateBody": "ホストが遅い場合は時間がかかることがあります。停止したままの場合は、データフォルダーのログ (logs/athena.log) を確認してください。",
+  "toggleSidebar": "サイドバーを切り替え"
+}

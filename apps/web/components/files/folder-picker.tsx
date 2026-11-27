@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { useLatest } from "@/hooks/use-latest"
 import { ArrowUpIcon, CloudIcon, FolderIcon, HardDriveIcon } from "lucide-react"
@@ -93,6 +94,7 @@ export function FolderPicker({
   /** Whether the current folder could be listed (false on an error). */
   onStatus?: (ok: boolean | null) => void
 }) {
+  const { t } = useTranslation("files")
   const [folders, setFolders] = React.useState<string[] | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const key = sourceKey(value.source)
@@ -142,7 +144,7 @@ export function FolderPicker({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {remoteItems.length ? <SelectLabel>Locations</SelectLabel> : null}
+              {remoteItems.length ? <SelectLabel>{t("picker.locations")}</SelectLabel> : null}
               {localItems.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
@@ -151,7 +153,7 @@ export function FolderPicker({
             </SelectGroup>
             {remoteItems.length ? (
               <SelectGroup>
-                <SelectLabel>Cloud</SelectLabel>
+                <SelectLabel>{t("picker.cloud")}</SelectLabel>
                 {remoteItems.map((item) => (
                   <SelectItem key={item.value} value={item.value}>
                     {item.label}
@@ -167,7 +169,7 @@ export function FolderPicker({
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Up one folder"
+            aria-label={t("picker.upOne")}
             disabled={!value.path}
             onClick={() => onChange({ ...value, path: parentOf(value.path) })}
           >
@@ -183,7 +185,9 @@ export function FolderPicker({
           ) : error ? (
             <p className="p-2 text-sm text-destructive">{error}</p>
           ) : folders.length === 0 ? (
-            <p className="p-2 text-sm text-muted-foreground">No folders here.</p>
+            <p className="p-2 text-sm text-muted-foreground">
+              {t("picker.noFolders")}
+            </p>
           ) : (
             folders.map((name) => {
               const next = { ...value, path: joinPath(value.path, name) }

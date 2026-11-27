@@ -1,0 +1,268 @@
+{
+  "common": {
+    "manage": "管理"
+  },
+  "cardShell": {
+    "open": "開啟"
+  },
+  "cards": {
+    "stats": {
+      "title": "系統",
+      "description": "即時 CPU、記憶體、網路與磁碟活動。"
+    },
+    "apps": {
+      "title": "應用程式",
+      "description": "你的應用程式、其狀態與「開啟」按鈕。"
+    },
+    "containers": {
+      "title": "容器",
+      "description": "執行中與已停止的數量，以及需要留意的容器。"
+    },
+    "automation": {
+      "title": "自動化",
+      "description": "下次排程執行時間與近期執行結果。"
+    },
+    "storage": {
+      "title": "儲存空間",
+      "description": "各磁碟的已用空間。"
+    },
+    "server": {
+      "title": "伺服器",
+      "description": "主機名稱、作業系統、運作時間與版本。"
+    },
+    "temperatures": {
+      "title": "溫度",
+      "description": "感測器讀數（主機有回報時）。"
+    },
+    "power": {
+      "title": "電源",
+      "description": "Raspberry Pi 的電壓不足與降頻狀況。"
+    },
+    "activity": {
+      "title": "近期活動",
+      "description": "稽核記錄中的最新變更（僅限管理員）。"
+    },
+    "remoteAccess": {
+      "title": "遠端存取",
+      "description": "通道狀態與公開位址。"
+    },
+    "capabilities": {
+      "title": "功能支援",
+      "description": "Athena 在此主機上找到的項目。"
+    },
+    "backups": {
+      "title": "備份",
+      "description": "備份計畫、上次執行與下次排程執行。"
+    }
+  },
+  "activity": {
+    "title": "近期活動",
+    "description": "誰在這台伺服器上變更了什麼。",
+    "loadError": "無法載入近期活動：{{error}}",
+    "empty": "目前沒有內容。對應用程式、容器與檔案的操作會顯示在這裡。",
+    "by": "由 {{username}}"
+  },
+  "automation": {
+    "title": "自動化",
+    "description": "排程與 webhook 觸發器，以及其執行結果。",
+    "succeeded": "成功",
+    "failed": "失敗",
+    "loadError": "無法載入自動化：{{error}}",
+    "noTriggers": "尚無觸發器。建立一個，即可依排程重新啟動應用程式或更新套件。",
+    "nextRuns": "下次執行 · 已啟用 {{enabled}} / {{total}} 個觸發器",
+    "nothingScheduled": "沒有排程。Webhook 觸發器會在被呼叫時執行。",
+    "recentRuns": "近期執行",
+    "noRuns": "尚無執行紀錄。",
+    "deletedTrigger": "已刪除的觸發器"
+  },
+  "backup": {
+    "title": "備份",
+    "description": "備份計畫、上次執行與下次排程執行。",
+    "succeeded": "成功",
+    "failed": "失敗",
+    "running": "執行中",
+    "loadError": "無法載入備份計畫：{{error}}",
+    "empty": "尚無備份計畫。請到「設定」→「備份」新增。",
+    "plans": "計畫",
+    "enabled": "已啟用",
+    "plansFailed_other": "{{count}} 個計畫失敗",
+    "noFailures": "近期沒有失敗",
+    "nextRuns": "下次排程執行",
+    "noScheduled": "沒有排程執行"
+  },
+  "containers": {
+    "title": "容器",
+    "description": "容器引擎執行的所有項目，包括應用程式。",
+    "all": "所有容器",
+    "running": "執行中",
+    "notRunning": "未執行",
+    "needAttention": "需要留意",
+    "exited": "已結束（{{code}}）",
+    "loadError": "無法載入容器：{{error}}",
+    "empty": "這台伺服器上還沒有容器。",
+    "engineDown": "容器引擎未在執行。"
+  },
+  "apps": {
+    "title": "應用程式",
+    "subtitle": "這台伺服器上正在執行的項目",
+    "store": "商店",
+    "all": "所有應用程式",
+    "emptyTitle": "尚無應用程式",
+    "emptyDescription": "從商店安裝一個，或部署你自己的 compose 檔案。",
+    "browseStore": "瀏覽商店",
+    "status": {
+      "running": "執行中",
+      "partial": "部分執行中",
+      "stopped": "已停止",
+      "notDeployed": "尚未部署"
+    },
+    "containerCount_other": "{{count}} 個容器",
+    "actionsFor": "{{name}} 的動作",
+    "open": "開啟",
+    "openPort": "開啟 :{{port}}",
+    "details": "詳細資料",
+    "restart": "重新啟動",
+    "stop": "停止",
+    "start": "啟動",
+    "updateImages": "更新映像檔",
+    "remove": "移除"
+  },
+  "grid": {
+    "pickedUp": "已拿起「{{title}}」卡片。",
+    "overCard": "「{{title}}」位於「{{other}}」上方。",
+    "notOverCard": "「{{title}}」已不在任何卡片上方。",
+    "moved": "「{{title}}」已移到「{{other}}」原本的位置。",
+    "dropped": "已放下「{{title}}」。",
+    "cancelled": "已取消移動「{{title}}」。",
+    "move": "移動 {{title}}",
+    "moveUp": "上移 {{title}}",
+    "moveDown": "下移 {{title}}",
+    "makeHalf": "將 {{title}} 設為半寬",
+    "makeFull": "將 {{title}} 設為全寬",
+    "remove": "移除 {{title}}",
+    "nothingToShow": "這台伺服器目前沒有可顯示的內容。",
+    "addDialogTitle": "新增卡片",
+    "addDialogDescription": "卡片會加在最後；請將它們拖曳到想要的位置。",
+    "allAddedTitle": "所有卡片都已在你的儀表板上",
+    "allAddedDescription": "移除其中一張，之後即可再次新增。",
+    "addCard": "新增 {{title}}",
+    "add": "新增",
+    "editHint": "拖曳卡片的把手，或使用箭頭。按下「完成」時會儲存變更。",
+    "addCardButton": "新增卡片",
+    "reset": "重設",
+    "cancel": "取消",
+    "done": "完成",
+    "customize": "自訂",
+    "emptyTitle": "你的儀表板是空的",
+    "emptyDescription": "新增卡片，或重設為預設版面。",
+    "dragInstructions": "若要移動卡片，請按空白鍵或 Enter，使用方向鍵移動，再按空白鍵或 Enter 放下，或按 Esc 取消。"
+  },
+  "stats": {
+    "used": "已用",
+    "download": "下載",
+    "upload": "上傳",
+    "read": "讀取",
+    "write": "寫入",
+    "util": "使用率",
+    "unavailableTitle": "無法取得即時統計資料",
+    "unavailableDescription": "伺服器沒有回傳主機統計資料。",
+    "coresThreads": "{{cores}} 核心 · {{threads}} 執行緒",
+    "cores_other": "{{count}} 核心",
+    "coresLoad": "{{cores}} · 負載 {{load}}",
+    "liveLabel": "即時主機統計資料",
+    "system": "系統",
+    "live": "即時",
+    "reconnecting": "重新連線中",
+    "chartRange": "圖表範圍",
+    "range5m": "5 分鐘",
+    "range1h": "1 小時",
+    "memory": "記憶體",
+    "memUsed": "已用 {{used}}",
+    "memUsedSwap": "已用 {{used}} · 交換空間 {{swap}}",
+    "network": "網路",
+    "diskActivity": "磁碟活動",
+    "readRate": "讀 {{rate}}",
+    "writeRate": "寫 {{rate}}",
+    "gpuCount_other": "{{count}} 個 GPU",
+    "noGpu": "未回報 GPU",
+    "vramOf": "{{used}} / {{total}}"
+  },
+  "power": {
+    "title": "電源",
+    "description": "Raspberry Pi 電源與降頻",
+    "problemNow": "目前有問題",
+    "ok": "正常",
+    "flagNow": "目前：{{label}}",
+    "flagSinceBoot": "開機後曾發生：{{label}}",
+    "none": "這台伺服器開機後沒有發生電壓不足或降頻。",
+    "flags": {
+      "underVoltage": {
+        "label": "電壓不足",
+        "hint": "電源供應器或線材供電不足。請使用官方電源供應器，以及短而粗的線材。"
+      },
+      "throttled": {
+        "label": "降頻",
+        "hint": "CPU 為了自我保護而降低速度。"
+      },
+      "freqCapped": {
+        "label": "頻率受限",
+        "hint": "韌體降低了 CPU 的最高速度。"
+      },
+      "softTempLimit": {
+        "label": "軟性溫度上限",
+        "hint": "CPU 接近溫度上限。請檢查散熱。"
+      }
+    }
+  },
+  "remote": {
+    "title": "遠端存取",
+    "description": "從網路外部連線到 Athena。",
+    "settings": "設定",
+    "loadError": "無法載入遠端存取：{{error}}",
+    "off": "已關閉。請到「設定」→「系統」開啟，即可從網路外部連線到 Athena。",
+    "running": "執行中",
+    "notRunning": "未執行",
+    "noProvider": "沒有供應商",
+    "warning": "終端機、套件安裝與助理只靠一組密碼就能從網際網路存取。若不需要遠端使用，請<link>將它們關閉</link>。",
+    "publicAddress": "公開位址",
+    "copyAddress": "複製公開位址",
+    "copied": "已複製位址",
+    "copyFailed": "無法複製"
+  },
+  "storage": {
+    "title": "儲存空間",
+    "description": "磁碟、資料夾、雲端與網路分享",
+    "noDisks": "尚未回報任何磁碟。",
+    "diskUsage": "{{used}} / {{total}}",
+    "folders": "資料夾",
+    "unavailable": "無法使用",
+    "cloud": "雲端儲存",
+    "shares": "網路分享",
+    "readOnly": "唯讀"
+  },
+  "temperatures": {
+    "title": "溫度",
+    "description": "硬體感測器"
+  },
+  "layout": {
+    "saveFailed": "無法儲存儀表板",
+    "saved": "已儲存儀表板"
+  },
+  "server": {
+    "title": "伺服器",
+    "description": "Athena 所在的機器",
+    "unreachableTitle": "無法連線到 Athena 伺服器",
+    "unreachableDescription": "{{error}}。開發時，請在 <code>apps/server</code> 中以 <code>uv run athena serve --reload</code> 啟動。",
+    "host": "主機",
+    "os": "作業系統",
+    "platform": "平台",
+    "uptime": "運作時間",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "連線中…",
+    "unreachable": "無法連線到伺服器",
+    "version": "Athena {{version}}"
+  }
+}

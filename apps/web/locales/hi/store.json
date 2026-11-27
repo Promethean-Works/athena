@@ -1,0 +1,113 @@
+{
+  "support": {
+    "emulated": "एम्युलेटेड",
+    "emulatedTitle": "इस CPU के लिए कोई इमेज नहीं है; Docker दूसरी इमेज को एम्युलेशन में चलाता है, जो धीमा होता है",
+    "unsupported": "यहाँ नहीं चलेगा",
+    "unsupportedTitle": "इस सर्वर के CPU के लिए कोई इमेज नहीं"
+  },
+  "browser": {
+    "loadError": "स्टोर लोड नहीं हो सका",
+    "filteredCount": "{{total}} में से {{shown}} ऐप्स",
+    "totalCount_one": "{{count}} ऐप, जो एक कंपोज़ प्रोजेक्ट है जिसे Athena आपके लिए सेट करता है।",
+    "totalCount_other": "{{count}} ऐप्स, हर एक कंपोज़ प्रोजेक्ट है जिसे Athena आपके लिए सेट करता है।",
+    "browsePrompt": "इंस्टॉल करने के लिए ऐप्स ब्राउज़ करें।",
+    "searchPlaceholder": "ऐप्स खोजें",
+    "catalogs": "कैटलॉग",
+    "showingUnsupported_one": "{{count}} ऐप दिखाया जा रहा है जो इस सर्वर के CPU पर नहीं चल सकता।",
+    "showingUnsupported_other": "{{count}} ऐप्स दिखाए जा रहे हैं जो इस सर्वर के CPU पर नहीं चल सकते।",
+    "hiddenUnsupported_one": "{{count}} ऐप छिपा है क्योंकि इस सर्वर के CPU के लिए उसकी कोई इमेज नहीं है।",
+    "hiddenUnsupported_other": "{{count}} ऐप्स छिपे हैं क्योंकि इस सर्वर के CPU के लिए उनकी कोई इमेज नहीं है।",
+    "hideThem": "छिपाएँ",
+    "showThem": "दिखाएँ",
+    "all": "सभी",
+    "noMatchTitle": "कोई ऐप मेल नहीं खाता",
+    "noMatchHidden_one": "{{count}} मेल खाता ऐप छिपा है क्योंकि इस सर्वर के CPU के लिए उसकी कोई इमेज नहीं है।",
+    "noMatchHidden_other": "{{count}} मेल खाते ऐप्स छिपे हैं क्योंकि इस सर्वर के CPU के लिए उनकी कोई इमेज नहीं है।",
+    "noMatchHint": "कोई दूसरी खोज या श्रेणी आज़माएँ।",
+    "showMatches_one": "इसे दिखाएँ",
+    "showMatches_other": "इन्हें दिखाएँ"
+  },
+  "card": {
+    "installed": "इंस्टॉल किया हुआ"
+  },
+  "popular": {
+    "title": "अभी लोकप्रिय",
+    "subtitle": "वे ऐप्स जिनसे ज़्यादातर होम सर्वर शुरू होते हैं।",
+    "showPage": "{{total}} में से पेज {{page}} दिखाएँ"
+  },
+  "installForm": {
+    "generated": "खाली छोड़ने पर अपने आप बनेगा",
+    "nameInvalid": "छोटे अक्षर, अंक, डैश या अंडरस्कोर का उपयोग करें।",
+    "jobLabel": "{{title}} इंस्टॉल करें",
+    "appName": "ऐप का नाम",
+    "nameHint": "ज़रूरत हो तो एक ही ऐप को अलग-अलग नामों से दो बार इंस्टॉल करें।",
+    "advanced": "उन्नत सेटिंग्स",
+    "install": "{{title}} इंस्टॉल करें"
+  },
+  "view": {
+    "loadError": "यह ऐप लोड नहीं हो सका",
+    "notFound": "ऐप नहीं मिला",
+    "website": "वेबसाइट",
+    "alreadyInstalled": "पहले से इंस्टॉल है",
+    "installedAs": "नाम",
+    "installAnother": "आप दूसरे नाम से एक और कॉपी इंस्टॉल कर सकते हैं।",
+    "beforeYouStart": "शुरू करने से पहले",
+    "whatYouGet": "आपको क्या मिलेगा",
+    "details": "विवरण",
+    "category": "श्रेणी",
+    "license": "लाइसेंस",
+    "images": "इमेज",
+    "platforms": "प्लैटफ़ॉर्म",
+    "viewCompose": "compose.yaml देखें",
+    "reportPrompt": "उम्मीद के मुताबिक काम नहीं कर रहा?",
+    "install": "इंस्टॉल करें",
+    "installHint": "आपके जवाब सर्वर पर ऐप की .env फ़ाइल में, उसकी compose.yaml के बगल में सहेजे जाते हैं।",
+    "variant": "वेरिएंट",
+    "cannotInstall": "{{title}} इस सर्वर पर इंस्टॉल नहीं हो सकता: {{platform}} के लिए उसकी कोई इमेज नहीं है।",
+    "thisCpu": "इस CPU",
+    "thisServerCpu": "इस सर्वर के CPU",
+    "moreIn": "{{category}} में और",
+    "cpu": {
+      "unsupportedTitle": "इस सर्वर पर नहीं चलता",
+      "unsupportedBody": "इसकी इमेज {{published}} के लिए प्रकाशित हैं, और यह सर्वर {{host}} है।",
+      "emulatedTitle": "एम्युलेशन में चलता है",
+      "emulatedBody": "{{host}} के लिए कोई इमेज नहीं है, इसलिए Docker {{published}} वाली इमेज को एम्युलेशन में चलाता है। यह काम करता है, लेकिन धीमा है और ज़्यादा मेमोरी लेता है।"
+    },
+    "screenshot": {
+      "alt": "{{title}} का स्क्रीनशॉट",
+      "open": "{{title}} का बड़ा स्क्रीनशॉट खोलें",
+      "enlarge": "बड़ा करें",
+      "show": "स्क्रीनशॉट {{number}} दिखाएँ",
+      "description": "{{title}} का एक स्क्रीनशॉट।",
+      "close": "बंद करें"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "अपने आप पहचानें",
+    "kindAthena": "Athena कैटलॉग",
+    "never": "कभी नहीं",
+    "addFailed": "कैटलॉग जोड़ा नहीं जा सका",
+    "refreshFailed": "{{name}} रिफ़्रेश नहीं हो सका",
+    "removeFailed": "{{name}} हटाया नहीं जा सका",
+    "removed": "{{name}} हटा दिया गया",
+    "builtIn": "बिल्ट-इन",
+    "refreshFailedBadge": "रिफ़्रेश विफल",
+    "summaryBuiltin_one": "{{count}} ऐप · Athena के साथ आता है",
+    "summaryBuiltin_other": "{{count}} ऐप्स · Athena के साथ आते हैं",
+    "summaryUpdated_one": "{{count}} ऐप · {{when}} अपडेट किया गया",
+    "summaryUpdated_other": "{{count}} ऐप्स · {{when}} अपडेट किए गए",
+    "refresh": "रिफ़्रेश करें",
+    "removeLabel": "{{name}} हटाएँ",
+    "addTitle": "कैटलॉग जोड़ें",
+    "addDescription": "GitHub, Codeberg या GitLab रिपॉज़िटरी, या सीधा .tar.gz/.zip लिंक।",
+    "name": "नाम",
+    "namePlaceholder": "मेरे ऐप्स",
+    "format": "फ़ॉर्मैट",
+    "formatHint": "Athena कैटलॉग apps/<id>/compose.yaml का उपयोग करते हैं; CasaOS स्टोर Apps/<Name>/docker-compose.yml का।",
+    "add": "कैटलॉग जोड़ें",
+    "removeTitle": "{{name}} हटाएँ?",
+    "removeDescription": "इसके ऐप्स स्टोर से गायब हो जाते हैं। इससे पहले से इंस्टॉल किए गए ऐप्स चलते रहते हैं।",
+    "cancel": "रद्द करें",
+    "remove": "हटाएँ"
+  }
+}

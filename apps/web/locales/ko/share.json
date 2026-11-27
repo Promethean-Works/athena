@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "링크가 완전하지 않아요.",
+    "expiredTitle": "링크가 만료되었어요",
+    "notFoundTitle": "작동하지 않는 링크예요",
+    "errorTitle": "링크를 열 수 없어요",
+    "expiredDescription": "링크를 보낸 사람에게 새 링크를 요청하세요."
+  },
+  "unlock": {
+    "title": "비밀번호가 걸린 링크예요",
+    "description": "공유된 내용을 보려면 비밀번호를 입력하세요.",
+    "password": "비밀번호",
+    "open": "열기"
+  },
+  "file": {
+    "fallbackName": "파일",
+    "download": "다운로드"
+  },
+  "dropBox": {
+    "title": "{{name}}에게 파일 보내기",
+    "description": "추가한 파일은 바로 업로드돼요. 다른 사람이 보낸 파일은 볼 수 없고, 보낸 파일이 다른 파일을 덮어쓰지도 않아요.",
+    "drop": "파일을 여기에 놓거나,",
+    "choose": "파일 선택"
+  },
+  "folder": {
+    "downloadAll": "모두 다운로드",
+    "cantOpen": "폴더를 열 수 없어요",
+    "empty": "폴더가 비어 있어요.",
+    "columnName": "이름",
+    "columnSize": "크기",
+    "columnModified": "수정한 날짜",
+    "columnDownload": "다운로드",
+    "downloadEntry": "{{name}} 다운로드",
+    "download": "다운로드"
+  }
+}

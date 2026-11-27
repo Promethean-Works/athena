@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Adresa tunelu",
+    "description": "Otevřete Athena zvenčí vaší sítě, nebo naskenujte kód telefonem.",
+    "publicAddress": "Veřejná adresa",
+    "notRunning": "Tunel neběží.",
+    "startInSettings": "Spusťte ho v Nastavení."
+  },
+  "qr": {
+    "title": "QR kód adresy tunelu"
+  }
+}

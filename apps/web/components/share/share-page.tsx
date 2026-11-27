@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import {
   DownloadIcon,
   FileIcon,
@@ -42,6 +43,7 @@ import { shareTransport, useUploads } from "@/components/files/use-uploads"
 import { SharedFolder } from "@/components/share/shared-folder"
 import { MediaPreview, shareDownloadUrl } from "@/components/share/share-utils"
 import { formatBytes } from "@/lib/format"
+import i18n from "@/lib/i18n"
 
 type PublicShare = Schemas["PublicShare"]
 type State =
@@ -57,6 +59,7 @@ function tokenFromPath(): string {
 
 /** What /s/<token> shows: a password prompt, a file, a folder, or a drop box. */
 export function SharePage() {
+  const { t: tr } = useTranslation("share")
   const [token, setToken] = React.useState<string | null>(null)
   const [state, setState] = React.useState<State>({ status: "loading" })
 
@@ -65,7 +68,7 @@ export function SharePage() {
       setState({
         status: "error",
         code: 404,
-        message: "This link is incomplete.",
+        message: i18n.t("share:page.incomplete"),
       })
       return
     }
@@ -100,14 +103,14 @@ export function SharePage() {
           </EmptyMedia>
           <EmptyTitle>
             {state.code === 410
-              ? "This link has expired"
+              ? tr("page.expiredTitle")
               : state.code === 404
-                ? "This link doesn't work"
-                : "Couldn't open this link"}
+                ? tr("page.notFoundTitle")
+                : tr("page.errorTitle")}
           </EmptyTitle>
           <EmptyDescription>
             {state.code === 410
-              ? "Ask whoever sent it for a new one."
+              ? tr("page.expiredDescription")
               : state.message}
           </EmptyDescription>
         </EmptyHeader>
@@ -134,6 +137,7 @@ function Unlock({
   token: string
   onUnlocked: () => void
 }) {
+  const { t } = useTranslation("share")
   const [password, setPassword] = React.useState("")
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -156,15 +160,17 @@ function Unlock({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <LockIcon className="size-4" />
-          This link has a password
+          {t("unlock.title")}
         </CardTitle>
-        <CardDescription>Enter it to see what&apos;s shared.</CardDescription>
+        <CardDescription>{t("unlock.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={submit}>
           <FieldGroup>
             <Field data-invalid={error ? true : undefined}>
-              <FieldLabel htmlFor="share-password">Password</FieldLabel>
+              <FieldLabel htmlFor="share-password">
+                {t("unlock.password")}
+              </FieldLabel>
               <Input
                 id="share-password"
                 type="password"
@@ -178,7 +184,7 @@ function Unlock({
             </Field>
             <Button type="submit" disabled={pending || !password}>
               {pending ? <Spinner /> : null}
-              Open
+              {t("unlock.open")}
             </Button>
           </FieldGroup>
         </form>
@@ -188,8 +194,9 @@ function Unlock({
 }
 
 function SharedFile({ token, share }: { token: string; share: PublicShare }) {
+  const { t } = useTranslation("share")
   const entry: FileEntry = {
-    name: share.name ?? "file",
+    name: share.name ?? t("file.fallbackName"),
     path: "",
     kind: "file",
     size: share.size,
@@ -219,7 +226,7 @@ function SharedFile({ token, share }: { token: string; share: PublicShare }) {
           render={<a href={shareDownloadUrl(token, "")} download />}
         >
           <DownloadIcon />
-          Download
+          {t("file.download")}
         </Button>
       </CardContent>
     </Card>
@@ -227,6 +234,7 @@ function SharedFile({ token, share }: { token: string; share: PublicShare }) {
 }
 
 function DropBox({ token, share }: { token: string; share: PublicShare }) {
+  const { t } = useTranslation("share")
   const transport = React.useMemo(() => shareTransport(token), [token])
   const uploads = useUploads(() => {}, transport)
   const input = React.useRef<HTMLInputElement>(null)
@@ -239,10 +247,9 @@ function DropBox({ token, share }: { token: string; share: PublicShare }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Send files to {share.name}</CardTitle>
+        <CardTitle>{t("dropBox.title", { name: share.name })}</CardTitle>
         <CardDescription>
-          Files you add are uploaded right away. You can&apos;t see what others
-          have sent, and nothing you send replaces another file.
+          {t("dropBox.description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -263,10 +270,10 @@ function DropBox({ token, share }: { token: string; share: PublicShare }) {
           }}
         >
           <FileIcon className="size-8" />
-          <p>Drop files here, or</p>
+          <p>{t("dropBox.drop")}</p>
           <Button onClick={() => input.current?.click()}>
             <UploadIcon />
-            Choose files
+            {t("dropBox.choose")}
           </Button>
           <input
             ref={input}

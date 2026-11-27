@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { TriangleAlertIcon, XIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { api } from "@workspace/api-client"
 import {
@@ -17,6 +18,7 @@ import { useApi } from "@/hooks/use-api"
 const KEY = "athena.update-interrupted"
 
 function Banner({ from, to, id }: { from: string; to: string; id: string }) {
+  const { t } = useTranslation()
   const [hidden, setHidden] = React.useState(
     () => window.localStorage.getItem(KEY) === id
   )
@@ -24,14 +26,10 @@ function Banner({ from, to, id }: { from: string; to: string; id: string }) {
   return (
     <Alert variant="destructive">
       <TriangleAlertIcon />
-      <AlertTitle>The last update didn&apos;t finish</AlertTitle>
+      <AlertTitle>{t("update.interrupted.title")}</AlertTitle>
       <AlertDescription className="flex flex-col gap-3">
         <p>
-          An update from {from} to {to} started but never reported back (the
-          host may have lost power, or the update was stopped). Athena is up,
-          but check that it&apos;s the version you expect. The update log is in
-          the data folder (logs/update.log). To repair an install, run the
-          installer command from the README on the server.
+          {t("update.interrupted.body", { from, to })}
         </p>
         <Button
           variant="outline"
@@ -43,7 +41,7 @@ function Banner({ from, to, id }: { from: string; to: string; id: string }) {
           }}
         >
           <XIcon data-icon="inline-start" />
-          Dismiss
+          {t("update.interrupted.dismiss")}
         </Button>
       </AlertDescription>
     </Alert>
@@ -62,13 +60,14 @@ export function UpdateInterrupted() {
 }
 
 function InterruptedForAdmin() {
+  const { t } = useTranslation()
   const status = useApi(() => api.GET("/api/system/update/status"))
   if (status.status !== "ok" || status.data.phase !== "interrupted") return null
   const { from_version, to_version, started_at } = status.data
   return (
     <Banner
-      from={from_version ?? "the old version"}
-      to={to_version ?? "the new one"}
+      from={from_version ?? t("update.interrupted.oldVersion")}
+      to={to_version ?? t("update.interrupted.newVersion")}
       id={`${from_version}>${to_version}@${started_at}`}
     />
   )

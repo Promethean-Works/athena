@@ -1,0 +1,139 @@
+{
+  "title": "Asisten",
+  "sheet": {
+    "description": "Mengobrol dengan asisten AI tentang server ini.",
+    "openFullPage": "Buka halaman penuh"
+  },
+  "chat": {
+    "newChat": "Obrolan baru",
+    "chats": "Obrolan",
+    "noChats": "Belum ada obrolan.",
+    "deleteChat": "Hapus {{title}}",
+    "thinking": "Berpikir…",
+    "stillWorking": "Masih menyiapkan balasan. Balasan muncul di sini setelah selesai.",
+    "emptyTitle": "Tanyakan tentang server ini",
+    "emptyDescription": "Asisten dapat melihat aplikasi, log, file, dan statistik sistem, serta memasang atau mengubah sesuatu setelah Anda menyetujui setiap aksi.",
+    "suggestions": {
+      "capabilities": "Apa yang dapat dilakukan server ini?",
+      "disk": "Berapa sisa ruang disk?",
+      "apps": "Aplikasi apa yang berjalan?"
+    },
+    "message": "Pesan",
+    "placeholder": "Tanyakan tentang server ini…",
+    "placeholderWaiting": "Jawab di atas, atau kirim pesan untuk melewatinya…",
+    "stop": "Hentikan",
+    "send": "Kirim",
+    "pickModelFirst": "Pilih model terlebih dahulu",
+    "changeModelFailed": "Tidak dapat mengganti model",
+    "startFailed": "Tidak dapat memulai obrolan",
+    "deleteFailed": "Tidak dapat menghapus obrolan",
+    "failed": "Asisten gagal"
+  },
+  "noProviders": {
+    "title": "Siapkan model terlebih dahulu",
+    "description": "Asisten memerlukan penyedia AI: penyedia cloud dengan kunci API, atau Ollama yang berjalan di perangkat Anda sendiri.",
+    "openSettings": "Buka Pengaturan → AI"
+  },
+  "model": {
+    "pick": "Pilih model",
+    "label": "Model: {{label}}",
+    "search": "Cari atau ketik id model",
+    "noMatch": "Tidak ada model yang cocok.",
+    "addProvider": "Tambahkan penyedia di Pengaturan → AI terlebih dahulu.",
+    "noTools": "tidak dapat memakai alat",
+    "use": "Gunakan “{{model}}”"
+  },
+  "plan": {
+    "title": "Rencana",
+    "progress": "{{done}} dari {{total}} selesai",
+    "steps": "Langkah rencana",
+    "status": {
+      "pending": "menunggu",
+      "in_progress": "berlangsung",
+      "completed": "selesai",
+      "cancelled": "dibatalkan",
+      "blocked": "terblokir"
+    }
+  },
+  "spend": {
+    "usage": "Penggunaan obrolan ini",
+    "usageWith": "Penggunaan obrolan ini: {{label}}",
+    "unknownPrices": "Harga model ini tidak diketahui, sehingga hanya token yang dihitung.",
+    "estimate": "Perkiraan dari harga yang dipublikasikan model.",
+    "ofLimit": "{{spent}} dari {{limit}}",
+    "spent": "Terpakai",
+    "unknown": "Tidak diketahui",
+    "inputTokens": "Token input",
+    "outputTokens": "Token output",
+    "tokens_other": "{{formatted}} token",
+    "limitReached": "Obrolan ini mencapai batas biayanya. Mulai obrolan baru, atau naikkan batas di <settings>Pengaturan → AI</settings>.",
+    "limitNotApplicable": "Batas biaya ({{limit}}) tidak dapat diterapkan pada model ini."
+  },
+  "steps": {
+    "thinking": "Berpikir",
+    "thought": "Berpikir",
+    "draft": "Draf pertama, direvisi di bawah",
+    "approvalNeeded": "Perlu persetujuan: {{title}}",
+    "run": "Jalankan {{name}}",
+    "approvalIntro": "Asisten ingin melakukan ini. Tidak ada yang terjadi sampai Anda menyetujui.",
+    "deny": "Tolak",
+    "approve": "Setujui",
+    "approvedGoOn": "Disetujui. Jawab kartu lain untuk melanjutkan.",
+    "deniedGoOn": "Ditolak. Jawab kartu lain untuk melanjutkan.",
+    "logGone": "Log itu sudah tidak ada",
+    "log": "Log",
+    "denied": "Ditolak: {{title}}",
+    "failed": "Gagal: {{title}}",
+    "running": "Menjalankan {{name}}",
+    "ran": "Menjalankan {{name}} selesai",
+    "withSubject": "{{title}} untuk {{subject}}",
+    "helperRunningTask": "Pembantu sedang menyelidiki: {{task}}",
+    "helperDoneTask": "Pembantu telah menyelidiki: {{task}}",
+    "helperRunning": "Pembantu sedang mencari informasi",
+    "helperDone": "Pembantu telah mencari informasi",
+    "tools": {
+      "getCapabilities": {
+        "running": "Memeriksa kemampuan server ini",
+        "done": "Memeriksa kemampuan server ini selesai"
+      },
+      "getSystemStats": { "running": "Membaca statistik sistem", "done": "Membaca statistik sistem selesai" },
+      "listApps": { "running": "Menampilkan daftar aplikasi", "done": "Menampilkan daftar aplikasi selesai" },
+      "appLogs": { "running": "Membaca log aplikasi", "done": "Membaca log aplikasi selesai" },
+      "listFileLocations": { "running": "Menampilkan lokasi file", "done": "Menampilkan lokasi file selesai" },
+      "listFiles": { "running": "Menampilkan daftar file", "done": "Menampilkan daftar file selesai" },
+      "readFile": { "running": "Membaca file", "done": "Membaca file selesai" },
+      "writeFile": { "running": "Menulis file", "done": "Menulis file selesai" },
+      "editFile": { "running": "Mengedit file", "done": "Mengedit file selesai" },
+      "listDirectory": { "running": "Menampilkan isi folder", "done": "Menampilkan isi folder selesai" },
+      "createDirectory": { "running": "Membuat folder", "done": "Membuat folder selesai" },
+      "searchStore": { "running": "Mencari di toko aplikasi", "done": "Mencari di toko aplikasi selesai" },
+      "readToolResult": { "running": "Membaca hasil alat tersimpan", "done": "Membaca hasil alat tersimpan selesai" },
+      "askUserQuestion": { "running": "Menunggu jawaban Anda", "done": "Bertanya kepada Anda" },
+      "advisor": { "running": "Bertanya kepada penasihat", "done": "Bertanya kepada penasihat selesai" },
+      "runWorkflow": {
+        "running": "Pembantu mencari informasi bersama",
+        "done": "Pembantu telah mencari informasi bersama"
+      },
+      "getStoreApp": { "running": "Membaca aplikasi toko", "done": "Membaca aplikasi toko selesai" },
+      "listPackageManagers": { "running": "Menampilkan pengelola paket", "done": "Menampilkan pengelola paket selesai" },
+      "searchPackages": { "running": "Mencari paket", "done": "Mencari paket selesai" },
+      "listUpgradablePackages": {
+        "running": "Memeriksa pembaruan paket",
+        "done": "Memeriksa pembaruan paket selesai"
+      }
+    }
+  },
+  "question": {
+    "title": "Pertanyaan",
+    "asks": "Asisten bertanya: {{title}}",
+    "intro": "Asisten bertanya sebelum melanjutkan. Jangan pernah menjawab dengan kata sandi atau kunci.",
+    "ownAnswerLabel": "Jawaban Anda sendiri untuk {{header}}",
+    "ownAnswerPlaceholder": "Atau ketik jawaban Anda sendiri",
+    "skip": "Lewati",
+    "send": "Kirim jawaban",
+    "skippedGoOn": "Dilewati. Jawab kartu lain untuk melanjutkan.",
+    "answeredGoOn": "Dijawab. Jawab kartu lain untuk melanjutkan.",
+    "youAnswered": "Anda menjawab: {{answers}}",
+    "youSkipped": "Anda melewati pertanyaan"
+  }
+}

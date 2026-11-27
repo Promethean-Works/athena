@@ -1,0 +1,119 @@
+{
+  "add": "Adicionar",
+  "cancel": "Cancelar",
+  "back": "Voltar",
+  "errors": {
+    "listDestinations": "Não foi possível listar os destinos de backup",
+    "createDestination": "Não foi possível criar o destino",
+    "deleteDestination": "Não foi possível excluir o destino",
+    "listPlans": "Não foi possível listar os planos de backup",
+    "createPlan": "Não foi possível criar o plano",
+    "updatePlan": "Não foi possível atualizar o plano",
+    "deletePlan": "Não foi possível excluir o plano",
+    "startBackup": "Não foi possível iniciar o backup",
+    "listVersions": "Não foi possível listar as versões do backup",
+    "listVersionFiles": "Não foi possível listar os arquivos da versão",
+    "restoreApp": "Não foi possível restaurar o app"
+  },
+  "toast": {
+    "destinationCreated": "Destino \"{{name}}\" criado",
+    "planCreated": "Plano \"{{name}}\" criado",
+    "planUpdated": "Plano \"{{name}}\" atualizado",
+    "backupStarted": "Backup \"{{name}}\" iniciado"
+  },
+  "view": {
+    "unavailable": "Os backups não estão disponíveis",
+    "unsupported": "Este host não suporta backups.",
+    "tabs": {
+      "versions": "Versões",
+      "destinations": "Destinos",
+      "plans": "Planos"
+    }
+  },
+  "destinations": {
+    "title": "Destinos",
+    "name": "Nome",
+    "kind": "Tipo",
+    "location": "Local",
+    "created": "Criado em",
+    "empty": {
+      "title": "Nenhum destino ainda",
+      "description": "Um destino é uma pasta ou um remoto do rclone onde os backups são guardados. Adicione um para começar a fazer backup."
+    }
+  },
+  "plans": {
+    "title": "Planos",
+    "name": "Nome",
+    "schedule": "Agendamento",
+    "lastRun": "Última execução",
+    "status": "Status",
+    "manual": "manual",
+    "runNow": "Executar agora",
+    "empty": {
+      "title": "Nenhum plano ainda",
+      "description": "Um plano escolhe o Athena, apps, um destino e um agendamento, e depois executa sozinho no horário."
+    }
+  },
+  "versions": {
+    "title": "Versões",
+    "refresh": "Atualizar",
+    "time": "Data e hora",
+    "size": "Tamanho",
+    "new": "Novo",
+    "added": "Adicionados",
+    "changed": "Alterados",
+    "removed": "Removidos",
+    "os": "SO",
+    "viewFiles": "Ver arquivos",
+    "restore": "Restaurar",
+    "empty": {
+      "title": "Nenhuma versão ainda",
+      "description": "Execute um backup para criar a primeira."
+    }
+  },
+  "addDestination": {
+    "title": "Adicionar destino de backup",
+    "kitTitle": "Salve o kit de recuperação",
+    "description": "Escolha onde o restic guarda o repositório: uma pasta local ou um remoto do rclone.",
+    "kitDescription": "Baixe ou copie o kit. O Athena nunca mostra essa senha de novo; sem ela, um host perdido não consegue restaurar.",
+    "prepareFailed": "Não foi possível preparar o destino",
+    "saveKitFirst": "Salve o kit de recuperação antes de criar o destino",
+    "name": "Nome",
+    "namePlaceholder": "ex.: HD USB",
+    "kind": "Tipo",
+    "local": "Pasta local",
+    "rclone": "Remoto do rclone",
+    "folder": "Pasta",
+    "folderHint": "Caminho absoluto, fora da pasta de dados do Athena.",
+    "remote": "Remoto",
+    "remoteHint": "Um remoto do rclone já configurado em Nuvem → Remotos.",
+    "password": "Senha do repositório",
+    "passwordPlaceholder": "Deixe vazio para gerar uma senha forte",
+    "passwordHint": "Deixe vazio para o Athena gerar uma senha forte. Ela é mostrada uma vez abaixo e nunca mais.",
+    "kitSaved": "Salvei este kit de recuperação (senha, destino e versão do restic)",
+    "next": "Próximo: kit de recuperação",
+    "create": "Criar destino"
+  },
+  "addPlan": {
+    "title": "Adicionar plano de backup",
+    "description": "Escolha o que incluir no backup, onde guardar e com que frequência. Os apps são parados durante o backup, a menos que \"Fazer backup com o app em execução\" esteja ativado.",
+    "name": "Nome",
+    "namePlaceholder": "ex.: Apps diariamente",
+    "destination": "Destino",
+    "athena": "Fazer backup do Athena (configurações, banco de dados, segredos, TLS)",
+    "athenaHint": "Recomendado: ativado por padrão.",
+    "apps": "Apps",
+    "appsHint": "Quais apps incluir no plano.",
+    "noApps": "Nenhum app encontrado. Inicie apps em Loja → Apps primeiro.",
+    "schedule": "Agendamento (cron)",
+    "schedulePlaceholder": "0 3 * * *  (todo dia às 03:00)",
+    "scheduleHint": "Deixe vazio para executar só manualmente. As execuções agendadas chegam na parte 4.",
+    "retention": "Retenção",
+    "keepLast": "Manter as últimas",
+    "keepDaily": "Manter diárias",
+    "keepWeekly": "Manter semanais",
+    "keepMonthly": "Manter mensais",
+    "retentionHint": "`restic forget --keep-…` por item. Padrões: 7 diárias / 4 semanais / 6 mensais.",
+    "create": "Criar plano"
+  }
+}

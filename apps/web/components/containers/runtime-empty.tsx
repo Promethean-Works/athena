@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
+import type { ParseKeys } from "i18next"
 import { BoxIcon, PlayIcon, RefreshCwIcon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
@@ -25,24 +27,33 @@ import { JobDialog } from "@/components/job-dialog"
 type Job = Schemas["JobOut"]
 
 /** How to install a runtime on each OS (Windows is detect-only: docs/design/platform.md). */
-const SETUP: Record<string, { title: string; steps: string[] }> = {
+const SETUP: Record<
+  string,
+  {
+    title: ParseKeys<"containers">
+    steps: ({ cmd: string } | { key: ParseKeys<"containers"> })[]
+  }
+> = {
   darwin: {
-    title: "Install Colima",
-    steps: ["brew install colima docker docker-compose", "colima start"],
+    title: "runtime.setup.darwin.title",
+    steps: [
+      { cmd: "brew install colima docker docker-compose" },
+      { cmd: "colima start" },
+    ],
   },
   linux: {
-    title: "Install Docker Engine",
+    title: "runtime.setup.linux.title",
     steps: [
-      "curl -fsSL https://get.docker.com | sudo sh",
-      "sudo systemctl enable --now docker",
+      { cmd: "curl -fsSL https://get.docker.com | sudo sh" },
+      { cmd: "sudo systemctl enable --now docker" },
     ],
   },
   windows: {
-    title: "Install a container runtime",
+    title: "runtime.setup.windows.title",
     steps: [
-      "Docker Engine in WSL2: wsl --install, then install docker-ce inside the distro",
-      "or Podman: winget install RedHat.Podman, then podman machine init; podman machine start",
-      "or Rancher Desktop: winget install SUSE.RancherDesktop (choose the dockerd engine)",
+      { key: "runtime.setup.windows.wsl" },
+      { key: "runtime.setup.windows.podman" },
+      { key: "runtime.setup.windows.rancher" },
     ],
   },
 }
@@ -52,6 +63,7 @@ export function RuntimeEmpty({
 }: {
   capability: Capability | undefined
 }) {
+  const { t } = useTranslation("containers")
   const { manifest, refresh, refreshing } = useCapabilities()
   const [job, setJob] = React.useState<Job | null>(null)
   const [starting, setStarting] = React.useState(false)
@@ -66,7 +78,7 @@ export function RuntimeEmpty({
     else
       toast.add({
         type: "error",
-        title: "Couldn't start the runtime",
+        title: t("runtime.startFailed"),
         description: errorMessage(error),
       })
   }
@@ -75,10 +87,10 @@ export function RuntimeEmpty({
     (ok: boolean) => {
       if (ok) {
         void refresh()
-        toast.add({ type: "success", title: "Container runtime is running" })
+        toast.add({ type: "success", title: t("runtime.running") })
       }
     },
-    [refresh]
+    [refresh, t]
   )
 
   return (
@@ -89,12 +101,13 @@ export function RuntimeEmpty({
         </EmptyMedia>
         <EmptyTitle>
           {capability?.status === "stopped"
-            ? `${capability.provider ?? "The container runtime"} isn't running`
-            : "No container runtime"}
+            ? capability.provider
+              ? t("runtime.providerStopped", { provider: capability.provider })
+              : t("runtime.stopped")
+            : t("runtime.none")}
         </EmptyTitle>
         <EmptyDescription>
-          {capability?.detail ??
-            "Athena didn't find a container engine on this host."}
+          {capability?.detail ?? t("runtime.notFound")}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
@@ -105,13 +118,15 @@ export function RuntimeEmpty({
             ) : (
               <PlayIcon data-icon="inline-start" />
             )}
-            Start {capability?.provider}
+            {t("runtime.start", { provider: capability?.provider ?? "" })}
           </Button>
         ) : setup ? (
           <div className="flex w-full flex-col gap-2 text-left">
-            <p className="text-sm font-medium">{setup.title}</p>
+            <p className="text-sm font-medium">{t(setup.title)}</p>
             <pre className="rounded-lg border bg-muted/50 p-3 font-mono text-xs whitespace-pre-wrap">
-              {setup.steps.join("\n")}
+              {setup.steps
+                .map((step) => ("cmd" in step ? step.cmd : t(step.key)))
+                .join("\n")}
             </pre>
           </div>
         ) : null}
@@ -126,7 +141,7 @@ export function RuntimeEmpty({
           ) : (
             <RefreshCwIcon data-icon="inline-start" />
           )}
-          Re-detect
+          {t("runtime.redetect")}
         </Button>
       </EmptyContent>
       <JobDialog job={job} onClose={() => setJob(null)} onFinished={finished} />

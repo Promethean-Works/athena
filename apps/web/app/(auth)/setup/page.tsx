@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage, setCsrfToken } from "@workspace/api-client"
 import {
@@ -36,11 +37,13 @@ import {
 import { CapabilitiesProvider } from "@/components/capabilities-provider"
 import { CredentialsForm } from "@/components/credentials-form"
 import { AiSetupStep } from "@/components/settings/ai-setup-step"
+import { currentLocale } from "@/lib/i18n"
 
 type Step = "choose" | "account" | "ai" | "restore"
 
 export default function SetupPage() {
   const router = useRouter()
+  const { t } = useTranslation("auth")
   const [step, setStep] = React.useState<Step>("choose")
   const [error, setError] = React.useState<string | null>(null)
   const [pending, setPending] = React.useState(false)
@@ -68,9 +71,9 @@ export default function SetupPage() {
     return (
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Restore from a backup</CardTitle>
+          <CardTitle className="text-xl">{t("setup.restore.title")}</CardTitle>
           <CardDescription>
-            Pick the backup repository and the Athena snapshot to restore from.
+            {t("setup.restore.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -85,7 +88,7 @@ export default function SetupPage() {
               })
               setPending(false)
               if (!data) {
-                setError(errorMessage(err, "Restore failed"))
+                setError(errorMessage(err, t("setup.restore.failed")))
                 return
               }
               setCsrfToken(null)
@@ -93,52 +96,52 @@ export default function SetupPage() {
             }}
           >
             <FieldGroup>
-              <FieldLabel>Repository location</FieldLabel>
+              <FieldLabel>{t("setup.restore.location")}</FieldLabel>
               <Input
                 required
                 value={location}
                 onChange={(event) => setLocation(event.target.value)}
-                placeholder="Local folder or <remote>:<path>"
+                placeholder={t("setup.restore.locationPlaceholder")}
               />
               <FieldDescription>
-                The local folder where the backup repository lives.
+                {t("setup.restore.locationHelp")}
               </FieldDescription>
             </FieldGroup>
             <FieldGroup>
-              <FieldLabel>Repository password</FieldLabel>
+              <FieldLabel>{t("setup.restore.password")}</FieldLabel>
               <Input required type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
               <FieldDescription>
-                From the recovery kit made when the backup was created.
+                {t("setup.restore.passwordHelp")}
               </FieldDescription>
             </FieldGroup>
             <FieldGroup>
-              <FieldLabel>Athena snapshot</FieldLabel>
+              <FieldLabel>{t("setup.restore.snapshot")}</FieldLabel>
               <Select value={versionId} onValueChange={(value) => setVersionId(value ?? "")} required disabled={versions.length === 0}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {versions.length === 0 ? (
-                    <SelectItem disabled>Loading snapshots…</SelectItem>
+                    <SelectItem disabled>{t("setup.restore.loadingSnapshots")}</SelectItem>
                   ) : (
                     versions.map((v) => (
                       <SelectItem key={v.id} value={v.id}>
-                        {v.id.slice(0, 8)} — {new Date(v.time).toLocaleString()}
+                        {v.id.slice(0, 8)} — {new Date(v.time).toLocaleString(currentLocale())}
                       </SelectItem>
                     ))
                   )}
                 </SelectContent>
               </Select>
               <FieldDescription>
-                Pick an `athena` snapshot. The newest is chosen by default.
+                {t("setup.restore.snapshotHelp")}
               </FieldDescription>
             </FieldGroup>
             <CardFooter className="flex flex-col sm:flex-row gap-2">
               <Button type="submit" disabled={pending}>
-                Restore Athena
+                {t("setup.restore.submit")}
               </Button>
               <Button type="button" variant="outline" onClick={() => setStep("choose")}>
-                Back
+                {t("setup.restore.back")}
               </Button>
             </CardFooter>
           </form>
@@ -150,21 +153,21 @@ export default function SetupPage() {
     return (
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome to Athena</CardTitle>
+          <CardTitle className="text-xl">{t("setup.welcome")}</CardTitle>
           <CardDescription>
-            Create the administrator account for this server.
+            {t("setup.welcomeDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {error && <FieldError>{error}</FieldError>}
           <CredentialsForm
             mode="setup"
-            submitLabel="Create account"
+            submitLabel={t("setup.createAccount")}
             onSubmit={async (credentials) => {
               const { data, error } = await api.POST("/api/auth/setup", {
                 body: credentials,
               })
-              if (!data) return errorMessage(error, "Couldn't create the account")
+              if (!data) return errorMessage(error, t("setup.createFailed"))
               // Setup signs in; the AI step's writes need this session's token.
               setCsrfToken(data.csrf_token ?? null)
               setStep("ai")
@@ -179,9 +182,9 @@ export default function SetupPage() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-xl">Welcome to Athena</CardTitle>
+        <CardTitle className="text-xl">{t("setup.welcome")}</CardTitle>
         <CardDescription>
-          Create the administrator account for this server.
+          {t("setup.welcomeDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -191,7 +194,7 @@ export default function SetupPage() {
             onClick={() => setStep("account")}
             disabled={pending}
           >
-            Create account
+            {t("setup.createAccount")}
           </Button>
           <Button
             className="w-full"
@@ -204,7 +207,7 @@ export default function SetupPage() {
               }).then(({ data, error: err }) => {
                 setPending(false)
                 if (!data) {
-                  setError(errorMessage(err, "Couldn't list backups"))
+                  setError(errorMessage(err, t("setup.listFailed")))
                   return
                 }
                 setVersions(data ?? [])
@@ -213,7 +216,7 @@ export default function SetupPage() {
             }}
             disabled={pending}
           >
-            Restore from a backup
+            {t("setup.restoreFromBackup")}
           </Button>
         </div>
         {error && <FieldError>{error}</FieldError>}

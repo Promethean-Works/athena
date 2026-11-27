@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Tunneladres",
+    "description": "Open Athena van buiten je netwerk, of scan de code met je telefoon.",
+    "publicAddress": "Openbaar adres",
+    "notRunning": "De tunnel draait niet.",
+    "startInSettings": "Start hem in Instellingen."
+  },
+  "qr": {
+    "title": "QR-code voor het tunneladres"
+  }
+}

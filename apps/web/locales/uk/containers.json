@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Працює",
+    "dead": "Мертвий",
+    "exited": "Завершено",
+    "exitedWithCode": "Завершено ({{code}})",
+    "paused": "призупинено",
+    "created": "створено",
+    "restarting": "перезапускається"
+  },
+  "logs": {
+    "following": "Стежимо за новим виводом",
+    "stopped": "Контейнер зупинено",
+    "disconnected": "Відключено",
+    "connecting": "Підключення…",
+    "title": "Журнали · {{name}}",
+    "empty": "Немає виводу журналу."
+  },
+  "runtime": {
+    "startFailed": "Не вдалося запустити середовище виконання",
+    "running": "Середовище виконання контейнерів працює",
+    "providerStopped": "{{provider}} не працює",
+    "stopped": "Середовище виконання контейнерів не працює",
+    "none": "Немає середовища виконання контейнерів",
+    "notFound": "Athena не знайшла рушія контейнерів на цьому хості.",
+    "start": "Запустити {{provider}}",
+    "redetect": "Визначити знову",
+    "setup": {
+      "darwin": {
+        "title": "Встановити Colima"
+      },
+      "linux": {
+        "title": "Встановити Docker Engine"
+      },
+      "windows": {
+        "title": "Встановити середовище виконання контейнерів",
+        "wsl": "Docker Engine у WSL2: wsl --install, потім встановіть docker-ce у дистрибутиві",
+        "podman": "або Podman: winget install RedHat.Podman, потім podman machine init; podman machine start",
+        "rancher": "або Rancher Desktop: winget install SUSE.RancherDesktop (виберіть рушій dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Не вдалося отримати список контейнерів",
+    "actionFailed": {
+      "start": "Не вдалося запустити {{name}}",
+      "stop": "Не вдалося зупинити {{name}}",
+      "restart": "Не вдалося перезапустити {{name}}"
+    },
+    "removeFailed": "Не вдалося видалити {{name}}",
+    "removed": "{{name}} видалено",
+    "emptyTitle": "Контейнерів ще немає",
+    "emptyDescription": "Контейнери цього середовища виконання з'являються тут, зокрема запущені поза Athena.",
+    "name": "Назва",
+    "image": "Образ",
+    "state": "Стан",
+    "ports": "Порти",
+    "actions": "Дії",
+    "standalone": "Окремі контейнери",
+    "actionsFor": "Дії для {{name}}",
+    "logs": "Журнали",
+    "shell": "Оболонка",
+    "restart": "Перезапустити",
+    "stop": "Зупинити",
+    "start": "Запустити",
+    "remove": "Видалити",
+    "removeTitle": "Видалити {{name}}?",
+    "removeRunningDescription": "Спочатку його буде зупинено. Контейнер буде видалено. Іменовані томи й образ збережуться.",
+    "removeDescription": "Контейнер буде видалено. Іменовані томи й образ збережуться.",
+    "cancel": "Скасувати"
+  }
+}

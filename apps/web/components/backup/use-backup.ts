@@ -5,6 +5,8 @@ import * as React from "react"
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { toast } from "@workspace/ui/components/toast"
 
+import i18n from "@/lib/i18n"
+
 export type Destination = Schemas["DestinationOut"]
 export type Plan = Schemas["PlanOut"]
 export type Version = Schemas["VersionOut"]
@@ -24,7 +26,7 @@ export function useDestinations() {
     if (data) {
       setDestinations(data)
       setError(null)
-    } else setError(errorMessage(err, "Couldn't list backup destinations"))
+    } else setError(errorMessage(err, i18n.t("backup:errors.listDestinations")))
   }, [])
 
   React.useEffect(() => {
@@ -39,14 +41,14 @@ export function useDestinations() {
     })
     if (data) {
       toast.add({
-        title: `Destination "${data.name}" created`,
+        title: i18n.t("backup:toast.destinationCreated", { name: data.name }),
         type: "success",
       })
       void load()
       return data
     }
     toast.add({
-      title: errorMessage(err, "Couldn't create destination"),
+      title: errorMessage(err, i18n.t("backup:errors.createDestination")),
       type: "error",
     })
     return null
@@ -64,7 +66,7 @@ export function useDestinations() {
     )
     if (err) {
       toast.add({
-        title: errorMessage(err, "Couldn't delete destination"),
+        title: errorMessage(err, i18n.t("backup:errors.deleteDestination")),
         type: "error",
       })
       return false
@@ -85,7 +87,7 @@ export function usePlans() {
     if (data) {
       setPlans(data)
       setError(null)
-    } else setError(errorMessage(err, "Couldn't list backup plans"))
+    } else setError(errorMessage(err, i18n.t("backup:errors.listPlans")))
   }, [])
 
   React.useEffect(() => {
@@ -97,12 +99,15 @@ export function usePlans() {
   async function create(body: Schemas["PlanIn"]) {
     const { data, error: err } = await api.POST("/api/backup/plans", { body })
     if (data) {
-      toast.add({ title: `Plan "${data.name}" created`, type: "success" })
+      toast.add({
+        title: i18n.t("backup:toast.planCreated", { name: data.name }),
+        type: "success",
+      })
       void load()
       return data
     }
     toast.add({
-      title: errorMessage(err, "Couldn't create plan"),
+      title: errorMessage(err, i18n.t("backup:errors.createPlan")),
       type: "error",
     })
     return null
@@ -114,12 +119,15 @@ export function usePlans() {
       body,
     })
     if (data) {
-      toast.add({ title: `Plan "${data.name}" updated`, type: "success" })
+      toast.add({
+        title: i18n.t("backup:toast.planUpdated", { name: data.name }),
+        type: "success",
+      })
       void load()
       return data
     }
     toast.add({
-      title: errorMessage(err, "Couldn't update plan"),
+      title: errorMessage(err, i18n.t("backup:errors.updatePlan")),
       type: "error",
     })
     return null
@@ -131,7 +139,7 @@ export function usePlans() {
     })
     if (err) {
       toast.add({
-        title: errorMessage(err, "Couldn't delete plan"),
+        title: errorMessage(err, i18n.t("backup:errors.deletePlan")),
         type: "error",
       })
       return false
@@ -147,7 +155,7 @@ export function usePlans() {
     )
     if (data) return data
     toast.add({
-      title: errorMessage(err, "Couldn't start backup"),
+      title: errorMessage(err, i18n.t("backup:errors.startBackup")),
       type: "error",
     })
     return null
@@ -172,7 +180,7 @@ export function useVersions(destinationId?: string | null, item?: string) {
     if (data) {
       setVersions(data)
       setError(null)
-    } else setError(errorMessage(err, "Couldn't list backup versions"))
+    } else setError(errorMessage(err, i18n.t("backup:errors.listVersions")))
   }, [destinationId, item])
 
   React.useEffect(() => {
@@ -201,7 +209,7 @@ export function useVersionFiles(destinationId: string, versionId: string) {
       setFiles(data.entries)
       setRoot(data.root)
       setError(null)
-    } else setError(errorMessage(err, "Couldn't list version files"))
+    } else setError(errorMessage(err, i18n.t("backup:errors.listVersionFiles")))
   }, [destinationId, versionId, root])
 
   React.useEffect(() => {
@@ -218,7 +226,7 @@ export function useRestoreApp() {
     })
     if (data) return data
     toast.add({
-      title: errorMessage(err, "Couldn't restore app"),
+      title: errorMessage(err, i18n.t("backup:errors.restoreApp")),
       type: "error",
     })
     return null

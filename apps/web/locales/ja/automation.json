@@ -1,0 +1,167 @@
+{
+  "cancel": "キャンセル",
+  "view": {
+    "unavailable": "オートメーションは利用できません",
+    "unsupported": "このホストはオートメーションに対応していません。"
+  },
+  "copyUrl": {
+    "copy": "{{label}} をコピー",
+    "copied": "{{label}} をコピーしました",
+    "failed": "コピーできませんでした"
+  },
+  "external": {
+    "title": "外部オートメーション",
+    "description": "n8n、スクリプト、AI エージェントを Athena に接続します。",
+    "webhookUrl": "Webhook URL",
+    "webhookHint": "POST リクエストを送信すると Webhook トリガーが実行されます。サインインは不要です。Webhook トリガーごとに専用のトークンがあります。完全な URL はトリガー一覧からコピーしてください。",
+    "mcpServer": "MCP サーバー",
+    "mcpUrl": "MCP サーバー URL",
+    "mcpHint": "Streamable HTTP。クライアントはセッション Cookie でサインインするか、サーバーの <envVar>ATHENA_MCP_TOKEN</envVar> 環境変数に設定したトークンを <authHeader>Authorization: Bearer &lt;token&gt;</authHeader> として送信します。"
+  },
+  "jobRuns": {
+    "title": "ジョブの実行履歴",
+    "description": "最新の実行を数秒ごとに更新します。",
+    "trigger": "トリガー",
+    "deletedTrigger": "削除されたトリガー",
+    "listFailed": "ジョブの実行履歴を一覧表示できませんでした",
+    "empty": {
+      "title": "ジョブの実行履歴はまだありません",
+      "description": "トリガーが起動すると、ここに実行が表示されます。"
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "アプリ {{name}} を起動",
+      "stop": "アプリ {{name}} を停止",
+      "restart": "アプリ {{name}} を再起動",
+      "update": "アプリ {{name}} をアップデート"
+    },
+    "package": {
+      "install": "{{name}} をインストール ({{manager}})",
+      "uninstall": "{{name}} をアンインストール ({{manager}})",
+      "upgrade": "{{name}} をアップグレード ({{manager}})",
+      "refresh": "{{manager}} のパッケージリストを更新"
+    }
+  },
+  "triggers": {
+    "title": "トリガー",
+    "description": "アプリやパッケージの操作を、スケジュールまたは Webhook で実行します。",
+    "listFailed": "トリガーを一覧表示できませんでした",
+    "empty": {
+      "title": "トリガーはまだありません",
+      "description": "トリガーは、スケジュール (cron) または Webhook が呼び出されたとき（たとえば n8n から）に操作を実行します。"
+    },
+    "onWebhook": "Webhook が呼び出されたとき",
+    "noSchedule": "スケジュールなし",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "次回実行 {{time}}",
+    "changeFailed": "トリガーを変更できませんでした",
+    "enabledToast": "{{name}} を有効にしました",
+    "pausedToast": "{{name}} を一時停止しました",
+    "enabledLabel": "{{name}} を有効化",
+    "copyWebhook": "Webhook URL をコピー",
+    "webhookCopied": "Webhook URL をコピーしました",
+    "copyFailed": "コピーできませんでした",
+    "deleteFailed": "トリガーを削除できませんでした",
+    "deleted": "トリガーを削除しました",
+    "deleteLabel": "{{name}} を削除",
+    "delete": "削除",
+    "deleteTitle": "{{name}} を削除しますか？",
+    "deleteDescription": "実行されなくなります。過去のジョブの実行履歴はログに残ります。",
+    "deleteDescriptionWebhook": "実行されなくなり、Webhook URL も使用できなくなります。過去のジョブの実行履歴はログに残ります。"
+  },
+  "dialog": {
+    "new": "新しいトリガー",
+    "description": "アプリやパッケージの操作を、スケジュールまたは Webhook が呼び出されるたびに実行します。",
+    "created": {
+      "title": "Webhook トリガーを作成しました",
+      "description": "この URL に POST リクエストを送信すると「{{name}}」が実行されます。URL を知っていれば誰でも実行できるため、非公開にしてください。トリガー一覧からもう一度コピーできます。",
+      "done": "完了"
+    },
+    "errors": {
+      "name": "トリガーの名前を入力してください。",
+      "app": "アプリを選択してください。",
+      "manager": "パッケージマネージャーを選択してください。",
+      "packageName": "パッケージ名を入力してください。"
+    },
+    "createdToast": "トリガー {{name}} を作成しました",
+    "createFailed": "トリガーを作成できませんでした",
+    "name": "名前",
+    "namePlaceholder": "例: 夜間の Jellyfin 再起動",
+    "whenItRuns": "実行タイミング",
+    "onSchedule": "スケジュール (cron)",
+    "onWebhook": "Webhook が呼び出されたとき",
+    "schedule": "スケジュール",
+    "cronPlaceholder": "分 時 日 月 曜日 (例: 0 2 * * *)",
+    "cronHelp": "5 つのフィールド: 分、時、日、月、曜日。時刻は UTC です。",
+    "webhookHint": "作成すると秘密の URL が発行されます。この URL への POST リクエスト（n8n、スクリプト、curl など）で操作が実行されます。",
+    "whatItDoes": "実行内容",
+    "appAction": "アプリの操作",
+    "packageAction": "パッケージの操作",
+    "create": "トリガーを作成",
+    "app": "アプリ",
+    "loadingApps": "アプリを読み込み中…",
+    "chooseApp": "アプリを選択",
+    "noApps": "インストール済みのアプリはありません",
+    "action": "操作",
+    "appVerbs": {
+      "start": "起動",
+      "stop": "停止",
+      "restart": "再起動",
+      "update": "アップデート（pull して再作成）"
+    },
+    "packageVerbs": {
+      "install": "インストール",
+      "uninstall": "アンインストール",
+      "upgrade": "アップグレード",
+      "refresh": "パッケージリストを更新"
+    },
+    "packageManager": "パッケージマネージャー",
+    "loading": "読み込み中…",
+    "chooseManager": "マネージャーを選択",
+    "noManagers": "このホストで利用可能なものはありません",
+    "package": "パッケージ",
+    "packagePlaceholder": "例: jq",
+    "source": "ソース（任意）",
+    "sourceHint": "Flatpak のリモート、Scoop のバケット、または Homebrew cask の場合は「cask」。",
+    "loadingInstalled": "インストール済みパッケージを読み込み中…",
+    "installedFailed": "インストール済みパッケージを一覧表示できませんでした ({{error}})。名前を入力してください。",
+    "searchInstalled": "インストール済みパッケージを検索",
+    "noMatch": "一致するインストール済みパッケージはありません。"
+  },
+  "cron": {
+    "presets": {
+      "hourly": "毎時",
+      "daily": "毎日 02:00",
+      "sundays": "毎週日曜 03:00",
+      "monthly": "毎月 1 日"
+    },
+    "fields": {
+      "minute": "分",
+      "hour": "時",
+      "dayOfMonth": "日",
+      "month": "月",
+      "weekday": "曜日"
+    },
+    "errors": {
+      "empty": "cron 式を入力するか、プリセットを選択してください。",
+      "invalidField": "{{field}}フィールドの「{{value}}」は無効です。",
+      "invalidStep": "{{field}}フィールドのステップ「/{{step}}」は数値である必要があります。",
+      "outOfRange": "{{field}}は {{min}} から {{max}} の間で指定してください。",
+      "fieldCount": "5 つのフィールド（分 時 日 月 曜日）で指定してください。現在は {{count}} 個です。"
+    },
+    "dayRange": "{{from}} ～ {{to}}",
+    "custom": "カスタムスケジュール",
+    "everyMinute": "毎分",
+    "everyMinutes_other": "{{count}} 分ごと",
+    "everyHourOnTheHour": "毎時 0 分",
+    "everyHourAtMinute": "毎時 {{minute}} 分",
+    "everyHoursAtMinute_other": "{{count}} 時間ごとの {{minute}} 分",
+    "everyDay": "毎日 {{time}}",
+    "everyWeekdays": "毎週 {{days}} {{time}}",
+    "onDayOfMonth": "毎月 {{day}} 日 {{time}}",
+    "everyYear": "毎年 {{month}} {{day}} {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

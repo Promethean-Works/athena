@@ -1,0 +1,50 @@
+{
+  "menu": "Enviar comentarios",
+  "dialog": {
+    "title": "Enviar comentarios",
+    "description": "Abre una nueva incidencia en {{repo}} en una pestaña nueva. Puedes revisarla y editarla allí antes de publicarla; las incidencias son públicas.",
+    "storeHint": "¿Una app de la tienda que no funciona? Usa <b>Informar de un problema</b> en su página de la tienda, para que el informe llegue a quien la mantiene.",
+    "loadFailed": "No se pudieron cargar los detalles de este servidor"
+  },
+  "choices": {
+    "bug": {
+      "title": "Informar de un error",
+      "description": "Algo no funciona como debería."
+    },
+    "change": {
+      "title": "Sugerir un cambio",
+      "description": "Algo funciona, pero debería funcionar de otra manera."
+    },
+    "feature": {
+      "title": "Solicitar una función",
+      "description": "Algo que Athena aún no puede hacer."
+    }
+  },
+  "diagnostics": {
+    "title": "Rellenado por ti",
+    "system": "Sistema",
+    "cpu": "CPU",
+    "containers": "Contenedores"
+  },
+  "appReport": {
+    "button": "Informar de un problema",
+    "title": "Informar de un problema con {{app}}",
+    "description": "Abre una nueva incidencia para {{where}} en una pestaña nueva, con los datos de la app y de este servidor ya rellenados. Allí la revisas antes de publicarla; las incidencias son públicas.",
+    "whereCatalog": "el catálogo {{name}}, que mantiene esta app",
+    "includeLogs_one": "Incluir la última línea del registro",
+    "includeLogs_many": "Incluir las últimas {{count}} de líneas del registro",
+    "includeLogs_other": "Incluir las últimas {{count}} líneas del registro",
+    "installedCopy": "Copia instalada",
+    "logsLabel": "Registros a incluir",
+    "loadingLogs": "Cargando registros…",
+    "logsWarning": "Quita contraseñas, tokens y direcciones antes de continuar.",
+    "logsTruncated": "Solo el final de los registros cabe en el enlace.",
+    "cancel": "Cancelar",
+    "openIssue": "Abrir incidencia",
+    "preparing": "Preparando…",
+    "prepareFailed": "No se pudo preparar el informe",
+    "logsFailed": "No se pudieron cargar los registros: {{error}}",
+    "appNotFound": "app no encontrada",
+    "noContainers": "No se encontraron contenedores para esta app."
+  }
+}

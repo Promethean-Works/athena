@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
+import i18n from "@/lib/i18n"
 
 export type AppOut = Schemas["AppOut"]
 
@@ -22,7 +23,7 @@ export function useAppsList() {
     if (data) {
       setApps(data)
       setError(null)
-    } else setError(errorMessage(err, "Couldn't list apps"))
+    } else setError(errorMessage(err, i18n.t("apps:list.failed")))
   }, [])
 
   React.useEffect(() => {

@@ -1,0 +1,59 @@
+{
+  "view": {
+    "noManagers": "Paket yöneticisi bulunamadı",
+    "noManagersHint": "Athena bu ana makinede desteklediği bir paket yöneticisi bulamadı."
+  },
+  "listError": "Paket listesi okunamadı",
+  "cancel": "İptal",
+  "toast": {
+    "installFailed": "{{name}} kurulamadı",
+    "uninstallFailed": "{{name}} kaldırılamadı",
+    "upgradeFailed": "{{name}} yükseltilemedi",
+    "upgradeAllFailed": "Paketler yükseltilemedi",
+    "refreshFailed": "Paket listeleri yenilenemedi"
+  },
+  "unavailable": "{{name}} şu an kullanılamıyor",
+  "unavailableHint": "Bu ana makinede hazır değil.",
+  "refreshLists": "Listeleri yenile",
+  "upgradeAll": "Tümünü yükselt",
+  "tabs": {
+    "installed": "Kurulu",
+    "updates": "Güncellemeler",
+    "search": "Ara"
+  },
+  "installed": {
+    "filter": "Kurulu paketleri filtrele",
+    "noMatch": "Eşleşen kurulu paket yok.",
+    "empty": "Hiçbir şey kurulu değil.",
+    "upgradeLabel": "{{name}} yükselt",
+    "upgrade": "Yükselt",
+    "uninstallLabel": "{{name}} kaldır",
+    "uninstall": "Kaldır",
+    "shortened": "{{manager}} bu kimliği kısalttı, bu yüzden buradan kaldırılamaz",
+    "showing": "{{total}} içinden {{shown}} gösteriliyor. Daraltmak için filtreleyin."
+  },
+  "table": {
+    "package": "Paket",
+    "version": "Sürüm",
+    "description": "Açıklama"
+  },
+  "updates": {
+    "upToDate": "Her şey güncel",
+    "upToDateRefresh": "Son liste yenilemesi itibarıyla. Yeniden denetlemek için listeleri yenileyin.",
+    "nothing": "Yükseltilecek bir şey yok.",
+    "installedColumn": "Kurulu",
+    "availableColumn": "Mevcut"
+  },
+  "search": {
+    "label": "{{manager}} içinde ara",
+    "noMatch": "“{{query}}” ile eşleşen paket yok.",
+    "install": "Kur"
+  },
+  "confirm": {
+    "uninstallTitle": "{{name}} kaldırılsın mı?",
+    "uninstallDescription": "Bu sunucudan kaldırılır. Ona bağımlı paketler de kaldırılabilir.",
+    "upgradeAllTitle": "Tüm {{manager}} paketleri yükseltilsin mi?",
+    "upgradeAllDescription_one": "{{count}} paket yükseltilecek. Bu biraz sürebilir.",
+    "upgradeAllDescription_other": "{{count}} paket yükseltilecek. Bu biraz sürebilir."
+  }
+}

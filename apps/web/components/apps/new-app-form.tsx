@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Trans, useTranslation } from "react-i18next"
 import { useRouter } from "next/navigation"
 import {
   CheckIcon,
@@ -60,6 +61,7 @@ function toName(text: string): string {
 }
 
 export function NewAppForm() {
+  const { t } = useTranslation("apps")
   const router = useRouter()
   const [name, setName] = React.useState("")
   const [compose, setCompose] = React.useState(EXAMPLE)
@@ -87,10 +89,7 @@ export function NewAppForm() {
     }
   })
 
-  const nameError =
-    name && !NAME_RE.test(name)
-      ? "Use lowercase letters, digits, dashes or underscores, starting with a letter or digit."
-      : null
+  const nameError = name && !NAME_RE.test(name) ? t("new.nameInvalid") : null
 
   async function convert() {
     setBusy("convert")
@@ -101,7 +100,7 @@ export function NewAppForm() {
     if (!data) {
       toast.add({
         type: "error",
-        title: "Couldn't convert the command",
+        title: t("new.convertFailed"),
         description: errorMessage(error),
       })
       return
@@ -124,7 +123,10 @@ export function NewAppForm() {
     })
     setBusy(null)
     setValidation(
-      data ?? { ok: false, errors: [errorMessage(error, "Validation failed")] }
+      data ?? {
+        ok: false,
+        errors: [errorMessage(error, t("new.validationFailed"))],
+      }
     )
   }
 
@@ -135,7 +137,7 @@ export function NewAppForm() {
       body: { name, compose, source },
     })
     setBusy(null)
-    jobs.show(result, `deploy ${name}`)
+    jobs.show(result, t("jobs.failed.deploy", { name }))
   }
 
   async function upload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -153,7 +155,7 @@ export function NewAppForm() {
     <div className="flex max-w-3xl flex-col gap-6">
       <FieldGroup>
         <Field data-invalid={nameError ? true : undefined}>
-          <FieldLabel htmlFor="app-name">Name</FieldLabel>
+          <FieldLabel htmlFor="app-name">{t("new.name")}</FieldLabel>
           <Input
             id="app-name"
             value={name}
@@ -165,24 +167,22 @@ export function NewAppForm() {
           {nameError ? (
             <FieldError>{nameError}</FieldError>
           ) : (
-            <FieldDescription>
-              Also the compose project name. It can&apos;t be changed later.
-            </FieldDescription>
+            <FieldDescription>{t("new.nameHelp")}</FieldDescription>
           )}
         </Field>
       </FieldGroup>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as "compose" | "run")}>
         <TabsList>
-          <TabsTrigger value="compose">Compose file</TabsTrigger>
-          <TabsTrigger value="run">From docker run</TabsTrigger>
+          <TabsTrigger value="compose">{t("new.tabCompose")}</TabsTrigger>
+          <TabsTrigger value="run">{t("new.tabRun")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="compose" className="flex flex-col gap-4 pt-2">
           {warnings.length > 0 ? (
             <Alert>
               <CircleAlertIcon />
-              <AlertTitle>Review the converted file</AlertTitle>
+              <AlertTitle>{t("new.reviewConverted")}</AlertTitle>
               <AlertDescription>
                 <ul className="list-disc pl-4">
                   {warnings.map((w) => (
@@ -201,7 +201,7 @@ export function NewAppForm() {
                 onClick={() => file.current?.click()}
               >
                 <UploadIcon data-icon="inline-start" />
-                Upload file
+                {t("new.upload")}
               </Button>
               <input
                 ref={file}
@@ -221,15 +221,18 @@ export function NewAppForm() {
               minHeight="18rem"
             />
             <FieldDescription>
-              Use <code>{"${ATHENA_APP_DATA}"}</code> for files that should live
-              in this app&apos;s data folder on the server.
+              <Trans
+                i18nKey="new.composeHelp"
+                ns="apps"
+                components={{ code: <code /> }}
+              />
             </FieldDescription>
           </Field>
         </TabsContent>
 
         <TabsContent value="run" className="flex flex-col gap-4 pt-2">
           <Field>
-            <FieldLabel htmlFor="docker-run">docker run command</FieldLabel>
+            <FieldLabel htmlFor="docker-run">{t("new.runLabel")}</FieldLabel>
             <Textarea
               id="docker-run"
               value={command}
@@ -237,10 +240,7 @@ export function NewAppForm() {
               placeholder="docker run -d --name jellyfin -p 8096:8096 -v /srv/media:/media jellyfin/jellyfin"
               className="min-h-32 font-mono text-xs"
             />
-            <FieldDescription>
-              It&apos;s converted to a compose file you can review before
-              deploying. Nothing runs yet.
-            </FieldDescription>
+            <FieldDescription>{t("new.runHelp")}</FieldDescription>
           </Field>
           <div>
             <Button
@@ -252,7 +252,7 @@ export function NewAppForm() {
               ) : (
                 <WandSparklesIcon data-icon="inline-start" />
               )}
-              Convert to compose
+              {t("new.convert")}
             </Button>
           </div>
         </TabsContent>
@@ -262,9 +262,7 @@ export function NewAppForm() {
         <Alert variant={validation.ok ? "default" : "destructive"}>
           {validation.ok ? <CheckIcon /> : <CircleAlertIcon />}
           <AlertTitle>
-            {validation.ok
-              ? "The compose file is valid"
-              : "The compose file has errors"}
+            {validation.ok ? t("new.valid") : t("new.invalid")}
           </AlertTitle>
           {validation.errors.length ? (
             <AlertDescription>
@@ -287,7 +285,7 @@ export function NewAppForm() {
           ) : (
             <CheckIcon data-icon="inline-start" />
           )}
-          Validate
+          {t("new.validate")}
         </Button>
         <Button
           onClick={deploy}
@@ -298,7 +296,7 @@ export function NewAppForm() {
           ) : (
             <RocketIcon data-icon="inline-start" />
           )}
-          Deploy
+          {t("new.deploy")}
         </Button>
       </div>
       {jobs.dialog}

@@ -276,9 +276,9 @@ def detect_power(probe: Probe) -> list[Capability]:
 
 
 def detect_smb(probe: Probe) -> Capability:
-    """SMB shares: publish a file location over the network via the host's Samba
-    server (§4.3). Linux uses the installed Samba server; macOS and Windows have
-    SMB built in but creating a share from Athena isn't wired on those OSes yet."""
+    """SMB shares: publish a file location over the network (§4.3). Linux uses the
+    installed Samba server, macOS its built-in `sharing` tool (both need root), Windows the built-in
+    SmbShare cmdlets (needs an administrator)."""
     label = "SMB shares"
     if probe.os == "linux":
         if probe.which("smbd"):
@@ -291,19 +291,47 @@ def detect_smb(probe: Probe) -> Capability:
             detail="Samba not installed. Install it (apt install samba) to share folders over SMB.",
             actions=["setup"],
         )
+    if probe.os == "darwin" and probe.which("sharing"):
+        if probe.is_root():
+            return Capability(id="shares.smb", label=label, status="ready", provider="sharing")
+        return Capability(
+            id="shares.smb",
+            label=label,
+            status="needs_privilege",
+            provider="sharing",
+            detail=(
+                "Sharing folders over SMB needs administrator rights. "
+                "Athena asks for your password when you create one."
+            ),
+            elevation="password",
+        )
+    if probe.os == "windows" and probe.which("powershell"):
+        if probe.is_admin():
+            return Capability(id="shares.smb", label=label, status="ready", provider="smbshare")
+        return Capability(
+            id="shares.smb",
+            label=label,
+            status="needs_privilege",
+            provider="smbshare",
+            detail=(
+                "Sharing folders over SMB needs administrator rights. "
+                "Windows asks you to approve when you create one."
+            ),
+            elevation="system",
+        )
     return Capability(
         id="shares.smb",
         label=label,
         status="unsupported",
         provider="built-in",
-        detail="Creating SMB shares from Athena isn't available on this operating system yet.",
+        detail="Creating SMB shares from Athena isn't available on this operating system.",
     )
 
 
 def detect_nfs(probe: Probe) -> Capability:
     """NFS shares: export a file location from the host's NFS server
     (docs/specs/network-shares.md). Linux only for now; Windows client editions have no
-    NFS server, and the macOS provider comes in a later part."""
+    NFS server. macOS uses its built-in nfsd (needs root)."""
     label = "NFS shares"
     if probe.os == "linux":
         if not probe.which("exportfs"):
@@ -326,13 +354,26 @@ def detect_nfs(probe: Probe) -> Capability:
         return Capability(
             id="shares.nfs", label=label, status="ready", provider="nfs-kernel-server"
         )
-    detail = (
-        "Windows has no NFS server outside Windows Server. Use SMB or WebDAV instead."
-        if probe.os == "windows"
-        else "Creating NFS shares from Athena isn't available on this operating system yet."
-    )
+    if probe.os == "darwin" and probe.which("nfsd"):
+        if probe.is_root():
+            return Capability(id="shares.nfs", label=label, status="ready", provider="nfsd")
+        return Capability(
+            id="shares.nfs",
+            label=label,
+            status="needs_privilege",
+            provider="nfsd",
+            detail=(
+                "Exporting folders over NFS needs administrator rights. "
+                "Athena asks for your password when you create one."
+            ),
+            elevation="password",
+        )
     return Capability(
-        id="shares.nfs", label=label, status="unsupported", provider="built-in", detail=detail
+        id="shares.nfs",
+        label=label,
+        status="unsupported",
+        provider="built-in",
+        detail="Windows has no NFS server outside Windows Server. Use SMB or WebDAV instead.",
     )
 
 
@@ -350,6 +391,75 @@ def detect_rclone(probe: Probe) -> Capability:
     version = probe.run([path, "version"]).first_line or None
     return Capability(
         id="cloud.rclone", label="Cloud storage", status="ready", provider="rclone", detail=version
+    )
+
+
+def detect_rclone_mount(probe: Probe) -> Capability:
+    """`cloud.mount`: mount a cloud remote as a folder with `rclone mount`, so it can be
+    shared over SMB or NFS (docs/specs/share-from-explorer.md). Needs rclone, a build that
+    can mount, and the OS's FUSE driver."""
+    label = "Mount cloud storage"
+    rclone = probe.which("rclone")
+    if not rclone:
+        return Capability(
+            id="cloud.mount",
+            label=label,
+            status="missing",
+            provider="rclone",
+            detail="rclone isn't installed.",
+            actions=["setup"],
+        )
+    if probe.os == "linux":
+        if probe.which("fusermount3") or probe.which("fusermount"):
+            return Capability(id="cloud.mount", label=label, status="ready", provider="fuse")
+        return Capability(
+            id="cloud.mount",
+            label=label,
+            status="missing",
+            provider="fuse",
+            detail="FUSE isn't installed. Install it (apt install fuse3) to mount cloud storage.",
+            actions=["setup"],
+        )
+    if probe.os == "darwin":
+        real = probe.real_path(rclone)
+        if "/Cellar/" in real or "/homebrew/" in real.lower():
+            return Capability(
+                id="cloud.mount",
+                label=label,
+                status="unsupported",
+                provider="macfuse",
+                detail=(
+                    "Homebrew's rclone can't mount. Install the official rclone from "
+                    "rclone.org/downloads, plus macFUSE or FUSE-T."
+                ),
+            )
+        drivers = ("/Library/Filesystems/macfuse.fs", "/Library/Filesystems/fuse-t.fs")
+        if any(probe.exists(d) for d in drivers):
+            return Capability(id="cloud.mount", label=label, status="ready", provider="macfuse")
+        return Capability(
+            id="cloud.mount",
+            label=label,
+            status="missing",
+            provider="macfuse",
+            detail="Install macFUSE or FUSE-T to mount cloud storage.",
+        )
+    if probe.os == "windows":
+        roots = ("C:/Program Files (x86)/WinFsp", "C:/Program Files/WinFsp")
+        if any(probe.exists(r) for r in roots):
+            return Capability(id="cloud.mount", label=label, status="ready", provider="winfsp")
+        return Capability(
+            id="cloud.mount",
+            label=label,
+            status="missing",
+            provider="winfsp",
+            detail="Install WinFsp to mount cloud storage.",
+        )
+    return Capability(
+        id="cloud.mount",
+        label=label,
+        status="unsupported",
+        provider="built-in",
+        detail="Mounting cloud storage isn't available on this operating system.",
     )
 
 
@@ -717,6 +827,7 @@ def detectors_for(probe: Probe) -> list[Detector]:
         detect_power,
         detect_smb,
         detect_nfs,
+        detect_rclone_mount,
         detect_ollama,
         detect_local_ai,
         detect_tunnel_cloudflare,

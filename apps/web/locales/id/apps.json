@@ -1,0 +1,195 @@
+{
+  "page": {
+    "description": "Aplikasi adalah proyek compose yang dikelola Athena."
+  },
+  "newApp": "Aplikasi baru",
+  "open": "Buka",
+  "list": {
+    "failed": "Tidak dapat menampilkan daftar aplikasi"
+  },
+  "status": {
+    "running": "Berjalan",
+    "partial": "{{running}}/{{total}} berjalan",
+    "stopped": "Berhenti",
+    "notDeployed": "Belum di-deploy"
+  },
+  "actions": {
+    "restart": "Mulai ulang",
+    "stop": "Hentikan",
+    "start": "Mulai",
+    "updateImages": "Perbarui image",
+    "remove": "Hapus"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Tidak dapat memulai {{name}}",
+      "stop": "Tidak dapat menghentikan {{name}}",
+      "restart": "Tidak dapat memulai ulang {{name}}",
+      "update": "Tidak dapat memperbarui {{name}}",
+      "remove": "Tidak dapat menghapus {{name}}",
+      "save": "Tidak dapat menyimpan {{name}}",
+      "saveSettings": "Tidak dapat menyimpan pengaturan {{name}}",
+      "deploy": "Tidak dapat men-deploy {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Hapus {{name}}?",
+    "description": "Kontainernya dihentikan dan dihapus, dan Athena melupakan aplikasi ini.",
+    "deleteData": "Hapus juga volume dan folder datanya. Tindakan ini tidak dapat dibatalkan.",
+    "cancel": "Batal",
+    "confirm": "Hapus"
+  },
+  "grid": {
+    "emptyTitle": "Belum ada aplikasi",
+    "emptyDescription": "Deploy file compose atau konversi perintah <code>docker run</code>.",
+    "containerCount_other": "{{count}} kontainer",
+    "fromDockerRun": "dari docker run",
+    "actionsFor": "Aksi untuk {{name}}"
+  },
+  "containerState": {
+    "running": "berjalan",
+    "exited": "selesai",
+    "dead": "mati",
+    "paused": "dijeda",
+    "created": "dibuat",
+    "restarting": "memulai ulang"
+  },
+  "detail": {
+    "loadFailed": "Tidak dapat memuat aplikasi",
+    "loadFailedNamed": "Tidak dapat memuat {{name}}",
+    "tabContainers": "Kontainer",
+    "tabCompose": "Compose",
+    "tabSettings": "Pengaturan",
+    "tabBackups": "Cadangan",
+    "noContainers": "Tidak ada kontainer",
+    "noContainersHint": "Mulai aplikasi untuk membuat kontainernya.",
+    "logs": "Log",
+    "shell": "Shell",
+    "composeHelp": "Menyimpan akan menyimpan versi sebelumnya sebagai compose.prev.yaml dan men-deploy ulang aplikasi.",
+    "settingsHelp": "Nilai dari formulir instalasi (.env). Ubah port atau folder di sini, lalu simpan untuk men-deploy ulang. Mungkin berisi kata sandi yang dibuat otomatis.",
+    "saveRedeploy": "Simpan dan deploy ulang",
+    "discard": "Buang perubahan"
+  },
+  "new": {
+    "nameInvalid": "Gunakan huruf kecil, angka, tanda hubung, atau garis bawah, diawali huruf atau angka.",
+    "convertFailed": "Tidak dapat mengonversi perintah",
+    "validationFailed": "Validasi gagal",
+    "name": "Nama",
+    "nameHelp": "Sekaligus nama proyek compose. Tidak dapat diubah nanti.",
+    "tabCompose": "File compose",
+    "tabRun": "Dari docker run",
+    "reviewConverted": "Periksa file hasil konversi",
+    "upload": "Unggah file",
+    "composeHelp": "Gunakan <code>${ATHENA_APP_DATA}</code> untuk file yang harus berada di folder data aplikasi ini di server.",
+    "runLabel": "Perintah docker run",
+    "runHelp": "Dikonversi menjadi file compose yang dapat Anda periksa sebelum deploy. Belum ada yang dijalankan.",
+    "convert": "Konversi ke compose",
+    "valid": "File compose valid",
+    "invalid": "File compose memiliki kesalahan",
+    "validate": "Validasi",
+    "deploy": "Deploy"
+  },
+  "compose": {
+    "serializationFailed": "Serialisasi gagal",
+    "addService": "Tambah layanan",
+    "tabs": {
+      "settings": "Pengaturan",
+      "networks": "Jaringan",
+      "volumes": "Volume",
+      "raw": "YAML mentah"
+    },
+    "restart": {
+      "no": "Tidak (jangan mulai ulang)",
+      "always": "Selalu",
+      "unlessStopped": "Kecuali dihentikan",
+      "onFailure": "Saat gagal"
+    },
+    "volumeMode": {
+      "rw": "Baca/Tulis",
+      "ro": "Hanya baca"
+    },
+    "table": {
+      "actions": "Aksi",
+      "empty": "Belum ada item",
+      "moveUp": "Pindah ke atas",
+      "moveDown": "Pindah ke bawah",
+      "remove": "Hapus",
+      "add": "Tambah"
+    },
+    "service": {
+      "collapse": "Ciutkan",
+      "expand": "Bentangkan",
+      "namePlaceholder": "nama layanan",
+      "noImage": "tanpa image",
+      "image": "Image",
+      "imageHelp": "Nama image Docker. Mendukung Docker Hub, GHCR, dan registry lain.",
+      "restartPolicy": "Kebijakan mulai ulang"
+    },
+    "ports": {
+      "title": "Port",
+      "host": "Port host",
+      "container": "Port kontainer",
+      "protocol": "Protokol",
+      "help": "Petakan port host ke port kontainer. Kosongkan port host untuk penetapan acak."
+    },
+    "volumes": {
+      "title": "Volume",
+      "host": "Path host / Nama volume",
+      "container": "Path kontainer",
+      "mode": "Mode",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data atau volume-name",
+      "help": "Bind-mount path host atau volume bernama. Gunakan <code>${ATHENA_APP_DATA}</code> untuk folder data aplikasi ini."
+    },
+    "env": {
+      "title": "Variabel lingkungan",
+      "help": "Variabel lingkungan yang diteruskan ke kontainer. Nilai dari formulir instalasi (.env) juga tersedia.",
+      "valuePlaceholder": "nilai"
+    },
+    "keyValue": {
+      "key": "Kunci",
+      "value": "Nilai"
+    },
+    "command": {
+      "command": "Perintah",
+      "commandPlaceholder": "Menimpa perintah bawaan image",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Menimpa entrypoint bawaan image",
+      "workingDir": "Direktori kerja",
+      "user": "Pengguna"
+    },
+    "resources": {
+      "title": "Batas sumber daya",
+      "cpuLimit": "Batas CPU",
+      "cpuCores": "Inti CPU",
+      "memoryLimit": "Batas memori",
+      "memoryLimitHelp": "mis. 512M, 1G",
+      "cpuReservation": "Reservasi CPU",
+      "memoryReservation": "Reservasi memori",
+      "memoryReservationHelp": "mis. 256M"
+    },
+    "health": {
+      "title": "Pemeriksaan kesehatan",
+      "test": "Perintah uji",
+      "interval": "Interval",
+      "timeout": "Batas waktu",
+      "retries": "Percobaan ulang"
+    },
+    "labels": {
+      "title": "Label",
+      "valuePlaceholder": "My service"
+    },
+    "networks": {
+      "title": "Jaringan",
+      "help": "Nama jaringan dipisahkan koma. Tentukan jaringan di tab Jaringan."
+    },
+    "dependsOn": {
+      "title": "Bergantung pada",
+      "help": "Nama layanan dipisahkan koma yang harus dimulai sebelum layanan ini."
+    },
+    "entries": {
+      "name": "Nama",
+      "driver": "Driver",
+      "external": "Eksternal"
+    }
+  }
+}

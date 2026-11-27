@@ -1,0 +1,399 @@
+{
+  "language": {
+    "title": "Sprache",
+    "description": "Die Sprache der Oberfläche. Sie folgt deinem Konto in andere Browser.",
+    "label": "Oberflächensprache",
+    "auto": "Automatisch (Browsersprache)"
+  },
+  "account": {
+    "admin": "Administrator",
+    "user": "Benutzer",
+    "signedIn": "In diesem Browser angemeldet",
+    "signOut": "Abmelden",
+    "changeFailed": "Passwort konnte nicht geändert werden",
+    "toast": {
+      "changed": "Passwort geändert",
+      "changedDescription": "Andere Browser, in denen dieses Konto angemeldet war, wurden abgemeldet."
+    },
+    "password": {
+      "title": "Passwort ändern",
+      "description": "Deine anderen Sitzungen werden abgemeldet; diese bleibt angemeldet.",
+      "current": "Aktuelles Passwort",
+      "new": "Neues Passwort",
+      "minLength_one": "Mindestens {{count}} Zeichen.",
+      "minLength_other": "Mindestens {{count}} Zeichen.",
+      "confirm": "Neues Passwort bestätigen",
+      "mismatch": "Die Passwörter stimmen nicht überein.",
+      "submit": "Passwort ändern"
+    }
+  },
+  "copyField": {
+    "copy": "{{label}} kopieren",
+    "copied": "{{label}} kopiert",
+    "failed": "Kopieren fehlgeschlagen"
+  },
+  "settingsFile": {
+    "title": "Einstellungsdatei",
+    "description": "Die Einstellungen auf diesen Seiten werden in einer Datei auf dem Server gespeichert. Verhindert eine Änderung den Start von Athena oder sperrt dich aus, behebe sie dort in einem beliebigen Texteditor und starte Athena neu.",
+    "loadFailed": "Der Speicherort der Datei konnte nicht geladen werden: {{error}}",
+    "file": "Datei",
+    "help": "<code>athena config check</code> auf dem Server zeigt, was daran falsch ist, mit Zeilennummern. Die Version vor dem letzten Speichern liegt daneben als <code>athena.json.bak</code>."
+  },
+  "system": {
+    "title": "System",
+    "description": "Schalter, die für alle auf diesem Server gelten. Änderungen werden im Audit-Log festgehalten.",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "adminOnly": "Nur Administratoren können das ändern.",
+    "terminal": {
+      "label": "Web-Terminal",
+      "description": "Eine Shell auf diesem Server und in Containern, direkt im Browser. Beim Ausschalten werden auch offene Sitzungen geschlossen.",
+      "on": "Terminal eingeschaltet",
+      "off": "Terminal ausgeschaltet"
+    },
+    "updateCheck": {
+      "label": "Update-Hinweis",
+      "description": "Fragt einmal täglich GitHub nach dem neuesten Athena-Release und zeigt einen Hinweis, wenn ein neueres erschienen ist. Gesendet wird nur die Anfrage selbst: keine Version, kein Hostname, keine Einstellungen.",
+      "on": "Update-Hinweis eingeschaltet",
+      "off": "Update-Hinweis ausgeschaltet"
+    }
+  },
+  "updates": {
+    "title": "Updates",
+    "description": "Athena prüft einmal täglich auf ein neues Release (der Schalter oben). Beim Aktualisieren startet Athena neu; deine Apps laufen weiter.",
+    "readFailed": "Update-Status konnte nicht gelesen werden.",
+    "installed": "Installiert",
+    "latest": "Neueste",
+    "unknown": "Noch nicht bekannt",
+    "noticeOff": "Der Update-Hinweis ist aus",
+    "lastChecked": "Zuletzt geprüft",
+    "never": "Nie",
+    "upToDate": "Athena ist auf dem neuesten Stand."
+  },
+  "localAi": {
+    "list": "{{head}} und {{last}}",
+    "running_one": "{{list}} läuft auf diesem Server. Die Modelle laufen auf deiner eigenen Hardware und nichts verlässt den Server.",
+    "running_other": "{{list}} laufen auf diesem Server. Ihre Modelle laufen auf deiner eigenen Hardware und nichts verlässt den Server.",
+    "useNamed": "{{name}} auf diesem Server verwenden",
+    "usePort": "KI-Server auf Port {{port}} verwenden",
+    "useThis": "Diesen KI-Server verwenden"
+  },
+  "webdav": {
+    "title": "Netzwerkfreigabe (WebDAV)",
+    "description": "Öffne die Speicherorte des Dateimanagers als Laufwerk im Finder, im Windows-Explorer oder in einem Linux-Dateimanager.",
+    "label": "WebDAV",
+    "help": "Standardmäßig aus. Jeder mit dem WebDAV-Passwort kann jeden Speicherort lesen und ändern.",
+    "adminOnly": "Nur Administratoren können das ändern.",
+    "on": "WebDAV eingeschaltet",
+    "off": "WebDAV ausgeschaltet",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "passwordFailed": "Passwort konnte nicht erzeugt werden",
+    "address": "Adresse",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "passwordHint": {
+      "copyNow": "Kopiere es jetzt: Es wird nicht noch einmal angezeigt.",
+      "set": "Ein Passwort ist gesetzt. Ein neues zu erzeugen meldet jedes Gerät ab, das das alte nutzt.",
+      "none": "Erzeuge ein Passwort zum Anmelden. Es ist getrennt von deinem Athena-Passwort."
+    },
+    "newPassword": "Neues Passwort",
+    "makePassword": "Passwort erzeugen",
+    "plainHttp": {
+      "title": "Nicht verschlüsselt",
+      "description": "Athena ist über unverschlüsseltes HTTP geöffnet, daher laufen WebDAV-Passwort und Dateien unverschlüsselt durchs Netzwerk. Nutze es in einem vertrauenswürdigen Netzwerk oder stelle Athena hinter HTTPS."
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → Gehe zu → Mit Server verbinden, dann die Adresse.",
+      "windows": "<b>Windows:</b> Explorer → Dieser PC → Netzlaufwerk verbinden, dann die Adresse. Über unverschlüsseltes HTTP meldet Windows sich erst an, nachdem <code>BasicAuthLevel</code> unter <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> auf 2 gesetzt und der Dienst WebClient neu gestartet wurde.",
+      "linux": "<b>Linux:</b> Verbinde dich in Dateien (GNOME) oder Dolphin mit <code>{{url}}</code>."
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "Modus",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "system": "System"
+    },
+    "colors": {
+      "title": "Farben",
+      "saving": "Wird gespeichert…",
+      "description": "Änderungen gelten sofort und folgen deinem Konto in andere Browser.",
+      "matchBase": "An Basis angleichen",
+      "matchTheme": "An Theme angleichen",
+      "base": "Basis",
+      "baseColor": "Basisfarbe",
+      "baseHint": "Hintergründe, Rahmen und gedämpfter Text.",
+      "theme": "Theme",
+      "themeHint": "Schaltflächen, Fokusrahmen und Links.",
+      "charts": "Diagramme"
+    },
+    "type": {
+      "title": "Typografie und Form",
+      "font": "Schrift",
+      "headingFont": "Überschriftenschrift",
+      "sameAsBody": "Wie Fließtext",
+      "radius": "Rundung",
+      "style": "Stil",
+      "styleValue": "Nova, mit Lucide-Icons",
+      "styleSoon": "der Wechsel des Stils kommt in einer späteren Version"
+    },
+    "radius": {
+      "default": "Standard",
+      "none": "Keine",
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "Groß"
+    },
+    "preset": {
+      "title": "Preset-Code",
+      "description": "Ein shadcn-Preset-Code fasst diese Einstellungen in wenigen Zeichen zusammen.",
+      "current": "Aktueller Preset-Code",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen",
+      "use": "Nutze ihn mit <code>npx shadcn init --preset {{code}}</code> oder teile ihn.",
+      "apply": "Preset-Code anwenden",
+      "applyButton": "Anwenden",
+      "invalid": "Das ist kein shadcn-Preset-Code.",
+      "applied": "Preset {{code}} angewendet",
+      "ignored": "Athena kann {{parts}} noch nicht anwenden, daher wurden diese Teile übersprungen.",
+      "fill": "Füllt Farben, Schriften und Rundung aus einem Code, der auf <link>ui.shadcn.com/create</link> erstellt wurde."
+    }
+  },
+  "tunnel": {
+    "hide": "{{label}} verbergen",
+    "show": "{{label}} anzeigen",
+    "secretSaved": "Gespeichert. Gib einen neuen Wert ein, um ihn zu ersetzen",
+    "customDomain": "Eigene Domain (optional)",
+    "cloudflare": {
+      "quick": "Quick-Tunnel",
+      "quickHelp": "Eine zufällige trycloudflare.com-Adresse, die kein Konto braucht. Sie ändert sich bei jedem Start des Tunnels.",
+      "apiToken": "API-Token",
+      "apiTokenPlaceholder": "Ein Cloudflare-API-Token mit Tunnel-Berechtigungen",
+      "tunnelName": "Tunnelname",
+      "tunnelNameHelp": "Der benannte Tunnel in deinem Cloudflare-Konto.",
+      "domainHelp": "Braucht einen DNS-Eintrag, der auf den Tunnel zeigt."
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "Automatisch erkannt",
+      "help": "Wird mit <code>tailscale up</code> auf diesem Server festgelegt."
+    },
+    "ngrok": {
+      "authToken": "Auth-Token",
+      "authTokenPlaceholder": "Dein ngrok-Auth-Token",
+      "subdomain": "Subdomain (optional)",
+      "paidPlan": "Braucht einen kostenpflichtigen ngrok-Tarif.",
+      "freeTitle": "Limits des kostenlosen Tarifs",
+      "freeDescription": "Ein Tunnel, 40 Verbindungen pro Minute und in jeder Sitzung eine neue zufällige Adresse."
+    },
+    "status": {
+      "label": "Status",
+      "running": "Läuft",
+      "stopped": "Gestoppt",
+      "notInstalled": "Nicht installiert",
+      "notSetUp": "Nicht eingerichtet"
+    },
+    "saveFailed": "Speichern fehlgeschlagen",
+    "saved": "Einstellungen für den Fernzugriff gespeichert",
+    "autoStart": {
+      "label": "Beim Systemstart starten",
+      "on": "Fernzugriff startet beim Systemstart",
+      "off": "Fernzugriff startet nicht mehr beim Systemstart",
+      "installFirst": "Installiere zuerst {{name}}.",
+      "help": "Installiert einen Systemdienst, der den Tunnel mit dem Server startet."
+    },
+    "serviceFailed": "Dienst konnte nicht aktualisiert werden",
+    "title": "Fernzugriff",
+    "description": "Erreiche Athena von überall über Cloudflare, Tailscale oder ngrok, ohne Ports am Router zu öffnen.",
+    "label": "Fernzugriff",
+    "help": "Jeder mit der Adresse erreicht deine Anmeldeseite, also nutze ein starkes Passwort.",
+    "adminOnly": "Nur Administratoren können das ändern.",
+    "on": "Fernzugriff eingeschaltet",
+    "off": "Fernzugriff ausgeschaltet",
+    "exposed": {
+      "title": "Aus dem Internet erreichbar",
+      "description": "Solange dies an ist, sind Web-Terminal, Paketinstallation und KI-Assistent für jeden, der die Adresse findet, nur ein Passwort entfernt. Schalte <terminal>das Terminal</terminal> oder den <assistant>Assistenten</assistant> aus, wenn du sie nicht aus der Ferne brauchst."
+    },
+    "provider": "Anbieter",
+    "using": "Verwendet {{name}}",
+    "port": {
+      "label": "Lokaler Port",
+      "help": "Der Port, auf dem Athena lauscht und an den der Tunnel weiterleitet."
+    },
+    "discard": "Verwerfen",
+    "saveChanges": "Änderungen speichern",
+    "publicAddress": "Öffentliche Adresse",
+    "install": "{{name}} installieren",
+    "installFailed": "Installation fehlgeschlagen",
+    "stop": "Stoppen",
+    "stopFailed": "Tunnel konnte nicht gestoppt werden",
+    "start": "Starten",
+    "startFailed": "Tunnel konnte nicht gestartet werden",
+    "saveFirst": "Speichere zuerst deine Änderungen",
+    "refresh": "Status aktualisieren"
+  },
+  "https": {
+    "copyFailed": "Kopieren fehlgeschlagen",
+    "adminOnly": "Nur Administratoren können HTTPS ändern",
+    "unavailable": {
+      "title": "HTTPS ist nicht verfügbar",
+      "description": "Dieser Athena-Server meldet keine HTTPS-Unterstützung."
+    },
+    "loadFailed": "HTTPS-Einstellungen konnten nicht geladen werden",
+    "status": {
+      "on": "An, Port {{port}}",
+      "notRunning": "Läuft nicht",
+      "off": "Aus",
+      "encryptedLetsEncrypt": "Athena verschlüsselt die Verbindung mit einem Zertifikat von Let's Encrypt. Unverschlüsseltes HTTP bleibt auf Port {{port}}.",
+      "encryptedCustom": "Athena verschlüsselt die Verbindung mit deinem eigenen Zertifikat. Unverschlüsseltes HTTP bleibt auf Port {{port}}.",
+      "encryptedSelf": "Athena verschlüsselt die Verbindung mit einem eigenen Zertifikat. Unverschlüsseltes HTTP bleibt auf Port {{port}}.",
+      "plain": "Athena wird über unverschlüsseltes HTTP auf Port {{port}} ausgeliefert, daher laufen Passwörter und Dateien unverschlüsselt durchs Netzwerk.",
+      "problem": "HTTPS-Problem",
+      "renewalFailed": "Erneuerung bei Let's Encrypt fehlgeschlagen",
+      "renewalStillServed": "Das aktuelle Zertifikat wird bis zu seinem Ablauf weiter verwendet.",
+      "open": "Über HTTPS öffnen",
+      "expires": "Läuft ab",
+      "expiresIn_one": "in {{count}} Tag; wird automatisch erneuert",
+      "expiresIn_other": "in {{count}} Tagen; wird automatisch erneuert",
+      "names": "Namen",
+      "alsoAt": "Auch unter"
+    },
+    "saveFailed": "Speichern fehlgeschlagen",
+    "requestFailed": "Zertifikat konnte nicht angefordert werden",
+    "certificateReady": "Zertifikat bereit",
+    "certificateReadyHint": "Speichere mit ausgewähltem Let's Encrypt, um es auszuliefern.",
+    "turnedOff": "HTTPS ausgeschaltet",
+    "saved": "HTTPS-Einstellungen gespeichert",
+    "settings": {
+      "title": "Einstellungen",
+      "description": "Änderungen gelten sofort; Athena startet nicht neu."
+    },
+    "mode": {
+      "label": "Modus",
+      "off": "Aus",
+      "offHelp": "Nur unverschlüsseltes HTTP.",
+      "self": "Selbstsigniert",
+      "selfHelp": "Athena erstellt eine eigene Zertifizierungsstelle (CA). Vertraue ihr einmal auf jedem Gerät, und Browser zeigen ein Schloss ohne Warnung. Funktioniert im Heimnetz ohne Domain.",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "Ein kostenloses Zertifikat, dem jeder Browser vertraut, für eine eigene Domain, die auf diesen Server zeigt. Wird automatisch erneuert.",
+      "custom": "Eigenes",
+      "customHelp": "Lade dein eigenes Zertifikat und deinen privaten Schlüssel hoch (PEM-Format). Athena liefert sie unverändert aus; keine automatische Erneuerung."
+    },
+    "port": {
+      "label": "HTTPS-Port",
+      "help": "Für Ports unter 1024 (wie 443) muss Athena eventuell als root laufen. Möglicherweise musst du den Port in der Firewall des Hosts freigeben.",
+      "range": "Gib einen Port von 1 bis 65535 ein.",
+      "taken": "Port {{port}} ist der HTTP-Port von Athena. Wähle einen anderen."
+    },
+    "redirect": {
+      "label": "Browser auf HTTPS umleiten",
+      "help": "Auf Port {{port}} geöffnete Seiten wechseln zu HTTPS. Dateifreigaben, Webhooks, Apps und der Server selbst nutzen weiterhin unverschlüsseltes HTTP."
+    },
+    "names": {
+      "label": "Zusätzliche Namen",
+      "help": "Das Zertifikat deckt bereits den Namen dieses Servers, seinen .local-Namen und seine Netzwerkadressen ab. Füge weitere Namen oder Adressen hinzu, mit denen du Athena öffnest, durch Kommas getrennt."
+    },
+    "lockedOut": "Ausgesperrt? Führe <code>{{command}}</code> auf dem Server aus und starte Athena neu.",
+    "cancel": "Abbrechen",
+    "needsCertificate": "Hole zuerst ein Zertifikat",
+    "saving": "Wird gespeichert…",
+    "save": "Speichern",
+    "confirm": {
+      "title": "Browser auf HTTPS umleiten?",
+      "redirect": "Nach dem Speichern führt das Öffnen von Athena auf Port {{port}} zu <url>{{url}}</url>.",
+      "letsencrypt": "Öffne Athena dort über seinen Domainnamen; bei anderen Namen gibt es eine Zertifikatswarnung.",
+      "custom": "Dein eigenes Zertifikat wird ausgeliefert; Browser vertrauen ihm, wenn es von einer bekannten CA stammt.",
+      "self": "Bis du der CA von Athena auf einem Gerät vertraust, zeigt dessen Browser dort eine Warnung.",
+      "recovery": "Wenn du nicht mehr hineinkommst, führe <cmd>{{command}}</cmd> auf dem Server aus und starte Athena neu.",
+      "action": "Speichern und umleiten"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "Domains",
+      "domainsHelp": "Mehrere durch Kommas trennen. Jede muss im öffentlichen DNS auf diesen Server zeigen. Eine Wildcard (*.example.com) braucht die DNS-Challenge.",
+      "email": "E-Mail",
+      "emailHelp": "Let's Encrypt schreibt hierhin, wenn ein Zertifikat bald abläuft.",
+      "challenge": "Wie Let's Encrypt prüft",
+      "http": "HTTP (Port 80)",
+      "httpHelp": "Let's Encrypt verbindet sich mit Port 80 auf diesem Server, daher muss er aus dem Internet erreichbar sein (leite ihn am Router weiter).",
+      "dns": "DNS",
+      "dnsHelp": "Athena legt über deinen DNS-Anbieter einen temporären DNS-Eintrag an. Keine offenen Ports; funktioniert für Wildcards.",
+      "port80Title": "Port 80 kann gerade nicht geöffnet werden",
+      "port80Description": "Ein anderes Programm nutzt ihn, oder Athena darf ihn nicht öffnen. Gib Port 80 frei oder nutze die DNS-Challenge.",
+      "provider": "DNS-Anbieter",
+      "savedUnchanged": "Gespeichert (unverändert)",
+      "staging": "Staging-Server verwenden",
+      "stagingHelp": "Zum Ausprobieren: Browser vertrauen seinen Zertifikaten nicht, aber seine Limits sind großzügig.",
+      "getting": "Zertifikat wird geholt…",
+      "renew": "Zertifikat jetzt erneuern",
+      "get": "Zertifikat holen",
+      "current": "Aktuelles Zertifikat für {{names}}, gültig bis {{date}}.",
+      "getThenSave": "Hole ein Zertifikat und speichere dann, um es auszuliefern.",
+      "lastFailed": "Letzter Versuch fehlgeschlagen: {{error}}"
+    },
+    "custom": {
+      "legend": "Eigenes Zertifikat",
+      "cert": "Zertifikat (PEM)",
+      "certHelp": "Füge das vollständige PEM-codierte Zertifikat oder die Zertifikatskette ein.",
+      "key": "Privater Schlüssel (PEM)",
+      "keyHelp": "Füge den PEM-codierten privaten Schlüssel ein. Er wird verschlüsselt gespeichert."
+    },
+    "trust": {
+      "title": "Athena auf deinen Geräten vertrauen",
+      "description": "Installiere die CA von Athena einmal auf jedem Smartphone, Tablet und Computer, das du nutzt. Dann vertraut der Browser jedem Zertifikat, das Athena erstellt, auch Erneuerungen.",
+      "download": "CA-Zertifikat herunterladen",
+      "validUntil": "Gültig bis {{date}}",
+      "fingerprint": "SHA-256-Fingerabdruck",
+      "copyFingerprint": "Fingerabdruck kopieren",
+      "fingerprintCopied": "Fingerabdruck kopiert",
+      "fingerprintHelp": "Prüfe, dass er mit der Anzeige des Geräts übereinstimmt, bevor du der Datei vertraust.",
+      "rotated": "Neue CA erstellt",
+      "rotatedHint": "Lade sie herunter und vertraue ihr auf jedem Gerät erneut.",
+      "rotateFailed": "Neue CA konnte nicht erstellt werden",
+      "rotateHint": "Erstelle eine neue CA, wenn der Schlüssel offengelegt worden sein könnte. Jedes Gerät muss der neuen vertrauen.",
+      "rotate": "Neue CA erstellen",
+      "rotating": "Wird erstellt…",
+      "confirmTitle": "Neue CA erstellen?",
+      "confirmDescription": "Geräte, die der aktuellen CA vertrauen, zeigen eine Warnung, bis du die neue auf jedem installierst.",
+      "macos": {
+        "label": "macOS",
+        "step1": "Öffne die heruntergeladene Datei. Schlüsselbundverwaltung fügt sie dem Anmelde-Schlüsselbund hinzu.",
+        "step2": "Doppelklicke in der Schlüsselbundverwaltung auf <b>Athena Local CA</b>, öffne <b>Vertrauen</b> und stelle <b>Bei Verwendung dieses Zertifikats</b> auf <b>Immer vertrauen</b>.",
+        "step3": "Schließe das Fenster und gib dein Mac-Passwort ein. Starte den Browser neu."
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "Öffne die heruntergeladene Datei und wähle <b>Zertifikat installieren</b>.",
+        "step2": "Wähle <b>Aktueller Benutzer</b>, dann <b>Alle Zertifikate in folgendem Speicher speichern</b> → <b>Vertrauenswürdige Stammzertifizierungsstellen</b>.",
+        "step3": "Schließe ab und bestätige die Sicherheitswarnung. Starte den Browser neu."
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian oder Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Firefox und Chrome führen unter Linux eine eigene Liste: Importiere die Datei in den Zertifikatseinstellungen des Browsers unter <b>Zertifizierungsstellen</b>."
+      },
+      "ios": {
+        "label": "iPhone und iPad",
+        "step1": "Lade die Datei in Safari herunter und erlaube den Download des Profils.",
+        "step2": "Öffne in den Einstellungen <b>Profil geladen</b> (oder <b>Allgemein → VPN & Geräteverwaltung</b>) und installiere es.",
+        "step3": "Gehe zu <b>Allgemein → Info → Zertifikatsvertrauenseinstellungen</b> und aktiviere das volle Vertrauen für <b>Athena Local CA</b>."
+      },
+      "android": {
+        "label": "Android",
+        "step1": "Lade die Datei herunter.",
+        "step2": "Suche in den Einstellungen nach <b>CA-Zertifikat</b> (meist <b>Sicherheit → Verschlüsselung & Anmeldedaten → Zertifikat installieren → CA-Zertifikat</b>) und wähle die Datei.",
+        "step3": "Bestätige die Warnung. Manche Apps ignorieren Benutzerzertifikate; Browser nutzen sie."
+      }
+    }
+  },
+  "sections": {
+    "appearance": "Darstellung",
+    "account": "Konto",
+    "system": "System",
+    "https": "HTTPS",
+    "ai": "KI",
+    "label": "Einstellungen"
+  }
+}

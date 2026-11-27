@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslation } from "react-i18next"
 import {
   CpuIcon,
   LockIcon,
@@ -13,12 +14,12 @@ import {
 
 import { Button } from "@workspace/ui/components/button"
 
-const SECTIONS: { title: string; url: string; icon: LucideIcon }[] = [
-  { title: "Appearance", url: "/settings/appearance/", icon: PaletteIcon },
-  { title: "Account", url: "/settings/account/", icon: UserIcon },
-  { title: "System", url: "/settings/system/", icon: ServerCogIcon },
-  { title: "HTTPS", url: "/settings/https/", icon: LockIcon },
-  { title: "AI", url: "/settings/ai/", icon: CpuIcon },
+const SECTIONS: { key: "appearance" | "account" | "system" | "https" | "ai"; url: string; icon: LucideIcon }[] = [
+  { key: "appearance", url: "/settings/appearance/", icon: PaletteIcon },
+  { key: "account", url: "/settings/account/", icon: UserIcon },
+  { key: "system", url: "/settings/system/", icon: ServerCogIcon },
+  { key: "https", url: "/settings/https/", icon: LockIcon },
+  { key: "ai", url: "/settings/ai/", icon: CpuIcon },
 ]
 
 export default function SettingsLayout({
@@ -27,11 +28,12 @@ export default function SettingsLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const { t } = useTranslation("settings")
   return (
     // A row of tabs on small screens, a side menu from lg up.
     <div className="flex flex-col gap-4 md:gap-6 lg:flex-row lg:gap-10">
       <nav
-        aria-label="Settings"
+        aria-label={t("sections.label")}
         className="flex flex-wrap gap-1 lg:sticky lg:top-20 lg:w-48 lg:shrink-0 lg:flex-col lg:self-start"
       >
         {SECTIONS.map((s) => {
@@ -47,7 +49,7 @@ export default function SettingsLayout({
               nativeButton={false}
             >
               <s.icon data-icon="inline-start" />
-              {s.title}
+              {t(`sections.${s.key}`)}
             </Button>
           )
         })}

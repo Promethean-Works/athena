@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import {
   CopyIcon,
   DownloadIcon,
@@ -25,6 +26,7 @@ import { Button } from "@workspace/ui/components/button"
 import { toast } from "@workspace/ui/components/toast"
 
 import { copyText } from "@/lib/clipboard"
+import i18n, { currentLocale } from "@/lib/i18n"
 
 export type ShareLink = Schemas["ShareOut"]
 
@@ -37,40 +39,46 @@ export async function copyLink(link: ShareLink) {
   const ok = await copyText(shareUrl(link))
   toast.add(
     ok
-      ? { type: "success", title: "Link copied" }
-      : { type: "error", title: "Couldn't copy the link" }
+      ? { type: "success", title: i18n.t("files:links.copied") }
+      : { type: "error", title: i18n.t("files:links.copyFailed") }
   )
 }
 
 export function expiryText(link: ShareLink): string {
-  if (link.expired) return "Expired"
-  if (!link.expires_at) return "Never expires"
-  return `Expires ${new Date(link.expires_at).toLocaleString(undefined, {
+  if (link.expired) return i18n.t("files:links.expired")
+  if (!link.expires_at) return i18n.t("files:links.neverExpires")
+  const date = new Date(link.expires_at).toLocaleString(currentLocale(), {
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  })}`
+  })
+  return i18n.t("files:links.expires", { date })
 }
 
 /** Mode, password and expiry badges for a link. */
 export function LinkBadges({ link }: { link: ShareLink }) {
+  const { t } = useTranslation("files")
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <Badge variant="secondary">
         {link.mode === "upload" ? <UploadIcon /> : <DownloadIcon />}
-        {link.mode === "upload" ? "Upload only" : "View and download"}
+        {link.mode === "upload"
+          ? t("links.uploadOnly")
+          : t("links.viewAndDownload")}
       </Badge>
       {link.has_password ? (
         <Badge variant="outline">
           <LockIcon />
-          Password
+          {t("links.password")}
         </Badge>
       ) : null}
       <Badge variant={link.expired ? "destructive" : "outline"}>
         {expiryText(link)}
       </Badge>
-      {link.kind === null ? <Badge variant="destructive">Missing</Badge> : null}
+      {link.kind === null ? (
+        <Badge variant="destructive">{t("links.missing")}</Badge>
+      ) : null}
     </div>
   )
 }
@@ -83,6 +91,7 @@ export function LinkActions({
   link: ShareLink
   onRemoved: () => void
 }) {
+  const { t } = useTranslation("files")
   const [confirming, setConfirming] = React.useState(false)
 
   async function remove() {
@@ -91,12 +100,12 @@ export function LinkActions({
     })
     setConfirming(false)
     if (response.ok) {
-      toast.add({ type: "success", title: "Link removed" })
+      toast.add({ type: "success", title: t("links.removed") })
       onRemoved()
     } else {
       toast.add({
         type: "error",
-        title: "Couldn't remove the link",
+        title: t("links.removeFailed"),
         description: errorMessage(error),
       })
     }
@@ -108,35 +117,34 @@ export function LinkActions({
         variant="outline"
         size="sm"
         onClick={() => void copyLink(link)}
-        aria-label={`Copy link to ${link.name}`}
+        aria-label={t("links.copyLinkTo", { name: link.name })}
       >
         <CopyIcon />
-        <span className="hidden sm:inline">Copy link</span>
+        <span className="hidden sm:inline">{t("links.copyLink")}</span>
       </Button>
       <Button
         variant="ghost"
         size="icon-sm"
         onClick={() => setConfirming(true)}
-        aria-label={`Remove link to ${link.name}`}
+        aria-label={t("links.removeLinkTo", { name: link.name })}
       >
         <Trash2Icon />
       </Button>
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove this link?</AlertDialogTitle>
+            <AlertDialogTitle>{t("links.removeTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Anyone with the link to {link.name} loses access. The files stay
-              where they are.
+              {t("links.removeDescription", { name: link.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("links.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => void remove()}
             >
-              Remove link
+              {t("links.removeLink")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

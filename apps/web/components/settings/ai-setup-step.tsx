@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { CheckCircle2Icon, TriangleAlertIcon } from "lucide-react"
 
 import { api, errorMessage } from "@workspace/api-client"
@@ -53,6 +54,7 @@ type Test = { ok: boolean; message: string } | "testing" | null
  * Needs a `CapabilitiesProvider` and a signed-in admin.
  */
 export function AiSetupStep({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation("ai")
   const [kinds, setKinds] = React.useState<ProviderKind[]>([])
   const [editing, setEditing] = React.useState<ProviderEditing>(null)
   const [provider, setProvider] = React.useState<Provider | null>(null)
@@ -78,7 +80,10 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
       { params: { path: { provider_id: p.id } } }
     )
     setTest(
-      data ?? { ok: false, message: errorMessage(error, "Couldn't connect") }
+      data ?? {
+        ok: false,
+        message: errorMessage(error, t("setup.couldntConnect")),
+      }
     )
     await reload()
   }
@@ -103,7 +108,7 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
       : current
     setSaving(false)
     if (!data) {
-      setSaveError(errorMessage(error, "Couldn't save the default model"))
+      setSaveError(errorMessage(error, t("setup.couldntSave")))
       return
     }
     onDone()
@@ -116,11 +121,8 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-xl">Set up the AI assistant</CardTitle>
-        <CardDescription>
-          Optional. The assistant answers questions about this server and, with
-          your approval, installs apps and manages packages and files.
-        </CardDescription>
+        <CardTitle className="text-xl">{t("setup.title")}</CardTitle>
+        <CardDescription>{t("setup.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {!provider ? (
@@ -137,14 +139,13 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
               </>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Add a cloud provider with an API key, or a local one such as
-                Ollama, LM Studio or llama.cpp.
+                {t("setup.addHint")}
               </p>
             )}
             <AddMenu
               kinds={kinds}
               onPick={(kind) => setEditing({ kind })}
-              label={local.length ? "Another provider" : "Add a provider"}
+              label={local.length ? t("anotherProvider") : t("addAProvider")}
             />
           </div>
         ) : (
@@ -152,18 +153,24 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
             {test === "testing" || test === null ? (
               <Alert>
                 <Spinner />
-                <AlertTitle>Connecting to {provider.name}…</AlertTitle>
+                <AlertTitle>
+                  {t("setup.connecting", { name: provider.name })}
+                </AlertTitle>
               </Alert>
             ) : test.ok ? (
               <Alert>
                 <CheckCircle2Icon />
-                <AlertTitle>{provider.name} is connected</AlertTitle>
+                <AlertTitle>
+                  {t("setup.connected", { name: provider.name })}
+                </AlertTitle>
                 <AlertDescription>{test.message}</AlertDescription>
               </Alert>
             ) : (
               <Alert variant="destructive">
                 <TriangleAlertIcon />
-                <AlertTitle>{provider.name} didn&apos;t connect</AlertTitle>
+                <AlertTitle>
+                  {t("setup.didntConnect", { name: provider.name })}
+                </AlertTitle>
                 <AlertDescription>
                   <p>{test.message}</p>
                   <Button
@@ -175,14 +182,14 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
                       if (kind) setEditing({ kind, provider })
                     }}
                   >
-                    Edit provider
+                    {t("setup.editProvider")}
                   </Button>
                 </AlertDescription>
               </Alert>
             )}
             <Field data-invalid={saveError ? true : undefined}>
               <FieldLabel htmlFor="setup-default-model">
-                Default model
+                {t("setup.defaultModel")}
               </FieldLabel>
               {models === null || test === "testing" ? (
                 <Skeleton className="h-9 w-full" />
@@ -195,10 +202,7 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
                   onChange={setModel}
                 />
               )}
-              <FieldDescription>
-                New chats start with it. Only models that can use tools work
-                with the assistant.
-              </FieldDescription>
+              <FieldDescription>{t("setup.defaultModelHelp")}</FieldDescription>
               {saveError ? <FieldError>{saveError}</FieldError> : null}
             </Field>
           </FieldGroup>
@@ -212,7 +216,7 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
             onClick={() => void finish()}
           >
             {saving ? <Spinner /> : null}
-            Finish
+            {t("setup.finish")}
           </Button>
         ) : null}
         <Button
@@ -221,10 +225,10 @@ export function AiSetupStep({ onDone }: { onDone: () => void }) {
           disabled={saving}
           onClick={onDone}
         >
-          {provider ? "Skip the default model" : "Skip for now"}
+          {provider ? t("setup.skipModel") : t("setup.skip")}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          You can change this later in Settings → AI.
+          {t("setup.later")}
         </p>
       </CardFooter>
       <ProviderDialog

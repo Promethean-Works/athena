@@ -1,0 +1,196 @@
+{
+  "page": {
+    "description": "Uygulamalar, Athena'nın yönettiği compose projeleridir."
+  },
+  "newApp": "Yeni uygulama",
+  "open": "Aç",
+  "list": {
+    "failed": "Uygulamalar listelenemedi"
+  },
+  "status": {
+    "running": "Çalışıyor",
+    "partial": "{{running}}/{{total}} çalışıyor",
+    "stopped": "Durduruldu",
+    "notDeployed": "Dağıtılmadı"
+  },
+  "actions": {
+    "restart": "Yeniden başlat",
+    "stop": "Durdur",
+    "start": "Başlat",
+    "updateImages": "İmajları güncelle",
+    "remove": "Kaldır"
+  },
+  "jobs": {
+    "failed": {
+      "start": "{{name}} başlatılamadı",
+      "stop": "{{name}} durdurulamadı",
+      "restart": "{{name}} yeniden başlatılamadı",
+      "update": "{{name}} güncellenemedi",
+      "remove": "{{name}} kaldırılamadı",
+      "save": "{{name}} kaydedilemedi",
+      "saveSettings": "{{name}} ayarları kaydedilemedi",
+      "deploy": "{{name}} dağıtılamadı"
+    }
+  },
+  "delete": {
+    "title": "{{name}} kaldırılsın mı?",
+    "description": "Konteynerleri durdurulup kaldırılır ve Athena uygulamayı unutur.",
+    "deleteData": "Birimlerini ve veri klasörünü de sil. Bu geri alınamaz.",
+    "cancel": "İptal",
+    "confirm": "Kaldır"
+  },
+  "grid": {
+    "emptyTitle": "Henüz uygulama yok",
+    "emptyDescription": "Bir compose dosyası dağıtın ya da bir <code>docker run</code> komutunu dönüştürün.",
+    "containerCount_one": "{{count}} konteyner",
+    "containerCount_other": "{{count}} konteyner",
+    "fromDockerRun": "docker run'dan",
+    "actionsFor": "{{name}} için eylemler"
+  },
+  "containerState": {
+    "running": "çalışıyor",
+    "exited": "çıktı",
+    "dead": "ölü",
+    "paused": "duraklatıldı",
+    "created": "oluşturuldu",
+    "restarting": "yeniden başlıyor"
+  },
+  "detail": {
+    "loadFailed": "Uygulama yüklenemedi",
+    "loadFailedNamed": "{{name}} yüklenemedi",
+    "tabContainers": "Konteynerler",
+    "tabCompose": "Compose",
+    "tabSettings": "Ayarlar",
+    "tabBackups": "Yedekler",
+    "noContainers": "Konteyner yok",
+    "noContainersHint": "Konteynerlerini oluşturmak için uygulamayı başlatın.",
+    "logs": "Günlükler",
+    "shell": "Kabuk",
+    "composeHelp": "Kaydetmek önceki sürümü compose.prev.yaml olarak saklar ve uygulamayı yeniden dağıtır.",
+    "settingsHelp": "Kurulum formundaki değerler (.env). Buradan bir portu veya klasörü değiştirin, yeniden dağıtmak için kaydedin. Oluşturulmuş parolalar içerebilir.",
+    "saveRedeploy": "Kaydet ve yeniden dağıt",
+    "discard": "Değişiklikleri at"
+  },
+  "new": {
+    "nameInvalid": "Küçük harf, rakam, tire veya alt çizgi kullanın; harf veya rakamla başlayın.",
+    "convertFailed": "Komut dönüştürülemedi",
+    "validationFailed": "Doğrulama başarısız",
+    "name": "Ad",
+    "nameHelp": "Aynı zamanda compose proje adıdır. Sonradan değiştirilemez.",
+    "tabCompose": "Compose dosyası",
+    "tabRun": "docker run'dan",
+    "reviewConverted": "Dönüştürülen dosyayı gözden geçirin",
+    "upload": "Dosya yükle",
+    "composeHelp": "Sunucuda bu uygulamanın veri klasöründe durması gereken dosyalar için <code>${ATHENA_APP_DATA}</code> kullanın.",
+    "runLabel": "docker run komutu",
+    "runHelp": "Dağıtmadan önce gözden geçirebileceğiniz bir compose dosyasına dönüştürülür. Henüz hiçbir şey çalışmaz.",
+    "convert": "Compose'a dönüştür",
+    "valid": "Compose dosyası geçerli",
+    "invalid": "Compose dosyasında hatalar var",
+    "validate": "Doğrula",
+    "deploy": "Dağıt"
+  },
+  "compose": {
+    "serializationFailed": "Serileştirme başarısız",
+    "addService": "Servis ekle",
+    "tabs": {
+      "settings": "Ayarlar",
+      "networks": "Ağlar",
+      "volumes": "Birimler",
+      "raw": "Ham YAML"
+    },
+    "restart": {
+      "no": "Hayır (yeniden başlatma)",
+      "always": "Her zaman",
+      "unlessStopped": "Durdurulmadıkça",
+      "onFailure": "Hata olunca"
+    },
+    "volumeMode": {
+      "rw": "Okuma/Yazma",
+      "ro": "Salt okunur"
+    },
+    "table": {
+      "actions": "Eylemler",
+      "empty": "Henüz öğe yok",
+      "moveUp": "Yukarı taşı",
+      "moveDown": "Aşağı taşı",
+      "remove": "Kaldır",
+      "add": "Ekle"
+    },
+    "service": {
+      "collapse": "Daralt",
+      "expand": "Genişlet",
+      "namePlaceholder": "servis adı",
+      "noImage": "imaj yok",
+      "image": "İmaj",
+      "imageHelp": "Docker imaj adı. Docker Hub, GHCR ve diğer kayıt defterlerini destekler.",
+      "restartPolicy": "Yeniden başlatma ilkesi"
+    },
+    "ports": {
+      "title": "Portlar",
+      "host": "Ana makine portu",
+      "container": "Konteyner portu",
+      "protocol": "Protokol",
+      "help": "Ana makine portlarını konteyner portlarına eşleyin. Rastgele atama için ana makine portunu boş bırakın."
+    },
+    "volumes": {
+      "title": "Birimler",
+      "host": "Ana makine yolu / Birim adı",
+      "container": "Konteyner yolu",
+      "mode": "Mod",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data veya volume-name",
+      "help": "Ana makine yollarını veya adlandırılmış birimleri bağlayın. Bu uygulamanın veri klasörü için <code>${ATHENA_APP_DATA}</code> kullanın."
+    },
+    "env": {
+      "title": "Ortam değişkenleri",
+      "help": "Konteynere aktarılan ortam değişkenleri. Kurulum formundaki değerler (.env) de kullanılabilir.",
+      "valuePlaceholder": "değer"
+    },
+    "keyValue": {
+      "key": "Anahtar",
+      "value": "Değer"
+    },
+    "command": {
+      "command": "Komut",
+      "commandPlaceholder": "İmajın varsayılan komutunu geçersiz kılar",
+      "entrypoint": "Giriş noktası",
+      "entrypointPlaceholder": "İmajın varsayılan giriş noktasını geçersiz kılar",
+      "workingDir": "Çalışma dizini",
+      "user": "Kullanıcı"
+    },
+    "resources": {
+      "title": "Kaynak sınırları",
+      "cpuLimit": "CPU sınırı",
+      "cpuCores": "CPU çekirdekleri",
+      "memoryLimit": "Bellek sınırı",
+      "memoryLimitHelp": "ör. 512M, 1G",
+      "cpuReservation": "CPU ayırma",
+      "memoryReservation": "Bellek ayırma",
+      "memoryReservationHelp": "ör. 256M"
+    },
+    "health": {
+      "title": "Sağlık denetimi",
+      "test": "Test komutu",
+      "interval": "Aralık",
+      "timeout": "Zaman aşımı",
+      "retries": "Yeniden deneme"
+    },
+    "labels": {
+      "title": "Etiketler",
+      "valuePlaceholder": "Servisim"
+    },
+    "networks": {
+      "title": "Ağlar",
+      "help": "Virgülle ayrılmış ağ adları. Ağları Ağlar sekmesinde tanımlayın."
+    },
+    "dependsOn": {
+      "title": "Bağımlılıklar",
+      "help": "Bundan önce başlaması gereken, virgülle ayrılmış servis adları."
+    },
+    "entries": {
+      "name": "Ad",
+      "driver": "Sürücü",
+      "external": "Harici"
+    }
+  }
+}

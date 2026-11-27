@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { useRouter } from "next/navigation"
 import {
   PlayIcon,
@@ -51,11 +52,13 @@ import { useAppJobs } from "@/components/apps/use-app-jobs"
 import { LogsSheet } from "@/components/containers/logs-sheet"
 import { ShellSheet } from "@/components/terminal/shell-sheet"
 import { useTerminalAccess } from "@/components/terminal/use-terminal-access"
+import i18n from "@/lib/i18n"
 
 type AppDetailOut = Schemas["AppDetail"]
 type Container = Schemas["ContainerOut"]
 
 export function AppDetail({ name }: { name: string }) {
+  const { t } = useTranslation("apps")
   const router = useRouter()
   const [app, setApp] = React.useState<AppDetailOut | null>(null)
   const [error, setError] = React.useState<string | null>(null)
@@ -74,7 +77,7 @@ export function AppDetail({ name }: { name: string }) {
     if (data) {
       setApp(data)
       setError(null)
-    } else setError(errorMessage(err, "Couldn't load the app"))
+    } else setError(errorMessage(err, i18n.t("apps:detail.loadFailed")))
   }, [name])
 
   React.useEffect(() => {
@@ -96,13 +99,20 @@ export function AppDetail({ name }: { name: string }) {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>Couldn&apos;t load {name}</EmptyTitle>
+          <EmptyTitle>{t("detail.loadFailedNamed", { name })}</EmptyTitle>
           <EmptyDescription>{error}</EmptyDescription>
         </EmptyHeader>
       </Empty>
     )
   }
   if (!app) return <Skeleton className="h-64 w-full" />
+
+  const stateLabel = (state: string) => {
+    const known = (
+      ["running", "exited", "dead", "paused", "created", "restarting"] as const
+    ).find((s) => s === state)
+    return known ? t(`containerState.${known}`) : state
+  }
 
   const dirty = draft !== null && draft !== app.compose
   const envDirty = envDraft !== null && envDraft !== app.env
@@ -114,7 +124,7 @@ export function AppDetail({ name }: { name: string }) {
         params: { path: { name } },
         body: { env: envDraft },
       }),
-      `save ${name} settings`
+      t("jobs.failed.saveSettings", { name })
     )
   }
 
@@ -125,7 +135,7 @@ export function AppDetail({ name }: { name: string }) {
         params: { path: { name } },
         body: { compose: draft },
       }),
-      `save ${name}`
+      t("jobs.failed.save", { name })
     )
   }
 
@@ -144,7 +154,7 @@ export function AppDetail({ name }: { name: string }) {
                 onClick={() => jobs.action(name, "restart")}
               >
                 <RotateCwIcon data-icon="inline-start" />
-                Restart
+                {t("actions.restart")}
               </Button>
               <Button
                 variant="outline"
@@ -152,13 +162,13 @@ export function AppDetail({ name }: { name: string }) {
                 onClick={() => jobs.action(name, "stop")}
               >
                 <SquareIcon data-icon="inline-start" />
-                Stop
+                {t("actions.stop")}
               </Button>
             </>
           ) : (
             <Button size="sm" onClick={() => jobs.action(name, "start")}>
               <PlayIcon data-icon="inline-start" />
-              Start
+              {t("actions.start")}
             </Button>
           )}
           <Button
@@ -167,7 +177,7 @@ export function AppDetail({ name }: { name: string }) {
             onClick={() => jobs.action(name, "update")}
           >
             <RefreshCcwIcon data-icon="inline-start" />
-            Update images
+            {t("actions.updateImages")}
           </Button>
           <Button
             variant="destructive"
@@ -175,7 +185,7 @@ export function AppDetail({ name }: { name: string }) {
             onClick={() => setRemoving(true)}
           >
             <Trash2Icon data-icon="inline-start" />
-            Remove
+            {t("actions.remove")}
           </Button>
         </div>
       </div>
@@ -183,22 +193,25 @@ export function AppDetail({ name }: { name: string }) {
       <Tabs defaultValue="containers">
         <TabsList>
           <TabsTrigger value="containers">
-            Containers <Badge variant="secondary">{app.total}</Badge>
+            {t("detail.tabContainers")}{" "}
+            <Badge variant="secondary">{app.total}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="compose">Compose</TabsTrigger>
+          <TabsTrigger value="compose">{t("detail.tabCompose")}</TabsTrigger>
           {app.env !== null ? (
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="settings">
+              {t("detail.tabSettings")}
+            </TabsTrigger>
           ) : null}
-          <TabsTrigger value="backups">Backups</TabsTrigger>
+          <TabsTrigger value="backups">{t("detail.tabBackups")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="containers" className="pt-2">
           {app.containers.length === 0 ? (
             <Empty className="border">
               <EmptyHeader>
-                <EmptyTitle>No containers</EmptyTitle>
+                <EmptyTitle>{t("detail.noContainers")}</EmptyTitle>
                 <EmptyDescription>
-                  Start the app to create its containers.
+                  {t("detail.noContainersHint")}
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
@@ -215,7 +228,7 @@ export function AppDetail({ name }: { name: string }) {
                         }
                         className="capitalize"
                       >
-                        {c.state}
+                        {stateLabel(c.state)}
                       </Badge>
                     </ItemTitle>
                     <ItemDescription>
@@ -230,7 +243,7 @@ export function AppDetail({ name }: { name: string }) {
                       onClick={() => setLogsFor(c)}
                     >
                       <ScrollTextIcon data-icon="inline-start" />
-                      Logs
+                      {t("detail.logs")}
                     </Button>
                     {canShell && c.state === "running" && (
                       <Button
@@ -239,7 +252,7 @@ export function AppDetail({ name }: { name: string }) {
                         onClick={() => setShellFor(c)}
                       >
                         <SquareTerminalIcon data-icon="inline-start" />
-                        Shell
+                        {t("detail.shell")}
                       </Button>
                     )}
                   </ItemActions>
@@ -256,21 +269,18 @@ export function AppDetail({ name }: { name: string }) {
             ariaLabel={`${app.name} compose.yaml`}
             minHeight="20rem"
           />
-          <FieldDescription>
-            Saving keeps the previous version as compose.prev.yaml and redeploys
-            the app.
-          </FieldDescription>
+          <FieldDescription>{t("detail.composeHelp")}</FieldDescription>
           <div className="flex gap-2">
             <Button onClick={save} disabled={!dirty}>
               <SaveIcon data-icon="inline-start" />
-              Save and redeploy
+              {t("detail.saveRedeploy")}
             </Button>
             <Button
               variant="outline"
               onClick={() => setDraft(null)}
               disabled={!dirty}
             >
-              Discard changes
+              {t("detail.discard")}
             </Button>
           </div>
         </TabsContent>
@@ -284,21 +294,18 @@ export function AppDetail({ name }: { name: string }) {
               aria-label={`${app.name} .env`}
               minHeight="12rem"
             />
-            <FieldDescription>
-              The values from the install form (.env). Change a port or folder
-              here, then save to redeploy. It may contain generated passwords.
-            </FieldDescription>
+            <FieldDescription>{t("detail.settingsHelp")}</FieldDescription>
             <div className="flex gap-2">
               <Button onClick={saveEnv} disabled={!envDirty}>
                 <SaveIcon data-icon="inline-start" />
-                Save and redeploy
+                {t("detail.saveRedeploy")}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setEnvDraft(null)}
                 disabled={!envDirty}
               >
-                Discard changes
+                {t("detail.discard")}
               </Button>
             </div>
           </TabsContent>

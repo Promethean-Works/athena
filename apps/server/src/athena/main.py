@@ -19,6 +19,7 @@ from athena.api import cloud as cloud_api
 from athena.api import feedback as feedback_api
 from athena.api import files as files_api
 from athena.api import https as https_api
+from athena.api import mounts as mounts_api
 from athena.api import nfs as nfs_api
 from athena.api import packages as packages_api
 from athena.api import settings as settings_api
@@ -105,6 +106,16 @@ def create_app(
     for session in db.session():
         seed_defaults(session, settings.data_dir)
 
+    async def _restore_mounts(app: FastAPI) -> None:
+        """Mount the saved cloud folders again once the host's capabilities are known."""
+        from athena.cloud import mounts as cloud_mounts
+
+        cap = (await store.get()).get("cloud.mount")
+        if cap is None or cap.status != "ready":
+            return
+        for session in db.session():
+            await cloud_mounts.restore(session, app.state.rclone, cap.provider)
+
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # Initialize models.dev service for dynamic provider loading
@@ -129,6 +140,7 @@ def create_app(
         # HTTPS: a second listener on the HTTPS port when it's turned on (never raises).
         await app.state.https.start()
         tunnel_autostart.auto_start(app)
+        mounts_task = asyncio.create_task(_restore_mounts(app))
         if settings.durable_execution_database_url:
             from pgtask import Client, TaskRegistry
             from pgtask import Worker as PgWorker
@@ -148,6 +160,7 @@ def create_app(
         update_task.cancel()
         update_audit_task.cancel()
         refresh_task.cancel()
+        mounts_task.cancel()
         if worker is not None:
             worker.shutdown()
             if worker_task is not None:
@@ -222,6 +235,7 @@ def create_app(
     app.include_router(shares_api.public_router, prefix="/api")
     app.include_router(smb_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(nfs_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(mounts_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(cloud_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(webdav_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(shares_api.router, prefix="/api", dependencies=[require_user])

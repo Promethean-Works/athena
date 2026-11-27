@@ -1,0 +1,268 @@
+{
+  "common": {
+    "manage": "Quản lý"
+  },
+  "cardShell": {
+    "open": "Mở"
+  },
+  "cards": {
+    "stats": {
+      "title": "Hệ thống",
+      "description": "Hoạt động CPU, bộ nhớ, mạng và ổ đĩa theo thời gian thực."
+    },
+    "apps": {
+      "title": "Ứng dụng",
+      "description": "Các ứng dụng của bạn, kèm trạng thái và nút Mở."
+    },
+    "containers": {
+      "title": "Container",
+      "description": "Số container đang chạy và đã dừng, và những container cần chú ý."
+    },
+    "automation": {
+      "title": "Tự động hóa",
+      "description": "Các lần chạy theo lịch sắp tới và kết quả các lần chạy gần đây."
+    },
+    "storage": {
+      "title": "Lưu trữ",
+      "description": "Dung lượng đã dùng trên mỗi ổ đĩa."
+    },
+    "server": {
+      "title": "Máy chủ",
+      "description": "Tên máy, hệ điều hành, thời gian hoạt động và phiên bản."
+    },
+    "temperatures": {
+      "title": "Nhiệt độ",
+      "description": "Số đọc cảm biến, nếu máy chủ báo cáo."
+    },
+    "power": {
+      "title": "Nguồn điện",
+      "description": "Sụt áp và giảm xung nhịp trên Raspberry Pi."
+    },
+    "activity": {
+      "title": "Hoạt động gần đây",
+      "description": "Các thay đổi mới nhất từ nhật ký kiểm tra (chỉ quản trị viên)."
+    },
+    "remoteAccess": {
+      "title": "Truy cập từ xa",
+      "description": "Trạng thái tunnel và địa chỉ công khai."
+    },
+    "capabilities": {
+      "title": "Khả năng",
+      "description": "Những gì Athena tìm thấy trên máy chủ này."
+    },
+    "backups": {
+      "title": "Sao lưu",
+      "description": "Kế hoạch sao lưu, các lần chạy gần nhất và lần chạy theo lịch tiếp theo."
+    }
+  },
+  "activity": {
+    "title": "Hoạt động gần đây",
+    "description": "Ai đã thay đổi gì trên máy chủ này.",
+    "loadError": "Không thể tải hoạt động gần đây: {{error}}",
+    "empty": "Chưa có gì. Các thao tác trên ứng dụng, container và tệp sẽ hiện ở đây.",
+    "by": "bởi {{username}}"
+  },
+  "automation": {
+    "title": "Tự động hóa",
+    "description": "Trigger theo lịch và webhook, cùng kết quả các lần chạy.",
+    "succeeded": "Thành công",
+    "failed": "Thất bại",
+    "loadError": "Không thể tải tự động hóa: {{error}}",
+    "noTriggers": "Chưa có trigger. Tạo một trigger để khởi động lại ứng dụng hoặc cập nhật gói theo lịch.",
+    "nextRuns": "Lần chạy tiếp theo · {{enabled}}/{{total}} trigger đang bật",
+    "nothingScheduled": "Chưa có gì được lên lịch. Trigger webhook chạy khi được gọi.",
+    "recentRuns": "Lần chạy gần đây",
+    "noRuns": "Chưa có lần chạy nào.",
+    "deletedTrigger": "Trigger đã xóa"
+  },
+  "backup": {
+    "title": "Sao lưu",
+    "description": "Kế hoạch sao lưu, các lần chạy gần nhất và lần chạy theo lịch tiếp theo.",
+    "succeeded": "Thành công",
+    "failed": "Thất bại",
+    "running": "Đang chạy",
+    "loadError": "Không thể tải kế hoạch sao lưu: {{error}}",
+    "empty": "Chưa có kế hoạch sao lưu. Thêm một kế hoạch trong Cài đặt → Sao lưu.",
+    "plans": "Kế hoạch",
+    "enabled": "Đã bật",
+    "plansFailed_other": "{{count}} kế hoạch thất bại",
+    "noFailures": "Không có lỗi gần đây",
+    "nextRuns": "Các lần chạy theo lịch tiếp theo",
+    "noScheduled": "Không có lần chạy theo lịch"
+  },
+  "containers": {
+    "title": "Container",
+    "description": "Mọi thứ engine container đang chạy, gồm cả ứng dụng.",
+    "all": "Tất cả container",
+    "running": "Đang chạy",
+    "notRunning": "Không chạy",
+    "needAttention": "Cần chú ý",
+    "exited": "Đã thoát ({{code}})",
+    "loadError": "Không thể tải container: {{error}}",
+    "empty": "Máy chủ này chưa có container nào.",
+    "engineDown": "Engine container đang không chạy."
+  },
+  "apps": {
+    "title": "Ứng dụng",
+    "subtitle": "Những gì đang chạy trên máy chủ này",
+    "store": "Cửa hàng",
+    "all": "Tất cả ứng dụng",
+    "emptyTitle": "Chưa có ứng dụng",
+    "emptyDescription": "Cài một ứng dụng từ cửa hàng, hoặc triển khai tệp compose của riêng bạn.",
+    "browseStore": "Duyệt cửa hàng",
+    "status": {
+      "running": "Đang chạy",
+      "partial": "Chạy một phần",
+      "stopped": "Đã dừng",
+      "notDeployed": "Chưa triển khai"
+    },
+    "containerCount_other": "{{count}} container",
+    "actionsFor": "Thao tác cho {{name}}",
+    "open": "Mở",
+    "openPort": "Mở :{{port}}",
+    "details": "Chi tiết",
+    "restart": "Khởi động lại",
+    "stop": "Dừng",
+    "start": "Khởi động",
+    "updateImages": "Cập nhật image",
+    "remove": "Gỡ"
+  },
+  "grid": {
+    "pickedUp": "Đã nhấc thẻ {{title}}.",
+    "overCard": "{{title}} đang ở trên {{other}}.",
+    "notOverCard": "{{title}} không còn ở trên thẻ nào.",
+    "moved": "{{title}} đã chuyển đến vị trí của {{other}}.",
+    "dropped": "Đã thả {{title}}.",
+    "cancelled": "Đã hủy việc di chuyển {{title}}.",
+    "move": "Di chuyển {{title}}",
+    "moveUp": "Đưa {{title}} lên",
+    "moveDown": "Đưa {{title}} xuống",
+    "makeHalf": "Đặt {{title}} rộng một nửa",
+    "makeFull": "Đặt {{title}} rộng toàn bộ",
+    "remove": "Gỡ {{title}}",
+    "nothingToShow": "Hiện chưa có gì để hiển thị trên máy chủ này.",
+    "addDialogTitle": "Thêm thẻ",
+    "addDialogDescription": "Thẻ được thêm vào cuối; kéo chúng đến vị trí bạn muốn.",
+    "allAddedTitle": "Mọi thẻ đều đã có trên bảng điều khiển",
+    "allAddedDescription": "Gỡ một thẻ để thêm lại sau.",
+    "addCard": "Thêm {{title}}",
+    "add": "Thêm",
+    "editHint": "Kéo thẻ bằng tay nắm, hoặc dùng các mũi tên. Thay đổi được lưu khi bạn nhấn Xong.",
+    "addCardButton": "Thêm thẻ",
+    "reset": "Đặt lại",
+    "cancel": "Hủy",
+    "done": "Xong",
+    "customize": "Tùy chỉnh",
+    "emptyTitle": "Bảng điều khiển trống",
+    "emptyDescription": "Thêm thẻ, hoặc đặt lại về bố cục mặc định.",
+    "dragInstructions": "Để di chuyển thẻ, nhấn Space hoặc Enter, dùng phím mũi tên, rồi nhấn Space hoặc Enter lần nữa để thả, hoặc Escape để hủy."
+  },
+  "stats": {
+    "used": "Đã dùng",
+    "download": "Tải xuống",
+    "upload": "Tải lên",
+    "read": "Đọc",
+    "write": "Ghi",
+    "util": "Sử dụng",
+    "unavailableTitle": "Không có số liệu thời gian thực",
+    "unavailableDescription": "Máy chủ không trả về thống kê của máy.",
+    "coresThreads": "{{cores}} nhân · {{threads}} luồng",
+    "cores_other": "{{count}} nhân",
+    "coresLoad": "{{cores}} · tải {{load}}",
+    "liveLabel": "Số liệu máy chủ thời gian thực",
+    "system": "Hệ thống",
+    "live": "Trực tiếp",
+    "reconnecting": "Đang kết nối lại",
+    "chartRange": "Khoảng thời gian biểu đồ",
+    "range5m": "5 phút",
+    "range1h": "1 giờ",
+    "memory": "Bộ nhớ",
+    "memUsed": "Đã dùng {{used}}",
+    "memUsedSwap": "Đã dùng {{used}} · swap {{swap}}",
+    "network": "Mạng",
+    "diskActivity": "Hoạt động ổ đĩa",
+    "readRate": "Đ {{rate}}",
+    "writeRate": "G {{rate}}",
+    "gpuCount_other": "{{count}} GPU",
+    "noGpu": "không báo cáo GPU",
+    "vramOf": "{{used}}/{{total}}"
+  },
+  "power": {
+    "title": "Nguồn điện",
+    "description": "Nguồn điện và giảm xung nhịp của Raspberry Pi",
+    "problemNow": "Đang có sự cố",
+    "ok": "OK",
+    "flagNow": "{{label}} hiện tại",
+    "flagSinceBoot": "{{label}} từ lúc khởi động",
+    "none": "Không có sụt áp hoặc giảm xung nhịp kể từ khi máy chủ này khởi động.",
+    "flags": {
+      "underVoltage": {
+        "label": "Sụt áp",
+        "hint": "Bộ nguồn hoặc dây cáp không đáp ứng đủ. Hãy dùng bộ nguồn chính hãng và dây cáp ngắn, dày."
+      },
+      "throttled": {
+        "label": "Giảm xung nhịp",
+        "hint": "CPU bị giảm tốc để tự bảo vệ."
+      },
+      "freqCapped": {
+        "label": "Giới hạn tần số",
+        "hint": "Firmware đã hạ tốc độ CPU tối đa."
+      },
+      "softTempLimit": {
+        "label": "Giới hạn nhiệt độ mềm",
+        "hint": "CPU gần chạm giới hạn nhiệt độ. Hãy kiểm tra tản nhiệt."
+      }
+    }
+  },
+  "remote": {
+    "title": "Truy cập từ xa",
+    "description": "Truy cập Athena từ bên ngoài mạng của bạn.",
+    "settings": "Cài đặt",
+    "loadError": "Không thể tải truy cập từ xa: {{error}}",
+    "off": "Đang tắt. Bật trong Cài đặt → Hệ thống để truy cập Athena từ bên ngoài mạng của bạn.",
+    "running": "Đang chạy",
+    "notRunning": "Không chạy",
+    "noProvider": "Chưa có nhà cung cấp",
+    "warning": "Terminal, cài đặt gói và trợ lý có thể truy cập từ internet chỉ với một mật khẩu. <link>Hãy tắt chúng</link> nếu không cần dùng từ xa.",
+    "publicAddress": "Địa chỉ công khai",
+    "copyAddress": "Sao chép địa chỉ công khai",
+    "copied": "Đã sao chép địa chỉ",
+    "copyFailed": "Không thể sao chép"
+  },
+  "storage": {
+    "title": "Lưu trữ",
+    "description": "Ổ đĩa, thư mục, đám mây và chia sẻ mạng",
+    "noDisks": "Chưa có ổ đĩa nào được báo cáo.",
+    "diskUsage": "{{used}}/{{total}}",
+    "folders": "Thư mục",
+    "unavailable": "Không khả dụng",
+    "cloud": "Lưu trữ đám mây",
+    "shares": "Chia sẻ mạng",
+    "readOnly": "Chỉ đọc"
+  },
+  "temperatures": {
+    "title": "Nhiệt độ",
+    "description": "Cảm biến phần cứng"
+  },
+  "layout": {
+    "saveFailed": "Không thể lưu bảng điều khiển",
+    "saved": "Đã lưu bảng điều khiển"
+  },
+  "server": {
+    "title": "Máy chủ",
+    "description": "Máy đang chạy Athena",
+    "unreachableTitle": "Không thể kết nối máy chủ Athena",
+    "unreachableDescription": "{{error}}. Khi phát triển, khởi động bằng <code>uv run athena serve --reload</code> trong <code>apps/server</code>.",
+    "host": "Tên máy",
+    "os": "Hệ điều hành",
+    "platform": "Nền tảng",
+    "uptime": "Thời gian hoạt động",
+    "athena": "Athena",
+    "python": "Python"
+  },
+  "serverStatus": {
+    "connecting": "Đang kết nối…",
+    "unreachable": "Không kết nối được máy chủ",
+    "version": "Athena {{version}}"
+  }
+}

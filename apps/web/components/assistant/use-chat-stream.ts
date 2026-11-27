@@ -14,6 +14,7 @@ import {
 import type { PlanStep } from "@/components/assistant/plan"
 import type { Answer } from "@/components/assistant/question-card"
 import type { ModelRef } from "@/components/assistant/use-models"
+import i18n from "@/lib/i18n"
 
 export type ChatMessage = Schemas["ChatMessage"]
 export type ChatPart = Schemas["ChatPart"]
@@ -263,7 +264,7 @@ export function useChatStream(
           const d = (data ?? {}) as Record<string, unknown>
           if (event === "error") {
             ok = false
-            setError(String(d.message ?? "The assistant failed"))
+            setError(String(d.message ?? i18n.t("assistant:chat.failed")))
           } else if (event === "title") {
             handlersRef.current.onTitle?.(String(d.title))
           } else if (event === "usage") {

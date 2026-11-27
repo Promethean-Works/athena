@@ -1,0 +1,113 @@
+{
+  "support": {
+    "emulated": "Emulated",
+    "emulatedTitle": "No image for this CPU; Docker runs another one under emulation, which is slower",
+    "unsupported": "Won't run here",
+    "unsupportedTitle": "No image for this server's CPU"
+  },
+  "browser": {
+    "loadError": "Couldn't load the store",
+    "filteredCount": "{{shown}} of {{total}} apps",
+    "totalCount_one": "{{count}} app, each a compose project Athena sets up for you.",
+    "totalCount_other": "{{count}} apps, each a compose project Athena sets up for you.",
+    "browsePrompt": "Browse apps to install.",
+    "searchPlaceholder": "Search apps",
+    "catalogs": "Catalogs",
+    "showingUnsupported_one": "Showing {{count}} app that can't run on this server's CPU.",
+    "showingUnsupported_other": "Showing {{count}} apps that can't run on this server's CPU.",
+    "hiddenUnsupported_one": "{{count}} app is hidden because it has no image for this server's CPU.",
+    "hiddenUnsupported_other": "{{count}} apps are hidden because they have no image for this server's CPU.",
+    "hideThem": "Hide them",
+    "showThem": "Show them",
+    "all": "All",
+    "noMatchTitle": "No apps match",
+    "noMatchHidden_one": "{{count}} matching app is hidden because it has no image for this server's CPU.",
+    "noMatchHidden_other": "{{count}} matching apps are hidden because they have no image for this server's CPU.",
+    "noMatchHint": "Try another search or category.",
+    "showMatches_one": "Show it",
+    "showMatches_other": "Show them"
+  },
+  "card": {
+    "installed": "Installed"
+  },
+  "popular": {
+    "title": "Popular right now",
+    "subtitle": "The apps most home servers start with.",
+    "showPage": "Show page {{page}} of {{total}}"
+  },
+  "installForm": {
+    "generated": "Generated if left empty",
+    "nameInvalid": "Use lowercase letters, digits, dashes or underscores.",
+    "jobLabel": "install {{title}}",
+    "appName": "App name",
+    "nameHint": "Install the same app twice under different names if you need to.",
+    "advanced": "Advanced settings",
+    "install": "Install {{title}}"
+  },
+  "view": {
+    "loadError": "Couldn't load this app",
+    "notFound": "App not found",
+    "website": "Website",
+    "alreadyInstalled": "Already installed",
+    "installedAs": "As",
+    "installAnother": "You can install another copy under a different name.",
+    "beforeYouStart": "Before you start",
+    "whatYouGet": "What you get",
+    "details": "Details",
+    "category": "Category",
+    "license": "License",
+    "images": "Images",
+    "platforms": "Platforms",
+    "viewCompose": "View compose.yaml",
+    "reportPrompt": "Doesn't work as expected?",
+    "install": "Install",
+    "installHint": "Your answers are saved in the app's .env file on the server, next to its compose.yaml.",
+    "variant": "Variant",
+    "cannotInstall": "{{title}} can't be installed on this server: it has no image for {{platform}}.",
+    "thisCpu": "this CPU",
+    "thisServerCpu": "this server's CPU",
+    "moreIn": "More in {{category}}",
+    "cpu": {
+      "unsupportedTitle": "Doesn't run on this server",
+      "unsupportedBody": "Its images are published for {{published}}, and this server is {{host}}.",
+      "emulatedTitle": "Runs under emulation",
+      "emulatedBody": "There's no image for {{host}}, so Docker runs the {{published}} one under emulation. It works, but it's slower and uses more memory."
+    },
+    "screenshot": {
+      "alt": "{{title}} screenshot",
+      "open": "Open a larger {{title}} screenshot",
+      "enlarge": "Enlarge",
+      "show": "Show screenshot {{number}}",
+      "description": "A screenshot of {{title}}.",
+      "close": "Close"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "Detect automatically",
+    "kindAthena": "Athena catalog",
+    "never": "never",
+    "addFailed": "Couldn't add the catalog",
+    "refreshFailed": "Couldn't refresh {{name}}",
+    "removeFailed": "Couldn't remove {{name}}",
+    "removed": "Removed {{name}}",
+    "builtIn": "Built in",
+    "refreshFailedBadge": "Refresh failed",
+    "summaryBuiltin_one": "{{count}} app · ships with Athena",
+    "summaryBuiltin_other": "{{count}} apps · ships with Athena",
+    "summaryUpdated_one": "{{count}} app · updated {{when}}",
+    "summaryUpdated_other": "{{count}} apps · updated {{when}}",
+    "refresh": "Refresh",
+    "removeLabel": "Remove {{name}}",
+    "addTitle": "Add a catalog",
+    "addDescription": "A GitHub, Codeberg or GitLab repository, or a direct .tar.gz/.zip link.",
+    "name": "Name",
+    "namePlaceholder": "My apps",
+    "format": "Format",
+    "formatHint": "Athena catalogs use apps/<id>/compose.yaml; CasaOS stores use Apps/<Name>/docker-compose.yml.",
+    "add": "Add catalog",
+    "removeTitle": "Remove {{name}}?",
+    "removeDescription": "Its apps disappear from the store. Apps you already installed from it keep running.",
+    "cancel": "Cancel",
+    "remove": "Remove"
+  }
+}

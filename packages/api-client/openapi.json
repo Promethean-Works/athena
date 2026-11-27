@@ -3362,10 +3362,10 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/SmbShareOut"
                   },
-                  "type": "array",
                   "title": "Response Listsmbshares"
                 }
               }
@@ -3380,15 +3380,35 @@
         "summary": "Create Smb Share",
         "description": "Share a location over SMB. On Linux this writes a section to\n/etc/samba/smb.conf and reloads smbd; on other operating systems it's 501.",
         "operationId": "createSmbShare",
+        "parameters": [
+          {
+            "name": "X-Host-Password",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged.",
+              "title": "X-Host-Password"
+            },
+            "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged."
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/SmbShareIn"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -3431,6 +3451,24 @@
               "type": "integer",
               "title": "Share Id"
             }
+          },
+          {
+            "name": "X-Host-Password",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged.",
+              "title": "X-Host-Password"
+            },
+            "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged."
           }
         ],
         "responses": {
@@ -3464,10 +3502,10 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/NfsShareOut"
                   },
-                  "type": "array",
                   "title": "Response Listnfsshares"
                 }
               }
@@ -3482,15 +3520,35 @@
         "summary": "Create Nfs Share",
         "description": "Export a location over NFS to the listed clients (501 if the host can't).",
         "operationId": "createNfsShare",
+        "parameters": [
+          {
+            "name": "X-Host-Password",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged.",
+              "title": "X-Host-Password"
+            },
+            "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged."
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/NfsShareIn"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -3532,6 +3590,125 @@
             "schema": {
               "type": "integer",
               "title": "Share Id"
+            }
+          },
+          {
+            "name": "X-Host-Password",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged.",
+              "title": "X-Host-Password"
+            },
+            "description": "The host account's password, for a share that needs root (macOS). Used for this request only; never stored or logged."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cloud/mounts": {
+      "get": {
+        "tags": [
+          "cloud mounts"
+        ],
+        "summary": "List Cloud Mounts",
+        "operationId": "listCloudMounts",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MountOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listcloudmounts"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cloud mounts"
+        ],
+        "summary": "Mount Cloud Folder",
+        "description": "Mount a remote folder on this computer (or return the mount that exists).",
+        "operationId": "mountCloudFolder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MountIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MountOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cloud/mounts/{mount_id}": {
+      "delete": {
+        "tags": [
+          "cloud mounts"
+        ],
+        "summary": "Unmount Cloud Folder",
+        "description": "Unmount a cloud folder. 409 while a share still uses it.",
+        "operationId": "unmountCloudFolder",
+        "parameters": [
+          {
+            "name": "mount_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Mount Id"
             }
           }
         ],
@@ -7305,6 +7482,12 @@
             "pattern": "^[a-z0-9-]{1,32}$",
             "title": "Radius",
             "default": "default"
+          },
+          "language": {
+            "type": "string",
+            "pattern": "^(auto|[a-z]{2,3}(-[A-Z]{2})?)$",
+            "title": "Language",
+            "default": "auto"
           }
         },
         "type": "object",
@@ -7475,6 +7658,21 @@
             "type": "array",
             "title": "Actions",
             "default": []
+          },
+          "elevation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "password",
+                  "system"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elevation"
           },
           "available": {
             "type": "boolean",
@@ -10312,6 +10510,62 @@
           "models"
         ],
         "title": "ModelsOut"
+      },
+      "MountIn": {
+        "properties": {
+          "remote": {
+            "type": "string",
+            "title": "Remote"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "default": ""
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "remote"
+        ],
+        "title": "MountIn"
+      },
+      "MountOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "remote": {
+            "type": "string",
+            "title": "Remote"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "location_id": {
+            "type": "integer",
+            "title": "Location Id"
+          },
+          "read_only": {
+            "type": "boolean",
+            "title": "Read Only"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "remote",
+          "path",
+          "location_id",
+          "read_only"
+        ],
+        "title": "MountOut"
       },
       "NameIn": {
         "properties": {

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { MessageCircleQuestionIcon } from "lucide-react"
 
 import type { Schemas } from "@workspace/api-client"
@@ -22,6 +23,7 @@ import {
 } from "@workspace/ui/components/radio-group"
 
 import type { ChatPart } from "@/components/assistant/use-chat-stream"
+import i18n from "@/lib/i18n"
 
 export type Answer = Schemas["Answer"]
 
@@ -56,6 +58,7 @@ function OneQuestion({
   onChange: (p: Pick) => void
   disabled: boolean
 }) {
+  const { t } = useTranslation("assistant")
   const base = `${React.useId()}-q${index}`
   return (
     <FieldSet disabled={disabled}>
@@ -101,8 +104,8 @@ function OneQuestion({
         </RadioGroup>
       )}
       <Input
-        aria-label={`Your own answer to ${q.header}`}
-        placeholder="Or type your own answer"
+        aria-label={t("question.ownAnswerLabel", { header: q.header })}
+        placeholder={t("question.ownAnswerPlaceholder")}
         maxLength={MAX_CUSTOM}
         value={pick.custom}
         onChange={(e) => onChange({ selected: [], custom: e.target.value })}
@@ -141,13 +144,14 @@ export function QuestionCard({
   busy: boolean
   onAnswer: (answer: Answer) => void
 }) {
+  const { t } = useTranslation("assistant")
   const questions = questionsOf(part)
   const [picks, setPicks] = React.useState<Pick[]>(() =>
     questions.map(() => ({ selected: [], custom: "" }))
   )
   const ready = picks.every((p) => p.selected.length > 0 || p.custom.trim())
   const id = part.tool_call_id ?? ""
-  const title = questions.length === 1 ? questions[0]!.header : "Questions"
+  const title = questions.length === 1 ? questions[0]!.header : t("question.title")
 
   function send(declined: boolean) {
     onAnswer({
@@ -167,14 +171,13 @@ export function QuestionCard({
   return (
     <div
       role="group"
-      aria-label={`The assistant asks: ${title}`}
+      aria-label={t("question.asks", { title })}
       className="flex w-full flex-col gap-4 rounded-lg border bg-card p-3 text-sm text-card-foreground"
     >
       <div className="flex items-start gap-2">
         <MessageCircleQuestionIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
         <p className="text-muted-foreground">
-          The assistant is asking before it goes on. Never answer with a
-          password or key.
+          {t("question.intro")}
         </p>
       </div>
       {questions.map((q, i) => (
@@ -197,20 +200,21 @@ export function QuestionCard({
             disabled={busy}
             onClick={() => send(true)}
           >
-            Skip
+            {t("question.skip")}
           </Button>
           <Button
             size="sm"
             disabled={busy || !ready}
             onClick={() => send(false)}
           >
-            Send answers
+            {t("question.send")}
           </Button>
         </div>
       ) : (
         <p className="text-muted-foreground">
-          {answered.declined ? "Skipped" : "Answered"}. Answer the other cards
-          to go on.
+          {answered.declined
+            ? t("question.skippedGoOn")
+            : t("question.answeredGoOn")}
         </p>
       )}
     </div>
@@ -221,13 +225,12 @@ export function QuestionCard({
 export function answerSummary(part: ChatPart): string {
   try {
     const result = JSON.parse(part.result ?? "") as Record<string, string[]>
-    return (
-      "You answered: " +
-      Object.values(result)
+    return i18n.t("assistant:question.youAnswered", {
+      answers: Object.values(result)
         .map((v) => v.join(", "))
-        .join("; ")
-    )
+        .join("; "),
+    })
   } catch {
-    return "You skipped the question"
+    return i18n.t("assistant:question.youSkipped")
   }
 }

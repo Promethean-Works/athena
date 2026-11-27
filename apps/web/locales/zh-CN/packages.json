@@ -1,0 +1,58 @@
+{
+  "view": {
+    "noManagers": "未找到包管理器",
+    "noManagersHint": "Athena 在此主机上没有找到它支持的包管理器。"
+  },
+  "listError": "无法读取软件包列表",
+  "cancel": "取消",
+  "toast": {
+    "installFailed": "无法安装 {{name}}",
+    "uninstallFailed": "无法卸载 {{name}}",
+    "upgradeFailed": "无法升级 {{name}}",
+    "upgradeAllFailed": "无法升级软件包",
+    "refreshFailed": "无法刷新软件包列表"
+  },
+  "unavailable": "{{name}} 目前无法使用",
+  "unavailableHint": "它在此主机上尚未就绪。",
+  "refreshLists": "刷新列表",
+  "upgradeAll": "全部升级",
+  "tabs": {
+    "installed": "已安装",
+    "updates": "更新",
+    "search": "搜索"
+  },
+  "installed": {
+    "filter": "筛选已安装的软件包",
+    "noMatch": "没有匹配的已安装软件包。",
+    "empty": "尚未安装任何软件包。",
+    "upgradeLabel": "升级 {{name}}",
+    "upgrade": "升级",
+    "uninstallLabel": "卸载 {{name}}",
+    "uninstall": "卸载",
+    "shortened": "{{manager}} 缩短了此 ID，因此无法在这里卸载",
+    "showing": "显示 {{shown}} / {{total}} 项。请筛选以缩小范围。"
+  },
+  "table": {
+    "package": "软件包",
+    "version": "版本",
+    "description": "描述"
+  },
+  "updates": {
+    "upToDate": "全部已是最新",
+    "upToDateRefresh": "截至上次刷新列表。刷新列表可再次检查。",
+    "nothing": "没有可升级的内容。",
+    "installedColumn": "已安装",
+    "availableColumn": "可用"
+  },
+  "search": {
+    "label": "搜索 {{manager}}",
+    "noMatch": "没有匹配“{{query}}”的软件包。",
+    "install": "安装"
+  },
+  "confirm": {
+    "uninstallTitle": "卸载 {{name}}？",
+    "uninstallDescription": "它将从此服务器中移除。依赖它的软件包也可能被一并移除。",
+    "upgradeAllTitle": "升级所有 {{manager}} 软件包？",
+    "upgradeAllDescription_other": "将升级 {{count}} 个软件包。这可能需要一些时间。"
+  }
+}

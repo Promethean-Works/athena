@@ -31,6 +31,9 @@ class Capability(BaseModel):
     endpoint: str | None = None
     """How to reach it, e.g. a Docker API socket (unix:///…, npipe:////./pipe/…)."""
     actions: list[Action] = []
+    elevation: Literal["password", "system"] | None = None
+    """For `needs_privilege`: Athena can still do it if the admin approves. "password" means the
+    host account's password (sudo), "system" means the OS asks on the host's own screen (UAC)."""
 
     @computed_field
     @property

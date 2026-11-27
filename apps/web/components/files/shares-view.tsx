@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 import { ArrowLeftIcon, FileIcon, FolderIcon, Share2Icon } from "lucide-react"
 
 import { api } from "@workspace/api-client"
@@ -32,6 +33,7 @@ import {
 
 /** /files/shares: every share link, newest first. */
 export function SharesView() {
+  const { t } = useTranslation("files")
   const [links, setLinks] = React.useState<ShareLink[] | null>(null)
 
   const load = React.useCallback(async () => {
@@ -52,9 +54,11 @@ export function SharesView() {
           nativeButton={false}
         >
           <ArrowLeftIcon />
-          Files
+          {t("sharesView.files")}
         </Button>
-        <h2 className="font-heading text-lg font-medium">Share links</h2>
+        <h2 className="font-heading text-lg font-medium">
+          {t("sharesView.title")}
+        </h2>
       </div>
       {links === null ? (
         <Skeleton className="h-40 w-full" />
@@ -64,9 +68,9 @@ export function SharesView() {
             <EmptyMedia variant="icon">
               <Share2Icon />
             </EmptyMedia>
-            <EmptyTitle>No share links</EmptyTitle>
+            <EmptyTitle>{t("sharesView.emptyTitle")}</EmptyTitle>
             <EmptyDescription>
-              In Files, open a file or folder&apos;s menu and choose Share.
+              {t("sharesView.emptyDescription")}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -75,13 +79,15 @@ export function SharesView() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Shared</TableHead>
-                <TableHead className="hidden md:table-cell">Link</TableHead>
+                <TableHead>{t("sharesView.shared")}</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  {t("sharesView.link")}
+                </TableHead>
                 <TableHead className="hidden text-right sm:table-cell">
-                  Used
+                  {t("sharesView.used")}
                 </TableHead>
                 <TableHead className="w-0">
-                  <span className="sr-only">Actions</span>
+                  <span className="sr-only">{t("sharesView.actions")}</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -113,8 +119,8 @@ export function SharesView() {
                     </TableCell>
                     <TableCell className="hidden text-right text-muted-foreground tabular-nums sm:table-cell">
                       {link.mode === "upload"
-                        ? `${link.uploads} uploads`
-                        : `${link.downloads} downloads`}
+                        ? t("sharesView.uploads", { count: link.uploads })
+                        : t("sharesView.downloads", { count: link.downloads })}
                     </TableCell>
                     <TableCell>
                       <LinkActions link={link} onRemoved={() => void load()} />

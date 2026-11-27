@@ -15,10 +15,17 @@ from pydantic import BaseModel, Field
 
 from athena import audit
 from athena.api.files import _fail, _run
-from athena.api.netshares import require_share_capability
+from athena.api.netshares import (
+    HostPassword,
+    release_mount,
+    require_share_capability,
+    share_elevation,
+)
 from athena.auth.deps import Authed, DbSession
 from athena.db.models import SmbShare
 from athena.files import smb
+from athena.files.netshare import with_elevation
+from athena.files.paths import FileError
 
 router = APIRouter(prefix="/shares/smb", tags=["smb shares"])
 
@@ -65,22 +72,31 @@ def list_smb_shares(db: DbSession) -> list[SmbShareOut]:
 
 @router.post("", operation_id="createSmbShare", status_code=status.HTTP_201_CREATED)
 async def create_smb_share(
-    body: SmbShareIn, request: Request, user: Authed, db: DbSession
+    body: SmbShareIn,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    password: HostPassword = None,
 ) -> SmbShareOut:
     """Share a location over SMB. On Linux this writes a section to
     /etc/samba/smb.conf and reloads smbd; on other operating systems it's 501."""
-    await require_share_capability(request, "shares.smb")
+    cap = await require_share_capability(request, "shares.smb")
+    elevation = share_elevation(cap, password)
     try:
         entry = await _run(
-            lambda: smb.create_share(
-                db,
-                body.location,
-                body.name,
-                read_only=body.read_only,
-                guest_ok=body.guest_ok,
+            with_elevation(
+                elevation,
+                lambda: smb.create_share(
+                    db,
+                    body.location,
+                    body.name,
+                    read_only=body.read_only,
+                    guest_ok=body.guest_ok,
+                    provider=cap.provider or "samba",
+                ),
             )
         )
-    except smb.FileError as exc:
+    except FileError as exc:
         raise _fail(exc) from exc
     audit.record(
         db,
@@ -93,14 +109,28 @@ async def create_smb_share(
 
 
 @router.delete("/{share_id}", operation_id="removeSmbShare", status_code=status.HTTP_204_NO_CONTENT)
-async def remove_smb_share(share_id: int, request: Request, user: Authed, db: DbSession) -> None:
+async def remove_smb_share(
+    share_id: int,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    password: HostPassword = None,
+) -> None:
     """Remove an SMB share: drop its smb.conf section and the tracking row."""
     share = db.get(SmbShare, share_id)
     if share is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such SMB share")
-    await require_share_capability(request, "shares.smb")
+    location_id = share.location_id
+    cap = await require_share_capability(request, "shares.smb")
+    elevation = share_elevation(cap, password)
     try:
-        await _run(lambda: smb.remove_share(db, share_id))
-    except smb.FileError as exc:
+        await _run(
+            with_elevation(
+                elevation,
+                lambda: smb.remove_share(db, share_id, provider=cap.provider or "samba"),
+            )
+        )
+    except FileError as exc:
         raise _fail(exc) from exc
+    await release_mount(request, db, location_id)
     audit.record(db, user.user.username, "smb.share.remove", f"SMB:{share.name}")

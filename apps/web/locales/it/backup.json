@@ -1,0 +1,119 @@
+{
+  "add": "Aggiungi",
+  "cancel": "Annulla",
+  "back": "Indietro",
+  "errors": {
+    "listDestinations": "Impossibile elencare le destinazioni dei backup",
+    "createDestination": "Impossibile creare la destinazione",
+    "deleteDestination": "Impossibile eliminare la destinazione",
+    "listPlans": "Impossibile elencare i piani di backup",
+    "createPlan": "Impossibile creare il piano",
+    "updatePlan": "Impossibile aggiornare il piano",
+    "deletePlan": "Impossibile eliminare il piano",
+    "startBackup": "Impossibile avviare il backup",
+    "listVersions": "Impossibile elencare le versioni del backup",
+    "listVersionFiles": "Impossibile elencare i file della versione",
+    "restoreApp": "Impossibile ripristinare l'app"
+  },
+  "toast": {
+    "destinationCreated": "Destinazione \"{{name}}\" creata",
+    "planCreated": "Piano \"{{name}}\" creato",
+    "planUpdated": "Piano \"{{name}}\" aggiornato",
+    "backupStarted": "Backup \"{{name}}\" avviato"
+  },
+  "view": {
+    "unavailable": "I backup non sono disponibili",
+    "unsupported": "Questo host non supporta i backup.",
+    "tabs": {
+      "versions": "Versioni",
+      "destinations": "Destinazioni",
+      "plans": "Piani"
+    }
+  },
+  "destinations": {
+    "title": "Destinazioni",
+    "name": "Nome",
+    "kind": "Tipo",
+    "location": "Posizione",
+    "created": "Creata",
+    "empty": {
+      "title": "Ancora nessuna destinazione",
+      "description": "Una destinazione è una cartella o un remote rclone in cui vengono conservati i backup. Aggiungine una per iniziare."
+    }
+  },
+  "plans": {
+    "title": "Piani",
+    "name": "Nome",
+    "schedule": "Pianificazione",
+    "lastRun": "Ultima esecuzione",
+    "status": "Stato",
+    "manual": "manuale",
+    "runNow": "Esegui ora",
+    "empty": {
+      "title": "Ancora nessun piano",
+      "description": "Un piano sceglie Athena, le app, una destinazione e una pianificazione, poi viene eseguito a intervalli."
+    }
+  },
+  "versions": {
+    "title": "Versioni",
+    "refresh": "Aggiorna",
+    "time": "Ora",
+    "size": "Dimensione",
+    "new": "Nuovi",
+    "added": "Aggiunti",
+    "changed": "Modificati",
+    "removed": "Rimossi",
+    "os": "SO",
+    "viewFiles": "Vedi i file",
+    "restore": "Ripristina",
+    "empty": {
+      "title": "Ancora nessuna versione",
+      "description": "Esegui un backup per creare la prima."
+    }
+  },
+  "addDestination": {
+    "title": "Aggiungi destinazione di backup",
+    "kitTitle": "Salva il kit di ripristino",
+    "description": "Scegli dove restic conserva il repository: una cartella locale o un remote rclone.",
+    "kitDescription": "Scarica o copia il kit. Athena non mostrerà più questa password; senza di essa un host perso non può essere ripristinato.",
+    "prepareFailed": "Impossibile preparare la destinazione",
+    "saveKitFirst": "Salva il kit di ripristino prima di creare la destinazione",
+    "name": "Nome",
+    "namePlaceholder": "es. Disco USB",
+    "kind": "Tipo",
+    "local": "Cartella locale",
+    "rclone": "Remote rclone",
+    "folder": "Cartella",
+    "folderHint": "Percorso assoluto, fuori dalla cartella dei dati di Athena.",
+    "remote": "Remote",
+    "remoteHint": "Un remote rclone già configurato in Cloud → Remote.",
+    "password": "Password del repository",
+    "passwordPlaceholder": "Lascia vuoto per generarne una robusta",
+    "passwordHint": "Lascia vuoto per far generare ad Athena una password robusta. Viene mostrata una sola volta qui sotto, poi mai più.",
+    "kitSaved": "Ho salvato questo kit di ripristino (password, destinazione e versione di restic)",
+    "next": "Avanti: kit di ripristino",
+    "create": "Crea destinazione"
+  },
+  "addPlan": {
+    "title": "Aggiungi piano di backup",
+    "description": "Scegli cosa salvare, dove e con quale frequenza. Le app vengono fermate durante il loro backup, a meno che \"Esegui il backup durante l'esecuzione\" sia attivo.",
+    "name": "Nome",
+    "namePlaceholder": "es. App giornaliere",
+    "destination": "Destinazione",
+    "athena": "Esegui il backup di Athena (impostazioni, DB, segreti, TLS)",
+    "athenaHint": "Consigliato: attivo per impostazione predefinita.",
+    "apps": "App",
+    "appsHint": "Quali app includere nel piano.",
+    "noApps": "Nessuna app trovata. Avvia prima le app da Store → App.",
+    "schedule": "Pianificazione (cron)",
+    "schedulePlaceholder": "0 3 * * *  (ogni giorno alle 03:00)",
+    "scheduleHint": "Lascia vuoto per le sole esecuzioni manuali. Le esecuzioni pianificate arrivano con la parte 4.",
+    "retention": "Conservazione",
+    "keepLast": "Conserva ultimi",
+    "keepDaily": "Conserva giornalieri",
+    "keepWeekly": "Conserva settimanali",
+    "keepMonthly": "Conserva mensili",
+    "retentionHint": "`restic forget --keep-…` per elemento. Predefiniti: 7 giornalieri / 4 settimanali / 6 mensili.",
+    "create": "Crea piano"
+  }
+}

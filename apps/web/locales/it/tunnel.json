@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Indirizzo del tunnel",
+    "description": "Apri Athena da fuori la tua rete, oppure inquadra il codice con il telefono.",
+    "publicAddress": "Indirizzo pubblico",
+    "notRunning": "Il tunnel non è in esecuzione.",
+    "startInSettings": "Avvialo dalle Impostazioni."
+  },
+  "qr": {
+    "title": "Codice QR per l'indirizzo del tunnel"
+  }
+}

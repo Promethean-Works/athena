@@ -1,0 +1,59 @@
+{
+  "view": {
+    "noManagers": "Keine Paketmanager gefunden",
+    "noManagersHint": "Athena hat auf diesem Host keinen unterstützten Paketmanager gefunden."
+  },
+  "listError": "Paketliste konnte nicht gelesen werden",
+  "cancel": "Abbrechen",
+  "toast": {
+    "installFailed": "{{name}} konnte nicht installiert werden",
+    "uninstallFailed": "{{name}} konnte nicht deinstalliert werden",
+    "upgradeFailed": "{{name}} konnte nicht aktualisiert werden",
+    "upgradeAllFailed": "Pakete konnten nicht aktualisiert werden",
+    "refreshFailed": "Paketlisten konnten nicht aktualisiert werden"
+  },
+  "unavailable": "{{name}} kann gerade nicht verwendet werden",
+  "unavailableHint": "Es ist auf diesem Host nicht bereit.",
+  "refreshLists": "Listen aktualisieren",
+  "upgradeAll": "Alle aktualisieren",
+  "tabs": {
+    "installed": "Installiert",
+    "updates": "Updates",
+    "search": "Suchen"
+  },
+  "installed": {
+    "filter": "Installierte Pakete filtern",
+    "noMatch": "Kein installiertes Paket passt.",
+    "empty": "Nichts installiert.",
+    "upgradeLabel": "{{name}} aktualisieren",
+    "upgrade": "Aktualisieren",
+    "uninstallLabel": "{{name}} deinstallieren",
+    "uninstall": "Deinstallieren",
+    "shortened": "{{manager}} hat diese ID gekürzt, daher kann es von hier nicht deinstalliert werden",
+    "showing": "{{shown}} von {{total}} angezeigt. Filtere, um einzugrenzen."
+  },
+  "table": {
+    "package": "Paket",
+    "version": "Version",
+    "description": "Beschreibung"
+  },
+  "updates": {
+    "upToDate": "Alles ist aktuell",
+    "upToDateRefresh": "Stand der letzten Listenaktualisierung. Aktualisiere die Listen, um erneut zu prüfen.",
+    "nothing": "Nichts zu aktualisieren.",
+    "installedColumn": "Installiert",
+    "availableColumn": "Verfügbar"
+  },
+  "search": {
+    "label": "{{manager}} durchsuchen",
+    "noMatch": "Keine Pakete passen zu „{{query}}“.",
+    "install": "Installieren"
+  },
+  "confirm": {
+    "uninstallTitle": "{{name}} deinstallieren?",
+    "uninstallDescription": "Es wird von diesem Server entfernt. Pakete, die davon abhängen, werden eventuell ebenfalls entfernt.",
+    "upgradeAllTitle": "Alle {{manager}}-Pakete aktualisieren?",
+    "upgradeAllDescription_one": "{{count}} Paket wird aktualisiert. Das kann eine Weile dauern.",
+    "upgradeAllDescription_other": "{{count}} Pakete werden aktualisiert. Das kann eine Weile dauern."
+  }
+}
