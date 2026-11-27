@@ -26,6 +26,8 @@ from athena.files.paths import (
     NotFound,
     available_name,
     inside,
+    is_protected,
+    refuse_protected,
     relative,
 )
 
@@ -116,7 +118,7 @@ def list_dir(root: Path, folder: Path) -> Listing:
     try:
         with os.scandir(folder) as it:
             for item in it:
-                if item.name.startswith(UPLOAD_PREFIX):
+                if item.name.startswith(UPLOAD_PREFIX) or is_protected(folder / item.name):
                     continue
                 if len(entries) >= MAX_ENTRIES:
                     truncated = True
@@ -156,6 +158,7 @@ def write_text(root: Path, path: Path, content: str, version: str | None) -> Tex
 
 
 def make_dir(root: Path, path: Path) -> FileEntry:
+    refuse_protected(path)
     try:
         path.mkdir()
     except FileExistsError as exc:
@@ -165,6 +168,7 @@ def make_dir(root: Path, path: Path) -> FileEntry:
 
 def rename(root: Path, path: Path, new_name: str) -> FileEntry:
     target = path.parent / new_name
+    refuse_protected(target)
     # A case-only rename ("a" → "A") is the same entry on case-insensitive disks.
     same = target.exists(follow_symlinks=False) and os.path.samestat(path.lstat(), target.lstat())
     if target.exists(follow_symlinks=False) and not same:
@@ -188,6 +192,10 @@ def delete(path: Path, permanent: bool) -> None:
         path.unlink()
 
 
+def _skip_protected(folder: str, names: list[str]) -> list[str]:
+    return [n for n in names if is_protected(Path(folder, n))]
+
+
 def transfer(
     op: Literal["copy", "move"], source: Path, dest_dir: Path, on_conflict: OnConflict
 ) -> Path | None:
@@ -199,6 +207,7 @@ def transfer(
         raise BadPath(f"Can't {op} {source.name} into itself")
     name = source.name
     target = dest_dir / name
+    refuse_protected(target)
     if target.exists(follow_symlinks=False):
         if op == "move" and os.path.samestat(source.lstat(), target.lstat()):
             raise BadPath(f"{name} is already in that folder")
@@ -215,7 +224,7 @@ def transfer(
             target.unlink()
         shutil.move(source, target)
     elif source.is_dir() and not source.is_symlink():
-        shutil.copytree(source, target, symlinks=True)
+        shutil.copytree(source, target, symlinks=True, ignore=_skip_protected)
     else:
         shutil.copy2(source, target, follow_symlinks=False)
     return target
@@ -239,6 +248,9 @@ def clear_stale_uploads(folder: Path) -> None:
 
 
 def finish_upload(part: Path, target: Path, overwrite: bool) -> None:
+    if is_protected(target):
+        part.unlink(missing_ok=True)
+        refuse_protected(target)
     if target.exists(follow_symlinks=False):
         if not overwrite:
             part.unlink(missing_ok=True)
@@ -282,7 +294,11 @@ def zip_folder(root: Path, folder: Path, base: str) -> Iterator[bytes]:
     with zipfile.ZipFile(sink, "w", compression=zipfile.ZIP_STORED) as zf:
         for dirpath, dirnames, filenames in os.walk(folder, followlinks=False):
             current = Path(dirpath)
-            dirnames[:] = [d for d in dirnames if not (current / d).is_symlink()]
+            dirnames[:] = [
+                d
+                for d in dirnames
+                if not (current / d).is_symlink() and not is_protected(current / d)
+            ]
             arc_dir = Path(base, current.relative_to(folder))
             if not filenames and not dirnames:
                 zf.writestr(arc_dir.as_posix() + "/", b"")
@@ -292,7 +308,7 @@ def zip_folder(root: Path, folder: Path, base: str) -> Iterator[bytes]:
                 path = current / name
                 try:
                     real = path.resolve()
-                    if not inside(root, real) or not real.is_file():
+                    if not inside(root, real) or not real.is_file() or is_protected(real):
                         continue
                     info = zipfile.ZipInfo.from_file(real, (arc_dir / name).as_posix())
                     with real.open("rb") as src, zf.open(info, "w") as dst:

@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Security audit: PR #339; open question: `docs/design/security.md`.
+- Security: audit #339 (open question: `docs/design/security.md`); pentest F1 fixed on `fix/pentest-local`. Next: a yes on `docs/specs/user-folders.md`.
 - Package manager UI (`docs/specs/package-manager-ui.md`): merged (#327, #328). Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; hand-written MacPorts/winget/scoop/choco fixtures.
 - Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
 - Onboarding wizard: built; see HISTORY for what is unverified.
@@ -43,7 +43,7 @@ M7 part D stage 3 (design §4.5 Parts): extras with outside services.
 - Durable execution (D.6): turns run inside pgtask tasks against Postgres when `durable_execution_enabled` is on and `ATHENA_DURABLE_EXECUTION_DATABASE_URL` is set, checkpointing each model request and tool call; without them turns run inline as before. A real Postgres connection is tested; a crash/kill/resume flow isn't yet.
 - Coding stack (D.7): foundation, file write/edit behind approval cards, shell behind `ShellGuard`, and Code Mode are done (see HISTORY). `Coder` from pydantic-ai-harness is intentionally not used: its bundled shell is unrestricted and bypasses `ShellGuard`. Deferred to later stages: `ipython_code_mode`, `smart_search`, `macroscope`, `capability_creation`, `pydantic_ai_docs`.
 
-Raspberry Pi fixes and features from the competitor review: `docs/plans/improvements.md` (phase 1 fixes broken things: cloudflared download, store apps by host arch, broken catalog images, 32-bit install check, arm64 CI).
+Raspberry Pi fixes and features from the competitor review: `docs/plans/improvements.md`.
 
 Later ideas (no milestone yet) are in `docs/design/milestones.md` → Backlog.
 
