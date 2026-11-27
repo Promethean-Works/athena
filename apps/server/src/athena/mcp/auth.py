@@ -18,6 +18,7 @@ import secrets
 from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass
+from urllib.parse import urlsplit
 
 from sqlmodel import Session
 from starlette import status
@@ -52,6 +53,18 @@ def _bearer_token(request: Request) -> str | None:
     return auth[len(BEARER_PREFIX) :].strip()
 
 
+def _from_another_origin(request: Request) -> bool:
+    """A browser page on another origin (a web app on a sibling port counts) is making this
+    request. Browsers always send Origin on a cross-origin POST; other clients have none."""
+    origin = request.headers.get("origin")
+    if origin is None:
+        return False
+    # Behind a proxy the browser's address is in X-Forwarded-Host. A page can't forge that
+    # header cross-origin: a custom header needs a CORS preflight, which this app never allows.
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host", "")
+    return urlsplit(origin).netloc != host
+
+
 class MCPAuthMiddleware(BaseHTTPMiddleware):
     """Wraps the MCP streamable-HTTP app and requires a session or bearer token."""
 
@@ -64,11 +77,15 @@ class MCPAuthMiddleware(BaseHTTPMiddleware):
         token = _bearer_token(request)
         if token:
             expected = os.environ.get("ATHENA_MCP_TOKEN")
-            if expected and secrets.compare_digest(token, expected):
+            # Bytes: compare_digest raises on a str with non-ASCII characters, which an
+            # unauthenticated caller can put in the header (a 500 instead of a 401).
+            if expected and secrets.compare_digest(token.encode(), expected.encode()):
                 principal = TOKEN_PRINCIPAL
         else:
             session_cookie = request.cookies.get(COOKIE_NAME)
-            if session_cookie:
+            # The cookie is sent to every port on this host; a page from another origin must
+            # not be able to use it (there's no CSRF token on this endpoint).
+            if session_cookie and not _from_another_origin(request):
                 engine = request.app.state.db.engine
                 with Session(engine) as session:
                     found = session_for_token(session, session_cookie)

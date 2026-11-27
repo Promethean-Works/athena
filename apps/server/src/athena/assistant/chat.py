@@ -676,7 +676,8 @@ def _approvals_out(db: Session, requests: DeferredToolRequests) -> dict[str, Any
                 "id": c.tool_call_id,
                 "name": c.tool_name,
                 "args": args_of(c),
-                "summary": actions.summarize(db, c.tool_name, args_of(c)),
+                "summary": actions.summarize(db, c.tool_name, args_of(c))
+                or f"Run the external tool {c.tool_name} with the arguments shown",
                 "destructive": actions.is_destructive(c.tool_name, args_of(c)),
             }
             for c in requests.approvals

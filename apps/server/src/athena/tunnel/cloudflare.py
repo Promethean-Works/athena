@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 from xml.sax.saxutils import escape
 
-from athena.tunnel import servicefiles
+from athena.tunnel import servicefiles, verify
 from athena.tunnel.base import TunnelConfig, TunnelProvider, TunnelStatus
 from athena.tunnel.process import TunnelProcess, find_binary
 
@@ -206,18 +206,20 @@ class CloudflareTunnelProvider(TunnelProvider):
         """Download and install cloudflared."""
         import platform
         import tempfile
-        import urllib.request
 
         system = platform.system().lower()
         filename = release_asset(system, platform.machine())
-        url = f"https://github.com/cloudflare/cloudflared/releases/latest/download/{filename}"
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
             download_path = tmpdir_path / filename
 
-            await job.log(f"Downloading cloudflared from {url}")
-            await asyncio.to_thread(urllib.request.urlretrieve, url, download_path)
+            await job.log(f"Downloading {filename} from the latest cloudflared release")
+            # Verified against the SHA-256 GitHub records for the asset.
+            url = await asyncio.to_thread(
+                verify.download_verified, "cloudflare/cloudflared", filename, download_path
+            )
+            await job.log(f"Downloaded {url} and checked its SHA-256")
 
             if filename.endswith(".tgz"):
                 import tarfile

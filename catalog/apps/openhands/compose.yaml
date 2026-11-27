@@ -8,7 +8,9 @@ x-athena:
   web_port: WEB_PORT
   web_path: /
   platforms: [linux/amd64, linux/arm64]
-  notes: null
+  notes: >-
+    Mounts the host's Docker socket so OpenHands can start containers, which gives it
+    control of every container on this server. Only install it if you trust it.
   env:
   - key: WEB_PORT
     label: Web port

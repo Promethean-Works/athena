@@ -11,7 +11,7 @@ from athena import audit
 from athena.api.auth import USERNAME_RE
 from athena.auth import service
 from athena.auth.deps import AdminUser, DbSession
-from athena.db.models import AuthSession, User
+from athena.db.models import AuthSession, Share, User
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -120,6 +120,8 @@ def delete_user(user_id: UserId, me: AdminUser, db: DbSession) -> None:
         raise HTTPException(status.HTTP_409_CONFLICT, "There must be at least one admin")
     username = user.username
     _sign_out(db, user_id)
+    # Their links go with them (the database cascades too; this doesn't rely on it).
+    db.exec(delete(Share).where(col(Share.owner_id) == user_id))
     db.delete(user)
     db.commit()
     audit.record(db, me.user.username, "user.delete", username)

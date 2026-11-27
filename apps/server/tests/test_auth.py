@@ -119,3 +119,28 @@ def test_password_is_not_stored_in_plain_text(tmp_path: Path) -> None:
         stored = conn.exec_driver_sql("SELECT password_hash FROM users").scalar_one()
     assert ADMIN["password"] not in stored
     assert stored.startswith("$argon2id$")
+
+
+def test_another_accounts_sign_in_does_not_reset_the_admin_throttle(client: TestClient) -> None:
+    """A user with a valid account can't interleave own sign-ins with admin guesses."""
+    signed_in(client)
+    made = client.post(
+        "/api/users", json={"username": "mallory", "password": "mallory-pass-1", "is_admin": False}
+    )
+    assert made.status_code == 201, made.text
+    client.post("/api/auth/logout")
+    mine = {"username": "mallory", "password": "mallory-pass-1"}
+    for _ in range(5):
+        guess = client.post("/api/auth/login", json={**ADMIN, "password": "wrong-guess"})
+        assert guess.status_code in (401, 429)
+        assert client.post("/api/auth/login", json=mine).status_code in (200, 429)
+        client.post("/api/auth/logout")
+    # The sixth guess at the admin is refused, and so is the right password.
+    assert client.post("/api/auth/login", json=ADMIN).status_code == 429
+
+
+def test_throttle_does_not_remember_keys_that_never_failed() -> None:
+    throttle = LoginThrottle(limit=2, window=60)
+    for i in range(100):
+        assert throttle.retry_after(f"user:{i}") == 0
+    assert throttle._failures == {}

@@ -44,7 +44,7 @@ class JobOut(BaseModel):
 
 
 class Job:
-    def __init__(self, title: str, cancellable: bool = False) -> None:
+    def __init__(self, title: str, cancellable: bool = False, user_visible: bool = False) -> None:
         self.id = secrets.token_hex(8)
         self.title = title
         self.status: JobStatus = "running"
@@ -54,6 +54,9 @@ class Job:
         self.finished_at: datetime | None = None
         self.progress: JobProgress | None = None
         self.cancellable = cancellable
+        self.user_visible = user_visible
+        """Whether a signed-in user who isn't an admin may read it. Off unless the route that
+        started the job is open to plain users: install and restore logs are for admins."""
         self.cancel_hook: Callable[[], Awaitable[None]] | None = None
         """Called by `cancel()` to stop the work in progress. The body also checks
         `cancelled` between steps."""
@@ -179,10 +182,12 @@ class JobManager:
         self._jobs: dict[str, Job] = {}
         self._tasks: set[asyncio.Task[None]] = set()
 
-    def start(self, title: str, body: JobBody, cancellable: bool = False) -> Job:
+    def start(
+        self, title: str, body: JobBody, cancellable: bool = False, user_visible: bool = False
+    ) -> Job:
         """Run `body(job)` in the background. Raise inside it (or return) to finish.
         A `cancellable` body stops when `job.cancelled` is set (see `Job.cancel`)."""
-        job = Job(title, cancellable)
+        job = Job(title, cancellable, user_visible)
         self._jobs[job.id] = job
         self._prune()
 

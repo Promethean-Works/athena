@@ -272,3 +272,27 @@ def test_mcp_reached_when_web_ui_is_bundled(tmp_path: Path) -> None:
         assert resp.status_code == 200, resp.text
         assert resp.headers.get("Mcp-Session-Id")
         assert client.get("/").status_code == 200  # the UI still serves
+
+
+def test_mcp_non_ascii_bearer_token_is_401_not_500(tmp_path, monkeypatch):
+    with _token_client(tmp_path, monkeypatch, with_admin=True) as client:
+        res = client.post(
+            "/api/mcp/",
+            headers={
+                "Authorization": "Bearer t\xe9st-t\xf6ken".encode("latin-1"),
+                "Accept": "application/json",
+            },
+            json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
+        )
+        assert res.status_code == 401
+
+
+def test_mcp_session_cookie_is_refused_from_another_origin(tmp_path):
+    """A web app on a sibling port gets the cookie too, but must not be able to use it."""
+    with _client(tmp_path) as client:
+        signed_in(client)
+        evil = {**ACCEPT, "Origin": "http://testserver:3000"}
+        assert client.post("/api/mcp", json=MCP_INIT, headers=evil).status_code == 401
+        same = {**ACCEPT, "Origin": "http://testserver"}
+        assert client.post("/api/mcp", json=MCP_INIT, headers=same).status_code == 200
+        assert client.post("/api/mcp", json=MCP_INIT, headers=ACCEPT).status_code == 200

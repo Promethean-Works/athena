@@ -12,6 +12,9 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ztnet/icon.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Ztnet/screenshot-1.png
+  notes: >-
+    Runs with the NET_ADMIN and SYS_ADMIN capabilities and the /dev/net/tun device, broad
+    extra permissions for the ZeroTier network it manages. Only install it if you trust the image.
   env:
     - key: WEB_PORT
       label: Web port

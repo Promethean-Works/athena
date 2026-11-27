@@ -206,3 +206,34 @@ def test_boot_survives_an_unreadable_secret(tmp_path: Path, monkeypatch) -> None
         "tunnel_config": {"api_token": ENCRYPTED + "garbage"},
     }
     assert _boot(tmp_path, monkeypatch, system, FakeProvider()) == []
+
+
+def test_ngrok_is_installed_by_a_package_manager_never_downloaded(monkeypatch) -> None:
+    from athena.tunnel import ngrok
+
+    found = {"brew": "/opt/homebrew/bin/brew", "scoop": "C:/scoop/shims/scoop.cmd"}
+    monkeypatch.setattr(ngrok.shutil, "which", found.get)
+    assert ngrok.install_command("Darwin") == [
+        "/opt/homebrew/bin/brew",
+        "install",
+        "--cask",
+        "ngrok",
+    ]
+    assert ngrok.install_command("Windows") == ["C:/scoop/shims/scoop.cmd", "install", "ngrok"]
+    assert ngrok.install_command("Linux") is None  # no root: nothing to run
+    monkeypatch.setattr(ngrok.shutil, "which", lambda _name: None)
+    assert ngrok.install_command("Darwin") is None
+
+
+def test_ngrok_install_without_a_package_manager_explains_what_to_do(monkeypatch) -> None:
+    import asyncio
+
+    import pytest
+
+    from athena.tunnel import ngrok
+
+    monkeypatch.setattr(ngrok, "install_command", lambda: None)
+    with pytest.raises(RuntimeError, match=r"ngrok\.com/download"):
+        asyncio.run(ngrok.NgrokTunnelProvider().install(object()))
+    assert not hasattr(ngrok, "extract_ngrok")
+    assert "urlretrieve" not in Path(ngrok.__file__).read_text(encoding="utf-8")

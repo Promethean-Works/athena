@@ -173,7 +173,9 @@ async def _containers(runtime: Runtime) -> list[ContainerOut]:
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(exc)) from exc
 
 
-def _start_job(request: Request, name: str, title: str, body) -> JobOut:
+def _start_job(
+    request: Request, name: str, title: str, body, *, user_visible: bool = False
+) -> JobOut:
     busy = _busy(request)
     jobs = _jobs(request)
     current = busy.get(name)
@@ -188,7 +190,7 @@ def _start_job(request: Request, name: str, title: str, body) -> JobOut:
         finally:
             busy.pop(name, None)
 
-    job = jobs.start(title, wrapped)
+    job = jobs.start(title, wrapped, user_visible=user_visible)
     busy[name] = job.id
     return job.out()
 
@@ -544,7 +546,9 @@ def start_app_action(
             )
 
     audit.record(db, username, f"app.{action}", name, detail=detail)
-    return _start_job(request, name, f"{action.capitalize()} {name}", body)
+    # Plain users may start, stop and restart apps, so they may follow that job; installs,
+    # updates and removals are admin routes and their logs stay admin-only.
+    return _start_job(request, name, f"{action.capitalize()} {name}", body, user_visible=True)
 
 
 @router.delete(

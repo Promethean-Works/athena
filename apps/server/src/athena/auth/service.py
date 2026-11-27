@@ -127,9 +127,14 @@ class LoginThrottle:
         self._lock = threading.Lock()
 
     def _trim(self, key: str, now: float) -> deque[float]:
-        q = self._failures[key]
+        q = self._failures.get(key)
+        if q is None:
+            return deque()  # not stored: asking about a key must not grow the table
         while q and now - q[0] > self.window:
             q.popleft()
+        if not q:
+            del self._failures[key]
+            return deque()
         return q
 
     def retry_after(self, key: str) -> int:
@@ -143,7 +148,9 @@ class LoginThrottle:
 
     def fail(self, key: str) -> None:
         with self._lock:
-            self._trim(key, time.monotonic()).append(time.monotonic())
+            now = time.monotonic()
+            self._trim(key, now)
+            self._failures[key].append(now)
 
     def reset(self, key: str) -> None:
         with self._lock:

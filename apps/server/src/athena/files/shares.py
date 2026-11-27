@@ -65,7 +65,7 @@ def unlock_value(share: Share) -> str:
 def unlocked(share: Share, cookie: str | None) -> bool:
     if not share.password_hash:
         return True
-    return cookie is not None and hmac.compare_digest(cookie, unlock_value(share))
+    return cookie is not None and hmac.compare_digest(cookie.encode(), unlock_value(share).encode())
 
 
 def target_of(loc: FileLocation, rel: str) -> Path:

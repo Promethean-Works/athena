@@ -8,6 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
+- Security audit: PR #339; open question: `docs/design/security.md`.
 - Package manager UI (`docs/specs/package-manager-ui.md`): merged (#327, #328). Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; hand-written MacPorts/winget/scoop/choco fixtures.
 - Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
 - Onboarding wizard: built; see HISTORY for what is unverified.
@@ -20,11 +21,11 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - Agent orchestration (`docs/specs/agent-orchestration.md`): parts 1–2 done. Next: a happy-path trial from `main` (`/orchestrate`, `start --issue-file`), then part 3 (PR, CI watch).
 - Windows E2E flake: `GET /api/containers` sometimes 500s under the service (`WinError 6`, see gotchas/windows.md).
 - M7 D stage 2 follow-ups: nest delegate tool calls; warn on small Ollama context; phone waiting-question card below the plan bar.
-- Dashboard follow-ups: touch dragging on phone; app "update available" badge (`AppOut` has no such field).
-- Webhook app restart took 10 min and `GET /api/automation/jobs` hung (slow Colima): does a run block the DB?
+- Dashboard: touch dragging on phone; app "update available" badge (`AppOut` lacks the field).
+- Webhook app restart took 10 min, `GET /api/automation/jobs` hung (slow Colima): a run blocking the DB?
 - Agent tooling: after merge, run `node scripts/agents-setup.mjs` and `hermes mcp remove github`; approve the Hermes hook once.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
-- Not verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell in WSL.
+- Not verified: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests; container shell in WSL.
 - Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not verified in browser: compose variant picker (#109), cloud wizard (#97), remote cards (#92) with a real remote.
 - Catalog smoke test (#169–#176): store apps installed on macOS arm64 (Colima); `smoke: skip` marks heavy ones. Next: `Catalog smoke` workflow (amd64/arm64).

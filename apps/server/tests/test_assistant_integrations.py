@@ -36,8 +36,14 @@ def add_integration(session, box, config: Integration, token="secret-token") -> 
     return row
 
 
-def transport_of(toolset: MCPToolset):
-    return toolset._client_source
+def transport_of(toolset):
+    """The transport of the MCP client inside the approval guard every toolset is put behind."""
+    from pydantic_ai.toolsets import ApprovalRequiredToolset
+
+    assert isinstance(toolset, ApprovalRequiredToolset), "an integration must be behind approval"
+    inner = toolset.wrapped
+    assert isinstance(inner, MCPToolset)
+    return inner._client_source
 
 
 def test_kinds_are_curated():

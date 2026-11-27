@@ -402,7 +402,7 @@ async def transfer(body: TransferIn, request: Request, user: Authed, db: DbSessi
             f"{', '.join(r for r, _ in sources[:20])} → {where}",
         )
     jobs: JobManager = request.app.state.jobs
-    return jobs.start(f"{verb} {count} to {where}", work).out()
+    return jobs.start(f"{verb} {count} to {where}", work, user_visible=True).out()
 
 
 # --- Uploads ---------------------------------------------------------------------------

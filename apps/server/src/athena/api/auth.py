@@ -40,8 +40,8 @@ class AuthStatus(BaseModel):
 
 
 class Credentials(BaseModel):
-    username: str
-    password: str
+    username: str = Field(max_length=256)
+    password: str = Field(max_length=256)
 
 
 class SetupRequest(BaseModel):
@@ -101,7 +101,11 @@ def setup(body: SetupRequest, request: Request, response: Response, db: DbSessio
 def login(body: Credentials, request: Request, response: Response, db: DbSession) -> AuthStatus:
     throttle: service.LoginThrottle = request.app.state.login_throttle
     client = request.client.host if request.client else "unknown"
-    if wait := throttle.retry_after(client):
+    # Also count failures per account. Per client alone, someone with a valid account
+    # could sign in to it between guesses at the admin's password: a success resets the
+    # client's count.
+    account = f"user:{body.username.strip().lower()[:64]}"
+    if wait := max(throttle.retry_after(client), throttle.retry_after(account)):
         raise HTTPException(
             status.HTTP_429_TOO_MANY_REQUESTS,
             f"Too many failed sign-ins. Try again in {wait} seconds.",
@@ -110,8 +114,10 @@ def login(body: Credentials, request: Request, response: Response, db: DbSession
     user = service.authenticate(db, body.username, body.password)
     if user is None:
         throttle.fail(client)
+        throttle.fail(account)
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong username or password")
     throttle.reset(client)
+    throttle.reset(account)
     return _signed_in(request, response, db, user)
 
 
@@ -138,7 +144,9 @@ def change_password(body: PasswordChange, request: Request, user: Authed, db: Db
     """Change your password. Your other sessions are signed out; this one stays."""
     throttle: service.LoginThrottle = request.app.state.login_throttle
     client = request.client.host if request.client else "unknown"
-    if wait := throttle.retry_after(client):
+    # Per account too: one session guessed at from many addresses is still limited.
+    account = f"pw:{user.user.id}"
+    if wait := max(throttle.retry_after(client), throttle.retry_after(account)):
         raise HTTPException(
             status.HTTP_429_TOO_MANY_REQUESTS,
             f"Too many wrong passwords. Try again in {wait} seconds.",
@@ -146,6 +154,7 @@ def change_password(body: PasswordChange, request: Request, user: Authed, db: Db
         )
     if not service.verify_password(user.user.password_hash, body.current_password):
         throttle.fail(client)
+        throttle.fail(account)
         # 400, not 401: the session is fine, and a 401 would make the UI sign out.
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Current password is wrong")
     if body.new_password == body.current_password:
@@ -153,5 +162,6 @@ def change_password(body: PasswordChange, request: Request, user: Authed, db: Db
             status.HTTP_400_BAD_REQUEST, "The new password must differ from the current one"
         )
     throttle.reset(client)
+    throttle.reset(account)
     service.set_password(db, user.user, body.new_password, keep_session=user.session.id)
     audit.record(db, user.user.username, "auth.password", user.user.username)
