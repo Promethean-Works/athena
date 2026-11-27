@@ -90,7 +90,8 @@
       "show": "Zobrazit snímek obrazovky {{number}}",
       "description": "Snímek obrazovky {{title}}.",
       "close": "Zavřít"
-    }
+    },
+    "adminOnly": "Aplikace mohou instalovat jen správci. Požádejte některého, ať ji přidá za vás."
   },
   "catalogs": {
     "kindAuto": "Zjistit automaticky",

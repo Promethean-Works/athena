@@ -17,5 +17,9 @@
   "roleUser": "Kullanıcı",
   "tunnelAddress": "Tünel adresi",
   "restartAthena": "Athena'yı yeniden başlat",
-  "logOut": "Çıkış yap"
+  "logOut": "Çıkış yap",
+  "adminOnly": {
+    "title": "Yalnızca yöneticiler için",
+    "description": "Buna ihtiyacınız varsa bir yöneticiye sorun."
+  }
 }

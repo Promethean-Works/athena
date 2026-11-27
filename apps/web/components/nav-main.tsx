@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
+import { useAuth } from "@/components/auth-provider"
 import { isAllowed, useCapabilities } from "@/components/capabilities-provider"
 import { isActive, type NavItem } from "@/components/nav"
 import {
@@ -19,13 +20,16 @@ export function NavMain({ items }: { items: NavItem[] }) {
   const pathname = usePathname()
   const { t } = useTranslation("nav")
   const { manifest } = useCapabilities()
+  const { user } = useAuth()
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items
-            .filter((item) =>
-              isAllowed(manifest, item.capability, item.showWhenUnavailable)
+            .filter(
+              (item) =>
+                (!item.adminOnly || user.is_admin) &&
+                isAllowed(manifest, item.capability, item.showWhenUnavailable)
             )
             .map((item) => {
               const active = isActive(item, pathname)

@@ -90,7 +90,8 @@
       "show": "Pokaż zrzut ekranu {{number}}",
       "description": "Zrzut ekranu {{title}}.",
       "close": "Zamknij"
-    }
+    },
+    "adminOnly": "Aplikacje mogą instalować tylko administratorzy. Poproś jednego z nich o dodanie jej za Ciebie."
   },
   "catalogs": {
     "kindAuto": "Wykryj automatycznie",

@@ -17,5 +17,9 @@
   "roleUser": "Uživatel",
   "tunnelAddress": "Adresa tunelu",
   "restartAthena": "Restartovat Athena",
-  "logOut": "Odhlásit se"
+  "logOut": "Odhlásit se",
+  "adminOnly": {
+    "title": "Jen pro správce",
+    "description": "Pokud to potřebujete, požádejte správce."
+  }
 }

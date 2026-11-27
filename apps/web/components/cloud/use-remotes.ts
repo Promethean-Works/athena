@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { api, errorMessage } from "@workspace/api-client"
 
+import { useAuth } from "@/components/auth-provider"
 import { useCapabilities } from "@/components/capabilities-provider"
 import type { Remote } from "@/components/files/file-utils"
 
@@ -18,9 +19,12 @@ export type RemotesState = {
 /** The cloud remotes, when the host has rclone (capability `cloud.rclone`). */
 export function useRemotes(): RemotesState {
   const { manifest } = useCapabilities()
+  const { user } = useAuth()
+  // Cloud storage is managed by admins, so users never see remotes.
   const ready =
+    user.is_admin &&
     manifest?.capabilities.find((c) => c.id === "cloud.rclone")?.status ===
-    "ready"
+      "ready"
   const [remotes, setRemotes] = React.useState<Remote[] | null>(null)
   const [error, setError] = React.useState<string | null>(null)
 

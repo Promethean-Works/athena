@@ -46,6 +46,7 @@ import {
   type ShareLink,
   shareUrl,
 } from "@/components/files/share-links"
+import { useAuth } from "@/components/auth-provider"
 import { ShareNetworkTab } from "@/components/files/share-network-tab"
 import { copyText } from "@/lib/clipboard"
 
@@ -70,6 +71,7 @@ export function ShareDialog({
   onClose: () => void
 }) {
   const { t } = useTranslation("files")
+  const { user } = useAuth()
   const MODES = [
     { value: "read", label: t("shareDialog.modeRead") },
     { value: "upload", label: t("shareDialog.modeUpload") },
@@ -149,14 +151,18 @@ export function ShareDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue={target?.remote ? "network" : "link"}>
+        <Tabs
+          defaultValue={target?.remote && user.is_admin ? "network" : "link"}
+        >
           <TabsList>
             <TabsTrigger value="link" disabled={!!target?.remote}>
               {t("shareDialog.tabLink")}
             </TabsTrigger>
-            <TabsTrigger value="network">
-              {t("shareDialog.tabNetwork")}
-            </TabsTrigger>
+            {user.is_admin ? (
+              <TabsTrigger value="network">
+                {t("shareDialog.tabNetwork")}
+              </TabsTrigger>
+            ) : null}
           </TabsList>
           <TabsContent value="link" className="flex flex-col gap-4 pt-2">
             <p className="text-sm text-muted-foreground">
@@ -277,9 +283,11 @@ export function ShareDialog({
               </Button>
             </DialogFooter>
           </TabsContent>
-          <TabsContent value="network" className="pt-2">
-            {target ? <ShareNetworkTab target={target} /> : null}
-          </TabsContent>
+          {user.is_admin ? (
+            <TabsContent value="network" className="pt-2">
+              {target ? <ShareNetworkTab target={target} /> : null}
+            </TabsContent>
+          ) : null}
         </Tabs>
       </DialogContent>
     </Dialog>

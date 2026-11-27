@@ -15,7 +15,7 @@ from athena import audit
 from athena.api.containers import RuntimeDep
 from athena.apps import docker_run
 from athena.apps.store import APP_NAME, AppStore, InvalidComposeError, compose, parse_compose
-from athena.auth.deps import Authed, DbSession
+from athena.auth.deps import Authed, DbSession, require_admin
 from athena.catalog import profiles as catalog_profiles
 from athena.catalog.loader import InstallValueError, env_file
 from athena.catalog.model import CatalogApp
@@ -224,7 +224,7 @@ async def list_apps(request: Request, runtime: RuntimeDep, db: DbSession) -> lis
     return [_summarize(request, a, all_containers) for a in apps]
 
 
-@router.get("/{name}", operation_id="getApp")
+@router.get("/{name}", operation_id="getApp", dependencies=[require_admin])
 async def get_app(name: AppName, request: Request, runtime: RuntimeDep, db: DbSession) -> AppDetail:
     app = _get_app(db, name)
     all_containers = await _containers(runtime)
@@ -250,7 +250,7 @@ async def get_app(name: AppName, request: Request, runtime: RuntimeDep, db: DbSe
 # ---------------------------------------------------------------- authoring helpers
 
 
-@router.post("/convert", operation_id="convertDockerRun")
+@router.post("/convert", operation_id="convertDockerRun", dependencies=[require_admin])
 def convert_docker_run(body: ConvertIn) -> ConvertOut:
     """Turn a `docker run …` command into a compose file to review before deploying."""
     try:
@@ -260,7 +260,7 @@ def convert_docker_run(body: ConvertIn) -> ConvertOut:
     return ConvertOut(compose=result.compose, service=result.service, warnings=result.warnings)
 
 
-@router.post("/validate", operation_id="validateCompose")
+@router.post("/validate", operation_id="validateCompose", dependencies=[require_admin])
 async def validate_compose(
     body: ComposeIn,
     request: Request,
@@ -353,7 +353,9 @@ def deploy_new_app(
     )
 
 
-@router.post("", operation_id="createApp", status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "", operation_id="createApp", dependencies=[require_admin], status_code=status.HTTP_202_ACCEPTED
+)
 async def create_app(
     body: NewApp, request: Request, runtime: RuntimeDep, user: Authed, db: DbSession
 ) -> JobOut:
@@ -363,7 +365,12 @@ async def create_app(
     )
 
 
-@router.put("/{name}", operation_id="updateAppCompose", status_code=status.HTTP_202_ACCEPTED)
+@router.put(
+    "/{name}",
+    operation_id="updateAppCompose",
+    dependencies=[require_admin],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def update_compose(
     name: AppName,
     body: ComposeIn,
@@ -396,7 +403,12 @@ class EnvIn(BaseModel):
 _ENV_LINE = re.compile(r"^\s*(#.*)?$|^[A-Za-z_][A-Za-z0-9_]*=.*$")
 
 
-@router.put("/{name}/env", operation_id="updateAppEnv", status_code=status.HTTP_202_ACCEPTED)
+@router.put(
+    "/{name}/env",
+    operation_id="updateAppEnv",
+    dependencies=[require_admin],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def update_env(
     name: AppName,
     body: EnvIn,
@@ -441,7 +453,10 @@ def _services_of(compose_text: str, profile: str) -> list[str]:
 
 
 @router.put(
-    "/{name}/profiles", operation_id="updateAppProfiles", status_code=status.HTTP_202_ACCEPTED
+    "/{name}/profiles",
+    operation_id="updateAppProfiles",
+    dependencies=[require_admin],
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def update_profiles(
     name: AppName,
@@ -499,7 +514,9 @@ async def app_action(
     user: Authed,
     db: DbSession,
 ) -> JobOut:
-    """start (up -d), stop, restart, or update (pull + up -d)."""
+    """start (up -d), stop, restart, or update (pull + up -d). Only admins can update."""
+    if action == "update" and not user.user.is_admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can update apps")
     return start_app_action(name, action, request, runtime, user.user.username, db)
 
 
@@ -530,7 +547,12 @@ def start_app_action(
     return _start_job(request, name, f"{action.capitalize()} {name}", body)
 
 
-@router.delete("/{name}", operation_id="deleteApp", status_code=status.HTTP_202_ACCEPTED)
+@router.delete(
+    "/{name}",
+    operation_id="deleteApp",
+    dependencies=[require_admin],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def delete_app(
     name: AppName,
     request: Request,

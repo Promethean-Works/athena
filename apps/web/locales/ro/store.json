@@ -85,7 +85,8 @@
       "show": "Arată captura de ecran {{number}}",
       "description": "O captură de ecran cu {{title}}.",
       "close": "Închide"
-    }
+    },
+    "adminOnly": "Doar administratorii pot instala aplicații. Cere unuia să o adauge pentru tine."
   },
   "catalogs": {
     "kindAuto": "Detectează automat",

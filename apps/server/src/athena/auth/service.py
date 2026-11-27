@@ -55,8 +55,8 @@ def authenticate(db: Session, username: str, password: str) -> User | None:
     return user
 
 
-def create_user(db: Session, username: str, password: str) -> User:
-    user = User(username=username, password_hash=hash_password(password), is_admin=True)
+def create_user(db: Session, username: str, password: str, is_admin: bool = True) -> User:
+    user = User(username=username, password_hash=hash_password(password), is_admin=is_admin)
     db.add(user)
     db.commit()
     db.refresh(user)

@@ -19,7 +19,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from athena import audit
-from athena.auth.deps import Authed, DbSession
+from athena.auth.deps import Authed, DbSession, require_admin
 from athena.db.models import FileLocation
 from athena.files import locations, ops
 from athena.files.ops import FileEntry, Listing, OnConflict, TextFile
@@ -178,11 +178,6 @@ def _check[T](fn: Callable[[], T]) -> T:
         raise _fail(exc) from exc
 
 
-def _admin(user: Authed) -> None:
-    if not user.user.is_admin:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change locations")
-
-
 def _location_out(loc: FileLocation) -> LocationOut:
     assert loc.id is not None
     path = Path(loc.path)
@@ -215,17 +210,22 @@ def list_locations(db: DbSession) -> list[LocationOut]:
     return [_location_out(loc) for loc in locations.all_locations(db) if loc.id not in hidden]
 
 
-@router.post("/locations", operation_id="addFileLocation", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/locations",
+    operation_id="addFileLocation",
+    dependencies=[require_admin],
+    status_code=status.HTTP_201_CREATED,
+)
 def add_location(body: LocationIn, user: Authed, db: DbSession) -> LocationOut:
-    _admin(user)
     loc = _check(lambda: locations.save(db, FileLocation(name="", path=""), body.name, body.path))
     audit.record(db, user.user.username, "files.location.add", loc.name, loc.path)
     return _location_out(loc)
 
 
-@router.put("/locations/{location_id}", operation_id="updateFileLocation")
+@router.put(
+    "/locations/{location_id}", operation_id="updateFileLocation", dependencies=[require_admin]
+)
 def update_location(location_id: int, body: LocationIn, user: Authed, db: DbSession) -> LocationOut:
-    _admin(user)
     loc = _check(lambda: locations.get(db, location_id))
     loc = _check(lambda: locations.save(db, loc, body.name, body.path))
     audit.record(db, user.user.username, "files.location.edit", loc.name, loc.path)
@@ -235,11 +235,11 @@ def update_location(location_id: int, body: LocationIn, user: Authed, db: DbSess
 @router.delete(
     "/locations/{location_id}",
     operation_id="removeFileLocation",
+    dependencies=[require_admin],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def remove_location(location_id: int, user: Authed, db: DbSession) -> Response:
     """Only Athena forgets the location; the folder and its files stay."""
-    _admin(user)
     loc = _check(lambda: locations.get(db, location_id))
     db.delete(loc)
     db.commit()

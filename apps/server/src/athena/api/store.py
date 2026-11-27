@@ -14,7 +14,7 @@ from athena import audit
 from athena.api.apps import deploy_new_app
 from athena.api.containers import RuntimeDep
 from athena.apps.store import APP_NAME, AppStore
-from athena.auth.deps import Authed, DbSession
+from athena.auth.deps import Authed, DbSession, require_admin
 from athena.catalog import profiles as catalog_profiles
 from athena.catalog import remote
 from athena.catalog.loader import (
@@ -273,6 +273,7 @@ async def get_store_app(
 @router.post(
     "/apps/{catalog}/{app_id}/install",
     operation_id="installStoreApp",
+    dependencies=[require_admin],
     status_code=status.HTTP_202_ACCEPTED,
     responses={
         409: {"description": "The app's images don't run on this host's CPU"},
@@ -433,7 +434,12 @@ def list_catalogs(request: Request, db: DbSession) -> list[CatalogOut]:
     return [builtin, *(_catalog_out(r) for r in rows)]
 
 
-@router.post("/catalogs", operation_id="addCatalog", status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/catalogs",
+    operation_id="addCatalog",
+    dependencies=[require_admin],
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def add_catalog(body: NewCatalog, request: Request, user: Authed, db: DbSession) -> JobOut:
     """Add a remote catalog and download it (a job). GitHub, Codeberg and GitLab repository
     URLs work, as do direct .tar.gz/.zip links. Format: Athena or CasaOS AppStore."""
@@ -457,6 +463,7 @@ async def add_catalog(body: NewCatalog, request: Request, user: Authed, db: DbSe
 @router.post(
     "/catalogs/{catalog_id}/refresh",
     operation_id="refreshCatalog",
+    dependencies=[require_admin],
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def refresh_catalog(
@@ -470,7 +477,10 @@ async def refresh_catalog(
 
 
 @router.delete(
-    "/catalogs/{catalog_id}", operation_id="removeCatalog", status_code=status.HTTP_204_NO_CONTENT
+    "/catalogs/{catalog_id}",
+    operation_id="removeCatalog",
+    dependencies=[require_admin],
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def remove_catalog(
     catalog_id: CatalogName, request: Request, user: Authed, db: DbSession

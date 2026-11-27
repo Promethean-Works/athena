@@ -85,7 +85,8 @@
       "show": "Mostrar la captura {{number}}",
       "description": "Una captura de pantalla de {{title}}.",
       "close": "Cerrar"
-    }
+    },
+    "adminOnly": "Solo los administradores pueden instalar aplicaciones. Pídele a uno que la añada por ti."
   },
   "catalogs": {
     "kindAuto": "Detectar automáticamente",

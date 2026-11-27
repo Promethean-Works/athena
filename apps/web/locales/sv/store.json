@@ -80,7 +80,8 @@
       "show": "Visa skärmbild {{number}}",
       "description": "En skärmbild av {{title}}.",
       "close": "Stäng"
-    }
+    },
+    "adminOnly": "Bara administratörer kan installera appar. Be en av dem lägga till den åt dig."
   },
   "catalogs": {
     "kindAuto": "Identifiera automatiskt",

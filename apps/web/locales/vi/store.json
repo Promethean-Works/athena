@@ -75,7 +75,8 @@
       "show": "Hiện ảnh chụp màn hình {{number}}",
       "description": "Ảnh chụp màn hình của {{title}}.",
       "close": "Đóng"
-    }
+    },
+    "adminOnly": "Chỉ quản trị viên mới cài được ứng dụng. Hãy nhờ một người thêm giúp bạn."
   },
   "catalogs": {
     "kindAuto": "Tự động phát hiện",

@@ -17,5 +17,9 @@
   "roleUser": "使用者",
   "tunnelAddress": "通道位址",
   "restartAthena": "重新啟動 Athena",
-  "logOut": "登出"
+  "logOut": "登出",
+  "adminOnly": {
+    "title": "僅限管理員",
+    "description": "如需使用，請聯絡管理員。"
+  }
 }
