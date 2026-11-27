@@ -8,6 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
+- Package manager UI (`docs/specs/package-manager-ui.md`, branch `feat/package-manager-ui`, one PR): parts 1–2 done and browser-checked on real Homebrew. Next: part 3 (install a package manager; MacPorts as a full manager), then open the one PR. Not verified: details/icons for apt, dnf, zypper, pacman, apk (real fixtures, no real host), winget/scoop/choco (hand-written fixtures), Flathub/Snap icons in a browser.
 - Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
 - Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Sub-folder sharing built; browser-checked on a faked host.

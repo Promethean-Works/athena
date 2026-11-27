@@ -126,7 +126,7 @@ export function PackageDetailsSheet({
 
   return (
     <Sheet open={target !== null} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="data-[side=right]:sm:max-w-md">
+      <SheetContent className="data-[side=right]:w-[92%] data-[side=right]:sm:max-w-md">
         <SheetHeader className="pr-12">
           <div className="flex items-center gap-3">
             <PackageIcon
@@ -137,7 +137,9 @@ export function PackageDetailsSheet({
               hasIcon={data?.has_icon ?? false}
             />
             <div className="flex min-w-0 flex-col">
-              <SheetTitle className="truncate">{title}</SheetTitle>
+              <SheetTitle className="line-clamp-2" title={title}>
+                {title}
+              </SheetTitle>
               <SheetDescription className="truncate font-mono text-xs">
                 {title !== name ? name : manager.label}
               </SheetDescription>
@@ -200,7 +202,7 @@ export function PackageDetailsSheet({
                         href={homepage}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline"
+                        className="inline-flex items-center gap-1 break-all text-primary underline-offset-4 hover:underline"
                       >
                         {homepage
                           .replace(/^https?:\/\//i, "")
