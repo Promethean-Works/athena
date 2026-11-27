@@ -17,5 +17,9 @@
   "roleUser": "Người dùng",
   "tunnelAddress": "Địa chỉ tunnel",
   "restartAthena": "Khởi động lại Athena",
-  "logOut": "Đăng xuất"
+  "logOut": "Đăng xuất",
+  "adminOnly": {
+    "title": "Chỉ dành cho quản trị viên",
+    "description": "Hãy hỏi quản trị viên nếu bạn cần mục này."
+  }
 }

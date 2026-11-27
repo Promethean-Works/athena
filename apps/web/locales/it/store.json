@@ -85,7 +85,8 @@
       "show": "Mostra la schermata {{number}}",
       "description": "Una schermata di {{title}}.",
       "close": "Chiudi"
-    }
+    },
+    "adminOnly": "Solo gli amministratori possono installare app. Chiedi a uno di aggiungerla per te."
   },
   "catalogs": {
     "kindAuto": "Rileva automaticamente",

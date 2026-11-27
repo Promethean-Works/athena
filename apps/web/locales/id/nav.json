@@ -17,5 +17,9 @@
   "roleUser": "Pengguna",
   "tunnelAddress": "Alamat tunnel",
   "restartAthena": "Mulai ulang Athena",
-  "logOut": "Keluar"
+  "logOut": "Keluar",
+  "adminOnly": {
+    "title": "Hanya untuk administrator",
+    "description": "Tanyakan kepada administrator jika Anda memerlukannya."
+  }
 }

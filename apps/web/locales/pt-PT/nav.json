@@ -17,5 +17,9 @@
   "roleUser": "Utilizador",
   "tunnelAddress": "Endereço do túnel",
   "restartAthena": "Reiniciar o Athena",
-  "logOut": "Terminar sessão"
+  "logOut": "Terminar sessão",
+  "adminOnly": {
+    "title": "Só para administradores",
+    "description": "Pede a um administrador se precisares disto."
+  }
 }

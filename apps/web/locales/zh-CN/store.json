@@ -75,7 +75,8 @@
       "show": "显示截图 {{number}}",
       "description": "{{title}} 的截图。",
       "close": "关闭"
-    }
+    },
+    "adminOnly": "只有管理员可以安装应用。请让管理员替你添加。"
   },
   "catalogs": {
     "kindAuto": "自动检测",

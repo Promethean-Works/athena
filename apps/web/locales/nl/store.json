@@ -80,7 +80,8 @@
       "show": "Schermafbeelding {{number}} tonen",
       "description": "Een schermafbeelding van {{title}}.",
       "close": "Sluiten"
-    }
+    },
+    "adminOnly": "Alleen beheerders kunnen apps installeren. Vraag er een om dit voor je toe te voegen."
   },
   "catalogs": {
     "kindAuto": "Automatisch detecteren",

@@ -75,7 +75,8 @@
       "show": "顯示螢幕截圖 {{number}}",
       "description": "{{title}} 的螢幕截圖。",
       "close": "關閉"
-    }
+    },
+    "adminOnly": "只有管理員可以安裝應用程式。請請管理員替你新增。"
   },
   "catalogs": {
     "kindAuto": "自動偵測",

@@ -10,6 +10,7 @@ import {
   AlertTitle,
 } from "@workspace/ui/components/alert"
 
+import { useAuth } from "@/components/auth-provider"
 import { UpdateAction } from "@/components/update-action"
 import { useApi } from "@/hooks/use-api"
 
@@ -20,7 +21,9 @@ import { useApi } from "@/hooks/use-api"
  */
 export function UpdateNotice() {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const update = useApi(() => api.GET("/api/system/update"))
+  if (!user.is_admin) return null
   if (update.status !== "ok" || !update.data.available) return null
   const { latest, current, release_url } = update.data
   return (

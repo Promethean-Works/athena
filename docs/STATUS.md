@@ -8,6 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
+- Multi-user (`docs/specs/multi-user.md`): built in one PR. Follow-ups: per-user file folders (users see every file location), a user-level assistant, whether users should see the Remote access card; user app-card menu not browser-checked.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
 - Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Sub-folder sharing built; browser-checked on a faked host.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).

@@ -80,7 +80,8 @@
       "show": "Show screenshot {{number}}",
       "description": "A screenshot of {{title}}.",
       "close": "Close"
-    }
+    },
+    "adminOnly": "Only administrators can install apps. Ask one to add this for you."
   },
   "catalogs": {
     "kindAuto": "Detect automatically",

@@ -75,7 +75,8 @@
       "show": "스크린샷 {{number}} 보기",
       "description": "{{title}}의 스크린샷이에요.",
       "close": "닫기"
-    }
+    },
+    "adminOnly": "관리자만 앱을 설치할 수 있어요. 관리자에게 대신 추가해 달라고 요청하세요."
   },
   "catalogs": {
     "kindAuto": "자동 감지",

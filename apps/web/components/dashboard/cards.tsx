@@ -75,6 +75,7 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "containers",
+    adminOnly: true,
     titleKey: "cards.containers.title",
     descriptionKey: "cards.containers.description",
     icon: BoxIcon,
@@ -84,6 +85,7 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "automation",
+    adminOnly: true,
     titleKey: "cards.automation.title",
     descriptionKey: "cards.automation.description",
     icon: ZapIcon,
@@ -93,6 +95,7 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "storage",
+    adminOnly: true,
     titleKey: "cards.storage.title",
     descriptionKey: "cards.storage.description",
     icon: HardDriveIcon,
@@ -117,6 +120,7 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "power",
+    adminOnly: true,
     titleKey: "cards.power.title",
     descriptionKey: "cards.power.description",
     icon: PlugZapIcon,
@@ -144,6 +148,7 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "capabilities",
+    adminOnly: true,
     titleKey: "cards.capabilities.title",
     descriptionKey: "cards.capabilities.description",
     icon: ShieldCheckIcon,
@@ -152,6 +157,7 @@ export const DASHBOARD_CARDS: DashboardCardDef[] = [
   },
   {
     id: "backups",
+    adminOnly: true,
     titleKey: "cards.backups.title",
     descriptionKey: "cards.backups.description",
     icon: ShieldCheckIcon,

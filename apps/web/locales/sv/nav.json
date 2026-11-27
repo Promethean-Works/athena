@@ -17,5 +17,9 @@
   "roleUser": "Användare",
   "tunnelAddress": "Tunneladress",
   "restartAthena": "Starta om Athena",
-  "logOut": "Logga ut"
+  "logOut": "Logga ut",
+  "adminOnly": {
+    "title": "Bara för administratörer",
+    "description": "Fråga en administratör om du behöver det här."
+  }
 }

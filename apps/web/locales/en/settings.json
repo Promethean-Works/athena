@@ -394,6 +394,7 @@
     "system": "System",
     "https": "HTTPS",
     "ai": "AI",
-    "label": "Settings"
+    "label": "Settings",
+    "users": "Users"
   }
 }
