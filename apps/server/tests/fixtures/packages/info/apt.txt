@@ -1,0 +1,18 @@
+Package: jq
+Version: 1.7.1-6+deb13u4
+Installed-Size: 161
+Maintainer: ChangZhuo Chen (陳昌倬) <czchen@debian.org>
+Architecture: arm64
+Depends: libc6 (>= 2.38), libjq1 (= 1.7.1-6+deb13u4)
+Description: lightweight and flexible command-line JSON processor
+Description-md5: fd8d7d97b13012ce68c52772c1ce56aa
+Multi-Arch: foreign
+Homepage: https://jqlang.github.io/jq
+Tag: implemented-in::c, role::program, works-with-format::json
+Section: utils
+Priority: optional
+Filename: pool/main/j/jq/jq_1.7.1-6+deb13u4_arm64.deb
+Size: 78424
+MD5sum: e82c2c618351f052b6925a28d36eddb8
+SHA256: 5d77ae282441d3ef0560141d55b4ac562d2cba7a873eb9ad7572ccfe69471ebf
+

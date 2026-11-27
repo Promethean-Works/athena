@@ -8,6 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
+- Package manager UI (`docs/specs/package-manager-ui.md`): built, PR #327. Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; hand-written MacPorts/winget/scoop/choco fixtures.
 - Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
 - Onboarding wizard: built; see HISTORY for what is unverified.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
@@ -21,14 +22,14 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - M7 D stage 2 follow-ups: nest delegate tool calls; warn on small Ollama context; phone waiting-question card below the plan bar.
 - Dashboard follow-ups: touch dragging on phone; app "update available" badge (`AppOut` has no such field).
 - Webhook app restart took 10 min and `GET /api/automation/jobs` hung (slow Colima): does a run block the DB?
-- Agent tooling: after merge, run `node scripts/agents-setup.mjs` (Hermes guard hook, denies, aliases) and `hermes mcp remove github`; approve Hermes hook once.
+- Agent tooling: after merge, run `node scripts/agents-setup.mjs` and `hermes mcp remove github`; approve the Hermes hook once.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
 - Not verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell in WSL.
 - Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
 - Not verified in browser: compose variant picker (#109), cloud wizard (#97), remote cards (#92) with a real remote.
-- Catalog smoke test (#169–#176): every store app installed on macOS arm64 (Colima); skips marked `smoke: skip` (GPU, accounts, 12–16 GB RAM). Next: `Catalog smoke` workflow for `--all` on amd64/arm64. Logins/real use not verified.
-- Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested (macOS), not named tunnels, ngrok, Tailscale or Windows.
-- models.dev providers left out (pydantic-ai needs their SDK): watsonx, GitLab, SAP AI Core, gateways. Google Vertex in (service-account key; untried against real Vertex).
+- Catalog smoke test (#169–#176): store apps installed on macOS arm64 (Colima); `smoke: skip` marks heavy ones. Next: `Catalog smoke` workflow (amd64/arm64).
+- Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested.
+- models.dev providers left out (SDK needed): watsonx, GitLab, SAP AI Core, gateways. Vertex untried.
 
 ## Next
 

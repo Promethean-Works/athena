@@ -56,5 +56,36 @@
     "upgradeAllDescription_one": "Verrà aggiornato {{count}} pacchetto. Potrebbe richiedere un po' di tempo.",
     "upgradeAllDescription_many": "Verranno aggiornati {{count}} pacchetti. Potrebbe richiedere un po' di tempo.",
     "upgradeAllDescription_other": "Verranno aggiornati {{count}} pacchetti. Potrebbe richiedere un po' di tempo."
+  },
+  "details": {
+    "button": "Dettagli",
+    "buttonLabel": "Dettagli di {{name}}",
+    "error": "Impossibile caricare i dettagli",
+    "updateAvailable": "Aggiornamento disponibile",
+    "installedVersion": "Versione installata",
+    "homepage": "Sito web",
+    "license": "Licenza",
+    "maintainer": "Manutentore",
+    "source": "Origine",
+    "size": "Dimensione",
+    "dependencies": "Dipendenze"
+  },
+  "password": {
+    "title": "Inserisci la password del computer",
+    "description": "{{name}} si installa per tutto il sistema, quindi le modifiche richiedono la password dell'account con cui gira Athena. Viene usata una sola volta per questa azione e non viene mai salvata.",
+    "label": "Password",
+    "continue": "Continua"
+  },
+  "add": {
+    "button": "Aggiungi un gestore di pacchetti",
+    "title": "Aggiungi un gestore di pacchetti",
+    "description": "Gestori di pacchetti supportati da questo computer e non ancora installati. Athena scarica il programma di installazione ufficiale dal produttore e lo esegue su questo server.",
+    "none": "Non c'è nulla da aggiungere su questo computer.",
+    "install": "Installa",
+    "needsPassword": "Chiede la password del computer.",
+    "unmetNote": "Soddisfa i requisiti mostrati per abilitare Installa.",
+    "confirmTitle": "Installare {{name}}?",
+    "confirmDescription": "Athena scaricherà il programma di installazione ufficiale da {{site}} e lo eseguirà su questo server. Questo modifica il computer.",
+    "failed": "Impossibile installare {{name}}"
   }
 }

@@ -1,0 +1,10 @@
+Name        : 7zip
+Description : A multi-format file archiver with high compression ratios
+Version     : 24.09
+Website     : https://www.7-zip.org
+License     : LGPL-2.0-only,BSD-3-Clause
+Updated at  : 9/12/2024 3:21:07 PM
+Updated by  : github-actions[bot]
+Installed   : 24.09
+Binaries    : 7z.exe | 7zFM.exe
+Shortcuts   : 7-Zip

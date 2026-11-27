@@ -1,0 +1,23 @@
+Loading repository data...
+Reading installed packages...
+
+
+Information for package jq:
+---------------------------
+Repository     : openSUSE-Tumbleweed-Oss
+Name           : jq
+Version        : 1.8.2-3.1
+Arch           : aarch64
+Vendor         : openSUSE
+Installed Size : 186.3 KiB
+Installed      : No
+Status         : not installed
+Source package : jq-1.8.2-3.1.src
+Upstream URL   : https://github.com/jqlang
+Summary        : A lightweight and flexible command-line JSON processor
+Description    : 
+    A lightweight and flexible command-line JSON processor. jq is like sed for
+    JSON data – you can use it to slice and filter and map and transform
+    structured data with the same ease that sed, awk, grep and friends let
+    you play with text.
+

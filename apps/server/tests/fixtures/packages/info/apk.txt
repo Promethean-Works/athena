@@ -1,0 +1,22 @@
+jq-1.8.2-r0 description:
+A lightweight and flexible command-line JSON processor
+
+jq-1.8.2-r0 webpage:
+https://jqlang.github.io/jq/
+
+jq-1.8.2-r0 installed size:
+387 KiB
+
+jq-1.8.2-r0 depends on:
+so:libc.musl-aarch64.so.1
+so:libonig.so.5
+
+jq-1.8.2-r0 provides:
+cmd:jq=1.8.2-r0
+so:libjq.so.1=1.0.4
+
+jq-1.8.2-r0 has auto-install rule:
+
+jq-1.8.2-r0 license:
+MIT
+

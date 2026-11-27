@@ -2,6 +2,7 @@
 plus the read flows with a fake runner. Runs on every OS."""
 
 import asyncio
+import json
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,7 @@ from athena.packages.base import (
     CmdResult,
     PackageError,
     column_table,
+    parse_fields,
 )
 
 FIX = Path(__file__).parent / "fixtures" / "packages"
@@ -217,17 +219,49 @@ def test_brew_search_enriches_top_results() -> None:
         calls.append(argv)
         if argv[1] == "search":
             return CmdResult(0, fx("brew/search.txt"), "")
+        if argv[1] in ("formulae", "casks"):
+            return CmdResult(0, "", "")
         return CmdResult(0, fx("brew/info-search.json"), "")
 
     results = asyncio.run(pk_apps.Brew(run).search("jq"))
     by = {r.name: r for r in results}
     assert by["gojq"].description and by["ijq"].description is None
-    assert calls[1][:3] == ["brew", "info", "--json=v2"]
+    assert results[0].name == "jq"  # exact name first
+    assert calls[-1][:3] == ["brew", "info", "--json=v2"]
     assert pk_apps.Brew().install_argv("jquake", "cask") == ["brew", "install", "--cask", "jquake"]
+
+
+def test_brew_search_finds_vscode_by_abbreviation() -> None:
+    """`brew search vscode` finds nothing; the cask is visual-studio-code (VS Code)."""
+    cask = {
+        "token": "visual-studio-code",
+        "name": ["Microsoft Visual Studio Code", "VS Code"],
+        "desc": "Open-source code editor",
+        "version": "1.9",
+    }
+    info = json.dumps({"formulae": [], "casks": [cask]})
+    asked = []
+
+    async def run(argv, env):
+        if argv[1] == "search":
+            return CmdResult(1, "", "Error: No formulae or casks found for vscode.")
+        if argv[1] == "formulae":
+            return CmdResult(0, "vscode-langservers-extracted\nvim\n", "")
+        if argv[1] == "casks":
+            return CmdResult(0, "visual-studio-code\nvisual-studio-code@insiders\nvlc\n", "")
+        asked.append(argv)
+        return CmdResult(0, info, "")
+
+    results = asyncio.run(pk_apps.Brew(run).search("vscode"))
+    assert results[0].name == "visual-studio-code"
+    assert results[0].title == "Microsoft Visual Studio Code"
+    assert "vlc" not in asked[0] and "visual-studio-code@insiders" in asked[0]
 
 
 def test_brew_no_results() -> None:
     async def run(argv, env):
+        if argv[1] in ("formulae", "casks"):
+            return CmdResult(0, "", "")
         return CmdResult(1, "", "Error: No formulae or casks found for zzz.")
 
     assert asyncio.run(pk_apps.Brew(run).search("zzz")) == []
@@ -354,7 +388,7 @@ def test_every_detected_manager_has_an_implementation() -> None:
     import athena.platform.detect as detect
 
     source = Path(detect.__file__).read_text()
-    assert set(re.findall(r'PackageManagerSpec\("(\w+)"', source)) == set(MANAGERS)
+    assert set(re.findall(r'PackageManagerSpec\(\s*"(\w+)"', source)) == set(MANAGERS)
 
 
 # ---------------------------------------------------------------- real tools (read-only)
@@ -393,3 +427,262 @@ def test_real_tool_reads(manager_id: str) -> None:
     if manager_id in ("apt", "brew"):  # searches that work from local package data
         found = asyncio.run(pm.search("jq"))
         assert any(r.name == "jq" for r in found), [r.name for r in found][:10]
+
+
+# ---------------------------------------------------------------- aliases and name matching
+
+
+def test_abbreviation_match() -> None:
+    from athena.packages.aliases import abbreviation_match as ab
+
+    assert ab("vscode", "visual-studio-code")
+    assert ab("vs code", "visual-studio-code@insiders")
+    assert ab("vsc", "visual-studio-code")
+    assert ab("gcp", "google-cloud-platform")
+    assert not ab("vscode", "vscode")  # a plain name isn't an abbreviation
+    assert not ab("vscode", "vlc")
+    assert not ab("code", "visual-studio-code")  # must start at the first word
+    assert not ab("vscode", "vscode-langservers-extracted")
+    assert not ab("vs", "visual-studio-code")  # too short
+
+
+def test_expand_query_and_rank() -> None:
+    from athena.packages.aliases import expand_query, match_rank
+
+    assert expand_query("vscode") == ["vscode", "visual studio code"]
+    assert expand_query("jq") == ["jq"]
+    assert expand_query("visual-studio") == ["visual-studio", "visual studio"]
+    assert match_rank("vscode", "visual-studio-code") == 1
+    assert match_rank("vscode", "x", "VS Code") == 0
+    assert match_rank("jq", "jq") == 0 < match_rank("jq", "jquake") == 2 < match_rank("jq", "gojq")
+
+
+def test_find_merges_aliases_and_ignores_failing_alias() -> None:
+    class Fake(pk_apps.PackageManager):
+        id = "fake"
+        label = "Fake"
+
+        async def search(self, query):
+            if query == "vscode":
+                return []
+            if query == "visual studio code":
+                return [pk_apps.PackageRef(name="Microsoft.VisualStudioCode")]
+            raise PackageError("boom")
+
+    found = asyncio.run(Fake().find("vscode"))
+    assert [r.name for r in found] == ["Microsoft.VisualStudioCode"]
+
+
+# ---------------------------------------------------------------- details (`info`)
+
+
+def info(path: str) -> str:
+    return fx(f"info/{path}")
+
+
+def test_apt_show() -> None:
+    d = pk_linux.parse_apt_show(info("apt.txt"))
+    assert (d.name, d.version) == ("jq", "1.7.1-6+deb13u4")
+    assert d.summary == "lightweight and flexible command-line JSON processor"
+    assert d.homepage == "https://jqlang.github.io/jq" and d.size == "161 KiB"
+    assert d.dependencies == ["libc6", "libjq1"]
+    assert d.source == "utils" and not d.has_icon
+
+
+def test_rpm_info_dnf_and_zypper() -> None:
+    d = pk_linux.parse_rpm_info(info("dnf.txt"))
+    assert (d.name, d.version) == ("jq", "1.8.2-5.fc45")
+    assert d.summary == "Command-line JSON processor"
+    assert d.license == "MIT AND ICU AND CC-BY-3.0" and d.homepage == "https://jqlang.org/"
+    assert d.source == "fedora" and d.maintainer == "Fedora Project"
+    assert d.description and "jq is like sed" in d.description
+    z = pk_linux.parse_rpm_info(info("zypper.txt"))
+    assert (z.name, z.version, z.source) == ("jq", "1.8.2-3.1", "openSUSE-Tumbleweed-Oss")
+    assert z.homepage == "https://github.com/jqlang"
+    assert z.description and z.description.startswith("A lightweight and flexible")
+
+
+def test_pacman_and_apk_info() -> None:
+    p = pk_linux.parse_pacman_info(info("pacman.txt"))
+    assert (p.name, p.version, p.license, p.source) == ("jq", "1.8.2-1", "MIT", "extra")
+    assert p.dependencies == ["glibc", "oniguruma"] and p.size == "480.87 KiB"
+    a = pk_linux.parse_apk_info(info("apk.txt"), "jq")
+    assert (a.version, a.license, a.size) == ("1.8.2-r0", "MIT", "387 KiB")
+    assert a.homepage == "https://jqlang.github.io/jq/" and a.dependencies == []
+
+
+def test_brew_details() -> None:
+    cask = pk_apps.parse_brew_details(info("brew-cask.json"), "cask")
+    assert cask.name == "visual-studio-code" and cask.title == "Microsoft Visual Studio Code"
+    assert cask.homepage == "https://code.visualstudio.com/" and cask.source == "cask"
+    assert not cask.installed and not cask.has_icon
+    formula = pk_apps.parse_brew_details(info("brew-formula.json"), "formula")
+    assert (formula.name, formula.license, formula.dependencies) == ("jq", "MIT", ["oniguruma"])
+    with pytest.raises(PackageError):
+        pk_apps.parse_brew_details('{"formulae": [], "casks": []}')
+
+
+def test_brew_info_argv_picks_cask() -> None:
+    calls = []
+
+    async def run(argv, env):
+        calls.append(argv)
+        return CmdResult(0, info("brew-cask.json"), "")
+
+    d = asyncio.run(pk_apps.Brew(run).details("visual-studio-code", "cask"))
+    assert calls[0] == ["brew", "info", "--json=v2", "--cask", "visual-studio-code"]
+    assert d.name == "visual-studio-code"
+
+
+def test_flatpak_info_uses_flathub_for_icon_and_text() -> None:
+    store = json.loads(info("flathub.json"))
+    d = pk_apps.parse_flatpak_info(info("flatpak.txt"), "org.gnome.Calculator", "flathub", store)
+    assert d.title == "Calculator" and d.license == "GPL-3.0-or-later"
+    assert d.summary == "Perform arithmetic, scientific or financial calculations"
+    assert d.description and "<p>" not in d.description
+    assert d.size == "5.2 MB" and d.has_icon and d.icon_url.startswith("https://dl.flathub.org/")
+    bare = pk_apps.parse_flatpak_info(info("flatpak.txt"), "org.gnome.Calculator", "other")
+    assert not bare.has_icon and bare.name == "org.gnome.Calculator"
+
+
+def test_snap_store_details() -> None:
+    d = pk_apps.parse_snap_store(json.loads(info("snap.json")), "vlc")
+    assert (d.name, d.license, d.maintainer) == ("vlc", "GPL-2.0+", "VideoLAN")
+    assert d.homepage == "https://www.videolan.org/vlc/" and d.size and d.size.endswith("MiB")
+    assert d.icon_url == "https://dashboard.snapcraft.io/site_media/appmedia/2016/07/vlc.png"
+
+
+def test_windows_details() -> None:
+    w = pk_win.parse_winget_show(info("winget.txt"), "Git.Git")
+    assert (w.name, w.title, w.version) == ("Git.Git", "Git", "2.47.1")
+    assert w.homepage == "https://gitforwindows.org/" and w.maintainer.startswith("The Git")
+    assert w.description and "BASH emulation" in w.description
+    assert w.extra[0].value == "git vcs"
+    s = pk_win.parse_scoop_info(info("scoop.txt"), "7zip")
+    assert (s.version, s.homepage, s.installed, s.installed_version) == (
+        "24.09", "https://www.7-zip.org", True, "24.09"
+    )  # fmt: skip
+    c = pk_win.parse_choco_info(info("choco.txt"), "git")
+    assert (c.name, c.version, c.title) == ("git", "2.47.1", "Git")
+    assert c.homepage == "https://git-scm.com/" and c.summary == "Git (for Windows)"
+    assert c.description and "Note: this is only a mirror" in c.description
+
+
+def test_info_fills_installed_state() -> None:
+    async def run(argv, env):
+        if argv[0] == "apt-cache":
+            return CmdResult(0, info("apt.txt"), "")
+        return CmdResult(0, "ii \tjq\t1.7\tjson processor\n", "")
+
+    d = asyncio.run(pk_linux.Apt(run).info("jq"))
+    assert d.installed and d.installed_version == "1.7"
+
+
+def test_parse_fields_ignores_colons_in_text() -> None:
+    f = parse_fields(
+        "Name : x\nDescription : first\n  Note: kept\nURL : https://a",
+        {"name", "description", "url"},
+    )
+    assert f == {"name": "x", "description": "first\nNote: kept", "url": "https://a"}
+
+
+def test_image_host_allow_list() -> None:
+    from athena.packages import http
+
+    assert http.host_allowed("https://dl.flathub.org/a.png", ("flathub.org",))
+    assert not http.host_allowed("http://dl.flathub.org/a.png", ("flathub.org",))
+    assert not http.host_allowed("https://evilflathub.org/a.png", ("flathub.org",))
+    assert not http.host_allowed("https://flathub.org.evil.com/a.png", ("flathub.org",))
+    assert pk_apps.Flatpak.image_hosts() == ("flathub.org", "flatpak.org")
+    assert "debian.org" in pk_linux.Apt.image_hosts()
+    with pytest.raises(PackageError):
+        asyncio.run(http.fetch_image("https://example.com/x.png", ("flathub.org",)))
+
+
+def _mock_client(monkeypatch: pytest.MonkeyPatch, handler) -> None:
+    import httpx2
+
+    from athena.packages import http
+
+    http._cache.clear()
+    real = httpx2.AsyncClient
+    monkeypatch.setattr(
+        http.httpx2,
+        "AsyncClient",
+        lambda **kw: real(transport=httpx2.MockTransport(handler), **kw),
+    )
+
+
+def test_fetch_image_checks_type_size_and_redirects(monkeypatch: pytest.MonkeyPatch) -> None:
+    import httpx2
+
+    from athena.packages import http
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        path = request.url.path
+        if path == "/ok.png":
+            return httpx2.Response(200, content=b"png", headers={"content-type": "image/png"})
+        if path == "/page":
+            return httpx2.Response(200, content=b"<html>", headers={"content-type": "text/html"})
+        if path == "/big.png":
+            big = b"x" * (http.MAX_IMAGE_BYTES + 1)
+            return httpx2.Response(200, content=big, headers={"content-type": "image/png"})
+        if path == "/away":
+            return httpx2.Response(302, headers={"location": "https://evil.example/x.png"})
+        if path == "/within":
+            return httpx2.Response(302, headers={"location": "https://cdn.flathub.org/ok.png"})
+        return httpx2.Response(404)
+
+    _mock_client(monkeypatch, handler)
+    hosts = ("flathub.org",)
+
+    async def get(path: str, host: str = "dl.flathub.org"):
+        return await http.fetch_image(f"https://{host}{path}", hosts)
+
+    assert asyncio.run(get("/ok.png")) == (b"png", "image/png")
+    assert asyncio.run(get("/within")) == (b"png", "image/png")
+    for bad in ("/page", "/big.png", "/away", "/missing"):
+        with pytest.raises(PackageError):
+            asyncio.run(get(bad))
+
+
+# ---------------------------------------------------------------- MacPorts (hand-written fixtures)
+
+from athena.packages import macports as pk_ports  # noqa: E402
+
+
+def test_macports_parsers() -> None:
+    found = pk_ports.parse_port_search(fx("macports/search.txt"))
+    assert [r.name for r in found] == ["jq", "gojq", "py312-jq"]
+    assert found[0].version == "1.7.1" and found[0].description.startswith("Lightweight")
+    assert found[2].source == "python, textproc"
+    inst = {p.name: p for p in pk_ports.parse_port_installed(fx("macports/installed.txt"))}
+    assert inst["jq"].version == "1.7.1_0"  # the active one, not the older install
+    assert set(inst) == {"jq", "oniguruma6", "zlib"}
+    ups = {u.name: u for u in pk_ports.parse_port_outdated(fx("macports/outdated.txt"))}
+    assert (ups["jq"].version, ups["jq"].latest) == ("1.7.1_0", "1.7.2_0")
+
+
+def test_macports_info_and_commands() -> None:
+    d = pk_ports.parse_port_info(fx("macports/info.txt"), "jq")
+    assert (d.name, d.version, d.license, d.source) == ("jq", "1.7.1", "MIT", "textproc")
+    assert d.homepage == "https://jqlang.github.io/jq/" and d.dependencies == ["oniguruma6"]
+    assert d.summary and d.summary.startswith("Lightweight and flexible")
+    pm = pk_ports.MacPorts()
+    assert pm.install_argv("jq") == ["port", "-N", "install", "jq"]
+    assert pm.upgrade_argv(None) == ["port", "-N", "upgrade", "outdated"]
+    assert pm.refresh_argv() == ["port", "-N", "selfupdate"]
+
+
+def test_macports_search_uses_a_glob_and_marks_installed() -> None:
+    calls = []
+
+    async def run(argv, env):
+        calls.append(argv)
+        if argv[2] == "search":
+            return CmdResult(0, fx("macports/search.txt"), "")
+        return CmdResult(0, fx("macports/installed.txt"), "")
+
+    found = asyncio.run(pk_ports.MacPorts(run).search("j q"))
+    assert calls[0] == ["port", "-q", "search", "--name", "--glob", "*j*q*"]
+    assert {r.name: r.installed for r in found} == {"jq": True, "gojq": False, "py312-jq": False}

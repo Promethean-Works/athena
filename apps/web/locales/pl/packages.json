@@ -57,5 +57,36 @@
     "upgradeAllDescription_few": "{{count}} pakiety zostaną zaktualizowane. To może chwilę potrwać.",
     "upgradeAllDescription_many": "{{count}} pakietów zostanie zaktualizowanych. To może chwilę potrwać.",
     "upgradeAllDescription_other": "{{count}} pakietu zostanie zaktualizowane. To może chwilę potrwać."
+  },
+  "details": {
+    "button": "Szczegóły",
+    "buttonLabel": "Szczegóły pakietu {{name}}",
+    "error": "Nie udało się wczytać szczegółów",
+    "updateAvailable": "Dostępna aktualizacja",
+    "installedVersion": "Zainstalowana wersja",
+    "homepage": "Strona domowa",
+    "license": "Licencja",
+    "maintainer": "Opiekun",
+    "source": "Źródło",
+    "size": "Rozmiar",
+    "dependencies": "Zależności"
+  },
+  "password": {
+    "title": "Wpisz hasło komputera",
+    "description": "{{name}} instaluje się w całym systemie, więc zmiany wymagają hasła konta, na którym działa Athena. Jest używane jednorazowo do tej czynności i nigdy nie jest zapisywane.",
+    "label": "Hasło",
+    "continue": "Dalej"
+  },
+  "add": {
+    "button": "Dodaj menedżera pakietów",
+    "title": "Dodaj menedżera pakietów",
+    "description": "Menedżery pakietów obsługiwane przez ten komputer, których jeszcze nie ma. Athena pobiera oficjalny instalator od producenta i uruchamia go na tym serwerze.",
+    "none": "Na tym komputerze nie ma nic do dodania.",
+    "install": "Zainstaluj",
+    "needsPassword": "Poprosi o hasło komputera.",
+    "unmetNote": "Spełnij pokazane wymagania, aby włączyć instalację.",
+    "confirmTitle": "Zainstalować {{name}}?",
+    "confirmDescription": "Athena pobierze oficjalny instalator z {{site}} i uruchomi go na tym serwerze. To zmienia komputer.",
+    "failed": "Nie udało się zainstalować {{name}}"
   }
 }

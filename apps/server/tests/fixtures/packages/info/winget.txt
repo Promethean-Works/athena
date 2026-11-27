@@ -1,0 +1,17 @@
+Found Git [Git.Git]
+Version: 2.47.1
+Publisher: The Git Development Community
+Publisher Url: https://git-scm.com/
+Author: The Git Development Community
+Moniker: git
+Description: Git for Windows focuses on offering a lightweight, native set of tools that bring the full feature set of the Git SCM to Windows.
+  It provides a BASH emulation used to run Git from the command line.
+Homepage: https://gitforwindows.org/
+License: GNU General Public License version 2
+License Url: https://github.com/git-for-windows/git/blob/main/COPYING
+Tags:
+  git
+  vcs
+Installer:
+  Installer Type: inno
+  Installer Url: https://github.com/git-for-windows/git/releases/download/v2.47.1.windows.1/Git-2.47.1-64-bit.exe

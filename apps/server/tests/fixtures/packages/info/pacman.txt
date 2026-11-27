@@ -1,0 +1,19 @@
+Repository      : extra
+Name            : jq
+Version         : 1.8.2-1
+Description     : Command-line JSON processor
+Architecture    : x86_64
+URL             : https://jqlang.github.io/jq/
+Licenses        : MIT
+Groups          : None
+Provides        : None
+Depends On      : glibc  oniguruma
+Optional Deps   : None
+Conflicts With  : None
+Replaces        : None
+Download Size   : 208.09 KiB
+Installed Size  : 480.87 KiB
+Packager        : Felix Yan <felixonmars@archlinux.org>
+Build Date      : Sat Jun 20 17:10:39 2026
+Validated By    : SHA-256 Sum  Signature
+

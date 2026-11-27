@@ -57,6 +57,11 @@ import {
 import { toast } from "@workspace/ui/components/toast"
 
 import { JobDialog } from "@/components/job-dialog"
+import {
+  PackageDetailsSheet,
+  type DetailsTarget,
+} from "@/components/packages/package-details"
+import { usePasswordPrompt } from "@/components/packages/password-dialog"
 
 type Manager = Schemas["ManagerOut"]
 type Job = Schemas["JobOut"]
@@ -108,6 +113,27 @@ function PackageName({ name, title }: { name: string; title?: string | null }) {
 /** "formula" is Homebrew's default and says nothing; casks, remotes and buckets do. */
 function sourceBadge(source?: string | null) {
   return source && source !== "formula" ? source : null
+}
+
+function DetailsButton({
+  name,
+  onOpen,
+}: {
+  name: string
+  onOpen: () => void
+}) {
+  const { t } = useTranslation("packages")
+  return (
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      aria-label={t("details.buttonLabel", { name })}
+      title={t("details.button")}
+      onClick={onOpen}
+    >
+      <InfoIcon />
+    </Button>
+  )
 }
 
 function ListError({ error }: { error: string }) {
@@ -184,6 +210,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
   const [searching, setSearching] = React.useState(false)
   const [searchError, setSearchError] = React.useState<string | null>(null)
   const [lastQuery, setLastQuery] = React.useState("")
+  const [details, setDetails] = React.useState<DetailsTarget | null>(null)
 
   const started = (result: { data?: Job; error?: unknown }, failTitle: string) => {
     if (result.data) setJob(result.data)
@@ -210,36 +237,57 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
     }
   }
 
-  const install = async (pkg: Found) =>
-    started(
-      await api.POST("/api/packages/{manager}/install", {
-        ...path,
-        body: { name: pkg.name, source: pkg.source ?? null },
-      }),
-      t("toast.installFailed", { name: pkg.name })
+  // A manager that installs system-wide (MacPorts) asks for the computer's password
+  // before each change; reads don't need it.
+  const needsPassword = !manager.available && manager.elevation === "password"
+  const { ask, dialog: passwordDialog } = usePasswordPrompt()
+  async function withPassword(run: (password: string | null) => Promise<void>) {
+    if (!needsPassword) return run(null)
+    const password = await ask(manager.label)
+    if (password) await run(password)
+  }
+
+  const install = (pkg: Pick<Found, "name" | "source">) =>
+    withPassword(async (password) =>
+      started(
+        await api.POST("/api/packages/{manager}/install", {
+          ...path,
+          body: { name: pkg.name, source: pkg.source ?? null, password },
+        }),
+        t("toast.installFailed", { name: pkg.name })
+      )
     )
-  const uninstall = async (name: string) =>
-    started(
-      await api.POST("/api/packages/{manager}/uninstall", {
-        ...path,
-        body: { name },
-      }),
-      t("toast.uninstallFailed", { name })
+  const uninstall = (name: string) =>
+    withPassword(async (password) =>
+      started(
+        await api.POST("/api/packages/{manager}/uninstall", {
+          ...path,
+          body: { name, password },
+        }),
+        t("toast.uninstallFailed", { name })
+      )
     )
-  const upgrade = async (name: string | null) =>
-    started(
-      await api.POST("/api/packages/{manager}/upgrade", {
-        ...path,
-        body: { name },
-      }),
-      name
-        ? t("toast.upgradeFailed", { name })
-        : t("toast.upgradeAllFailed")
+  const upgrade = (name: string | null) =>
+    withPassword(async (password) =>
+      started(
+        await api.POST("/api/packages/{manager}/upgrade", {
+          ...path,
+          body: { name, password },
+        }),
+        name
+          ? t("toast.upgradeFailed", { name })
+          : t("toast.upgradeAllFailed")
+      )
     )
-  const refresh = async () =>
-    started(
-      await api.POST("/api/packages/{manager}/refresh", path),
-      t("toast.refreshFailed")
+  const refresh = () =>
+    withPassword(async (password) =>
+      started(
+        await api.POST("/api/packages/{manager}/refresh", {
+          ...path,
+          body: { password },
+        }),
+        t("toast.refreshFailed")
+      )
     )
 
   const afterJob = React.useCallback(() => {
@@ -250,7 +298,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [installed.load, updates.load])
 
-  if (!manager.available) {
+  if (!manager.available && !needsPassword) {
     return (
       <Alert>
         <InfoIcon />
@@ -373,6 +421,18 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                         </TableCell>
                         <TableCell>
                           <div className="flex justify-end gap-1">
+                            {shortened ? null : (
+                              <DetailsButton
+                                name={p.name}
+                                onOpen={() =>
+                                  setDetails({
+                                    name: p.name,
+                                    source: p.source,
+                                    upgradable: !!up,
+                                  })
+                                }
+                              />
+                            )}
                             {up && manager.can_upgrade_one && !shortened ? (
                               <Button
                                 variant="ghost"
@@ -457,15 +517,23 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                       {u.latest ?? "—"}
                     </TableCell>
                     <TableCell>
-                      {manager.can_upgrade_one ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => upgrade(u.name)}
-                        >
-                          {t("installed.upgrade")}
-                        </Button>
-                      ) : null}
+                      <div className="flex justify-end gap-1">
+                        <DetailsButton
+                          name={u.name}
+                          onOpen={() =>
+                            setDetails({ name: u.name, upgradable: true })
+                          }
+                        />
+                        {manager.can_upgrade_one ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => upgrade(u.name)}
+                          >
+                            {t("installed.upgrade")}
+                          </Button>
+                        ) : null}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -531,18 +599,28 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                       {r.description}
                     </TableCell>
                     <TableCell>
-                      {r.installed ? (
-                        <Badge variant="secondary">{t("tabs.installed")}</Badge>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => install(r)}
-                        >
-                          <DownloadIcon data-icon="inline-start" />
-                          {t("search.install")}
-                        </Button>
-                      )}
+                      <div className="flex items-center justify-end gap-1">
+                        <DetailsButton
+                          name={r.title ?? r.name}
+                          onOpen={() =>
+                            setDetails({ name: r.name, source: r.source })
+                          }
+                        />
+                        {r.installed ? (
+                          <Badge variant="secondary">
+                            {t("tabs.installed")}
+                          </Badge>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => install(r)}
+                          >
+                            <DownloadIcon data-icon="inline-start" />
+                            {t("search.install")}
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -577,6 +655,15 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
           setPending(null)
         }}
       />
+      <PackageDetailsSheet
+        manager={manager}
+        target={details}
+        onClose={() => setDetails(null)}
+        onInstall={(name, source) => void install({ name, source })}
+        onUninstall={(name) => setPending({ kind: "uninstall", name })}
+        onUpgrade={(name) => void upgrade(name)}
+      />
+      {passwordDialog}
       <JobDialog job={job} onClose={() => setJob(null)} onFinished={afterJob} />
     </div>
   )

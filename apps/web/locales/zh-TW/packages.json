@@ -54,5 +54,36 @@
     "uninstallDescription": "它會從此伺服器移除。依賴它的套件也可能一併移除。",
     "upgradeAllTitle": "要升級所有 {{manager}} 套件嗎？",
     "upgradeAllDescription_other": "將升級 {{count}} 個套件，可能需要一段時間。"
+  },
+  "details": {
+    "button": "詳細資料",
+    "buttonLabel": "{{name}} 的詳細資料",
+    "error": "無法載入詳細資料",
+    "updateAvailable": "有可用更新",
+    "installedVersion": "已安裝版本",
+    "homepage": "首頁",
+    "license": "授權條款",
+    "maintainer": "維護者",
+    "source": "來源",
+    "size": "大小",
+    "dependencies": "相依項目"
+  },
+  "password": {
+    "title": "輸入電腦密碼",
+    "description": "{{name}} 會安裝到整個系統，因此變更需要 Athena 所執行帳號的密碼。密碼只在此操作中使用一次，不會被儲存。",
+    "label": "密碼",
+    "continue": "繼續"
+  },
+  "add": {
+    "button": "新增套件管理員",
+    "title": "新增套件管理員",
+    "description": "此電腦支援但尚未安裝的套件管理員。Athena 會從廠商下載官方安裝程式，並在此伺服器上執行。",
+    "none": "此電腦上沒有可新增的項目。",
+    "install": "安裝",
+    "needsPassword": "會詢問您電腦的密碼。",
+    "unmetNote": "滿足所列需求後才能安裝。",
+    "confirmTitle": "要安裝 {{name}} 嗎？",
+    "confirmDescription": "Athena 會從 {{site}} 下載官方安裝程式並在此伺服器上執行。這會變更電腦。",
+    "failed": "無法安裝 {{name}}"
   }
 }

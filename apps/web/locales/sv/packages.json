@@ -55,5 +55,36 @@
     "upgradeAllTitle": "Uppgradera alla {{manager}}-paket?",
     "upgradeAllDescription_one": "{{count}} paket kommer att uppgraderas. Det kan ta en stund.",
     "upgradeAllDescription_other": "{{count}} paket kommer att uppgraderas. Det kan ta en stund."
+  },
+  "details": {
+    "button": "Detaljer",
+    "buttonLabel": "Detaljer för {{name}}",
+    "error": "Det gick inte att läsa in detaljerna",
+    "updateAvailable": "Uppdatering tillgänglig",
+    "installedVersion": "Installerad version",
+    "homepage": "Hemsida",
+    "license": "Licens",
+    "maintainer": "Underhållare",
+    "source": "Källa",
+    "size": "Storlek",
+    "dependencies": "Beroenden"
+  },
+  "password": {
+    "title": "Ange datorns lösenord",
+    "description": "{{name}} installeras för hela systemet, så ändringar kräver lösenordet för kontot som Athena körs under. Det används en gång för den här åtgärden och sparas aldrig.",
+    "label": "Lösenord",
+    "continue": "Fortsätt"
+  },
+  "add": {
+    "button": "Lägg till en pakethanterare",
+    "title": "Lägg till en pakethanterare",
+    "description": "Pakethanterare som den här datorn stöder och ännu inte har. Athena hämtar det officiella installationsprogrammet från tillverkaren och kör det på den här servern.",
+    "none": "Det finns inget att lägga till på den här datorn.",
+    "install": "Installera",
+    "needsPassword": "Frågar efter datorns lösenord.",
+    "unmetNote": "Uppfyll de visade kraven för att aktivera Installera.",
+    "confirmTitle": "Installera {{name}}?",
+    "confirmDescription": "Athena hämtar det officiella installationsprogrammet från {{site}} och kör det på den här servern. Det ändrar datorn.",
+    "failed": "Det gick inte att installera {{name}}"
   }
 }

@@ -55,5 +55,36 @@
     "upgradeAllTitle": "Tüm {{manager}} paketleri yükseltilsin mi?",
     "upgradeAllDescription_one": "{{count}} paket yükseltilecek. Bu biraz sürebilir.",
     "upgradeAllDescription_other": "{{count}} paket yükseltilecek. Bu biraz sürebilir."
+  },
+  "details": {
+    "button": "Ayrıntılar",
+    "buttonLabel": "{{name}} ayrıntıları",
+    "error": "Ayrıntılar yüklenemedi",
+    "updateAvailable": "Güncelleme var",
+    "installedVersion": "Kurulu sürüm",
+    "homepage": "Ana sayfa",
+    "license": "Lisans",
+    "maintainer": "Bakımcı",
+    "source": "Kaynak",
+    "size": "Boyut",
+    "dependencies": "Bağımlılıklar"
+  },
+  "password": {
+    "title": "Bilgisayar parolasını girin",
+    "description": "{{name}} tüm sisteme kurulur, bu yüzden değişiklikler için Athena'nın çalıştığı hesabın parolası gerekir. Bu işlem için bir kez kullanılır ve asla saklanmaz.",
+    "label": "Parola",
+    "continue": "Devam"
+  },
+  "add": {
+    "button": "Paket yöneticisi ekle",
+    "title": "Paket yöneticisi ekle",
+    "description": "Bu bilgisayarın desteklediği ve henüz kurulu olmayan paket yöneticileri. Athena üreticinin resmi kurulum programını indirir ve bu sunucuda çalıştırır.",
+    "none": "Bu bilgisayarda eklenecek bir şey yok.",
+    "install": "Kur",
+    "needsPassword": "Bilgisayarınızın parolasını ister.",
+    "unmetNote": "Kur'u etkinleştirmek için gösterilen gereksinimleri karşılayın.",
+    "confirmTitle": "{{name}} kurulsun mu?",
+    "confirmDescription": "Athena resmi kurulum programını {{site}} adresinden indirip bu sunucuda çalıştıracak. Bu, bilgisayarı değiştirir.",
+    "failed": "{{name}} kurulamadı"
   }
 }

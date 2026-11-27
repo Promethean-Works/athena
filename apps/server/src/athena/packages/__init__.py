@@ -3,8 +3,10 @@
 from athena.packages.apps import Brew, Flatpak, Snap
 from athena.packages.base import PackageManager
 from athena.packages.linux import Apk, Apt, Dnf, Pacman, Zypper
+from athena.packages.macports import MacPorts
 from athena.packages.windows import Choco, Scoop, Winget
 
 MANAGERS: dict[str, type[PackageManager]] = {
-    m.id: m for m in (Apt, Dnf, Pacman, Zypper, Apk, Flatpak, Snap, Brew, Winget, Scoop, Choco)
+    m.id: m
+    for m in (Apt, Dnf, Pacman, Zypper, Apk, Flatpak, Snap, Brew, MacPorts, Winget, Scoop, Choco)
 }

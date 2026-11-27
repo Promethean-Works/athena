@@ -194,8 +194,17 @@ class PackageManagerSpec:
     version_args: tuple[str, ...] = ("--version",)
     system_wide: bool = False
     """Needs root on Linux (installs into the system)."""
+    sudo_password: bool = False
+    """Installs need root, but the admin's password (sudo) lets Athena do it as its own user."""
+    paths: tuple[str, ...] = ()
+    """Where the binary lives when its folder isn't on the service's PATH."""
 
 
+BREW_PATHS = (
+    "/opt/homebrew/bin/brew",
+    "/usr/local/bin/brew",
+    "/home/linuxbrew/.linuxbrew/bin/brew",
+)
 LINUX_PACKAGE_MANAGERS = [
     PackageManagerSpec("apt", "APT", "apt-get", system_wide=True),
     PackageManagerSpec("dnf", "DNF", "dnf", system_wide=True),
@@ -204,9 +213,19 @@ LINUX_PACKAGE_MANAGERS = [
     PackageManagerSpec("apk", "apk", "apk", system_wide=True),
     PackageManagerSpec("flatpak", "Flatpak", "flatpak"),
     PackageManagerSpec("snap", "Snap", "snap", system_wide=True),
-    PackageManagerSpec("brew", "Homebrew", "brew"),
+    PackageManagerSpec("brew", "Homebrew", "brew", paths=BREW_PATHS),
 ]
-DARWIN_PACKAGE_MANAGERS = [PackageManagerSpec("brew", "Homebrew", "brew")]
+DARWIN_PACKAGE_MANAGERS = [
+    PackageManagerSpec("brew", "Homebrew", "brew", paths=BREW_PATHS),
+    PackageManagerSpec(
+        "macports",
+        "MacPorts",
+        "port",
+        version_args=("version",),
+        sudo_password=True,
+        paths=("/opt/local/bin/port",),
+    ),
+]
 WINDOWS_PACKAGE_MANAGERS = [
     PackageManagerSpec("winget", "WinGet", "winget"),
     PackageManagerSpec("scoop", "Scoop", "scoop"),
@@ -216,7 +235,7 @@ WINDOWS_PACKAGE_MANAGERS = [
 
 def detect_package_manager(spec: PackageManagerSpec, probe: Probe) -> Capability:
     cap_id = f"packages.{spec.id}"
-    path = probe.which(spec.binary)
+    path = probe.which(spec.binary) or next((p for p in spec.paths if probe.exists(p)), None)
     if not path:
         return Capability(id=cap_id, label=spec.label, status="missing", provider=spec.id)
     version = probe.run([path, *spec.version_args]).first_line or None
@@ -227,6 +246,15 @@ def detect_package_manager(spec: PackageManagerSpec, probe: Probe) -> Capability
             status="needs_privilege",
             provider=spec.id,
             detail="Athena must run as root to install system packages",
+        )
+    if spec.sudo_password and not probe.is_root():
+        return Capability(
+            id=cap_id,
+            label=spec.label,
+            status="needs_privilege",
+            provider=spec.id,
+            detail=f"{spec.label} installs system-wide: Athena asks for your computer's password",
+            elevation="password",
         )
     if spec.id == "brew" and probe.is_root():
         return Capability(

@@ -57,5 +57,36 @@
     "upgradeAllDescription_few": "Upgradují se {{count}} balíčky. Může to chvíli trvat.",
     "upgradeAllDescription_many": "Upgraduje se {{count}} balíčku. Může to chvíli trvat.",
     "upgradeAllDescription_other": "Upgraduje se {{count}} balíčků. Může to chvíli trvat."
+  },
+  "details": {
+    "button": "Podrobnosti",
+    "buttonLabel": "Podrobnosti o {{name}}",
+    "error": "Podrobnosti se nepodařilo načíst",
+    "updateAvailable": "K dispozici je aktualizace",
+    "installedVersion": "Nainstalovaná verze",
+    "homepage": "Domovská stránka",
+    "license": "Licence",
+    "maintainer": "Správce balíčku",
+    "source": "Zdroj",
+    "size": "Velikost",
+    "dependencies": "Závislosti"
+  },
+  "password": {
+    "title": "Zadejte heslo počítače",
+    "description": "{{name}} se instaluje pro celý systém, proto změny vyžadují heslo účtu, pod kterým Athena běží. Použije se jednou pro tuto akci a nikdy se neukládá.",
+    "label": "Heslo",
+    "continue": "Pokračovat"
+  },
+  "add": {
+    "button": "Přidat správce balíčků",
+    "title": "Přidat správce balíčků",
+    "description": "Správci balíčků, které tento počítač podporuje a ještě je nemá. Athena stáhne oficiální instalátor od výrobce a spustí ho na tomto serveru.",
+    "none": "Na tomto počítači není co přidat.",
+    "install": "Nainstalovat",
+    "needsPassword": "Vyžaduje heslo vašeho počítače.",
+    "unmetNote": "Pro povolení instalace splňte zobrazené požadavky.",
+    "confirmTitle": "Nainstalovat {{name}}?",
+    "confirmDescription": "Athena stáhne oficiální instalátor z webu {{site}} a spustí ho na tomto serveru. Tím se změní počítač.",
+    "failed": "{{name}} se nepodařilo nainstalovat"
   }
 }

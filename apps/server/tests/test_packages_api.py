@@ -190,3 +190,182 @@ def test_refresh_only_where_supported(
     assert res.status_code == 202
     assert wait(client, res.json()["id"])["status"] == "succeeded"
     assert client.post("/api/packages/pacman/refresh").status_code == 400
+
+
+# ---------------------------------------------------------------- details, icons, logos
+
+
+async def info_runner(argv, env):
+    if argv[:2] == ["apt-cache", "show"]:
+        return CmdResult(0, (FIX / "info/apt.txt").read_text(), "")
+    if argv[:2] == ["flatpak", "remote-info"]:
+        return CmdResult(0, (FIX / "info/flatpak.txt").read_text(), "")
+    if argv[0] == "flatpak":
+        return CmdResult(0, "", "")
+    return await apt_runner(argv, env)
+
+
+def test_info_returns_details_and_current_installed_state(client_for) -> None:
+    client = client_for(linux_store(), info_runner)
+    res = client.get("/api/packages/apt/info", params={"name": "gojq"})
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["version"] == "1.7.1-6+deb13u4" and body["has_icon"] is False
+    assert body["installed"] is True  # dpkg-query lists gojq
+    assert "icon_url" not in body  # the browser never sees the store's URL
+
+
+def test_info_failure_is_502(client_for) -> None:
+    async def failing(argv, env):
+        return CmdResult(100, "", "E: No packages found")
+
+    client = client_for(linux_store(), failing)
+    res = client.get("/api/packages/apt/info", params={"name": "nope-zzz"})
+    assert res.status_code == 502 and "No packages found" in res.json()["detail"]
+
+
+def test_info_rejects_option_like_names(client_for) -> None:
+    client = client_for(linux_store(), info_runner)
+    assert client.get("/api/packages/apt/info", params={"name": "-rf"}).status_code == 422
+    assert client.get("/api/packages/apt/icon", params={"name": "--x"}).status_code == 422
+
+
+def test_icon_comes_from_the_stores_url_through_the_server(
+    client_for, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from athena.packages import http
+
+    asked: list[tuple[str, tuple[str, ...]]] = []
+
+    async def fake_json(url, headers=None):
+        return {"name": "Icons", "icon": "https://dl.flathub.org/media/x/icon.png"}
+
+    async def fake_image(url, hosts):
+        asked.append((url, hosts))
+        return b"\x89PNG", "image/png"
+
+    monkeypatch.setattr(http, "fetch_json", fake_json)
+    monkeypatch.setattr(http, "fetch_image", fake_image)
+    client = client_for(linux_store(), info_runner)
+    params = {"name": "org.example.IconApp", "source": "flathub"}
+    assert client.get("/api/packages/flatpak/info", params=params).json()["has_icon"] is True
+    res = client.get("/api/packages/flatpak/icon", params=params)
+    assert res.status_code == 200 and res.content == b"\x89PNG"
+    assert res.headers["content-type"] == "image/png"
+    assert asked == [("https://dl.flathub.org/media/x/icon.png", ("flathub.org", "flatpak.org"))]
+
+
+def test_no_icon_is_404(client_for) -> None:
+    client = client_for(linux_store(), info_runner)
+    res = client.get("/api/packages/apt/icon", params={"name": "gojq"})
+    assert res.status_code == 404
+
+
+def test_manager_logo(client_for, monkeypatch: pytest.MonkeyPatch) -> None:
+    from athena.packages import http
+
+    asked = []
+
+    async def fake_image(url, hosts):
+        asked.append((url, hosts))
+        return b"ico", "image/x-icon"
+
+    monkeypatch.setattr(http, "fetch_image", fake_image)
+    client = client_for(linux_store())
+    managers = {m["id"]: m for m in client.get("/api/packages").json()}
+    assert managers["apt"]["has_logo"] is True
+    res = client.get("/api/packages/apt/logo")
+    assert res.status_code == 200 and res.content == b"ico"
+    assert asked == [("https://www.debian.org/favicon.ico", ("debian.org",))]
+    assert client.get("/api/packages/snap/logo").status_code == 404  # not on this host
+
+
+# ------------------------------------------------ changes with the computer's password
+
+
+def macports_store(root: bool = False) -> CapabilityStore:
+    probe = FakeProbe(
+        os="darwin",
+        root=root,
+        paths={"/opt/local/bin/port"},
+        commands={("/opt/local/bin/port", "version"): RunResult(0, "Version: 2.12.7\n")},
+    )
+    return CapabilityStore(detector=lambda: detect(probe))
+
+
+async def port_runner(argv, env):
+    if argv[:3] == ["port", "-q", "search"]:
+        return CmdResult(0, (FIX / "macports/search.txt").read_text(), "")
+    if argv[:2] == ["port", "-q"]:
+        return CmdResult(0, (FIX / "macports/installed.txt").read_text(), "")
+    return CmdResult(127, "", "not found")
+
+
+def test_password_manager_reads_freely_and_changes_need_the_password(
+    client_for, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from athena.api import packages as api
+
+    runs = []
+
+    async def fake_run(job, argv, what, env=None, stdin=None):
+        runs.append((argv, stdin))
+
+    monkeypatch.setattr(api, "run_or_fail", fake_run)
+    client = client_for(macports_store(), port_runner)
+    listed = {m["id"]: m for m in client.get("/api/packages").json()}
+    assert listed["macports"]["elevation"] == "password" and not listed["macports"]["available"]
+    assert client.get("/api/packages/macports/search", params={"q": "jq"}).status_code == 200
+    assert client.get("/api/packages/macports/installed").status_code == 200
+
+    res = client.post("/api/packages/macports/install", json={"name": "jq"})
+    assert res.status_code == 403 and "password" in res.json()["detail"]
+    assert runs == []
+
+    res = client.post("/api/packages/macports/install", json={"name": "jq", "password": "hunter2"})
+    assert res.status_code == 202, res.text
+    job = wait(client, res.json()["id"])
+    assert job["status"] == "succeeded"
+    argv, stdin = runs[0]
+    assert argv[1:5] == ["-S", "-k", "-p", ""] and argv[-3:] == ["-N", "install", "jq"]
+    assert stdin == "hunter2\n"
+    assert "hunter2" not in str(job)
+    rows = list(client.app.state.db.engine.connect().exec_driver_sql("SELECT * FROM audit_log"))
+    assert not any("hunter2" in str(r) for r in rows)
+
+
+def test_root_needs_no_password(client_for, monkeypatch: pytest.MonkeyPatch) -> None:
+    from athena.api import packages as api
+
+    runs = []
+
+    async def fake_run(job, argv, what, env=None, stdin=None):
+        runs.append((argv, stdin))
+
+    monkeypatch.setattr(api, "run_or_fail", fake_run)
+    client = client_for(macports_store(root=True), port_runner)
+    res = client.post(
+        "/api/packages/macports/uninstall", json={"name": "jq", "password": "ignored"}
+    )
+    assert res.status_code == 202, res.text
+    wait(client, res.json()["id"])
+    assert runs[0][0][-3:] == ["-N", "uninstall", "jq"] and runs[0][1] is None
+
+
+def test_logo_works_for_a_manager_that_needs_privilege_and_fails_quietly(
+    client_for, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from athena.packages import http
+    from athena.packages.base import PackageError
+
+    async def fake_image(url, hosts):
+        if "debian" in url:
+            return b"ico", "image/x-icon"
+        raise PackageError("offline")
+
+    monkeypatch.setattr(http, "fetch_image", fake_image)
+    client = client_for(linux_store(root=False))  # apt and flatpak, apt needs root
+    assert client.get("/api/packages/apt/logo").status_code == 200
+    # An unreachable site is a 404 (the page shows a letter), never a 502 console error.
+    res = client.get("/api/packages/flatpak/logo")
+    assert res.status_code == 404 and "offline" in res.json()["detail"]

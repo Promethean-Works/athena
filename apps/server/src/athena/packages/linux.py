@@ -13,10 +13,17 @@ from typing import ClassVar
 from athena.packages.base import (
     SEARCH_LIMIT,
     InstalledPackage,
+    PackageDetails,
+    PackageError,
+    PackageField,
     PackageManager,
     PackageRef,
     UpgradablePackage,
+    clean_dependencies,
+    human_kib,
     nonblank,
+    parse_fields,
+    split_description,
 )
 
 # apt-cache and pacman take the query as a regular expression; users type plain text.
@@ -31,6 +38,120 @@ def _mark_installed(results: list[PackageRef], installed: list[InstalledPackage]
     names = {p.name for p in installed}
     for r in results:
         r.installed = r.installed or r.name in names
+
+
+# ------------------------------------------------------------------ details (`info`)
+
+
+def _extra(**pairs: str | None) -> list[PackageField]:
+    return [PackageField(label=k.replace("_", " "), value=v) for k, v in pairs.items() if v]
+
+
+APT_FIELDS = {
+    "package", "version", "installed-size", "maintainer", "depends", "description",
+    "homepage", "section", "size", "architecture", "tag", "priority",
+}  # fmt: skip
+
+
+def parse_apt_show(text: str) -> PackageDetails:
+    """`apt-cache show name` (first stanza)."""
+    f = parse_fields(text.split("\n\n", 1)[0], APT_FIELDS, flush_left=True)
+    summary, long = split_description(f.get("description"))
+    kb = f.get("installed-size", "")
+    return PackageDetails(
+        name=f.get("package", ""),
+        version=f.get("version"),
+        summary=summary,
+        description=long,
+        homepage=f.get("homepage"),
+        source=f.get("section"),
+        size=human_kib(int(kb)) if kb.isdigit() else None,
+        dependencies=clean_dependencies(f.get("depends", "").split(",")),
+        maintainer=f.get("maintainer"),
+        extra=_extra(architecture=f.get("architecture"), tags=f.get("tag")),
+    )
+
+
+RPM_INFO_FIELDS = {
+    "name", "version", "release", "repository", "summary", "url", "upstream url", "license",
+    "description", "installed size", "download size", "vendor", "architecture", "arch",
+    "installed",
+}  # fmt: skip
+
+
+def parse_rpm_info(text: str) -> PackageDetails:
+    """`dnf info` and `zypper info`: both print `Key : value` with an indented description."""
+    f = parse_fields(text, RPM_INFO_FIELDS, flush_left=True)
+    version = f.get("version", "")
+    if f.get("release"):
+        version = f"{version}-{f['release']}"
+    long = "\n".join(line.strip() for line in f.get("description", "").splitlines())
+    long = re.sub(r"\n{3,}", "\n\n", long).strip()
+    summary = f.get("summary")
+    if long and long.split("\n")[0] == summary:
+        long = long.partition("\n")[2].strip()
+    return PackageDetails(
+        name=f.get("name", ""),
+        version=version or None,
+        summary=summary,
+        description=long or None,
+        homepage=f.get("url") or f.get("upstream url"),
+        license=f.get("license"),
+        source=f.get("repository"),
+        size=f.get("installed size"),
+        maintainer=f.get("vendor"),
+        extra=_extra(architecture=f.get("architecture") or f.get("arch")),
+    )
+
+
+PACMAN_FIELDS = {
+    "repository", "name", "version", "description", "architecture", "url", "licenses",
+    "depends on", "installed size", "packager", "download size",
+}  # fmt: skip
+
+
+def parse_pacman_info(text: str) -> PackageDetails:
+    """`pacman -Si` / `-Qi`."""
+    f = parse_fields(text, PACMAN_FIELDS, flush_left=True)
+    return PackageDetails(
+        name=f.get("name", ""),
+        version=f.get("version"),
+        summary=f.get("description"),
+        homepage=f.get("url"),
+        license=f.get("licenses"),
+        source=f.get("repository"),
+        size=f.get("installed size"),
+        dependencies=clean_dependencies(f.get("depends on", "").split()),
+        maintainer=f.get("packager"),
+        extra=_extra(architecture=f.get("architecture"), download_size=f.get("download size")),
+    )
+
+
+_APK_SECTION = re.compile(r"^(?P<id>\S+) (?P<key>[a-z][a-z -]*):$")
+
+
+def parse_apk_info(text: str, name: str) -> PackageDetails:
+    """`apk info -a name`: blocks of `<name>-<version> <what>:` then the value lines."""
+    sections: dict[str, list[str]] = {}
+    key = None
+    version = None
+    for line in text.splitlines():
+        if m := _APK_SECTION.match(line):
+            key = m.group("key")
+            sections.setdefault(key, [])
+            if (split := split_apk(m.group("id"))) and split[0] == name:
+                version = split[1]
+        elif key and line.strip():
+            sections[key].append(line.strip())
+    return PackageDetails(
+        name=name,
+        version=version,
+        summary=" ".join(sections.get("description", [])) or None,
+        homepage=(sections.get("webpage") or [None])[0],
+        license=", ".join(sections.get("license", [])) or None,
+        size=" ".join(sections.get("installed size", [])) or None,
+        dependencies=clean_dependencies(sections.get("depends on", [])),
+    )
 
 
 # ------------------------------------------------------------------ rpm (dnf, zypper)
@@ -96,6 +217,7 @@ def parse_apt_upgrade_simulation(text: str) -> list[UpgradablePackage]:
 class Apt(PackageManager):
     id = "apt"
     label = "APT"
+    logo_url = "https://www.debian.org/favicon.ico"
     can_refresh = True
     env: ClassVar[dict[str, str]] = {
         "DEBIAN_FRONTEND": "noninteractive",
@@ -114,6 +236,9 @@ class Apt(PackageManager):
         results = parse_apt_search(out)[:SEARCH_LIMIT]
         _mark_installed(results, await self.installed())
         return results
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        return parse_apt_show(await self.run(["apt-cache", "show", name], "apt-cache show"))
 
     async def installed(self) -> list[InstalledPackage]:
         fmt = "${db:Status-Abbrev}\t${Package}\t${Version}\t${binary:Summary}\n"
@@ -175,6 +300,7 @@ class Dnf(PackageManager):
 
     id = "dnf"
     label = "DNF"
+    logo_url = "https://fedoraproject.org/favicon.ico"
     can_refresh = True
 
     async def search(self, query: str) -> list[PackageRef]:
@@ -186,6 +312,9 @@ class Dnf(PackageManager):
         results = parse_dnf_search(out)[:SEARCH_LIMIT]
         _mark_installed(results, await self.installed())
         return results
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        return parse_rpm_info(await self.run(["dnf", "-q", "info", name], "dnf info"))
 
     async def installed(self) -> list[InstalledPackage]:
         return parse_rpm_installed(await self.run(["rpm", "-qa", "--qf", RPM_QF], "rpm -qa"))
@@ -266,6 +395,7 @@ def parse_zypper_updates(text: str) -> list[UpgradablePackage]:
 class Zypper(PackageManager):
     id = "zypper"
     label = "zypper"
+    logo_url = "https://static.opensuse.org/favicon.ico"
     can_refresh = True
     _Z = ("zypper", "--non-interactive")
 
@@ -273,6 +403,9 @@ class Zypper(PackageManager):
         # Exit code 104 means "no matches".
         out = await self.run([*self._Z, "--xmlout", "search", query], "zypper search", (0, 104))
         return parse_zypper_search(out)[:SEARCH_LIMIT]
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        return parse_rpm_info(await self.run([*self._Z, "info", name], "zypper info"))
 
     async def installed(self) -> list[InstalledPackage]:
         return parse_rpm_installed(await self.run(["rpm", "-qa", "--qf", RPM_QF], "rpm -qa"))
@@ -337,6 +470,7 @@ def parse_pacman_upgrades(text: str) -> list[UpgradablePackage]:
 class Pacman(PackageManager):
     id = "pacman"
     label = "pacman"
+    logo_url = "https://archlinux.org/static/favicon.ico"
     can_upgrade_one = False
     note = (
         "Arch doesn't support partial upgrades, so installing a package also upgrades "
@@ -347,6 +481,13 @@ class Pacman(PackageManager):
         # Exit code 1 means "no matches".
         out = await self.run(["pacman", "-Ss", literal_regex(query)], "pacman -Ss", (0, 1))
         return parse_pacman_search(out)[:SEARCH_LIMIT]
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        try:
+            out = await self.run(["pacman", "-Si", name], "pacman -Si")
+        except PackageError:  # installed from outside the repositories (AUR, local file)
+            out = await self.run(["pacman", "-Qi", name], "pacman -Qi")
+        return parse_pacman_info(out)
 
     async def installed(self) -> list[InstalledPackage]:
         return parse_pacman_installed(await self.run(["pacman", "-Q"], "pacman -Q"))
@@ -413,6 +554,7 @@ def parse_apk_upgradable(text: str) -> list[UpgradablePackage]:
 class Apk(PackageManager):
     id = "apk"
     label = "apk"
+    logo_url = "https://alpinelinux.org/alpinelinux-logo.svg"
     can_refresh = True
 
     async def search(self, query: str) -> list[PackageRef]:
@@ -420,6 +562,9 @@ class Apk(PackageManager):
         results = results[:SEARCH_LIMIT]
         _mark_installed(results, await self.installed())
         return results
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        return parse_apk_info(await self.run(["apk", "info", "-a", name], "apk info"), name)
 
     async def installed(self) -> list[InstalledPackage]:
         return parse_apk_installed(await self.run(["apk", "list", "--installed"], "apk list"))

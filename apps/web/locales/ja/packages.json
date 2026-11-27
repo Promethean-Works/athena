@@ -54,5 +54,36 @@
     "uninstallDescription": "このサーバーから削除されます。依存するパッケージも削除される場合があります。",
     "upgradeAllTitle": "{{manager}} のパッケージをすべてアップグレードしますか？",
     "upgradeAllDescription_other": "{{count}} 個のパッケージがアップグレードされます。時間がかかる場合があります。"
+  },
+  "details": {
+    "button": "詳細",
+    "buttonLabel": "{{name}} の詳細",
+    "error": "詳細を読み込めませんでした",
+    "updateAvailable": "アップデートがあります",
+    "installedVersion": "インストール済みのバージョン",
+    "homepage": "ホームページ",
+    "license": "ライセンス",
+    "maintainer": "メンテナー",
+    "source": "ソース",
+    "size": "サイズ",
+    "dependencies": "依存関係"
+  },
+  "password": {
+    "title": "コンピューターのパスワードを入力",
+    "description": "{{name}} はシステム全体にインストールされるため、変更には Athena が動作しているアカウントのパスワードが必要です。この操作で一度だけ使われ、保存されません。",
+    "label": "パスワード",
+    "continue": "続行"
+  },
+  "add": {
+    "button": "パッケージマネージャーを追加",
+    "title": "パッケージマネージャーを追加",
+    "description": "このコンピューターが対応していて、まだ入っていないパッケージマネージャーです。Athena は提供元の公式インストーラーをダウンロードし、このサーバーで実行します。",
+    "none": "このコンピューターに追加できるものはありません。",
+    "install": "インストール",
+    "needsPassword": "コンピューターのパスワードを求めます。",
+    "unmetNote": "表示された要件を満たすとインストールできます。",
+    "confirmTitle": "{{name}} をインストールしますか？",
+    "confirmDescription": "Athena は {{site}} から公式インストーラーをダウンロードし、このサーバーで実行します。コンピューターに変更が加わります。",
+    "failed": "{{name}} をインストールできませんでした"
   }
 }
