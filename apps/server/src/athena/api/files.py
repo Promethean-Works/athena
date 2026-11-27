@@ -30,12 +30,27 @@ from athena.files.paths import (
     available_name,
     check_new_name,
     existing_entry,
+    protect,
     resolve,
     root_of,
 )
 from athena.jobs import Job, JobManager, JobOut
 
 router = APIRouter(prefix="/files", tags=["files"])
+
+
+async def keep_athena_files_private(request: Request) -> None:
+    """Dependency for routes used by public share visitors: Athena's data folder stays
+    closed. Async and never reset: it must set the rule in the request's own task, and a
+    streamed zip is read after the endpoint returns. Each request has its own context."""
+    protect(request.app.state.settings.data_dir)
+
+
+async def keep_athena_files_private_for_users(request: Request, user: Authed) -> None:
+    """Same for signed-in routes: plain users get it, admins keep full access."""
+    if not user.user.is_admin:
+        protect(request.app.state.settings.data_dir)
+
 
 LocationId = Annotated[int, Query(ge=1)]
 RelPath = Annotated[str, Query(max_length=4096)]

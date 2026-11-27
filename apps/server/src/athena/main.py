@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -236,15 +236,27 @@ def create_app(
     app.include_router(store_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(settings_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(packages_api.router, prefix="/api", dependencies=[require_admin])
-    app.include_router(files_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(shares_api.public_router, prefix="/api")
+    app.include_router(
+        files_api.router,
+        prefix="/api",
+        dependencies=[require_user, Depends(files_api.keep_athena_files_private_for_users)],
+    )
+    app.include_router(
+        shares_api.public_router,
+        prefix="/api",
+        dependencies=[Depends(files_api.keep_athena_files_private)],
+    )
     app.include_router(host_password_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(smb_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(nfs_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(mounts_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(cloud_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(webdav_api.router, prefix="/api", dependencies=[require_admin])
-    app.include_router(shares_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(
+        shares_api.router,
+        prefix="/api",
+        dependencies=[require_user, Depends(files_api.keep_athena_files_private_for_users)],
+    )
     # The lazy assistant router wraps its routes in an included router so OpenAPI
     # sees them. The real router has prefix="/assistant" stripped by LazyAssistantRouter.
     lazy_assistant = LazyAssistantRouter(app)

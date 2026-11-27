@@ -12,6 +12,8 @@ separators ("photos/2024/a.jpg", "" for the location itself). Two ways to resolv
 
 import os
 import sys
+from contextvars import ContextVar
+from dataclasses import dataclass
 from pathlib import Path
 
 WINDOWS = sys.platform == "win32"
@@ -22,6 +24,79 @@ WINDOWS_DEVICES = {"CON", "PRN", "AUX", "NUL"} | {
     f"{p}{i}" for p in ("COM", "LPT") for i in range(1, 10)
 }
 UPLOAD_PREFIX = ".athena-upload-"
+
+
+# Athena's own data folder, off limits to plain users and share visitors for the length of
+# one request (set by `protect`). Everything in it is the server's: `secret.key`, the
+# database, `athena.json`, TLS keys, logs. Only `<data>/apps` is reachable (the "App
+# data" location), minus what the server runs or keeps secret: each app's `.env` and
+# compose files (editing one is running code as the Athena account on the next restart).
+# Paths are compared by file identity (device and inode), not by text, so a different
+# spelling on a case-insensitive disk (`DATA`, `.ENV`) doesn't get around it.
+APP_PRIVATE = {".env", "compose.yaml", "compose.prev.yaml"}
+
+
+@dataclass(frozen=True)
+class _Guard:
+    data: Path
+    data_id: tuple[int, int] | None
+    apps_id: tuple[int, int] | None
+
+
+_protected: ContextVar[_Guard | None] = ContextVar("protected_data_dir", default=None)
+
+
+def _identity(path: Path) -> tuple[int, int] | None:
+    try:
+        st = os.stat(path)
+    except OSError:
+        return None
+    return (st.st_dev, st.st_ino)
+
+
+def protect(data_dir: Path) -> None:
+    """Refuse the data folder (see above) for the rest of this request."""
+    data = data_dir.resolve()
+    _protected.set(_Guard(data, _identity(data), _identity(data / "apps")))
+
+
+def _chain(path: Path) -> list[Path]:
+    """`path` and its parents, nearest first."""
+    return [path, *path.parents]
+
+
+def is_protected(path: Path) -> bool:
+    """True when a restricted request must not read, list, copy or change `path`."""
+    guard = _protected.get()
+    if guard is None or guard.data_id is None:
+        return False
+    below: list[Path] = []  # the names under the data folder, from `path` upward
+    for ancestor in _chain(path):
+        ident = _identity(ancestor)
+        if ident == guard.data_id:
+            if not below:
+                return True  # the data folder itself
+            if guard.apps_id is None or _identity(below[-1]) != guard.apps_id:
+                return True  # anything but apps/
+            return any(p.name.casefold() in APP_PRIVATE for p in below[:-1])
+        below.append(ancestor)
+    return False
+
+
+def holds_protected(path: Path) -> bool:
+    """True when deleting, renaming or moving the folder `path` would take protected
+    files along: the data folder, `apps`, an app's own folder, or anything above them."""
+    guard = _protected.get()
+    if guard is None or guard.data_id is None or os.path.islink(path):
+        return False
+    here = _identity(path)
+    if here is None or not os.path.isdir(path):
+        return False
+    if here in (guard.data_id, guard.apps_id):
+        return True
+    if guard.apps_id is not None and _identity(path.parent) == guard.apps_id:
+        return True  # apps/<name>: holds the app's .env and compose.yaml
+    return any(_identity(p) == here for p in _chain(guard.data))
 
 
 class FileError(Exception):
@@ -98,7 +173,13 @@ def resolve(root: Path, rel: str) -> Path:
     path = root.joinpath(*split(rel)).resolve()
     if not inside(root, path):
         raise Forbidden("That path leads outside the location")
+    refuse_protected(path)
     return path
+
+
+def refuse_protected(path: Path) -> None:
+    if is_protected(path):
+        raise Forbidden("Athena keeps its own files there; only an admin can open them")
 
 
 def entry(root: Path, rel: str) -> Path:
@@ -118,6 +199,9 @@ def entry(root: Path, rel: str) -> Path:
         or os.path.basename(candidate) != parts[-1]
     ):
         raise BadPath(f"Invalid name: {parts[-1]!r}")
+    refuse_protected(Path(candidate))
+    if holds_protected(Path(candidate)):
+        raise Forbidden("That folder holds Athena's own files; only an admin can change it")
     return Path(candidate)
 
 
