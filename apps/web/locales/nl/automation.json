@@ -1,0 +1,169 @@
+{
+  "cancel": "Annuleren",
+  "view": {
+    "unavailable": "Automatisering is niet beschikbaar",
+    "unsupported": "Deze host ondersteunt geen automatisering."
+  },
+  "copyUrl": {
+    "copy": "{{label}} kopiëren",
+    "copied": "{{label}} gekopieerd",
+    "failed": "Kopiëren mislukt"
+  },
+  "external": {
+    "title": "Externe automatisering",
+    "description": "Koppel n8n, scripts of AI-agents aan Athena.",
+    "webhookUrl": "Webhook-URL",
+    "webhookHint": "Stuur een POST-verzoek om een webhook-trigger af te laten gaan; inloggen is niet nodig. Elke webhook-trigger heeft zijn eigen token: kopieer de volledige URL uit de triggerlijst.",
+    "mcpServer": "MCP-server",
+    "mcpUrl": "MCP-server-URL",
+    "mcpHint": "Streamable HTTP. Clients melden zich aan met een sessiecookie, of sturen het token uit de omgevingsvariabele <envVar>ATHENA_MCP_TOKEN</envVar> van de server mee als <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Taakuitvoeringen",
+    "description": "De laatste uitvoeringen, om de paar seconden vernieuwd.",
+    "trigger": "Trigger",
+    "deletedTrigger": "Verwijderde trigger",
+    "listFailed": "Taakuitvoeringen konden niet worden weergegeven",
+    "empty": {
+      "title": "Nog geen taakuitvoeringen",
+      "description": "Uitvoeringen verschijnen hier wanneer een trigger afgaat."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "App {{name}} starten",
+      "stop": "App {{name}} stoppen",
+      "restart": "App {{name}} herstarten",
+      "update": "App {{name}} bijwerken"
+    },
+    "package": {
+      "install": "{{name}} installeren ({{manager}})",
+      "uninstall": "{{name}} deïnstalleren ({{manager}})",
+      "upgrade": "{{name}} bijwerken ({{manager}})",
+      "refresh": "Pakketlijsten van {{manager}} vernieuwen"
+    }
+  },
+  "triggers": {
+    "title": "Triggers",
+    "description": "Voer een app- of pakketactie uit volgens een schema of via een webhook.",
+    "listFailed": "Triggers konden niet worden weergegeven",
+    "empty": {
+      "title": "Nog geen triggers",
+      "description": "Een trigger voert een actie uit volgens een schema (cron) of wanneer zijn webhook wordt aangeroepen, bijvoorbeeld vanuit n8n."
+    },
+    "onWebhook": "Wanneer zijn webhook wordt aangeroepen",
+    "noSchedule": "Geen schema",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Volgende uitvoering {{time}}",
+    "changeFailed": "De trigger kon niet worden gewijzigd",
+    "enabledToast": "{{name}} ingeschakeld",
+    "pausedToast": "{{name}} gepauzeerd",
+    "enabledLabel": "{{name}} ingeschakeld",
+    "copyWebhook": "Webhook-URL kopiëren",
+    "webhookCopied": "Webhook-URL gekopieerd",
+    "copyFailed": "Kopiëren mislukt",
+    "deleteFailed": "De trigger kon niet worden verwijderd",
+    "deleted": "Trigger verwijderd",
+    "deleteLabel": "{{name}} verwijderen",
+    "delete": "Verwijderen",
+    "deleteTitle": "{{name}} verwijderen?",
+    "deleteDescription": "Hij stopt met draaien. Eerdere taakuitvoeringen blijven in de log staan.",
+    "deleteDescriptionWebhook": "Hij stopt met draaien en zijn webhook-URL werkt niet meer. Eerdere taakuitvoeringen blijven in de log staan."
+  },
+  "dialog": {
+    "new": "Nieuwe trigger",
+    "description": "Voer een app- of pakketactie uit volgens een schema, of telkens wanneer een webhook wordt aangeroepen.",
+    "created": {
+      "title": "Webhook-trigger aangemaakt",
+      "description": "Stuur een POST-verzoek naar deze URL om \"{{name}}\" uit te voeren. Iedereen met de URL kan hem laten afgaan, dus houd hem privé. Je kunt hem opnieuw kopiëren uit de triggerlijst.",
+      "done": "Klaar"
+    },
+    "errors": {
+      "name": "Geef de trigger een naam.",
+      "app": "Kies een app.",
+      "manager": "Kies een pakketbeheerder.",
+      "packageName": "Voer een pakketnaam in."
+    },
+    "createdToast": "Trigger {{name}} aangemaakt",
+    "createFailed": "De trigger kon niet worden aangemaakt",
+    "name": "Naam",
+    "namePlaceholder": "bijv. Nachtelijke Jellyfin-herstart",
+    "whenItRuns": "Wanneer hij draait",
+    "onSchedule": "Volgens een schema (cron)",
+    "onWebhook": "Wanneer een webhook wordt aangeroepen",
+    "schedule": "Schema",
+    "cronPlaceholder": "minuut uur dag maand weekdag, bijv. 0 2 * * *",
+    "cronHelp": "Vijf velden: minuut, uur, dag van de maand, maand, weekdag. Tijden zijn in UTC.",
+    "webhookHint": "Na het aanmaken krijg je een geheime URL. Een POST-verzoek ernaartoe (vanuit n8n, een script of curl) voert de actie uit.",
+    "whatItDoes": "Wat hij doet",
+    "appAction": "App-actie",
+    "packageAction": "Pakketactie",
+    "create": "Trigger aanmaken",
+    "app": "App",
+    "loadingApps": "Apps laden…",
+    "chooseApp": "Kies een app",
+    "noApps": "Geen apps geïnstalleerd",
+    "action": "Actie",
+    "appVerbs": {
+      "start": "Starten",
+      "stop": "Stoppen",
+      "restart": "Herstarten",
+      "update": "Bijwerken (pull en opnieuw aanmaken)"
+    },
+    "packageVerbs": {
+      "install": "Installeren",
+      "uninstall": "Deïnstalleren",
+      "upgrade": "Bijwerken",
+      "refresh": "Pakketlijsten vernieuwen"
+    },
+    "packageManager": "Pakketbeheerder",
+    "loading": "Laden…",
+    "chooseManager": "Kies een beheerder",
+    "noManagers": "Geen gereed op deze host",
+    "package": "Pakket",
+    "packagePlaceholder": "bijv. jq",
+    "source": "Bron (optioneel)",
+    "sourceHint": "Een Flatpak-remote, een Scoop-bucket of \"cask\" voor een Homebrew-cask.",
+    "loadingInstalled": "Geïnstalleerde pakketten laden…",
+    "installedFailed": "Geïnstalleerde pakketten konden niet worden weergegeven ({{error}}); typ de naam.",
+    "searchInstalled": "Geïnstalleerde pakketten doorzoeken",
+    "noMatch": "Geen geïnstalleerd pakket komt overeen."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Elk uur",
+      "daily": "Dagelijks om 02:00",
+      "sundays": "Zondag om 03:00",
+      "monthly": "Maandelijks op de 1e"
+    },
+    "fields": {
+      "minute": "minuut",
+      "hour": "uur",
+      "dayOfMonth": "dag van de maand",
+      "month": "maand",
+      "weekday": "weekdag"
+    },
+    "errors": {
+      "empty": "Voer een cron-expressie in of kies een voorinstelling.",
+      "invalidField": "Het veld {{field}} \"{{value}}\" is ongeldig.",
+      "invalidStep": "De stap \"/{{step}}\" in het veld {{field}} moet een getal zijn.",
+      "outOfRange": "De waarde voor {{field}} moet tussen {{min}} en {{max}} liggen.",
+      "fieldCount": "Gebruik vijf velden (minuut uur dag maand weekdag); dit zijn er {{count}}."
+    },
+    "dayRange": "{{from}} tot {{to}}",
+    "custom": "Eigen schema",
+    "everyMinute": "Elke minuut",
+    "everyMinutes_one": "Elke {{count}} minuut",
+    "everyMinutes_other": "Elke {{count}} minuten",
+    "everyHourOnTheHour": "Elk uur, op het hele uur",
+    "everyHourAtMinute": "Elk uur op minuut {{minute}}",
+    "everyHoursAtMinute_one": "Elk {{count}} uur op minuut {{minute}}",
+    "everyHoursAtMinute_other": "Elke {{count}} uur op minuut {{minute}}",
+    "everyDay": "Elke dag om {{time}}",
+    "everyWeekdays": "Elke {{days}} om {{time}}",
+    "onDayOfMonth": "Op dag {{day}} van elke maand om {{time}}",
+    "everyYear": "Elk jaar op {{day}} {{month}} om {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

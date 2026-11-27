@@ -1,6 +1,7 @@
 "use client"
 
 import { CopyIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Field, FieldLabel } from "@workspace/ui/components/field"
 import {
@@ -23,6 +24,7 @@ export function CopyField({
   label: string
   value: string
 }) {
+  const { t } = useTranslation("settings")
   return (
     <Field>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
@@ -31,13 +33,13 @@ export function CopyField({
         <InputGroupAddon align="inline-end">
           <InputGroupButton
             size="icon-xs"
-            aria-label={`Copy ${label.toLowerCase()}`}
+            aria-label={t("copyField.copy", { label: label.toLowerCase() })}
             onClick={async () => {
               const ok = await copyText(value)
               toast.add(
                 ok
-                  ? { type: "success", title: `${label} copied` }
-                  : { type: "error", title: "Couldn't copy" }
+                  ? { type: "success", title: t("copyField.copied", { label }) }
+                  : { type: "error", title: t("copyField.failed") }
               )
             }}
           >

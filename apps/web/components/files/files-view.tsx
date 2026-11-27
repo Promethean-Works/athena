@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useTranslation } from "react-i18next"
 import {
   CloudIcon,
   CopyIcon,
@@ -125,6 +126,7 @@ import { UploadsPanel } from "@/components/files/uploads-panel"
 import { useUploads } from "@/components/files/use-uploads"
 import { JobDialog } from "@/components/job-dialog"
 import { formatBytes } from "@/lib/format"
+import { currentLocale } from "@/lib/i18n"
 
 type Job = Schemas["JobOut"]
 type Listing = Schemas["Listing"]
@@ -157,6 +159,7 @@ function NameDialog({
   onClose: () => void
   onSubmit: (name: string) => Promise<string | null>
 }) {
+  const { t } = useTranslation("files")
   const [name, setName] = React.useState(initial)
   const [error, setError] = React.useState<string | null>(null)
   const [pending, setPending] = React.useState(false)
@@ -183,7 +186,7 @@ function NameDialog({
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           <Field data-invalid={error ? true : undefined}>
-            <FieldLabel htmlFor="entry-name">Name</FieldLabel>
+            <FieldLabel htmlFor="entry-name">{t("nameDialog.name")}</FieldLabel>
             <Input
               ref={inputRef}
               id="entry-name"
@@ -204,7 +207,7 @@ function NameDialog({
           </Field>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t("nameDialog.cancel")}
             </Button>
             <Button type="submit" disabled={pending || !name.trim()}>
               {pending ? <Spinner data-icon="inline-start" /> : null}
@@ -229,20 +232,24 @@ function DeleteDialog({
   onClose: () => void
   onConfirm: (permanent: boolean) => void
 }) {
+  const { t } = useTranslation("files")
   const [permanent, setPermanent] = React.useState(false)
   React.useEffect(() => setPermanent(false), [names])
-  const what = names?.length === 1 ? names[0] : `${names?.length ?? 0} items`
+  const title =
+    names?.length === 1
+      ? t("deleteDialog.titleOne", { name: names[0] })
+      : t("deleteDialog.titleMany", { count: names?.length ?? 0 })
   return (
     <AlertDialog open={names !== null} onOpenChange={(o) => !o && onClose()}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {what}?</AlertDialogTitle>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
             {remote
-              ? "It's deleted from the remote. Some services keep their own trash; Athena can't restore it."
+              ? t("deleteDialog.remote")
               : permanent
-                ? "This can't be undone."
-                : "It goes to the server's trash, where you can restore it from the desktop."}
+                ? t("deleteDialog.permanent")
+                : t("deleteDialog.trash")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         {remote ? null : (
@@ -252,16 +259,16 @@ function DeleteDialog({
               checked={permanent}
               onCheckedChange={(c) => setPermanent(c === true)}
             />
-            <Label htmlFor="delete-permanent">Delete permanently</Label>
+            <Label htmlFor="delete-permanent">{t("deleteDialog.permanentLabel")}</Label>
           </div>
         )}
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("deleteDialog.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={() => onConfirm(permanent)}
           >
-            Delete
+            {t("deleteDialog.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -272,6 +279,7 @@ function DeleteDialog({
 /** The file manager: one location or cloud remote at a time, a folder per URL
  * (?loc=&path= or ?remote=&path=). */
 export function FilesView() {
+  const { t } = useTranslation("files")
   const router = useRouter()
   const params = useSearchParams()
   const { user } = useAuth()
@@ -417,7 +425,7 @@ export function FilesView() {
     if (!data) {
       toast.add({
         type: "error",
-        title: "Couldn't delete",
+        title: t("view.deleteFailed"),
         description: errorMessage(error),
       })
       return
@@ -427,14 +435,16 @@ export function FilesView() {
         type: "success",
         title:
           data.deleted.length === 1
-            ? `Deleted ${data.deleted[0]!.split("/").pop()}`
-            : `Deleted ${data.deleted.length} items`,
+            ? t("view.deletedOne", { name: data.deleted[0]!.split("/").pop() })
+            : t("view.deletedMany", { count: data.deleted.length }),
       })
     }
     for (const failed of data.errors) {
       toast.add({
         type: "error",
-        title: `Couldn't delete ${failed.path.split("/").pop()}`,
+        title: t("view.deleteItemFailed", {
+          name: failed.path.split("/").pop(),
+        }),
         description: failed.error,
       })
     }
@@ -450,7 +460,8 @@ export function FilesView() {
     else
       toast.add({
         type: "error",
-        title: `Couldn't ${start.body.op}`,
+        title:
+          start.body.op === "copy" ? t("view.copyFailed") : t("view.moveFailed"),
         description: errorMessage(error),
       })
   }
@@ -466,15 +477,14 @@ export function FilesView() {
           <EmptyMedia variant="icon">
             <CloudIcon />
           </EmptyMedia>
-          <EmptyTitle>No such remote</EmptyTitle>
+          <EmptyTitle>{t("view.noRemoteTitle")}</EmptyTitle>
           <EmptyDescription>
-            There&apos;s no cloud remote called {remoteName}, or rclone isn&apos;t
-            available on this host.
+            {t("view.noRemoteDescription", { name: `${remoteName}` })}
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button render={<Link href="/cloud/" />} nativeButton={false}>
-            Go to Cloud
+            {t("view.goToCloud")}
           </Button>
         </EmptyContent>
       </Empty>
@@ -490,20 +500,20 @@ export function FilesView() {
               <HardDriveIcon />
             </EmptyMedia>
             <EmptyTitle>
-              {locations.length ? "No such location" : "No locations"}
+              {locations.length ? t("view.noSuchLocation") : t("view.noLocations")}
             </EmptyTitle>
             <EmptyDescription>
-              The file manager only shows folders added as locations.
+              {t("view.locationsHint")}
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             {locations.length ? (
               <Button render={<Link href="/files/" />} nativeButton={false}>
-                Go to {locations[0]!.name}
+                {t("view.goTo", { name: locations[0]!.name })}
               </Button>
             ) : user.is_admin ? (
               <Button onClick={() => setLocationsOpen(true)}>
-                Add a location
+                {t("view.addLocation")}
               </Button>
             ) : null}
           </EmptyContent>
@@ -534,20 +544,20 @@ export function FilesView() {
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
         <EllipsisVerticalIcon />
-        <span className="sr-only">Actions for {entry.name}</span>
+        <span className="sr-only">{t("view.actionsFor", { name: entry.name })}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => open(entry)}>
             {entry.kind === "dir" ? <FolderOpenIcon /> : <EyeIcon />}
-            Open
+            {t("view.open")}
           </DropdownMenuItem>
           {onRemote && entry.kind === "dir" ? null : (
             <DropdownMenuItem
               render={<a href={downloadUrl(source, entry.path)} download />}
             >
               <DownloadIcon />
-              {entry.kind === "dir" ? "Download as zip" : "Download"}
+              {entry.kind === "dir" ? t("view.downloadZip") : t("view.download")}
             </DropdownMenuItem>
           )}
           {onRemote ? null : (
@@ -563,7 +573,7 @@ export function FilesView() {
               }
             >
               <Share2Icon />
-              Share…
+              {t("view.share")}
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
@@ -574,7 +584,7 @@ export function FilesView() {
             onClick={() => setNaming({ kind: "rename", entry })}
           >
             <PencilIcon />
-            Rename
+            {t("view.rename")}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() =>
@@ -582,7 +592,7 @@ export function FilesView() {
             }
           >
             <CopyIcon />
-            Copy to…
+            {t("view.copyTo")}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={readOnly}
@@ -591,7 +601,7 @@ export function FilesView() {
             }
           >
             <FolderInputIcon />
-            Move to…
+            {t("view.moveTo")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -602,7 +612,7 @@ export function FilesView() {
             onClick={() => setDeleting([entry.path])}
           >
             <Trash2Icon />
-            Delete
+            {t("view.delete")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
@@ -617,13 +627,13 @@ export function FilesView() {
           value={key}
           onValueChange={(v) => v && go("", sourceFromKey(v))}
         >
-          <SelectTrigger className="w-full sm:w-56" aria-label="Location">
+          <SelectTrigger className="w-full sm:w-56" aria-label={t("view.location")}>
             {onRemote ? <CloudIcon /> : <HardDriveIcon />}
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {remoteItems.length ? <SelectLabel>Locations</SelectLabel> : null}
+              {remoteItems.length ? <SelectLabel>{t("view.locations")}</SelectLabel> : null}
               {localItems.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
@@ -632,7 +642,7 @@ export function FilesView() {
             </SelectGroup>
             {remoteItems.length ? (
               <SelectGroup>
-                <SelectLabel>Cloud</SelectLabel>
+                <SelectLabel>{t("view.cloud")}</SelectLabel>
                 {remoteItems.map((item) => (
                   <SelectItem key={item.value} value={item.value}>
                     {item.label}
@@ -646,7 +656,7 @@ export function FilesView() {
           <Button
             variant="outline"
             size="icon"
-            aria-label="Manage locations"
+            aria-label={t("view.manageLocations")}
             onClick={() => setLocationsOpen(true)}
           >
             <Settings2Icon />
@@ -655,9 +665,9 @@ export function FilesView() {
         {onRemote ? (
           <Badge variant="outline">{remote?.description}</Badge>
         ) : !place.available ? (
-          <Badge variant="destructive">Missing</Badge>
+          <Badge variant="destructive">{t("view.missing")}</Badge>
         ) : readOnly ? (
-          <Badge variant="secondary">Read-only</Badge>
+          <Badge variant="secondary">{t("view.readOnly")}</Badge>
         ) : null}
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <Toggle
@@ -671,24 +681,50 @@ export function FilesView() {
                 // Storage can be blocked; the toggle still works for this visit.
               }
             }}
-            aria-label="Show hidden files"
+            aria-label={t("view.showHidden")}
           >
             <EyeIcon />
-            <span className="hidden sm:inline">Hidden</span>
+            <span className="hidden sm:inline">{t("view.hidden")}</span>
           </Toggle>
+          <Button
+            variant="outline"
+            disabled={!place.available || (!onRemote && path !== "")}
+            onClick={() =>
+              setSharing(
+                onRemote
+                  ? {
+                      location: 0,
+                      remote: remoteName ?? undefined,
+                      path,
+                      name: path.split("/").pop() || place.name,
+                      kind: "dir",
+                    }
+                  : {
+                      location: locId,
+                      path: "",
+                      name: place.name,
+                      kind: "dir",
+                    }
+              )
+            }
+            aria-label={t("view.shareFolder")}
+          >
+            <Share2Icon />
+            <span className="hidden sm:inline">{t("view.shareFolder")}</span>
+          </Button>
           <Button
             variant="outline"
             render={<Link href="/files/shares/" />}
             nativeButton={false}
-            aria-label="Share links"
+            aria-label={t("view.shareLinks")}
           >
             <Share2Icon />
-            <span className="hidden sm:inline">Links</span>
+            <span className="hidden sm:inline">{t("view.links")}</span>
           </Button>
           <Button
             variant="outline"
             size="icon"
-            aria-label="Refresh"
+            aria-label={t("view.refresh")}
             onClick={() => void load()}
           >
             <RefreshCwIcon />
@@ -697,17 +733,19 @@ export function FilesView() {
             variant="outline"
             disabled={readOnly || list.status !== "ok"}
             onClick={() => setNaming({ kind: "folder" })}
-            aria-label="New folder"
+            aria-label={t("view.newFolder")}
           >
             <FolderPlusIcon />
-            <span className="hidden sm:inline">New folder</span>
+            <span className="hidden sm:inline">
+              {t("view.newFolder")}
+            </span>
           </Button>
           <Button
             disabled={readOnly || list.status !== "ok"}
             onClick={() => fileInput.current?.click()}
           >
             <UploadIcon />
-            Upload
+            {t("view.upload")}
           </Button>
           <input
             ref={fileInput}
@@ -759,7 +797,8 @@ export function FilesView() {
 
       {chosen.length ? (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2">
-          <span className="text-sm font-medium">{chosen.length} selected</span>
+          <span className="text-sm font-medium">{t("view.selected", { count: chosen.length })}
+          </span>
           <div className="ml-auto flex flex-wrap gap-2">
             {chosen.length === 1 && !(onRemote && chosen[0]!.kind === "dir") ? (
               <Button
@@ -771,7 +810,7 @@ export function FilesView() {
                 }
               >
                 <DownloadIcon />
-                Download
+                {t("view.download")}
               </Button>
             ) : null}
             <Button
@@ -786,7 +825,7 @@ export function FilesView() {
               }
             >
               <CopyIcon />
-              Copy
+              {t("view.copy")}
             </Button>
             <Button
               variant="outline"
@@ -801,7 +840,7 @@ export function FilesView() {
               }
             >
               <FolderInputIcon />
-              Move
+              {t("view.move")}
             </Button>
             <Button
               variant="outline"
@@ -810,12 +849,12 @@ export function FilesView() {
               onClick={() => setDeleting(chosen.map((e) => e.path))}
             >
               <Trash2Icon />
-              Delete
+              {t("view.delete")}
             </Button>
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Clear selection"
+              aria-label={t("view.clearSelection")}
               onClick={() => setSelected(new Set())}
             >
               <XIcon />
@@ -846,7 +885,9 @@ export function FilesView() {
       >
         {dragging ? (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/80 text-sm font-medium">
-            Drop to upload to {path.split("/").pop() || place.name}
+            {t("view.dropToUpload", {
+              name: path.split("/").pop() || place.name,
+            })}
           </div>
         ) : null}
         {list.status === "loading" ? (
@@ -859,7 +900,7 @@ export function FilesView() {
           <div className="p-4">
             <Alert variant="destructive">
               <AlertTitle>
-                {list.code === 404 ? "Not found" : "Can't open this folder"}
+                {list.code === 404 ? t("view.notFound") : t("view.cantOpenFolder")}
               </AlertTitle>
               <AlertDescription>
                 {list.error}
@@ -870,7 +911,7 @@ export function FilesView() {
                     render={<Link href={folderHref(source, "")} />}
                     nativeButton={false}
                   >
-                    Back to {place.name}
+                    {t("view.backTo", { name: place.name })}
                   </Button>
                 ) : null}
               </AlertDescription>
@@ -882,11 +923,11 @@ export function FilesView() {
               <EmptyMedia variant="icon">
                 <FolderOpenIcon />
               </EmptyMedia>
-              <EmptyTitle>This folder is empty</EmptyTitle>
+              <EmptyTitle>{t("view.emptyTitle")}</EmptyTitle>
               <EmptyDescription>
                 {readOnly
-                  ? "Athena can't write to this location."
-                  : "Upload files or drop them here."}
+                  ? t("view.emptyReadOnly")
+                  : t("view.emptyWritable")}
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
@@ -896,7 +937,7 @@ export function FilesView() {
               <TableRow>
                 <TableHead className="w-10">
                   <Checkbox
-                    aria-label="Select all"
+                    aria-label={t("view.selectAll")}
                     checked={allChosen}
                     indeterminate={chosen.length > 0 && !allChosen}
                     onCheckedChange={(on) =>
@@ -906,15 +947,15 @@ export function FilesView() {
                     }
                   />
                 </TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead>{t("view.columnName")}</TableHead>
                 <TableHead className="hidden w-28 text-right sm:table-cell">
-                  Size
+                  {t("view.columnSize")}
                 </TableHead>
                 <TableHead className="hidden w-44 md:table-cell">
-                  Modified
+                  {t("view.columnModified")}
                 </TableHead>
                 <TableHead className="w-12">
-                  <span className="sr-only">Actions</span>
+                  <span className="sr-only">{t("view.columnActions")}</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -930,7 +971,7 @@ export function FilesView() {
                   >
                     <TableCell>
                       <Checkbox
-                        aria-label={`Select ${entry.name}`}
+                        aria-label={t("view.selectEntry", { name: entry.name })}
                         checked={selected.has(entry.path)}
                         onCheckedChange={(on) =>
                           toggle(entry.path, on === true)
@@ -957,7 +998,7 @@ export function FilesView() {
                         <span className="truncate">{entry.name}</span>
                         {entry.is_link ? (
                           <Badge variant="outline" className="shrink-0">
-                            link
+                            {t("view.link")}
                           </Badge>
                         ) : null}
                       </button>
@@ -977,8 +1018,10 @@ export function FilesView() {
         )}
         {list.status === "ok" && list.data.truncated ? (
           <p className="border-t p-3 text-sm text-muted-foreground">
-            Only the first {list.data.entries.length.toLocaleString()} entries
-            are shown.
+            {t("view.truncated", {
+              count: list.data.entries.length,
+              n: list.data.entries.length.toLocaleString(currentLocale()),
+            })}
           </p>
         ) : null}
       </div>
@@ -986,12 +1029,12 @@ export function FilesView() {
       <NameDialog
         title={
           naming?.kind === "folder"
-            ? "New folder"
+            ? t("view.newFolder")
             : naming?.kind === "rename"
-              ? `Rename ${naming.entry.name}`
+              ? t("view.renameTitle", { name: naming.entry.name })
               : null
         }
-        action={naming?.kind === "folder" ? "Create" : "Rename"}
+        action={naming?.kind === "folder" ? t("view.create") : t("view.rename")}
         initial={naming?.kind === "rename" ? naming.entry.name : ""}
         onClose={() => setNaming(null)}
         onSubmit={submitName}

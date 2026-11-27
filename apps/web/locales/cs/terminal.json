@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Připojování…",
+    "connected": "Připojeno",
+    "exited": "Ukončeno ({{code}})",
+    "disconnected": "Odpojeno",
+    "hostTerminal": "Terminál hostitele",
+    "containerShell": "Shell kontejneru",
+    "lost": "Spojení s Athena bylo ztraceno",
+    "closedCode": "Odpojeno (kód {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminál není k dispozici",
+    "openSettings": "Otevřít Nastavení",
+    "description": "Shell na tomto serveru pod uživatelem, pod kterým běží Athena.",
+    "newSession": "Nová relace"
+  },
+  "access": {
+    "noSupport": "Tento hostitel nepodporuje terminál.",
+    "adminsOnly": "Terminál mohou otevřít jen správci.",
+    "turnedOff": "Terminál je vypnutý v Nastavení → Systém."
+  },
+  "shell": {
+    "title": "Shell · {{name}}",
+    "description": "Spouští bash, nebo sh, pokud obraz bash nemá."
+  }
+}

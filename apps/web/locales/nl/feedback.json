@@ -1,0 +1,49 @@
+{
+  "menu": "Feedback sturen",
+  "dialog": {
+    "title": "Feedback sturen",
+    "description": "Opent een nieuw issue op {{repo}} in een nieuw tabblad. Je kunt het daar nalezen en bewerken voordat het wordt geplaatst; issues zijn openbaar.",
+    "storeHint": "Werkt een app uit de store niet? Gebruik <b>Probleem melden</b> op de storepagina van de app, zodat de melding bij de beheerder terechtkomt.",
+    "loadFailed": "De gegevens van deze server konden niet worden geladen"
+  },
+  "choices": {
+    "bug": {
+      "title": "Bug melden",
+      "description": "Iets werkt niet zoals het hoort."
+    },
+    "change": {
+      "title": "Wijziging voorstellen",
+      "description": "Iets werkt, maar het zou anders moeten werken."
+    },
+    "feature": {
+      "title": "Functie aanvragen",
+      "description": "Iets wat Athena nog niet kan."
+    }
+  },
+  "diagnostics": {
+    "title": "Voor je ingevuld",
+    "system": "Systeem",
+    "cpu": "CPU",
+    "containers": "Containers"
+  },
+  "appReport": {
+    "button": "Probleem melden",
+    "title": "Probleem melden met {{app}}",
+    "description": "Opent een nieuw issue voor {{where}} in een nieuw tabblad, met de app en de gegevens van deze server al ingevuld. Je kunt het daar nalezen voordat het wordt geplaatst; issues zijn openbaar.",
+    "whereCatalog": "de catalogus {{name}}, die deze app onderhoudt",
+    "includeLogs_one": "Laatste {{count}} logregel opnemen",
+    "includeLogs_other": "Laatste {{count}} logregels opnemen",
+    "installedCopy": "Geïnstalleerde kopie",
+    "logsLabel": "Op te nemen logs",
+    "loadingLogs": "Logs laden…",
+    "logsWarning": "Verwijder wachtwoorden, tokens en adressen voordat je doorgaat.",
+    "logsTruncated": "Alleen het einde van de logs past in de link.",
+    "cancel": "Annuleren",
+    "openIssue": "Issue openen",
+    "preparing": "Voorbereiden…",
+    "prepareFailed": "De melding kon niet worden voorbereid",
+    "logsFailed": "Logs laden mislukt: {{error}}",
+    "appNotFound": "app niet gevonden",
+    "noContainers": "Geen containers gevonden voor deze app."
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Läuft",
+    "dead": "Tot",
+    "exited": "Beendet",
+    "exitedWithCode": "Beendet ({{code}})",
+    "paused": "pausiert",
+    "created": "erstellt",
+    "restarting": "startet neu"
+  },
+  "logs": {
+    "following": "Neue Ausgabe wird verfolgt",
+    "stopped": "Der Container wurde gestoppt",
+    "disconnected": "Getrennt",
+    "connecting": "Verbindung wird hergestellt…",
+    "title": "Logs · {{name}}",
+    "empty": "Keine Log-Ausgabe."
+  },
+  "runtime": {
+    "startFailed": "Laufzeit konnte nicht gestartet werden",
+    "running": "Container-Laufzeit läuft",
+    "providerStopped": "{{provider}} läuft nicht",
+    "stopped": "Die Container-Laufzeit läuft nicht",
+    "none": "Keine Container-Laufzeit",
+    "notFound": "Athena hat auf diesem Host keine Container-Engine gefunden.",
+    "start": "{{provider}} starten",
+    "redetect": "Neu erkennen",
+    "setup": {
+      "darwin": {
+        "title": "Colima installieren"
+      },
+      "linux": {
+        "title": "Docker Engine installieren"
+      },
+      "windows": {
+        "title": "Container-Laufzeit installieren",
+        "wsl": "Docker Engine in WSL2: wsl --install, dann docker-ce in der Distribution installieren",
+        "podman": "oder Podman: winget install RedHat.Podman, dann podman machine init; podman machine start",
+        "rancher": "oder Rancher Desktop: winget install SUSE.RancherDesktop (die dockerd-Engine wählen)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Container konnten nicht aufgelistet werden",
+    "actionFailed": {
+      "start": "{{name}} konnte nicht gestartet werden",
+      "stop": "{{name}} konnte nicht gestoppt werden",
+      "restart": "{{name}} konnte nicht neu gestartet werden"
+    },
+    "removeFailed": "{{name}} konnte nicht entfernt werden",
+    "removed": "{{name}} entfernt",
+    "emptyTitle": "Noch keine Container",
+    "emptyDescription": "Container dieser Laufzeit erscheinen hier, auch solche, die außerhalb von Athena gestartet wurden.",
+    "name": "Name",
+    "image": "Image",
+    "state": "Status",
+    "ports": "Ports",
+    "actions": "Aktionen",
+    "standalone": "Einzelne Container",
+    "actionsFor": "Aktionen für {{name}}",
+    "logs": "Logs",
+    "shell": "Shell",
+    "restart": "Neu starten",
+    "stop": "Stoppen",
+    "start": "Starten",
+    "remove": "Entfernen",
+    "removeTitle": "{{name}} entfernen?",
+    "removeRunningDescription": "Er wird zuerst gestoppt. Der Container wird gelöscht. Benannte Volumes und das Image bleiben erhalten.",
+    "removeDescription": "Der Container wird gelöscht. Benannte Volumes und das Image bleiben erhalten.",
+    "cancel": "Abbrechen"
+  }
+}

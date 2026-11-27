@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Dieser Link ist unvollständig.",
+    "expiredTitle": "Dieser Link ist abgelaufen",
+    "notFoundTitle": "Dieser Link funktioniert nicht",
+    "errorTitle": "Link konnte nicht geöffnet werden",
+    "expiredDescription": "Bitte die Person, die ihn geschickt hat, um einen neuen."
+  },
+  "unlock": {
+    "title": "Dieser Link ist passwortgeschützt",
+    "description": "Gib es ein, um die Freigabe zu sehen.",
+    "password": "Passwort",
+    "open": "Öffnen"
+  },
+  "file": {
+    "fallbackName": "Datei",
+    "download": "Herunterladen"
+  },
+  "dropBox": {
+    "title": "Dateien an {{name}} senden",
+    "description": "Hinzugefügte Dateien werden sofort hochgeladen. Du siehst nicht, was andere gesendet haben, und nichts, was du sendest, ersetzt eine andere Datei.",
+    "drop": "Dateien hierher ziehen oder",
+    "choose": "Dateien auswählen"
+  },
+  "folder": {
+    "downloadAll": "Alle herunterladen",
+    "cantOpen": "Ordner konnte nicht geöffnet werden",
+    "empty": "Dieser Ordner ist leer.",
+    "columnName": "Name",
+    "columnSize": "Größe",
+    "columnModified": "Geändert",
+    "columnDownload": "Download",
+    "downloadEntry": "{{name}} herunterladen",
+    "download": "Herunterladen"
+  }
+}

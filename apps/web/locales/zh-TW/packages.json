@@ -1,0 +1,58 @@
+{
+  "view": {
+    "noManagers": "找不到套件管理員",
+    "noManagersHint": "Athena 在此主機上找不到支援的套件管理員。"
+  },
+  "listError": "無法讀取套件清單",
+  "cancel": "取消",
+  "toast": {
+    "installFailed": "無法安裝 {{name}}",
+    "uninstallFailed": "無法解除安裝 {{name}}",
+    "upgradeFailed": "無法升級 {{name}}",
+    "upgradeAllFailed": "無法升級套件",
+    "refreshFailed": "無法重新整理套件清單"
+  },
+  "unavailable": "{{name}} 目前無法使用",
+  "unavailableHint": "它在此主機上尚未就緒。",
+  "refreshLists": "重新整理清單",
+  "upgradeAll": "全部升級",
+  "tabs": {
+    "installed": "已安裝",
+    "updates": "更新",
+    "search": "搜尋"
+  },
+  "installed": {
+    "filter": "篩選已安裝的套件",
+    "noMatch": "沒有符合的已安裝套件。",
+    "empty": "尚未安裝任何套件。",
+    "upgradeLabel": "升級 {{name}}",
+    "upgrade": "升級",
+    "uninstallLabel": "解除安裝 {{name}}",
+    "uninstall": "解除安裝",
+    "shortened": "{{manager}} 縮短了此 ID，因此無法從這裡解除安裝",
+    "showing": "顯示 {{shown}} / {{total}}。請篩選以縮小範圍。"
+  },
+  "table": {
+    "package": "套件",
+    "version": "版本",
+    "description": "說明"
+  },
+  "updates": {
+    "upToDate": "全部都是最新版本",
+    "upToDateRefresh": "截至上次重新整理清單時。重新整理清單可再次檢查。",
+    "nothing": "沒有需要升級的項目。",
+    "installedColumn": "已安裝",
+    "availableColumn": "可用"
+  },
+  "search": {
+    "label": "搜尋 {{manager}}",
+    "noMatch": "沒有符合「{{query}}」的套件。",
+    "install": "安裝"
+  },
+  "confirm": {
+    "uninstallTitle": "要解除安裝 {{name}} 嗎？",
+    "uninstallDescription": "它會從此伺服器移除。依賴它的套件也可能一併移除。",
+    "upgradeAllTitle": "要升級所有 {{manager}} 套件嗎？",
+    "upgradeAllDescription_other": "將升級 {{count}} 個套件，可能需要一段時間。"
+  }
+}

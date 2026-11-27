@@ -7,6 +7,7 @@ import { useLatest } from "@/hooks/use-latest"
 import { api, errorMessage } from "@workspace/api-client"
 
 import { isRemote, type Source } from "@/components/files/file-utils"
+import i18n from "@/lib/i18n"
 
 /** Pieces of 8 MB: small enough for any proxy, big enough to keep requests few. */
 const CHUNK = 8 * 1024 * 1024
@@ -171,7 +172,7 @@ export function useUploads(
             status: "error",
             error: errorMessage(
               error,
-              `Upload failed (HTTP ${response.status})`
+              i18n.t("files:uploads.failedHttp", { status: response.status })
             ),
             conflict: response.status === 409 && offset === 0,
           })

@@ -1,0 +1,169 @@
+{
+  "cancel": "Annuler",
+  "view": {
+    "unavailable": "L'automatisation n'est pas disponible",
+    "unsupported": "Cet hôte ne prend pas en charge l'automatisation."
+  },
+  "copyUrl": {
+    "copy": "Copier {{label}}",
+    "copied": "{{label}} copié",
+    "failed": "Copie impossible"
+  },
+  "external": {
+    "title": "Automatisation externe",
+    "description": "Connectez n8n, des scripts ou des agents IA à Athena.",
+    "webhookUrl": "URL du webhook",
+    "webhookHint": "Envoyez une requête POST pour déclencher un webhook ; aucune connexion requise. Chaque déclencheur webhook a son propre jeton : copiez son URL complète depuis la liste des déclencheurs.",
+    "mcpServer": "Serveur MCP",
+    "mcpUrl": "URL du serveur MCP",
+    "mcpHint": "HTTP streamable. Les clients se connectent avec un cookie de session, ou envoient le jeton défini dans la variable d'environnement <envVar>ATHENA_MCP_TOKEN</envVar> du serveur sous la forme <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Exécutions de tâches",
+    "description": "Les dernières exécutions, actualisées toutes les quelques secondes.",
+    "trigger": "Déclencheur",
+    "deletedTrigger": "Déclencheur supprimé",
+    "listFailed": "Impossible de lister les exécutions de tâches",
+    "empty": {
+      "title": "Aucune exécution de tâche pour l'instant",
+      "description": "Les exécutions apparaissent ici quand un déclencheur se produit."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Démarrer l'app {{name}}",
+      "stop": "Arrêter l'app {{name}}",
+      "restart": "Redémarrer l'app {{name}}",
+      "update": "Mettre à jour l'app {{name}}"
+    },
+    "package": {
+      "install": "Installer {{name}} ({{manager}})",
+      "uninstall": "Désinstaller {{name}} ({{manager}})",
+      "upgrade": "Mettre à niveau {{name}} ({{manager}})",
+      "refresh": "Actualiser les listes de paquets {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Déclencheurs",
+    "description": "Exécutez une action sur une app ou un paquet selon un calendrier ou depuis un webhook.",
+    "listFailed": "Impossible de lister les déclencheurs",
+    "empty": {
+      "title": "Aucun déclencheur pour l'instant",
+      "description": "Un déclencheur exécute une action selon un calendrier (cron) ou quand son webhook est appelé, par exemple depuis n8n."
+    },
+    "onWebhook": "Quand son webhook est appelé",
+    "noSchedule": "Aucun calendrier",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Prochaine exécution {{time}}",
+    "changeFailed": "Impossible de modifier le déclencheur",
+    "enabledToast": "{{name}} activé",
+    "pausedToast": "{{name}} mis en pause",
+    "enabledLabel": "{{name}} activé",
+    "copyWebhook": "Copier l'URL du webhook",
+    "webhookCopied": "URL du webhook copiée",
+    "copyFailed": "Copie impossible",
+    "deleteFailed": "Impossible de supprimer le déclencheur",
+    "deleted": "Déclencheur supprimé",
+    "deleteLabel": "Supprimer {{name}}",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer {{name}} ?",
+    "deleteDescription": "Il cesse de s'exécuter. Les exécutions passées restent dans le journal.",
+    "deleteDescriptionWebhook": "Il cesse de s'exécuter et l'URL de son webhook ne fonctionne plus. Les exécutions passées restent dans le journal."
+  },
+  "dialog": {
+    "new": "Nouveau déclencheur",
+    "description": "Exécutez une action sur une app ou un paquet selon un calendrier, ou chaque fois qu'un webhook est appelé.",
+    "created": {
+      "title": "Déclencheur webhook créé",
+      "description": "Envoyez une requête POST à cette URL pour exécuter « {{name}} ». Toute personne disposant de l'URL peut le déclencher, gardez-la donc privée. Vous pouvez la copier à nouveau depuis la liste des déclencheurs.",
+      "done": "Terminé"
+    },
+    "errors": {
+      "name": "Donnez un nom au déclencheur.",
+      "app": "Choisissez une app.",
+      "manager": "Choisissez un gestionnaire de paquets.",
+      "packageName": "Saisissez un nom de paquet."
+    },
+    "createdToast": "Déclencheur {{name}} créé",
+    "createFailed": "Impossible de créer le déclencheur",
+    "name": "Nom",
+    "namePlaceholder": "p. ex. Redémarrage nocturne de Jellyfin",
+    "whenItRuns": "Quand il s'exécute",
+    "onSchedule": "Selon un calendrier (cron)",
+    "onWebhook": "Quand un webhook est appelé",
+    "schedule": "Calendrier",
+    "cronPlaceholder": "minute heure jour mois jour-semaine, p. ex. 0 2 * * *",
+    "cronHelp": "Cinq champs : minute, heure, jour du mois, mois, jour de la semaine. Les heures sont en UTC.",
+    "webhookHint": "Une fois créé, vous obtenez une URL secrète. Une requête POST vers celle-ci (depuis n8n, un script ou curl) exécute l'action.",
+    "whatItDoes": "Ce qu'il fait",
+    "appAction": "Action sur une app",
+    "packageAction": "Action sur un paquet",
+    "create": "Créer le déclencheur",
+    "app": "App",
+    "loadingApps": "Chargement des apps…",
+    "chooseApp": "Choisir une app",
+    "noApps": "Aucune app installée",
+    "action": "Action",
+    "appVerbs": {
+      "start": "Démarrer",
+      "stop": "Arrêter",
+      "restart": "Redémarrer",
+      "update": "Mettre à jour (pull et recréation)"
+    },
+    "packageVerbs": {
+      "install": "Installer",
+      "uninstall": "Désinstaller",
+      "upgrade": "Mettre à niveau",
+      "refresh": "Actualiser les listes de paquets"
+    },
+    "packageManager": "Gestionnaire de paquets",
+    "loading": "Chargement…",
+    "chooseManager": "Choisir un gestionnaire",
+    "noManagers": "Aucun n'est prêt sur cet hôte",
+    "package": "Paquet",
+    "packagePlaceholder": "p. ex. jq",
+    "source": "Source (facultatif)",
+    "sourceHint": "Un remote Flatpak, un bucket Scoop, ou « cask » pour un cask Homebrew.",
+    "loadingInstalled": "Chargement des paquets installés…",
+    "installedFailed": "Impossible de lister les paquets installés ({{error}}) ; saisissez le nom.",
+    "searchInstalled": "Rechercher dans les paquets installés",
+    "noMatch": "Aucun paquet installé ne correspond."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Toutes les heures",
+      "daily": "Tous les jours à 02:00",
+      "sundays": "Le dimanche à 03:00",
+      "monthly": "Le 1er de chaque mois"
+    },
+    "fields": {
+      "minute": "minute",
+      "hour": "heure",
+      "dayOfMonth": "jour du mois",
+      "month": "mois",
+      "weekday": "jour de la semaine"
+    },
+    "errors": {
+      "empty": "Saisissez une expression cron ou choisissez un préréglage.",
+      "invalidField": "Le champ {{field}} « {{value}} » n'est pas valide.",
+      "invalidStep": "Le pas « /{{step}} » du champ {{field}} doit être un nombre.",
+      "outOfRange": "Le champ {{field}} doit être compris entre {{min}} et {{max}}.",
+      "fieldCount": "Utilisez cinq champs (minute heure jour mois jour-semaine) ; il y en a {{count}}."
+    },
+    "dayRange": "{{from}} à {{to}}",
+    "custom": "Calendrier personnalisé",
+    "everyMinute": "Chaque minute",
+    "everyMinutes_one": "Chaque minute ({{count}})",
+    "everyMinutes_other": "Toutes les {{count}} minutes",
+    "everyHourOnTheHour": "Toutes les heures, pile",
+    "everyHourAtMinute": "Toutes les heures à la minute {{minute}}",
+    "everyHoursAtMinute_one": "Chaque heure ({{count}}) à la minute {{minute}}",
+    "everyHoursAtMinute_other": "Toutes les {{count}} heures à la minute {{minute}}",
+    "everyDay": "Tous les jours à {{time}}",
+    "everyWeekdays": "Chaque semaine, {{days}} à {{time}}",
+    "onDayOfMonth": "Le {{day}} de chaque mois à {{time}}",
+    "everyYear": "Chaque année le {{day}} {{month}} à {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

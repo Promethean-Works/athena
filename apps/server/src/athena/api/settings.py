@@ -35,6 +35,9 @@ class Appearance(BaseModel):
     font_heading: OptionId = "inherit"
     """"inherit" means headings use the body font."""
     radius: OptionId = "default"
+    language: Annotated[str, Field(pattern=r"^(auto|[a-z]{2,3}(-[A-Z]{2})?)$")] = "auto"
+    """"auto" follows the browser. Otherwise a locale code the UI ships (e.g. "pt-BR"); the
+    UI falls back to automatic for a code it doesn't know, like the other fields."""
 
 
 @router.get("/appearance", operation_id="getAppearance")

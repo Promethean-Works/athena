@@ -1,0 +1,49 @@
+{
+  "menu": "Envoyer un retour",
+  "dialog": {
+    "title": "Envoyer un retour",
+    "description": "Ouvre un nouveau ticket sur {{repo}} dans un nouvel onglet. Vous pouvez le relire et le modifier avant sa publication ; les tickets sont publics.",
+    "storeHint": "Une app du store ne fonctionne pas ? Utilisez <b>Signaler un problème</b> sur sa page du store, pour que le signalement parvienne à son mainteneur.",
+    "loadFailed": "Impossible de charger les détails de ce serveur"
+  },
+  "choices": {
+    "bug": {
+      "title": "Signaler un bug",
+      "description": "Quelque chose ne marche pas comme il le devrait."
+    },
+    "change": {
+      "title": "Suggérer un changement",
+      "description": "Quelque chose marche, mais devrait fonctionner autrement."
+    },
+    "feature": {
+      "title": "Demander une fonctionnalité",
+      "description": "Quelque chose qu'Athena ne sait pas encore faire."
+    }
+  },
+  "diagnostics": {
+    "title": "Rempli pour vous",
+    "system": "Système",
+    "cpu": "CPU",
+    "containers": "Conteneurs"
+  },
+  "appReport": {
+    "button": "Signaler un problème",
+    "title": "Signaler un problème avec {{app}}",
+    "description": "Ouvre un nouveau ticket pour {{where}} dans un nouvel onglet, avec l'app et les détails de ce serveur déjà remplis. Vous le relisez avant sa publication ; les tickets sont publics.",
+    "whereCatalog": "le catalogue {{name}}, qui maintient cette app",
+    "includeLogs_one": "Inclure la dernière ligne de journal ({{count}})",
+    "includeLogs_other": "Inclure les {{count}} dernières lignes de journal",
+    "installedCopy": "Copie installée",
+    "logsLabel": "Journaux à inclure",
+    "loadingLogs": "Chargement des journaux…",
+    "logsWarning": "Retirez les mots de passe, jetons et adresses avant de continuer.",
+    "logsTruncated": "Seule la fin des journaux tient dans le lien.",
+    "cancel": "Annuler",
+    "openIssue": "Ouvrir le ticket",
+    "preparing": "Préparation…",
+    "prepareFailed": "Impossible de préparer le signalement",
+    "logsFailed": "Impossible de charger les journaux : {{error}}",
+    "appNotFound": "app introuvable",
+    "noContainers": "Aucun conteneur trouvé pour cette app."
+  }
+}

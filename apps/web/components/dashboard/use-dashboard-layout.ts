@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { api, errorMessage } from "@workspace/api-client"
 import { toast } from "@workspace/ui/components/toast"
@@ -25,6 +26,7 @@ const sameLayout = (a: LayoutCard[], b: LayoutCard[]) =>
  * edit draft. Nothing is saved until `save()`; `cancel()` drops the draft.
  */
 export function useDashboardLayout() {
+  const { t } = useTranslation("dashboard")
   const [saved, setSaved] = React.useState<LayoutCard[] | null>(null)
   const [draft, setDraft] = React.useState<LayoutCard[] | null>(null)
   const [saving, setSaving] = React.useState(false)
@@ -58,14 +60,14 @@ export function useDashboardLayout() {
     if (error) {
       toast.add({
         type: "error",
-        title: "Couldn't save the dashboard",
+        title: t("layout.saveFailed"),
         description: errorMessage(error),
       })
       return // keep the draft so nothing is lost; the user can retry or cancel
     }
     setSaved(draft)
     setDraft(null)
-    toast.add({ type: "success", title: "Dashboard saved" })
+    toast.add({ type: "success", title: t("layout.saved") })
   }
 
   return {

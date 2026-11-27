@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Tento odkaz je neúplný.",
+    "expiredTitle": "Platnost tohoto odkazu vypršela",
+    "notFoundTitle": "Tento odkaz nefunguje",
+    "errorTitle": "Tento odkaz se nepodařilo otevřít",
+    "expiredDescription": "Požádejte toho, kdo ho poslal, o nový."
+  },
+  "unlock": {
+    "title": "Tento odkaz je chráněn heslem",
+    "description": "Zadejte ho a uvidíte, co je sdíleno.",
+    "password": "Heslo",
+    "open": "Otevřít"
+  },
+  "file": {
+    "fallbackName": "soubor",
+    "download": "Stáhnout"
+  },
+  "dropBox": {
+    "title": "Odeslat soubory do {{name}}",
+    "description": "Soubory, které přidáte, se nahrají okamžitě. Nevidíte, co poslali ostatní, a nic, co pošlete, nenahradí jiný soubor.",
+    "drop": "Přetáhněte soubory sem, nebo",
+    "choose": "Vyberte soubory"
+  },
+  "folder": {
+    "downloadAll": "Stáhnout vše",
+    "cantOpen": "Tuto složku se nepodařilo otevřít",
+    "empty": "Tato složka je prázdná.",
+    "columnName": "Název",
+    "columnSize": "Velikost",
+    "columnModified": "Změněno",
+    "columnDownload": "Stažení",
+    "downloadEntry": "Stáhnout {{name}}",
+    "download": "Stáhnout"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "save": "儲存",
+  "cancel": "取消",
+  "close": "關閉",
+  "loading": "載入中…",
+  "back": "返回",
+  "delete": "刪除",
+  "log": {
+    "empty": "尚無輸出。",
+    "copy": "複製記錄",
+    "title": "記錄",
+    "copied": "已複製記錄",
+    "copyFailed": "無法複製"
+  },
+  "capabilities": {
+    "title": "功能支援",
+    "summary": "{{ready}} / {{total}} 已就緒。功能只會出現在能運作的地方。",
+    "loadingSummary": "Athena 在此主機上找到的項目。",
+    "redetect": "重新偵測",
+    "loadFailed": "無法載入功能支援：{{error}}",
+    "details": "詳細資料",
+    "status": {
+      "ready": "已就緒",
+      "stopped": "已停止",
+      "missing": "未安裝",
+      "unsupported": "不支援",
+      "needs_privilege": "需要 root 權限"
+    }
+  },
+  "job": {
+    "working": "處理中…你可以關閉此視窗，工作會繼續執行。",
+    "done": "完成。",
+    "connectionLost": "與工作的連線已中斷。",
+    "progress": "進度",
+    "finishing": " · 即將完成…",
+    "cancel": "取消工作",
+    "stopFailed": "無法停止"
+  },
+  "restart": {
+    "title": "要重新啟動 Athena 嗎？",
+    "description": "執行中的工作會被停止。頁面會在幾秒後重新連線。你的應用程式會繼續執行。",
+    "confirm": "重新啟動",
+    "failed": "無法重新啟動 Athena",
+    "waitingTitle": "正在重新啟動 Athena…",
+    "waitingBody": "Athena 恢復後，此頁面會自動重新載入。"
+  },
+  "update": {
+    "notBackYet": "Athena 尚未恢復",
+    "reload": "重新載入頁面",
+    "notice": {
+      "title": "Athena {{latest}} 已推出",
+      "runs": "此伺服器目前執行 {{current}}。",
+      "whatsNew": "查看新功能"
+    },
+    "action": {
+      "updateNow": "立即更新",
+      "cannotSelf": "此 Athena 無法自行更新",
+      "howTo": "{{reason}}。若要升級，請在伺服器上執行下列指令（會安裝新版本並重新啟動 Athena；你的資料與設定會保留）：",
+      "commandLabel": "升級指令"
+    },
+    "interrupted": {
+      "title": "上次更新未完成",
+      "body": "從 {{from}} 更新到 {{to}} 已開始，但始終沒有回報結果（主機可能斷電，或更新被中止）。Athena 正在執行，但請確認它是你預期的版本。更新記錄位於資料資料夾（logs/update.log）。若要修復安裝，請在伺服器上執行 README 中的安裝程式指令。",
+      "dismiss": "關閉",
+      "oldVersion": "舊版本",
+      "newVersion": "新版本"
+    },
+    "dialog": {
+      "steps": "更新步驟",
+      "stepPrepare": "下載並檢查發行版本",
+      "stepSwap": "停止 Athena、安裝並重新啟動",
+      "stepCheck": "等待新版本回應",
+      "newVersion": "新版本",
+      "oldVersion": "舊版本",
+      "updated": "已更新到 {{to}}",
+      "reloading": "正在重新載入頁面…",
+      "rolledBackTitle": "更新到 {{to}} 失敗，仍為 {{from}}",
+      "rolledBackBody": "Athena 已回到原本的版本，資料維持更新前的狀態。",
+      "reason": " 原因：{{reason}}",
+      "abortedTitle": "更新到 {{to}} 已中止",
+      "failedTitle": "更新到 {{to}} 失敗，Athena 未在執行",
+      "abortedBody": "未安裝任何內容。請重新啟動 Athena，或執行 README 中的安裝程式指令。",
+      "failedBody": "請在伺服器上執行 README 中的安裝程式指令來修復。",
+      "back": "Athena 已恢復",
+      "backBody": "重新載入頁面以查看目前執行的版本。",
+      "confirmTitle": "要更新 Athena 嗎？",
+      "notStartedTitle": "更新未啟動",
+      "preparingTitle": "正在準備更新",
+      "versions": "Athena {{current}} 更新到 {{latest}}。",
+      "confirmBody": "Athena 會重新啟動一兩分鐘，頁面會重新連線。你的應用程式與容器會繼續執行。若新版本無法啟動，Athena 會回到目前的版本。",
+      "stopsTitle": "Athena 重新啟動時，這些項目會停止：",
+      "terminals_other": "{{count}} 個開啟中的終端機",
+      "backupFirst": "先備份 Athena",
+      "backupFirstHelp": "在停止任何項目之前，使用備份計畫「{{plan}}」儲存 Athena 的設定與資料。你的應用程式不會受影響。",
+      "notChanged": "{{error}}。未做任何變更；Athena 仍為 {{current}}。",
+      "prepareFailed": "無法準備更新",
+      "updateAnyway": "仍要更新",
+      "update": "更新",
+      "restarting": "重新啟動中…",
+      "updatingTo": "正在更新到 {{latest}}。Athena 恢復後，此頁面會自動重新載入。",
+      "lateBody": "在較慢的主機上可能需要更久。若一直無法恢復，請查看資料資料夾中的更新記錄（logs/update.log）。"
+    }
+  },
+  "restartLateBody": "在較慢的主機上可能需要更久。若一直無法恢復，請查看資料資料夾中的記錄（logs/athena.log）。",
+  "toggleSidebar": "切換側邊欄"
+}

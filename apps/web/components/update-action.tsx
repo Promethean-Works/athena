@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ArrowUpCircleIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { type Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -22,6 +23,7 @@ type UpdateInfo = Schemas["UpdateInfo"]
  * on the server. Renders nothing for non-admins and while the capabilities load.
  */
 export function UpdateAction({ info }: { info: UpdateInfo }) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const { manifest } = useCapabilities()
   const capability = useCapability("self_update")
@@ -33,7 +35,7 @@ export function UpdateAction({ info }: { info: UpdateInfo }) {
       <>
         <Button className="self-start" onClick={() => setOpen(true)}>
           <ArrowUpCircleIcon data-icon="inline-start" />
-          Update now
+          {t("update.action.updateNow")}
         </Button>
         {open ? (
           <UpdateAthenaDialog
@@ -49,16 +51,15 @@ export function UpdateAction({ info }: { info: UpdateInfo }) {
   return (
     <>
       <p>
-        {(capability?.detail ?? "This Athena can't update itself").replace(
-          /\.$/,
-          ""
-        )}
-        . To upgrade, run this on the server (it installs the new version and
-        restarts Athena; your data and settings stay):
+        {t("update.action.howTo", {
+          reason: (
+            capability?.detail ?? t("update.action.cannotSelf")
+          ).replace(/\.$/, ""),
+        })}
       </p>
       <CopyField
         id="update-command"
-        label="Upgrade command"
+        label={t("update.action.commandLabel")}
         value={info.command}
       />
     </>

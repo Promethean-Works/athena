@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Verbindung wird hergestellt…",
+    "connected": "Verbunden",
+    "exited": "Beendet ({{code}})",
+    "disconnected": "Getrennt",
+    "hostTerminal": "Host-Terminal",
+    "containerShell": "Container-Shell",
+    "lost": "Die Verbindung zu Athena wurde unterbrochen",
+    "closedCode": "Getrennt (Code {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminal nicht verfügbar",
+    "openSettings": "Einstellungen öffnen",
+    "description": "Eine Shell auf diesem Server, als der Benutzer, unter dem Athena läuft.",
+    "newSession": "Neue Sitzung"
+  },
+  "access": {
+    "noSupport": "Dieser Host unterstützt kein Terminal.",
+    "adminsOnly": "Nur Administratoren können ein Terminal öffnen.",
+    "turnedOff": "Das Terminal ist unter Einstellungen → System ausgeschaltet."
+  },
+  "shell": {
+    "title": "Shell · {{name}}",
+    "description": "Startet bash, oder sh, wenn das Image kein bash enthält."
+  }
+}

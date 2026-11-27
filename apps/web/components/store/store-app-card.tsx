@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 import { CheckIcon } from "lucide-react"
 
 import { type Schemas } from "@workspace/api-client"
@@ -19,6 +20,7 @@ type StoreApp = Schemas["StoreApp"]
  * app grid. The whole card is a single link to the app's store page.
  */
 export function StoreAppCard({ app }: { app: StoreApp }) {
+  const { t } = useTranslation("store")
   const installed = app.installed.length > 0
   const label = app.category_label || app.category || app.tags[0]
 
@@ -63,7 +65,7 @@ export function StoreAppCard({ app }: { app: StoreApp }) {
             {installed ? (
               <Badge variant="secondary">
                 <CheckIcon data-icon="inline-start" />
-                Installed
+                {t("card.installed")}
               </Badge>
             ) : null}
           </div>

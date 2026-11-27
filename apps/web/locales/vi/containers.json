@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Đang chạy",
+    "dead": "Đã chết",
+    "exited": "Đã thoát",
+    "exitedWithCode": "Đã thoát ({{code}})",
+    "paused": "tạm dừng",
+    "created": "đã tạo",
+    "restarting": "đang khởi động lại"
+  },
+  "logs": {
+    "following": "Đang theo dõi đầu ra mới",
+    "stopped": "Container đã dừng",
+    "disconnected": "Đã ngắt kết nối",
+    "connecting": "Đang kết nối…",
+    "title": "Nhật ký · {{name}}",
+    "empty": "Không có đầu ra nhật ký."
+  },
+  "runtime": {
+    "startFailed": "Không thể khởi động runtime",
+    "running": "Runtime container đang chạy",
+    "providerStopped": "{{provider}} đang không chạy",
+    "stopped": "Runtime container đang không chạy",
+    "none": "Không có runtime container",
+    "notFound": "Athena không tìm thấy công cụ container nào trên máy chủ này.",
+    "start": "Khởi động {{provider}}",
+    "redetect": "Dò lại",
+    "setup": {
+      "darwin": {
+        "title": "Cài đặt Colima"
+      },
+      "linux": {
+        "title": "Cài đặt Docker Engine"
+      },
+      "windows": {
+        "title": "Cài đặt một runtime container",
+        "wsl": "Docker Engine trong WSL2: wsl --install, rồi cài docker-ce bên trong bản phân phối",
+        "podman": "hoặc Podman: winget install RedHat.Podman, rồi podman machine init; podman machine start",
+        "rancher": "hoặc Rancher Desktop: winget install SUSE.RancherDesktop (chọn engine dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Không thể liệt kê container",
+    "actionFailed": {
+      "start": "Không thể khởi động {{name}}",
+      "stop": "Không thể dừng {{name}}",
+      "restart": "Không thể khởi động lại {{name}}"
+    },
+    "removeFailed": "Không thể gỡ {{name}}",
+    "removed": "Đã gỡ {{name}}",
+    "emptyTitle": "Chưa có container",
+    "emptyDescription": "Các container trên runtime này sẽ hiện ở đây, kể cả những container được chạy ngoài Athena.",
+    "name": "Tên",
+    "image": "Image",
+    "state": "Trạng thái",
+    "ports": "Cổng",
+    "actions": "Thao tác",
+    "standalone": "Container độc lập",
+    "actionsFor": "Thao tác cho {{name}}",
+    "logs": "Nhật ký",
+    "shell": "Shell",
+    "restart": "Khởi động lại",
+    "stop": "Dừng",
+    "start": "Khởi động",
+    "remove": "Gỡ",
+    "removeTitle": "Gỡ {{name}}?",
+    "removeRunningDescription": "Container sẽ được dừng trước. Container bị xóa. Volume có tên và image được giữ lại.",
+    "removeDescription": "Container bị xóa. Volume có tên và image được giữ lại.",
+    "cancel": "Hủy"
+  }
+}

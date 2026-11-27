@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Den här länken är ofullständig.",
+    "expiredTitle": "Den här länken har gått ut",
+    "notFoundTitle": "Den här länken fungerar inte",
+    "errorTitle": "Det gick inte att öppna länken",
+    "expiredDescription": "Be avsändaren om en ny."
+  },
+  "unlock": {
+    "title": "Den här länken har ett lösenord",
+    "description": "Ange det för att se vad som delas.",
+    "password": "Lösenord",
+    "open": "Öppna"
+  },
+  "file": {
+    "fallbackName": "fil",
+    "download": "Ladda ned"
+  },
+  "dropBox": {
+    "title": "Skicka filer till {{name}}",
+    "description": "Filer du lägger till laddas upp direkt. Du ser inte vad andra har skickat, och inget du skickar ersätter en annan fil.",
+    "drop": "Släpp filer här, eller",
+    "choose": "Välj filer"
+  },
+  "folder": {
+    "downloadAll": "Ladda ned alla",
+    "cantOpen": "Det gick inte att öppna mappen",
+    "empty": "Mappen är tom.",
+    "columnName": "Namn",
+    "columnSize": "Storlek",
+    "columnModified": "Ändrad",
+    "columnDownload": "Ladda ned",
+    "downloadEntry": "Ladda ned {{name}}",
+    "download": "Ladda ned"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "add": "Thêm",
+  "cancel": "Hủy",
+  "back": "Quay lại",
+  "errors": {
+    "listDestinations": "Không thể liệt kê đích sao lưu",
+    "createDestination": "Không thể tạo đích sao lưu",
+    "deleteDestination": "Không thể xóa đích sao lưu",
+    "listPlans": "Không thể liệt kê kế hoạch sao lưu",
+    "createPlan": "Không thể tạo kế hoạch",
+    "updatePlan": "Không thể cập nhật kế hoạch",
+    "deletePlan": "Không thể xóa kế hoạch",
+    "startBackup": "Không thể bắt đầu sao lưu",
+    "listVersions": "Không thể liệt kê các phiên bản sao lưu",
+    "listVersionFiles": "Không thể liệt kê tệp của phiên bản",
+    "restoreApp": "Không thể khôi phục ứng dụng"
+  },
+  "toast": {
+    "destinationCreated": "Đã tạo đích sao lưu \"{{name}}\"",
+    "planCreated": "Đã tạo kế hoạch \"{{name}}\"",
+    "planUpdated": "Đã cập nhật kế hoạch \"{{name}}\"",
+    "backupStarted": "Đã bắt đầu sao lưu \"{{name}}\""
+  },
+  "view": {
+    "unavailable": "Không có tính năng sao lưu",
+    "unsupported": "Máy chủ này không hỗ trợ sao lưu.",
+    "tabs": {
+      "versions": "Phiên bản",
+      "destinations": "Đích sao lưu",
+      "plans": "Kế hoạch"
+    }
+  },
+  "destinations": {
+    "title": "Đích sao lưu",
+    "name": "Tên",
+    "kind": "Loại",
+    "location": "Vị trí",
+    "created": "Ngày tạo",
+    "empty": {
+      "title": "Chưa có đích sao lưu",
+      "description": "Đích sao lưu là một thư mục hoặc một remote rclone nơi lưu các bản sao lưu. Thêm một đích để bắt đầu sao lưu."
+    }
+  },
+  "plans": {
+    "title": "Kế hoạch",
+    "name": "Tên",
+    "schedule": "Lịch chạy",
+    "lastRun": "Lần chạy gần nhất",
+    "status": "Trạng thái",
+    "manual": "thủ công",
+    "runNow": "Chạy ngay",
+    "empty": {
+      "title": "Chưa có kế hoạch",
+      "description": "Kế hoạch chọn Athena, ứng dụng, đích sao lưu và lịch chạy, rồi chạy theo hẹn giờ."
+    }
+  },
+  "versions": {
+    "title": "Phiên bản",
+    "refresh": "Làm mới",
+    "time": "Thời gian",
+    "size": "Kích thước",
+    "new": "Mới",
+    "added": "Đã thêm",
+    "changed": "Đã đổi",
+    "removed": "Đã xóa",
+    "os": "Hệ điều hành",
+    "viewFiles": "Xem tệp",
+    "restore": "Khôi phục",
+    "empty": {
+      "title": "Chưa có phiên bản",
+      "description": "Chạy một lần sao lưu để tạo phiên bản đầu tiên."
+    }
+  },
+  "addDestination": {
+    "title": "Thêm đích sao lưu",
+    "kitTitle": "Lưu bộ khôi phục",
+    "description": "Chọn nơi restic lưu kho: một thư mục cục bộ hoặc một remote rclone.",
+    "kitDescription": "Tải xuống hoặc sao chép bộ khôi phục. Athena sẽ không bao giờ hiện lại mật khẩu này; không có nó, máy chủ hỏng sẽ không thể khôi phục.",
+    "prepareFailed": "Không thể chuẩn bị đích sao lưu",
+    "saveKitFirst": "Hãy lưu bộ khôi phục trước khi tạo đích sao lưu",
+    "name": "Tên",
+    "namePlaceholder": "ví dụ: Ổ USB",
+    "kind": "Loại",
+    "local": "Thư mục cục bộ",
+    "rclone": "Remote rclone",
+    "folder": "Thư mục",
+    "folderHint": "Đường dẫn tuyệt đối, nằm ngoài thư mục dữ liệu của Athena.",
+    "remote": "Remote",
+    "remoteHint": "Một remote rclone đã thiết lập tại Đám mây → Remote.",
+    "password": "Mật khẩu kho lưu trữ",
+    "passwordPlaceholder": "Để trống để tạo mật khẩu mạnh",
+    "passwordHint": "Để trống để Athena tạo mật khẩu mạnh. Mật khẩu chỉ hiện một lần bên dưới, sau đó không hiện lại.",
+    "kitSaved": "Tôi đã lưu bộ khôi phục này (mật khẩu, đích sao lưu và phiên bản restic)",
+    "next": "Tiếp: bộ khôi phục",
+    "create": "Tạo đích sao lưu"
+  },
+  "addPlan": {
+    "title": "Thêm kế hoạch sao lưu",
+    "description": "Chọn nội dung cần sao lưu, nơi lưu và tần suất. Ứng dụng sẽ bị dừng trong lúc sao lưu trừ khi bật \"Sao lưu khi đang chạy\".",
+    "name": "Tên",
+    "namePlaceholder": "ví dụ: Ứng dụng hằng ngày",
+    "destination": "Đích sao lưu",
+    "athena": "Sao lưu Athena (cài đặt, CSDL, bí mật, TLS)",
+    "athenaHint": "Khuyến nghị: mặc định bật.",
+    "apps": "Ứng dụng",
+    "appsHint": "Những ứng dụng đưa vào kế hoạch.",
+    "noApps": "Không tìm thấy ứng dụng. Hãy khởi động ứng dụng từ Cửa hàng → Ứng dụng trước.",
+    "schedule": "Lịch chạy (cron)",
+    "schedulePlaceholder": "0 3 * * *  (hằng ngày lúc 03:00)",
+    "scheduleHint": "Để trống nếu chỉ chạy thủ công. Lịch chạy tự động sẽ có ở phần 4.",
+    "retention": "Lưu giữ",
+    "keepLast": "Giữ gần nhất",
+    "keepDaily": "Giữ hằng ngày",
+    "keepWeekly": "Giữ hằng tuần",
+    "keepMonthly": "Giữ hằng tháng",
+    "retentionHint": "`restic forget --keep-…` cho từng mục. Mặc định: 7 ngày / 4 tuần / 6 tháng.",
+    "create": "Tạo kế hoạch"
+  }
+}

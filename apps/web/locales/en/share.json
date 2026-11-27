@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "This link is incomplete.",
+    "expiredTitle": "This link has expired",
+    "notFoundTitle": "This link doesn't work",
+    "errorTitle": "Couldn't open this link",
+    "expiredDescription": "Ask whoever sent it for a new one."
+  },
+  "unlock": {
+    "title": "This link has a password",
+    "description": "Enter it to see what's shared.",
+    "password": "Password",
+    "open": "Open"
+  },
+  "file": {
+    "fallbackName": "file",
+    "download": "Download"
+  },
+  "dropBox": {
+    "title": "Send files to {{name}}",
+    "description": "Files you add are uploaded right away. You can't see what others have sent, and nothing you send replaces another file.",
+    "drop": "Drop files here, or",
+    "choose": "Choose files"
+  },
+  "folder": {
+    "downloadAll": "Download all",
+    "cantOpen": "Couldn't open this folder",
+    "empty": "This folder is empty.",
+    "columnName": "Name",
+    "columnSize": "Size",
+    "columnModified": "Modified",
+    "columnDownload": "Download",
+    "downloadEntry": "Download {{name}}",
+    "download": "Download"
+  }
+}

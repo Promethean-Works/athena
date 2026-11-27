@@ -1,6 +1,7 @@
 "use client"
 
 import { HistoryIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@workspace/ui/components/badge"
 import {
@@ -41,20 +42,21 @@ function badgeVariant(status: string): "secondary" | "destructive" | "outline" {
 
 /** The latest job runs, newest first, named after their trigger. */
 export function JobRunsCard({ triggers }: { triggers: Trigger[] | null }) {
+  const { t: tr } = useTranslation("automation")
   const { runs, error } = useJobRuns()
   const names = new Map((triggers ?? []).map((t) => [t.id, t.name]))
   const nameOf = (run: JobRun) =>
     (run.trigger_id && names.get(run.trigger_id)) ||
-    (triggers === null ? "Trigger" : "Deleted trigger")
+    (triggers === null ? tr("jobRuns.trigger") : tr("jobRuns.deletedTrigger"))
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <HistoryIcon className="size-4 text-muted-foreground" /> Job runs
+          <HistoryIcon className="size-4 text-muted-foreground" /> {tr("jobRuns.title")}
         </CardTitle>
         <CardDescription>
-          The latest runs, refreshed every few seconds.
+          {tr("jobRuns.description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -70,9 +72,9 @@ export function JobRunsCard({ triggers }: { triggers: Trigger[] | null }) {
               <EmptyMedia variant="icon">
                 <HistoryIcon />
               </EmptyMedia>
-              <EmptyTitle>No job runs yet</EmptyTitle>
+              <EmptyTitle>{tr("jobRuns.empty.title")}</EmptyTitle>
               <EmptyDescription>
-                Runs show up here when a trigger fires.
+                {tr("jobRuns.empty.description")}
               </EmptyDescription>
             </EmptyHeader>
           </Empty>

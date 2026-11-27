@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Körs",
+    "dead": "Död",
+    "exited": "Avslutad",
+    "exitedWithCode": "Avslutad ({{code}})",
+    "paused": "pausad",
+    "created": "skapad",
+    "restarting": "startar om"
+  },
+  "logs": {
+    "following": "Följer ny utdata",
+    "stopped": "Behållaren stoppades",
+    "disconnected": "Frånkopplad",
+    "connecting": "Ansluter…",
+    "title": "Loggar · {{name}}",
+    "empty": "Ingen loggutdata."
+  },
+  "runtime": {
+    "startFailed": "Det gick inte att starta körmiljön",
+    "running": "Behållarkörmiljön körs",
+    "providerStopped": "{{provider}} körs inte",
+    "stopped": "Behållarkörmiljön körs inte",
+    "none": "Ingen behållarkörmiljö",
+    "notFound": "Athena hittade ingen behållarmotor på den här värden.",
+    "start": "Starta {{provider}}",
+    "redetect": "Sök igen",
+    "setup": {
+      "darwin": {
+        "title": "Installera Colima"
+      },
+      "linux": {
+        "title": "Installera Docker Engine"
+      },
+      "windows": {
+        "title": "Installera en behållarkörmiljö",
+        "wsl": "Docker Engine i WSL2: wsl --install, installera sedan docker-ce i distributionen",
+        "podman": "eller Podman: winget install RedHat.Podman, sedan podman machine init; podman machine start",
+        "rancher": "eller Rancher Desktop: winget install SUSE.RancherDesktop (välj dockerd-motorn)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Det gick inte att lista behållare",
+    "actionFailed": {
+      "start": "Det gick inte att starta {{name}}",
+      "stop": "Det gick inte att stoppa {{name}}",
+      "restart": "Det gick inte att starta om {{name}}"
+    },
+    "removeFailed": "Det gick inte att ta bort {{name}}",
+    "removed": "{{name}} togs bort",
+    "emptyTitle": "Inga behållare än",
+    "emptyDescription": "Behållare i den här körmiljön visas här, även sådana som startats utanför Athena.",
+    "name": "Namn",
+    "image": "Avbild",
+    "state": "Status",
+    "ports": "Portar",
+    "actions": "Åtgärder",
+    "standalone": "Fristående behållare",
+    "actionsFor": "Åtgärder för {{name}}",
+    "logs": "Loggar",
+    "shell": "Skal",
+    "restart": "Starta om",
+    "stop": "Stoppa",
+    "start": "Starta",
+    "remove": "Ta bort",
+    "removeTitle": "Ta bort {{name}}?",
+    "removeRunningDescription": "Den stoppas först. Behållaren raderas. Namngivna volymer och avbilden behålls.",
+    "removeDescription": "Behållaren raderas. Namngivna volymer och avbilden behålls.",
+    "cancel": "Avbryt"
+  }
+}

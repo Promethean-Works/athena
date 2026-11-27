@@ -25,6 +25,7 @@ def test_appearance_defaults_then_saved(tmp_path: Path) -> None:
         "font": "inter",
         "font_heading": "inherit",
         "radius": "default",
+        "language": "auto",
     }
     chosen = {
         "mode": "dark",
@@ -34,6 +35,7 @@ def test_appearance_defaults_then_saved(tmp_path: Path) -> None:
         "font": "geist",
         "font_heading": "lora",
         "radius": "large",
+        "language": "pt-BR",
     }
     res = client.put("/api/settings/appearance", json=chosen)
     assert res.status_code == 200, res.text
@@ -49,7 +51,14 @@ def test_appearance_partial_update_fills_defaults(tmp_path: Path) -> None:
 
 def test_appearance_rejects_bad_values(tmp_path: Path) -> None:
     client = signed_in(TestClient(make_app(tmp_path)))
-    for body in ({"mode": "sepia"}, {"theme": "Blue!"}, {"font": "x" * 40}, {"radius": ""}):
+    for body in (
+        {"mode": "sepia"},
+        {"theme": "Blue!"},
+        {"font": "x" * 40},
+        {"radius": ""},
+        {"language": "Portuguese"},
+        {"language": "../etc"},
+    ):
         assert client.put("/api/settings/appearance", json=body).status_code == 422, body
 
 

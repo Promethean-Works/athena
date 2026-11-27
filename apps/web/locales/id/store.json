@@ -1,0 +1,106 @@
+{
+  "support": {
+    "emulated": "Emulasi",
+    "emulatedTitle": "Tidak ada image untuk CPU ini; Docker menjalankan yang lain dengan emulasi, yang lebih lambat",
+    "unsupported": "Tidak berjalan di sini",
+    "unsupportedTitle": "Tidak ada image untuk CPU server ini"
+  },
+  "browser": {
+    "loadError": "Tidak dapat memuat toko",
+    "filteredCount": "{{shown}} dari {{total}} aplikasi",
+    "totalCount_other": "{{count}} aplikasi, masing-masing proyek compose yang disiapkan Athena untuk Anda.",
+    "browsePrompt": "Jelajahi aplikasi untuk dipasang.",
+    "searchPlaceholder": "Cari aplikasi",
+    "catalogs": "Katalog",
+    "showingUnsupported_other": "Menampilkan {{count}} aplikasi yang tidak dapat berjalan di CPU server ini.",
+    "hiddenUnsupported_other": "{{count}} aplikasi disembunyikan karena tidak memiliki image untuk CPU server ini.",
+    "hideThem": "Sembunyikan",
+    "showThem": "Tampilkan",
+    "all": "Semua",
+    "noMatchTitle": "Tidak ada aplikasi yang cocok",
+    "noMatchHidden_other": "{{count}} aplikasi yang cocok disembunyikan karena tidak memiliki image untuk CPU server ini.",
+    "noMatchHint": "Coba pencarian atau kategori lain.",
+    "showMatches_other": "Tampilkan"
+  },
+  "card": {
+    "installed": "Terpasang"
+  },
+  "popular": {
+    "title": "Populer saat ini",
+    "subtitle": "Aplikasi yang paling sering dipasang di server rumah.",
+    "showPage": "Tampilkan halaman {{page}} dari {{total}}"
+  },
+  "installForm": {
+    "generated": "Dibuat otomatis jika dikosongkan",
+    "nameInvalid": "Gunakan huruf kecil, angka, tanda hubung, atau garis bawah.",
+    "jobLabel": "pasang {{title}}",
+    "appName": "Nama aplikasi",
+    "nameHint": "Pasang aplikasi yang sama dua kali dengan nama berbeda jika perlu.",
+    "advanced": "Pengaturan lanjutan",
+    "install": "Pasang {{title}}"
+  },
+  "view": {
+    "loadError": "Tidak dapat memuat aplikasi ini",
+    "notFound": "Aplikasi tidak ditemukan",
+    "website": "Situs web",
+    "alreadyInstalled": "Sudah terpasang",
+    "installedAs": "Sebagai",
+    "installAnother": "Anda dapat memasang salinan lain dengan nama berbeda.",
+    "beforeYouStart": "Sebelum memulai",
+    "whatYouGet": "Yang Anda dapatkan",
+    "details": "Detail",
+    "category": "Kategori",
+    "license": "Lisensi",
+    "images": "Image",
+    "platforms": "Platform",
+    "viewCompose": "Lihat compose.yaml",
+    "reportPrompt": "Tidak berfungsi seperti yang diharapkan?",
+    "install": "Pasang",
+    "installHint": "Jawaban Anda disimpan di file .env aplikasi di server, di samping compose.yaml-nya.",
+    "variant": "Varian",
+    "cannotInstall": "{{title}} tidak dapat dipasang di server ini: tidak ada image untuk {{platform}}.",
+    "thisCpu": "CPU ini",
+    "thisServerCpu": "CPU server ini",
+    "moreIn": "Lainnya di {{category}}",
+    "cpu": {
+      "unsupportedTitle": "Tidak berjalan di server ini",
+      "unsupportedBody": "Image-nya dirilis untuk {{published}}, sedangkan server ini {{host}}.",
+      "emulatedTitle": "Berjalan dengan emulasi",
+      "emulatedBody": "Tidak ada image untuk {{host}}, sehingga Docker menjalankan yang {{published}} dengan emulasi. Tetap berfungsi, tetapi lebih lambat dan memakai lebih banyak memori."
+    },
+    "screenshot": {
+      "alt": "Tangkapan layar {{title}}",
+      "open": "Buka tangkapan layar {{title}} yang lebih besar",
+      "enlarge": "Perbesar",
+      "show": "Tampilkan tangkapan layar {{number}}",
+      "description": "Tangkapan layar {{title}}.",
+      "close": "Tutup"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "Deteksi otomatis",
+    "kindAthena": "Katalog Athena",
+    "never": "tidak pernah",
+    "addFailed": "Tidak dapat menambahkan katalog",
+    "refreshFailed": "Tidak dapat menyegarkan {{name}}",
+    "removeFailed": "Tidak dapat menghapus {{name}}",
+    "removed": "{{name}} dihapus",
+    "builtIn": "Bawaan",
+    "refreshFailedBadge": "Penyegaran gagal",
+    "summaryBuiltin_other": "{{count}} aplikasi · disertakan dengan Athena",
+    "summaryUpdated_other": "{{count}} aplikasi · diperbarui {{when}}",
+    "refresh": "Segarkan",
+    "removeLabel": "Hapus {{name}}",
+    "addTitle": "Tambah katalog",
+    "addDescription": "Repositori GitHub, Codeberg, atau GitLab, atau tautan langsung .tar.gz/.zip.",
+    "name": "Nama",
+    "namePlaceholder": "My apps",
+    "format": "Format",
+    "formatHint": "Katalog Athena memakai apps/<id>/compose.yaml; toko CasaOS memakai Apps/<Name>/docker-compose.yml.",
+    "add": "Tambah katalog",
+    "removeTitle": "Hapus {{name}}?",
+    "removeDescription": "Aplikasinya hilang dari toko. Aplikasi yang sudah Anda pasang darinya tetap berjalan.",
+    "cancel": "Batal",
+    "remove": "Hapus"
+  }
+}

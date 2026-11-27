@@ -1,0 +1,113 @@
+{
+  "support": {
+    "emulated": "Geëmuleerd",
+    "emulatedTitle": "Geen image voor deze CPU; Docker draait een andere onder emulatie, wat trager is",
+    "unsupported": "Draait hier niet",
+    "unsupportedTitle": "Geen image voor de CPU van deze server"
+  },
+  "browser": {
+    "loadError": "De store kon niet worden geladen",
+    "filteredCount": "{{shown}} van {{total}} apps",
+    "totalCount_one": "{{count}} app, elk een compose-project dat Athena voor je instelt.",
+    "totalCount_other": "{{count}} apps, elk een compose-project dat Athena voor je instelt.",
+    "browsePrompt": "Blader door apps om te installeren.",
+    "searchPlaceholder": "Apps zoeken",
+    "catalogs": "Catalogi",
+    "showingUnsupported_one": "{{count}} app wordt getoond die niet op de CPU van deze server kan draaien.",
+    "showingUnsupported_other": "{{count}} apps worden getoond die niet op de CPU van deze server kunnen draaien.",
+    "hiddenUnsupported_one": "{{count}} app is verborgen omdat die geen image heeft voor de CPU van deze server.",
+    "hiddenUnsupported_other": "{{count}} apps zijn verborgen omdat ze geen image hebben voor de CPU van deze server.",
+    "hideThem": "Verberg ze",
+    "showThem": "Toon ze",
+    "all": "Alle",
+    "noMatchTitle": "Geen apps gevonden",
+    "noMatchHidden_one": "{{count}} passende app is verborgen omdat die geen image heeft voor de CPU van deze server.",
+    "noMatchHidden_other": "{{count}} passende apps zijn verborgen omdat ze geen image hebben voor de CPU van deze server.",
+    "noMatchHint": "Probeer een andere zoekopdracht of categorie.",
+    "showMatches_one": "Toon hem",
+    "showMatches_other": "Toon ze"
+  },
+  "card": {
+    "installed": "Geïnstalleerd"
+  },
+  "popular": {
+    "title": "Nu populair",
+    "subtitle": "De apps waarmee de meeste thuisservers beginnen.",
+    "showPage": "Pagina {{page}} van {{total}} tonen"
+  },
+  "installForm": {
+    "generated": "Wordt gegenereerd als je dit leeg laat",
+    "nameInvalid": "Gebruik kleine letters, cijfers, streepjes of underscores.",
+    "jobLabel": "{{title}} installeren",
+    "appName": "Appnaam",
+    "nameHint": "Installeer dezelfde app twee keer onder verschillende namen als dat nodig is.",
+    "advanced": "Geavanceerde instellingen",
+    "install": "{{title}} installeren"
+  },
+  "view": {
+    "loadError": "Deze app kon niet worden geladen",
+    "notFound": "App niet gevonden",
+    "website": "Website",
+    "alreadyInstalled": "Al geïnstalleerd",
+    "installedAs": "Als",
+    "installAnother": "Je kunt nog een kopie installeren onder een andere naam.",
+    "beforeYouStart": "Voordat je begint",
+    "whatYouGet": "Wat je krijgt",
+    "details": "Details",
+    "category": "Categorie",
+    "license": "Licentie",
+    "images": "Images",
+    "platforms": "Platforms",
+    "viewCompose": "compose.yaml bekijken",
+    "reportPrompt": "Werkt het niet zoals verwacht?",
+    "install": "Installeren",
+    "installHint": "Je antwoorden worden opgeslagen in het .env-bestand van de app op de server, naast zijn compose.yaml.",
+    "variant": "Variant",
+    "cannotInstall": "{{title}} kan niet op deze server worden geïnstalleerd: er is geen image voor {{platform}}.",
+    "thisCpu": "deze CPU",
+    "thisServerCpu": "de CPU van deze server",
+    "moreIn": "Meer in {{category}}",
+    "cpu": {
+      "unsupportedTitle": "Draait niet op deze server",
+      "unsupportedBody": "De images zijn gepubliceerd voor {{published}}, en deze server is {{host}}.",
+      "emulatedTitle": "Draait onder emulatie",
+      "emulatedBody": "Er is geen image voor {{host}}, dus Docker draait die voor {{published}} onder emulatie. Het werkt, maar is trager en gebruikt meer geheugen."
+    },
+    "screenshot": {
+      "alt": "Schermafbeelding van {{title}}",
+      "open": "Een grotere schermafbeelding van {{title}} openen",
+      "enlarge": "Vergroten",
+      "show": "Schermafbeelding {{number}} tonen",
+      "description": "Een schermafbeelding van {{title}}.",
+      "close": "Sluiten"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "Automatisch detecteren",
+    "kindAthena": "Athena-catalogus",
+    "never": "nooit",
+    "addFailed": "De catalogus kon niet worden toegevoegd",
+    "refreshFailed": "{{name}} kon niet worden vernieuwd",
+    "removeFailed": "{{name}} kon niet worden verwijderd",
+    "removed": "{{name}} verwijderd",
+    "builtIn": "Ingebouwd",
+    "refreshFailedBadge": "Vernieuwen mislukt",
+    "summaryBuiltin_one": "{{count}} app · wordt met Athena meegeleverd",
+    "summaryBuiltin_other": "{{count}} apps · worden met Athena meegeleverd",
+    "summaryUpdated_one": "{{count}} app · bijgewerkt {{when}}",
+    "summaryUpdated_other": "{{count}} apps · bijgewerkt {{when}}",
+    "refresh": "Vernieuwen",
+    "removeLabel": "{{name}} verwijderen",
+    "addTitle": "Een catalogus toevoegen",
+    "addDescription": "Een GitHub-, Codeberg- of GitLab-repository, of een directe .tar.gz/.zip-link.",
+    "name": "Naam",
+    "namePlaceholder": "Mijn apps",
+    "format": "Formaat",
+    "formatHint": "Athena-catalogi gebruiken apps/<id>/compose.yaml; CasaOS-stores gebruiken Apps/<Name>/docker-compose.yml.",
+    "add": "Catalogus toevoegen",
+    "removeTitle": "{{name}} verwijderen?",
+    "removeDescription": "De apps verdwijnen uit de store. Apps die je er al van hebt geïnstalleerd blijven draaien.",
+    "cancel": "Annuleren",
+    "remove": "Verwijderen"
+  }
+}

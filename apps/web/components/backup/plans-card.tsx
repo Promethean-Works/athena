@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ClockIcon, PlusIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { type Schemas } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
@@ -36,6 +37,7 @@ export function PlansCard({
   onAdd: () => void
   onRun: (plan: Plan) => void
 }) {
+  const { t } = useTranslation("backup")
   const { plans, error } = usePlans()
 
   if (!plans) {
@@ -49,10 +51,10 @@ export function PlansCard({
   return (
     <div className="flex min-w-0 flex-col gap-4 md:gap-6">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold">Plans</h2>
+        <h2 className="text-sm font-semibold">{t("plans.title")}</h2>
         <Button size="sm" onClick={onAdd}>
           <PlusIcon data-icon="inline-start" />
-          Add
+          {t("add")}
         </Button>
       </div>
       {plans.length === 0 ? (
@@ -61,10 +63,9 @@ export function PlansCard({
             <EmptyMedia variant="icon">
               <ClockIcon />
             </EmptyMedia>
-            <EmptyTitle>No plans yet</EmptyTitle>
+            <EmptyTitle>{t("plans.empty.title")}</EmptyTitle>
             <EmptyDescription>
-              A plan picks Athena, apps, a destination and a schedule, then runs
-              on a timer.
+              {t("plans.empty.description")}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -72,10 +73,10 @@ export function PlansCard({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-right">Schedule</TableHead>
-              <TableHead className="text-right">Last run</TableHead>
-              <TableHead className="text-right">Status</TableHead>
+              <TableHead>{t("plans.name")}</TableHead>
+              <TableHead className="text-right">{t("plans.schedule")}</TableHead>
+              <TableHead className="text-right">{t("plans.lastRun")}</TableHead>
+              <TableHead className="text-right">{t("plans.status")}</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
@@ -84,7 +85,7 @@ export function PlansCard({
               <TableRow key={p.id}>
                 <TableCell>{p.name}</TableCell>
                 <TableCell className="text-right">
-                  {p.schedule ?? "manual"}
+                  {p.schedule ?? t("plans.manual")}
                 </TableCell>
                 <TableCell className="text-right">
                   {formatServerTime(p.last_run_at)}
@@ -96,7 +97,7 @@ export function PlansCard({
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="outline" size="sm" onClick={() => onRun(p)}>
-                    Run now
+                    {t("plans.runNow")}
                   </Button>
                 </TableCell>
               </TableRow>

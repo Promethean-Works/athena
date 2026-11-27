@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import "@workspace/ui/globals.css"
+import { I18nProvider } from "@/components/i18n-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { APPEARANCE_SCRIPT, DEFAULT_ATTRIBUTES } from "@/lib/appearance"
 import { fontVariables } from "@/lib/fonts"
@@ -31,10 +32,12 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: APPEARANCE_SCRIPT }} />
       </head>
       <body>
-        <ThemeProvider>
-          <TooltipProvider>{children}</TooltipProvider>
-          <Toaster />
-        </ThemeProvider>
+        <I18nProvider>
+          <ThemeProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+            <Toaster />
+          </ThemeProvider>
+        </I18nProvider>
       </body>
     </html>
   )

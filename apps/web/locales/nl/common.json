@@ -1,0 +1,107 @@
+{
+  "save": "Opslaan",
+  "cancel": "Annuleren",
+  "close": "Sluiten",
+  "loading": "Laden…",
+  "back": "Terug",
+  "delete": "Verwijderen",
+  "log": {
+    "empty": "Nog geen uitvoer.",
+    "copy": "Log kopiëren",
+    "title": "Log",
+    "copied": "Log gekopieerd",
+    "copyFailed": "Kopiëren mislukt"
+  },
+  "capabilities": {
+    "title": "Mogelijkheden",
+    "summary": "{{ready}} van {{total}} gereed. Functies verschijnen alleen waar ze kunnen werken.",
+    "loadingSummary": "Wat Athena op deze host heeft gevonden.",
+    "redetect": "Opnieuw detecteren",
+    "loadFailed": "Mogelijkheden laden mislukt: {{error}}",
+    "details": "Details",
+    "status": {
+      "ready": "Gereed",
+      "stopped": "Gestopt",
+      "missing": "Niet geïnstalleerd",
+      "unsupported": "Niet ondersteund",
+      "needs_privilege": "Root nodig"
+    }
+  },
+  "job": {
+    "working": "Bezig… Je kunt dit sluiten; het loopt door.",
+    "done": "Klaar.",
+    "connectionLost": "De verbinding met de taak is verbroken.",
+    "progress": "Voortgang",
+    "finishing": " · afronden…",
+    "cancel": "Taak annuleren",
+    "stopFailed": "Stoppen mislukt"
+  },
+  "restart": {
+    "title": "Athena opnieuw starten?",
+    "description": "Lopende taken worden gestopt. De pagina maakt over een paar seconden opnieuw verbinding. Je apps blijven draaien.",
+    "confirm": "Opnieuw starten",
+    "failed": "Athena opnieuw starten mislukt",
+    "waitingTitle": "Athena wordt opnieuw gestart…",
+    "waitingBody": "Deze pagina wordt herladen zodra Athena weer actief is."
+  },
+  "update": {
+    "notBackYet": "Athena is nog niet terug",
+    "reload": "Pagina herladen",
+    "notice": {
+      "title": "Athena {{latest}} is beschikbaar",
+      "runs": "Deze server draait {{current}}.",
+      "whatsNew": "Bekijk wat er nieuw is"
+    },
+    "action": {
+      "updateNow": "Nu bijwerken",
+      "cannotSelf": "Deze Athena kan zichzelf niet bijwerken",
+      "howTo": "{{reason}}. Voer dit uit op de server om bij te werken (het installeert de nieuwe versie en start Athena opnieuw; je gegevens en instellingen blijven behouden):",
+      "commandLabel": "Updatecommando"
+    },
+    "interrupted": {
+      "title": "De laatste update is niet voltooid",
+      "body": "Een update van {{from}} naar {{to}} is gestart, maar heeft nooit teruggemeld (de host is mogelijk uitgevallen of de update is gestopt). Athena draait, maar controleer of het de versie is die je verwacht. De updatelog staat in de gegevensmap (logs/update.log). Voer om een installatie te herstellen het installatiecommando uit de README uit op de server.",
+      "dismiss": "Negeren",
+      "oldVersion": "de oude versie",
+      "newVersion": "de nieuwe"
+    },
+    "dialog": {
+      "steps": "Updatestappen",
+      "stepPrepare": "De release downloaden en controleren",
+      "stepSwap": "Athena stoppen, installeren en weer starten",
+      "stepCheck": "Wachten tot de nieuwe versie antwoordt",
+      "newVersion": "de nieuwe versie",
+      "oldVersion": "de oude",
+      "updated": "Bijgewerkt naar {{to}}",
+      "reloading": "Pagina wordt herladen…",
+      "rolledBackTitle": "Update naar {{to}} mislukt, nog op {{from}}",
+      "rolledBackBody": "Athena is teruggegaan naar de versie die je had, met je gegevens zoals ze voor de update waren.",
+      "reason": " Reden: {{reason}}",
+      "abortedTitle": "Update naar {{to}} is gestopt",
+      "failedTitle": "Update naar {{to}} mislukt en Athena draait niet",
+      "abortedBody": "Er is niets geïnstalleerd. Start Athena opnieuw, of voer het installatiecommando uit de README uit.",
+      "failedBody": "Voer het installatiecommando uit de README op de server uit om te herstellen.",
+      "back": "Athena is terug",
+      "backBody": "Herlaad de pagina om te zien welke versie draait.",
+      "confirmTitle": "Athena bijwerken?",
+      "notStartedTitle": "De update is niet gestart",
+      "preparingTitle": "Update voorbereiden",
+      "versions": "Athena {{current}} naar {{latest}}.",
+      "confirmBody": "Athena start een minuut of twee opnieuw op en de pagina maakt opnieuw verbinding. Je apps en containers blijven draaien. Als de nieuwe versie niet start, gaat Athena terug naar deze.",
+      "stopsTitle": "Deze stoppen wanneer Athena opnieuw start:",
+      "terminals_one": "{{count}} open terminal",
+      "terminals_other": "{{count}} open terminals",
+      "backupFirst": "Eerst een back-up van Athena maken",
+      "backupFirstHelp": "Slaat de instellingen en gegevens van Athena op met het back-upplan “{{plan}}” voordat iets wordt gestopt. Je apps blijven ongemoeid.",
+      "notChanged": "{{error}}. Er is niets gewijzigd; Athena draait nog {{current}}.",
+      "prepareFailed": "De update kon niet worden voorbereid",
+      "updateAnyway": "Toch bijwerken",
+      "update": "Bijwerken",
+      "restarting": "Opnieuw starten…",
+      "updatingTo": "Bijwerken naar {{latest}}. Deze pagina wordt herladen zodra Athena weer actief is.",
+      "lateBody": "Op een trage host kan het langer duren. Blijft het uit, controleer dan de updatelog in de gegevensmap (logs/update.log)."
+    }
+  },
+  "restartLateBody": "Op een trage host kan het langer duren. Blijft het uit, controleer dan de log in de gegevensmap (logs/athena.log).",
+  "toggleSidebar": "Zijbalk in-/uitklappen"
+}

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ClockIcon, FolderIcon, LayoutListIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { type Schemas } from "@workspace/api-client"
 import {
@@ -33,6 +34,7 @@ import { usePlans } from "./use-backup"
 
 /** Backups page: versions, destinations and plans. Gated by the `backup` capability. */
 export function BackupsView() {
+  const { t } = useTranslation("backup")
   const { manifest } = useCapabilities()
   const capability = useCapability("backup")
   const { load, run } = usePlans()
@@ -47,9 +49,9 @@ export function BackupsView() {
           <EmptyMedia variant="icon">
             <LayoutListIcon />
           </EmptyMedia>
-          <EmptyTitle>Backups aren't available</EmptyTitle>
+          <EmptyTitle>{t("view.unavailable")}</EmptyTitle>
           <EmptyDescription>
-            {capability?.detail ?? "This host doesn't support backups."}
+            {capability?.detail ?? t("view.unsupported")}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -59,20 +61,26 @@ export function BackupsView() {
   async function handleRun(plan: Schemas["PlanOut"]) {
     const job = await run(plan.id)
     if (job) {
-      toast.add({ title: `Backup "${plan.name}" started`, type: "success" })
+      toast.add({
+        title: t("toast.backupStarted", { name: plan.name }),
+        type: "success",
+      })
       void load()
     }
   }
 
   function handleAddedDestination(destination: Schemas["DestinationOut"]) {
     toast.add({
-      title: `Destination "${destination.name}" created`,
+      title: t("toast.destinationCreated", { name: destination.name }),
       type: "success",
     })
   }
 
   function handleAddedPlan(plan: Schemas["PlanOut"]) {
-    toast.add({ title: `Plan "${plan.name}" created`, type: "success" })
+    toast.add({
+      title: t("toast.planCreated", { name: plan.name }),
+      type: "success",
+    })
   }
 
   return (
@@ -81,15 +89,15 @@ export function BackupsView() {
         <TabsList className="w-full">
           <TabsTrigger value="versions">
             <LayoutListIcon data-icon="inline-start" />
-            Versions
+            {t("view.tabs.versions")}
           </TabsTrigger>
           <TabsTrigger value="destinations">
             <FolderIcon data-icon="inline-start" />
-            Destinations
+            {t("view.tabs.destinations")}
           </TabsTrigger>
           <TabsTrigger value="plans">
             <ClockIcon data-icon="inline-start" />
-            Plans
+            {t("view.tabs.plans")}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="versions" className="w-full pt-4">

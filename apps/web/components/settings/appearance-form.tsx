@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import type { TFunction } from "i18next"
+import { Trans, useTranslation } from "react-i18next"
 import {
   CheckIcon,
   CopyIcon,
@@ -39,6 +41,7 @@ import {
   ToggleGroupItem,
 } from "@workspace/ui/components/toggle-group"
 
+import { LanguageCard } from "@/components/settings/language-card"
 import { useAppearance } from "@/components/settings/appearance-provider"
 import {
   type Appearance,
@@ -52,6 +55,24 @@ import {
   toPresetCode,
   withBase,
 } from "@/lib/appearance"
+
+/** The label of a radius step; an id the app doesn't know falls back to its name. */
+function radiusLabel(id: string, t: TFunction<"settings">): string {
+  switch (id) {
+    case "default":
+      return t("appearance.radius.default")
+    case "none":
+      return t("appearance.radius.none")
+    case "small":
+      return t("appearance.radius.small")
+    case "medium":
+      return t("appearance.radius.medium")
+    case "large":
+      return t("appearance.radius.large")
+    default:
+      return label(id)
+  }
+}
 
 type Option = { id: string; label: string; swatch?: string }
 
@@ -104,8 +125,11 @@ function FontSelect({
   onChange: (value: string) => void
   inherit?: boolean
 }) {
+  const { t } = useTranslation("settings")
   const items = [
-    ...(inherit ? [{ value: "inherit", label: "Same as body" }] : []),
+    ...(inherit
+      ? [{ value: "inherit", label: t("appearance.type.sameAsBody") }]
+      : []),
     ...FONTS.map((f) => ({ value: f, label: label(f) })),
   ]
   return (
@@ -146,6 +170,7 @@ function PresetCode({
   appearance: Appearance
   update: (next: Appearance) => void
 }) {
+  const { t } = useTranslation("settings")
   const code = toPresetCode(appearance)
   const [input, setInput] = React.useState("")
   const [error, setError] = React.useState<string | null>(null)
@@ -157,7 +182,7 @@ function PresetCode({
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1500)
     } catch {
-      toast.add({ type: "error", title: "Couldn't copy to the clipboard" })
+      toast.add({ type: "error", title: t("appearance.preset.copyFailed") })
     }
   }
 
@@ -165,7 +190,7 @@ function PresetCode({
     event.preventDefault()
     const result = fromPresetCode(input, appearance)
     if (!result) {
-      setError("That isn't a shadcn preset code.")
+      setError(t("appearance.preset.invalid"))
       return
     }
     setError(null)
@@ -173,9 +198,11 @@ function PresetCode({
     update(result.appearance)
     toast.add({
       type: result.ignored.length ? "warning" : "success",
-      title: `Applied preset ${input.trim()}`,
+      title: t("appearance.preset.applied", { code: input.trim() }),
       description: result.ignored.length
-        ? `Athena can't apply ${result.ignored.join(", ")} yet, so those parts were skipped.`
+        ? t("appearance.preset.ignored", {
+            parts: result.ignored.join(", "),
+          })
         : undefined,
     })
   }
@@ -183,7 +210,9 @@ function PresetCode({
   return (
     <FieldGroup>
       <Field>
-        <FieldLabel htmlFor="preset-current">Current preset code</FieldLabel>
+        <FieldLabel htmlFor="preset-current">
+          {t("appearance.preset.current")}
+        </FieldLabel>
         <div className="flex gap-2">
           <Input
             id="preset-current"
@@ -197,16 +226,25 @@ function PresetCode({
             ) : (
               <CopyIcon data-icon="inline-start" />
             )}
-            {copied ? "Copied" : "Copy"}
+            {copied
+              ? t("appearance.preset.copied")
+              : t("appearance.preset.copy")}
           </Button>
         </div>
         <FieldDescription>
-          Use it with <code>npx shadcn init --preset {code}</code>, or share it.
+          <Trans
+            i18nKey="appearance.preset.use"
+            ns="settings"
+            values={{ code }}
+            components={{ code: <code /> }}
+          />
         </FieldDescription>
       </Field>
       <form onSubmit={apply}>
         <Field data-invalid={error ? true : undefined}>
-          <FieldLabel htmlFor="preset-import">Apply a preset code</FieldLabel>
+          <FieldLabel htmlFor="preset-import">
+            {t("appearance.preset.apply")}
+          </FieldLabel>
           <div className="flex gap-2">
             <Input
               id="preset-import"
@@ -218,21 +256,25 @@ function PresetCode({
               autoComplete="off"
             />
             <Button type="submit" variant="outline" disabled={!input.trim()}>
-              Apply
+              {t("appearance.preset.applyButton")}
             </Button>
           </div>
           {error ? <FieldError>{error}</FieldError> : null}
           <FieldDescription>
-            Fills in the colors, fonts and radius from a code made on{" "}
-            <a
-              href="https://ui.shadcn.com/create"
-              target="_blank"
-              rel="noreferrer"
-              className="underline underline-offset-4"
-            >
-              ui.shadcn.com/create
-            </a>
-            .
+            <Trans
+              i18nKey="appearance.preset.fill"
+              ns="settings"
+              components={{
+                link: (
+                  <a
+                    href="https://ui.shadcn.com/create"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline underline-offset-4"
+                  />
+                ),
+              }}
+            />
           </FieldDescription>
         </Field>
       </form>
@@ -242,24 +284,35 @@ function PresetCode({
 
 /** Settings → Appearance: every change applies to the whole UI at once and is saved. */
 export function AppearanceForm() {
+  const { t } = useTranslation("settings")
   const { appearance, update, saving } = useAppearance()
   const set = (patch: Partial<Appearance>) =>
     update({ ...appearance, ...patch })
 
   const base = BASES.find((b) => b.id === appearance.base_color)
   const themeOptions: Option[] = [
-    { id: appearance.base_color, label: "Match base", swatch: base?.swatch },
-    ...THEMES.filter((t) => !t.matchesBase).map((t) => ({
-      id: t.id,
-      label: label(t.id),
-      swatch: t.swatch,
+    {
+      id: appearance.base_color,
+      label: t("appearance.colors.matchBase"),
+      swatch: base?.swatch,
+    },
+    ...THEMES.filter((th) => !th.matchesBase).map((th) => ({
+      id: th.id,
+      label: label(th.id),
+      swatch: th.swatch,
     })),
   ]
   const baseChart = CHARTS.find((c) => c.id === appearance.base_color)
   const chartOptions: Option[] = [
-    { id: "neutral", label: "Match theme" },
+    { id: "neutral", label: t("appearance.colors.matchTheme") },
     ...(baseChart
-      ? [{ id: baseChart.id, label: "Base", swatch: baseChart.swatch }]
+      ? [
+          {
+            id: baseChart.id,
+            label: t("appearance.colors.base"),
+            swatch: baseChart.swatch,
+          },
+        ]
       : []),
     ...CHARTS.filter((c) => !c.matchesBase).map((c) => ({
       id: c.id,
@@ -270,19 +323,22 @@ export function AppearanceForm() {
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
+      <LanguageCard />
       <Card>
         <CardHeader>
-          <CardTitle>Colors</CardTitle>
+          <CardTitle>{t("appearance.colors.title")}</CardTitle>
           <CardDescription>
             {saving
-              ? "Saving…"
-              : "Changes apply right away and follow your account to other browsers."}
+              ? t("appearance.colors.saving")
+              : t("appearance.colors.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <FieldGroup>
             <Field>
-              <FieldLabel id="mode-label">Mode</FieldLabel>
+              <FieldLabel id="mode-label">
+                {t("appearance.mode.label")}
+              </FieldLabel>
               <ToggleGroup
                 aria-labelledby="mode-label"
                 value={[appearance.mode]}
@@ -295,20 +351,22 @@ export function AppearanceForm() {
               >
                 <ToggleGroupItem value="light">
                   <SunIcon data-icon="inline-start" />
-                  Light
+                  {t("appearance.mode.light")}
                 </ToggleGroupItem>
                 <ToggleGroupItem value="dark">
                   <MoonIcon data-icon="inline-start" />
-                  Dark
+                  {t("appearance.mode.dark")}
                 </ToggleGroupItem>
                 <ToggleGroupItem value="system">
                   <MonitorIcon data-icon="inline-start" />
-                  System
+                  {t("appearance.mode.system")}
                 </ToggleGroupItem>
               </ToggleGroup>
             </Field>
             <Field>
-              <FieldLabel id="base-label">Base color</FieldLabel>
+              <FieldLabel id="base-label">
+                {t("appearance.colors.baseColor")}
+              </FieldLabel>
               <SwatchPicker
                 id="base-label"
                 options={BASES.map((b) => ({
@@ -320,11 +378,13 @@ export function AppearanceForm() {
                 onChange={(id) => update((current) => withBase(current, id))}
               />
               <FieldDescription>
-                Backgrounds, borders and muted text.
+                {t("appearance.colors.baseHint")}
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel id="theme-label">Theme</FieldLabel>
+              <FieldLabel id="theme-label">
+                {t("appearance.colors.theme")}
+              </FieldLabel>
               <SwatchPicker
                 id="theme-label"
                 options={themeOptions}
@@ -332,11 +392,13 @@ export function AppearanceForm() {
                 onChange={(id) => set({ theme: id })}
               />
               <FieldDescription>
-                Buttons, focus rings and links.
+                {t("appearance.colors.themeHint")}
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel id="chart-label">Charts</FieldLabel>
+              <FieldLabel id="chart-label">
+                {t("appearance.colors.charts")}
+              </FieldLabel>
               <SwatchPicker
                 id="chart-label"
                 options={chartOptions}
@@ -350,12 +412,14 @@ export function AppearanceForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Typography and shape</CardTitle>
+          <CardTitle>{t("appearance.type.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="font">Font</FieldLabel>
+              <FieldLabel htmlFor="font">
+                {t("appearance.type.font")}
+              </FieldLabel>
               <FontSelect
                 id="font"
                 value={appearance.font}
@@ -363,7 +427,9 @@ export function AppearanceForm() {
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="font-heading">Heading font</FieldLabel>
+              <FieldLabel htmlFor="font-heading">
+                {t("appearance.type.headingFont")}
+              </FieldLabel>
               <FontSelect
                 id="font-heading"
                 inherit
@@ -372,23 +438,25 @@ export function AppearanceForm() {
               />
             </Field>
             <Field>
-              <FieldLabel id="radius-label">Radius</FieldLabel>
+              <FieldLabel id="radius-label">
+                {t("appearance.type.radius")}
+              </FieldLabel>
               <SwatchPicker
                 id="radius-label"
                 options={RADII.map((r) => ({
                   id: r.id,
-                  label: `${label(r.id)} · ${r.value === "0" ? "0" : r.value}`,
+                  label: `${radiusLabel(r.id, t)} · ${r.value}`,
                 }))}
                 value={appearance.radius}
                 onChange={(radius) => set({ radius })}
               />
             </Field>
             <Field>
-              <FieldLabel>Style</FieldLabel>
+              <FieldLabel>{t("appearance.type.style")}</FieldLabel>
               <p className="text-sm">
-                Nova, with Lucide icons{" "}
+                {t("appearance.type.styleValue")}{" "}
                 <span className="text-muted-foreground">
-                  · switching styles is coming in a later version
+                  · {t("appearance.type.styleSoon")}
                 </span>
               </p>
             </Field>
@@ -398,9 +466,9 @@ export function AppearanceForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Preset code</CardTitle>
+          <CardTitle>{t("appearance.preset.title")}</CardTitle>
           <CardDescription>
-            A shadcn preset code captures these settings in a few characters.
+            {t("appearance.preset.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>

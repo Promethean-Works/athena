@@ -1,6 +1,6 @@
 # Spec: NFS and SMB shares on every OS that supports them
 
-**Status:** Approved (2026-11-26), part 1 in progress · **Milestone:** M6 follow-up (shares) · **Design:** `docs/design/files.md`
+**Status:** Approved (2026-11-26), parts 1-4 built (#304, #307, #309, #312) · **Milestone:** M6 follow-up (shares) · **Design:** `docs/design/files.md`
 
 ## Goal
 

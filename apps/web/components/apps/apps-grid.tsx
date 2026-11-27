@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Trans, useTranslation } from "react-i18next"
 import Link from "next/link"
 import {
   EllipsisVerticalIcon,
@@ -50,6 +51,7 @@ import { useAppsList } from "@/components/apps/use-apps-list"
 import { AppIcon } from "@/components/store/app-icon"
 
 export function AppsGrid() {
+  const { t } = useTranslation("apps")
   const { apps, error, load } = useAppsList()
   const [removing, setRemoving] = React.useState<string | null>(null)
 
@@ -59,7 +61,7 @@ export function AppsGrid() {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle>Couldn&apos;t list apps</EmptyTitle>
+          <EmptyTitle>{t("list.failed")}</EmptyTitle>
           <EmptyDescription>{error}</EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -84,16 +86,19 @@ export function AppsGrid() {
             <EmptyMedia variant="icon">
               <LayoutGridIcon />
             </EmptyMedia>
-            <EmptyTitle>No apps yet</EmptyTitle>
+            <EmptyTitle>{t("grid.emptyTitle")}</EmptyTitle>
             <EmptyDescription>
-              Deploy a compose file or convert a <code>docker run</code>{" "}
-              command.
+              <Trans
+                i18nKey="grid.emptyDescription"
+                ns="apps"
+                components={{ code: <code /> }}
+              />
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             <Button render={<Link href="/apps/new/" />} nativeButton={false}>
               <PlusIcon data-icon="inline-start" />
-              New app
+              {t("newApp")}
             </Button>
           </EmptyContent>
         </Empty>
@@ -122,8 +127,10 @@ export function AppsGrid() {
                 </Link>
               </CardTitle>
               <CardDescription>
-                {app.total === 1 ? "1 container" : `${app.total} containers`}
-                {app.source === "docker-run" ? " · from docker run" : ""}
+                {t("grid.containerCount", { count: app.total })}
+                {app.source === "docker-run"
+                  ? ` · ${t("grid.fromDockerRun")}`
+                  : ""}
               </CardDescription>
               <CardAction>
                 <DropdownMenu>
@@ -131,7 +138,9 @@ export function AppsGrid() {
                     render={<Button variant="ghost" size="icon" />}
                   >
                     <EllipsisVerticalIcon />
-                    <span className="sr-only">Actions for {app.name}</span>
+                    <span className="sr-only">
+                      {t("grid.actionsFor", { name: app.name })}
+                    </span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="min-w-44">
                     <DropdownMenuGroup>
@@ -141,13 +150,13 @@ export function AppsGrid() {
                             onClick={() => jobs.action(app.name, "restart")}
                           >
                             <RotateCwIcon />
-                            Restart
+                            {t("actions.restart")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => jobs.action(app.name, "stop")}
                           >
                             <SquareIcon />
-                            Stop
+                            {t("actions.stop")}
                           </DropdownMenuItem>
                         </>
                       ) : (
@@ -155,14 +164,14 @@ export function AppsGrid() {
                           onClick={() => jobs.action(app.name, "start")}
                         >
                           <PlayIcon />
-                          Start
+                          {t("actions.start")}
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem
                         onClick={() => jobs.action(app.name, "update")}
                       >
                         <RefreshCcwIcon />
-                        Update images
+                        {t("actions.updateImages")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
@@ -172,7 +181,7 @@ export function AppsGrid() {
                         onClick={() => setRemoving(app.name)}
                       >
                         <Trash2Icon />
-                        Remove
+                        {t("actions.remove")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   </DropdownMenuContent>

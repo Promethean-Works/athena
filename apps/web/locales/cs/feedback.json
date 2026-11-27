@@ -1,0 +1,51 @@
+{
+  "menu": "Odeslat zpětnou vazbu",
+  "dialog": {
+    "title": "Odeslat zpětnou vazbu",
+    "description": "Otevře na nové kartě nový problém (issue) v {{repo}}. Před odesláním ho tam můžete zkontrolovat a upravit; issues jsou veřejné.",
+    "storeHint": "Aplikace z obchodu nefunguje? Použijte <b>Nahlásit problém</b> na její stránce v obchodě, aby se hlášení dostalo k jejímu správci.",
+    "loadFailed": "Podrobnosti tohoto serveru se nepodařilo načíst"
+  },
+  "choices": {
+    "bug": {
+      "title": "Nahlásit chybu",
+      "description": "Něco nefunguje tak, jak by mělo."
+    },
+    "change": {
+      "title": "Navrhnout změnu",
+      "description": "Něco funguje, ale mělo by to fungovat jinak."
+    },
+    "feature": {
+      "title": "Požádat o funkci",
+      "description": "Něco, co Athena zatím neumí."
+    }
+  },
+  "diagnostics": {
+    "title": "Vyplněno za vás",
+    "system": "Systém",
+    "cpu": "CPU",
+    "containers": "Kontejnery"
+  },
+  "appReport": {
+    "button": "Nahlásit problém",
+    "title": "Nahlásit problém s {{app}}",
+    "description": "Otevře na nové kartě nový problém (issue) pro {{where}} s vyplněnými podrobnostmi o aplikaci a tomto serveru. Před odesláním ho tam zkontrolujete; issues jsou veřejné.",
+    "whereCatalog": "katalog {{name}}, který tuto aplikaci spravuje",
+    "includeLogs_one": "Zahrnout poslední {{count}} řádek protokolu",
+    "includeLogs_few": "Zahrnout poslední {{count}} řádky protokolu",
+    "includeLogs_many": "Zahrnout posledního {{count}} řádku protokolu",
+    "includeLogs_other": "Zahrnout posledních {{count}} řádků protokolu",
+    "installedCopy": "Nainstalovaná kopie",
+    "logsLabel": "Zahrnout protokoly",
+    "loadingLogs": "Načítání protokolů…",
+    "logsWarning": "Před pokračováním odstraňte hesla, tokeny a adresy.",
+    "logsTruncated": "Do odkazu se vejde jen konec protokolů.",
+    "cancel": "Zrušit",
+    "openIssue": "Otevřít issue",
+    "preparing": "Příprava…",
+    "prepareFailed": "Hlášení se nepodařilo připravit",
+    "logsFailed": "Protokoly se nepodařilo načíst: {{error}}",
+    "appNotFound": "aplikace nenalezena",
+    "noContainers": "Pro tuto aplikaci nebyly nalezeny žádné kontejnery."
+  }
+}

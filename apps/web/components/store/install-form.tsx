@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "react-i18next"
 import { ChevronDownIcon, DownloadIcon } from "lucide-react"
 
 import { api, type Schemas } from "@workspace/api-client"
@@ -31,10 +32,6 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { Switch } from "@workspace/ui/components/switch"
 
 import { useAppJobs } from "@/components/apps/use-app-jobs"
-import {
-  DockerAccessAlert,
-  ProfileOptions,
-} from "@/components/store/profile-options"
 
 type Detail = Schemas["StoreAppDetail"]
 type FormField = Schemas["FormField"]
@@ -53,6 +50,7 @@ function FieldControl({
   invalid: boolean
   onChange: (value: string) => void
 }) {
+  const { t } = useTranslation("store")
   const id = `field-${field.key}`
   if (field.type === "boolean") {
     return (
@@ -99,7 +97,7 @@ function FieldControl({
             : "text"
       }
       inputMode={field.type === "port" ? "numeric" : undefined}
-      placeholder={field.generated ? "Generated if left empty" : undefined}
+      placeholder={field.generated ? t("installForm.generated") : undefined}
       autoComplete={field.type === "password" ? "new-password" : "off"}
       className={field.type === "path" ? "font-mono text-xs" : undefined}
       aria-invalid={invalid || undefined}
@@ -107,13 +105,8 @@ function FieldControl({
   )
 }
 
-export function InstallForm({
-  app,
-  variant,
-}: {
-  app: Detail
-  variant: Variant
-}) {
+export function InstallForm({ app, variant }: { app: Detail; variant: Variant }) {
+  const { t } = useTranslation("store")
   const router = useRouter()
   const [name, setName] = React.useState(app.suggested_name)
   const [values, setValues] = React.useState<Record<string, string>>(() =>
@@ -125,9 +118,6 @@ export function InstallForm({
     setValuesSlug(variant.slug)
     setValues(Object.fromEntries(variant.fields.map((f) => [f.key, f.default])))
   }
-  const [profiles, setProfiles] = React.useState<string[]>(() =>
-    app.profiles.filter((p) => p.enabled).map((p) => p.id)
-  )
   const [errors, setErrors] = React.useState<Record<string, string>>({})
   const [installing, setInstalling] = React.useState(false)
   const installedName = React.useRef(name)
@@ -141,7 +131,7 @@ export function InstallForm({
 
   const nameError =
     name && !NAME_RE.test(name)
-      ? "Use lowercase letters, digits, dashes or underscores."
+      ? t("installForm.nameInvalid")
       : (errors.__name ?? null)
 
   async function install(event: React.FormEvent) {
@@ -153,12 +143,7 @@ export function InstallForm({
       "/api/store/apps/{catalog}/{app_id}/install",
       {
         params: { path: { catalog: app.catalog, app_id: app.id } },
-        body: {
-          name,
-          values,
-          variant: variant.slug,
-          profiles: app.profiles.length > 0 ? profiles : undefined,
-        },
+        body: { name, values, variant: variant.slug },
       }
     )
     setInstalling(false)
@@ -171,7 +156,7 @@ export function InstallForm({
       setErrors({ __name: detail })
       return
     }
-    jobs.show(result, `install ${app.title}`)
+    jobs.show(result, t("installForm.jobLabel", { title: app.title }))
   }
 
   const basic = variant.fields.filter((f) => !f.advanced)
@@ -202,7 +187,7 @@ export function InstallForm({
     <form onSubmit={install} className="flex flex-col gap-6">
       <FieldGroup>
         <Field data-invalid={nameError ? true : undefined}>
-          <FieldLabel htmlFor="install-name">App name</FieldLabel>
+          <FieldLabel htmlFor="install-name">{t("installForm.appName")}</FieldLabel>
           <Input
             id="install-name"
             value={name}
@@ -214,26 +199,12 @@ export function InstallForm({
             <FieldError>{nameError}</FieldError>
           ) : (
             <FieldDescription>
-              Install the same app twice under different names if you need to.
+              {t("installForm.nameHint")}
             </FieldDescription>
           )}
         </Field>
         {basic.map(renderField)}
       </FieldGroup>
-
-      {app.docker_access ? (
-        <DockerAccessAlert title="This app controls this server's Docker">
-          It mounts the Docker socket, so it can start, stop and read every
-          container here, including your other apps.
-        </DockerAccessAlert>
-      ) : null}
-
-      <ProfileOptions
-        profiles={app.profiles}
-        selected={profiles}
-        onChange={setProfiles}
-        error={errors.profiles}
-      />
 
       {advanced.length > 0 ? (
         <Collapsible>
@@ -242,7 +213,7 @@ export function InstallForm({
               <Button variant="ghost" size="sm" className="group/adv -ml-2" />
             }
           >
-            Advanced settings
+            {t("installForm.advanced")}
             <ChevronDownIcon
               data-icon="inline-end"
               className="transition-transform group-data-panel-open/adv:rotate-180"
@@ -263,7 +234,7 @@ export function InstallForm({
           ) : (
             <DownloadIcon data-icon="inline-start" />
           )}
-          Install {app.title}
+          {t("installForm.install", { title: app.title })}
         </Button>
       </div>
       {jobs.dialog}

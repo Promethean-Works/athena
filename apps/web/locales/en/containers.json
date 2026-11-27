@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Running",
+    "dead": "Dead",
+    "exited": "Exited",
+    "exitedWithCode": "Exited ({{code}})",
+    "paused": "paused",
+    "created": "created",
+    "restarting": "restarting"
+  },
+  "logs": {
+    "following": "Following new output",
+    "stopped": "The container stopped",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting…",
+    "title": "Logs · {{name}}",
+    "empty": "No log output."
+  },
+  "runtime": {
+    "startFailed": "Couldn't start the runtime",
+    "running": "Container runtime is running",
+    "providerStopped": "{{provider}} isn't running",
+    "stopped": "The container runtime isn't running",
+    "none": "No container runtime",
+    "notFound": "Athena didn't find a container engine on this host.",
+    "start": "Start {{provider}}",
+    "redetect": "Re-detect",
+    "setup": {
+      "darwin": {
+        "title": "Install Colima"
+      },
+      "linux": {
+        "title": "Install Docker Engine"
+      },
+      "windows": {
+        "title": "Install a container runtime",
+        "wsl": "Docker Engine in WSL2: wsl --install, then install docker-ce inside the distro",
+        "podman": "or Podman: winget install RedHat.Podman, then podman machine init; podman machine start",
+        "rancher": "or Rancher Desktop: winget install SUSE.RancherDesktop (choose the dockerd engine)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Couldn't list containers",
+    "actionFailed": {
+      "start": "Couldn't start {{name}}",
+      "stop": "Couldn't stop {{name}}",
+      "restart": "Couldn't restart {{name}}"
+    },
+    "removeFailed": "Couldn't remove {{name}}",
+    "removed": "Removed {{name}}",
+    "emptyTitle": "No containers yet",
+    "emptyDescription": "Containers on this runtime show up here, including ones started outside Athena.",
+    "name": "Name",
+    "image": "Image",
+    "state": "State",
+    "ports": "Ports",
+    "actions": "Actions",
+    "standalone": "Standalone containers",
+    "actionsFor": "Actions for {{name}}",
+    "logs": "Logs",
+    "shell": "Shell",
+    "restart": "Restart",
+    "stop": "Stop",
+    "start": "Start",
+    "remove": "Remove",
+    "removeTitle": "Remove {{name}}?",
+    "removeRunningDescription": "It will be stopped first. The container is deleted. Named volumes and the image are kept.",
+    "removeDescription": "The container is deleted. Named volumes and the image are kept.",
+    "cancel": "Cancel"
+  }
+}

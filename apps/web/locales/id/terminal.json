@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "Menghubungkan…",
+    "connected": "Terhubung",
+    "exited": "Selesai ({{code}})",
+    "disconnected": "Terputus",
+    "hostTerminal": "Terminal host",
+    "containerShell": "Shell kontainer",
+    "lost": "Koneksi ke Athena terputus",
+    "closedCode": "Terputus (kode {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "Terminal tidak tersedia",
+    "openSettings": "Buka Pengaturan",
+    "description": "Shell di server ini, sebagai pengguna yang menjalankan Athena.",
+    "newSession": "Sesi baru"
+  },
+  "access": {
+    "noSupport": "Host ini tidak mendukung terminal.",
+    "adminsOnly": "Hanya admin yang dapat membuka terminal.",
+    "turnedOff": "Terminal dinonaktifkan di Pengaturan → Sistem."
+  },
+  "shell": {
+    "title": "Shell · {{name}}",
+    "description": "Menjalankan bash, atau sh jika image tidak memiliki bash."
+  }
+}

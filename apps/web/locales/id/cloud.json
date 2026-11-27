@@ -1,0 +1,71 @@
+{
+  "cancel": "Batal",
+  "remove": "Hapus",
+  "noRclone": {
+    "title": "Penyimpanan cloud memerlukan rclone",
+    "missing": "rclone belum terpasang di host ini",
+    "description": "{{detail}} Athena memakai rclone untuk terhubung ke Google Drive, OneDrive, Dropbox, S3, dan banyak lagi.",
+    "install": "Pasang rclone di server",
+    "redetect": "Deteksi ulang"
+  },
+  "view": {
+    "refresh": "Segarkan",
+    "syncFolders": "Sinkronkan folder",
+    "addRemote": "Tambah remote",
+    "cantReach": "Tidak dapat menjangkau rclone",
+    "removeFailed": "Tidak dapat menghapus {{name}}",
+    "removed": "{{name}} dihapus",
+    "removeTitle": "Hapus {{name}}?",
+    "removeDescription": "Athena melupakan cara terhubung ke sana. Tidak ada data di dalamnya yang dihapus.",
+    "empty": {
+      "title": "Belum ada remote",
+      "description": "Tambahkan Google Drive, OneDrive, Dropbox, bucket S3, server WebDAV, atau penyimpanan lain yang didukung rclone, lalu jelajahi di File dan salin atau sinkronkan folder ke sana."
+    }
+  },
+  "remote": {
+    "actions": "Aksi untuk {{name}}",
+    "browse": "Jelajahi",
+    "edit": "Edit",
+    "browseFiles": "Jelajahi file",
+    "settingCount_other": "{{count}} pengaturan",
+    "optional": "(opsional)",
+    "choose": "Pilih…",
+    "unchanged": "Tidak berubah",
+    "pasteResult": "Tempel hasilnya",
+    "no": "Tidak",
+    "yes": "Ya",
+    "continue": "Lanjutkan",
+    "refused": "rclone menolaknya",
+    "added": "{{name}} ditambahkan",
+    "saved": "{{name}} disimpan",
+    "addTitle": "Tambah remote",
+    "editTitle": "Edit {{name}}",
+    "oneMoreAnswer": "rclone memerlukan satu jawaban lagi untuk menyelesaikan penyiapan.",
+    "loading": "Memuat penyedia penyimpanan…",
+    "pickKind": "Pilih jenis penyimpanan yang akan dihubungkan.",
+    "genericDescription": "Penyimpanan cloud yang dihubungkan rclone: Google Drive, OneDrive, Dropbox, S3, WebDAV, dan banyak lagi.",
+    "back": "Kembali",
+    "add": "Tambah",
+    "save": "Simpan",
+    "catalogHint": "Pilih penyimpanan yang ingin dihubungkan, lalu beri nama dan isi pengaturannya.",
+    "name": "Nama",
+    "nameHint": "Nama yang tampil di File, mis. gdrive atau backups.",
+    "storage": "Penyimpanan",
+    "advanced": "Pengaturan lanjutan ({{count}})"
+  },
+  "sync": {
+    "title": "Sinkronkan folder",
+    "description": "Membuat tujuan sama dengan sumber: file baru dan yang berubah disalin, dan file yang tidak ada di sumber dihapus dari tujuan.",
+    "from": "Dari",
+    "to": "Ke",
+    "willDelete_other": "{{count}} file akan dihapus dari {{dest}}",
+    "andMore": "dan {{count}} lainnya",
+    "willCopy_other": "{{count}} file akan disalin.",
+    "nothingDeleted": "Tidak ada yang akan dihapus",
+    "willCopyTo_other": "{{count}} file akan disalin ke {{dest}}.",
+    "alreadyMatch": "Folder sudah sama.",
+    "syncAndDelete": "Sinkronkan dan hapus {{count}}",
+    "sync": "Sinkronkan",
+    "check": "Periksa perubahan"
+  }
+}

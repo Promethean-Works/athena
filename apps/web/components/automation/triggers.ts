@@ -4,6 +4,8 @@ import * as React from "react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 
+import i18n, { currentLocale } from "@/lib/i18n"
+
 export type Trigger = Schemas["TriggerOut"]
 export type JobRun = Schemas["JobRunOut"]
 export type TriggerAction = Schemas["TriggerIn"]["action"]
@@ -21,7 +23,7 @@ export function useTriggers() {
     if (data) {
       setTriggers(data)
       setError(null)
-    } else setError(errorMessage(err, "Couldn't list triggers"))
+    } else setError(errorMessage(err, i18n.t("automation:triggers.listFailed")))
   }, [])
 
   React.useEffect(() => {
@@ -43,7 +45,7 @@ export function useJobRuns() {
     if (data) {
       setRuns(data)
       setError(null)
-    } else setError(errorMessage(err, "Couldn't list job runs"))
+    } else setError(errorMessage(err, i18n.t("automation:jobRuns.listFailed")))
   }, [])
 
   React.useEffect(() => {
@@ -57,14 +59,17 @@ export function useJobRuns() {
 
 export function actionSummary(action: TriggerAction): string {
   if (action.kind === "app")
-    return `${capitalize(action.verb)} app ${action.name}`
+    return i18n.t(`automation:summary.app.${action.verb}`, {
+      name: action.name,
+    })
   if (action.verb === "refresh")
-    return `Refresh ${action.manager} package lists`
-  return `${capitalize(action.verb)} ${action.name} (${action.manager})`
-}
-
-function capitalize(word: string): string {
-  return word.charAt(0).toUpperCase() + word.slice(1)
+    return i18n.t("automation:summary.package.refresh", {
+      manager: action.manager,
+    })
+  return i18n.t(`automation:summary.package.${action.verb}`, {
+    name: action.name,
+    manager: action.manager,
+  })
 }
 
 /** The full URL that fires a webhook trigger (POST, no session needed). */
@@ -80,5 +85,5 @@ export function formatServerTime(value: string | null | undefined): string {
   if (!value) return "—"
   const hasOffset = /(?:Z|[+-]\d{2}:?\d{2})$/.test(value)
   const date = new Date(hasOffset ? value : `${value}Z`)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(currentLocale())
 }

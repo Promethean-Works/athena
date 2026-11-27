@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { Trans, useTranslation } from "react-i18next"
 import { CircleDollarSignIcon } from "lucide-react"
 
 import { InputGroupButton } from "@workspace/ui/components/input-group"
@@ -20,11 +21,12 @@ import {
 import { cn } from "@workspace/ui/lib/utils"
 
 import type { ChatSpend } from "@/components/assistant/use-chat-stream"
+import { currentLocale } from "@/lib/i18n"
 
 /** $2.00, $0.40, or $0.0063 when two decimals would show nothing. */
 export function formatUsd(amount: number): string {
   if (amount === 0) return "$0.00"
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(currentLocale(), {
     style: "currency",
     currency: "USD",
     ...(amount < 0.01
@@ -33,7 +35,10 @@ export function formatUsd(amount: number): string {
   }).format(amount)
 }
 
-const tokens = new Intl.NumberFormat("en-US", { notation: "compact" })
+const tokens = {
+  format: (n: number) =>
+    new Intl.NumberFormat(currentLocale(), { notation: "compact" }).format(n),
+}
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -50,6 +55,7 @@ function Row({ label, value }: { label: string; value: string }) {
  * anything.
  */
 export function SpendButton({ spend }: { spend: ChatSpend | null }) {
+  const { t } = useTranslation("assistant")
   if (!spend) return null
   const { usage, limit } = spend
   const total = usage.input_tokens + usage.output_tokens
@@ -57,7 +63,9 @@ export function SpendButton({ spend }: { spend: ChatSpend | null }) {
   const cost = usage.cost ?? null
   const reached = limit !== null && cost !== null && cost >= limit
   const label =
-    cost !== null ? formatUsd(cost) : `${tokens.format(total)} tokens`
+    cost !== null
+      ? formatUsd(cost)
+      : t("spend.tokens", { count: total, formatted: tokens.format(total) })
 
   return (
     <Popover>
@@ -71,7 +79,7 @@ export function SpendButton({ spend }: { spend: ChatSpend | null }) {
               reached &&
                 "text-destructive hover:text-destructive aria-expanded:text-destructive"
             )}
-            aria-label={`This chat's usage: ${label}`}
+            aria-label={t("spend.usageWith", { label })}
           />
         }
       >
@@ -80,45 +88,49 @@ export function SpendButton({ spend }: { spend: ChatSpend | null }) {
       </PopoverTrigger>
       <PopoverContent side="top" align="start" className="gap-3">
         <PopoverHeader>
-          <PopoverTitle>This chat&apos;s usage</PopoverTitle>
+          <PopoverTitle>{t("spend.usage")}</PopoverTitle>
           <PopoverDescription>
             {cost === null
-              ? "This model's prices aren't known, so only tokens are counted."
-              : "An estimate from the model's published prices."}
+              ? t("spend.unknownPrices")
+              : t("spend.estimate")}
           </PopoverDescription>
         </PopoverHeader>
         {limit !== null && cost !== null ? (
           <Progress value={Math.min(100, (cost / limit) * 100)}>
             <ProgressLabel className="text-sm font-normal">
-              {formatUsd(cost)} of {formatUsd(limit)}
+              {t("spend.ofLimit", {
+                spent: formatUsd(cost),
+                limit: formatUsd(limit),
+              })}
             </ProgressLabel>
             <ProgressValue className="ml-auto text-sm text-muted-foreground" />
           </Progress>
         ) : (
           <Row
-            label="Spent"
-            value={cost !== null ? formatUsd(cost) : "Unknown"}
+            label={t("spend.spent")}
+            value={cost !== null ? formatUsd(cost) : t("spend.unknown")}
           />
         )}
         <div className="flex flex-col gap-1">
-          <Row label="Input tokens" value={tokens.format(usage.input_tokens)} />
+          <Row label={t("spend.inputTokens")} value={tokens.format(usage.input_tokens)} />
           <Row
-            label="Output tokens"
+            label={t("spend.outputTokens")}
             value={tokens.format(usage.output_tokens)}
           />
         </div>
         {reached ? (
           <p className="text-destructive">
-            This chat reached its spend limit. Start a new chat, or raise the
-            limit in{" "}
-            <Link href="/settings/ai/" className="underline">
-              Settings → AI
-            </Link>
-            .
+            <Trans
+              i18nKey="spend.limitReached"
+              ns="assistant"
+              components={{
+                settings: <Link href="/settings/ai/" className="underline" />,
+              }}
+            />
           </p>
         ) : limit !== null && cost === null ? (
           <p className="text-muted-foreground">
-            The spend limit ({formatUsd(limit)}) can&apos;t apply to this model.
+            {t("spend.limitNotApplicable", { limit: formatUsd(limit) })}
           </p>
         ) : null}
       </PopoverContent>

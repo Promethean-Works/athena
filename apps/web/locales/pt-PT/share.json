@@ -1,0 +1,36 @@
+{
+  "page": {
+    "incomplete": "Esta ligação está incompleta.",
+    "expiredTitle": "Esta ligação expirou",
+    "notFoundTitle": "Esta ligação não funciona",
+    "errorTitle": "Não foi possível abrir esta ligação",
+    "expiredDescription": "Pede uma nova a quem te enviou esta ligação."
+  },
+  "unlock": {
+    "title": "Esta ligação tem palavra-passe",
+    "description": "Introduz a palavra-passe para ver o que está partilhado.",
+    "password": "Palavra-passe",
+    "open": "Abrir"
+  },
+  "file": {
+    "fallbackName": "ficheiro",
+    "download": "Transferir"
+  },
+  "dropBox": {
+    "title": "Enviar ficheiros para {{name}}",
+    "description": "Os ficheiros que adicionares são enviados de imediato. Não vês o que os outros enviaram e nada do que enviares substitui outro ficheiro.",
+    "drop": "Larga os ficheiros aqui ou",
+    "choose": "Escolher ficheiros"
+  },
+  "folder": {
+    "downloadAll": "Transferir tudo",
+    "cantOpen": "Não foi possível abrir esta pasta",
+    "empty": "Esta pasta está vazia.",
+    "columnName": "Nome",
+    "columnSize": "Tamanho",
+    "columnModified": "Modificado",
+    "columnDownload": "Transferir",
+    "downloadEntry": "Transferir {{name}}",
+    "download": "Transferir"
+  }
+}

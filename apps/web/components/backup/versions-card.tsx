@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { DownloadIcon, RefreshCcwIcon, Trash2Icon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { type Schemas } from "@workspace/api-client"
 import { Button } from "@workspace/ui/components/button"
@@ -21,6 +22,7 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { formatServerTime } from "@/components/automation/triggers"
+import { formatBytes } from "@/lib/format"
 
 import { useVersions } from "./use-backup"
 
@@ -40,6 +42,7 @@ export function VersionsCard({
   onRestore,
   onViewFiles,
 }: VersionsCardProps) {
+  const { t } = useTranslation("backup")
   const { versions, error, load } = useVersions(destinationId, item)
 
   if (!versions) {
@@ -53,17 +56,21 @@ export function VersionsCard({
   return (
     <div className="flex min-w-0 flex-col gap-4 md:gap-6">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold">Versions</h2>
-        <Button size="sm" onClick={() => void load()}>
+        <h2 className="text-sm font-semibold">{t("versions.title")}</h2>
+        <Button
+          size="sm"
+          aria-label={t("versions.refresh")}
+          onClick={() => void load()}
+        >
           <RefreshCcwIcon data-icon="inline-start" />
         </Button>
       </div>
       {versions.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
-            <EmptyTitle>No versions yet</EmptyTitle>
+            <EmptyTitle>{t("versions.empty.title")}</EmptyTitle>
             <EmptyDescription>
-              Run a backup to create the first one.
+              {t("versions.empty.description")}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -71,13 +78,13 @@ export function VersionsCard({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Time</TableHead>
-              <TableHead className="text-right">Size</TableHead>
-              <TableHead className="text-right">New</TableHead>
-              <TableHead className="text-right">Added</TableHead>
-              <TableHead className="text-right">Changed</TableHead>
-              <TableHead className="text-right">Removed</TableHead>
-              <TableHead className="text-right">OS</TableHead>
+              <TableHead>{t("versions.time")}</TableHead>
+              <TableHead className="text-right">{t("versions.size")}</TableHead>
+              <TableHead className="text-right">{t("versions.new")}</TableHead>
+              <TableHead className="text-right">{t("versions.added")}</TableHead>
+              <TableHead className="text-right">{t("versions.changed")}</TableHead>
+              <TableHead className="text-right">{t("versions.removed")}</TableHead>
+              <TableHead className="text-right">{t("versions.os")}</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
@@ -108,7 +115,7 @@ export function VersionsCard({
                         variant="outline"
                         size="sm"
                         onClick={() => onViewFiles(v)}
-                        title="View files"
+                        title={t("versions.viewFiles")}
                       >
                         <DownloadIcon data-icon="inline-start" />
                       </Button>
@@ -118,7 +125,7 @@ export function VersionsCard({
                         variant="outline"
                         size="sm"
                         onClick={() => onRestore(v)}
-                        title="Restore"
+                        title={t("versions.restore")}
                       >
                         <Trash2Icon data-icon="inline-start" />
                       </Button>
@@ -133,12 +140,4 @@ export function VersionsCard({
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   )
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return "0 B"
-  const k = 1024
-  const sizes = ["B", "KB", "MB", "GB", "TB"]
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
 }

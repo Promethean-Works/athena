@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { KeyRoundIcon } from "lucide-react"
+import { Trans, useTranslation } from "react-i18next"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import {
@@ -36,6 +37,7 @@ type WebDav = Schemas["WebDavOut"]
 
 /** Settings → System: the WebDAV network share at /dav/. */
 export function WebDavCard() {
+  const { t } = useTranslation("settings")
   const { user } = useAuth()
   const capability = useCapability("shares.webdav")
   const [config, setConfig] = React.useState<WebDav | null>(null)
@@ -56,12 +58,12 @@ export function WebDavCard() {
       setConfig(data)
       toast.add({
         type: "success",
-        title: enabled ? "WebDAV turned on" : "WebDAV turned off",
+        title: enabled ? t("webdav.on") : t("webdav.off"),
       })
     } else {
       toast.add({
         type: "error",
-        title: "Couldn't save",
+        title: t("webdav.saveFailed"),
         description: errorMessage(error),
       })
     }
@@ -79,7 +81,7 @@ export function WebDavCard() {
     } else {
       toast.add({
         type: "error",
-        title: "Couldn't make a password",
+        title: t("webdav.passwordFailed"),
         description: errorMessage(error),
       })
     }
@@ -95,11 +97,8 @@ export function WebDavCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Network share (WebDAV)</CardTitle>
-        <CardDescription>
-          Open the file manager&apos;s locations as a drive in Finder, Windows
-          Explorer or a Linux file manager.
-        </CardDescription>
+        <CardTitle>{t("webdav.title")}</CardTitle>
+        <CardDescription>{t("webdav.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {config === null ? (
@@ -108,11 +107,12 @@ export function WebDavCard() {
           <FieldGroup>
             <Field orientation="horizontal">
               <FieldContent>
-                <FieldLabel htmlFor="webdav-enabled">WebDAV</FieldLabel>
+                <FieldLabel htmlFor="webdav-enabled">
+                  {t("webdav.label")}
+                </FieldLabel>
                 <FieldDescription>
-                  Off by default. Anyone with the WebDAV password can read and
-                  change every location.
-                  {!user.is_admin && " Only admins can change this."}
+                  {t("webdav.help")}
+                  {!user.is_admin && ` ${t("webdav.adminOnly")}`}
                 </FieldDescription>
               </FieldContent>
               <Switch
@@ -126,20 +126,20 @@ export function WebDavCard() {
               <>
                 <CopyField
                   id="webdav-address"
-                  label="Address"
+                  label={t("webdav.address")}
                   value={address}
                 />
                 {config.username ? (
                   <CopyField
                     id="webdav-username"
-                    label="Username"
+                    label={t("webdav.username")}
                     value={config.username}
                   />
                 ) : null}
                 {password ? (
                   <CopyField
                     id="webdav-password"
-                    label="Password"
+                    label={t("webdav.password")}
                     value={password}
                   />
                 ) : null}
@@ -147,10 +147,10 @@ export function WebDavCard() {
                   <FieldContent>
                     <FieldDescription>
                       {password
-                        ? "Copy it now: it isn't shown again."
+                        ? t("webdav.passwordHint.copyNow")
                         : config.has_password
-                          ? "A password is set. Making a new one signs out every device using the old one."
-                          : "Make a password to sign in. It's separate from your Athena password."}
+                          ? t("webdav.passwordHint.set")
+                          : t("webdav.passwordHint.none")}
                     </FieldDescription>
                   </FieldContent>
                   <Button
@@ -159,40 +159,49 @@ export function WebDavCard() {
                     onClick={() => void generate()}
                   >
                     <KeyRoundIcon />
-                    {config.has_password ? "New password" : "Make password"}
+                    {config.has_password
+                      ? t("webdav.newPassword")
+                      : t("webdav.makePassword")}
                   </Button>
                 </Field>
                 {plainHttp ? (
                   <Alert>
-                    <AlertTitle>Not encrypted</AlertTitle>
+                    <AlertTitle>{t("webdav.plainHttp.title")}</AlertTitle>
                     <AlertDescription>
-                      Athena is open over plain HTTP, so the WebDAV password and
-                      files cross the network unencrypted. Use it on a network
-                      you trust, or put Athena behind HTTPS.
+                      {t("webdav.plainHttp.description")}
                     </AlertDescription>
                   </Alert>
                 ) : null}
                 <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
                   <p>
-                    <span className="font-medium text-foreground">macOS:</span>{" "}
-                    Finder → Go → Connect to Server, then the address.
+                    <Trans
+                      i18nKey="webdav.howto.macos"
+                      ns="settings"
+                      components={{
+                        b: <span className="font-medium text-foreground" />,
+                      }}
+                    />
                   </p>
                   <p>
-                    <span className="font-medium text-foreground">
-                      Windows:
-                    </span>{" "}
-                    File Explorer → This PC → Map network drive, then the
-                    address. Over plain HTTP Windows only signs in after setting{" "}
-                    <code>BasicAuthLevel</code> to 2 under{" "}
-                    <code>
-                      HKLM\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
-                    </code>{" "}
-                    and restarting the WebClient service.
+                    <Trans
+                      i18nKey="webdav.howto.windows"
+                      ns="settings"
+                      components={{
+                        b: <span className="font-medium text-foreground" />,
+                        code: <code />,
+                      }}
+                    />
                   </p>
                   <p>
-                    <span className="font-medium text-foreground">Linux:</span>{" "}
-                    in Files (GNOME) or Dolphin, connect to{" "}
-                    <code>{address.replace(/^http/, "dav")}</code>.
+                    <Trans
+                      i18nKey="webdav.howto.linux"
+                      ns="settings"
+                      values={{ url: address.replace(/^http/, "dav") }}
+                      components={{
+                        b: <span className="font-medium text-foreground" />,
+                        code: <code />,
+                      }}
+                    />
                   </p>
                 </div>
               </>

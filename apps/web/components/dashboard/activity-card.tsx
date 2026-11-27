@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
 import { HistoryIcon } from "lucide-react"
 
 import { api } from "@workspace/api-client"
@@ -10,6 +11,7 @@ import {
   RowsSkeleton,
 } from "@/components/dashboard/card-shell"
 import { useApi } from "@/hooks/use-api"
+import { currentLocale } from "@/lib/i18n"
 import { formatRelative, parseServerTime } from "@/lib/time"
 
 /** "app.start" → "App start", "container.stop" → "Container stop". */
@@ -19,15 +21,16 @@ function readable(action: string): string {
 }
 
 function ActivityBody() {
+  const { t } = useTranslation("dashboard")
   const state = useApi(
     () => api.GET("/api/audit", { params: { query: { limit: 5 } } }),
     30000
   )
   if (state.status === "loading") return <RowsSkeleton rows={4} />
   if (state.status === "error")
-    return <Quiet>Couldn&apos;t load recent activity: {state.error}</Quiet>
+    return <Quiet>{t("activity.loadError", { error: state.error })}</Quiet>
   if (state.data.length === 0)
-    return <Quiet>Nothing yet. Actions on apps, containers and files show up here.</Quiet>
+    return <Quiet>{t("activity.empty")}</Quiet>
   return (
     <ol className="flex flex-col divide-y">
       {state.data.map((e) => {
@@ -42,12 +45,12 @@ function ActivityBody() {
                 ) : null}
               </span>
               <span className="block text-xs text-muted-foreground">
-                by {e.username}
+                {t("activity.by", { username: e.username })}
               </span>
             </span>
             <time
               dateTime={at.toISOString()}
-              title={at.toLocaleString()}
+              title={at.toLocaleString(currentLocale())}
               className="shrink-0 text-xs text-muted-foreground"
             >
               {formatRelative(at)}
@@ -61,11 +64,12 @@ function ActivityBody() {
 
 /** The latest audit entries (admins only; the picker hides it from others). */
 export function ActivityCard() {
+  const { t } = useTranslation("dashboard")
   return (
     <DashboardCard
       icon={HistoryIcon}
-      title="Recent activity"
-      description="Who changed what on this server."
+      title={t("activity.title")}
+      description={t("activity.description")}
     >
       <ActivityBody />
     </DashboardCard>

@@ -1,0 +1,71 @@
+{
+  "cancel": "Hủy",
+  "remove": "Gỡ",
+  "noRclone": {
+    "title": "Lưu trữ đám mây cần rclone",
+    "missing": "rclone chưa được cài đặt trên máy chủ này",
+    "description": "{{detail}} Athena dùng rclone để kết nối với Google Drive, OneDrive, Dropbox, S3 và nhiều dịch vụ khác.",
+    "install": "Cài đặt rclone trên máy chủ",
+    "redetect": "Dò lại"
+  },
+  "view": {
+    "refresh": "Làm mới",
+    "syncFolders": "Đồng bộ thư mục",
+    "addRemote": "Thêm remote",
+    "cantReach": "Không thể kết nối rclone",
+    "removeFailed": "Không thể gỡ {{name}}",
+    "removed": "Đã gỡ {{name}}",
+    "removeTitle": "Gỡ {{name}}?",
+    "removeDescription": "Athena quên cách kết nối tới đó. Không có gì lưu trên đó bị xóa.",
+    "empty": {
+      "title": "Chưa có remote",
+      "description": "Thêm Google Drive, OneDrive, Dropbox, bucket S3, máy chủ WebDAV hoặc bất kỳ dịch vụ lưu trữ nào rclone hỗ trợ, rồi duyệt trong Tệp và sao chép hoặc đồng bộ thư mục sang đó."
+    }
+  },
+  "remote": {
+    "actions": "Thao tác cho {{name}}",
+    "browse": "Duyệt",
+    "edit": "Sửa",
+    "browseFiles": "Duyệt tệp",
+    "settingCount_other": "{{count}} cài đặt",
+    "optional": "(tùy chọn)",
+    "choose": "Chọn…",
+    "unchanged": "Không đổi",
+    "pasteResult": "Dán kết quả",
+    "no": "Không",
+    "yes": "Có",
+    "continue": "Tiếp tục",
+    "refused": "rclone đã từ chối",
+    "added": "Đã thêm {{name}}",
+    "saved": "Đã lưu {{name}}",
+    "addTitle": "Thêm remote",
+    "editTitle": "Sửa {{name}}",
+    "oneMoreAnswer": "rclone cần thêm một câu trả lời để hoàn tất thiết lập.",
+    "loading": "Đang tải các nhà cung cấp lưu trữ…",
+    "pickKind": "Chọn loại lưu trữ để kết nối.",
+    "genericDescription": "Lưu trữ đám mây mà rclone kết nối tới: Google Drive, OneDrive, Dropbox, S3, WebDAV và nhiều dịch vụ khác.",
+    "back": "Quay lại",
+    "add": "Thêm",
+    "save": "Lưu",
+    "catalogHint": "Chọn dịch vụ lưu trữ muốn kết nối, rồi đặt tên và điền các cài đặt.",
+    "name": "Tên",
+    "nameHint": "Cách hiển thị trong Tệp, ví dụ gdrive hoặc backups.",
+    "storage": "Lưu trữ",
+    "advanced": "Cài đặt nâng cao ({{count}})"
+  },
+  "sync": {
+    "title": "Đồng bộ thư mục",
+    "description": "Làm cho đích khớp với nguồn: tệp mới và tệp đã đổi được sao chép, còn tệp không có trong nguồn bị xóa khỏi đích.",
+    "from": "Từ",
+    "to": "Đến",
+    "willDelete_other": "{{count}} tệp sẽ bị xóa khỏi {{dest}}",
+    "andMore": "và {{count}} tệp khác",
+    "willCopy_other": "{{count}} tệp sẽ được sao chép.",
+    "nothingDeleted": "Sẽ không xóa gì cả",
+    "willCopyTo_other": "{{count}} tệp sẽ được sao chép đến {{dest}}.",
+    "alreadyMatch": "Các thư mục đã khớp nhau.",
+    "syncAndDelete": "Đồng bộ và xóa {{count}}",
+    "sync": "Đồng bộ",
+    "check": "Kiểm tra thay đổi"
+  }
+}

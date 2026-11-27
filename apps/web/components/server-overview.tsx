@@ -1,5 +1,7 @@
 "use client"
 
+import { Trans, useTranslation } from "react-i18next"
+import { type ParseKeys } from "i18next"
 import { CircleAlertIcon } from "lucide-react"
 
 import { api } from "@workspace/api-client"
@@ -28,6 +30,7 @@ const OS_LABELS = {
 } as const
 
 export function ServerOverview() {
+  const { t } = useTranslation("dashboard")
   const info = useApi(() => api.GET("/api/system/info"))
   const stats = useOptionalHostStats()
   const host = stats?.host
@@ -40,47 +43,52 @@ export function ServerOverview() {
     return (
       <Alert variant="destructive">
         <CircleAlertIcon />
-        <AlertTitle>Can&apos;t reach the Athena server</AlertTitle>
+        <AlertTitle>{t("server.unreachableTitle")}</AlertTitle>
         <AlertDescription>
-          {info.error}. In development, start it with{" "}
-          <code>uv run athena serve --reload</code> in <code>apps/server</code>.
+          <Trans
+            i18nKey="server.unreachableDescription"
+            ns="dashboard"
+            values={{ error: info.error }}
+            components={{ code: <code /> }}
+          />
         </AlertDescription>
       </Alert>
     )
   }
 
-  const rows: [string, string | undefined][] =
+  type RowKey = ParseKeys<"dashboard">
+  const rows: [RowKey, string | undefined][] =
     info.status === "ok"
       ? [
-          ["Host", info.data.hostname],
-          ["Operating system", info.data.os_version],
-          ["Platform", `${OS_LABELS[info.data.os]} · ${info.data.arch}`],
+          ["server.host", info.data.hostname],
+          ["server.os", info.data.os_version],
+          ["server.platform", `${OS_LABELS[info.data.os]} · ${info.data.arch}`],
           ...(stats
-            ? [["Uptime", uptime] as [string, string | undefined]]
+            ? [["server.uptime", uptime] as [RowKey, string | undefined]]
             : []),
-          ["Athena", info.data.version],
-          ["Python", info.data.python],
+          ["server.athena", info.data.version],
+          ["server.python", info.data.python],
         ]
       : [
-          ["Host", undefined],
-          ["Operating system", undefined],
-          ["Platform", undefined],
-          ...(stats ? [["Uptime", undefined] as [string, undefined]] : []),
-          ["Athena", undefined],
-          ["Python", undefined],
+          ["server.host", undefined],
+          ["server.os", undefined],
+          ["server.platform", undefined],
+          ...(stats ? [["server.uptime", undefined] as [RowKey, undefined]] : []),
+          ["server.athena", undefined],
+          ["server.python", undefined],
         ]
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Server</CardTitle>
-        <CardDescription>The machine Athena is running on</CardDescription>
+        <CardTitle>{t("server.title")}</CardTitle>
+        <CardDescription>{t("server.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
           {rows.map(([label, value]) => (
             <div key={label} className="contents">
-              <dt className="text-muted-foreground">{label}</dt>
+              <dt className="text-muted-foreground">{t(label)}</dt>
               <dd className="truncate">
                 {value ?? <Skeleton className="h-4 w-40" />}
               </dd>

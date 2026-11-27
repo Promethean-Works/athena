@@ -1,0 +1,12 @@
+{
+  "dialog": {
+    "title": "Địa chỉ tunnel",
+    "description": "Mở Athena từ bên ngoài mạng của bạn, hoặc quét mã bằng điện thoại.",
+    "publicAddress": "Địa chỉ công khai",
+    "notRunning": "Tunnel đang không chạy.",
+    "startInSettings": "Bật trong Cài đặt."
+  },
+  "qr": {
+    "title": "Mã QR của địa chỉ tunnel"
+  }
+}

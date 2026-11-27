@@ -1,0 +1,119 @@
+{
+  "add": "Ajouter",
+  "cancel": "Annuler",
+  "back": "Retour",
+  "errors": {
+    "listDestinations": "Impossible de lister les destinations de sauvegarde",
+    "createDestination": "Impossible de créer la destination",
+    "deleteDestination": "Impossible de supprimer la destination",
+    "listPlans": "Impossible de lister les plans de sauvegarde",
+    "createPlan": "Impossible de créer le plan",
+    "updatePlan": "Impossible de mettre à jour le plan",
+    "deletePlan": "Impossible de supprimer le plan",
+    "startBackup": "Impossible de démarrer la sauvegarde",
+    "listVersions": "Impossible de lister les versions de sauvegarde",
+    "listVersionFiles": "Impossible de lister les fichiers de la version",
+    "restoreApp": "Impossible de restaurer l'app"
+  },
+  "toast": {
+    "destinationCreated": "Destination « {{name}} » créée",
+    "planCreated": "Plan « {{name}} » créé",
+    "planUpdated": "Plan « {{name}} » mis à jour",
+    "backupStarted": "Sauvegarde « {{name}} » démarrée"
+  },
+  "view": {
+    "unavailable": "Les sauvegardes ne sont pas disponibles",
+    "unsupported": "Cet hôte ne prend pas en charge les sauvegardes.",
+    "tabs": {
+      "versions": "Versions",
+      "destinations": "Destinations",
+      "plans": "Plans"
+    }
+  },
+  "destinations": {
+    "title": "Destinations",
+    "name": "Nom",
+    "kind": "Type",
+    "location": "Emplacement",
+    "created": "Création",
+    "empty": {
+      "title": "Aucune destination pour l'instant",
+      "description": "Une destination est un dossier ou un remote rclone où les sauvegardes sont conservées. Ajoutez-en une pour commencer à sauvegarder."
+    }
+  },
+  "plans": {
+    "title": "Plans",
+    "name": "Nom",
+    "schedule": "Calendrier",
+    "lastRun": "Dernière exécution",
+    "status": "Statut",
+    "manual": "manuel",
+    "runNow": "Exécuter maintenant",
+    "empty": {
+      "title": "Aucun plan pour l'instant",
+      "description": "Un plan choisit Athena, des apps, une destination et un calendrier, puis s'exécute selon une minuterie."
+    }
+  },
+  "versions": {
+    "title": "Versions",
+    "refresh": "Actualiser",
+    "time": "Heure",
+    "size": "Taille",
+    "new": "Nouveaux",
+    "added": "Ajoutés",
+    "changed": "Modifiés",
+    "removed": "Supprimés",
+    "os": "OS",
+    "viewFiles": "Voir les fichiers",
+    "restore": "Restaurer",
+    "empty": {
+      "title": "Aucune version pour l'instant",
+      "description": "Lancez une sauvegarde pour créer la première."
+    }
+  },
+  "addDestination": {
+    "title": "Ajouter une destination de sauvegarde",
+    "kitTitle": "Enregistrer le kit de récupération",
+    "description": "Choisissez où restic conserve le dépôt : un dossier local ou un remote rclone.",
+    "kitDescription": "Téléchargez ou copiez le kit. Athena n'affichera plus jamais ce mot de passe ; sans lui, un hôte détruit ne peut pas être restauré.",
+    "prepareFailed": "Impossible de préparer la destination",
+    "saveKitFirst": "Enregistrez le kit de récupération avant de créer la destination",
+    "name": "Nom",
+    "namePlaceholder": "p. ex. Disque USB",
+    "kind": "Type",
+    "local": "Dossier local",
+    "rclone": "Remote rclone",
+    "folder": "Dossier",
+    "folderHint": "Chemin absolu, en dehors du dossier de données d'Athena.",
+    "remote": "Remote",
+    "remoteHint": "Un remote rclone déjà configuré dans Cloud → Remotes.",
+    "password": "Mot de passe du dépôt",
+    "passwordPlaceholder": "Laissez vide pour en générer un robuste",
+    "passwordHint": "Laissez vide pour qu'Athena génère un mot de passe robuste. Il est affiché une seule fois ci-dessous, puis plus jamais.",
+    "kitSaved": "J'ai enregistré ce kit de récupération (mot de passe, destination et version de restic)",
+    "next": "Suivant : kit de récupération",
+    "create": "Créer la destination"
+  },
+  "addPlan": {
+    "title": "Ajouter un plan de sauvegarde",
+    "description": "Choisissez quoi sauvegarder, où, et à quelle fréquence. Les apps sont arrêtées pendant leur sauvegarde, sauf si « Sauvegarder pendant l'exécution » est activé.",
+    "name": "Nom",
+    "namePlaceholder": "p. ex. Apps quotidiennes",
+    "destination": "Destination",
+    "athena": "Sauvegarder Athena (réglages, base de données, secrets, TLS)",
+    "athenaHint": "Recommandé : activé par défaut.",
+    "apps": "Apps",
+    "appsHint": "Les apps à inclure dans le plan.",
+    "noApps": "Aucune app trouvée. Démarrez d'abord des apps depuis Store → Apps.",
+    "schedule": "Calendrier (cron)",
+    "schedulePlaceholder": "0 3 * * *  (tous les jours à 03:00)",
+    "scheduleHint": "Laissez vide pour des exécutions manuelles uniquement. Les exécutions planifiées arrivent avec la partie 4.",
+    "retention": "Rétention",
+    "keepLast": "Garder les derniers",
+    "keepDaily": "Garder par jour",
+    "keepWeekly": "Garder par semaine",
+    "keepMonthly": "Garder par mois",
+    "retentionHint": "`restic forget --keep-…` par élément. Par défaut : 7 quotidiens / 4 hebdomadaires / 6 mensuels.",
+    "create": "Créer le plan"
+  }
+}

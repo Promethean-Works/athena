@@ -1,0 +1,399 @@
+{
+  "language": {
+    "title": "Dil",
+    "description": "Arayüzün dili. Hesabınızla birlikte diğer tarayıcılara da geçer.",
+    "label": "Arayüz dili",
+    "auto": "Otomatik (tarayıcı dili)"
+  },
+  "account": {
+    "admin": "Yönetici",
+    "user": "Kullanıcı",
+    "signedIn": "Bu tarayıcıda oturum açık",
+    "signOut": "Çıkış yap",
+    "changeFailed": "Parola değiştirilemedi",
+    "toast": {
+      "changed": "Parola değiştirildi",
+      "changedDescription": "Bu hesapta oturum açık olan diğer tarayıcıların oturumu kapatıldı."
+    },
+    "password": {
+      "title": "Parolayı değiştir",
+      "description": "Diğer oturumlarınız kapatılır; bu oturum açık kalır.",
+      "current": "Mevcut parola",
+      "new": "Yeni parola",
+      "minLength_one": "En az {{count}} karakter.",
+      "minLength_other": "En az {{count}} karakter.",
+      "confirm": "Yeni parolayı onayla",
+      "mismatch": "Parolalar eşleşmiyor.",
+      "submit": "Parolayı değiştir"
+    }
+  },
+  "copyField": {
+    "copy": "{{label}} kopyala",
+    "copied": "{{label}} kopyalandı",
+    "failed": "Kopyalanamadı"
+  },
+  "settingsFile": {
+    "title": "Ayar dosyası",
+    "description": "Bu sayfalardaki ayarlar sunucuda tek bir dosyaya kaydedilir. Bir değişiklik Athena'nın başlamasını engellerse ya da sizi dışarıda bırakırsa, dosyayı herhangi bir metin düzenleyicide düzeltin, sonra Athena'yı yeniden başlatın.",
+    "loadFailed": "Dosyanın nerede olduğu yüklenemedi: {{error}}",
+    "file": "Dosya",
+    "help": "Sunucuda <code>athena config check</code>, dosyadaki sorunu satır numaralarıyla gösterir. Son kayıttan önceki sürüm yanında <code>athena.json.bak</code> olarak saklanır."
+  },
+  "system": {
+    "title": "Sistem",
+    "description": "Bu sunucudaki herkes için geçerli anahtarlar. Değişiklikler denetim günlüğüne yazılır.",
+    "saveFailed": "Kaydedilemedi",
+    "adminOnly": "Bunu yalnızca yöneticiler değiştirebilir.",
+    "terminal": {
+      "label": "Web terminali",
+      "description": "Tarayıcıdan bu sunucuda ve konteynerlerde bir kabuk. Kapatmak açık oturumları da kapatır.",
+      "on": "Terminal açıldı",
+      "off": "Terminal kapatıldı"
+    },
+    "updateCheck": {
+      "label": "Güncelleme bildirimi",
+      "description": "Günde bir kez GitHub'dan en son Athena sürümünü sorar ve daha yenisi çıktığında bir bildirim gösterir. İsteğin kendisi dışında hiçbir şey gönderilmez: sürüm, ana makine adı veya ayar yok.",
+      "on": "Güncelleme bildirimi açıldı",
+      "off": "Güncelleme bildirimi kapatıldı"
+    }
+  },
+  "updates": {
+    "title": "Güncellemeler",
+    "description": "Athena günde bir kez yeni sürüm olup olmadığını denetler (yukarıdaki anahtar). Güncelleme Athena'yı yeniden başlatır; uygulamalarınız çalışmaya devam eder.",
+    "readFailed": "Güncelleme durumu okunamadı.",
+    "installed": "Kurulu",
+    "latest": "En son",
+    "unknown": "Henüz bilinmiyor",
+    "noticeOff": "Güncelleme bildirimi kapalı",
+    "lastChecked": "Son denetim",
+    "never": "Hiç",
+    "upToDate": "Athena güncel."
+  },
+  "localAi": {
+    "list": "{{head}} ve {{last}}",
+    "running_one": "{{list}} bu sunucuda çalışıyor. Modelleri kendi donanımınızda çalışır ve sunucudan hiçbir şey çıkmaz.",
+    "running_other": "{{list}} bu sunucuda çalışıyor. Modelleri kendi donanımınızda çalışır ve sunucudan hiçbir şey çıkmaz.",
+    "useNamed": "Bu sunucudaki {{name}} kullan",
+    "usePort": "{{port}} portundaki yapay zekâ sunucusunu kullan",
+    "useThis": "Bu yapay zekâ sunucusunu kullan"
+  },
+  "webdav": {
+    "title": "Ağ paylaşımı (WebDAV)",
+    "description": "Dosya yöneticisinin konumlarını Finder'da, Windows Gezgini'nde veya bir Linux dosya yöneticisinde sürücü olarak açın.",
+    "label": "WebDAV",
+    "help": "Varsayılan olarak kapalı. WebDAV parolasına sahip herkes her konumu okuyabilir ve değiştirebilir.",
+    "adminOnly": "Bunu yalnızca yöneticiler değiştirebilir.",
+    "on": "WebDAV açıldı",
+    "off": "WebDAV kapatıldı",
+    "saveFailed": "Kaydedilemedi",
+    "passwordFailed": "Parola oluşturulamadı",
+    "address": "Adres",
+    "username": "Kullanıcı adı",
+    "password": "Parola",
+    "passwordHint": {
+      "copyNow": "Şimdi kopyalayın: bir daha gösterilmez.",
+      "set": "Bir parola ayarlı. Yenisini oluşturmak, eskisini kullanan tüm cihazların oturumunu kapatır.",
+      "none": "Giriş yapmak için bir parola oluşturun. Athena parolanızdan ayrıdır."
+    },
+    "newPassword": "Yeni parola",
+    "makePassword": "Parola oluştur",
+    "plainHttp": {
+      "title": "Şifreli değil",
+      "description": "Athena düz HTTP üzerinden açık, bu yüzden WebDAV parolası ve dosyalar ağdan şifrelenmeden geçer. Güvendiğiniz bir ağda kullanın ya da Athena'yı HTTPS arkasına alın."
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → Git → Sunucuya Bağlan, sonra adresi girin.",
+      "windows": "<b>Windows:</b> Dosya Gezgini → Bu Bilgisayar → Ağ sürücüsü ekle, sonra adresi girin. Düz HTTP üzerinden Windows, ancak <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> altında <code>BasicAuthLevel</code> değeri 2 yapılıp WebClient hizmeti yeniden başlatıldıktan sonra oturum açar.",
+      "linux": "<b>Linux:</b> Dosyalar'da (GNOME) veya Dolphin'de <code>{{url}}</code> adresine bağlanın."
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "Mod",
+      "light": "Açık",
+      "dark": "Koyu",
+      "system": "Sistem"
+    },
+    "colors": {
+      "title": "Renkler",
+      "saving": "Kaydediliyor…",
+      "description": "Değişiklikler hemen uygulanır ve hesabınızla birlikte diğer tarayıcılara geçer.",
+      "matchBase": "Tabanla eşle",
+      "matchTheme": "Temayla eşle",
+      "base": "Taban",
+      "baseColor": "Taban rengi",
+      "baseHint": "Arka planlar, kenarlıklar ve soluk metin.",
+      "theme": "Tema",
+      "themeHint": "Düğmeler, odak halkaları ve bağlantılar.",
+      "charts": "Grafikler"
+    },
+    "type": {
+      "title": "Yazı tipi ve şekil",
+      "font": "Yazı tipi",
+      "headingFont": "Başlık yazı tipi",
+      "sameAsBody": "Gövdeyle aynı",
+      "radius": "Köşe yarıçapı",
+      "style": "Stil",
+      "styleValue": "Nova, Lucide simgeleriyle",
+      "styleSoon": "stil değiştirme sonraki bir sürümde geliyor"
+    },
+    "radius": {
+      "default": "Varsayılan",
+      "none": "Yok",
+      "small": "Küçük",
+      "medium": "Orta",
+      "large": "Büyük"
+    },
+    "preset": {
+      "title": "Hazır ayar kodu",
+      "description": "Bir shadcn hazır ayar kodu bu ayarları birkaç karakterde toplar.",
+      "current": "Geçerli hazır ayar kodu",
+      "copy": "Kopyala",
+      "copied": "Kopyalandı",
+      "copyFailed": "Panoya kopyalanamadı",
+      "use": "<code>npx shadcn init --preset {{code}}</code> ile kullanın ya da paylaşın.",
+      "apply": "Hazır ayar kodu uygula",
+      "applyButton": "Uygula",
+      "invalid": "Bu bir shadcn hazır ayar kodu değil.",
+      "applied": "{{code}} hazır ayarı uygulandı",
+      "ignored": "Athena henüz {{parts}} uygulayamaz, bu yüzden bu kısımlar atlandı.",
+      "fill": "Renkleri, yazı tiplerini ve köşe yarıçapını <link>ui.shadcn.com/create</link> adresinde üretilmiş bir koddan doldurur."
+    }
+  },
+  "tunnel": {
+    "hide": "{{label}} gizle",
+    "show": "{{label}} göster",
+    "secretSaved": "Kaydedildi. Değiştirmek için yeni bir değer yazın",
+    "customDomain": "Özel alan adı (isteğe bağlı)",
+    "cloudflare": {
+      "quick": "Hızlı tünel",
+      "quickHelp": "Hesap gerektirmeyen rastgele bir trycloudflare.com adresi. Tünel her başladığında değişir.",
+      "apiToken": "API belirteci",
+      "apiTokenPlaceholder": "Tunnel izinleri olan bir Cloudflare API belirteci",
+      "tunnelName": "Tünel adı",
+      "tunnelNameHelp": "Cloudflare hesabınızdaki adlandırılmış tünel.",
+      "domainHelp": "Tünele işaret eden bir DNS kaydı gerekir."
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "Otomatik algılandı",
+      "help": "Bu sunucuda <code>tailscale up</code> ile ayarlanır."
+    },
+    "ngrok": {
+      "authToken": "Kimlik doğrulama belirteci",
+      "authTokenPlaceholder": "ngrok kimlik doğrulama belirteciniz",
+      "subdomain": "Alt alan adı (isteğe bağlı)",
+      "paidPlan": "Ücretli bir ngrok planı gerekir.",
+      "freeTitle": "Ücretsiz plan sınırları",
+      "freeDescription": "Bir tünel, dakikada 40 bağlantı ve her oturumda yeni bir rastgele adres."
+    },
+    "status": {
+      "label": "Durum",
+      "running": "Çalışıyor",
+      "stopped": "Durduruldu",
+      "notInstalled": "Kurulu değil",
+      "notSetUp": "Ayarlanmadı"
+    },
+    "saveFailed": "Kaydedilemedi",
+    "saved": "Uzaktan erişim ayarları kaydedildi",
+    "autoStart": {
+      "label": "Açılışta başlat",
+      "on": "Uzaktan erişim açılışta başlıyor",
+      "off": "Uzaktan erişim artık açılışta başlamıyor",
+      "installFirst": "Önce {{name}} kurun.",
+      "help": "Tüneli sunucuyla birlikte başlatan bir sistem hizmeti kurar."
+    },
+    "serviceFailed": "Hizmet güncellenemedi",
+    "title": "Uzaktan erişim",
+    "description": "Yönlendiricinizde port açmadan Athena'ya Cloudflare, Tailscale veya ngrok üzerinden her yerden erişin.",
+    "label": "Uzaktan erişim",
+    "help": "Adrese sahip herkes giriş sayfanıza ulaşır, bu yüzden güçlü bir parola kullanın.",
+    "adminOnly": "Bunu yalnızca yöneticiler değiştirebilir.",
+    "on": "Uzaktan erişim açıldı",
+    "off": "Uzaktan erişim kapatıldı",
+    "exposed": {
+      "title": "İnternetten erişilebilir",
+      "description": "Bu açıkken web terminali, paket kurulumları ve yapay zekâ asistanı, adresi bulan herkesin bir parola uzağında. Uzaktan ihtiyacınız yoksa <terminal>terminali</terminal> veya <assistant>asistanı</assistant> kapatın."
+    },
+    "provider": "Sağlayıcı",
+    "using": "{{name}} kullanılıyor",
+    "port": {
+      "label": "Yerel port",
+      "help": "Athena'nın dinlediği ve tünelin yönlendirdiği port."
+    },
+    "discard": "Vazgeç",
+    "saveChanges": "Değişiklikleri kaydet",
+    "publicAddress": "Genel adres",
+    "install": "{{name}} kur",
+    "installFailed": "Kurulamadı",
+    "stop": "Durdur",
+    "stopFailed": "Tünel durdurulamadı",
+    "start": "Başlat",
+    "startFailed": "Tünel başlatılamadı",
+    "saveFirst": "Önce değişikliklerinizi kaydedin",
+    "refresh": "Durumu yenile"
+  },
+  "https": {
+    "copyFailed": "Kopyalanamadı",
+    "adminOnly": "HTTPS'i yalnızca yöneticiler değiştirebilir",
+    "unavailable": {
+      "title": "HTTPS kullanılamıyor",
+      "description": "Bu Athena sunucusu HTTPS desteği bildirmiyor."
+    },
+    "loadFailed": "HTTPS ayarları yüklenemedi",
+    "status": {
+      "on": "Açık, port {{port}}",
+      "notRunning": "Çalışmıyor",
+      "off": "Kapalı",
+      "encryptedLetsEncrypt": "Athena bağlantıyı Let's Encrypt sertifikasıyla şifreler. Düz HTTP {{port}} portunda kalır.",
+      "encryptedCustom": "Athena bağlantıyı özel sertifikanızla şifreler. Düz HTTP {{port}} portunda kalır.",
+      "encryptedSelf": "Athena bağlantıyı kendi sertifikasıyla şifreler. Düz HTTP {{port}} portunda kalır.",
+      "plain": "Athena {{port}} portunda düz HTTP ile sunuluyor, bu yüzden parolalar ve dosyalar ağdan şifrelenmeden geçer.",
+      "problem": "HTTPS sorunu",
+      "renewalFailed": "Let's Encrypt yenilemesi başarısız oldu",
+      "renewalStillServed": "Geçerli sertifika süresi dolana kadar sunulmaya devam eder.",
+      "open": "HTTPS ile aç",
+      "expires": "Bitiş",
+      "expiresIn_one": "{{count}} gün sonra; otomatik yenilenir",
+      "expiresIn_other": "{{count}} gün sonra; otomatik yenilenir",
+      "names": "Adlar",
+      "alsoAt": "Ayrıca şurada"
+    },
+    "saveFailed": "Kaydedilemedi",
+    "requestFailed": "Sertifika istenemedi",
+    "certificateReady": "Sertifika hazır",
+    "certificateReadyHint": "Sunmaya başlamak için Let's Encrypt seçiliyken kaydedin.",
+    "turnedOff": "HTTPS kapatıldı",
+    "saved": "HTTPS ayarları kaydedildi",
+    "settings": {
+      "title": "Ayarlar",
+      "description": "Değişiklikler hemen uygulanır; Athena yeniden başlamaz."
+    },
+    "mode": {
+      "label": "Mod",
+      "off": "Kapalı",
+      "offHelp": "Yalnızca düz HTTP.",
+      "self": "Kendinden imzalı",
+      "selfHelp": "Athena kendi sertifika yetkilisini (CA) oluşturur. Her cihazda bir kez güvenin; tarayıcılar uyarısız asma kilit gösterir. Alan adı olmadan ev ağınızda çalışır.",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "Sahibi olduğunuz ve bu sunucuyu gösteren bir alan adı için her tarayıcının güvendiği ücretsiz bir sertifika. Otomatik yenilenir.",
+      "custom": "Özel",
+      "customHelp": "Kendi sertifikanızı ve özel anahtarınızı (PEM biçimi) yükleyin. Athena bunları olduğu gibi sunar; otomatik yenileme yok."
+    },
+    "port": {
+      "label": "HTTPS portu",
+      "help": "1024'ün altındaki portlar (443 gibi) için Athena'nın root olarak çalışması gerekebilir. Portu ana makinenin güvenlik duvarında da açmanız gerekebilir.",
+      "range": "1 ile 65535 arasında bir port girin.",
+      "taken": "{{port}} portu Athena'nın HTTP portu. Başka bir tane seçin."
+    },
+    "redirect": {
+      "label": "Tarayıcıları HTTPS'e yönlendir",
+      "help": "{{port}} portunda açılan sayfalar HTTPS'e geçer. Dosya paylaşımları, webhook'lar, uygulamalar ve sunucunun kendisi düz HTTP kullanmaya devam eder."
+    },
+    "names": {
+      "label": "Ek adlar",
+      "help": "Sertifika zaten bu sunucunun adını, .local adını ve ağ adreslerini kapsar. Athena'yı açtığınız diğer ad veya adresleri virgülle ayırarak ekleyin."
+    },
+    "lockedOut": "Dışarıda mı kaldınız? Sunucuda <code>{{command}}</code> komutunu çalıştırın ve Athena'yı yeniden başlatın.",
+    "cancel": "İptal",
+    "needsCertificate": "Önce bir sertifika alın",
+    "saving": "Kaydediliyor…",
+    "save": "Kaydet",
+    "confirm": {
+      "title": "Tarayıcılar HTTPS'e yönlendirilsin mi?",
+      "redirect": "Kaydettikten sonra Athena'yı {{port}} portunda açmak sizi <url>{{url}}</url> adresine götürür.",
+      "letsencrypt": "Orada Athena'yı alan adıyla açın; diğer adlar sertifika uyarısı verir.",
+      "custom": "Özel sertifikanız sunulur; tanınan bir CA'dansa tarayıcılar ona güvenir.",
+      "self": "Bir cihazda Athena'nın CA'sına güvenene kadar o cihazın tarayıcısı uyarı gösterir.",
+      "recovery": "Geri giremezseniz sunucuda <cmd>{{command}}</cmd> komutunu çalıştırın ve Athena'yı yeniden başlatın.",
+      "action": "Kaydet ve yönlendir"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "Alan adları",
+      "domainsHelp": "Birden fazlasını virgülle ayırın. Her biri genel DNS'te bu sunucuyu göstermeli. Joker karakter (*.example.com) için DNS doğrulaması gerekir.",
+      "email": "E-posta",
+      "emailHelp": "Bir sertifikanın süresi dolmak üzereyse Let's Encrypt buraya yazar.",
+      "challenge": "Let's Encrypt nasıl doğrular",
+      "http": "HTTP (port 80)",
+      "httpHelp": "Let's Encrypt bu sunucunun 80 portuna bağlanır, bu yüzden internetten erişilebilir olmalı (yönlendiricinizde yönlendirin).",
+      "dns": "DNS",
+      "dnsHelp": "Athena, DNS sağlayıcınız üzerinden geçici bir DNS kaydı ekler. Açık port gerekmez; joker karakterler için çalışır.",
+      "port80Title": "80 portu şu an açılamıyor",
+      "port80Description": "Başka bir program kullanıyor ya da Athena'nın açmasına izin verilmiyor. 80 portunu boşaltın ya da DNS doğrulamasını kullanın.",
+      "provider": "DNS sağlayıcısı",
+      "savedUnchanged": "Kaydedildi (değişmedi)",
+      "staging": "Hazırlık sunucusunu kullan",
+      "stagingHelp": "Denemeler için: tarayıcılar sertifikalarına güvenmez ama sınırları cömerttir.",
+      "getting": "Sertifika alınıyor…",
+      "renew": "Sertifikayı şimdi yenile",
+      "get": "Sertifika al",
+      "current": "{{names}} için geçerli sertifika, {{date}} tarihine kadar geçerli.",
+      "getThenSave": "Bir sertifika alın, sonra sunmaya başlamak için kaydedin.",
+      "lastFailed": "Son deneme başarısız oldu: {{error}}"
+    },
+    "custom": {
+      "legend": "Özel sertifika",
+      "cert": "Sertifika (PEM)",
+      "certHelp": "PEM kodlu sertifikanın ya da sertifika zincirinin tamamını yapıştırın.",
+      "key": "Özel anahtar (PEM)",
+      "keyHelp": "PEM kodlu özel anahtarı yapıştırın. Şifreli saklanır."
+    },
+    "trust": {
+      "title": "Cihazlarınızda Athena'ya güvenin",
+      "description": "Athena'nın CA'sını kullandığınız her telefona, tablete ve bilgisayara bir kez kurun. Sonra tarayıcı, yenilemeler dahil Athena'nın ürettiği her sertifikaya güvenir.",
+      "download": "CA sertifikasını indir",
+      "validUntil": "{{date}} tarihine kadar geçerli",
+      "fingerprint": "SHA-256 parmak izi",
+      "copyFingerprint": "Parmak izini kopyala",
+      "fingerprintCopied": "Parmak izi kopyalandı",
+      "fingerprintHelp": "Dosyaya güvenmeden önce cihazın gösterdiğiyle eşleştiğini denetleyin.",
+      "rotated": "Yeni CA oluşturuldu",
+      "rotatedHint": "İndirin ve her cihazda yeniden güvenin.",
+      "rotateFailed": "Yeni CA oluşturulamadı",
+      "rotateHint": "Anahtar sızmış olabilirse yeni bir CA oluşturun. Her cihazın yenisine güvenmesi gerekir.",
+      "rotate": "Yeni CA oluştur",
+      "rotating": "Oluşturuluyor…",
+      "confirmTitle": "Yeni CA oluşturulsun mu?",
+      "confirmDescription": "Geçerli CA'ya güvenen cihazlar, her birine yenisini kurana kadar uyarı gösterir.",
+      "macos": {
+        "label": "macOS",
+        "step1": "İndirilen dosyayı açın. Anahtar Zinciri Erişimi onu giriş anahtar zincirine ekler.",
+        "step2": "Anahtar Zinciri Erişimi'nde <b>Athena Local CA</b> öğesine çift tıklayın, <b>Güven</b> bölümünü açın ve <b>Bu sertifika kullanılırken</b> ayarını <b>Her Zaman Güven</b> yapın.",
+        "step3": "Pencereyi kapatın ve Mac parolanızı girin. Tarayıcıyı yeniden başlatın."
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "İndirilen dosyayı açın ve <b>Sertifika Yükle</b>'yi seçin.",
+        "step2": "<b>Geçerli Kullanıcı</b>'yı, sonra <b>Tüm sertifikaları aşağıdaki depoya yerleştir</b> → <b>Güvenilen Kök Sertifika Yetkilileri</b>'ni seçin.",
+        "step3": "Bitirin ve güvenlik uyarısını onaylayın. Tarayıcıyı yeniden başlatın."
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian veya Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Firefox ve Chrome, Linux'ta kendi listelerini tutar: dosyayı tarayıcının sertifika ayarlarında <b>Yetkililer</b> bölümünden içe aktarın."
+      },
+      "ios": {
+        "label": "iPhone ve iPad",
+        "step1": "Dosyayı Safari'de indirin ve profil indirmesine izin verin.",
+        "step2": "Ayarlar'da <b>Profil İndirildi</b>'yi (veya <b>Genel → VPN ve Aygıt Yönetimi</b>) açın ve kurun.",
+        "step3": "<b>Genel → Hakkında → Sertifika Güven Ayarları</b> bölümüne gidin ve <b>Athena Local CA</b> için tam güveni açın."
+      },
+      "android": {
+        "label": "Android",
+        "step1": "Dosyayı indirin.",
+        "step2": "Ayarlar'da <b>CA sertifikası</b> arayın (genellikle <b>Güvenlik → Şifreleme ve kimlik bilgileri → Sertifika yükle → CA sertifikası</b>) ve dosyayı seçin.",
+        "step3": "Uyarıyı onaylayın. Bazı uygulamalar kullanıcı sertifikalarını yok sayar; tarayıcılar kullanır."
+      }
+    }
+  },
+  "sections": {
+    "appearance": "Görünüm",
+    "account": "Hesap",
+    "system": "Sistem",
+    "https": "HTTPS",
+    "ai": "Yapay zekâ",
+    "label": "Ayarlar"
+  }
+}

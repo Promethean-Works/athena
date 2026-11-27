@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { api, type Schemas } from "@workspace/api-client"
 import {
@@ -25,6 +26,7 @@ export function TunnelAddressDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t } = useTranslation("tunnel")
   const [status, setStatus] = React.useState<TunnelStatus | null>(null)
 
   React.useEffect(() => {
@@ -41,11 +43,8 @@ export function TunnelAddressDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Tunnel address</DialogTitle>
-          <DialogDescription>
-            Open Athena from outside your network, or scan the code with your
-            phone.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
         {!status ? (
           <Skeleton className="h-48 w-full" />
@@ -55,14 +54,14 @@ export function TunnelAddressDialog({
             <div className="w-full">
               <CopyField
                 id="tunnel-dialog-url"
-                label="Public address"
+                label={t("dialog.publicAddress")}
                 value={url}
               />
             </div>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            {status.detail ?? "The tunnel isn't running."} Start it in Settings.
+            {status.detail ?? t("dialog.notRunning")} {t("dialog.startInSettings")}
           </p>
         )}
       </DialogContent>

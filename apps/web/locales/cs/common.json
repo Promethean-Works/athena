@@ -1,0 +1,109 @@
+{
+  "save": "Uložit",
+  "cancel": "Zrušit",
+  "close": "Zavřít",
+  "loading": "Načítání…",
+  "back": "Zpět",
+  "delete": "Smazat",
+  "log": {
+    "empty": "Zatím žádný výstup.",
+    "copy": "Kopírovat protokol",
+    "title": "Protokol",
+    "copied": "Protokol zkopírován",
+    "copyFailed": "Kopírování se nepovedlo"
+  },
+  "capabilities": {
+    "title": "Schopnosti",
+    "summary": "Připraveno {{ready}} z {{total}}. Funkce se zobrazí jen tam, kde mohou fungovat.",
+    "loadingSummary": "Co Athena na tomto hostiteli našla.",
+    "redetect": "Zjistit znovu",
+    "loadFailed": "Schopnosti se nepodařilo načíst: {{error}}",
+    "details": "Podrobnosti",
+    "status": {
+      "ready": "Připraveno",
+      "stopped": "Zastaveno",
+      "missing": "Nenainstalováno",
+      "unsupported": "Nepodporováno",
+      "needs_privilege": "Vyžaduje root"
+    }
+  },
+  "job": {
+    "working": "Pracuje se… Okno můžete zavřít, úloha poběží dál.",
+    "done": "Hotovo.",
+    "connectionLost": "Spojení s úlohou bylo ztraceno.",
+    "progress": "Průběh",
+    "finishing": " · dokončování…",
+    "cancel": "Zrušit úlohu",
+    "stopFailed": "Zastavení se nepovedlo"
+  },
+  "restart": {
+    "title": "Restartovat Athena?",
+    "description": "Běžící úlohy se zastaví. Stránka se za několik sekund znovu připojí. Vaše aplikace poběží dál.",
+    "confirm": "Restartovat",
+    "failed": "Athena se nepodařilo restartovat",
+    "waitingTitle": "Restartování Athena…",
+    "waitingBody": "Stránka se znovu načte, až bude Athena zpět."
+  },
+  "update": {
+    "notBackYet": "Athena se zatím nevrátila",
+    "reload": "Znovu načíst stránku",
+    "notice": {
+      "title": "Je k dispozici Athena {{latest}}",
+      "runs": "Tento server běží na verzi {{current}}.",
+      "whatsNew": "Zobrazit novinky"
+    },
+    "action": {
+      "updateNow": "Aktualizovat",
+      "cannotSelf": "Tato Athena se neumí aktualizovat sama",
+      "howTo": "{{reason}}. Pro upgrade spusťte na serveru tento příkaz (nainstaluje novou verzi a restartuje Athena; vaše data a nastavení zůstanou):",
+      "commandLabel": "Příkaz k upgradu"
+    },
+    "interrupted": {
+      "title": "Poslední aktualizace nebyla dokončena",
+      "body": "Aktualizace z {{from}} na {{to}} začala, ale nikdy nenahlásila výsledek (hostitel mohl ztratit napájení, nebo byla aktualizace zastavena). Athena běží, ale ověřte, že je to očekávaná verze. Protokol aktualizace je v datové složce (logs/update.log). Instalaci opravíte spuštěním příkazu instalátoru z README na serveru.",
+      "dismiss": "Skrýt",
+      "oldVersion": "původní verze",
+      "newVersion": "novou verzi"
+    },
+    "dialog": {
+      "steps": "Kroky aktualizace",
+      "stepPrepare": "Stáhnout a zkontrolovat vydání",
+      "stepSwap": "Zastavit Athena, nainstalovat a znovu spustit",
+      "stepCheck": "Počkat, až nová verze odpoví",
+      "newVersion": "novou verzi",
+      "oldVersion": "původní verze",
+      "updated": "Aktualizováno na {{to}}",
+      "reloading": "Znovu se načítá stránka…",
+      "rolledBackTitle": "Aktualizace na {{to}} selhala, zůstává {{from}}",
+      "rolledBackBody": "Athena se vrátila k původní verzi a vaše data jsou tak, jak byla před aktualizací.",
+      "reason": " Důvod: {{reason}}",
+      "abortedTitle": "Aktualizace na {{to}} byla zastavena",
+      "failedTitle": "Aktualizace na {{to}} selhala a Athena neběží",
+      "abortedBody": "Nic se nenainstalovalo. Spusťte Athena znovu, nebo spusťte příkaz instalátoru z README.",
+      "failedBody": "Pro opravu spusťte na serveru příkaz instalátoru z README.",
+      "back": "Athena je zpět",
+      "backBody": "Znovu načtěte stránku a zjistěte, která verze běží.",
+      "confirmTitle": "Aktualizovat Athena?",
+      "notStartedTitle": "Aktualizace nezačala",
+      "preparingTitle": "Příprava aktualizace",
+      "versions": "Athena {{current}} na {{latest}}.",
+      "confirmBody": "Athena se na minutu či dvě restartuje a stránka se znovu připojí. Vaše aplikace a kontejnery poběží dál. Pokud se nová verze nespustí, Athena se vrátí k této.",
+      "stopsTitle": "Při restartu Athena se zastaví:",
+      "terminals_one": "{{count}} otevřený terminál",
+      "terminals_few": "{{count}} otevřené terminály",
+      "terminals_many": "{{count}} otevřeného terminálu",
+      "terminals_other": "{{count}} otevřených terminálů",
+      "backupFirst": "Nejdřív zálohovat Athena",
+      "backupFirstHelp": "Před zastavením čehokoli uloží nastavení a data Athena pomocí plánu zálohování „{{plan}}“. Vaše aplikace se nedotkne.",
+      "notChanged": "{{error}}. Nic se nezměnilo; Athena stále běží na {{current}}.",
+      "prepareFailed": "Aktualizaci se nepodařilo připravit",
+      "updateAnyway": "Přesto aktualizovat",
+      "update": "Aktualizovat",
+      "restarting": "Restartování…",
+      "updatingTo": "Aktualizace na {{latest}}. Stránka se znovu načte, až bude Athena zpět.",
+      "lateBody": "Na pomalém hostiteli to může trvat déle. Pokud zůstane nedostupná, zkontrolujte protokol aktualizace v datové složce (logs/update.log)."
+    }
+  },
+  "restartLateBody": "Na pomalém hostiteli to může trvat déle. Pokud zůstane nedostupná, zkontrolujte protokol v datové složce (logs/athena.log).",
+  "toggleSidebar": "Přepnout postranní panel"
+}

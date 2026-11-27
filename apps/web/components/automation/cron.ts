@@ -4,11 +4,19 @@
  * five-field patterns into words. Schedules run in UTC (the scheduler's clock).
  */
 
-export const CRON_PRESETS: { label: string; expression: string }[] = [
-  { label: "Every hour", expression: "0 * * * *" },
-  { label: "Daily at 02:00", expression: "0 2 * * *" },
-  { label: "Sundays at 03:00", expression: "0 3 * * 0" },
-  { label: "Monthly on the 1st", expression: "0 4 1 * *" },
+import type { ParseKeys } from "i18next"
+
+import i18n, { currentLocale } from "@/lib/i18n"
+
+/** `labelKey` is translated when shown, never at module load. */
+export const CRON_PRESETS: {
+  labelKey: ParseKeys<"automation">
+  expression: string
+}[] = [
+  { labelKey: "cron.presets.hourly", expression: "0 * * * *" },
+  { labelKey: "cron.presets.daily", expression: "0 2 * * *" },
+  { labelKey: "cron.presets.sundays", expression: "0 3 * * 0" },
+  { labelKey: "cron.presets.monthly", expression: "0 4 1 * *" },
 ]
 
 const ALIASES: Record<string, string> = {
@@ -35,33 +43,27 @@ const MONTHS = [
   "nov",
   "dec",
 ]
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-]
 const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
-const DAY_NAMES = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-]
+
+/** Month name (0 = January) in the UI language. */
+function monthName(index: number): string {
+  return new Date(Date.UTC(2024, index, 1)).toLocaleDateString(currentLocale(), {
+    month: "long",
+    timeZone: "UTC",
+  })
+}
+
+/** Weekday name (0 = Sunday) in the UI language. */
+function dayName(index: number): string {
+  // 7 January 2024 was a Sunday.
+  return new Date(Date.UTC(2024, 0, 7 + index)).toLocaleDateString(
+    currentLocale(),
+    { weekday: "long", timeZone: "UTC" }
+  )
+}
 
 type FieldSpec = {
-  name: string
+  name: "minute" | "hour" | "dayOfMonth" | "month" | "weekday"
   min: number
   max: number
   names?: string[]
@@ -71,7 +73,7 @@ type FieldSpec = {
 const FIELDS: FieldSpec[] = [
   { name: "minute", min: 0, max: 59 },
   { name: "hour", min: 0, max: 23 },
-  { name: "day of month", min: 1, max: 31 },
+  { name: "dayOfMonth", min: 1, max: 31 },
   { name: "month", min: 1, max: 12, names: MONTHS, namesStart: 1 },
   { name: "weekday", min: 0, max: 7, names: DAYS, namesStart: 0 },
 ]
@@ -88,12 +90,19 @@ function valueOf(token: string, spec: FieldSpec): number | null {
 
 /** An error message for a field, or null when it looks fine (or is too fancy to check). */
 function checkField(field: string, spec: FieldSpec): string | null {
+  const fieldName = i18n.t(`automation:cron.fields.${spec.name}`)
   for (const part of field.split(",")) {
     const [range = "", step, extra] = part.split("/")
     if (extra !== undefined || range === "")
-      return `The ${spec.name} field "${field}" isn't valid.`
+      return i18n.t("automation:cron.errors.invalidField", {
+        field: fieldName,
+        value: field,
+      })
     if (step !== undefined && !/^\d+$/.test(step)) {
-      return `The step "/${step}" in the ${spec.name} field must be a number.`
+      return i18n.t("automation:cron.errors.invalidStep", {
+        step,
+        field: fieldName,
+      })
     }
     if (range === "*") continue
     for (const bound of range.split("-")) {
@@ -103,10 +112,17 @@ function checkField(field: string, spec: FieldSpec): string | null {
       if (value === null) {
         if (/^(?:\?|L|LW|\d{1,2}[LW]|[0-7]L|[0-7a-z]{1,3}#[1-5])$/i.test(bound))
           continue
-        return `The ${spec.name} field "${field}" isn't valid.`
+        return i18n.t("automation:cron.errors.invalidField", {
+          field: fieldName,
+          value: field,
+        })
       }
       if (value < spec.min || value > spec.max) {
-        return `The ${spec.name} must be between ${spec.min} and ${spec.max}.`
+        return i18n.t("automation:cron.errors.outOfRange", {
+          field: fieldName,
+          min: spec.min,
+          max: spec.max,
+        })
       }
     }
   }
@@ -123,61 +139,85 @@ function dayList(field: string): string | null {
     const a = from === undefined ? null : valueOf(from, FIELDS[4]!)
     const b = to === undefined ? undefined : valueOf(to, FIELDS[4]!)
     if (a === null || b === null) return null
-    const name = (n: number) => DAY_NAMES[n % 7]
-    return b === undefined ? name(a) : `${name(a)} to ${name(b)}`
+    return b === undefined
+      ? dayName(a % 7)
+      : i18n.t("automation:cron.dayRange", {
+          from: dayName(a % 7),
+          to: dayName(b % 7),
+        })
   })
   if (parts.some((p) => p === null)) return null
   return parts.join(", ")
 }
 
 function describe([minute, hour, dom, month, dow]: string[]): string {
+  const custom = i18n.t("automation:cron.custom")
   const rest = [dom, month, dow].every((f) => f === "*")
-  if (minute === "*" && hour === "*" && rest) return "Every minute"
+  if (minute === "*" && hour === "*" && rest)
+    return i18n.t("automation:cron.everyMinute")
   const everyMinutes = /^\*\/(\d+)$/.exec(minute!)
   if (everyMinutes && hour === "*" && rest)
-    return `Every ${everyMinutes[1]} minutes`
+    return i18n.t("automation:cron.everyMinutes", {
+      count: Number(everyMinutes[1]),
+    })
   if (isNumber(minute!) && hour === "*" && rest) {
     return Number(minute) === 0
-      ? "Every hour, on the hour"
-      : `Every hour at minute ${Number(minute)}`
+      ? i18n.t("automation:cron.everyHourOnTheHour")
+      : i18n.t("automation:cron.everyHourAtMinute", { minute: Number(minute) })
   }
   const everyHours = /^\*\/(\d+)$/.exec(hour!)
   if (isNumber(minute!) && everyHours && rest) {
-    return `Every ${everyHours[1]} hours at minute ${Number(minute)}`
+    return i18n.t("automation:cron.everyHoursAtMinute", {
+      count: Number(everyHours[1]),
+      minute: Number(minute),
+    })
   }
-  if (!isNumber(minute!) || !isNumber(hour!)) return "Custom schedule"
-  const at = `at ${pad(hour!)}:${pad(minute!)}`
+  if (!isNumber(minute!) || !isNumber(hour!)) return custom
+  const time = `${pad(hour!)}:${pad(minute!)}`
   if (dom === "*" && month === "*") {
-    if (dow === "*") return `Every day ${at}`
+    if (dow === "*") return i18n.t("automation:cron.everyDay", { time })
     const days = dayList(dow!)
-    return days ? `Every ${days} ${at}` : "Custom schedule"
+    return days
+      ? i18n.t("automation:cron.everyWeekdays", { days, time })
+      : custom
   }
   if (isNumber(dom!) && month === "*" && dow === "*") {
-    return `On day ${Number(dom)} of every month ${at}`
+    return i18n.t("automation:cron.onDayOfMonth", { day: Number(dom), time })
   }
   const monthIndex = valueOf(month!, FIELDS[3]!)
   if (isNumber(dom!) && monthIndex !== null && dow === "*") {
-    return `Every year on ${MONTH_NAMES[monthIndex - 1]} ${Number(dom)} ${at}`
+    return i18n.t("automation:cron.everyYear", {
+      month: monthName(monthIndex - 1),
+      day: Number(dom),
+      time,
+    })
   }
-  return "Custom schedule"
+  return custom
 }
 
 /** Check a cron expression and describe it in words (times in UTC). */
 export function checkCron(expression: string): CronCheck {
   const trimmed = expression.trim()
   if (!trimmed)
-    return { ok: false, error: "Enter a cron expression or pick a preset." }
+    return { ok: false, error: i18n.t("automation:cron.errors.empty") }
   const normalized = ALIASES[trimmed.toLowerCase()] ?? trimmed
   const fields = normalized.split(/\s+/)
   if (fields.length !== 5) {
     return {
       ok: false,
-      error: `Use five fields (minute hour day month weekday); this has ${fields.length}.`,
+      error: i18n.t("automation:cron.errors.fieldCount", {
+        count: fields.length,
+      }),
     }
   }
   for (const [i, field] of fields.entries()) {
     const error = checkField(field, FIELDS[i]!)
     if (error) return { ok: false, error }
   }
-  return { ok: true, description: `${describe(fields)} (UTC)` }
+  return {
+    ok: true,
+    description: i18n.t("automation:cron.utc", {
+      description: describe(fields),
+    }),
+  }
 }

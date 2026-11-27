@@ -1,0 +1,196 @@
+{
+  "page": {
+    "description": "Appar är compose-projekt som Athena hanterar."
+  },
+  "newApp": "Ny app",
+  "open": "Öppna",
+  "list": {
+    "failed": "Det gick inte att lista appar"
+  },
+  "status": {
+    "running": "Körs",
+    "partial": "{{running}}/{{total}} körs",
+    "stopped": "Stoppad",
+    "notDeployed": "Inte driftsatt"
+  },
+  "actions": {
+    "restart": "Starta om",
+    "stop": "Stoppa",
+    "start": "Starta",
+    "updateImages": "Uppdatera avbilder",
+    "remove": "Ta bort"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Det gick inte att starta {{name}}",
+      "stop": "Det gick inte att stoppa {{name}}",
+      "restart": "Det gick inte att starta om {{name}}",
+      "update": "Det gick inte att uppdatera {{name}}",
+      "remove": "Det gick inte att ta bort {{name}}",
+      "save": "Det gick inte att spara {{name}}",
+      "saveSettings": "Det gick inte att spara inställningarna för {{name}}",
+      "deploy": "Det gick inte att driftsätta {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Ta bort {{name}}?",
+    "description": "Dess behållare stoppas och tas bort, och Athena glömmer appen.",
+    "deleteData": "Radera även dess volymer och datamapp. Det går inte att ångra.",
+    "cancel": "Avbryt",
+    "confirm": "Ta bort"
+  },
+  "grid": {
+    "emptyTitle": "Inga appar än",
+    "emptyDescription": "Driftsätt en compose-fil eller konvertera ett <code>docker run</code>-kommando.",
+    "containerCount_one": "{{count}} behållare",
+    "containerCount_other": "{{count}} behållare",
+    "fromDockerRun": "från docker run",
+    "actionsFor": "Åtgärder för {{name}}"
+  },
+  "containerState": {
+    "running": "körs",
+    "exited": "avslutad",
+    "dead": "död",
+    "paused": "pausad",
+    "created": "skapad",
+    "restarting": "startar om"
+  },
+  "detail": {
+    "loadFailed": "Det gick inte att läsa in appen",
+    "loadFailedNamed": "Det gick inte att läsa in {{name}}",
+    "tabContainers": "Behållare",
+    "tabCompose": "Compose",
+    "tabSettings": "Inställningar",
+    "tabBackups": "Säkerhetskopior",
+    "noContainers": "Inga behållare",
+    "noContainersHint": "Starta appen för att skapa dess behållare.",
+    "logs": "Loggar",
+    "shell": "Skal",
+    "composeHelp": "När du sparar behålls den tidigare versionen som compose.prev.yaml och appen driftsätts igen.",
+    "settingsHelp": "Värdena från installationsformuläret (.env). Ändra en port eller mapp här och spara för att driftsätta igen. Kan innehålla genererade lösenord.",
+    "saveRedeploy": "Spara och driftsätt igen",
+    "discard": "Förkasta ändringar"
+  },
+  "new": {
+    "nameInvalid": "Använd små bokstäver, siffror, bindestreck eller understreck, och börja med en bokstav eller siffra.",
+    "convertFailed": "Det gick inte att konvertera kommandot",
+    "validationFailed": "Valideringen misslyckades",
+    "name": "Namn",
+    "nameHelp": "Även compose-projektets namn. Det kan inte ändras senare.",
+    "tabCompose": "Compose-fil",
+    "tabRun": "Från docker run",
+    "reviewConverted": "Granska den konverterade filen",
+    "upload": "Ladda upp fil",
+    "composeHelp": "Använd <code>${ATHENA_APP_DATA}</code> för filer som ska ligga i appens datamapp på servern.",
+    "runLabel": "docker run-kommando",
+    "runHelp": "Det konverteras till en compose-fil som du kan granska innan driftsättning. Inget körs än.",
+    "convert": "Konvertera till compose",
+    "valid": "Compose-filen är giltig",
+    "invalid": "Compose-filen har fel",
+    "validate": "Validera",
+    "deploy": "Driftsätt"
+  },
+  "compose": {
+    "serializationFailed": "Serialiseringen misslyckades",
+    "addService": "Lägg till tjänst",
+    "tabs": {
+      "settings": "Inställningar",
+      "networks": "Nätverk",
+      "volumes": "Volymer",
+      "raw": "Rå YAML"
+    },
+    "restart": {
+      "no": "Nej (starta inte om)",
+      "always": "Alltid",
+      "unlessStopped": "Om den inte stoppats",
+      "onFailure": "Vid fel"
+    },
+    "volumeMode": {
+      "rw": "Läs/skriv",
+      "ro": "Skrivskyddad"
+    },
+    "table": {
+      "actions": "Åtgärder",
+      "empty": "Inga poster än",
+      "moveUp": "Flytta upp",
+      "moveDown": "Flytta ned",
+      "remove": "Ta bort",
+      "add": "Lägg till"
+    },
+    "service": {
+      "collapse": "Fäll ihop",
+      "expand": "Fäll ut",
+      "namePlaceholder": "tjänstnamn",
+      "noImage": "ingen avbild",
+      "image": "Avbild",
+      "imageHelp": "Docker-avbildens namn. Stöder Docker Hub, GHCR och andra register.",
+      "restartPolicy": "Omstartspolicy"
+    },
+    "ports": {
+      "title": "Portar",
+      "host": "Värdport",
+      "container": "Behållarport",
+      "protocol": "Protokoll",
+      "help": "Koppla värdportar till behållarportar. Lämna värdporten tom för slumpmässig tilldelning."
+    },
+    "volumes": {
+      "title": "Volymer",
+      "host": "Värdsökväg / Volymnamn",
+      "container": "Sökväg i behållaren",
+      "mode": "Läge",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data eller volume-name",
+      "help": "Bind-montera värdsökvägar eller namngivna volymer. Använd <code>${ATHENA_APP_DATA}</code> för appens datamapp."
+    },
+    "env": {
+      "title": "Miljövariabler",
+      "help": "Miljövariabler som skickas till behållaren. Värden från installationsformuläret (.env) är också tillgängliga.",
+      "valuePlaceholder": "värde"
+    },
+    "keyValue": {
+      "key": "Nyckel",
+      "value": "Värde"
+    },
+    "command": {
+      "command": "Kommando",
+      "commandPlaceholder": "Åsidosätter avbildens standardkommando",
+      "entrypoint": "Entrypoint",
+      "entrypointPlaceholder": "Åsidosätter avbildens standard-entrypoint",
+      "workingDir": "Arbetskatalog",
+      "user": "Användare"
+    },
+    "resources": {
+      "title": "Resursgränser",
+      "cpuLimit": "CPU-gräns",
+      "cpuCores": "CPU-kärnor",
+      "memoryLimit": "Minnesgräns",
+      "memoryLimitHelp": "t.ex. 512M, 1G",
+      "cpuReservation": "CPU-reservation",
+      "memoryReservation": "Minnesreservation",
+      "memoryReservationHelp": "t.ex. 256M"
+    },
+    "health": {
+      "title": "Hälsokontroll",
+      "test": "Testkommando",
+      "interval": "Intervall",
+      "timeout": "Tidsgräns",
+      "retries": "Försök"
+    },
+    "labels": {
+      "title": "Etiketter",
+      "valuePlaceholder": "Min tjänst"
+    },
+    "networks": {
+      "title": "Nätverk",
+      "help": "Nätverksnamn avgränsade med kommatecken. Definiera nätverk på fliken Nätverk."
+    },
+    "dependsOn": {
+      "title": "Beror på",
+      "help": "Tjänstnamn avgränsade med kommatecken som måste starta före den här."
+    },
+    "entries": {
+      "name": "Namn",
+      "driver": "Drivrutin",
+      "external": "Extern"
+    }
+  }
+}

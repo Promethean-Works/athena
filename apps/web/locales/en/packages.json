@@ -1,0 +1,59 @@
+{
+  "view": {
+    "noManagers": "No package managers found",
+    "noManagersHint": "Athena didn't find a package manager it supports on this host."
+  },
+  "listError": "Couldn't read the package list",
+  "cancel": "Cancel",
+  "toast": {
+    "installFailed": "Couldn't install {{name}}",
+    "uninstallFailed": "Couldn't uninstall {{name}}",
+    "upgradeFailed": "Couldn't upgrade {{name}}",
+    "upgradeAllFailed": "Couldn't upgrade packages",
+    "refreshFailed": "Couldn't refresh the package lists"
+  },
+  "unavailable": "{{name}} can't be used right now",
+  "unavailableHint": "It isn't ready on this host.",
+  "refreshLists": "Refresh lists",
+  "upgradeAll": "Upgrade all",
+  "tabs": {
+    "installed": "Installed",
+    "updates": "Updates",
+    "search": "Search"
+  },
+  "installed": {
+    "filter": "Filter installed packages",
+    "noMatch": "No installed package matches.",
+    "empty": "Nothing installed.",
+    "upgradeLabel": "Upgrade {{name}}",
+    "upgrade": "Upgrade",
+    "uninstallLabel": "Uninstall {{name}}",
+    "uninstall": "Uninstall",
+    "shortened": "{{manager}} shortened this id, so it can't be uninstalled from here",
+    "showing": "Showing {{shown}} of {{total}}. Filter to narrow down."
+  },
+  "table": {
+    "package": "Package",
+    "version": "Version",
+    "description": "Description"
+  },
+  "updates": {
+    "upToDate": "Everything is up to date",
+    "upToDateRefresh": "As of the last list refresh. Refresh lists to check again.",
+    "nothing": "Nothing to upgrade.",
+    "installedColumn": "Installed",
+    "availableColumn": "Available"
+  },
+  "search": {
+    "label": "Search {{manager}}",
+    "noMatch": "No packages match “{{query}}”.",
+    "install": "Install"
+  },
+  "confirm": {
+    "uninstallTitle": "Uninstall {{name}}?",
+    "uninstallDescription": "It's removed from this server. Packages that depend on it may be removed too.",
+    "upgradeAllTitle": "Upgrade all {{manager}} packages?",
+    "upgradeAllDescription_one": "{{count}} package will be upgraded. This can take a while.",
+    "upgradeAllDescription_other": "{{count}} packages will be upgraded. This can take a while."
+  }
+}

@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
+import { type ParseKeys } from "i18next"
 import {
   EllipsisVerticalIcon,
   ExternalLinkIcon,
@@ -51,14 +53,15 @@ import { RuntimeEmpty } from "@/components/containers/runtime-empty"
 import { cn } from "@workspace/ui/lib/utils"
 import { AppIcon } from "@/components/store/app-icon"
 
-const STATUS_LABEL: Record<string, string> = {
-  running: "Running",
-  partial: "Partly running",
-  stopped: "Stopped",
-  not_deployed: "Not deployed",
+const STATUS_LABEL: Record<string, ParseKeys<"dashboard">> = {
+  running: "apps.status.running",
+  partial: "apps.status.partial",
+  stopped: "apps.status.stopped",
+  not_deployed: "apps.status.notDeployed",
 }
 
 function AppsList() {
+  const { t } = useTranslation("dashboard")
   const { apps, error, load } = useAppsList()
   const [removing, setRemoving] = React.useState<string | null>(null)
 
@@ -84,15 +87,13 @@ function AppsList() {
             <EmptyMedia variant="icon">
               <LayoutGridIcon />
             </EmptyMedia>
-            <EmptyTitle>No apps yet</EmptyTitle>
-            <EmptyDescription>
-              Install one from the store, or deploy your own compose file.
-            </EmptyDescription>
+            <EmptyTitle>{t("apps.emptyTitle")}</EmptyTitle>
+            <EmptyDescription>{t("apps.emptyDescription")}</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             <Button render={<Link href="/store/" />} nativeButton={false}>
               <StoreIcon data-icon="inline-start" />
-              Browse the store
+              {t("apps.browseStore")}
             </Button>
           </EmptyContent>
         </Empty>
@@ -108,9 +109,10 @@ function AppsList() {
           const running = app.status === "running"
           const port = webPorts(app)[0]
           const label = app.title ?? app.name
-          const info = `${label} · ${STATUS_LABEL[app.status] ?? app.status} · ${
-            app.total === 1 ? "1 container" : `${app.total} containers`
-          }`
+          const statusKey = STATUS_LABEL[app.status]
+          const info = `${label} · ${
+            statusKey ? t(statusKey) : app.status
+          } · ${t("apps.containerCount", { count: app.total })}`
           const icon = (
             <>
               <AppIcon title={label} icon={app.icon} className="size-21" />
@@ -165,7 +167,7 @@ function AppsList() {
                   }
                 >
                   <EllipsisVerticalIcon />
-                  <span className="sr-only">Actions for {app.name}</span>
+                  <span className="sr-only">{t("apps.actionsFor", { name: app.name })}</span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-48">
                   <DropdownMenuGroup>
@@ -175,7 +177,7 @@ function AppsList() {
                       </span>
                       <span className="flex flex-wrap items-center gap-1.5 font-normal">
                         <AppStatusBadge app={app} />
-                        {app.total === 1 ? "1 container" : `${app.total} containers`}
+                        {t("apps.containerCount", { count: app.total })}
                         {app.source === "docker-run" ? " · docker run" : ""}
                       </span>
                     </DropdownMenuLabel>
@@ -195,7 +197,9 @@ function AppsList() {
                           }
                         >
                           <ExternalLinkIcon />
-                          {webPorts(app).length > 1 ? `Open :${p}` : "Open"}
+                          {webPorts(app).length > 1
+                            ? t("apps.openPort", { port: p })
+                            : t("apps.open")}
                         </DropdownMenuItem>
                       ))}
                     <DropdownMenuItem
@@ -204,7 +208,7 @@ function AppsList() {
                       }
                     >
                       <InfoIcon />
-                      Details
+                      {t("apps.details")}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
@@ -215,13 +219,13 @@ function AppsList() {
                           onClick={() => void jobs.action(app.name, "restart").then(load)}
                         >
                           <RotateCwIcon />
-                          Restart
+                          {t("apps.restart")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => void jobs.action(app.name, "stop").then(load)}
                         >
                           <SquareIcon />
-                          Stop
+                          {t("apps.stop")}
                         </DropdownMenuItem>
                       </>
                     ) : (
@@ -229,14 +233,14 @@ function AppsList() {
                         onClick={() => void jobs.action(app.name, "start").then(load)}
                       >
                         <PlayIcon />
-                        Start
+                        {t("apps.start")}
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem
                       onClick={() => void jobs.action(app.name, "update").then(load)}
                     >
                       <RefreshCcwIcon />
-                      Update images
+                      {t("apps.updateImages")}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
@@ -246,7 +250,7 @@ function AppsList() {
                       onClick={() => setRemoving(app.name)}
                     >
                       <Trash2Icon />
-                      Remove
+                      {t("apps.remove")}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
@@ -271,6 +275,7 @@ function AppsList() {
 
 /** The dashboard's app grid: status, Open links and start/stop, or the runtime's Start/setup. */
 export function DashboardApps() {
+  const { t } = useTranslation("dashboard")
   const { manifest } = useCapabilities()
   const containers = manifest?.capabilities.find((c) => c.id === "containers")
   // Same rule as the Apps nav item: hidden only where containers can't work at all.
@@ -279,15 +284,15 @@ export function DashboardApps() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Apps</CardTitle>
-        <CardDescription>What&apos;s running on this server</CardDescription>
+        <CardTitle>{t("apps.title")}</CardTitle>
+        <CardDescription>{t("apps.subtitle")}</CardDescription>
         <CardAction className="flex gap-2">
           <Button variant="outline" size="sm" render={<Link href="/store/" />} nativeButton={false}>
             <StoreIcon data-icon="inline-start" />
-            Store
+            {t("apps.store")}
           </Button>
           <Button variant="ghost" size="sm" render={<Link href="/apps/" />} nativeButton={false}>
-            All apps
+            {t("apps.all")}
           </Button>
         </CardAction>
       </CardHeader>

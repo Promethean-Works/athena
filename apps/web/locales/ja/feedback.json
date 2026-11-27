@@ -1,0 +1,48 @@
+{
+  "menu": "フィードバックを送信",
+  "dialog": {
+    "title": "フィードバックを送信",
+    "description": "新しいタブで {{repo}} に新しい issue を開きます。投稿前にそこで内容を確認・編集できます。issue は公開されます。",
+    "storeHint": "ストアのアプリが動作しませんか？メンテナーに届くよう、ストアページの <b>問題を報告</b> を使ってください。",
+    "loadFailed": "このサーバーの詳細を読み込めませんでした"
+  },
+  "choices": {
+    "bug": {
+      "title": "バグを報告",
+      "description": "本来の動作と異なる箇所があります。"
+    },
+    "change": {
+      "title": "変更を提案",
+      "description": "動作はしますが、別の動作にしてほしい点があります。"
+    },
+    "feature": {
+      "title": "機能をリクエスト",
+      "description": "Athena にまだない機能です。"
+    }
+  },
+  "diagnostics": {
+    "title": "自動入力される情報",
+    "system": "システム",
+    "cpu": "CPU",
+    "containers": "コンテナ"
+  },
+  "appReport": {
+    "button": "問題を報告",
+    "title": "{{app}} の問題を報告",
+    "description": "新しいタブで {{where}} に新しい issue を開き、アプリとこのサーバーの詳細を入力済みにします。投稿前にそこで内容を確認できます。issue は公開されます。",
+    "whereCatalog": "このアプリをメンテナンスしている {{name}} カタログ",
+    "includeLogs_other": "最新のログ {{count}} 行を含める",
+    "installedCopy": "インストール済みのコピー",
+    "logsLabel": "含めるログ",
+    "loadingLogs": "ログを読み込み中…",
+    "logsWarning": "続行する前に、パスワード、トークン、アドレスを削除してください。",
+    "logsTruncated": "リンクに収まるのはログの末尾のみです。",
+    "cancel": "キャンセル",
+    "openIssue": "issue を開く",
+    "preparing": "準備中…",
+    "prepareFailed": "レポートを準備できませんでした",
+    "logsFailed": "ログを読み込めませんでした: {{error}}",
+    "appNotFound": "アプリが見つかりません",
+    "noContainers": "このアプリのコンテナが見つかりません。"
+  }
+}

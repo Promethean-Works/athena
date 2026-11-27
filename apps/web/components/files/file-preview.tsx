@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { CircleAlertIcon, DownloadIcon, SaveIcon } from "lucide-react"
 
 import { api, errorMessage } from "@workspace/api-client"
@@ -48,6 +49,7 @@ function TextPreview({
   entry: FileEntry
   onSaved: () => void
 }) {
+  const { t } = useTranslation("files")
   const [state, setState] = React.useState<TextState>({ status: "loading" })
   const [draft, setDraft] = React.useState("")
   const [saving, setSaving] = React.useState(false)
@@ -75,9 +77,9 @@ function TextPreview({
     return (
       <Alert>
         <CircleAlertIcon />
-        <AlertTitle>Can&apos;t open this file here</AlertTitle>
+        <AlertTitle>{t("preview.cantOpen")}</AlertTitle>
         <AlertDescription>
-          {state.error} You can still download it.
+          {state.error} {t("preview.canDownload")}
         </AlertDescription>
       </Alert>
     )
@@ -98,12 +100,12 @@ function TextPreview({
     setSaving(false)
     if (data) {
       setState({ status: "ok", text: data })
-      toast.add({ type: "success", title: `Saved ${entry.name}` })
+      toast.add({ type: "success", title: t("preview.saved", { name: entry.name }) })
       onSaved()
     } else {
       toast.add({
         type: "error",
-        title: `Couldn't save ${entry.name}`,
+        title: t("preview.saveFailed", { name: entry.name }),
         description: errorMessage(error),
       })
     }
@@ -118,12 +120,12 @@ function TextPreview({
         language={ext === "yaml" || ext === "yml" ? "yaml" : "text"}
         minHeight="16rem"
         maxHeight="calc(100dvh - 14rem)"
-        aria-label={`Contents of ${entry.name}`}
+        aria-label={t("preview.contentsOf", { name: entry.name })}
       />
       <div className="flex justify-end">
         <Button onClick={save} disabled={!changed || saving}>
           {saving ? <Spinner /> : <SaveIcon />}
-          Save
+          {t("preview.save")}
         </Button>
       </div>
     </div>
@@ -143,6 +145,7 @@ export function FilePreview({
   onClose: () => void
   onSaved: () => void
 }) {
+  const { t } = useTranslation("files")
   const previewed = entry ? previewOf(entry) : null
   const kind = previewed === "text" && isRemote(source) ? null : previewed
   const inline = entry ? downloadUrl(source, entry.path, true) : ""
@@ -187,7 +190,7 @@ export function FilePreview({
           ) : null}
           {entry && kind === null ? (
             <p className="text-sm text-muted-foreground">
-              There&apos;s no preview for this kind of file.
+              {t("preview.none")}
             </p>
           ) : null}
         </div>
@@ -199,7 +202,7 @@ export function FilePreview({
               render={<a href={downloadUrl(source, entry.path)} download />}
             >
               <DownloadIcon />
-              Download
+              {t("preview.download")}
             </Button>
           ) : null}
         </SheetFooter>

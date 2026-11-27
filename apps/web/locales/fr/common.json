@@ -1,0 +1,107 @@
+{
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "close": "Fermer",
+  "loading": "Chargement…",
+  "back": "Retour",
+  "delete": "Supprimer",
+  "log": {
+    "empty": "Aucune sortie pour l'instant.",
+    "copy": "Copier le journal",
+    "title": "Journal",
+    "copied": "Journal copié",
+    "copyFailed": "Copie impossible"
+  },
+  "capabilities": {
+    "title": "Capacités",
+    "summary": "{{ready}} sur {{total}} prêtes. Les fonctions n'apparaissent que là où elles peuvent marcher.",
+    "loadingSummary": "Ce qu'Athena a trouvé sur cet hôte.",
+    "redetect": "Détecter à nouveau",
+    "loadFailed": "Impossible de charger les capacités : {{error}}",
+    "details": "Détails",
+    "status": {
+      "ready": "Prête",
+      "stopped": "Arrêtée",
+      "missing": "Non installée",
+      "unsupported": "Non prise en charge",
+      "needs_privilege": "Nécessite root"
+    }
+  },
+  "job": {
+    "working": "En cours… Vous pouvez fermer cette fenêtre, la tâche continue.",
+    "done": "Terminé.",
+    "connectionLost": "La connexion à la tâche a été perdue.",
+    "progress": "Progression",
+    "finishing": " · finalisation…",
+    "cancel": "Annuler la tâche",
+    "stopFailed": "Impossible de l'arrêter"
+  },
+  "restart": {
+    "title": "Redémarrer Athena ?",
+    "description": "Les tâches en cours sont arrêtées. La page se reconnecte en quelques secondes. Vos apps continuent de tourner.",
+    "confirm": "Redémarrer",
+    "failed": "Impossible de redémarrer Athena",
+    "waitingTitle": "Redémarrage d'Athena…",
+    "waitingBody": "Cette page se recharge quand Athena est de retour."
+  },
+  "update": {
+    "notBackYet": "Athena n'est pas encore de retour",
+    "reload": "Recharger la page",
+    "notice": {
+      "title": "Athena {{latest}} est disponible",
+      "runs": "Ce serveur exécute la version {{current}}.",
+      "whatsNew": "Voir les nouveautés"
+    },
+    "action": {
+      "updateNow": "Mettre à jour maintenant",
+      "cannotSelf": "Cet Athena ne peut pas se mettre à jour seul",
+      "howTo": "{{reason}}. Pour mettre à niveau, exécutez ceci sur le serveur (la nouvelle version est installée et Athena redémarre ; vos données et réglages sont conservés) :",
+      "commandLabel": "Commande de mise à niveau"
+    },
+    "interrupted": {
+      "title": "La dernière mise à jour ne s'est pas terminée",
+      "body": "Une mise à jour de {{from}} vers {{to}} a démarré sans jamais se terminer (l'hôte a peut-être perdu le courant, ou la mise à jour a été interrompue). Athena fonctionne, mais vérifiez que c'est bien la version attendue. Le journal de mise à jour se trouve dans le dossier de données (logs/update.log). Pour réparer une installation, exécutez sur le serveur la commande d'installation du README.",
+      "dismiss": "Ignorer",
+      "oldVersion": "l'ancienne version",
+      "newVersion": "la nouvelle"
+    },
+    "dialog": {
+      "steps": "Étapes de la mise à jour",
+      "stepPrepare": "Télécharger et vérifier la version",
+      "stepSwap": "Arrêter Athena, installer et la relancer",
+      "stepCheck": "Attendre la réponse de la nouvelle version",
+      "newVersion": "la nouvelle version",
+      "oldVersion": "l'ancienne",
+      "updated": "Mise à jour vers {{to}} effectuée",
+      "reloading": "Rechargement de la page…",
+      "rolledBackTitle": "Échec de la mise à jour vers {{to}}, toujours en {{from}}",
+      "rolledBackBody": "Athena est revenue à la version précédente, avec vos données telles qu'elles étaient avant la mise à jour.",
+      "reason": " Raison : {{reason}}",
+      "abortedTitle": "La mise à jour vers {{to}} a été interrompue",
+      "failedTitle": "Échec de la mise à jour vers {{to}} et Athena ne tourne plus",
+      "abortedBody": "Rien n'a été installé. Relancez Athena, ou exécutez la commande d'installation du README.",
+      "failedBody": "Exécutez sur le serveur la commande d'installation du README pour le réparer.",
+      "back": "Athena est de retour",
+      "backBody": "Rechargez la page pour voir quelle version tourne.",
+      "confirmTitle": "Mettre à jour Athena ?",
+      "notStartedTitle": "La mise à jour n'a pas démarré",
+      "preparingTitle": "Préparation de la mise à jour",
+      "versions": "Athena {{current}} vers {{latest}}.",
+      "confirmBody": "Athena redémarre pendant une minute ou deux, puis la page se reconnecte. Vos apps et conteneurs continuent de tourner. Si la nouvelle version ne démarre pas, Athena revient à celle-ci.",
+      "stopsTitle": "Ces éléments s'arrêtent au redémarrage d'Athena :",
+      "terminals_one": "{{count}} terminal ouvert",
+      "terminals_other": "{{count}} terminaux ouverts",
+      "backupFirst": "Sauvegarder Athena d'abord",
+      "backupFirstHelp": "Enregistre les réglages et les données d'Athena avec le plan de sauvegarde « {{plan}} » avant tout arrêt. Vos apps ne sont pas touchées.",
+      "notChanged": "{{error}}. Rien n'a été modifié ; Athena exécute toujours la version {{current}}.",
+      "prepareFailed": "Impossible de préparer la mise à jour",
+      "updateAnyway": "Mettre à jour quand même",
+      "update": "Mettre à jour",
+      "restarting": "Redémarrage…",
+      "updatingTo": "Mise à jour vers {{latest}}. Cette page se recharge quand Athena est de retour.",
+      "lateBody": "Cela peut prendre plus de temps sur un hôte lent. Si Athena reste hors service, consultez le journal de mise à jour dans le dossier de données (logs/update.log)."
+    }
+  },
+  "restartLateBody": "Cela peut prendre plus de temps sur un hôte lent. Si Athena reste hors service, consultez le journal dans le dossier de données (logs/athena.log).",
+  "toggleSidebar": "Afficher/masquer la barre latérale"
+}

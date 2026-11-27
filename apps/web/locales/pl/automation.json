@@ -1,0 +1,173 @@
+{
+  "cancel": "Anuluj",
+  "view": {
+    "unavailable": "Automatyzacja jest niedostępna",
+    "unsupported": "Ten host nie obsługuje automatyzacji."
+  },
+  "copyUrl": {
+    "copy": "Kopiuj: {{label}}",
+    "copied": "Skopiowano: {{label}}",
+    "failed": "Nie udało się skopiować"
+  },
+  "external": {
+    "title": "Automatyzacja zewnętrzna",
+    "description": "Połącz n8n, skrypty lub agentów AI z Athena.",
+    "webhookUrl": "Adres URL webhooka",
+    "webhookHint": "Wyślij żądanie POST, aby uruchomić wyzwalacz webhook; logowanie nie jest potrzebne. Każdy wyzwalacz webhook ma własny token: skopiuj jego pełny adres URL z listy wyzwalaczy.",
+    "mcpServer": "Serwer MCP",
+    "mcpUrl": "Adres URL serwera MCP",
+    "mcpHint": "Streamable HTTP. Klienci logują się ciasteczkiem sesji lub wysyłają token ustawiony w zmiennej środowiskowej <envVar>ATHENA_MCP_TOKEN</envVar> serwera jako <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Uruchomienia zadań",
+    "description": "Najnowsze uruchomienia, odświeżane co kilka sekund.",
+    "trigger": "Wyzwalacz",
+    "deletedTrigger": "Usunięty wyzwalacz",
+    "listFailed": "Nie udało się wyświetlić uruchomień zadań",
+    "empty": {
+      "title": "Brak uruchomień zadań",
+      "description": "Uruchomienia pojawiają się tutaj, gdy zadziała wyzwalacz."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Uruchom aplikację {{name}}",
+      "stop": "Zatrzymaj aplikację {{name}}",
+      "restart": "Zrestartuj aplikację {{name}}",
+      "update": "Zaktualizuj aplikację {{name}}"
+    },
+    "package": {
+      "install": "Zainstaluj {{name}} ({{manager}})",
+      "uninstall": "Odinstaluj {{name}} ({{manager}})",
+      "upgrade": "Zaktualizuj {{name}} ({{manager}})",
+      "refresh": "Odśwież listy pakietów {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Wyzwalacze",
+    "description": "Uruchamiaj akcję aplikacji lub pakietu według harmonogramu albo z webhooka.",
+    "listFailed": "Nie udało się wyświetlić listy wyzwalaczy",
+    "empty": {
+      "title": "Brak wyzwalaczy",
+      "description": "Wyzwalacz uruchamia akcję według harmonogramu (cron) lub po wywołaniu jego webhooka, na przykład z n8n."
+    },
+    "onWebhook": "Po wywołaniu jego webhooka",
+    "noSchedule": "Brak harmonogramu",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Następne uruchomienie: {{time}}",
+    "changeFailed": "Nie udało się zmienić wyzwalacza",
+    "enabledToast": "Włączono {{name}}",
+    "pausedToast": "Wstrzymano {{name}}",
+    "enabledLabel": "{{name}} włączony",
+    "copyWebhook": "Kopiuj adres URL webhooka",
+    "webhookCopied": "Skopiowano adres URL webhooka",
+    "copyFailed": "Nie udało się skopiować",
+    "deleteFailed": "Nie udało się usunąć wyzwalacza",
+    "deleted": "Usunięto wyzwalacz",
+    "deleteLabel": "Usuń {{name}}",
+    "delete": "Usuń",
+    "deleteTitle": "Usunąć {{name}}?",
+    "deleteDescription": "Przestanie działać. Poprzednie uruchomienia zadań pozostaną w logu.",
+    "deleteDescriptionWebhook": "Przestanie działać, a jego adres URL webhooka przestanie działać. Poprzednie uruchomienia zadań pozostaną w logu."
+  },
+  "dialog": {
+    "new": "Nowy wyzwalacz",
+    "description": "Uruchamiaj akcję aplikacji lub pakietu według harmonogramu albo przy każdym wywołaniu webhooka.",
+    "created": {
+      "title": "Utworzono wyzwalacz webhook",
+      "description": "Wyślij żądanie POST na ten adres URL, aby uruchomić „{{name}}”. Każdy, kto ma adres, może go wywołać, więc zachowaj go dla siebie. Możesz go skopiować ponownie z listy wyzwalaczy.",
+      "done": "Gotowe"
+    },
+    "errors": {
+      "name": "Nadaj wyzwalaczowi nazwę.",
+      "app": "Wybierz aplikację.",
+      "manager": "Wybierz menedżer pakietów.",
+      "packageName": "Wpisz nazwę pakietu."
+    },
+    "createdToast": "Utworzono wyzwalacz {{name}}",
+    "createFailed": "Nie udało się utworzyć wyzwalacza",
+    "name": "Nazwa",
+    "namePlaceholder": "np. Nocny restart Jellyfin",
+    "whenItRuns": "Kiedy działa",
+    "onSchedule": "Według harmonogramu (cron)",
+    "onWebhook": "Po wywołaniu webhooka",
+    "schedule": "Harmonogram",
+    "cronPlaceholder": "minuta godzina dzień miesiąc dzień tygodnia, np. 0 2 * * *",
+    "cronHelp": "Pięć pól: minuta, godzina, dzień miesiąca, miesiąc, dzień tygodnia. Czas w UTC.",
+    "webhookHint": "Po utworzeniu otrzymasz tajny adres URL. Żądanie POST na ten adres (z n8n, skryptu lub curl) uruchamia akcję.",
+    "whatItDoes": "Co robi",
+    "appAction": "Akcja aplikacji",
+    "packageAction": "Akcja pakietu",
+    "create": "Utwórz wyzwalacz",
+    "app": "Aplikacja",
+    "loadingApps": "Wczytywanie aplikacji…",
+    "chooseApp": "Wybierz aplikację",
+    "noApps": "Brak zainstalowanych aplikacji",
+    "action": "Akcja",
+    "appVerbs": {
+      "start": "Uruchom",
+      "stop": "Zatrzymaj",
+      "restart": "Restartuj",
+      "update": "Aktualizuj (pobierz i utwórz ponownie)"
+    },
+    "packageVerbs": {
+      "install": "Zainstaluj",
+      "uninstall": "Odinstaluj",
+      "upgrade": "Aktualizuj",
+      "refresh": "Odśwież listy pakietów"
+    },
+    "packageManager": "Menedżer pakietów",
+    "loading": "Wczytywanie…",
+    "chooseManager": "Wybierz menedżer",
+    "noManagers": "Żaden nie jest gotowy na tym hoście",
+    "package": "Pakiet",
+    "packagePlaceholder": "np. jq",
+    "source": "Źródło (opcjonalnie)",
+    "sourceHint": "Zdalne repozytorium Flatpak, bucket Scoop lub „cask” dla Homebrew cask.",
+    "loadingInstalled": "Wczytywanie zainstalowanych pakietów…",
+    "installedFailed": "Nie udało się wyświetlić zainstalowanych pakietów ({{error}}); wpisz nazwę.",
+    "searchInstalled": "Szukaj zainstalowanych pakietów",
+    "noMatch": "Żaden zainstalowany pakiet nie pasuje."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "Co godzinę",
+      "daily": "Codziennie o 02:00",
+      "sundays": "W niedziele o 03:00",
+      "monthly": "Co miesiąc pierwszego"
+    },
+    "fields": {
+      "minute": "minuta",
+      "hour": "godzina",
+      "dayOfMonth": "dzień miesiąca",
+      "month": "miesiąc",
+      "weekday": "dzień tygodnia"
+    },
+    "errors": {
+      "empty": "Wpisz wyrażenie cron lub wybierz gotowy harmonogram.",
+      "invalidField": "Wartość „{{value}}” w polu {{field}} jest nieprawidłowa.",
+      "invalidStep": "Krok „/{{step}}” w polu {{field}} musi być liczbą.",
+      "outOfRange": "Wartość pola {{field}} musi mieścić się między {{min}} a {{max}}.",
+      "fieldCount": "Użyj pięciu pól (minuta godzina dzień miesiąc dzień tygodnia); tutaj jest ich {{count}}."
+    },
+    "dayRange": "{{from}} do {{to}}",
+    "custom": "Własny harmonogram",
+    "everyMinute": "Co minutę",
+    "everyMinutes_one": "Co {{count}} minutę",
+    "everyMinutes_few": "Co {{count}} minuty",
+    "everyMinutes_many": "Co {{count}} minut",
+    "everyMinutes_other": "Co {{count}} minuty",
+    "everyHourOnTheHour": "Co godzinę, o pełnej godzinie",
+    "everyHourAtMinute": "Co godzinę w {{minute}}. minucie",
+    "everyHoursAtMinute_one": "Co {{count}} godzinę w {{minute}}. minucie",
+    "everyHoursAtMinute_few": "Co {{count}} godziny w {{minute}}. minucie",
+    "everyHoursAtMinute_many": "Co {{count}} godzin w {{minute}}. minucie",
+    "everyHoursAtMinute_other": "Co {{count}} godziny w {{minute}}. minucie",
+    "everyDay": "Codziennie o {{time}}",
+    "everyWeekdays": "Co tydzień: {{days}} o {{time}}",
+    "onDayOfMonth": "{{day}}. dnia każdego miesiąca o {{time}}",
+    "everyYear": "Co roku: {{month}} {{day}} o {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

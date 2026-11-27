@@ -1,0 +1,171 @@
+{
+  "cancel": "Anulează",
+  "view": {
+    "unavailable": "Automatizarea nu este disponibilă",
+    "unsupported": "Această gazdă nu acceptă automatizare."
+  },
+  "copyUrl": {
+    "copy": "Copiază {{label}}",
+    "copied": "{{label}} copiat",
+    "failed": "Nu s-a putut copia"
+  },
+  "external": {
+    "title": "Automatizare externă",
+    "description": "Conectează n8n, scripturi sau agenți AI la Athena.",
+    "webhookUrl": "URL webhook",
+    "webhookHint": "Trimite o cerere POST pentru a activa un declanșator webhook; nu e nevoie de autentificare. Fiecare declanșator webhook are propriul token: copiază URL-ul complet din lista de declanșatoare.",
+    "mcpServer": "Server MCP",
+    "mcpUrl": "URL server MCP",
+    "mcpHint": "HTTP Streamable. Clienții se autentifică cu un cookie de sesiune sau trimit token-ul setat în variabila de mediu <envVar>ATHENA_MCP_TOKEN</envVar> a serverului ca <authHeader>Authorization: Bearer &lt;token&gt;</authHeader>."
+  },
+  "jobRuns": {
+    "title": "Rulări de sarcini",
+    "description": "Cele mai recente rulări, reîmprospătate la câteva secunde.",
+    "trigger": "Declanșator",
+    "deletedTrigger": "Declanșator șters",
+    "listFailed": "Nu s-au putut lista rulările de sarcini",
+    "empty": {
+      "title": "Nicio rulare de sarcină încă",
+      "description": "Rulările apar aici când se activează un declanșator."
+    }
+  },
+  "summary": {
+    "app": {
+      "start": "Pornește aplicația {{name}}",
+      "stop": "Oprește aplicația {{name}}",
+      "restart": "Repornește aplicația {{name}}",
+      "update": "Actualizează aplicația {{name}}"
+    },
+    "package": {
+      "install": "Instalează {{name}} ({{manager}})",
+      "uninstall": "Dezinstalează {{name}} ({{manager}})",
+      "upgrade": "Actualizează {{name}} ({{manager}})",
+      "refresh": "Reîmprospătează listele de pachete {{manager}}"
+    }
+  },
+  "triggers": {
+    "title": "Declanșatoare",
+    "description": "Rulează o acțiune pentru o aplicație sau un pachet după un program sau dintr-un webhook.",
+    "listFailed": "Nu s-au putut lista declanșatoarele",
+    "empty": {
+      "title": "Niciun declanșator încă",
+      "description": "Un declanșator rulează o acțiune după un program (cron) sau când este apelat webhook-ul lui, de exemplu din n8n."
+    },
+    "onWebhook": "Când este apelat webhook-ul lui",
+    "noSchedule": "Fără program",
+    "webhook": "Webhook",
+    "cron": "Cron",
+    "nextRun": "Următoarea rulare {{time}}",
+    "changeFailed": "Nu s-a putut schimba declanșatorul",
+    "enabledToast": "{{name}} activat",
+    "pausedToast": "{{name}} în pauză",
+    "enabledLabel": "{{name}} activat",
+    "copyWebhook": "Copiază URL-ul webhook",
+    "webhookCopied": "URL webhook copiat",
+    "copyFailed": "Nu s-a putut copia",
+    "deleteFailed": "Nu s-a putut șterge declanșatorul",
+    "deleted": "Declanșator șters",
+    "deleteLabel": "Șterge {{name}}",
+    "delete": "Șterge",
+    "deleteTitle": "Ștergi {{name}}?",
+    "deleteDescription": "Nu va mai rula. Rulările anterioare rămân în jurnal.",
+    "deleteDescriptionWebhook": "Nu va mai rula, iar URL-ul webhook nu va mai funcționa. Rulările anterioare rămân în jurnal."
+  },
+  "dialog": {
+    "new": "Declanșator nou",
+    "description": "Rulează o acțiune pentru o aplicație sau un pachet după un program sau ori de câte ori este apelat un webhook.",
+    "created": {
+      "title": "Declanșator webhook creat",
+      "description": "Trimite o cerere POST la acest URL pentru a rula „{{name}}”. Oricine are URL-ul îl poate activa, așa că păstrează-l privat. Îl poți copia din nou din lista de declanșatoare.",
+      "done": "Gata"
+    },
+    "errors": {
+      "name": "Dă un nume declanșatorului.",
+      "app": "Alege o aplicație.",
+      "manager": "Alege un manager de pachete.",
+      "packageName": "Introdu un nume de pachet."
+    },
+    "createdToast": "Declanșatorul {{name}} a fost creat",
+    "createFailed": "Nu s-a putut crea declanșatorul",
+    "name": "Nume",
+    "namePlaceholder": "de ex. Repornire Jellyfin noaptea",
+    "whenItRuns": "Când rulează",
+    "onSchedule": "După un program (cron)",
+    "onWebhook": "Când este apelat un webhook",
+    "schedule": "Program",
+    "cronPlaceholder": "minut oră zi lună zi-săptămână, de ex. 0 2 * * *",
+    "cronHelp": "Cinci câmpuri: minut, oră, zi a lunii, lună, zi a săptămânii. Orele sunt UTC.",
+    "webhookHint": "După ce îl creezi primești un URL secret. O cerere POST către el (din n8n, un script sau curl) rulează acțiunea.",
+    "whatItDoes": "Ce face",
+    "appAction": "Acțiune pentru aplicație",
+    "packageAction": "Acțiune pentru pachet",
+    "create": "Creează declanșator",
+    "app": "Aplicație",
+    "loadingApps": "Se încarcă aplicațiile…",
+    "chooseApp": "Alege o aplicație",
+    "noApps": "Nicio aplicație instalată",
+    "action": "Acțiune",
+    "appVerbs": {
+      "start": "Pornește",
+      "stop": "Oprește",
+      "restart": "Repornește",
+      "update": "Actualizează (descarcă și recreează)"
+    },
+    "packageVerbs": {
+      "install": "Instalează",
+      "uninstall": "Dezinstalează",
+      "upgrade": "Actualizează",
+      "refresh": "Reîmprospătează listele de pachete"
+    },
+    "packageManager": "Manager de pachete",
+    "loading": "Se încarcă…",
+    "chooseManager": "Alege un manager",
+    "noManagers": "Niciunul pregătit pe această gazdă",
+    "package": "Pachet",
+    "packagePlaceholder": "de ex. jq",
+    "source": "Sursă (opțional)",
+    "sourceHint": "O locație Flatpak la distanță, un bucket Scoop sau „cask” pentru un cask Homebrew.",
+    "loadingInstalled": "Se încarcă pachetele instalate…",
+    "installedFailed": "Nu s-au putut lista pachetele instalate ({{error}}); scrie numele.",
+    "searchInstalled": "Caută în pachetele instalate",
+    "noMatch": "Niciun pachet instalat nu se potrivește."
+  },
+  "cron": {
+    "presets": {
+      "hourly": "În fiecare oră",
+      "daily": "Zilnic la 02:00",
+      "sundays": "Duminica la 03:00",
+      "monthly": "Lunar, pe 1"
+    },
+    "fields": {
+      "minute": "minut",
+      "hour": "oră",
+      "dayOfMonth": "zi a lunii",
+      "month": "lună",
+      "weekday": "zi a săptămânii"
+    },
+    "errors": {
+      "empty": "Introdu o expresie cron sau alege un preset.",
+      "invalidField": "Câmpul {{field}} „{{value}}” nu este valid.",
+      "invalidStep": "Pasul „/{{step}}” din câmpul {{field}} trebuie să fie un număr.",
+      "outOfRange": "Câmpul {{field}} trebuie să fie între {{min}} și {{max}}.",
+      "fieldCount": "Folosește cinci câmpuri (minut oră zi lună zi-săptămână); aici sunt {{count}}."
+    },
+    "dayRange": "{{from}} până {{to}}",
+    "custom": "Program personalizat",
+    "everyMinute": "În fiecare minut",
+    "everyMinutes_one": "La fiecare minut",
+    "everyMinutes_few": "La fiecare {{count}} minute",
+    "everyMinutes_other": "La fiecare {{count}} de minute",
+    "everyHourOnTheHour": "În fiecare oră, la fix",
+    "everyHourAtMinute": "În fiecare oră la minutul {{minute}}",
+    "everyHoursAtMinute_one": "La fiecare oră, la minutul {{minute}}",
+    "everyHoursAtMinute_few": "La fiecare {{count}} ore, la minutul {{minute}}",
+    "everyHoursAtMinute_other": "La fiecare {{count}} de ore, la minutul {{minute}}",
+    "everyDay": "În fiecare zi la {{time}}",
+    "everyWeekdays": "În fiecare {{days}} la {{time}}",
+    "onDayOfMonth": "În ziua {{day}} a fiecărei luni la {{time}}",
+    "everyYear": "În fiecare an pe {{day}} {{month}} la {{time}}",
+    "utc": "{{description}} (UTC)"
+  }
+}

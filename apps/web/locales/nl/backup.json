@@ -1,0 +1,119 @@
+{
+  "add": "Toevoegen",
+  "cancel": "Annuleren",
+  "back": "Terug",
+  "errors": {
+    "listDestinations": "Back-upbestemmingen konden niet worden weergegeven",
+    "createDestination": "Bestemming kon niet worden aangemaakt",
+    "deleteDestination": "Bestemming kon niet worden verwijderd",
+    "listPlans": "Back-upplannen konden niet worden weergegeven",
+    "createPlan": "Plan kon niet worden aangemaakt",
+    "updatePlan": "Plan kon niet worden bijgewerkt",
+    "deletePlan": "Plan kon niet worden verwijderd",
+    "startBackup": "Back-up kon niet worden gestart",
+    "listVersions": "Back-upversies konden niet worden weergegeven",
+    "listVersionFiles": "Bestanden van de versie konden niet worden weergegeven",
+    "restoreApp": "App kon niet worden hersteld"
+  },
+  "toast": {
+    "destinationCreated": "Bestemming \"{{name}}\" aangemaakt",
+    "planCreated": "Plan \"{{name}}\" aangemaakt",
+    "planUpdated": "Plan \"{{name}}\" bijgewerkt",
+    "backupStarted": "Back-up \"{{name}}\" gestart"
+  },
+  "view": {
+    "unavailable": "Back-ups zijn niet beschikbaar",
+    "unsupported": "Deze host ondersteunt geen back-ups.",
+    "tabs": {
+      "versions": "Versies",
+      "destinations": "Bestemmingen",
+      "plans": "Plannen"
+    }
+  },
+  "destinations": {
+    "title": "Bestemmingen",
+    "name": "Naam",
+    "kind": "Soort",
+    "location": "Locatie",
+    "created": "Aangemaakt",
+    "empty": {
+      "title": "Nog geen bestemmingen",
+      "description": "Een bestemming is een map of een rclone-remote waar back-ups worden bewaard. Voeg er een toe om te beginnen met back-uppen."
+    }
+  },
+  "plans": {
+    "title": "Plannen",
+    "name": "Naam",
+    "schedule": "Schema",
+    "lastRun": "Laatst uitgevoerd",
+    "status": "Status",
+    "manual": "handmatig",
+    "runNow": "Nu uitvoeren",
+    "empty": {
+      "title": "Nog geen plannen",
+      "description": "Een plan kiest Athena, apps, een bestemming en een schema, en draait daarna op een timer."
+    }
+  },
+  "versions": {
+    "title": "Versies",
+    "refresh": "Vernieuwen",
+    "time": "Tijd",
+    "size": "Grootte",
+    "new": "Nieuw",
+    "added": "Toegevoegd",
+    "changed": "Gewijzigd",
+    "removed": "Verwijderd",
+    "os": "Besturingssysteem",
+    "viewFiles": "Bestanden bekijken",
+    "restore": "Herstellen",
+    "empty": {
+      "title": "Nog geen versies",
+      "description": "Voer een back-up uit om de eerste aan te maken."
+    }
+  },
+  "addDestination": {
+    "title": "Back-upbestemming toevoegen",
+    "kitTitle": "Bewaar de herstelkit",
+    "description": "Kies waar restic de repository bewaart: een lokale map of een rclone-remote.",
+    "kitDescription": "Download of kopieer de kit. Athena toont dit wachtwoord nooit meer; zonder kan een uitgevallen host niet herstellen.",
+    "prepareFailed": "Bestemming kon niet worden voorbereid",
+    "saveKitFirst": "Bewaar de herstelkit voordat je de bestemming aanmaakt",
+    "name": "Naam",
+    "namePlaceholder": "bijv. USB-schijf",
+    "kind": "Soort",
+    "local": "Lokale map",
+    "rclone": "rclone-remote",
+    "folder": "Map",
+    "folderHint": "Absoluut pad, buiten de gegevensmap van Athena.",
+    "remote": "Remote",
+    "remoteHint": "Een rclone-remote die al is ingesteld onder Cloud → Remotes.",
+    "password": "Repositorywachtwoord",
+    "passwordPlaceholder": "Leeg laten om een sterk wachtwoord te genereren",
+    "passwordHint": "Laat leeg om Athena een sterk wachtwoord te laten genereren. Het wordt eenmalig hieronder getoond, daarna nooit meer.",
+    "kitSaved": "Ik heb deze herstelkit bewaard (wachtwoord, bestemming en restic-versie)",
+    "next": "Volgende: herstelkit",
+    "create": "Bestemming aanmaken"
+  },
+  "addPlan": {
+    "title": "Back-upplan toevoegen",
+    "description": "Kies wat je wilt back-uppen, waarheen en hoe vaak. Apps worden tijdens hun back-up gestopt, tenzij \"Back-up tijdens draaien\" aan staat.",
+    "name": "Naam",
+    "namePlaceholder": "bijv. Dagelijkse apps",
+    "destination": "Bestemming",
+    "athena": "Back-up van Athena (instellingen, database, geheimen, TLS)",
+    "athenaHint": "Aanbevolen: standaard aan.",
+    "apps": "Apps",
+    "appsHint": "Welke apps in het plan worden opgenomen.",
+    "noApps": "Geen apps gevonden. Start eerst apps via Store → Apps.",
+    "schedule": "Schema (cron)",
+    "schedulePlaceholder": "0 3 * * *  (dagelijks om 03:00)",
+    "scheduleHint": "Leeg laten voor alleen handmatige uitvoering. Geplande uitvoering komt met deel 4.",
+    "retention": "Bewaartermijn",
+    "keepLast": "Laatste bewaren",
+    "keepDaily": "Dagelijks bewaren",
+    "keepWeekly": "Wekelijks bewaren",
+    "keepMonthly": "Maandelijks bewaren",
+    "retentionHint": "`restic forget --keep-…` per item. Standaard: 7 dagelijks / 4 wekelijks / 6 maandelijks.",
+    "create": "Plan aanmaken"
+  }
+}

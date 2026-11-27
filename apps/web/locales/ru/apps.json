@@ -1,0 +1,198 @@
+{
+  "page": {
+    "description": "Приложения — это compose-проекты, которыми управляет Athena."
+  },
+  "newApp": "Новое приложение",
+  "open": "Открыть",
+  "list": {
+    "failed": "Не удалось получить список приложений"
+  },
+  "status": {
+    "running": "Работает",
+    "partial": "Работает {{running}}/{{total}}",
+    "stopped": "Остановлено",
+    "notDeployed": "Не развёрнуто"
+  },
+  "actions": {
+    "restart": "Перезапустить",
+    "stop": "Остановить",
+    "start": "Запустить",
+    "updateImages": "Обновить образы",
+    "remove": "Удалить"
+  },
+  "jobs": {
+    "failed": {
+      "start": "Не удалось запустить {{name}}",
+      "stop": "Не удалось остановить {{name}}",
+      "restart": "Не удалось перезапустить {{name}}",
+      "update": "Не удалось обновить {{name}}",
+      "remove": "Не удалось удалить {{name}}",
+      "save": "Не удалось сохранить {{name}}",
+      "saveSettings": "Не удалось сохранить настройки {{name}}",
+      "deploy": "Не удалось развернуть {{name}}"
+    }
+  },
+  "delete": {
+    "title": "Удалить {{name}}?",
+    "description": "Его контейнеры будут остановлены и удалены, а Athena забудет это приложение.",
+    "deleteData": "Также удалить его тома и папку данных. Это нельзя отменить.",
+    "cancel": "Отмена",
+    "confirm": "Удалить"
+  },
+  "grid": {
+    "emptyTitle": "Приложений пока нет",
+    "emptyDescription": "Разверните compose-файл или преобразуйте команду <code>docker run</code>.",
+    "containerCount_one": "{{count}} контейнер",
+    "containerCount_few": "{{count}} контейнера",
+    "containerCount_many": "{{count}} контейнеров",
+    "containerCount_other": "{{count}} контейнера",
+    "fromDockerRun": "из docker run",
+    "actionsFor": "Действия для {{name}}"
+  },
+  "containerState": {
+    "running": "работает",
+    "exited": "завершён",
+    "dead": "нерабочий",
+    "paused": "приостановлен",
+    "created": "создан",
+    "restarting": "перезапускается"
+  },
+  "detail": {
+    "loadFailed": "Не удалось загрузить приложение",
+    "loadFailedNamed": "Не удалось загрузить {{name}}",
+    "tabContainers": "Контейнеры",
+    "tabCompose": "Compose",
+    "tabSettings": "Настройки",
+    "tabBackups": "Резервные копии",
+    "noContainers": "Нет контейнеров",
+    "noContainersHint": "Запустите приложение, чтобы создать его контейнеры.",
+    "logs": "Журнал",
+    "shell": "Оболочка",
+    "composeHelp": "При сохранении предыдущая версия остаётся как compose.prev.yaml, а приложение разворачивается заново.",
+    "settingsHelp": "Значения из формы установки (.env). Измените здесь порт или папку, затем сохраните, чтобы развернуть заново. Здесь могут быть сгенерированные пароли.",
+    "saveRedeploy": "Сохранить и развернуть заново",
+    "discard": "Отменить изменения"
+  },
+  "new": {
+    "nameInvalid": "Используйте строчные буквы, цифры, дефисы или подчёркивания, начиная с буквы или цифры.",
+    "convertFailed": "Не удалось преобразовать команду",
+    "validationFailed": "Проверка не пройдена",
+    "name": "Имя",
+    "nameHelp": "Это также имя compose-проекта. Позже его изменить нельзя.",
+    "tabCompose": "Compose-файл",
+    "tabRun": "Из docker run",
+    "reviewConverted": "Проверьте преобразованный файл",
+    "upload": "Загрузить файл",
+    "composeHelp": "Используйте <code>${ATHENA_APP_DATA}</code> для файлов, которые должны храниться в папке данных этого приложения на сервере.",
+    "runLabel": "Команда docker run",
+    "runHelp": "Она преобразуется в compose-файл, который можно проверить перед развёртыванием. Пока ничего не запускается.",
+    "convert": "Преобразовать в compose",
+    "valid": "Compose-файл корректен",
+    "invalid": "В compose-файле есть ошибки",
+    "validate": "Проверить",
+    "deploy": "Развернуть"
+  },
+  "compose": {
+    "serializationFailed": "Не удалось сериализовать",
+    "addService": "Добавить сервис",
+    "tabs": {
+      "settings": "Настройки",
+      "networks": "Сети",
+      "volumes": "Тома",
+      "raw": "YAML"
+    },
+    "restart": {
+      "no": "Нет (не перезапускать)",
+      "always": "Всегда",
+      "unlessStopped": "Если не остановлен",
+      "onFailure": "При сбое"
+    },
+    "volumeMode": {
+      "rw": "Чтение и запись",
+      "ro": "Только чтение"
+    },
+    "table": {
+      "actions": "Действия",
+      "empty": "Пока ничего нет",
+      "moveUp": "Выше",
+      "moveDown": "Ниже",
+      "remove": "Удалить",
+      "add": "Добавить"
+    },
+    "service": {
+      "collapse": "Свернуть",
+      "expand": "Развернуть",
+      "namePlaceholder": "имя сервиса",
+      "noImage": "нет образа",
+      "image": "Образ",
+      "imageHelp": "Имя образа Docker. Поддерживаются Docker Hub, GHCR и другие реестры.",
+      "restartPolicy": "Политика перезапуска"
+    },
+    "ports": {
+      "title": "Порты",
+      "host": "Порт хоста",
+      "container": "Порт контейнера",
+      "protocol": "Протокол",
+      "help": "Сопоставьте порты хоста с портами контейнера. Оставьте порт хоста пустым для случайного назначения."
+    },
+    "volumes": {
+      "title": "Тома",
+      "host": "Путь на хосте / имя тома",
+      "container": "Путь в контейнере",
+      "mode": "Режим",
+      "hostPlaceholder": "${ATHENA_APP_DATA}/data или volume-name",
+      "help": "Монтирование путей хоста (bind mount) или именованных томов. Используйте <code>${ATHENA_APP_DATA}</code> для папки данных этого приложения."
+    },
+    "env": {
+      "title": "Переменные окружения",
+      "help": "Переменные окружения, передаваемые контейнеру. Значения из формы установки (.env) также доступны.",
+      "valuePlaceholder": "значение"
+    },
+    "keyValue": {
+      "key": "Ключ",
+      "value": "Значение"
+    },
+    "command": {
+      "command": "Команда",
+      "commandPlaceholder": "Переопределяет команду образа по умолчанию",
+      "entrypoint": "Точка входа",
+      "entrypointPlaceholder": "Переопределяет точку входа образа по умолчанию",
+      "workingDir": "Рабочий каталог",
+      "user": "Пользователь"
+    },
+    "resources": {
+      "title": "Ограничения ресурсов",
+      "cpuLimit": "Лимит CPU",
+      "cpuCores": "Ядра CPU",
+      "memoryLimit": "Лимит памяти",
+      "memoryLimitHelp": "например, 512M, 1G",
+      "cpuReservation": "Резерв CPU",
+      "memoryReservation": "Резерв памяти",
+      "memoryReservationHelp": "например, 256M"
+    },
+    "health": {
+      "title": "Проверка состояния",
+      "test": "Команда проверки",
+      "interval": "Интервал",
+      "timeout": "Тайм-аут",
+      "retries": "Повторы"
+    },
+    "labels": {
+      "title": "Метки",
+      "valuePlaceholder": "Мой сервис"
+    },
+    "networks": {
+      "title": "Сети",
+      "help": "Имена сетей через запятую. Определите сети на вкладке «Сети»."
+    },
+    "dependsOn": {
+      "title": "Зависит от",
+      "help": "Имена сервисов через запятую, которые должны запуститься раньше этого."
+    },
+    "entries": {
+      "name": "Имя",
+      "driver": "Драйвер",
+      "external": "Внешняя"
+    }
+  }
+}

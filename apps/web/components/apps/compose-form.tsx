@@ -1,8 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation, Trans } from "react-i18next"
+import type { ParseKeys } from "i18next"
 
 import { useLatest } from "@/hooks/use-latest"
+import i18n from "@/lib/i18n"
 import { PlusIcon, Trash2Icon, GripVerticalIcon } from "lucide-react"
 import * as yaml from "js-yaml"
 
@@ -94,11 +97,11 @@ const DEFAULT_SERVICE: ServiceForm = {
 }
 
 const RESTART_OPTIONS = [
-  { value: "no", label: "No (don't restart)" },
-  { value: "always", label: "Always" },
-  { value: "unless-stopped", label: "Unless stopped" },
-  { value: "on-failure", label: "On failure" },
-] as const
+  { value: "no", label: "compose.restart.no" },
+  { value: "always", label: "compose.restart.always" },
+  { value: "unless-stopped", label: "compose.restart.unlessStopped" },
+  { value: "on-failure", label: "compose.restart.onFailure" },
+] as const satisfies readonly { value: string; label: ParseKeys<"apps"> }[]
 
 const PROTOCOL_OPTIONS = [
   { value: "tcp", label: "TCP" },
@@ -106,9 +109,9 @@ const PROTOCOL_OPTIONS = [
 ] as const
 
 const VOLUME_MODE_OPTIONS = [
-  { value: "rw", label: "Read/Write" },
-  { value: "ro", label: "Read-only" },
-] as const
+  { value: "rw", label: "compose.volumeMode.rw" },
+  { value: "ro", label: "compose.volumeMode.ro" },
+] as const satisfies readonly { value: string; label: ParseKeys<"apps"> }[]
 
 interface ParsedService {
   image?: string
@@ -400,7 +403,7 @@ function EditableTable<T extends { id: string }>({
   onChange,
   renderRow,
   addItem,
-  emptyMessage = "No items yet",
+  emptyMessage,
   columns,
 }: {
   items: T[]
@@ -410,6 +413,7 @@ function EditableTable<T extends { id: string }>({
   emptyMessage?: string
   columns: string[]
 }) {
+  const { t } = useTranslation("apps")
   const moveUp = (index: number) => {
     if (index === 0) return
     const newItems = [...items]
@@ -438,14 +442,14 @@ function EditableTable<T extends { id: string }>({
         <TableHeader>
           <TableRow>
             {columns.map((col) => <TableHead key={col}>{col}</TableHead>)}
-            <TableHead className="w-24">Actions</TableHead>
+            <TableHead className="w-24">{t("compose.table.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {items.length === 0 ? (
             <TableRow>
               <TableCell colSpan={columns.length + 1} className="text-center text-muted-foreground py-8">
-                {emptyMessage}
+                {emptyMessage ?? t("compose.table.empty")}
               </TableCell>
             </TableRow>
           ) : (
@@ -465,7 +469,7 @@ function EditableTable<T extends { id: string }>({
                       size="icon"
                       onClick={() => moveUp(index)}
                       disabled={index === 0}
-                      aria-label="Move up"
+                      aria-label={t("compose.table.moveUp")}
                     >
                       <GripVerticalIcon className="h-4 w-4" />
                     </Button>
@@ -474,7 +478,7 @@ function EditableTable<T extends { id: string }>({
                       size="icon"
                       onClick={() => moveDown(index)}
                       disabled={index === items.length - 1}
-                      aria-label="Move down"
+                      aria-label={t("compose.table.moveDown")}
                     >
                       <GripVerticalIcon className="h-4 w-4 rotate-180" />
                     </Button>
@@ -482,7 +486,7 @@ function EditableTable<T extends { id: string }>({
                       variant="ghost"
                       size="icon"
                       onClick={() => remove(index)}
-                      aria-label="Remove"
+                      aria-label={t("compose.table.remove")}
                     >
                       <Trash2Icon className="h-4 w-4" />
                     </Button>
@@ -495,7 +499,7 @@ function EditableTable<T extends { id: string }>({
       </Table>
       <Button variant="outline" size="sm" onClick={() => onChange([...items, addItem()])} className="w-full">
         <PlusIcon className="h-4 w-4 mr-2" />
-        Add
+        {t("compose.table.add")}
       </Button>
     </div>
   )
@@ -512,6 +516,7 @@ function ServiceFormComponent({
   onChange: (service: ServiceForm) => void
   allServiceNames: string[]
 }) {
+  const { t } = useTranslation("apps")
   const [expanded, setExpanded] = React.useState(true)
 
   const updateService = (updates: Partial<ServiceForm>) => {
@@ -539,18 +544,18 @@ function ServiceFormComponent({
             variant="ghost"
             size="icon"
             onClick={() => setExpanded(!expanded)}
-            aria-label={expanded ? "Collapse" : "Expand"}
+            aria-label={expanded ? t("compose.service.collapse") : t("compose.service.expand")}
           >
             {expanded ? "▼" : "▶"}
           </Button>
           <Input
             value={service.name}
             onChange={(e) => updateService({ name: e.target.value })}
-            placeholder="service name"
+            placeholder={t("compose.service.namePlaceholder")}
             className="w-48 font-mono text-sm"
             disabled={index > 0}
           />
-          <Badge variant="secondary">{service.image || "no image"}</Badge>
+          <Badge variant="secondary">{service.image || t("compose.service.noImage")}</Badge>
         </div>
         <Button variant="ghost" size="icon" onClick={() => {}} disabled>
           <Trash2Icon className="h-4 w-4" />
@@ -562,7 +567,7 @@ function ServiceFormComponent({
           <Separator />
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor={`service-${index}-image`}>Image</FieldLabel>
+              <FieldLabel htmlFor={`service-${index}-image`}>{t("compose.service.image")}</FieldLabel>
               <FieldContent>
                 <Input
                   id={`service-${index}-image`}
@@ -571,13 +576,13 @@ function ServiceFormComponent({
                   placeholder="nginx:alpine, ghcr.io/user/repo:tag"
                 />
                 <FieldDescription>
-                  Docker image name. Supports Docker Hub, GHCR, and other registries.
+                  {t("compose.service.imageHelp")}
                 </FieldDescription>
               </FieldContent>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor={`service-${index}-restart`}>Restart policy</FieldLabel>
+              <FieldLabel htmlFor={`service-${index}-restart`}>{t("compose.service.restartPolicy")}</FieldLabel>
               <FieldContent>
                 <Select value={service.restart} onValueChange={(v) => updateService({ restart: v as ServiceForm["restart"] })} >
                   <SelectTrigger id={`service-${index}-restart`}>
@@ -586,7 +591,7 @@ function ServiceFormComponent({
                   <SelectContent>
                     {RESTART_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                        {t(opt.label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -597,13 +602,13 @@ function ServiceFormComponent({
 
           <Separator />
           <Field>
-            <FieldLabel>Ports</FieldLabel>
+            <FieldLabel>{t("compose.ports.title")}</FieldLabel>
             <FieldContent>
               <EditableTable<PortMappingWithId>
                 items={service.ports.map((p, i) => ({ ...p, id: `port-${i}` }))}
                 onChange={(items) => updateArrayField("ports", items)}
                 addItem={() => ({ host: "", container: "", protocol: "tcp", id: `port-${Date.now()}` })}
-                columns={["Host port", "Container port", "Protocol"]}
+                columns={[t("compose.ports.host"), t("compose.ports.container"), t("compose.ports.protocol")]}
                 renderRow={(item, idx) => (
                   <>
                     <TableCell>
@@ -643,25 +648,25 @@ function ServiceFormComponent({
                 )}
               />
               <FieldDescription>
-                Map host ports to container ports. Leave host port empty for random assignment.
+                {t("compose.ports.help")}
               </FieldDescription>
             </FieldContent>
           </Field>
 
           <Separator />
           <Field>
-            <FieldLabel>Volumes</FieldLabel>
+            <FieldLabel>{t("compose.volumes.title")}</FieldLabel>
             <FieldContent>
               <EditableTable<VolumeMappingWithId>
                 items={service.volumes.map((v, i) => ({ ...v, id: `vol-${i}` }))}
                 onChange={(items) => updateArrayField("volumes", items)}
                 addItem={() => ({ host: "", container: "", mode: "rw", id: `vol-${Date.now()}` })}
-                columns={["Host path / Volume name", "Container path", "Mode"]}
+                columns={[t("compose.volumes.host"), t("compose.volumes.container"), t("compose.volumes.mode")]}
                 renderRow={(item, idx) => (
                   <>
                     <TableCell>
                       <Input
-                        placeholder={"${ATHENA_APP_DATA}/data or volume-name"}
+                        placeholder={t("compose.volumes.hostPlaceholder")}
                         value={item.host}
                         onChange={(e) =>
                           updateArrayItem("volumes", idx, { ...item, host: e.target.value })
@@ -686,7 +691,7 @@ function ServiceFormComponent({
                         <SelectContent>
                           {VOLUME_MODE_OPTIONS.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
+                              {t(opt.label)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -696,20 +701,24 @@ function ServiceFormComponent({
                 )}
               />
               <FieldDescription>
-                Bind-mount host paths or named volumes. Use <code>{"${ATHENA_APP_DATA}"}</code> for this app's data folder.
+                <Trans
+                  i18nKey="compose.volumes.help"
+                  ns="apps"
+                  components={{ code: <code /> }}
+                />
               </FieldDescription>
             </FieldContent>
           </Field>
 
           <Separator />
           <Field>
-            <FieldLabel>Environment variables</FieldLabel>
+            <FieldLabel>{t("compose.env.title")}</FieldLabel>
             <FieldContent>
               <EditableTable<EnvVarWithId>
                 items={service.environment.map((e, i) => ({ ...e, id: `env-${i}` }))}
                 onChange={(items) => updateArrayField("environment", items)}
                 addItem={() => ({ key: "", value: "", id: `env-${Date.now()}` })}
-                columns={["Key", "Value"]}
+                columns={[t("compose.keyValue.key"), t("compose.keyValue.value")]}
                 renderRow={(item, idx) => (
                   <>
                     <TableCell>
@@ -723,7 +732,7 @@ function ServiceFormComponent({
                     </TableCell>
                     <TableCell>
                       <Input
-                        placeholder="value"
+                        placeholder={t("compose.env.valuePlaceholder")}
                         value={item.value}
                         onChange={(e) =>
                           updateArrayItem("environment", idx, { ...item, value: e.target.value })
@@ -734,7 +743,7 @@ function ServiceFormComponent({
                 )}
               />
               <FieldDescription>
-                Environment variables passed to the container. Values from the install form (.env) are also available.
+                {t("compose.env.help")}
               </FieldDescription>
             </FieldContent>
           </Field>
@@ -742,29 +751,29 @@ function ServiceFormComponent({
           <Separator />
           <div className="grid gap-4 md:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor={`service-${index}-command`}>Command</FieldLabel>
+              <FieldLabel htmlFor={`service-${index}-command`}>{t("compose.command.command")}</FieldLabel>
               <FieldContent>
                 <Input
                   id={`service-${index}-command`}
                   value={service.command}
                   onChange={(e) => updateService({ command: e.target.value })}
-                  placeholder="Overrides the image's default command"
+                  placeholder={t("compose.command.commandPlaceholder")}
                 />
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel htmlFor={`service-${index}-entrypoint`}>Entrypoint</FieldLabel>
+              <FieldLabel htmlFor={`service-${index}-entrypoint`}>{t("compose.command.entrypoint")}</FieldLabel>
               <FieldContent>
                 <Input
                   id={`service-${index}-entrypoint`}
                   value={service.entrypoint}
                   onChange={(e) => updateService({ entrypoint: e.target.value })}
-                  placeholder="Overrides the image's default entrypoint"
+                  placeholder={t("compose.command.entrypointPlaceholder")}
                 />
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel htmlFor={`service-${index}-working-dir`}>Working directory</FieldLabel>
+              <FieldLabel htmlFor={`service-${index}-working-dir`}>{t("compose.command.workingDir")}</FieldLabel>
               <FieldContent>
                 <Input
                   id={`service-${index}-working-dir`}
@@ -775,7 +784,7 @@ function ServiceFormComponent({
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel htmlFor={`service-${index}-user`}>User</FieldLabel>
+              <FieldLabel htmlFor={`service-${index}-user`}>{t("compose.command.user")}</FieldLabel>
               <FieldContent>
                 <Input
                   id={`service-${index}-user`}
@@ -789,11 +798,11 @@ function ServiceFormComponent({
 
           <Separator />
           <Field>
-            <FieldLabel>Resource limits</FieldLabel>
+            <FieldLabel>{t("compose.resources.title")}</FieldLabel>
             <FieldContent>
               <div className="grid gap-4 md:grid-cols-4">
                 <Field>
-                  <FieldLabel htmlFor={`service-${index}-limit-cpus`}>CPU limit</FieldLabel>
+                  <FieldLabel htmlFor={`service-${index}-limit-cpus`}>{t("compose.resources.cpuLimit")}</FieldLabel>
                   <FieldContent>
                     <Input
                       id={`service-${index}-limit-cpus`}
@@ -814,11 +823,11 @@ function ServiceFormComponent({
                       }
                       placeholder="1.0"
                     />
-                    <FieldDescription>CPU cores</FieldDescription>
+                    <FieldDescription>{t("compose.resources.cpuCores")}</FieldDescription>
                   </FieldContent>
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor={`service-${index}-limit-memory`}>Memory limit</FieldLabel>
+                  <FieldLabel htmlFor={`service-${index}-limit-memory`}>{t("compose.resources.memoryLimit")}</FieldLabel>
                   <FieldContent>
                     <Input
                       id={`service-${index}-limit-memory`}
@@ -836,11 +845,11 @@ function ServiceFormComponent({
                       }
                       placeholder="512M"
                     />
-                    <FieldDescription>e.g. 512M, 1G</FieldDescription>
+                    <FieldDescription>{t("compose.resources.memoryLimitHelp")}</FieldDescription>
                   </FieldContent>
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor={`service-${index}-reserve-cpus`}>CPU reservation</FieldLabel>
+                  <FieldLabel htmlFor={`service-${index}-reserve-cpus`}>{t("compose.resources.cpuReservation")}</FieldLabel>
                   <FieldContent>
                     <Input
                       id={`service-${index}-reserve-cpus`}
@@ -861,11 +870,11 @@ function ServiceFormComponent({
                       }
                       placeholder="0.5"
                     />
-                    <FieldDescription>CPU cores</FieldDescription>
+                    <FieldDescription>{t("compose.resources.cpuCores")}</FieldDescription>
                   </FieldContent>
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor={`service-${index}-reserve-memory`}>Memory reservation</FieldLabel>
+                  <FieldLabel htmlFor={`service-${index}-reserve-memory`}>{t("compose.resources.memoryReservation")}</FieldLabel>
                   <FieldContent>
                     <Input
                       id={`service-${index}-reserve-memory`}
@@ -883,7 +892,7 @@ function ServiceFormComponent({
                       }
                       placeholder="256M"
                     />
-                    <FieldDescription>e.g. 256M</FieldDescription>
+                    <FieldDescription>{t("compose.resources.memoryReservationHelp")}</FieldDescription>
                   </FieldContent>
                 </Field>
               </div>
@@ -892,11 +901,11 @@ function ServiceFormComponent({
 
           <Separator />
           <Field>
-            <FieldLabel htmlFor={`service-${index}-healthcheck`}>Health check</FieldLabel>
+            <FieldLabel htmlFor={`service-${index}-healthcheck`}>{t("compose.health.title")}</FieldLabel>
             <FieldContent>
               <div className="grid gap-4 md:grid-cols-2">
                 <Field>
-                  <FieldLabel htmlFor={`service-${index}-hc-test`}>Test command</FieldLabel>
+                  <FieldLabel htmlFor={`service-${index}-hc-test`}>{t("compose.health.test")}</FieldLabel>
                   <FieldContent>
                     <Input
                       id={`service-${index}-hc-test`}
@@ -914,7 +923,7 @@ function ServiceFormComponent({
                   </FieldContent>
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor={`service-${index}-hc-interval`}>Interval</FieldLabel>
+                  <FieldLabel htmlFor={`service-${index}-hc-interval`}>{t("compose.health.interval")}</FieldLabel>
                   <FieldContent>
                     <Input
                       id={`service-${index}-hc-interval`}
@@ -932,7 +941,7 @@ function ServiceFormComponent({
                   </FieldContent>
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor={`service-${index}-hc-timeout`}>Timeout</FieldLabel>
+                  <FieldLabel htmlFor={`service-${index}-hc-timeout`}>{t("compose.health.timeout")}</FieldLabel>
                   <FieldContent>
                     <Input
                       id={`service-${index}-hc-timeout`}
@@ -950,7 +959,7 @@ function ServiceFormComponent({
                   </FieldContent>
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor={`service-${index}-hc-retries`}>Retries</FieldLabel>
+                  <FieldLabel htmlFor={`service-${index}-hc-retries`}>{t("compose.health.retries")}</FieldLabel>
                   <FieldContent>
                     <Input
                       id={`service-${index}-hc-retries`}
@@ -975,13 +984,13 @@ function ServiceFormComponent({
 
           <Separator />
           <Field>
-            <FieldLabel>Labels</FieldLabel>
+            <FieldLabel>{t("compose.labels.title")}</FieldLabel>
             <FieldContent>
               <EditableTable<EnvVarWithId>
                 items={service.labels.map((l, i) => ({ ...l, id: `label-${i}` }))}
                 onChange={(items) => updateArrayField("labels", items)}
                 addItem={() => ({ key: "", value: "", id: `label-${Date.now()}` })}
-                columns={["Key", "Value"]}
+                columns={[t("compose.keyValue.key"), t("compose.keyValue.value")]}
                 renderRow={(item, idx) => (
                   <>
                     <TableCell>
@@ -995,7 +1004,7 @@ function ServiceFormComponent({
                     </TableCell>
                     <TableCell>
                       <Input
-                        placeholder="My service"
+                        placeholder={t("compose.labels.valuePlaceholder")}
                         value={item.value}
                         onChange={(e) =>
                           updateArrayItem("labels", idx, { ...item, value: e.target.value })
@@ -1011,25 +1020,25 @@ function ServiceFormComponent({
           <Separator />
           <FieldGroup>
             <Field>
-              <FieldLabel>Networks</FieldLabel>
+              <FieldLabel>{t("compose.networks.title")}</FieldLabel>
               <FieldContent>
                 <Input
                   value={service.networks.join(", ")}
                   onChange={(e) => updateService({ networks: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
                   placeholder="backend, frontend"
                 />
-                <FieldDescription>Comma-separated network names. Define networks in the Networks tab.</FieldDescription>
+                <FieldDescription>{t("compose.networks.help")}</FieldDescription>
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel>Depends on</FieldLabel>
+              <FieldLabel>{t("compose.dependsOn.title")}</FieldLabel>
               <FieldContent>
                 <Input
                   value={service.depends_on.join(", ")}
                   onChange={(e) => updateService({ depends_on: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
                   placeholder={allServiceNames.filter((n) => n !== service.name).join(", ")}
                 />
-                <FieldDescription>Comma-separated service names that must start before this one.</FieldDescription>
+                <FieldDescription>{t("compose.dependsOn.help")}</FieldDescription>
               </FieldContent>
             </Field>
           </FieldGroup>
@@ -1075,6 +1084,7 @@ function useEntryRows(
 }
 
 function NetworksTab({ form, onChange }: { form: ComposeFormData; onChange: (form: ComposeFormData) => void }) {
+  const { t } = useTranslation("apps")
   const [networks, setNetworks] = useEntryRows(form.networks, "bridge", "net", (map) => onChange({ ...form, networks: map }))
 
   return (
@@ -1083,7 +1093,7 @@ function NetworksTab({ form, onChange }: { form: ComposeFormData; onChange: (for
         items={networks}
         onChange={setNetworks}
         addItem={() => ({ name: "", driver: "bridge", external: false, id: `net-${Date.now()}` })}
-        columns={["Name", "Driver", "External"]}
+        columns={[t("compose.entries.name"), t("compose.entries.driver"), t("compose.entries.external")]}
         renderRow={(item, idx) => (
           <>
             <TableCell>
@@ -1118,6 +1128,7 @@ function NetworksTab({ form, onChange }: { form: ComposeFormData; onChange: (for
 }
 
 function VolumesTab({ form, onChange }: { form: ComposeFormData; onChange: (form: ComposeFormData) => void }) {
+  const { t } = useTranslation("apps")
   const [volumes, setVolumes] = useEntryRows(form.volumes, "local", "vol", (map) => onChange({ ...form, volumes: map }))
 
   return (
@@ -1126,7 +1137,7 @@ function VolumesTab({ form, onChange }: { form: ComposeFormData; onChange: (form
         items={volumes}
         onChange={setVolumes}
         addItem={() => ({ name: "", driver: "local", external: false, id: `vol-${Date.now()}` })}
-        columns={["Name", "Driver", "External"]}
+        columns={[t("compose.entries.name"), t("compose.entries.driver"), t("compose.entries.external")]}
         renderRow={(item, idx) => (
           <>
             <TableCell>
@@ -1162,6 +1173,7 @@ interface ComposeFormProps {
 }
 
 export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHeight = "20rem", showRawTab = true }: ComposeFormProps) {
+  const { t } = useTranslation("apps")
   const [form, setForm] = React.useState<ComposeFormData>(() => parseComposeToForm(value))
   const [activeTab, setActiveTab] = React.useState<"form" | "raw" | "networks" | "volumes">("form")
   const [validationError, setValidationError] = React.useState<string | null>(null)
@@ -1191,7 +1203,7 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
         onChangeRef.current(yaml)
       }
     } catch (e) {
-      setValidationError(e instanceof Error ? e.message : "Serialization failed")
+      setValidationError(e instanceof Error ? e.message : i18n.t("apps:compose.serializationFailed"))
     }
   }, [form, onChangeRef])
 
@@ -1225,10 +1237,10 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
     <div className="flex flex-col h-full min-h-[20rem]">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="flex flex-col h-full">
         <TabsList>
-          <TabsTrigger value="form">Settings</TabsTrigger>
-          <TabsTrigger value="networks">Networks</TabsTrigger>
-          <TabsTrigger value="volumes">Volumes</TabsTrigger>
-          {showRawTab && <TabsTrigger value="raw">Raw YAML</TabsTrigger>}
+          <TabsTrigger value="form">{t("compose.tabs.settings")}</TabsTrigger>
+          <TabsTrigger value="networks">{t("compose.tabs.networks")}</TabsTrigger>
+          <TabsTrigger value="volumes">{t("compose.tabs.volumes")}</TabsTrigger>
+          {showRawTab && <TabsTrigger value="raw">{t("compose.tabs.raw")}</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="form" className="flex-1 overflow-auto p-4 space-y-6 min-h-0">
@@ -1257,7 +1269,7 @@ export function ComposeForm({ value, onChange, ariaLabel = "compose.yaml", minHe
 
           <Button variant="outline" onClick={addService}>
             <PlusIcon className="h-4 w-4 mr-2" />
-            Add service
+            {t("compose.addService")}
           </Button>
         </TabsContent>
 

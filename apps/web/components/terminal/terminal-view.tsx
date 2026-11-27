@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 import { RotateCwIcon, SquareTerminalIcon } from "lucide-react"
 
 import { Badge } from "@workspace/ui/components/badge"
@@ -23,19 +24,20 @@ import {
 import { useTerminalAccess } from "@/components/terminal/use-terminal-access"
 
 export function SessionBadge({ state }: { state: SessionState }) {
+  const { t } = useTranslation("terminal")
   switch (state.phase) {
     case "connecting":
-      return <Badge variant="outline">Connecting…</Badge>
+      return <Badge variant="outline">{t("session.connecting")}</Badge>
     case "open":
-      return <Badge variant="secondary">Connected</Badge>
+      return <Badge variant="secondary">{t("session.connected")}</Badge>
     case "exited":
       return (
         <Badge variant={state.code === 0 ? "outline" : "destructive"}>
-          Exited ({state.code})
+          {t("session.exited", { code: state.code })}
         </Badge>
       )
     case "closed":
-      return <Badge variant="destructive">Disconnected</Badge>
+      return <Badge variant="destructive">{t("session.disconnected")}</Badge>
   }
 }
 
@@ -46,19 +48,20 @@ export function TerminalUnavailable({
   reason: string
   settingsLink?: boolean
 }) {
+  const { t } = useTranslation("terminal")
   return (
     <Empty className="border">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <SquareTerminalIcon />
         </EmptyMedia>
-        <EmptyTitle>Terminal unavailable</EmptyTitle>
+        <EmptyTitle>{t("view.unavailableTitle")}</EmptyTitle>
         <EmptyDescription>{reason}</EmptyDescription>
       </EmptyHeader>
       {settingsLink && (
         <EmptyContent>
           <Button variant="outline" render={<Link href="/settings/system/" />} nativeButton={false}>
-            Open Settings
+            {t("view.openSettings")}
           </Button>
         </EmptyContent>
       )}
@@ -68,6 +71,7 @@ export function TerminalUnavailable({
 
 /** The host shell, full height, with a status badge and a New session button. */
 export function TerminalView() {
+  const { t } = useTranslation("terminal")
   const access = useTerminalAccess()
   const [session, setSession] = React.useState(0)
   const [state, setState] = React.useState<SessionState>({
@@ -90,7 +94,7 @@ export function TerminalView() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <p className="text-sm text-muted-foreground">
-            A shell on this server, as the user Athena runs as.
+            {t("view.description")}
           </p>
           <SessionBadge state={state} />
         </div>
@@ -100,7 +104,7 @@ export function TerminalView() {
           onClick={() => setSession((n) => n + 1)}
         >
           <RotateCwIcon data-icon="inline-start" />
-          New session
+          {t("view.newSession")}
         </Button>
       </div>
       {state.phase === "closed" && (

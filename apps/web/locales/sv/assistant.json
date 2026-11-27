@@ -1,0 +1,140 @@
+{
+  "title": "Assistent",
+  "sheet": {
+    "description": "Chatta med AI-assistenten om den här servern.",
+    "openFullPage": "Öppna hela sidan"
+  },
+  "chat": {
+    "newChat": "Ny chatt",
+    "chats": "Chattar",
+    "noChats": "Inga chattar än.",
+    "deleteChat": "Radera {{title}}",
+    "thinking": "Tänker…",
+    "stillWorking": "Arbetar fortfarande på ett svar. Det visas här när det är klart.",
+    "emptyTitle": "Fråga om den här servern",
+    "emptyDescription": "Assistenten kan slå upp appar, loggar, filer och systemstatistik, och installera eller ändra saker när du godkänner varje åtgärd.",
+    "suggestions": {
+      "capabilities": "Vad kan den här servern göra?",
+      "disk": "Hur mycket diskutrymme är kvar?",
+      "apps": "Vilka appar körs?"
+    },
+    "message": "Meddelande",
+    "placeholder": "Fråga om den här servern…",
+    "placeholderWaiting": "Svara ovan, eller skicka ett meddelande för att hoppa över…",
+    "stop": "Stoppa",
+    "send": "Skicka",
+    "pickModelFirst": "Välj en modell först",
+    "changeModelFailed": "Det gick inte att byta modell",
+    "startFailed": "Det gick inte att starta en chatt",
+    "deleteFailed": "Det gick inte att radera chatten",
+    "failed": "Assistenten misslyckades"
+  },
+  "noProviders": {
+    "title": "Ställ in en modell först",
+    "description": "Assistenten behöver en AI-leverantör: en molnleverantör med en API-nyckel, eller Ollama som körs på din egen hårdvara.",
+    "openSettings": "Öppna Inställningar → AI"
+  },
+  "model": {
+    "pick": "Välj en modell",
+    "label": "Modell: {{label}}",
+    "search": "Sök eller skriv ett modell-id",
+    "noMatch": "Ingen modell matchar.",
+    "addProvider": "Lägg först till en leverantör under Inställningar → AI.",
+    "noTools": "kan inte använda verktyg",
+    "use": "Använd ”{{model}}”"
+  },
+  "plan": {
+    "title": "Plan",
+    "progress": "{{done}} av {{total}} klara",
+    "steps": "Planens steg",
+    "status": {
+      "pending": "väntar",
+      "in_progress": "pågår",
+      "completed": "klar",
+      "cancelled": "avbruten",
+      "blocked": "blockerad"
+    }
+  },
+  "spend": {
+    "usage": "Den här chattens användning",
+    "usageWith": "Den här chattens användning: {{label}}",
+    "unknownPrices": "Den här modellens priser är okända, så bara tokens räknas.",
+    "estimate": "En uppskattning från modellens publicerade priser.",
+    "ofLimit": "{{spent}} av {{limit}}",
+    "spent": "Förbrukat",
+    "unknown": "Okänt",
+    "inputTokens": "Indatatokens",
+    "outputTokens": "Utdatatokens",
+    "tokens_one": "{{formatted}} token",
+    "tokens_other": "{{formatted}} tokens",
+    "limitReached": "Den här chatten nådde sin kostnadsgräns. Starta en ny chatt, eller höj gränsen under <settings>Inställningar → AI</settings>.",
+    "limitNotApplicable": "Kostnadsgränsen ({{limit}}) kan inte tillämpas på den här modellen."
+  },
+  "steps": {
+    "thinking": "Tänker",
+    "thought": "Tänkte",
+    "draft": "Första utkast, reviderat nedan",
+    "approvalNeeded": "Godkännande krävs: {{title}}",
+    "run": "Kör {{name}}",
+    "approvalIntro": "Assistenten vill göra det här. Inget händer förrän du godkänner.",
+    "deny": "Neka",
+    "approve": "Godkänn",
+    "approvedGoOn": "Godkänt. Svara på de andra korten för att gå vidare.",
+    "deniedGoOn": "Nekat. Svara på de andra korten för att gå vidare.",
+    "logGone": "Den loggen finns inte längre",
+    "log": "Logg",
+    "denied": "Nekat: {{title}}",
+    "failed": "Misslyckades: {{title}}",
+    "running": "Kör {{name}}",
+    "ran": "Körde {{name}}",
+    "withSubject": "{{title}} av {{subject}}",
+    "helperRunningTask": "Hjälparen undersöker: {{task}}",
+    "helperDoneTask": "Hjälparen undersökte: {{task}}",
+    "helperRunning": "Hjälparen slår upp saker",
+    "helperDone": "Hjälparen slog upp saker",
+    "tools": {
+      "getCapabilities": {
+        "running": "Kontrollerar vad servern kan göra",
+        "done": "Kontrollerade vad servern kan göra"
+      },
+      "getSystemStats": { "running": "Läser systemstatistik", "done": "Läste systemstatistik" },
+      "listApps": { "running": "Listar appar", "done": "Listade appar" },
+      "appLogs": { "running": "Läser applogger", "done": "Läste applogger" },
+      "listFileLocations": { "running": "Listar filplatser", "done": "Listade filplatser" },
+      "listFiles": { "running": "Listar filer", "done": "Listade filer" },
+      "readFile": { "running": "Läser en fil", "done": "Läste en fil" },
+      "writeFile": { "running": "Skriver en fil", "done": "Skrev en fil" },
+      "editFile": { "running": "Redigerar en fil", "done": "Redigerade en fil" },
+      "listDirectory": { "running": "Listar en mapp", "done": "Listade en mapp" },
+      "createDirectory": { "running": "Skapar en mapp", "done": "Skapade en mapp" },
+      "searchStore": { "running": "Söker i appbutiken", "done": "Sökte i appbutiken" },
+      "readToolResult": { "running": "Läser ett sparat verktygsresultat", "done": "Läste ett sparat verktygsresultat" },
+      "askUserQuestion": { "running": "Väntar på ditt svar", "done": "Frågade dig" },
+      "advisor": { "running": "Frågar rådgivaren", "done": "Frågade rådgivaren" },
+      "runWorkflow": {
+        "running": "Hjälpare slår upp saker tillsammans",
+        "done": "Hjälpare slog upp saker tillsammans"
+      },
+      "getStoreApp": { "running": "Läser en butiksapp", "done": "Läste en butiksapp" },
+      "listPackageManagers": { "running": "Listar pakethanterare", "done": "Listade pakethanterare" },
+      "searchPackages": { "running": "Söker paket", "done": "Sökte paket" },
+      "listUpgradablePackages": {
+        "running": "Söker efter paketuppdateringar",
+        "done": "Sökte efter paketuppdateringar"
+      }
+    }
+  },
+  "question": {
+    "title": "Frågor",
+    "asks": "Assistenten frågar: {{title}}",
+    "intro": "Assistenten frågar innan den går vidare. Svara aldrig med ett lösenord eller en nyckel.",
+    "ownAnswerLabel": "Ditt eget svar på {{header}}",
+    "ownAnswerPlaceholder": "Eller skriv ett eget svar",
+    "skip": "Hoppa över",
+    "send": "Skicka svar",
+    "skippedGoOn": "Överhoppad. Svara på de andra korten för att gå vidare.",
+    "answeredGoOn": "Besvarad. Svara på de andra korten för att gå vidare.",
+    "youAnswered": "Du svarade: {{answers}}",
+    "youSkipped": "Du hoppade över frågan"
+  }
+}

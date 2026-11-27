@@ -1,0 +1,21 @@
+{
+  "dashboard": "Přehled",
+  "apps": "Aplikace",
+  "store": "Obchod",
+  "packages": "Balíčky",
+  "automation": "Automatizace",
+  "files": "Soubory",
+  "networkShares": "Síťová sdílení",
+  "cloud": "Cloud",
+  "containers": "Kontejnery",
+  "terminal": "Terminál",
+  "assistant": "Asistent",
+  "backups": "Zálohy",
+  "settings": "Nastavení",
+  "help": "Nápověda",
+  "roleAdmin": "Správce",
+  "roleUser": "Uživatel",
+  "tunnelAddress": "Adresa tunelu",
+  "restartAthena": "Restartovat Athena",
+  "logOut": "Odhlásit se"
+}

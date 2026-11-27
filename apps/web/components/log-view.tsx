@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { cn } from "@workspace/ui/lib/utils"
@@ -8,13 +9,14 @@ import { cn } from "@workspace/ui/lib/utils"
 /** Monospace output that keeps the newest line in view while streaming. */
 export function LogView({
   lines,
-  placeholder = "No output yet.",
+  placeholder,
   className,
 }: {
   lines: string[]
   placeholder?: string
   className?: string
 }) {
+  const { t } = useTranslation()
   const end = React.useRef<HTMLDivElement>(null)
   React.useEffect(() => {
     end.current?.scrollIntoView({ block: "end" })
@@ -26,7 +28,7 @@ export function LogView({
         {lines.length ? (
           lines.join("\n")
         ) : (
-          <span className="text-muted-foreground">{placeholder}</span>
+          <span className="text-muted-foreground">{placeholder ?? t("log.empty")}</span>
         )}
         <div ref={end} />
       </pre>

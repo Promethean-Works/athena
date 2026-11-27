@@ -56,7 +56,7 @@ Things marked "not verified" in STATUS that a first user hits on day one.
 - [ ] **Install + service + dashboard + three store apps** on a Raspberry Pi 4/5 with 64-bit Pi OS (or an arm64 Lima VM first), Ubuntu amd64, macOS (Colima) and Windows 11 (Docker in WSL).
 - [ ] **Catalog smoke `--all`** with the `Catalog smoke` workflow on amd64 and arm64; fix or mark `smoke: skip` what fails.
 - [x] **Apps with no arm64 image** (improvements.md phase 1: handbrake, logseq, motioneye, petio, pocketbase, ragflow, vocechat, webdav and the rest): set `platforms` to amd64 or switch to a multi-arch image.
-- [ ] **Browser checks** (`athena-ui-verify`) of the pages never checked: `/files/smb`, the compose variant picker, the cloud wizard and remote cards with a real rclone remote.
+- [ ] **Browser checks** (`athena-ui-verify`) of the pages never checked: `/files/network`, the compose variant picker, the cloud wizard and remote cards with a real rclone remote.
 - [ ] **Windows terminal** (ConPTY + PowerShell) and the container shell through Docker in WSL, by hand.
 - [ ] **Package managers:** install/uninstall on dnf, pacman and apk in Lima VMs (apt is done); winget and Scoop by hand on Windows. Anything that fails and can't be fixed gets its capability turned off.
 - [ ] **Tunnels:** a Cloudflare named tunnel, Tailscale Funnel and ngrok, each once, plus a quick tunnel on Windows.

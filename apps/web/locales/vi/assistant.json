@@ -1,0 +1,139 @@
+{
+  "title": "Trợ lý",
+  "sheet": {
+    "description": "Trò chuyện với trợ lý AI về máy chủ này.",
+    "openFullPage": "Mở trang đầy đủ"
+  },
+  "chat": {
+    "newChat": "Cuộc trò chuyện mới",
+    "chats": "Cuộc trò chuyện",
+    "noChats": "Chưa có cuộc trò chuyện.",
+    "deleteChat": "Xóa {{title}}",
+    "thinking": "Đang suy nghĩ…",
+    "stillWorking": "Vẫn đang soạn phản hồi. Phản hồi sẽ hiện ở đây khi xong.",
+    "emptyTitle": "Hỏi về máy chủ này",
+    "emptyDescription": "Trợ lý có thể tra cứu ứng dụng, nhật ký, tệp và số liệu hệ thống, cũng như cài đặt hoặc thay đổi sau khi bạn duyệt từng thao tác.",
+    "suggestions": {
+      "capabilities": "Máy chủ này làm được gì?",
+      "disk": "Còn bao nhiêu dung lượng ổ đĩa?",
+      "apps": "Ứng dụng nào đang chạy?"
+    },
+    "message": "Tin nhắn",
+    "placeholder": "Hỏi về máy chủ này…",
+    "placeholderWaiting": "Trả lời ở trên, hoặc gửi tin nhắn để bỏ qua…",
+    "stop": "Dừng",
+    "send": "Gửi",
+    "pickModelFirst": "Hãy chọn mô hình trước",
+    "changeModelFailed": "Không thể đổi mô hình",
+    "startFailed": "Không thể bắt đầu cuộc trò chuyện",
+    "deleteFailed": "Không thể xóa cuộc trò chuyện",
+    "failed": "Trợ lý gặp lỗi"
+  },
+  "noProviders": {
+    "title": "Hãy thiết lập mô hình trước",
+    "description": "Trợ lý cần một nhà cung cấp AI: nhà cung cấp đám mây với khóa API, hoặc Ollama chạy trên phần cứng của bạn.",
+    "openSettings": "Mở Cài đặt → AI"
+  },
+  "model": {
+    "pick": "Chọn mô hình",
+    "label": "Mô hình: {{label}}",
+    "search": "Tìm hoặc nhập id mô hình",
+    "noMatch": "Không có mô hình phù hợp.",
+    "addProvider": "Hãy thêm nhà cung cấp trong Cài đặt → AI trước.",
+    "noTools": "không dùng được công cụ",
+    "use": "Dùng “{{model}}”"
+  },
+  "plan": {
+    "title": "Kế hoạch",
+    "progress": "Xong {{done}}/{{total}}",
+    "steps": "Các bước kế hoạch",
+    "status": {
+      "pending": "đang chờ",
+      "in_progress": "đang thực hiện",
+      "completed": "hoàn tất",
+      "cancelled": "đã hủy",
+      "blocked": "bị chặn"
+    }
+  },
+  "spend": {
+    "usage": "Mức dùng của cuộc trò chuyện này",
+    "usageWith": "Mức dùng của cuộc trò chuyện này: {{label}}",
+    "unknownPrices": "Không biết giá của mô hình này, nên chỉ đếm token.",
+    "estimate": "Ước tính theo giá công bố của mô hình.",
+    "ofLimit": "{{spent}}/{{limit}}",
+    "spent": "Đã chi",
+    "unknown": "Không rõ",
+    "inputTokens": "Token đầu vào",
+    "outputTokens": "Token đầu ra",
+    "tokens_other": "{{formatted}} token",
+    "limitReached": "Cuộc trò chuyện này đã đạt giới hạn chi tiêu. Hãy bắt đầu cuộc trò chuyện mới, hoặc tăng giới hạn trong <settings>Cài đặt → AI</settings>.",
+    "limitNotApplicable": "Giới hạn chi tiêu ({{limit}}) không áp dụng được cho mô hình này."
+  },
+  "steps": {
+    "thinking": "Đang suy nghĩ",
+    "thought": "Đã suy nghĩ",
+    "draft": "Bản nháp đầu, được sửa bên dưới",
+    "approvalNeeded": "Cần duyệt: {{title}}",
+    "run": "Chạy {{name}}",
+    "approvalIntro": "Trợ lý muốn làm việc này. Sẽ không có gì xảy ra cho đến khi bạn duyệt.",
+    "deny": "Từ chối",
+    "approve": "Duyệt",
+    "approvedGoOn": "Đã duyệt. Trả lời các thẻ khác để tiếp tục.",
+    "deniedGoOn": "Đã từ chối. Trả lời các thẻ khác để tiếp tục.",
+    "logGone": "Nhật ký đó không còn",
+    "log": "Nhật ký",
+    "denied": "Đã từ chối: {{title}}",
+    "failed": "Thất bại: {{title}}",
+    "running": "Đang chạy {{name}}",
+    "ran": "Đã chạy {{name}}",
+    "withSubject": "{{title}} của {{subject}}",
+    "helperRunningTask": "Trợ thủ đang xem xét: {{task}}",
+    "helperDoneTask": "Trợ thủ đã xem xét: {{task}}",
+    "helperRunning": "Trợ thủ đang tra cứu",
+    "helperDone": "Trợ thủ đã tra cứu",
+    "tools": {
+      "getCapabilities": {
+        "running": "Đang kiểm tra khả năng của máy chủ này",
+        "done": "Đã kiểm tra khả năng của máy chủ này"
+      },
+      "getSystemStats": { "running": "Đang đọc số liệu hệ thống", "done": "Đã đọc số liệu hệ thống" },
+      "listApps": { "running": "Đang liệt kê ứng dụng", "done": "Đã liệt kê ứng dụng" },
+      "appLogs": { "running": "Đang đọc nhật ký ứng dụng", "done": "Đã đọc nhật ký ứng dụng" },
+      "listFileLocations": { "running": "Đang liệt kê vị trí tệp", "done": "Đã liệt kê vị trí tệp" },
+      "listFiles": { "running": "Đang liệt kê tệp", "done": "Đã liệt kê tệp" },
+      "readFile": { "running": "Đang đọc một tệp", "done": "Đã đọc một tệp" },
+      "writeFile": { "running": "Đang ghi một tệp", "done": "Đã ghi một tệp" },
+      "editFile": { "running": "Đang sửa một tệp", "done": "Đã sửa một tệp" },
+      "listDirectory": { "running": "Đang liệt kê một thư mục", "done": "Đã liệt kê một thư mục" },
+      "createDirectory": { "running": "Đang tạo một thư mục", "done": "Đã tạo một thư mục" },
+      "searchStore": { "running": "Đang tìm trong cửa hàng ứng dụng", "done": "Đã tìm trong cửa hàng ứng dụng" },
+      "readToolResult": { "running": "Đang đọc kết quả công cụ đã lưu", "done": "Đã đọc kết quả công cụ đã lưu" },
+      "askUserQuestion": { "running": "Đang chờ câu trả lời của bạn", "done": "Đã hỏi bạn" },
+      "advisor": { "running": "Đang hỏi cố vấn", "done": "Đã hỏi cố vấn" },
+      "runWorkflow": {
+        "running": "Các trợ thủ đang cùng tra cứu",
+        "done": "Các trợ thủ đã cùng tra cứu"
+      },
+      "getStoreApp": { "running": "Đang đọc một ứng dụng trong cửa hàng", "done": "Đã đọc một ứng dụng trong cửa hàng" },
+      "listPackageManagers": { "running": "Đang liệt kê trình quản lý gói", "done": "Đã liệt kê trình quản lý gói" },
+      "searchPackages": { "running": "Đang tìm gói", "done": "Đã tìm gói" },
+      "listUpgradablePackages": {
+        "running": "Đang kiểm tra bản cập nhật gói",
+        "done": "Đã kiểm tra bản cập nhật gói"
+      }
+    }
+  },
+  "question": {
+    "title": "Câu hỏi",
+    "asks": "Trợ lý hỏi: {{title}}",
+    "intro": "Trợ lý đang hỏi trước khi tiếp tục. Đừng bao giờ trả lời bằng mật khẩu hoặc khóa.",
+    "ownAnswerLabel": "Câu trả lời riêng của bạn cho {{header}}",
+    "ownAnswerPlaceholder": "Hoặc nhập câu trả lời của bạn",
+    "skip": "Bỏ qua",
+    "send": "Gửi câu trả lời",
+    "skippedGoOn": "Đã bỏ qua. Trả lời các thẻ khác để tiếp tục.",
+    "answeredGoOn": "Đã trả lời. Trả lời các thẻ khác để tiếp tục.",
+    "youAnswered": "Bạn đã trả lời: {{answers}}",
+    "youSkipped": "Bạn đã bỏ qua câu hỏi"
+  }
+}

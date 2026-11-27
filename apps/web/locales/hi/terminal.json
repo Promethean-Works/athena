@@ -1,0 +1,27 @@
+{
+  "session": {
+    "connecting": "कनेक्ट हो रहा है…",
+    "connected": "कनेक्टेड",
+    "exited": "बाहर निकला ({{code}})",
+    "disconnected": "डिस्कनेक्ट हो गया",
+    "hostTerminal": "होस्ट टर्मिनल",
+    "containerShell": "कंटेनर शेल",
+    "lost": "Athena से कनेक्शन टूट गया",
+    "closedCode": "डिस्कनेक्ट हो गया (कोड {{code}})"
+  },
+  "view": {
+    "unavailableTitle": "टर्मिनल उपलब्ध नहीं है",
+    "openSettings": "सेटिंग्स खोलें",
+    "description": "इस सर्वर पर एक शेल, उसी उपयोगकर्ता के रूप में जिसके रूप में Athena चलता है।",
+    "newSession": "नया सेशन"
+  },
+  "access": {
+    "noSupport": "इस होस्ट पर टर्मिनल का समर्थन नहीं है।",
+    "adminsOnly": "केवल एडमिन टर्मिनल खोल सकते हैं।",
+    "turnedOff": "टर्मिनल सेटिंग्स → सिस्टम में बंद है।"
+  },
+  "shell": {
+    "title": "शेल · {{name}}",
+    "description": "bash चलाता है, या इमेज में bash न होने पर sh।"
+  }
+}

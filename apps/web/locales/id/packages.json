@@ -1,0 +1,58 @@
+{
+  "view": {
+    "noManagers": "Tidak ada pengelola paket",
+    "noManagersHint": "Athena tidak menemukan pengelola paket yang didukung di host ini."
+  },
+  "listError": "Tidak dapat membaca daftar paket",
+  "cancel": "Batal",
+  "toast": {
+    "installFailed": "Tidak dapat memasang {{name}}",
+    "uninstallFailed": "Tidak dapat mencopot {{name}}",
+    "upgradeFailed": "Tidak dapat memperbarui {{name}}",
+    "upgradeAllFailed": "Tidak dapat memperbarui paket",
+    "refreshFailed": "Tidak dapat menyegarkan daftar paket"
+  },
+  "unavailable": "{{name}} tidak dapat digunakan saat ini",
+  "unavailableHint": "Belum siap di host ini.",
+  "refreshLists": "Segarkan daftar",
+  "upgradeAll": "Perbarui semua",
+  "tabs": {
+    "installed": "Terpasang",
+    "updates": "Pembaruan",
+    "search": "Cari"
+  },
+  "installed": {
+    "filter": "Saring paket terpasang",
+    "noMatch": "Tidak ada paket terpasang yang cocok.",
+    "empty": "Belum ada yang terpasang.",
+    "upgradeLabel": "Perbarui {{name}}",
+    "upgrade": "Perbarui",
+    "uninstallLabel": "Copot {{name}}",
+    "uninstall": "Copot",
+    "shortened": "{{manager}} memperpendek id ini, sehingga tidak dapat dicopot dari sini",
+    "showing": "Menampilkan {{shown}} dari {{total}}. Gunakan filter untuk mempersempit."
+  },
+  "table": {
+    "package": "Paket",
+    "version": "Versi",
+    "description": "Deskripsi"
+  },
+  "updates": {
+    "upToDate": "Semua sudah terbaru",
+    "upToDateRefresh": "Per penyegaran daftar terakhir. Segarkan daftar untuk memeriksa lagi.",
+    "nothing": "Tidak ada yang perlu diperbarui.",
+    "installedColumn": "Terpasang",
+    "availableColumn": "Tersedia"
+  },
+  "search": {
+    "label": "Cari di {{manager}}",
+    "noMatch": "Tidak ada paket yang cocok dengan “{{query}}”.",
+    "install": "Pasang"
+  },
+  "confirm": {
+    "uninstallTitle": "Copot {{name}}?",
+    "uninstallDescription": "Paket dihapus dari server ini. Paket yang bergantung padanya mungkin ikut dihapus.",
+    "upgradeAllTitle": "Perbarui semua paket {{manager}}?",
+    "upgradeAllDescription_other": "{{count}} paket akan diperbarui. Ini dapat memakan waktu."
+  }
+}

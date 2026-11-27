@@ -1,0 +1,396 @@
+{
+  "language": {
+    "title": "Bahasa",
+    "description": "Bahasa antarmuka. Mengikuti akun Anda ke browser lain.",
+    "label": "Bahasa antarmuka",
+    "auto": "Otomatis (bahasa browser)"
+  },
+  "account": {
+    "admin": "Administrator",
+    "user": "Pengguna",
+    "signedIn": "Masuk di browser ini",
+    "signOut": "Keluar",
+    "changeFailed": "Tidak dapat mengubah kata sandi",
+    "toast": {
+      "changed": "Kata sandi diubah",
+      "changedDescription": "Browser lain yang masuk ke akun ini telah dikeluarkan."
+    },
+    "password": {
+      "title": "Ubah kata sandi",
+      "description": "Sesi Anda yang lain dikeluarkan; sesi ini tetap masuk.",
+      "current": "Kata sandi saat ini",
+      "new": "Kata sandi baru",
+      "minLength_other": "Minimal {{count}} karakter.",
+      "confirm": "Konfirmasi kata sandi baru",
+      "mismatch": "Kata sandi tidak cocok.",
+      "submit": "Ubah kata sandi"
+    }
+  },
+  "copyField": {
+    "copy": "Salin {{label}}",
+    "copied": "{{label}} disalin",
+    "failed": "Tidak dapat menyalin"
+  },
+  "settingsFile": {
+    "title": "File pengaturan",
+    "description": "Pengaturan di halaman ini disimpan dalam satu file di server. Jika suatu perubahan membuat Athena tidak dapat dimulai atau mengunci Anda, perbaiki di sana dengan editor teks apa pun, lalu mulai ulang Athena.",
+    "loadFailed": "Tidak dapat memuat lokasi file: {{error}}",
+    "file": "File",
+    "help": "<code>athena config check</code> di server menunjukkan apa yang salah, lengkap dengan nomor baris. Versi sebelum penyimpanan terakhir disimpan di sebelahnya sebagai <code>athena.json.bak</code>."
+  },
+  "system": {
+    "title": "Sistem",
+    "description": "Sakelar yang berlaku untuk semua orang di server ini. Perubahan dicatat di log audit.",
+    "saveFailed": "Tidak dapat menyimpan",
+    "adminOnly": "Hanya admin yang dapat mengubah ini.",
+    "terminal": {
+      "label": "Terminal web",
+      "description": "Shell di server ini dan di kontainer, dari browser. Menonaktifkannya juga menutup sesi yang terbuka.",
+      "on": "Terminal diaktifkan",
+      "off": "Terminal dinonaktifkan"
+    },
+    "updateCheck": {
+      "label": "Pemberitahuan pembaruan",
+      "description": "Sekali sehari, tanyakan ke GitHub rilis Athena terbaru dan tampilkan pemberitahuan jika ada yang lebih baru. Tidak ada yang dikirim selain permintaannya sendiri: tanpa versi, nama host, atau pengaturan.",
+      "on": "Pemberitahuan pembaruan diaktifkan",
+      "off": "Pemberitahuan pembaruan dinonaktifkan"
+    }
+  },
+  "updates": {
+    "title": "Pembaruan",
+    "description": "Athena memeriksa rilis baru sekali sehari (sakelar di atas). Memperbarui akan memulai ulang Athena; aplikasi Anda tetap berjalan.",
+    "readFailed": "Tidak dapat membaca status pembaruan.",
+    "installed": "Terpasang",
+    "latest": "Terbaru",
+    "unknown": "Belum diketahui",
+    "noticeOff": "Pemberitahuan pembaruan nonaktif",
+    "lastChecked": "Terakhir diperiksa",
+    "never": "Tidak pernah",
+    "upToDate": "Athena sudah terbaru."
+  },
+  "localAi": {
+    "list": "{{head}} dan {{last}}",
+    "running_other": "{{list}} berjalan di server ini. Modelnya berjalan di perangkat Anda sendiri dan tidak ada yang keluar dari server.",
+    "useNamed": "Gunakan {{name}} di server ini",
+    "usePort": "Gunakan server AI di port {{port}}",
+    "useThis": "Gunakan server AI ini"
+  },
+  "webdav": {
+    "title": "Berbagi jaringan (WebDAV)",
+    "description": "Buka lokasi pengelola file sebagai drive di Finder, Windows Explorer, atau pengelola file Linux.",
+    "label": "WebDAV",
+    "help": "Nonaktif secara bawaan. Siapa pun yang memiliki kata sandi WebDAV dapat membaca dan mengubah setiap lokasi.",
+    "adminOnly": "Hanya admin yang dapat mengubah ini.",
+    "on": "WebDAV diaktifkan",
+    "off": "WebDAV dinonaktifkan",
+    "saveFailed": "Tidak dapat menyimpan",
+    "passwordFailed": "Tidak dapat membuat kata sandi",
+    "address": "Alamat",
+    "username": "Nama pengguna",
+    "password": "Kata sandi",
+    "passwordHint": {
+      "copyNow": "Salin sekarang: tidak ditampilkan lagi.",
+      "set": "Kata sandi sudah diatur. Membuat yang baru mengeluarkan setiap perangkat yang memakai yang lama.",
+      "none": "Buat kata sandi untuk masuk. Terpisah dari kata sandi Athena Anda."
+    },
+    "newPassword": "Kata sandi baru",
+    "makePassword": "Buat kata sandi",
+    "plainHttp": {
+      "title": "Tidak terenkripsi",
+      "description": "Athena dibuka melalui HTTP biasa, sehingga kata sandi dan file WebDAV melintasi jaringan tanpa enkripsi. Gunakan di jaringan yang Anda percaya, atau pasang Athena di balik HTTPS."
+    },
+    "howto": {
+      "macos": "<b>macOS:</b> Finder → Go → Connect to Server, lalu alamatnya.",
+      "windows": "<b>Windows:</b> File Explorer → This PC → Map network drive, lalu alamatnya. Melalui HTTP biasa, Windows hanya dapat masuk setelah mengatur <code>BasicAuthLevel</code> ke 2 di <code>HKLM\\SYSTEM\\CurrentControlSet\\Services\\WebClient\\Parameters</code> dan memulai ulang layanan WebClient.",
+      "linux": "<b>Linux:</b> di Files (GNOME) atau Dolphin, hubungkan ke <code>{{url}}</code>."
+    }
+  },
+  "appearance": {
+    "mode": {
+      "label": "Mode",
+      "light": "Terang",
+      "dark": "Gelap",
+      "system": "Sistem"
+    },
+    "colors": {
+      "title": "Warna",
+      "saving": "Menyimpan…",
+      "description": "Perubahan langsung berlaku dan mengikuti akun Anda ke browser lain.",
+      "matchBase": "Samakan dengan dasar",
+      "matchTheme": "Samakan dengan tema",
+      "base": "Dasar",
+      "baseColor": "Warna dasar",
+      "baseHint": "Latar belakang, batas, dan teks redup.",
+      "theme": "Tema",
+      "themeHint": "Tombol, cincin fokus, dan tautan.",
+      "charts": "Grafik"
+    },
+    "type": {
+      "title": "Tipografi dan bentuk",
+      "font": "Font",
+      "headingFont": "Font judul",
+      "sameAsBody": "Sama dengan isi",
+      "radius": "Radius",
+      "style": "Gaya",
+      "styleValue": "Nova, dengan ikon Lucide",
+      "styleSoon": "pergantian gaya hadir di versi mendatang"
+    },
+    "radius": {
+      "default": "Bawaan",
+      "none": "Tanpa",
+      "small": "Kecil",
+      "medium": "Sedang",
+      "large": "Besar"
+    },
+    "preset": {
+      "title": "Kode preset",
+      "description": "Kode preset shadcn merangkum pengaturan ini dalam beberapa karakter.",
+      "current": "Kode preset saat ini",
+      "copy": "Salin",
+      "copied": "Disalin",
+      "copyFailed": "Tidak dapat menyalin ke papan klip",
+      "use": "Gunakan dengan <code>npx shadcn init --preset {{code}}</code>, atau bagikan.",
+      "apply": "Terapkan kode preset",
+      "applyButton": "Terapkan",
+      "invalid": "Itu bukan kode preset shadcn.",
+      "applied": "Preset {{code}} diterapkan",
+      "ignored": "Athena belum dapat menerapkan {{parts}}, sehingga bagian itu dilewati.",
+      "fill": "Mengisi warna, font, dan radius dari kode yang dibuat di <link>ui.shadcn.com/create</link>."
+    }
+  },
+  "tunnel": {
+    "hide": "Sembunyikan {{label}}",
+    "show": "Tampilkan {{label}}",
+    "secretSaved": "Tersimpan. Ketik nilai baru untuk menggantinya",
+    "customDomain": "Domain kustom (opsional)",
+    "cloudflare": {
+      "quick": "Tunnel cepat",
+      "quickHelp": "Alamat trycloudflare.com acak yang tidak memerlukan akun. Berubah setiap tunnel dimulai.",
+      "apiToken": "Token API",
+      "apiTokenPlaceholder": "Token API Cloudflare dengan izin Tunnel",
+      "tunnelName": "Nama tunnel",
+      "tunnelNameHelp": "Tunnel bernama di akun Cloudflare Anda.",
+      "domainHelp": "Memerlukan record DNS yang mengarah ke tunnel."
+    },
+    "tailscale": {
+      "tailnet": "Tailnet",
+      "auto": "Terdeteksi otomatis",
+      "help": "Diatur dengan <code>tailscale up</code> di server ini."
+    },
+    "ngrok": {
+      "authToken": "Token autentikasi",
+      "authTokenPlaceholder": "Token autentikasi ngrok Anda",
+      "subdomain": "Subdomain (opsional)",
+      "paidPlan": "Memerlukan paket ngrok berbayar.",
+      "freeTitle": "Batas paket gratis",
+      "freeDescription": "Satu tunnel, 40 koneksi per menit, dan alamat acak baru setiap sesi."
+    },
+    "status": {
+      "label": "Status",
+      "running": "Berjalan",
+      "stopped": "Berhenti",
+      "notInstalled": "Belum terpasang",
+      "notSetUp": "Belum disiapkan"
+    },
+    "saveFailed": "Tidak dapat menyimpan",
+    "saved": "Pengaturan akses jarak jauh disimpan",
+    "autoStart": {
+      "label": "Mulai saat boot",
+      "on": "Akses jarak jauh dimulai saat boot",
+      "off": "Akses jarak jauh tidak lagi dimulai saat boot",
+      "installFirst": "Pasang {{name}} terlebih dahulu.",
+      "help": "Memasang layanan sistem yang memulai tunnel bersama server."
+    },
+    "serviceFailed": "Tidak dapat memperbarui layanan",
+    "title": "Akses jarak jauh",
+    "description": "Jangkau Athena dari mana saja melalui Cloudflare, Tailscale, atau ngrok, tanpa membuka port di router Anda.",
+    "label": "Akses jarak jauh",
+    "help": "Siapa pun yang memiliki alamatnya dapat membuka halaman masuk Anda, jadi gunakan kata sandi yang kuat.",
+    "adminOnly": "Hanya admin yang dapat mengubah ini.",
+    "on": "Akses jarak jauh diaktifkan",
+    "off": "Akses jarak jauh dinonaktifkan",
+    "exposed": {
+      "title": "Dapat dijangkau dari internet",
+      "description": "Selama ini aktif, terminal web, pemasangan paket, dan asisten AI hanya berjarak satu kata sandi dari siapa pun yang menemukan alamatnya. Nonaktifkan <terminal>terminal</terminal> atau <assistant>asisten</assistant> jika Anda tidak memerlukannya dari jarak jauh."
+    },
+    "provider": "Penyedia",
+    "using": "Memakai {{name}}",
+    "port": {
+      "label": "Port lokal",
+      "help": "Port tempat Athena mendengarkan, yang diteruskan oleh tunnel."
+    },
+    "discard": "Buang",
+    "saveChanges": "Simpan perubahan",
+    "publicAddress": "Alamat publik",
+    "install": "Pasang {{name}}",
+    "installFailed": "Tidak dapat memasang",
+    "stop": "Hentikan",
+    "stopFailed": "Tidak dapat menghentikan tunnel",
+    "start": "Mulai",
+    "startFailed": "Tidak dapat memulai tunnel",
+    "saveFirst": "Simpan perubahan Anda terlebih dahulu",
+    "refresh": "Segarkan status"
+  },
+  "https": {
+    "copyFailed": "Tidak dapat menyalin",
+    "adminOnly": "Hanya admin yang dapat mengubah HTTPS",
+    "unavailable": {
+      "title": "HTTPS tidak tersedia",
+      "description": "Server Athena ini tidak melaporkan dukungan HTTPS."
+    },
+    "loadFailed": "Tidak dapat memuat pengaturan HTTPS",
+    "status": {
+      "on": "Aktif, port {{port}}",
+      "notRunning": "Tidak berjalan",
+      "off": "Nonaktif",
+      "encryptedLetsEncrypt": "Athena mengenkripsi koneksi dengan sertifikat dari Let's Encrypt. HTTP biasa tetap di port {{port}}.",
+      "encryptedCustom": "Athena mengenkripsi koneksi dengan sertifikat kustom Anda. HTTP biasa tetap di port {{port}}.",
+      "encryptedSelf": "Athena mengenkripsi koneksi dengan sertifikatnya sendiri. HTTP biasa tetap di port {{port}}.",
+      "plain": "Athena dilayani melalui HTTP biasa di port {{port}}, sehingga kata sandi dan file melintasi jaringan tanpa enkripsi.",
+      "problem": "Masalah HTTPS",
+      "renewalFailed": "Perpanjangan Let's Encrypt gagal",
+      "renewalStillServed": "Sertifikat saat ini tetap dilayani sampai kedaluwarsa.",
+      "open": "Buka melalui HTTPS",
+      "expires": "Kedaluwarsa",
+      "expiresIn_other": "dalam {{count}} hari; diperpanjang otomatis",
+      "names": "Nama",
+      "alsoAt": "Juga di"
+    },
+    "saveFailed": "Tidak dapat menyimpan",
+    "requestFailed": "Tidak dapat meminta sertifikat",
+    "certificateReady": "Sertifikat siap",
+    "certificateReadyHint": "Simpan dengan Let's Encrypt terpilih untuk mulai melayaninya.",
+    "turnedOff": "HTTPS dinonaktifkan",
+    "saved": "Pengaturan HTTPS disimpan",
+    "settings": {
+      "title": "Pengaturan",
+      "description": "Perubahan langsung berlaku; Athena tidak dimulai ulang."
+    },
+    "mode": {
+      "label": "Mode",
+      "off": "Nonaktif",
+      "offHelp": "Hanya HTTP biasa.",
+      "self": "Ditandatangani sendiri",
+      "selfHelp": "Athena membuat certificate authority (CA) sendiri. Percayai sekali di setiap perangkat dan browser menampilkan gembok tanpa peringatan. Berfungsi di jaringan rumah tanpa domain.",
+      "letsencrypt": "Let's Encrypt",
+      "letsencryptHelp": "Sertifikat gratis yang dipercaya semua browser, untuk domain milik Anda yang mengarah ke server ini. Diperpanjang otomatis.",
+      "custom": "Kustom",
+      "customHelp": "Unggah sertifikat dan kunci privat Anda sendiri (format PEM). Athena melayaninya apa adanya; tanpa perpanjangan otomatis."
+    },
+    "port": {
+      "label": "Port HTTPS",
+      "help": "Port di bawah 1024 (seperti 443) mungkin memerlukan Athena berjalan sebagai root. Anda mungkin perlu mengizinkan port di firewall host.",
+      "range": "Masukkan port dari 1 sampai 65535.",
+      "taken": "Port {{port}} adalah port HTTP Athena. Pilih yang lain."
+    },
+    "redirect": {
+      "label": "Arahkan browser ke HTTPS",
+      "help": "Halaman yang dibuka di port {{port}} dialihkan ke HTTPS. Berbagi file, webhook, aplikasi, dan server itu sendiri tetap memakai HTTP biasa."
+    },
+    "names": {
+      "label": "Nama tambahan",
+      "help": "Sertifikat sudah mencakup nama server ini, nama .local-nya, dan alamat jaringannya. Tambahkan nama atau alamat lain yang Anda pakai untuk membuka Athena, dipisahkan koma."
+    },
+    "lockedOut": "Terkunci? Jalankan <code>{{command}}</code> di server dan mulai ulang Athena.",
+    "cancel": "Batal",
+    "needsCertificate": "Dapatkan sertifikat terlebih dahulu",
+    "saving": "Menyimpan…",
+    "save": "Simpan",
+    "confirm": {
+      "title": "Arahkan browser ke HTTPS?",
+      "redirect": "Setelah disimpan, membuka Athena di port {{port}} membawa Anda ke <url>{{url}}</url>.",
+      "letsencrypt": "Buka Athena dengan nama domainnya di sana; nama lain mendapat peringatan sertifikat.",
+      "custom": "Sertifikat kustom Anda dilayani; browser memercayainya jika berasal dari CA yang dikenal.",
+      "self": "Sebelum Anda memercayai CA Athena di suatu perangkat, browsernya menampilkan peringatan di sana.",
+      "recovery": "Jika Anda tidak dapat masuk kembali, jalankan <cmd>{{command}}</cmd> di server dan mulai ulang Athena.",
+      "action": "Simpan dan alihkan"
+    },
+    "le": {
+      "legend": "Let's Encrypt",
+      "domains": "Domain",
+      "domainsHelp": "Pisahkan beberapa dengan koma. Masing-masing harus mengarah ke server ini di DNS publik. Wildcard (*.example.com) memerlukan tantangan DNS.",
+      "email": "Email",
+      "emailHelp": "Let's Encrypt menulis ke sini jika sertifikat akan kedaluwarsa.",
+      "challenge": "Cara Let's Encrypt memeriksa",
+      "http": "HTTP (port 80)",
+      "httpHelp": "Let's Encrypt terhubung ke port 80 di server ini, jadi harus dapat dijangkau dari internet (teruskan di router Anda).",
+      "dns": "DNS",
+      "dnsHelp": "Athena menambahkan record DNS sementara melalui penyedia DNS Anda. Tanpa port terbuka; berfungsi untuk wildcard.",
+      "port80Title": "Port 80 tidak dapat dibuka saat ini",
+      "port80Description": "Program lain memakainya, atau Athena tidak diizinkan membukanya. Bebaskan port 80 atau gunakan tantangan DNS.",
+      "provider": "Penyedia DNS",
+      "savedUnchanged": "Tersimpan (tidak berubah)",
+      "staging": "Gunakan server staging",
+      "stagingHelp": "Untuk mencoba: browser tidak memercayai sertifikatnya, tetapi batasnya longgar.",
+      "getting": "Mengambil sertifikat…",
+      "renew": "Perpanjang sertifikat sekarang",
+      "get": "Dapatkan sertifikat",
+      "current": "Sertifikat saat ini untuk {{names}}, berlaku sampai {{date}}.",
+      "getThenSave": "Dapatkan sertifikat, lalu simpan untuk mulai melayaninya.",
+      "lastFailed": "Percobaan terakhir gagal: {{error}}"
+    },
+    "custom": {
+      "legend": "Sertifikat kustom",
+      "cert": "Sertifikat (PEM)",
+      "certHelp": "Tempel sertifikat atau rantai sertifikat berenkode PEM secara lengkap.",
+      "key": "Kunci privat (PEM)",
+      "keyHelp": "Tempel kunci privat berenkode PEM. Akan disimpan terenkripsi."
+    },
+    "trust": {
+      "title": "Percayai Athena di perangkat Anda",
+      "description": "Pasang CA Athena sekali di setiap ponsel, tablet, dan komputer yang Anda pakai. Setelah itu browser memercayai setiap sertifikat yang dibuat Athena, termasuk perpanjangan.",
+      "download": "Unduh sertifikat CA",
+      "validUntil": "Berlaku sampai {{date}}",
+      "fingerprint": "Sidik jari SHA-256",
+      "copyFingerprint": "Salin sidik jari",
+      "fingerprintCopied": "Sidik jari disalin",
+      "fingerprintHelp": "Pastikan sama dengan yang ditampilkan perangkat sebelum memercayai file.",
+      "rotated": "CA baru dibuat",
+      "rotatedHint": "Unduh dan percayai lagi di setiap perangkat.",
+      "rotateFailed": "Tidak dapat membuat CA baru",
+      "rotateHint": "Buat CA baru jika kuncinya mungkin bocor. Setiap perangkat harus memercayai yang baru.",
+      "rotate": "Buat CA baru",
+      "rotating": "Membuat…",
+      "confirmTitle": "Buat CA baru?",
+      "confirmDescription": "Perangkat yang memercayai CA saat ini menampilkan peringatan sampai Anda memasang yang baru di masing-masing perangkat.",
+      "macos": {
+        "label": "macOS",
+        "step1": "Buka file yang diunduh. Keychain Access menambahkannya ke keychain login.",
+        "step2": "Di Keychain Access, klik dua kali <b>Athena Local CA</b>, buka <b>Trust</b>, dan atur <b>When using this certificate</b> ke <b>Always Trust</b>.",
+        "step3": "Tutup jendela dan masukkan kata sandi Mac Anda. Mulai ulang browser."
+      },
+      "windows": {
+        "label": "Windows",
+        "step1": "Buka file yang diunduh dan pilih <b>Install Certificate</b>.",
+        "step2": "Pilih <b>Current User</b>, lalu <b>Place all certificates in the following store</b> → <b>Trusted Root Certification Authorities</b>.",
+        "step3": "Selesaikan dan konfirmasi peringatan keamanan. Mulai ulang browser."
+      },
+      "linux": {
+        "label": "Linux",
+        "step1": "Debian atau Ubuntu: <code>{{command}}</code>",
+        "step2": "Fedora: <code>{{command}}</code>",
+        "step3": "Firefox dan Chrome menyimpan daftar sendiri di Linux: impor file di pengaturan sertifikat browser, pada <b>Authorities</b>."
+      },
+      "ios": {
+        "label": "iPhone dan iPad",
+        "step1": "Unduh file di Safari dan izinkan unduhan profil.",
+        "step2": "Di Pengaturan, buka <b>Profile Downloaded</b> (atau <b>General → VPN & Device Management</b>) dan pasang.",
+        "step3": "Buka <b>General → About → Certificate Trust Settings</b> dan aktifkan kepercayaan penuh untuk <b>Athena Local CA</b>."
+      },
+      "android": {
+        "label": "Android",
+        "step1": "Unduh file.",
+        "step2": "Di Pengaturan, cari <b>CA certificate</b> (biasanya <b>Security → Encryption & credentials → Install a certificate → CA certificate</b>) dan pilih file.",
+        "step3": "Konfirmasi peringatan. Beberapa aplikasi mengabaikan sertifikat pengguna; browser memakainya."
+      }
+    }
+  },
+  "sections": {
+    "appearance": "Tampilan",
+    "account": "Akun",
+    "system": "Sistem",
+    "https": "HTTPS",
+    "ai": "AI",
+    "label": "Pengaturan"
+  }
+}

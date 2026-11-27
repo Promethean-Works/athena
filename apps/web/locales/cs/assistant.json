@@ -1,0 +1,142 @@
+{
+  "title": "Asistent",
+  "sheet": {
+    "description": "Povídejte si s asistentem AI o tomto serveru.",
+    "openFullPage": "Otevřít celou stránku"
+  },
+  "chat": {
+    "newChat": "Nový chat",
+    "chats": "Chaty",
+    "noChats": "Zatím žádné chaty.",
+    "deleteChat": "Smazat {{title}}",
+    "thinking": "Přemýšlí…",
+    "stillWorking": "Na odpovědi se stále pracuje. Až bude hotová, zobrazí se zde.",
+    "emptyTitle": "Zeptejte se na tento server",
+    "emptyDescription": "Asistent umí vyhledat aplikace, protokoly, soubory a statistiky systému a po schválení každé akce také instalovat či měnit věci.",
+    "suggestions": {
+      "capabilities": "Co tento server umí?",
+      "disk": "Kolik zbývá místa na disku?",
+      "apps": "Které aplikace běží?"
+    },
+    "message": "Zpráva",
+    "placeholder": "Zeptejte se na tento server…",
+    "placeholderWaiting": "Odpovězte výše, nebo odešlete zprávu a přeskočte to…",
+    "stop": "Zastavit",
+    "send": "Odeslat",
+    "pickModelFirst": "Nejdřív vyberte model",
+    "changeModelFailed": "Model se nepodařilo změnit",
+    "startFailed": "Chat se nepodařilo založit",
+    "deleteFailed": "Chat se nepodařilo smazat",
+    "failed": "Asistent selhal"
+  },
+  "noProviders": {
+    "title": "Nejdřív nastavte model",
+    "description": "Asistent potřebuje poskytovatele AI: cloudového s klíčem API, nebo Ollama běžící na vašem vlastním hardwaru.",
+    "openSettings": "Otevřít Nastavení → AI"
+  },
+  "model": {
+    "pick": "Vyberte model",
+    "label": "Model: {{label}}",
+    "search": "Hledejte nebo zadejte ID modelu",
+    "noMatch": "Žádný model neodpovídá.",
+    "addProvider": "Nejdřív přidejte poskytovatele v Nastavení → AI.",
+    "noTools": "neumí používat nástroje",
+    "use": "Použít „{{model}}“"
+  },
+  "plan": {
+    "title": "Plán",
+    "progress": "Hotovo {{done}} z {{total}}",
+    "steps": "Kroky plánu",
+    "status": {
+      "pending": "čeká",
+      "in_progress": "probíhá",
+      "completed": "dokončeno",
+      "cancelled": "zrušeno",
+      "blocked": "zablokováno"
+    }
+  },
+  "spend": {
+    "usage": "Využití tohoto chatu",
+    "usageWith": "Využití tohoto chatu: {{label}}",
+    "unknownPrices": "Ceny tohoto modelu nejsou známé, takže se počítají jen tokeny.",
+    "estimate": "Odhad podle zveřejněných cen modelu.",
+    "ofLimit": "{{spent}} z {{limit}}",
+    "spent": "Utraceno",
+    "unknown": "Neznámé",
+    "inputTokens": "Vstupní tokeny",
+    "outputTokens": "Výstupní tokeny",
+    "tokens_one": "{{formatted}} token",
+    "tokens_few": "{{formatted}} tokeny",
+    "tokens_many": "{{formatted}} tokenu",
+    "tokens_other": "{{formatted}} tokenů",
+    "limitReached": "Tento chat dosáhl limitu výdajů. Založte nový chat, nebo limit zvyšte v <settings>Nastavení → AI</settings>.",
+    "limitNotApplicable": "Limit výdajů ({{limit}}) se na tento model nedá použít."
+  },
+  "steps": {
+    "thinking": "Přemýšlí",
+    "thought": "Přemýšlel",
+    "draft": "První verze, níže přepracovaná",
+    "approvalNeeded": "Vyžaduje schválení: {{title}}",
+    "run": "Spustit {{name}}",
+    "approvalIntro": "Asistent to chce udělat. Dokud neschválíte, nic se nestane.",
+    "deny": "Zamítnout",
+    "approve": "Schválit",
+    "approvedGoOn": "Schváleno. Pro pokračování odpovězte na ostatní karty.",
+    "deniedGoOn": "Zamítnuto. Pro pokračování odpovězte na ostatní karty.",
+    "logGone": "Tento protokol už neexistuje",
+    "log": "Protokol",
+    "denied": "Zamítnuto: {{title}}",
+    "failed": "Selhalo: {{title}}",
+    "running": "Spouští se {{name}}",
+    "ran": "Spuštěno {{name}}",
+    "withSubject": "{{title}}: {{subject}}",
+    "helperRunningTask": "Pomocník zjišťuje: {{task}}",
+    "helperDoneTask": "Pomocník zjistil: {{task}}",
+    "helperRunning": "Pomocník vyhledává",
+    "helperDone": "Pomocník vyhledal",
+    "tools": {
+      "getCapabilities": {
+        "running": "Zjišťuje, co tento server umí",
+        "done": "Zjistil, co tento server umí"
+      },
+      "getSystemStats": { "running": "Čte statistiky systému", "done": "Přečetl statistiky systému" },
+      "listApps": { "running": "Vypisuje aplikace", "done": "Vypsal aplikace" },
+      "appLogs": { "running": "Čte protokoly aplikace", "done": "Přečetl protokoly aplikace" },
+      "listFileLocations": { "running": "Vypisuje umístění souborů", "done": "Vypsal umístění souborů" },
+      "listFiles": { "running": "Vypisuje soubory", "done": "Vypsal soubory" },
+      "readFile": { "running": "Čte soubor", "done": "Přečetl soubor" },
+      "writeFile": { "running": "Zapisuje soubor", "done": "Zapsal soubor" },
+      "editFile": { "running": "Upravuje soubor", "done": "Upravil soubor" },
+      "listDirectory": { "running": "Vypisuje složku", "done": "Vypsal složku" },
+      "createDirectory": { "running": "Vytváří složku", "done": "Vytvořil složku" },
+      "searchStore": { "running": "Hledá v obchodě s aplikacemi", "done": "Prohledal obchod s aplikacemi" },
+      "readToolResult": { "running": "Čte uložený výsledek nástroje", "done": "Přečetl uložený výsledek nástroje" },
+      "askUserQuestion": { "running": "Čeká na vaši odpověď", "done": "Zeptal se vás" },
+      "advisor": { "running": "Ptá se poradce", "done": "Zeptal se poradce" },
+      "runWorkflow": {
+        "running": "Pomocníci vyhledávají společně",
+        "done": "Pomocníci vyhledali společně"
+      },
+      "getStoreApp": { "running": "Čte aplikaci z obchodu", "done": "Přečetl aplikaci z obchodu" },
+      "listPackageManagers": { "running": "Vypisuje správce balíčků", "done": "Vypsal správce balíčků" },
+      "searchPackages": { "running": "Hledá balíčky", "done": "Prohledal balíčky" },
+      "listUpgradablePackages": {
+        "running": "Kontroluje aktualizace balíčků",
+        "done": "Zkontroloval aktualizace balíčků"
+      }
+    }
+  },
+  "question": {
+    "title": "Otázky",
+    "asks": "Asistent se ptá: {{title}}",
+    "intro": "Asistent se ptá, než bude pokračovat. Nikdy neodpovídejte heslem ani klíčem.",
+    "ownAnswerLabel": "Vaše vlastní odpověď na {{header}}",
+    "ownAnswerPlaceholder": "Nebo napište vlastní odpověď",
+    "skip": "Přeskočit",
+    "send": "Odeslat odpovědi",
+    "skippedGoOn": "Přeskočeno. Pro pokračování odpovězte na ostatní karty.",
+    "answeredGoOn": "Zodpovězeno. Pro pokračování odpovězte na ostatní karty.",
+    "youAnswered": "Odpověděli jste: {{answers}}",
+    "youSkipped": "Otázku jste přeskočili"
+  }
+}

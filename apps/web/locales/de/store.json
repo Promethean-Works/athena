@@ -1,0 +1,113 @@
+{
+  "support": {
+    "emulated": "Emuliert",
+    "emulatedTitle": "Kein Image für diese CPU; Docker führt ein anderes per Emulation aus, was langsamer ist",
+    "unsupported": "Läuft hier nicht",
+    "unsupportedTitle": "Kein Image für die CPU dieses Servers"
+  },
+  "browser": {
+    "loadError": "Store konnte nicht geladen werden",
+    "filteredCount": "{{shown}} von {{total}} Apps",
+    "totalCount_one": "{{count}} App, jeweils ein Compose-Projekt, das Athena für dich einrichtet.",
+    "totalCount_other": "{{count}} Apps, jeweils ein Compose-Projekt, das Athena für dich einrichtet.",
+    "browsePrompt": "Durchsuche Apps zur Installation.",
+    "searchPlaceholder": "Apps suchen",
+    "catalogs": "Kataloge",
+    "showingUnsupported_one": "Zeigt {{count}} App, die auf der CPU dieses Servers nicht laufen kann.",
+    "showingUnsupported_other": "Zeigt {{count}} Apps, die auf der CPU dieses Servers nicht laufen können.",
+    "hiddenUnsupported_one": "{{count}} App ist ausgeblendet, da sie kein Image für die CPU dieses Servers hat.",
+    "hiddenUnsupported_other": "{{count}} Apps sind ausgeblendet, da sie kein Image für die CPU dieses Servers haben.",
+    "hideThem": "Ausblenden",
+    "showThem": "Anzeigen",
+    "all": "Alle",
+    "noMatchTitle": "Keine Apps gefunden",
+    "noMatchHidden_one": "{{count}} passende App ist ausgeblendet, da sie kein Image für die CPU dieses Servers hat.",
+    "noMatchHidden_other": "{{count}} passende Apps sind ausgeblendet, da sie kein Image für die CPU dieses Servers haben.",
+    "noMatchHint": "Versuche eine andere Suche oder Kategorie.",
+    "showMatches_one": "Anzeigen",
+    "showMatches_other": "Anzeigen"
+  },
+  "card": {
+    "installed": "Installiert"
+  },
+  "popular": {
+    "title": "Gerade beliebt",
+    "subtitle": "Die Apps, mit denen die meisten Heimserver anfangen.",
+    "showPage": "Seite {{page}} von {{total}} anzeigen"
+  },
+  "installForm": {
+    "generated": "Wird erzeugt, wenn leer",
+    "nameInvalid": "Verwende Kleinbuchstaben, Ziffern, Bindestriche oder Unterstriche.",
+    "jobLabel": "{{title}} installieren",
+    "appName": "App-Name",
+    "nameHint": "Installiere dieselbe App bei Bedarf zweimal unter verschiedenen Namen.",
+    "advanced": "Erweiterte Einstellungen",
+    "install": "{{title}} installieren"
+  },
+  "view": {
+    "loadError": "Diese App konnte nicht geladen werden",
+    "notFound": "App nicht gefunden",
+    "website": "Website",
+    "alreadyInstalled": "Bereits installiert",
+    "installedAs": "Als",
+    "installAnother": "Du kannst eine weitere Kopie unter einem anderen Namen installieren.",
+    "beforeYouStart": "Bevor du anfängst",
+    "whatYouGet": "Das bekommst du",
+    "details": "Details",
+    "category": "Kategorie",
+    "license": "Lizenz",
+    "images": "Images",
+    "platforms": "Plattformen",
+    "viewCompose": "compose.yaml ansehen",
+    "reportPrompt": "Funktioniert nicht wie erwartet?",
+    "install": "Installieren",
+    "installHint": "Deine Antworten werden in der .env-Datei der App auf dem Server gespeichert, neben ihrer compose.yaml.",
+    "variant": "Variante",
+    "cannotInstall": "{{title}} kann auf diesem Server nicht installiert werden: Es gibt kein Image für {{platform}}.",
+    "thisCpu": "diese CPU",
+    "thisServerCpu": "die CPU dieses Servers",
+    "moreIn": "Mehr in {{category}}",
+    "cpu": {
+      "unsupportedTitle": "Läuft auf diesem Server nicht",
+      "unsupportedBody": "Seine Images werden für {{published}} veröffentlicht, und dieser Server ist {{host}}.",
+      "emulatedTitle": "Läuft per Emulation",
+      "emulatedBody": "Es gibt kein Image für {{host}}, daher führt Docker das für {{published}} per Emulation aus. Das funktioniert, ist aber langsamer und braucht mehr Speicher."
+    },
+    "screenshot": {
+      "alt": "Screenshot von {{title}}",
+      "open": "Größeren Screenshot von {{title}} öffnen",
+      "enlarge": "Vergrößern",
+      "show": "Screenshot {{number}} anzeigen",
+      "description": "Ein Screenshot von {{title}}.",
+      "close": "Schließen"
+    }
+  },
+  "catalogs": {
+    "kindAuto": "Automatisch erkennen",
+    "kindAthena": "Athena-Katalog",
+    "never": "nie",
+    "addFailed": "Katalog konnte nicht hinzugefügt werden",
+    "refreshFailed": "{{name}} konnte nicht aktualisiert werden",
+    "removeFailed": "{{name}} konnte nicht entfernt werden",
+    "removed": "{{name}} entfernt",
+    "builtIn": "Integriert",
+    "refreshFailedBadge": "Aktualisierung fehlgeschlagen",
+    "summaryBuiltin_one": "{{count}} App · wird mit Athena geliefert",
+    "summaryBuiltin_other": "{{count}} Apps · werden mit Athena geliefert",
+    "summaryUpdated_one": "{{count}} App · aktualisiert {{when}}",
+    "summaryUpdated_other": "{{count}} Apps · aktualisiert {{when}}",
+    "refresh": "Aktualisieren",
+    "removeLabel": "{{name}} entfernen",
+    "addTitle": "Katalog hinzufügen",
+    "addDescription": "Ein GitHub-, Codeberg- oder GitLab-Repository oder ein direkter .tar.gz/.zip-Link.",
+    "name": "Name",
+    "namePlaceholder": "Meine Apps",
+    "format": "Format",
+    "formatHint": "Athena-Kataloge nutzen apps/<id>/compose.yaml; CasaOS-Stores nutzen Apps/<Name>/docker-compose.yml.",
+    "add": "Katalog hinzufügen",
+    "removeTitle": "{{name}} entfernen?",
+    "removeDescription": "Seine Apps verschwinden aus dem Store. Bereits daraus installierte Apps laufen weiter.",
+    "cancel": "Abbrechen",
+    "remove": "Entfernen"
+  }
+}

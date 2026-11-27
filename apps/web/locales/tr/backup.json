@@ -1,0 +1,119 @@
+{
+  "add": "Ekle",
+  "cancel": "İptal",
+  "back": "Geri",
+  "errors": {
+    "listDestinations": "Yedekleme hedefleri listelenemedi",
+    "createDestination": "Hedef oluşturulamadı",
+    "deleteDestination": "Hedef silinemedi",
+    "listPlans": "Yedekleme planları listelenemedi",
+    "createPlan": "Plan oluşturulamadı",
+    "updatePlan": "Plan güncellenemedi",
+    "deletePlan": "Plan silinemedi",
+    "startBackup": "Yedekleme başlatılamadı",
+    "listVersions": "Yedek sürümleri listelenemedi",
+    "listVersionFiles": "Sürüm dosyaları listelenemedi",
+    "restoreApp": "Uygulama geri yüklenemedi"
+  },
+  "toast": {
+    "destinationCreated": "\"{{name}}\" hedefi oluşturuldu",
+    "planCreated": "\"{{name}}\" planı oluşturuldu",
+    "planUpdated": "\"{{name}}\" planı güncellendi",
+    "backupStarted": "\"{{name}}\" yedeklemesi başladı"
+  },
+  "view": {
+    "unavailable": "Yedeklemeler kullanılamıyor",
+    "unsupported": "Bu ana makine yedeklemeyi desteklemiyor.",
+    "tabs": {
+      "versions": "Sürümler",
+      "destinations": "Hedefler",
+      "plans": "Planlar"
+    }
+  },
+  "destinations": {
+    "title": "Hedefler",
+    "name": "Ad",
+    "kind": "Tür",
+    "location": "Konum",
+    "created": "Oluşturulma",
+    "empty": {
+      "title": "Henüz hedef yok",
+      "description": "Hedef, yedeklerin tutulduğu bir klasör ya da rclone remote'udur. Yedeklemeye başlamak için bir tane ekleyin."
+    }
+  },
+  "plans": {
+    "title": "Planlar",
+    "name": "Ad",
+    "schedule": "Zamanlama",
+    "lastRun": "Son çalıştırma",
+    "status": "Durum",
+    "manual": "elle",
+    "runNow": "Şimdi çalıştır",
+    "empty": {
+      "title": "Henüz plan yok",
+      "description": "Plan; Athena'yı, uygulamaları, bir hedefi ve bir zamanlamayı seçer, sonra zamanlayıcıyla çalışır."
+    }
+  },
+  "versions": {
+    "title": "Sürümler",
+    "refresh": "Yenile",
+    "time": "Zaman",
+    "size": "Boyut",
+    "new": "Yeni",
+    "added": "Eklenen",
+    "changed": "Değişen",
+    "removed": "Kaldırılan",
+    "os": "İS",
+    "viewFiles": "Dosyaları gör",
+    "restore": "Geri yükle",
+    "empty": {
+      "title": "Henüz sürüm yok",
+      "description": "İlkini oluşturmak için bir yedekleme çalıştırın."
+    }
+  },
+  "addDestination": {
+    "title": "Yedekleme hedefi ekle",
+    "kitTitle": "Kurtarma kitini kaydedin",
+    "description": "restic'in depoyu nerede tutacağını seçin: yerel bir klasör ya da bir rclone remote'u.",
+    "kitDescription": "Kiti indirin veya kopyalayın. Athena bu parolayı bir daha göstermez; onsuz çökmüş bir ana makine geri yüklenemez.",
+    "prepareFailed": "Hedef hazırlanamadı",
+    "saveKitFirst": "Hedefi oluşturmadan önce kurtarma kitini kaydedin",
+    "name": "Ad",
+    "namePlaceholder": "ör. USB bellek",
+    "kind": "Tür",
+    "local": "Yerel klasör",
+    "rclone": "rclone remote'u",
+    "folder": "Klasör",
+    "folderHint": "Mutlak yol, Athena veri klasörünün dışında.",
+    "remote": "Remote",
+    "remoteHint": "Bulut → Remote'lar bölümünde zaten ayarlanmış bir rclone remote'u.",
+    "password": "Depo parolası",
+    "passwordPlaceholder": "Güçlü bir parola oluşturmak için boş bırakın",
+    "passwordHint": "Athena'nın güçlü bir parola oluşturması için boş bırakın. Aşağıda bir kez gösterilir, sonra bir daha gösterilmez.",
+    "kitSaved": "Bu kurtarma kitini kaydettim (parola, hedef ve restic sürümü)",
+    "next": "Sonraki: kurtarma kiti",
+    "create": "Hedef oluştur"
+  },
+  "addPlan": {
+    "title": "Yedekleme planı ekle",
+    "description": "Neyin, nereye ve ne sıklıkla yedekleneceğini seçin. \"Çalışırken yedekle\" açık değilse uygulamalar yedekleme sırasında durdurulur.",
+    "name": "Ad",
+    "namePlaceholder": "ör. Günlük uygulamalar",
+    "destination": "Hedef",
+    "athena": "Athena'yı yedekle (ayarlar, veritabanı, gizli bilgiler, TLS)",
+    "athenaHint": "Önerilir: varsayılan olarak açık.",
+    "apps": "Uygulamalar",
+    "appsHint": "Plana hangi uygulamaların dahil edileceği.",
+    "noApps": "Uygulama bulunamadı. Önce Mağaza → Uygulamalar bölümünden uygulama başlatın.",
+    "schedule": "Zamanlama (cron)",
+    "schedulePlaceholder": "0 3 * * *  (her gün 03:00)",
+    "scheduleHint": "Yalnızca elle çalıştırma için boş bırakın. Zamanlanmış çalıştırmalar 4. bölümle gelir.",
+    "retention": "Saklama",
+    "keepLast": "Sonuncuları tut",
+    "keepDaily": "Günlükleri tut",
+    "keepWeekly": "Haftalıkları tut",
+    "keepMonthly": "Aylıkları tut",
+    "retentionHint": "Her öğe için `restic forget --keep-…`. Varsayılanlar: 7 günlük / 4 haftalık / 6 aylık.",
+    "create": "Plan oluştur"
+  }
+}

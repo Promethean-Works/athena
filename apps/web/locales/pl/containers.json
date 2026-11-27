@@ -1,0 +1,72 @@
+{
+  "state": {
+    "running": "Działa",
+    "dead": "Martwy",
+    "exited": "Zakończony",
+    "exitedWithCode": "Zakończony ({{code}})",
+    "paused": "wstrzymany",
+    "created": "utworzony",
+    "restarting": "restartuje się"
+  },
+  "logs": {
+    "following": "Śledzenie nowych danych wyjściowych",
+    "stopped": "Kontener został zatrzymany",
+    "disconnected": "Rozłączono",
+    "connecting": "Łączenie…",
+    "title": "Logi · {{name}}",
+    "empty": "Brak danych wyjściowych."
+  },
+  "runtime": {
+    "startFailed": "Nie udało się uruchomić środowiska uruchomieniowego",
+    "running": "Środowisko kontenerów działa",
+    "providerStopped": "{{provider}} nie działa",
+    "stopped": "Środowisko kontenerów nie działa",
+    "none": "Brak środowiska kontenerów",
+    "notFound": "Athena nie znalazła silnika kontenerów na tym hoście.",
+    "start": "Uruchom {{provider}}",
+    "redetect": "Wykryj ponownie",
+    "setup": {
+      "darwin": {
+        "title": "Zainstaluj Colima"
+      },
+      "linux": {
+        "title": "Zainstaluj Docker Engine"
+      },
+      "windows": {
+        "title": "Zainstaluj środowisko kontenerów",
+        "wsl": "Docker Engine w WSL2: wsl --install, a potem zainstaluj docker-ce wewnątrz dystrybucji",
+        "podman": "lub Podman: winget install RedHat.Podman, a potem podman machine init; podman machine start",
+        "rancher": "lub Rancher Desktop: winget install SUSE.RancherDesktop (wybierz silnik dockerd)"
+      }
+    }
+  },
+  "table": {
+    "listFailed": "Nie udało się wyświetlić listy kontenerów",
+    "actionFailed": {
+      "start": "Nie udało się uruchomić {{name}}",
+      "stop": "Nie udało się zatrzymać {{name}}",
+      "restart": "Nie udało się zrestartować {{name}}"
+    },
+    "removeFailed": "Nie udało się usunąć {{name}}",
+    "removed": "Usunięto {{name}}",
+    "emptyTitle": "Brak kontenerów",
+    "emptyDescription": "Kontenery z tego środowiska pojawiają się tutaj, także te uruchomione poza Athena.",
+    "name": "Nazwa",
+    "image": "Obraz",
+    "state": "Stan",
+    "ports": "Porty",
+    "actions": "Akcje",
+    "standalone": "Kontenery samodzielne",
+    "actionsFor": "Akcje dla {{name}}",
+    "logs": "Logi",
+    "shell": "Powłoka",
+    "restart": "Restartuj",
+    "stop": "Zatrzymaj",
+    "start": "Uruchom",
+    "remove": "Usuń",
+    "removeTitle": "Usunąć {{name}}?",
+    "removeRunningDescription": "Najpierw zostanie zatrzymany. Kontener zostanie usunięty. Nazwane woluminy i obraz zostaną zachowane.",
+    "removeDescription": "Kontener zostanie usunięty. Nazwane woluminy i obraz zostaną zachowane.",
+    "cancel": "Anuluj"
+  }
+}
