@@ -423,7 +423,12 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                           {/* The badge wraps under the version on narrow screens,
                               so the row actions stay in view. */}
                           <div className="flex flex-wrap items-center gap-1">
-                            <span>{p.version}</span>
+                            <span
+                              className="max-w-32 truncate"
+                              title={p.version ?? undefined}
+                            >
+                              {p.version}
+                            </span>
                             {up?.latest ? (
                               <Badge variant="outline">→ {up.latest}</Badge>
                             ) : null}
@@ -602,7 +607,14 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                       />
                     </TableCell>
                     <TableCell className="font-mono text-xs">
-                      {r.version}
+                      {/* Cask versions can be long build strings: cap the width so the
+                          actions column stays in view. */}
+                      <span
+                        className="inline-block max-w-32 truncate align-middle"
+                        title={r.version ?? undefined}
+                      >
+                        {r.version}
+                      </span>
                       {sourceBadge(r.source) ? (
                         <Badge variant="outline" className="ml-2">
                           {sourceBadge(r.source)}
