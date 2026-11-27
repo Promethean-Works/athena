@@ -104,5 +104,12 @@
     }
   },
   "restartLateBody": "Puede tardar más en un host lento. Si sigue caído, revisa el registro en la carpeta de datos (logs/athena.log).",
-  "toggleSidebar": "Mostrar u ocultar la barra lateral"
+  "toggleSidebar": "Mostrar u ocultar la barra lateral",
+  "hostPassword": {
+    "title": "Introduce la contraseña de tu ordenador",
+    "description": "{{reason}} necesita la contraseña de la cuenta con la que se ejecuta Athena, para actuar como administrador en este ordenador.",
+    "label": "Contraseña",
+    "keep": "Athena la guarda en la memoria de esta pestaña durante {{minutes}} minutos desde el último uso, nunca en disco. Al cerrar la pestaña o cerrar sesión se olvida.",
+    "continue": "Continuar"
+  }
 }

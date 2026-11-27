@@ -15,13 +15,10 @@ import {
 } from "@workspace/ui/components/dialog"
 import { FieldError } from "@workspace/ui/components/field"
 import { Spinner } from "@workspace/ui/components/spinner"
-import {
-  HostPasswordField,
-  needsHostPassword,
-} from "@/components/files/elevation"
+import { ElevationHint } from "@/components/files/elevation"
 
-/** Confirms removing a share, and asks for the computer's password when the host needs it.
- * `onConfirm` returns an error message to show here, or null when it worked. */
+/** Confirms removing a share. `onConfirm` asks for the computer's password itself when the
+ * host needs it, and returns an error message to show here, or null when it worked. */
 export function RemoveShareDialog({
   open,
   description,
@@ -33,29 +30,23 @@ export function RemoveShareDialog({
   description: string
   capability: Schemas["Capability"] | undefined
   onClose: () => void
-  onConfirm: (password: string) => Promise<string | null>
+  onConfirm: () => Promise<string | null>
 }) {
   const { t } = useTranslation("files")
-  const [password, setPassword] = React.useState("")
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (open) {
-      setPassword("")
       setError(null)
     }
   }, [open])
 
   async function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (needsHostPassword(capability) && password === "") {
-      setError(t("network.password.required"))
-      return
-    }
     setPending(true)
     setError(null)
-    const failed = await onConfirm(password)
+    const failed = await onConfirm()
     setPending(false)
     if (failed) setError(failed)
   }
@@ -72,13 +63,7 @@ export function RemoveShareDialog({
           onSubmit={submit}
           className="flex flex-col gap-3"
         >
-          <HostPasswordField
-            id="remove-share-password"
-            capability={capability}
-            value={password}
-            onChange={setPassword}
-            disabled={pending}
-          />
+          <ElevationHint capability={capability} />
           {error ? <FieldError>{error}</FieldError> : null}
         </form>
         <DialogFooter>

@@ -68,12 +68,6 @@
     "size": "大小",
     "dependencies": "相依項目"
   },
-  "password": {
-    "title": "輸入電腦密碼",
-    "description": "{{name}} 會安裝到整個系統，因此變更需要 Athena 所執行帳號的密碼。密碼只在此操作中使用一次，不會被儲存。",
-    "label": "密碼",
-    "continue": "繼續"
-  },
   "add": {
     "button": "新增套件管理員",
     "title": "新增套件管理員",

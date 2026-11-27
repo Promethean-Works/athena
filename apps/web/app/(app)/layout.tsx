@@ -1,6 +1,7 @@
 import { AdminGate } from "@/components/admin-gate"
 import { AppSidebar } from "@/components/app-sidebar"
 import { AuthProvider } from "@/components/auth-provider"
+import { HostPasswordProvider } from "@/components/host-password-provider"
 import { CapabilitiesProvider } from "@/components/capabilities-provider"
 import { AppearanceProvider } from "@/components/settings/appearance-provider"
 import { SiteHeader } from "@/components/site-header"
@@ -15,24 +16,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <AppearanceProvider>
         <CapabilitiesProvider>
-          <SidebarProvider
-            style={
-              {
-                "--sidebar-width": "calc(var(--spacing) * 72)",
-                "--header-height": "calc(var(--spacing) * 12)",
-              } as React.CSSProperties
-            }
-          >
-            <AppSidebar variant="inset" />
-            <SidebarInset>
-              <SiteHeader />
-              <div className="@container/main flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
-                <UpdateInterrupted />
-                <UpdateNotice />
-                <AdminGate>{children}</AdminGate>
-              </div>
-            </SidebarInset>
-          </SidebarProvider>
+          <HostPasswordProvider>
+            <SidebarProvider
+              style={
+                {
+                  "--sidebar-width": "calc(var(--spacing) * 72)",
+                  "--header-height": "calc(var(--spacing) * 12)",
+                } as React.CSSProperties
+              }
+            >
+              <AppSidebar variant="inset" />
+              <SidebarInset>
+                <SiteHeader />
+                <div className="@container/main flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+                  <UpdateInterrupted />
+                  <UpdateNotice />
+                  <AdminGate>{children}</AdminGate>
+                </div>
+              </SidebarInset>
+            </SidebarProvider>
+          </HostPasswordProvider>
         </CapabilitiesProvider>
       </AppearanceProvider>
     </AuthProvider>

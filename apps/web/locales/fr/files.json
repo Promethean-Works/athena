@@ -270,9 +270,6 @@
     "copyFailed": "Impossible de copier",
     "smbAddress": "adresse du partage",
     "password": {
-      "label": "Le mot de passe de votre ordinateur",
-      "hint": "Nécessaire une fois pour cette modification. Athena ne le conserve pas.",
-      "required": "Saisissez le mot de passe de votre ordinateur",
       "systemHint": "Votre ordinateur vous demandera d'approuver en tant qu'administrateur."
     },
     "remove": {

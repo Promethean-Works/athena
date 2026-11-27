@@ -103,5 +103,12 @@
     }
   },
   "restartLateBody": "Pode demorar mais num anfitrião lento. Se continuar parado, consulta o registo na pasta de dados (logs/athena.log).",
-  "toggleSidebar": "Alternar barra lateral"
+  "toggleSidebar": "Alternar barra lateral",
+  "hostPassword": {
+    "title": "Introduza a palavra-passe do seu computador",
+    "description": "{{reason}} precisa da palavra-passe da conta com que o Athena corre, para agir como administrador neste computador.",
+    "label": "Palavra-passe",
+    "keep": "O Athena guarda-a na memória deste separador durante {{minutes}} minutos após a última utilização, nunca no disco. Fechar o separador ou terminar sessão esquece-a.",
+    "continue": "Continuar"
+  }
 }

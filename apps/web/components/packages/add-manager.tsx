@@ -35,7 +35,7 @@ import { toast } from "@workspace/ui/components/toast"
 import { JobDialog } from "@/components/job-dialog"
 import { useCapabilities } from "@/components/capabilities-provider"
 import { ManagerLogo } from "@/components/packages/package-icon"
-import { usePasswordPrompt } from "@/components/packages/password-dialog"
+import { useHostPassword } from "@/components/host-password-provider"
 
 type Installable = Schemas["InstallableOut"]
 type Job = Schemas["JobOut"]
@@ -53,7 +53,7 @@ export function AddManager({ onAdded }: { onAdded: () => void }) {
   const [error, setError] = React.useState<string | null>(null)
   const [confirm, setConfirm] = React.useState<Installable | null>(null)
   const [job, setJob] = React.useState<Job | null>(null)
-  const { ask, dialog: passwordDialog } = usePasswordPrompt()
+  const { ask, remember, forget } = useHostPassword()
 
   const load = React.useCallback(async () => {
     setError(null)
@@ -75,9 +75,11 @@ export function AddManager({ onAdded }: { onAdded: () => void }) {
       { params: { path: { installer: item.id } }, body: { password } }
     )
     if (data) {
+      if (password) remember(password)
       setJob(data)
       setOpen(false)
     } else {
+      forget()
       toast.add({
         type: "error",
         title: t("add.failed", { name: item.label }),
@@ -87,7 +89,8 @@ export function AddManager({ onAdded }: { onAdded: () => void }) {
   }
 
   // The dialog stays closed while the job runs; the list is reloaded next time.
-  async function finished() {
+  async function finished(succeeded: boolean) {
+    if (!succeeded) forget()
     setList(null)
     await refresh()
     onAdded()
@@ -211,7 +214,6 @@ export function AddManager({ onAdded }: { onAdded: () => void }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {passwordDialog}
       <JobDialog job={job} onClose={() => setJob(null)} onFinished={finished} />
     </>
   )

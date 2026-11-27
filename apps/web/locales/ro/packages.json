@@ -70,12 +70,6 @@
     "size": "Dimensiune",
     "dependencies": "Dependențe"
   },
-  "password": {
-    "title": "Introdu parola computerului",
-    "description": "{{name}} se instalează pentru tot sistemul, așa că modificările cer parola contului sub care rulează Athena. Se folosește o singură dată pentru această acțiune și nu este salvată niciodată.",
-    "label": "Parolă",
-    "continue": "Continuă"
-  },
   "add": {
     "button": "Adaugă un manager de pachete",
     "title": "Adaugă un manager de pachete",

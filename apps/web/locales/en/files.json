@@ -270,9 +270,6 @@
     "copyFailed": "Couldn't copy",
     "smbAddress": "share address",
     "password": {
-      "label": "Your computer's password",
-      "hint": "Needed once for this change. Athena doesn't store it.",
-      "required": "Enter your computer's password",
       "systemHint": "Your computer will ask you to approve this as an administrator."
     },
     "remove": {

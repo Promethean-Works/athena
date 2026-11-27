@@ -103,5 +103,12 @@
     }
   },
   "restartLateBody": "Op een trage host kan het langer duren. Blijft het uit, controleer dan de log in de gegevensmap (logs/athena.log).",
-  "toggleSidebar": "Zijbalk in-/uitklappen"
+  "toggleSidebar": "Zijbalk in-/uitklappen",
+  "hostPassword": {
+    "title": "Voer het wachtwoord van je computer in",
+    "description": "{{reason}} heeft het wachtwoord nodig van het account waaronder Athena draait, om als beheerder op deze computer te handelen.",
+    "label": "Wachtwoord",
+    "keep": "Athena bewaart het {{minutes}} minuten na het laatste gebruik in het geheugen van dit tabblad, nooit op schijf. Het tabblad sluiten of uitloggen wist het.",
+    "continue": "Doorgaan"
+  }
 }

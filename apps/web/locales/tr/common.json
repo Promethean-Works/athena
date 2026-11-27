@@ -103,5 +103,12 @@
     }
   },
   "restartLateBody": "Yavaş bir ana makinede daha uzun sürebilir. Kapalı kalırsa veri klasöründeki günlüğe (logs/athena.log) bakın.",
-  "toggleSidebar": "Kenar çubuğunu aç/kapat"
+  "toggleSidebar": "Kenar çubuğunu aç/kapat",
+  "hostPassword": {
+    "title": "Bilgisayarınızın parolasını girin",
+    "description": "{{reason}}, bu bilgisayarda yönetici olarak işlem yapmak için Athena'nın çalıştığı hesabın parolasına ihtiyaç duyar.",
+    "label": "Parola",
+    "keep": "Athena, son kullanımdan sonra {{minutes}} dakika boyunca bu sekmenin belleğinde tutar, asla diske yazmaz. Sekmeyi kapatmak veya oturumu kapatmak onu siler.",
+    "continue": "Devam"
+  }
 }

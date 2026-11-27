@@ -270,9 +270,6 @@
     "copyFailed": "Det gick inte att kopiera",
     "smbAddress": "delningsadress",
     "password": {
-      "label": "Datorns lösenord",
-      "hint": "Behövs en gång för den här ändringen. Athena sparar det inte.",
-      "required": "Ange datorns lösenord",
       "systemHint": "Datorn ber dig godkänna som administratör."
     },
     "remove": {

@@ -262,9 +262,6 @@
     "copyFailed": "Không thể sao chép",
     "smbAddress": "địa chỉ chia sẻ",
     "password": {
-      "label": "Mật khẩu máy tính của bạn",
-      "hint": "Chỉ cần một lần cho thay đổi này. Athena không lưu mật khẩu.",
-      "required": "Nhập mật khẩu máy tính của bạn",
       "systemHint": "Máy tính sẽ yêu cầu bạn xác nhận với quyền quản trị viên."
     },
     "remove": {

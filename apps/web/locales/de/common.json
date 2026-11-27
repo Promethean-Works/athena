@@ -103,5 +103,12 @@
     }
   },
   "restartLateBody": "Auf einem langsamen Host kann es länger dauern. Bleibt Athena aus, prüfe das Log im Datenordner (logs/athena.log).",
-  "toggleSidebar": "Seitenleiste umschalten"
+  "toggleSidebar": "Seitenleiste umschalten",
+  "hostPassword": {
+    "title": "Gib das Passwort deines Computers ein",
+    "description": "{{reason}} braucht das Passwort des Kontos, unter dem Athena läuft, um auf diesem Computer als Administrator zu handeln.",
+    "label": "Passwort",
+    "keep": "Athena behält es {{minutes}} Minuten nach der letzten Nutzung im Speicher dieses Tabs, nie auf der Festplatte. Beim Schließen des Tabs oder Abmelden ist es vergessen.",
+    "continue": "Weiter"
+  }
 }

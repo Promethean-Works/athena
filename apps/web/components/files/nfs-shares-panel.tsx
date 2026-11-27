@@ -60,9 +60,11 @@ import {
   ConnectionString,
   serverHost,
 } from "@/components/files/connection-string"
+import { useHostPassword } from "@/components/host-password-provider"
 import {
   canCreateShare,
-  HostPasswordField,
+  ElevationHint,
+  passwordFor,
   hostPasswordHeader,
 } from "@/components/files/elevation"
 import { RemoveShareDialog } from "@/components/files/remove-share-dialog"
@@ -88,7 +90,7 @@ export function NfsSharesPanel() {
   const [locationId, setLocationId] = React.useState<number | null>(null)
   const [clients, setClients] = React.useState("")
   const [readOnly, setReadOnly] = React.useState(false)
-  const [password, setPassword] = React.useState("")
+  const { ask, remember, forget } = useHostPassword()
   const [removeId, setRemoveId] = React.useState<number | null>(null)
   const [formError, setFormError] = React.useState<string | null>(null)
 
@@ -124,6 +126,8 @@ export function NfsSharesPanel() {
       !window.confirm(t("network.nfs.confirmEverywhere"))
     )
       return
+    const password = await passwordFor(capability, ask, t("smb.createShare"))
+    if (password === undefined) return
     setPending(true)
     const { data, error: err } = await api.POST("/api/shares/nfs", {
       body: {
@@ -136,13 +140,14 @@ export function NfsSharesPanel() {
     })
     setPending(false)
     if (!data) {
+      forget()
       setFormError(errorMessage(err))
       return
     }
+    if (password) remember(password)
     setDialogOpen(false)
     setClients("")
     setReadOnly(false)
-    setPassword("")
     await load()
     toast.add({
       type: "success",
@@ -151,15 +156,21 @@ export function NfsSharesPanel() {
     })
   }
 
-  async function removeShare(pw: string): Promise<string | null> {
+  async function removeShare(): Promise<string | null> {
     if (removeId === null) return null
+    const pw = await passwordFor(capability, ask, t("network.remove.title"))
+    if (pw === undefined) return null
     const { error: err } = await api.DELETE("/api/shares/nfs/{share_id}", {
       params: {
         path: { share_id: removeId },
         header: hostPasswordHeader(capability, pw),
       },
     })
-    if (err) return errorMessage(err)
+    if (err) {
+      forget()
+      return errorMessage(err)
+    }
+    if (pw) remember(pw)
     setRemoveId(null)
     await load()
     toast.add({ type: "success", title: t("network.nfs.removed") })
@@ -330,13 +341,7 @@ export function NfsSharesPanel() {
                   {t("smb.readOnly")}
                 </FieldLabel>
               </Field>
-              <HostPasswordField
-                id="share-host-password"
-                capability={capability}
-                value={password}
-                onChange={setPassword}
-                disabled={pending}
-              />
+              <ElevationHint capability={capability} />
             </FieldGroup>
 
             <DialogFooter>

@@ -286,9 +286,6 @@
     "copyFailed": "Kopírování se nezdařilo",
     "smbAddress": "adresa sdílení",
     "password": {
-      "label": "Heslo k počítači",
-      "hint": "Je potřeba jednou pro tuto změnu. Athena ho neukládá.",
-      "required": "Zadejte heslo k počítači",
       "systemHint": "Počítač vás požádá o schválení jako správce."
     },
     "remove": {

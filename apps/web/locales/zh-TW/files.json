@@ -262,9 +262,6 @@
     "copyFailed": "無法複製",
     "smbAddress": "分享位址",
     "password": {
-      "label": "電腦密碼",
-      "hint": "此變更需要輸入一次。Athena 不會儲存。",
-      "required": "請輸入電腦密碼",
       "systemHint": "電腦會要求你以系統管理員身分確認。"
     },
     "remove": {

@@ -102,5 +102,12 @@
     }
   },
   "restartLateBody": "在較慢的主機上可能需要更久。若一直無法恢復，請查看資料資料夾中的記錄（logs/athena.log）。",
-  "toggleSidebar": "切換側邊欄"
+  "toggleSidebar": "切換側邊欄",
+  "hostPassword": {
+    "title": "輸入你的電腦密碼",
+    "description": "{{reason}}需要 Athena 所執行帳號的密碼，才能在這台電腦上以管理員身分操作。",
+    "label": "密碼",
+    "keep": "Athena 在最後一次使用後的 {{minutes}} 分鐘內僅保存在此分頁的記憶體中，絕不寫入磁碟。關閉分頁或登出會將其清除。",
+    "continue": "繼續"
+  }
 }

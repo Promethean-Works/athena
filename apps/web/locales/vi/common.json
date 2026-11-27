@@ -102,5 +102,12 @@
     }
   },
   "restartLateBody": "Có thể lâu hơn trên máy chủ chậm. Nếu vẫn không hoạt động, hãy kiểm tra nhật ký trong thư mục dữ liệu (logs/athena.log).",
-  "toggleSidebar": "Bật/tắt thanh bên"
+  "toggleSidebar": "Bật/tắt thanh bên",
+  "hostPassword": {
+    "title": "Nhập mật khẩu máy tính của bạn",
+    "description": "{{reason}} cần mật khẩu của tài khoản mà Athena đang chạy, để thao tác với quyền quản trị trên máy tính này.",
+    "label": "Mật khẩu",
+    "keep": "Athena giữ nó trong bộ nhớ của tab này {{minutes}} phút sau lần dùng cuối, không bao giờ ghi vào đĩa. Đóng tab hoặc đăng xuất sẽ xóa nó.",
+    "continue": "Tiếp tục"
+  }
 }

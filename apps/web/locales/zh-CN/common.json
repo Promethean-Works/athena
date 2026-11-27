@@ -102,5 +102,12 @@
     }
   },
   "restartLateBody": "在较慢的主机上可能需要更长时间。如果一直无法恢复，请查看数据文件夹中的日志（logs/athena.log）。",
-  "toggleSidebar": "切换侧边栏"
+  "toggleSidebar": "切换侧边栏",
+  "hostPassword": {
+    "title": "输入你的电脑密码",
+    "description": "{{reason}}需要 Athena 所运行账户的密码，以便在这台电脑上以管理员身份操作。",
+    "label": "密码",
+    "keep": "Athena 在最后一次使用后的 {{minutes}} 分钟内仅保存在此标签页的内存中，绝不写入磁盘。关闭标签页或退出登录会将其清除。",
+    "continue": "继续"
+  }
 }

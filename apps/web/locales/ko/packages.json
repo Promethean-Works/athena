@@ -68,12 +68,6 @@
     "size": "크기",
     "dependencies": "종속성"
   },
-  "password": {
-    "title": "컴퓨터 비밀번호 입력",
-    "description": "{{name}}은(는) 시스템 전체에 설치되므로 변경하려면 Athena가 실행 중인 계정의 비밀번호가 필요합니다. 이 작업에 한 번만 사용되며 저장되지 않습니다.",
-    "label": "비밀번호",
-    "continue": "계속"
-  },
   "add": {
     "button": "패키지 관리자 추가",
     "title": "패키지 관리자 추가",

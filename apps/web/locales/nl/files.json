@@ -270,9 +270,6 @@
     "copyFailed": "Kopiëren mislukt",
     "smbAddress": "shareadres",
     "password": {
-      "label": "Het wachtwoord van je computer",
-      "hint": "Eénmalig nodig voor deze wijziging. Athena slaat het niet op.",
-      "required": "Voer het wachtwoord van je computer in",
       "systemHint": "Je computer vraagt je dit goed te keuren als beheerder."
     },
     "remove": {

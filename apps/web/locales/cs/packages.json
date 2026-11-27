@@ -71,12 +71,6 @@
     "size": "Velikost",
     "dependencies": "Závislosti"
   },
-  "password": {
-    "title": "Zadejte heslo počítače",
-    "description": "{{name}} se instaluje pro celý systém, proto změny vyžadují heslo účtu, pod kterým Athena běží. Použije se jednou pro tuto akci a nikdy se neukládá.",
-    "label": "Heslo",
-    "continue": "Pokračovat"
-  },
   "add": {
     "button": "Přidat správce balíčků",
     "title": "Přidat správce balíčků",

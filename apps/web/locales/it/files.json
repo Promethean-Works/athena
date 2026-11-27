@@ -278,9 +278,6 @@
     "copyFailed": "Impossibile copiare",
     "smbAddress": "indirizzo della condivisione",
     "password": {
-      "label": "La password del tuo computer",
-      "hint": "Serve una volta per questa modifica. Athena non la memorizza.",
-      "required": "Inserisci la password del tuo computer",
       "systemHint": "Il tuo computer ti chiederà di approvare come amministratore."
     },
     "remove": {

@@ -103,5 +103,12 @@
     }
   },
   "restartLateBody": "Det kan ta längre tid på en långsam värd. Om den förblir nere, kontrollera loggen i datamappen (logs/athena.log).",
-  "toggleSidebar": "Visa/dölj sidofält"
+  "toggleSidebar": "Visa/dölj sidofält",
+  "hostPassword": {
+    "title": "Ange datorns lösenord",
+    "description": "{{reason}} behöver lösenordet för kontot som Athena körs under, för att agera som administratör på den här datorn.",
+    "label": "Lösenord",
+    "keep": "Athena behåller det i den här flikens minne i {{minutes}} minuter efter senaste användning, aldrig på disk. Stänger du fliken eller loggar ut glöms det.",
+    "continue": "Fortsätt"
+  }
 }

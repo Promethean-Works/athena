@@ -3,13 +3,6 @@
 import { useTranslation } from "react-i18next"
 
 import type { Schemas } from "@workspace/api-client"
-import {
-  Field,
-  FieldDescription,
-  FieldLabel,
-} from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
-
 type Capability = Schemas["Capability"]
 
 /** True when Athena can create shares now, or after the admin approves (password or the
@@ -32,48 +25,37 @@ export function needsHostPassword(capability: Capability | undefined): boolean {
 /** The `params.header` of a share request: the password, only when one is needed. */
 export function hostPasswordHeader(
   capability: Capability | undefined,
-  password: string
+  password: string | null
 ): { "X-Host-Password"?: string } {
-  return needsHostPassword(capability) ? { "X-Host-Password": password } : {}
+  return needsHostPassword(capability) && password
+    ? { "X-Host-Password": password }
+    : {}
 }
 
-/** The "computer password" field, or a note that the host will ask on its own screen.
- * Renders nothing when no approval is needed. */
-export function HostPasswordField({
-  id,
+/** Asks for the host password (through the shared dialog) when this share action needs
+ * it. `undefined`: cancelled, stop; `null`: none needed. */
+export async function passwordFor(
+  capability: Capability | undefined,
+  ask: (reason: string) => Promise<string | null>,
+  reason: string
+): Promise<string | null | undefined> {
+  if (!needsHostPassword(capability)) return null
+  return (await ask(reason)) ?? undefined
+}
+
+/** A note that the host will ask for approval on its own screen. Renders nothing for the
+ * password case (the shared dialog asks) or when no approval is needed. */
+export function ElevationHint({
   capability,
-  value,
-  onChange,
-  disabled,
 }: {
-  id: string
   capability: Capability | undefined
-  value: string
-  onChange: (value: string) => void
-  disabled?: boolean
 }) {
   const { t } = useTranslation("files")
   if (capability?.status !== "needs_privilege") return null
-  if (capability.elevation === "system") {
-    return (
-      <p className="text-sm text-muted-foreground">
-        {t("network.password.systemHint")}
-      </p>
-    )
-  }
-  if (capability.elevation !== "password") return null
+  if (capability.elevation !== "system") return null
   return (
-    <Field>
-      <FieldLabel htmlFor={id}>{t("network.password.label")}</FieldLabel>
-      <FieldDescription>{t("network.password.hint")}</FieldDescription>
-      <Input
-        id={id}
-        type="password"
-        autoComplete="current-password"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-      />
-    </Field>
+    <p className="text-sm text-muted-foreground">
+      {t("network.password.systemHint")}
+    </p>
   )
 }

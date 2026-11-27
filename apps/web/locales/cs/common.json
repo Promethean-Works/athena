@@ -105,5 +105,12 @@
     }
   },
   "restartLateBody": "Na pomalém hostiteli to může trvat déle. Pokud zůstane nedostupná, zkontrolujte protokol v datové složce (logs/athena.log).",
-  "toggleSidebar": "Přepnout postranní panel"
+  "toggleSidebar": "Přepnout postranní panel",
+  "hostPassword": {
+    "title": "Zadejte heslo svého počítače",
+    "description": "{{reason}} potřebuje heslo účtu, pod kterým Athena běží, aby mohla na tomto počítači jednat jako správce.",
+    "label": "Heslo",
+    "keep": "Athena si ho drží v paměti této karty {{minutes}} min. po posledním použití, nikdy na disku. Zavření karty nebo odhlášení ho zapomene.",
+    "continue": "Pokračovat"
+  }
 }

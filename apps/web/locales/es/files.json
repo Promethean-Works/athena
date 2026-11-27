@@ -278,9 +278,6 @@
     "copyFailed": "No se pudo copiar",
     "smbAddress": "dirección del recurso compartido",
     "password": {
-      "label": "La contraseña de tu equipo",
-      "hint": "Se necesita una vez para este cambio. Athena no la guarda.",
-      "required": "Introduce la contraseña de tu equipo",
       "systemHint": "Tu equipo te pedirá que lo apruebes como administrador."
     },
     "remove": {

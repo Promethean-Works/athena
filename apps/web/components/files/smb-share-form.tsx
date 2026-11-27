@@ -25,10 +25,11 @@ import { Switch } from "@workspace/ui/components/switch"
 import { toast } from "@workspace/ui/components/toast"
 import { useCapability } from "@/components/capabilities-provider"
 import { serverHost } from "@/components/files/connection-string"
+import { useHostPassword } from "@/components/host-password-provider"
 import {
-  HostPasswordField,
+  ElevationHint,
+  passwordFor,
   hostPasswordHeader,
-  needsHostPassword,
 } from "@/components/files/elevation"
 
 type Location = Schemas["LocationOut"]
@@ -61,7 +62,7 @@ export function SmbShareForm({
   const [name, setName] = React.useState(defaultName ?? "")
   const [readOnly, setReadOnly] = React.useState(false)
   const [guestOk, setGuestOk] = React.useState(false)
-  const [password, setPassword] = React.useState("")
+  const { ask, remember, forget } = useHostPassword()
   const [formError, setFormError] = React.useState<string | null>(null)
   const locationId = fixedLocation ?? picked
 
@@ -83,10 +84,8 @@ export function SmbShareForm({
       setFormError(t("network.nameRequired"))
       return
     }
-    if (needsHostPassword(capability) && password === "") {
-      setFormError(t("network.password.required"))
-      return
-    }
+    const password = await passwordFor(capability, ask, t("smb.createShare"))
+    if (password === undefined) return
     setPending(true)
     const { data, error: err } = await api.POST("/api/shares/smb", {
       body: {
@@ -99,11 +98,12 @@ export function SmbShareForm({
       params: { header: hostPasswordHeader(capability, password) },
     })
     setPending(false)
-    setPassword("")
     if (!data) {
+      forget()
       setFormError(errorMessage(err))
       return
     }
+    if (password) remember(password)
     setName(defaultName ?? "")
     setReadOnly(false)
     setGuestOk(false)
@@ -189,13 +189,7 @@ export function SmbShareForm({
             </Field>
           ) : null}
         </div>
-        <HostPasswordField
-          id={`${id}-password`}
-          capability={capability}
-          value={password}
-          onChange={setPassword}
-          disabled={pending}
-        />
+        <ElevationHint capability={capability} />
         {formError ? <FieldError>{formError}</FieldError> : null}
       </FieldGroup>
       {actions({ pending })}
