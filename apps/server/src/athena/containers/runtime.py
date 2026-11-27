@@ -90,5 +90,6 @@ def start_command(capability: Capability | None, os_name: str) -> list[str] | No
     return {
         "colima": ["colima", "start"],
         "rancher-desktop": ["rdctl", "start"],
+        "kiri": ["kiri", "start"],
         "docker-engine": ["systemctl", "start", "docker"],
     }.get(provider)

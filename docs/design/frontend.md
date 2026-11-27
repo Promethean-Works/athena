@@ -88,7 +88,8 @@ Every user-visible string is a key in `apps/web/locales/<lang>/<namespace>.json`
 ## 5.5 Routes
 
 ```
-/setup                    first-run wizard (admin account, then optional AI provider)
+/setup                    first-run wizard (account, then language, container runtime, locations, network, optional AI)
+/onboarding               the same steps again, signed in (Settings → "Run setup again")
 /login
 /                         dashboard
 /apps                     installed apps

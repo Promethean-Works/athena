@@ -21,6 +21,7 @@ from athena.api import files as files_api
 from athena.api import https as https_api
 from athena.api import mounts as mounts_api
 from athena.api import nfs as nfs_api
+from athena.api import onboarding as onboarding_api
 from athena.api import packages as packages_api
 from athena.api import settings as settings_api
 from athena.api import shares as shares_api
@@ -228,6 +229,7 @@ def create_app(
     # The runtime router first, so /containers/runtime/start isn't read as a container ref.
     app.include_router(containers.runtime_router, prefix="/api", dependencies=[require_admin])
     app.include_router(containers.router, prefix="/api", dependencies=[require_admin])
+    app.include_router(onboarding_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(apps.router, prefix="/api", dependencies=[require_user])
     app.include_router(store_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(settings_api.router, prefix="/api", dependencies=[require_user])

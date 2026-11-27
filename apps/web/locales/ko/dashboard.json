@@ -6,6 +6,10 @@
     "open": "열기"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "시스템",
       "description": "CPU, 메모리, 네트워크, 디스크 활동을 실시간으로 보여줘요."
