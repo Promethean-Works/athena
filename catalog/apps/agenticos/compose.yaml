@@ -11,8 +11,8 @@ x-athena:
   web_port: WEB_PORT
   notes: >-
     Sign in with the owner email and password below. Add a model provider key in the form (or later in the
-    console) so agents can answer. This installs the core stack only: the browser, code sandbox and object-storage
-    add-ons from the upstream project are left out. Needs about 8 GB of RAM (4 vCPU). Set "Server address" to the host
+    console) so agents can answer. The browser, page previews and code sandbox are optional parts you can switch on
+    here or later from the app's page. Needs about 8 GB of RAM (4 vCPU). Set "Server address" to the host
     name or IP you open Athena from (not localhost) if you use it from other devices.
     The owner account is created by a one-off `bootstrap` container on first start; if it didn't run, check its log.
   features:
@@ -21,6 +21,24 @@ x-athena:
     - Works with OpenAI, Anthropic, Google, OpenRouter and local models
     - Budgets, approvals and an audit trail
     - Built on Pydantic AI, Apache-2.0
+  profiles:
+    - id: browser
+      label: Browser for agents
+      description: A real Chromium agents can drive, behind a proxy that refuses private addresses. About 1 GB more RAM.
+      env:
+        BROWSER_CDP_ALLOWED_HOSTS: '["browser"]'
+        BROWSER_SIGN_IN_CDP_URL: http://browser:9222
+        VISUAL_RENDER_CDP_URL: http://browser:9222
+        BROWSER_EGRESS_PROXY: http://browser-egress:3128
+    - id: artifacts
+      label: Page previews
+      description: Headless Chromium that renders previews of the pages and apps agents publish.
+      env:
+        ARTIFACT_RENDER_CDP_URL: http://artifact-render:9222
+    - id: sandbox
+      label: Code sandbox
+      description: Runs agents' Python, Node and LibreOffice work in throwaway containers. Gives this app control of the server's Docker.
+      requires: [docker-socket, same-path-mounts]
   env:
     - key: WEB_PORT
       label: Web port
@@ -76,6 +94,27 @@ x-athena:
       type: password
       generate: secret
       advanced: true
+    - key: SANDBOXD_TOKEN
+      label: Code sandbox token
+      description: Authorises opening a sandbox session, which runs commands on this server. Treat it like the Docker socket.
+      type: password
+      generate: secret
+      advanced: true
+    - key: SANDBOX_WORKSPACE_ROOT
+      label: Code sandbox workspaces
+      description: Where sandbox sessions keep their files. It's mounted at the same path inside and outside the container.
+      type: path
+      default: "@app_data/sandbox-workspaces"
+      advanced: true
+    - key: DOCKER_GID
+      label: Docker group ID
+      description: Group that owns the Docker socket (0 where the socket is proxied).
+      default: "@docker_gid"
+      advanced: true
+    - key: TZ
+      label: Timezone
+      default: "@timezone"
+      advanced: true
 
 x-backend-env: &backend-env
   ENVIRONMENT: local
@@ -88,6 +127,13 @@ x-backend-env: &backend-env
   VAULT_MASTER_KEY: ${VAULT_MASTER_KEY}
   SUBSCRIPTION_GATEWAY_URL: http://subscription-gateway:8400
   SUBSCRIPTION_GATEWAY_TOKEN: ${GATEWAY_TOKEN}
+  SANDBOXD_TOKEN: ${SANDBOXD_TOKEN}
+  # Set by the optional parts (x-athena.profiles); empty when they are off.
+  BROWSER_CDP_ALLOWED_HOSTS: ${BROWSER_CDP_ALLOWED_HOSTS:-[]}
+  BROWSER_SIGN_IN_CDP_URL: ${BROWSER_SIGN_IN_CDP_URL:-}
+  VISUAL_RENDER_CDP_URL: ${VISUAL_RENDER_CDP_URL:-}
+  BROWSER_EGRESS_PROXY: ${BROWSER_EGRESS_PROXY:-}
+  ARTIFACT_RENDER_CDP_URL: ${ARTIFACT_RENDER_CDP_URL:-}
 
 services:
   db:
@@ -131,6 +177,7 @@ services:
     ports:
       - "${API_PORT}:8000"
     environment: *backend-env
+    networks: [default, browser, render]
     volumes:
       - ${ATHENA_APP_DATA}/media:/app/media
     depends_on:
@@ -150,6 +197,7 @@ services:
     stop_grace_period: 45s
     command: python -m app.worker
     environment: *backend-env
+    networks: [default, browser, render]
     volumes:
       - ${ATHENA_APP_DATA}/media:/app/media
     depends_on:
@@ -210,3 +258,70 @@ services:
       timeout: 10s
       start_period: 40s
       retries: 3
+
+  # ---- optional parts (x-athena.profiles) ----
+  browser:
+    image: ghcr.io/vstorm-co/agenticos-browser:1.93.0
+    profiles: [browser]
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    shm_size: 1gb
+    networks: [browser]
+  browser-egress:
+    image: ubuntu/squid:6.6-24.04_edge
+    profiles: [browser]
+    restart: unless-stopped
+    volumes:
+      - ./files/browser-egress/squid.conf:/etc/squid/squid.conf:ro
+    networks: [browser]
+  artifact-render:
+    image: chromedp/headless-shell:155.0.8059.40
+    profiles: [artifacts]
+    restart: unless-stopped
+    command:
+      - --disable-dev-shm-usage
+      - --no-first-run
+      - --disable-background-networking
+      - --disable-component-update
+      - --disable-default-apps
+      - --disable-sync
+      - --mute-audio
+      - --hide-scrollbars
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    cpus: 1.0
+    pids_limit: 256
+    networks: [render]
+  sandboxd:
+    image: ghcr.io/vstorm-co/sandboxd:0.2.39
+    profiles: [sandbox]
+    restart: unless-stopped
+    init: true
+    environment:
+      SANDBOXD_HOST: 0.0.0.0
+      SANDBOXD_PORT: "8080"
+      SANDBOXD_TOKEN: ${SANDBOXD_TOKEN}
+      SANDBOXD_WORKSPACE_ROOT: ${SANDBOX_WORKSPACE_ROOT}
+      SANDBOXD_RUNTIMES: '{"workbench":{"description":"Python, Node and LibreOffice - documents, data, charts and code","runtime":{"name":"workbench","base_image":"python:3.12-slim","description":"Python, Node and LibreOffice - documents, data, charts and code","setup_commands":["apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates ripgrep fd-find jq less procps xz-utils poppler-utils libreoffice-writer libreoffice-calc libreoffice-impress unzip zip tzdata fonts-dejavu-core && ln -s /usr/bin/fdfind /usr/local/bin/fd && rm -rf /var/lib/apt/lists/*","arch=\"$$(dpkg --print-architecture)\"; case \"$$arch\" in amd64) node_arch=x64 ;; arm64) node_arch=arm64 ;; *) echo \"no Node build for $$arch\" >&2; exit 1 ;; esac; curl -fsSL \"https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-$${node_arch}.tar.xz\" | tar -xJ -C /usr/local --strip-components=1 --exclude CHANGELOG.md --exclude README.md --exclude LICENSE && npm install -g tsx @anthropic-ai/claude-code@2.1.288 @openai/codex@0.160.0 && npm cache clean --force","curl -fsSL https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin INSTALLER_NO_MODIFY_PATH=1 sh"],"packages":["liteparse","pypdf","python-docx","openpyxl","python-pptx","pillow","pandas","duckdb","matplotlib","httpx","requests","beautifulsoup4","lxml","markdownify","pyyaml","tabulate","reportlab"],"env_vars":{"PYTHONUNBUFFERED":"1","PYTHONDONTWRITEBYTECODE":"1","PYTHONUTF8":"1","MPLBACKEND":"Agg","PIP_DISABLE_PIP_VERSION_CHECK":"1"}},"mem_limit":"2g","network_mode":"bridge"},"desktop":{"description":"Linux desktop with Firefox, document tools, Python, Node, Claude Code and Codex","runtime":{"name":"desktop","base_image":"python:3.12-slim","description":"Linux desktop with Firefox, document tools, Python, Node, Claude Code and Codex","setup_commands":["apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates ripgrep fd-find jq less procps xz-utils poppler-utils libreoffice-writer libreoffice-calc libreoffice-impress unzip zip tzdata fonts-dejavu-core && ln -s /usr/bin/fdfind /usr/local/bin/fd && rm -rf /var/lib/apt/lists/*","arch=\"$$(dpkg --print-architecture)\"; case \"$$arch\" in amd64) node_arch=x64 ;; arm64) node_arch=arm64 ;; *) echo \"no Node build for $$arch\" >&2; exit 1 ;; esac; curl -fsSL \"https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-$${node_arch}.tar.xz\" | tar -xJ -C /usr/local --strip-components=1 --exclude CHANGELOG.md --exclude README.md --exclude LICENSE && npm install -g tsx @anthropic-ai/claude-code@2.1.288 @openai/codex@0.160.0 && npm cache clean --force","curl -fsSL https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin INSTALLER_NO_MODIFY_PATH=1 sh","apt-get update && apt-get install -y --no-install-recommends xvfb x11-utils xfce4 xfce4-terminal dbus-x11 xdotool scrot firefox-esr fonts-dejavu-core fonts-noto-color-emoji git curl ca-certificates jq procps unzip && rm -rf /var/lib/apt/lists/*"],"packages":["liteparse","pypdf","python-docx","openpyxl","python-pptx","pillow","pandas","duckdb","matplotlib","httpx","requests","beautifulsoup4","lxml","markdownify","pyyaml","tabulate","reportlab"],"env_vars":{"PYTHONUNBUFFERED":"1","PYTHONDONTWRITEBYTECODE":"1","PYTHONUTF8":"1","MPLBACKEND":"Agg","PIP_DISABLE_PIP_VERSION_CHECK":"1"}},"mem_limit":"2g","network_mode":"bridge"}}'
+      SANDBOXD_SANDBOX_UID: "10001"
+      SANDBOXD_PERSIST_CONTAINERS: "true"
+      SANDBOXD_CONTAINER_TTL: "86400"
+      SANDBOXD_MAX_SESSIONS_PER_TENANT: "10"
+      SANDBOXD_NETWORK_MODE: none
+      SANDBOXD_UI_ENABLED: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SANDBOX_WORKSPACE_ROOT}:${SANDBOX_WORKSPACE_ROOT}
+    group_add:
+      - "${DOCKER_GID}"
+
+networks:
+  browser: {}
+  render:
+    internal: true

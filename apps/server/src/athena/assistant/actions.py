@@ -70,13 +70,17 @@ async def install_store_app(
     app_id: AppId,
     name: AppName,
     values: dict[str, str] | None = None,
+    profiles: list[str] | None = None,
 ) -> dict[str, Any]:
     """Install an app from the store and deploy it. `name` is the new app's name (use
     get_store_app's suggested_name unless asked otherwise); `values` fills the install
-    form by field key. Leave out a field to use its default; passwords are generated."""
+    form by field key. Leave out a field to use its default; passwords are generated.
+    `profiles` lists the optional parts to switch on (ids from get_store_app's `profiles`);
+    leave it out for the ones that are on by default. Parts or apps with `docker_access`
+    control every container on the server: say so before installing them."""
     from athena.api import store
 
-    body = store.InstallIn(name=name, values=values or {})
+    body = store.InstallIn(name=name, values=values or {}, profiles=profiles)
     d = ctx.deps
     started = await _http(
         store.install(catalog, app_id, body, d.request(), d.runtime(), d.user, d.db)
@@ -314,7 +318,11 @@ def summarize(db: Session, name: str, args: Any) -> str | None:
                 return f"Start in the background on the server: {short}"
             return f"Run on the server: {short}"
         case "install_store_app":
-            return f"Install {a.get('catalog')}/{a.get('app_id')} from the store as {a.get('name')}"
+            parts = f" with {', '.join(a['profiles'])}" if a.get("profiles") else ""
+            return (
+                f"Install {a.get('catalog')}/{a.get('app_id')} from the store as "
+                f"{a.get('name')}{parts}"
+            )
         case "create_app":
             return f"Create the app {a.get('name')} from a compose file and deploy it"
         case "change_app":

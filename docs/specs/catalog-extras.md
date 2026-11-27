@@ -1,6 +1,6 @@
 # Spec: catalog extras (app files, optional services, Docker host access)
 
-**Status:** Draft · **Milestone:** store/catalog (no milestone yet) · **Design:** `docs/design/` store section, `catalog/README.md`
+**Status:** Approved (2026-11-26), built in the catalog-extras PR ·  **Milestone:** store/catalog (no milestone yet) · **Design:** `docs/design/` store section, `catalog/README.md`
 
 ## Goal
 
@@ -23,7 +23,7 @@ For admins who install an app and want the whole thing without writing files or 
   - Linux: socket at `/var/run/docker.sock`; the Docker group ID comes from `stat` on it.
   - macOS (Docker Desktop, Colima, OrbStack): socket is reachable at the same path; group ID is `0`; a same-path workspace works because the app data folder is shared into the VM.
   - Windows: host paths (`C:\…`) can't be mounted at the same path inside a Linux container. Profiles that need a same-path workspace carry `requires: [same-path-mounts]`; the install form disables them with the reason when the host can't do it.
-- Capability: a new `docker-socket` check in the manifest (socket exists and is usable); profiles that mount it declare `requires: [docker-socket]`. The store page shows "Needs Docker access" instead of hiding the app.
+- Host checks: `docker-socket` and `same-path-mounts` are derived from the existing `containers` capability (`catalog/requirements.py`), not new manifest entries: Docker Desktop, Colima and WSL all proxy the socket, so "the runtime is ready" is the honest test, and Windows is the only host that can't mount same-path folders. Profiles declare them in `requires`; the install form disables an unmet part with the reason instead of hiding the app.
 
 ## Design
 
@@ -59,17 +59,17 @@ For admins who install an app and want the whole thing without writing files or 
 
 ### 3. Docker host access
 
-- **New default tokens** in `catalog/loader.py` `resolve_default`: `@docker_gid` (group that owns the Docker socket, `0` where there is no such group) and `@docker_socket` (the socket path the runtime uses: `/var/run/docker.sock`, or the Colima/OrbStack/Podman path the runtime provider reports). Apps use them in a `type: text, advanced: true` field, as `@uid` is used today.
+- **New default token** in `catalog/loader.py` `resolve_default`: `@docker_gid` (the group that owns `/var/run/docker.sock` on Linux, `0` everywhere else). Apps use it in an `advanced: true` field, as `@uid` is used today. (`@docker_socket` was dropped: the left side of a socket bind mount is resolved by the daemon, which is `/var/run/docker.sock` on every supported runtime.)
 - **Same-path workspace:** apps mount `${ATHENA_APP_DATA}/workspaces:${ATHENA_APP_DATA}/workspaces`. `ATHENA_APP_DATA` is already an absolute host path; the spec just documents the pattern in `catalog/README.md`.
 - **Warning:** the loader detects a bind mount of a Docker socket (in the default services or any profile) and sets `grants_docker_access` on the app. The store page and install form show "This app can control every container on this server" with the profile name when it's profile-only. Portainer, Arcane and Dozzle get the badge for free; their copy-pasted `notes` lines can go.
-- **First consumer:** AgenticOS profiles `browser` (browser, egress proxy), `sandbox` (`sandboxd`, `requires: [docker-socket, same-path-mounts]`), `objectstore` (MinIO) and `artifacts` (headless Chromium).
+- **First consumer:** AgenticOS profiles `browser` (browser, egress proxy), `sandbox` (`sandboxd`, `requires: [docker-socket, same-path-mounts]`) and `artifacts` (headless Chromium). The `objectstore` (MinIO) part from the first draft is left out: it needs a bucket created and the backend switched to S3, which couldn't be verified.
 
 ### Common
 
 - **Server:** loader, model, `api/store.py` (install + a `GET /api/store/...` field for `profiles`, `files` count and `grants_docker_access`), capability manifest entry, audit entry on install already exists; add the chosen profiles to it. Run `pnpm gen:api`.
 - **Web:** install form checkboxes, the warning banner, the disabled-with-reason state. shadcn `Checkbox` and `Alert`; no new dependency.
 - **Assistant / MCP:** the install tool already takes the form values; add `profiles`. Installing an app that grants Docker access, or a profile that does, needs approval.
-- **Security:** files are read from the built-in catalog or a catalog the admin added; remote archives get the same traversal checks as today plus the size limits. The socket warning is informational; nothing is blocked. Secrets still never appear in shipped files; the loader rejects files that look like they contain a literal secret (same gitleaks rule CI already runs).
+- **Security:** files are read from the built-in catalog or a catalog the admin added; remote archives get the same traversal checks as today plus the size limits. The socket warning is informational; nothing is blocked. Secrets never appear in shipped files; gitleaks, which CI already runs, checks that.
 - **Dependencies:** none.
 
 ## Parts
@@ -92,6 +92,12 @@ One PR for the whole feature (maintainer preference); commits follow these parts
 
 1. **Seed or managed files?** Recommendation: seed (written once). Managed files would silently overwrite user edits on update; the update screen mentions changed shipped files instead.
 2. **Inline `configs: content:` instead of a `files/` folder?** Recommendation: the folder. Inline content needs Compose 2.23 or newer (Podman's compose and older Docker packages lack it), can't hold binary files, and makes long configs hard to read in YAML.
-3. **Does the runtime layer honour `COMPOSE_PROFILES` in `.env`?** Needs a check of the runtime providers (Docker, Podman) before part 2; recommendation: pass `--profile` flags explicitly from the stored value if either ignores the variable.
+3. **Does the runtime layer honour `COMPOSE_PROFILES` in `.env`?** Answered: yes on Docker Compose 5.8 (checked for real). Also found: `up --remove-orphans` leaves a switched-off profile's containers running, so switching removes them explicitly, and `down` removes every container of the project even with profiles off. Podman's compose wasn't checked.
 4. **Windows: allow the sandbox profile under WSL2?** Recommendation: not in this feature; disabled with a reason until the Windows container runtime reports a Linux-path workspace.
 5. **Should profile toggles be allowed after install?** Recommendation: yes (part 2); it's what admins will want after trying the browser.
+
+## Not verified yet
+
+- AgenticOS with the browser, page-preview and sandbox parts on: Colima's 2 GB VM kills it, so only `docker compose --profile "*" config` ran. Needs a Docker VM with 8 GB.
+- Podman's compose and `COMPOSE_PROFILES`; the Windows disabled state for the sandbox; `@docker_gid` on a real Linux host.
+- Left out: AgenticOS object store (MinIO). Next: those checks, then mark this spec Done with the PR numbers.

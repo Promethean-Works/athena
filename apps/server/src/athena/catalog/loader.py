@@ -3,6 +3,7 @@
 import logging
 import os
 import secrets
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,10 @@ from athena.apps.store import InvalidComposeError, parse_compose
 from athena.catalog.model import CatalogApp, EnvField, InvalidCatalogAppError, parse_app
 
 log = logging.getLogger(__name__)
+
+MAX_FILE_BYTES = 256 * 1024
+MAX_APP_FILES_BYTES = 2 * 1024 * 1024
+MAX_APP_FILES = 40
 
 
 def builtin_catalog_dir() -> Path | None:
@@ -25,6 +30,35 @@ def builtin_catalog_dir() -> Path | None:
         if (candidate / "apps").is_dir():
             return candidate
     return None
+
+
+def load_app_files(folder: Path, app_id: str) -> dict[str, bytes]:
+    """Read ``<folder>/files/**``: path (POSIX, relative to ``files/``) -> content.
+
+    Symlinks are refused (an archive could point one outside the catalog), and the
+    size and count limits keep a third-party catalog from filling the disk.
+    """
+    root = folder / "files"
+    if not root.exists():
+        return {}
+    if root.is_symlink() or not root.is_dir():
+        raise InvalidCatalogAppError(f"{app_id}: `files` must be a folder")
+    files: dict[str, bytes] = {}
+    total = 0
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink():
+            raise InvalidCatalogAppError(f"{app_id}: files/ can't contain symlinks")
+        if path.is_dir():
+            continue
+        rel = path.relative_to(root).as_posix()
+        data = path.read_bytes()
+        total += len(data)
+        if len(data) > MAX_FILE_BYTES:
+            raise InvalidCatalogAppError(f"{app_id}: files/{rel} is larger than 256 KB")
+        if total > MAX_APP_FILES_BYTES or len(files) >= MAX_APP_FILES:
+            raise InvalidCatalogAppError(f"{app_id}: files/ is too large (2 MB, 40 files)")
+        files[rel] = data
+    return files
 
 
 def load_catalog(root: Path, catalog_id: str) -> tuple[list[CatalogApp], list[str]]:
@@ -56,7 +90,9 @@ def load_catalog(root: Path, catalog_id: str) -> tuple[list[CatalogApp], list[st
         if skipped:
             continue
         try:
-            apps.append(parse_app(app_id, catalog_id, docs))
+            app = parse_app(app_id, catalog_id, docs)
+            app.files = load_app_files(folder, app_id)
+            apps.append(app)
         except InvalidCatalogAppError as exc:
             errors.append(f"{app_id}: {exc}")
     for message in errors:
@@ -88,6 +124,23 @@ def host_timezone() -> str:
     return time.tzname[0] if time.tzname[0] and "/" in time.tzname[0] else "UTC"
 
 
+DOCKER_SOCKET = Path("/var/run/docker.sock")
+
+
+def docker_socket_gid() -> str:
+    """The group that owns the Docker socket, for ``group_add`` in apps that use it.
+
+    Only Linux has a socket whose owner matters; Docker Desktop, Colima and WSL proxy it
+    and let group 0 through, so everything else gets ``0``.
+    """
+    if not sys.platform.startswith("linux"):
+        return "0"
+    try:
+        return str(DOCKER_SOCKET.stat().st_gid)
+    except OSError:
+        return "0"
+
+
 def resolve_default(field: EnvField, app_data: Path) -> str:
     """Turn a field's default (literal or @token) into a concrete value."""
     default = field.default or ""
@@ -98,6 +151,8 @@ def resolve_default(field: EnvField, app_data: Path) -> str:
         uid = getter() if getter else 1000
         # Root (the Linux service) would make app files root-owned; use the usual first user.
         return str(uid if uid != 0 else 1000)
+    if default == "@docker_gid":
+        return docker_socket_gid()
     if default == "@app_data" or default.startswith("@app_data/"):
         sub = default.removeprefix("@app_data").lstrip("/")
         return str(app_data / sub) if sub else str(app_data)

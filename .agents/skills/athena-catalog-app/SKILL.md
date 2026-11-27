@@ -39,6 +39,7 @@ Checklist:
 - **Every `${VAR}`** is a declared `env` key or `ATHENA_APP_DATA`. Defaults use `@timezone`, `@uid`, `@gid` or `@app_data/<sub>`. Passwords and secrets use `type: password` plus `generate: secret`.
 - **Data** lives under `${ATHENA_APP_DATA}/<sub>`. User media goes through a `type: path` field.
 - Add `restart: unless-stopped` on long-running services.
+- **Config files** go in `apps/<id>/files/` and are mounted as `./files/...`; **optional services** are `profiles:` plus `x-athena.profiles`; an app that mounts the Docker socket is flagged automatically (see `catalog/README.md`). Test profiles with `smoke --profiles`.
 - **YAML 1.2:** quote anything that looks like a boolean or a number (`"yes"`, `"8080"`, `"0755"`).
 
 ## 4. Validate

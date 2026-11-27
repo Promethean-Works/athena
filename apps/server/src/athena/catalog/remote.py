@@ -146,9 +146,15 @@ def build(root: Path, kind: CatalogKind, catalog_id: str, out: Path, log: Log) -
             log(f"… and {len(errors) - 20} more skipped")
     else:
         for compose_file in sorted((root / "apps").glob("*/compose.yaml")):
-            target = out / "apps" / compose_file.parent.name
+            source = compose_file.parent
+            target = out / "apps" / source.name
             target.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(compose_file, target / "compose.yaml")
+            for variant in sorted(source.glob("compose*.yaml")):
+                shutil.copyfile(variant, target / variant.name)
+            files = source / "files"
+            if files.is_dir() and not files.is_symlink():
+                # symlinks=True keeps links as links; load_app_files then refuses them.
+                shutil.copytree(files, target / "files", symlinks=True, dirs_exist_ok=True)
     apps, errors = load_catalog(out, catalog_id)
     for error in errors[:20]:
         log(f"skipped {error}")

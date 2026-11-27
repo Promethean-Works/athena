@@ -1,0 +1,14 @@
+# Shipped with Athena's SearXNG app and written once: edit it freely, Athena never overwrites it.
+# Everything not set here keeps SearXNG's defaults. Docs: https://docs.searxng.org/admin/settings/
+use_default_settings: true
+
+search:
+  # json is what AI apps (Open WebUI, Vane, LiteLLM tools) call: /search?q=…&format=json
+  formats:
+    - html
+    - json
+
+server:
+  # The secret key comes from the SEARXNG_SECRET environment variable (set by the app).
+  limiter: false
+  image_proxy: false

@@ -1257,6 +1257,61 @@
         }
       }
     },
+    "/api/apps/{name}/profiles": {
+      "put": {
+        "tags": [
+          "apps"
+        ],
+        "summary": "Update Profiles",
+        "description": "Switch a store app's optional parts (browser, sandbox, \u2026) on or off and redeploy.",
+        "operationId": "updateAppProfiles",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 63,
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
+              "title": "Name"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfilesIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/apps/{name}/{action}": {
       "post": {
         "tags": [
@@ -7314,6 +7369,19 @@
             },
             "type": "array",
             "title": "Containers"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileState"
+            },
+            "type": "array",
+            "title": "Profiles",
+            "default": []
+          },
+          "docker_access": {
+            "type": "boolean",
+            "title": "Docker Access",
+            "default": false
           }
         },
         "type": "object",
@@ -11203,6 +11271,80 @@
         ],
         "title": "PowerStatus"
       },
+      "ProfileState": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "default": {
+            "type": "boolean",
+            "title": "Default"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "docker_access": {
+            "type": "boolean",
+            "title": "Docker Access"
+          },
+          "disabled_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disabled Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "description",
+          "default",
+          "enabled",
+          "docker_access",
+          "disabled_reason"
+        ],
+        "title": "ProfileState"
+      },
+      "ProfilesIn": {
+        "properties": {
+          "profiles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 32,
+            "title": "Profiles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profiles"
+        ],
+        "title": "ProfilesIn"
+      },
       "Provider": {
         "properties": {
           "name": {
@@ -12650,6 +12792,17 @@
             ],
             "title": "Support"
           },
+          "docker_access": {
+            "type": "boolean",
+            "title": "Docker Access"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileState"
+            },
+            "type": "array",
+            "title": "Profiles"
+          },
           "homepage": {
             "anyOf": [
               {
@@ -12775,6 +12928,8 @@
           "icon",
           "installed",
           "support",
+          "docker_access",
+          "profiles",
           "homepage",
           "notes",
           "platforms",
@@ -14173,6 +14328,20 @@
               }
             ],
             "title": "Variant"
+          },
+          "profiles": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profiles"
           }
         },
         "type": "object",

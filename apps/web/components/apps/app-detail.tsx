@@ -49,6 +49,10 @@ import {
   OpenLinks,
 } from "@/components/apps/app-bits"
 import { useAppJobs } from "@/components/apps/use-app-jobs"
+import {
+  DockerAccessAlert,
+  ProfileOptions,
+} from "@/components/store/profile-options"
 import { LogsSheet } from "@/components/containers/logs-sheet"
 import { ShellSheet } from "@/components/terminal/shell-sheet"
 import { useTerminalAccess } from "@/components/terminal/use-terminal-access"
@@ -64,6 +68,9 @@ export function AppDetail({ name }: { name: string }) {
   const [error, setError] = React.useState<string | null>(null)
   const [draft, setDraft] = React.useState<string | null>(null)
   const [envDraft, setEnvDraft] = React.useState<string | null>(null)
+  const [profilesDraft, setProfilesDraft] = React.useState<string[] | null>(
+    null
+  )
   const [logsFor, setLogsFor] = React.useState<Container | null>(null)
   const [shellFor, setShellFor] = React.useState<Container | null>(null)
   const canShell = useTerminalAccess().state === "ready"
@@ -116,6 +123,25 @@ export function AppDetail({ name }: { name: string }) {
 
   const dirty = draft !== null && draft !== app.compose
   const envDirty = envDraft !== null && envDraft !== app.env
+
+  const enabledProfiles = app.profiles.filter((p) => p.enabled).map((p) => p.id)
+  const profilesDirty =
+    profilesDraft !== null &&
+    [...profilesDraft].sort().join() !== [...enabledProfiles].sort().join()
+  const hasDockerAccess =
+    app.docker_access || app.profiles.some((p) => p.enabled && p.docker_access)
+
+  async function saveProfiles() {
+    if (profilesDraft === null) return
+    jobs.show(
+      await api.PUT("/api/apps/{name}/profiles", {
+        params: { path: { name } },
+        body: { profiles: profilesDraft },
+      }),
+      `update ${name}`
+    )
+    setProfilesDraft(null)
+  }
 
   async function saveEnv() {
     if (envDraft === null) return
@@ -189,6 +215,13 @@ export function AppDetail({ name }: { name: string }) {
           </Button>
         </div>
       </div>
+
+      {hasDockerAccess ? (
+        <DockerAccessAlert title="This app controls this server's Docker">
+          It can start, stop and read every container here, including your other
+          apps.
+        </DockerAccessAlert>
+      ) : null}
 
       <Tabs defaultValue="containers">
         <TabsList>
@@ -287,6 +320,29 @@ export function AppDetail({ name }: { name: string }) {
 
         {app.env !== null ? (
           <TabsContent value="settings" className="flex flex-col gap-3 pt-2">
+            {app.profiles.length > 0 ? (
+              <div className="flex flex-col gap-3 pb-4">
+                <ProfileOptions
+                  profiles={app.profiles}
+                  selected={profilesDraft ?? enabledProfiles}
+                  onChange={setProfilesDraft}
+                  hint={false}
+                />
+                <div className="flex gap-2">
+                  <Button onClick={saveProfiles} disabled={!profilesDirty}>
+                    <SaveIcon data-icon="inline-start" />
+                    Apply and redeploy
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setProfilesDraft(null)}
+                    disabled={!profilesDirty}
+                  >
+                    Discard changes
+                  </Button>
+                </div>
+              </div>
+            ) : null}
             <CodeEditor
               value={envDraft ?? app.env ?? ""}
               onChange={setEnvDraft}
