@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { ServerIcon } from "lucide-react"
 
 import { FeedbackMenuItem } from "@/components/feedback/feedback-dialog"
+import { Logo } from "@/components/logo"
 import { navMain, navSecondary } from "@/components/nav"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -29,7 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
               render={<Link href="/" />}
             >
-              <ServerIcon className="size-5!" />
+              <Logo className="size-6!" />
               <span className="text-base font-semibold">Athena</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
