@@ -10,6 +10,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 - Package manager UI (`docs/specs/package-manager-ui.md`): all 3 parts built on `feat/package-manager-ui`, PR next. Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; MacPorts, winget, scoop, choco use hand-written fixtures.
 - Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
+- Onboarding wizard: built; see HISTORY for what is unverified.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
 - Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Sub-folder sharing built; browser-checked on a faked host.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).
@@ -29,6 +30,12 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - Catalog smoke test (#169–#176): all store apps installed on macOS arm64 (Colima); `smoke: skip` marks GPU/account/RAM-heavy ones. Next: `Catalog smoke` workflow (amd64/arm64). Logins not verified.
 - Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested (macOS).
 - models.dev providers left out (SDK needed): watsonx, GitLab, SAP AI Core, gateways. Vertex is in, untried against real Vertex.
+- Not verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell in WSL.
+- Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
+- Not verified in browser: compose variant picker (#109), cloud wizard (#97), remote cards (#92) with a real remote.
+- Catalog smoke test (#169–#176): every store app installed on macOS arm64 (Colima); skips marked `smoke: skip` (GPU, accounts, 12–16 GB RAM). Next: `Catalog smoke` workflow for `--all` on amd64/arm64. Logins/real use not verified.
+- Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested (macOS), not named tunnels, ngrok, Tailscale or Windows.
+- models.dev providers left out (pydantic-ai needs their SDK): watsonx, GitLab, SAP AI Core, gateways. Google Vertex in (service-account key; untried against real Vertex).
 
 ## Next
 

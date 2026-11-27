@@ -6,6 +6,10 @@
     "open": "Deschide"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "Sistem",
       "description": "Activitate CPU, memorie, rețea și disc în timp real."

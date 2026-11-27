@@ -34,9 +34,8 @@ import {
   Spinner,
 } from "@workspace/ui/components/spinner"
 
-import { CapabilitiesProvider } from "@/components/capabilities-provider"
 import { CredentialsForm } from "@/components/credentials-form"
-import { AiSetupStep } from "@/components/settings/ai-setup-step"
+import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper"
 import { currentLocale } from "@/lib/i18n"
 
 type Step = "choose" | "account" | "ai" | "restore"
@@ -61,11 +60,7 @@ export default function SetupPage() {
   }, [router])
 
   if (step === "ai")
-    return (
-      <CapabilitiesProvider>
-        <AiSetupStep onDone={() => router.replace("/")} />
-      </CapabilitiesProvider>
-    )
+    return <OnboardingStepper onFinish={() => router.replace("/")} />
 
   if (step === "restore")
     return (

@@ -34,7 +34,7 @@ from pydantic_ai.models import ModelRequestContext
 from pydantic_ai_harness import DetectLoops, SystemReminders, ToolOutputLimits
 from pydantic_ai_harness.repair_tool_arguments import RepairToolArguments
 from pydantic_ai_harness.system_reminders import Reminder
-from pydantic_ai_harness.tool_output_limits import Band, LocalFileStore, Spill, Truncate
+from pydantic_ai_harness.tool_output_limits import Band, LocalFileOverflowStore, Spill, Truncate
 from pydantic_ai_harness.warn_on_cache_busts import (
     CacheBustWarning,
     CacheNotEnabledWarning,
@@ -145,7 +145,7 @@ def robustness_capabilities(
         DetectLoops(),
         ToolOutputLimits(
             bands=[Band(over=SPILL_OVER, action=Spill(then=Truncate()))],
-            store=LocalFileStore(base_dir=spill_dir(data_dir), cleanup_after=SPILL_KEPT),
+            store=LocalFileOverflowStore(base_dir=spill_dir(data_dir), cleanup_after=SPILL_KEPT),
         ),
         SystemReminders(
             reminders=[Reminder(ON_TASK, interval=REMIND_EVERY, tag=None)],

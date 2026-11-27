@@ -6,6 +6,10 @@
     "open": "Otevřít"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "Systém",
       "description": "Aktuální vytížení CPU, paměti, sítě a disků."

@@ -6,6 +6,10 @@
     "open": "開啟"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "系統",
       "description": "即時 CPU、記憶體、網路與磁碟活動。"

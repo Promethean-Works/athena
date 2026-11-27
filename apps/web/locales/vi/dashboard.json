@@ -6,6 +6,10 @@
     "open": "Mở"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "Hệ thống",
       "description": "Hoạt động CPU, bộ nhớ, mạng và ổ đĩa theo thời gian thực."

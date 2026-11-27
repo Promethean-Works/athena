@@ -6,6 +6,10 @@
     "open": "खोलें"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "सिस्टम",
       "description": "लाइव CPU, मेमोरी, नेटवर्क और डिस्क गतिविधि।"
