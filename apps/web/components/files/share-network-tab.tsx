@@ -42,8 +42,8 @@ type Target = {
 }
 
 /** The "Network" tab of the explorer's Share dialog: publish this folder over SMB or NFS.
- * A local folder must be a location's top folder (shares are per location); a folder on a
- * cloud remote is mounted first, then shared. */
+ * A local folder is shared in place (inside its location); a folder on a cloud remote is
+ * mounted first, then shared. */
 export function ShareNetworkTab({ target }: { target: Target }) {
   const { t } = useTranslation("files")
   if (target.remote) {
@@ -56,14 +56,13 @@ export function ShareNetworkTab({ target }: { target: Target }) {
       </p>
     )
   }
-  if (target.path !== "") {
-    return (
-      <p className="text-sm text-muted-foreground">
-        {t("shareDialog.networkRootOnly")}
-      </p>
-    )
-  }
-  return <LocationShares locationId={target.location} name={target.name} />
+  return (
+    <LocationShares
+      locationId={target.location}
+      folder={target.path}
+      name={target.name}
+    />
+  )
 }
 
 /** A cloud folder has to be mounted on this computer before it can be shared. */
@@ -113,7 +112,9 @@ function RemoteMountGate({ remote, path }: { remote: string; path: string }) {
   }
   if (mount === undefined) return <Skeleton className="h-24 w-full" />
   if (mount) {
-    return <LocationShares locationId={mount.location_id} name={remote} />
+    return (
+      <LocationShares locationId={mount.location_id} folder="" name={remote} />
+    )
   }
   return (
     <div className="flex flex-col gap-3">
@@ -142,12 +143,15 @@ function RemoteMountGate({ remote, path }: { remote: string; path: string }) {
   )
 }
 
-/** The SMB and NFS tabs for one file location, with its existing shares. */
+/** The SMB and NFS tabs for one folder of a file location (`folder` is relative to it,
+ * "" for the location itself), with the folder's existing shares. */
 function LocationShares({
   locationId,
+  folder,
   name,
 }: {
   locationId: number
+  folder: string
   name: string
 }) {
   const { t } = useTranslation("files")
@@ -161,9 +165,11 @@ function LocationShares({
       api.GET("/api/shares/smb"),
       api.GET("/api/shares/nfs"),
     ])
-    setSmbShares((a.data ?? []).filter((s) => s.location_id === locationId))
-    setNfsShares((b.data ?? []).filter((s) => s.location_id === locationId))
-  }, [locationId])
+    const here = (s: { location_id: number; folder: string }) =>
+      s.location_id === locationId && s.folder === folder
+    setSmbShares((a.data ?? []).filter(here))
+    setNfsShares((b.data ?? []).filter(here))
+  }, [locationId, folder])
   React.useEffect(() => {
     void load()
   }, [load])
@@ -210,6 +216,7 @@ function LocationShares({
               id="explorer-smb-share"
               locations={null}
               fixedLocation={locationId}
+              folder={folder}
               defaultName={name}
               onCreated={() => void load()}
               actions={actions("explorer-smb-share")}
@@ -230,6 +237,7 @@ function LocationShares({
               id="explorer-nfs-share"
               locations={null}
               fixedLocation={locationId}
+              folder={folder}
               onCreated={() => void load()}
               actions={actions("explorer-nfs-share")}
             />

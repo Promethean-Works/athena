@@ -53,3 +53,14 @@ def current_user(request: Request, db: DbSession) -> CurrentUser:
 
 Authed = Annotated[CurrentUser, Depends(current_user)]
 require_user = Depends(current_user)
+
+
+def admin_user(user: Authed) -> CurrentUser:
+    """Requires an admin. Use as a router or route dependency; plain users get 403."""
+    if not user.user.is_admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can do this")
+    return user
+
+
+AdminUser = Annotated[CurrentUser, Depends(admin_user)]
+require_admin = Depends(admin_user)

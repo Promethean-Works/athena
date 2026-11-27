@@ -75,7 +75,8 @@
       "show": "Tampilkan tangkapan layar {{number}}",
       "description": "Tangkapan layar {{title}}.",
       "close": "Tutup"
-    }
+    },
+    "adminOnly": "Hanya administrator yang dapat memasang aplikasi. Minta salah satunya untuk menambahkannya untuk Anda."
   },
   "catalogs": {
     "kindAuto": "Deteksi otomatis",

@@ -13,7 +13,7 @@ from athena.db import Database
 from athena.db.models import FileLocation, NfsShare
 from athena.files import nfs
 from athena.files.netshare import ShareReloadFailed
-from athena.files.paths import BadPath, NotFound
+from athena.files.paths import BadPath, Forbidden, NotFound
 from athena.platform.detect import detect
 from athena.platform.store import CapabilityStore
 
@@ -290,3 +290,55 @@ def test_api_errors_come_back_as_their_own_status(
         assert [s["id"] for s in client.get("/api/shares/nfs").json()] == [ok.json()["id"]]
         assert client.delete(f"/api/shares/nfs/{ok.json()['id']}").status_code == 204
         assert client.get("/api/shares/nfs").json() == []
+
+
+# ---------------------------------------------------------------- sub-folders
+
+
+def test_a_folder_inside_the_location_can_be_exported(tmp_path: Path) -> None:
+    exports = tmp_path / "athena.exports"
+    db, loc_id = _seed(tmp_path)
+    (tmp_path / "media" / "films" / "2020").mkdir(parents=True)
+    for session in db.session():
+        entry = nfs.create_share(
+            session, loc_id, ["10.0.0.1"], exports=exports, reload=_noop, folder="films/2020"
+        )
+        assert entry.folder == "films/2020"
+        assert Path(entry.path) == (tmp_path / "media" / "films" / "2020").resolve()
+        # The whole location is still a separate export.
+        whole = nfs.create_share(session, loc_id, ["10.0.0.1"], exports=exports, reload=_noop)
+        assert whole.folder == ""
+        with pytest.raises(nfs.AlreadyExported, match="Media/films/2020"):
+            nfs.create_share(
+                session, loc_id, ["10.0.0.1"], exports=exports, reload=_noop, folder="films/2020/"
+            )
+
+
+@pytest.mark.parametrize("folder", ["../etc", "a/../../x", "missing", "file.txt"])
+def test_a_folder_outside_the_location_or_not_a_folder_is_refused(
+    tmp_path: Path, folder: str
+) -> None:
+    exports = tmp_path / "athena.exports"
+    db, loc_id = _seed(tmp_path)
+    (tmp_path / "media" / "file.txt").write_text("x", encoding="utf-8")
+    for session in db.session():
+        with pytest.raises((BadPath, NotFound, Forbidden)):
+            nfs.create_share(
+                session, loc_id, ["10.0.0.1"], exports=exports, reload=_noop, folder=folder
+            )
+        assert nfs.list_shares(session) == []
+    assert not exports.exists()
+
+
+@pytest.mark.skipif(os.name == "nt", reason="symlinks need a privilege on Windows")
+def test_a_link_leading_out_of_the_location_is_refused(tmp_path: Path) -> None:
+    exports = tmp_path / "athena.exports"
+    db, loc_id = _seed(tmp_path)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (tmp_path / "media" / "escape").symlink_to(outside)
+    for session in db.session():
+        with pytest.raises(Forbidden):
+            nfs.create_share(
+                session, loc_id, ["10.0.0.1"], exports=exports, reload=_noop, folder="escape"
+            )

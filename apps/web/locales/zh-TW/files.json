@@ -154,7 +154,6 @@
     "tabLink": "連結",
     "tabNetwork": "網路",
     "networkDescription": "與網路上的其他電腦共用此資料夾。",
-    "networkRootOnly": "網路上只能共用整個檔案位置。請開啟該位置的最上層資料夾。",
     "networkFolderOnly": "網路上只能共用資料夾。",
     "mountUnavailable": "目前無法從這台電腦共用雲端資料夾",
     "mountDescription": "共用前，Athena 需要先把這個雲端資料夾掛載到這台電腦上。雲端儲存比磁碟慢，所有開啟共用的人都會感受到。",

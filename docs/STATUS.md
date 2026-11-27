@@ -8,9 +8,10 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Onboarding wizard: built; real installs, Win/macOS plans, `sudo` unverified (HISTORY).
+- Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
+- Onboarding wizard: built; see HISTORY for what is unverified.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
-- Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Follow-up: share a sub-folder of a location.
+- Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Sub-folder sharing built; browser-checked on a faked host.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).
 - Backup (`docs/specs/backup.md`): part 1 (#215) needs `athena-host-test`. Part 2: 2a-2c (#216, #244, #247) and 2d done; `schedule` runs in part 4. Part 4 (#256) done. 2d not run against real runtime/volumes.
 - HTTPS (`docs/specs/https.md`): all 4 parts done (#192, #196, #199, #203). Not verified: real Let's Encrypt/Cloudflare, trusting CA on real devices. Renewal/error live in memory only (restart forgets). Follow-up: own-certificate upload.
@@ -22,9 +23,9 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - Webhook app restart took 10 min and `GET /api/automation/jobs` hung (slow Colima): does a run block the DB?
 - Agent tooling: after merge, run `node scripts/agents-setup.mjs` (Hermes guard hook, denies, aliases) and `hermes mcp remove github`; approve Hermes hook once.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
-- Not yet verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell through Docker in WSL.
+- Not verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell in WSL.
 - Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
-- Not yet verified in browser: compose variant picker (#109), cloud wizard (#97) and remote cards (#92) with real rclone remote.
+- Not verified in browser: compose variant picker (#109), cloud wizard (#97), remote cards (#92) with a real remote.
 - Catalog smoke test (#169–#176): every store app installed on macOS arm64 (Colima); skips marked `smoke: skip` (GPU, accounts, 12–16 GB RAM). Next: `Catalog smoke` workflow for `--all` on amd64/arm64. Logins/real use not verified.
 - Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested (macOS), not named tunnels, ngrok, Tailscale or Windows.
 - models.dev providers left out (pydantic-ai needs their SDK): watsonx, GitLab, SAP AI Core, gateways. Google Vertex in (service-account key; untried against real Vertex).

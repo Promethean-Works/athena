@@ -34,6 +34,8 @@ class NfsShareOut(BaseModel):
     location_name: str
     path: str
     """The exported folder's absolute path on the host (`host:/path` for clients)."""
+    folder: str
+    """Where it sits inside the location, `/`-separated; empty for the whole location."""
     clients: list[str]
     read_only: bool
     created_at: datetime
@@ -41,6 +43,8 @@ class NfsShareOut(BaseModel):
 
 class NfsShareIn(BaseModel):
     location: int
+    folder: str = ""
+    """A folder inside the location to share, relative to it; empty shares the whole location."""
     clients: Annotated[
         list[Annotated[str, Field(max_length=260)]], Field(max_length=nfs.MAX_CLIENTS)
     ]
@@ -54,6 +58,7 @@ def _out(entry: nfs.NfsShareEntry) -> NfsShareOut:
         location_id=entry.location_id,
         location_name=entry.location_name,
         path=entry.path,
+        folder=entry.folder,
         clients=entry.clients,
         read_only=entry.read_only,
         created_at=entry.created_at,
@@ -83,7 +88,12 @@ async def create_nfs_share(
             with_elevation(
                 elevation,
                 lambda: nfs.create_share(
-                    db, body.location, body.clients, read_only=body.read_only, flavor=flavor
+                    db,
+                    body.location,
+                    body.clients,
+                    read_only=body.read_only,
+                    flavor=flavor,
+                    folder=body.folder,
                 ),
             )
         )

@@ -732,7 +732,7 @@ export interface paths {
         put?: never;
         /**
          * App Action
-         * @description start (up -d), stop, restart, or update (pull + up -d).
+         * @description start (up -d), stop, restart, or update (pull + up -d). Only admins can update.
          */
         post: operations["appAction"];
         delete?: never;
@@ -2462,6 +2462,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Users */
+        get: operations["listUsers"];
+        put?: never;
+        /** Create User */
+        post: operations["createUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete User */
+        delete: operations["deleteUser"];
+        options?: never;
+        head?: never;
+        /**
+         * Update User
+         * @description Change a user's role or reset their password.
+         */
+        patch: operations["updateUser"];
+        trace?: never;
+    };
     "/api/https": {
         parameters: {
             query?: never;
@@ -4143,10 +4182,27 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** NewUser */
+        NewUser: {
+            /** Username */
+            username: string;
+            /** Password */
+            password: string;
+            /**
+             * Is Admin
+             * @default false
+             */
+            is_admin: boolean;
+        };
         /** NfsShareIn */
         NfsShareIn: {
             /** Location */
             location: number;
+            /**
+             * Folder
+             * @default
+             */
+            folder: string;
             /** Clients */
             clients: string[];
             /**
@@ -4165,6 +4221,8 @@ export interface components {
             location_name: string;
             /** Path */
             path: string;
+            /** Folder */
+            folder: string;
             /** Clients */
             clients: string[];
             /** Read Only */
@@ -4795,6 +4853,11 @@ export interface components {
         SmbShareIn: {
             /** Location */
             location: number;
+            /**
+             * Folder
+             * @default
+             */
+            folder: string;
             /** Name */
             name: string;
             /**
@@ -4820,6 +4883,8 @@ export interface components {
             location_name: string;
             /** Path */
             path: string;
+            /** Folder */
+            folder: string;
             /** Read Only */
             read_only: boolean;
             /** Guest Ok */
@@ -5325,6 +5390,27 @@ export interface components {
             username: string;
             /** Is Admin */
             is_admin: boolean;
+        };
+        /** UserRow */
+        UserRow: {
+            /** Id */
+            id: number;
+            /** Username */
+            username: string;
+            /** Is Admin */
+            is_admin: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** UserUpdate */
+        UserUpdate: {
+            /** Is Admin */
+            is_admin?: boolean | null;
+            /** Password */
+            password?: string | null;
         };
         /** ValidateOut */
         ValidateOut: {
@@ -10142,6 +10228,123 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditEntryOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listUsers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRow"][];
+                };
+            };
+        };
+    };
+    createUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewUser"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRow"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deleteUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    updateUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRow"];
                 };
             };
             /** @description Validation Error */

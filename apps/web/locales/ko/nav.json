@@ -17,5 +17,9 @@
   "roleUser": "사용자",
   "tunnelAddress": "터널 주소",
   "restartAthena": "Athena 다시 시작",
-  "logOut": "로그아웃"
+  "logOut": "로그아웃",
+  "adminOnly": {
+    "title": "관리자 전용",
+    "description": "필요하면 관리자에게 요청하세요."
+  }
 }

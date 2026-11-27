@@ -159,7 +159,6 @@
     "tabLink": "Link",
     "tabNetwork": "Rede",
     "networkDescription": "Compartilhe esta pasta com outros computadores da sua rede.",
-    "networkRootOnly": "Só é possível compartilhar na rede um local de arquivos inteiro. Abra a pasta principal do local.",
     "networkFolderOnly": "Só é possível compartilhar pastas na rede.",
     "mountUnavailable": "Ainda não é possível compartilhar pastas da nuvem a partir deste computador",
     "mountDescription": "O Athena precisa montar esta pasta da nuvem neste computador antes de compartilhá-la. O armazenamento na nuvem é mais lento que um disco para todos que abrirem o compartilhamento.",

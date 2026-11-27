@@ -16,6 +16,7 @@ from contextvars import ContextVar
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from athena.files import paths
 from athena.files.paths import FileError
 
 
@@ -206,3 +207,24 @@ def swap_config(path: Path, new_text: str, reload: Callable[[], None]) -> None:
         else:
             write_atomic(path, old)
         raise
+
+
+def shared_folder(location_path: str, rel: str) -> str:
+    """The absolute folder to share: the location itself for `""`, else a folder inside it.
+
+    Links are followed and the result must stay inside the location."""
+    if not rel.strip("/"):
+        return location_path
+    target = paths.resolve(paths.root_of(location_path), rel)
+    if not target.is_dir():
+        raise paths.NotFound(f"Not a folder: {rel}")
+    return str(target)
+
+
+def subfolder_of(location_path: str, share_path: str) -> str:
+    """Where a shared folder sits inside its location, as a `/` path ("" for the location)."""
+    try:
+        rel = Path(share_path).relative_to(Path(location_path).resolve())
+    except (ValueError, OSError):
+        return ""
+    return rel.as_posix() if str(rel) != "." else ""

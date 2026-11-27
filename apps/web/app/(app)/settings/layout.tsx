@@ -9,17 +9,31 @@ import {
   PaletteIcon,
   ServerCogIcon,
   UserIcon,
+  UsersIcon,
   type LucideIcon,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
 
-const SECTIONS: { key: "appearance" | "account" | "system" | "https" | "ai"; url: string; icon: LucideIcon }[] = [
+import { useAuth } from "@/components/auth-provider"
+
+const SECTIONS: {
+  key: "appearance" | "account" | "users" | "system" | "https" | "ai"
+  url: string
+  icon: LucideIcon
+  adminOnly?: boolean
+}[] = [
   { key: "appearance", url: "/settings/appearance/", icon: PaletteIcon },
   { key: "account", url: "/settings/account/", icon: UserIcon },
-  { key: "system", url: "/settings/system/", icon: ServerCogIcon },
-  { key: "https", url: "/settings/https/", icon: LockIcon },
-  { key: "ai", url: "/settings/ai/", icon: CpuIcon },
+  { key: "users", url: "/settings/users/", icon: UsersIcon, adminOnly: true },
+  {
+    key: "system",
+    url: "/settings/system/",
+    icon: ServerCogIcon,
+    adminOnly: true,
+  },
+  { key: "https", url: "/settings/https/", icon: LockIcon, adminOnly: true },
+  { key: "ai", url: "/settings/ai/", icon: CpuIcon, adminOnly: true },
 ]
 
 export default function SettingsLayout({
@@ -29,6 +43,7 @@ export default function SettingsLayout({
 }) {
   const pathname = usePathname()
   const { t } = useTranslation("settings")
+  const { user } = useAuth()
   return (
     // A row of tabs on small screens, a side menu from lg up.
     <div className="flex flex-col gap-4 md:gap-6 lg:flex-row lg:gap-10">
@@ -36,7 +51,7 @@ export default function SettingsLayout({
         aria-label={t("sections.label")}
         className="flex flex-wrap gap-1 lg:sticky lg:top-20 lg:w-48 lg:shrink-0 lg:flex-col lg:self-start"
       >
-        {SECTIONS.map((s) => {
+        {SECTIONS.filter((s) => !s.adminOnly || user.is_admin).map((s) => {
           const active = pathname.startsWith(s.url.replace(/\/$/, ""))
           return (
             <Button

@@ -19,7 +19,7 @@ An admin can share a folder over the network (SMB or NFS) from the file explorer
 
 The explorer's "Share…" action opens a dialog with two tabs: **Link** (today's public link) and **Network** (SMB or NFS). The Network tab reuses the SMB/NFS forms from `/files/network` (extracted into shared components), prefilled with the current folder. Only folders can be shared this way, and the tab shows the capability's reason when the host can't share.
 
-A share needs a **location** today (one per `locations` row). Sharing a sub-folder of a location is not supported by the shares tables; the tab is offered on a location's root and says so elsewhere. (Open question 1.)
+A share needs a **location** today (one per `locations` row). Sharing a sub-folder was left out of the first version and added afterwards: the shares already store the folder's absolute path, so the create requests take an optional `folder` (relative to the location, checked to stay inside it, a folder, links followed) and the shares list returns it back as `folder`. No migration.
 
 ### 2. Asking for root
 
@@ -62,6 +62,6 @@ One PR for the whole feature (project preference), built in this order:
 
 ## Open questions
 
-1. **Sub-folders:** share only a location's root (recommended, no schema change), or let the share store a path inside a location? Recommendation: root only now.
+1. **Sub-folders:** share only a location's root (recommended, no schema change), or let the share store a path inside a location? Decided: root only at first; sub-folders followed (see Goal above).
 2. **sudo on macOS:** password prompt in the web UI (recommended) vs. asking the admin to run one `sudo athena …` command in a terminal. The first matches "ask for root"; the second never handles a password.
 3. **Remote mounts read-only by default?** Recommended yes.

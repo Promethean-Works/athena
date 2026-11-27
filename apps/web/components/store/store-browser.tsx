@@ -9,6 +9,7 @@ import { LibraryIcon, SearchIcon } from "lucide-react"
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
+import { useAuth } from "@/components/auth-provider"
 import { PopularCarousel } from "@/components/store/popular-carousel"
 import { StoreAppCard } from "@/components/store/store-app-card"
 import i18n from "@/lib/i18n"
@@ -59,6 +60,7 @@ export function storeAppHref(app: { catalog: string; id: string }) {
 
 export function StoreBrowser() {
   const { t } = useTranslation("store")
+  const { user } = useAuth()
   // Deep links such as /store/?q=git open with the search already filled in.
   const initialQuery = useSearchParams().get("q") ?? ""
   const [apps, setApps] = React.useState<StoreApp[] | null>(null)
@@ -165,14 +167,16 @@ export function StoreBrowser() {
                 aria-label={t("browser.searchPlaceholder")}
               />
             </InputGroup>
-            <Button
-              variant="outline"
-              render={<Link href="/store/catalogs/" />}
-              nativeButton={false}
-            >
-              <LibraryIcon data-icon="inline-start" />
-              {t("browser.catalogs")}
-            </Button>
+            {user.is_admin ? (
+              <Button
+                variant="outline"
+                render={<Link href="/store/catalogs/" />}
+                nativeButton={false}
+              >
+                <LibraryIcon data-icon="inline-start" />
+                {t("browser.catalogs")}
+              </Button>
+            ) : null}
           </div>
         </div>
         {unsupportedCount ? (

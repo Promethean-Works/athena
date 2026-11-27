@@ -74,7 +74,9 @@ class MCPAuthMiddleware(BaseHTTPMiddleware):
                     found = session_for_token(session, session_cookie)
                 if found is not None:
                     _, user = found
-                    principal = MCPPrincipal(username=user.username)
+                    # MCP tools change the host, so plain users are not let in.
+                    if user.is_admin:
+                        principal = MCPPrincipal(username=user.username)
 
         if principal is None:
             return JSONResponse(

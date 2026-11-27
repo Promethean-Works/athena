@@ -80,7 +80,8 @@
       "show": "Screenshot {{number}} anzeigen",
       "description": "Ein Screenshot von {{title}}.",
       "close": "Schließen"
-    }
+    },
+    "adminOnly": "Nur Administratoren können Apps installieren. Bitte einen, das für dich hinzuzufügen."
   },
   "catalogs": {
     "kindAuto": "Automatisch erkennen",

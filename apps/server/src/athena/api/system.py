@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from athena import __version__, audit, restart, self_update
-from athena.auth.deps import Authed, DbSession, require_user
+from athena.auth.deps import Authed, DbSession, require_admin, require_user
 from athena.backup.service import PlanRunner, athena_plan
 from athena.jobs import Job, JobOut
 from athena.monitor import HostMonitor, StatsSnapshot
@@ -63,12 +63,10 @@ async def _restart_soon() -> None:
     "/system/restart",
     operation_id="restartAthena",
     status_code=status.HTTP_202_ACCEPTED,
-    dependencies=[require_user],
+    dependencies=[require_admin],
 )
 def restart_athena(user: Authed, db: DbSession, tasks: BackgroundTasks) -> None:
     """Stop the server; the `athena serve` supervisor starts a new one (admins only)."""
-    if not user.user.is_admin:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can restart Athena")
     if not restart.available():
         raise HTTPException(
             status.HTTP_409_CONFLICT,
@@ -156,13 +154,11 @@ def _parse_time(value: object) -> datetime | None:
 @router.get(
     "/system/update/status",
     operation_id="getUpdateStatus",
-    dependencies=[require_user],
+    dependencies=[require_admin],
 )
 async def update_status(request: Request, user: Authed, db: DbSession) -> UpdateStatus:
     """What the last update did, from the helper's state file (admins only). The helper
     outlives the server, so this is what the page reads once Athena is back."""
-    if not user.user.is_admin:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can see the update status")
     app = request.app
     paths = self_update.Paths(app.state.settings.data_dir)
     state = self_update.read_state(paths) or {}
@@ -199,13 +195,11 @@ async def update_status(request: Request, user: Authed, db: DbSession) -> Update
     "/system/update",
     operation_id="startUpdate",
     status_code=status.HTTP_202_ACCEPTED,
-    dependencies=[require_user],
+    dependencies=[require_admin],
 )
 async def start_update(body: StartUpdate, request: Request, user: Authed, db: DbSession) -> JobOut:
     """Download and check a release, then hand over to the helper, which swaps Athena while
     the server is stopped (admins only). Follow the job at /api/jobs/{id}/events."""
-    if not user.user.is_admin:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can update Athena")
     app = request.app
     capability = (await app.state.capabilities.get()).get("self_update")
     if capability is None or not capability.available:

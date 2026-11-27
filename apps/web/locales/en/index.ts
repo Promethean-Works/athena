@@ -18,6 +18,7 @@ import share from "./share.json"
 import store from "./store.json"
 import terminal from "./terminal.json"
 import tunnel from "./tunnel.json"
+import users from "./users.json"
 
 const resources = {
   common,
@@ -40,6 +41,7 @@ const resources = {
   store,
   terminal,
   tunnel,
+  users,
 }
 
 export default resources

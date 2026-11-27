@@ -17,5 +17,9 @@
   "roleUser": "Utilizator",
   "tunnelAddress": "Adresă tunel",
   "restartAthena": "Repornește Athena",
-  "logOut": "Deconectare"
+  "logOut": "Deconectare",
+  "adminOnly": {
+    "title": "Doar pentru administratori",
+    "description": "Cere unui administrator dacă ai nevoie de asta."
+  }
 }

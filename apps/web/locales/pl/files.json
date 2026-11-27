@@ -169,7 +169,6 @@
     "tabLink": "Link",
     "tabNetwork": "Sieć",
     "networkDescription": "Udostępnij ten folder innym komputerom w swojej sieci.",
-    "networkRootOnly": "W sieci można udostępnić tylko całą lokalizację plików. Otwórz główny folder lokalizacji.",
     "networkFolderOnly": "W sieci można udostępniać tylko foldery.",
     "mountUnavailable": "Folderów w chmurze nie można jeszcze udostępniać z tego komputera",
     "mountDescription": "Athena musi najpierw zamontować ten folder w chmurze na tym komputerze, aby go udostępnić. Chmura jest wolniejsza niż dysk dla każdego, kto otworzy udział.",
