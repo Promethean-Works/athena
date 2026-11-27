@@ -8,8 +8,8 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Security audit: fixes uncommitted on `fix/security-audit-2026-11`; next `athena-ship`.
-- Package manager UI (`docs/specs/package-manager-ui.md`): built, PR #327. Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs (fixtures are hand-written).
+- Security audit: PR #339; open question: `docs/design/security.md`.
+- Package manager UI (`docs/specs/package-manager-ui.md`): merged (#327, #328). Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; hand-written MacPorts/winget/scoop/choco fixtures.
 - Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
 - Onboarding wizard: built; see HISTORY for what is unverified.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
