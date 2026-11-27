@@ -62,6 +62,7 @@ import {
   HostPasswordField,
   hostPasswordHeader,
 } from "@/components/files/elevation"
+import { RemoveShareDialog } from "@/components/files/remove-share-dialog"
 import { ShareCapabilityNotice } from "@/components/files/share-capability-notice"
 
 type SmbShare = Schemas["SmbShareOut"]
@@ -82,6 +83,7 @@ export function SmbSharesPanel() {
   const [readOnly, setReadOnly] = React.useState(false)
   const [guestOk, setGuestOk] = React.useState(false)
   const [password, setPassword] = React.useState("")
+  const [removeId, setRemoveId] = React.useState<number | null>(null)
   const [formError, setFormError] = React.useState<string | null>(null)
 
   const locationItems = React.useMemo(
@@ -139,21 +141,19 @@ export function SmbSharesPanel() {
     })
   }
 
-  async function removeShare(id: number) {
-    if (!window.confirm(t("smb.confirmRemove"))) return
+  async function removeShare(pw: string): Promise<string | null> {
+    if (removeId === null) return null
     const { error: err } = await api.DELETE("/api/shares/smb/{share_id}", {
-      params: { path: { share_id: id } },
+      params: {
+        path: { share_id: removeId },
+        header: hostPasswordHeader(capability, pw),
+      },
     })
-    if (err) {
-      toast.add({
-        type: "error",
-        title: t("smb.removeFailed"),
-        description: errorMessage(err),
-      })
-      return
-    }
+    if (err) return errorMessage(err)
+    setRemoveId(null)
     await load()
     toast.add({ type: "success", title: t("smb.removed") })
+    return null
   }
 
   const ready = canCreateShare(capability)
@@ -213,7 +213,7 @@ export function SmbSharesPanel() {
             </TableHeader>
             <TableBody>
               {shares.map((share) =>
-                renderShareRow(share, pending, removeShare, t)
+                renderShareRow(share, pending, setRemoveId, t)
               )}
             </TableBody>
           </Table>
@@ -332,6 +332,13 @@ export function SmbSharesPanel() {
           </form>
         </DialogContent>
       </Dialog>
+      <RemoveShareDialog
+        open={removeId !== null}
+        description={t("smb.confirmRemove")}
+        capability={capability}
+        onClose={() => setRemoveId(null)}
+        onConfirm={removeShare}
+      />
     </div>
   )
 }

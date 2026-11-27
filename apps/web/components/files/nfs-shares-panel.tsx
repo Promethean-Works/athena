@@ -65,6 +65,7 @@ import {
   HostPasswordField,
   hostPasswordHeader,
 } from "@/components/files/elevation"
+import { RemoveShareDialog } from "@/components/files/remove-share-dialog"
 import { ShareCapabilityNotice } from "@/components/files/share-capability-notice"
 
 type NfsShare = Schemas["NfsShareOut"]
@@ -88,6 +89,7 @@ export function NfsSharesPanel() {
   const [clients, setClients] = React.useState("")
   const [readOnly, setReadOnly] = React.useState(false)
   const [password, setPassword] = React.useState("")
+  const [removeId, setRemoveId] = React.useState<number | null>(null)
   const [formError, setFormError] = React.useState<string | null>(null)
 
   const locationItems = React.useMemo(
@@ -149,21 +151,19 @@ export function NfsSharesPanel() {
     })
   }
 
-  async function removeShare(id: number) {
-    if (!window.confirm(t("network.nfs.confirmRemove"))) return
+  async function removeShare(pw: string): Promise<string | null> {
+    if (removeId === null) return null
     const { error: err } = await api.DELETE("/api/shares/nfs/{share_id}", {
-      params: { path: { share_id: id } },
+      params: {
+        path: { share_id: removeId },
+        header: hostPasswordHeader(capability, pw),
+      },
     })
-    if (err) {
-      toast.add({
-        type: "error",
-        title: t("smb.removeFailed"),
-        description: errorMessage(err),
-      })
-      return
-    }
+    if (err) return errorMessage(err)
+    setRemoveId(null)
     await load()
     toast.add({ type: "success", title: t("network.nfs.removed") })
+    return null
   }
 
   const ready = canCreateShare(capability)
@@ -245,7 +245,7 @@ export function NfsSharesPanel() {
                       aria-label={t("network.nfs.removeShare", {
                         name: share.location_name,
                       })}
-                      onClick={() => void removeShare(share.id)}
+                      onClick={() => setRemoveId(share.id)}
                       disabled={pending}
                     >
                       <Trash2Icon className="size-4" />
@@ -356,6 +356,13 @@ export function NfsSharesPanel() {
           </form>
         </DialogContent>
       </Dialog>
+      <RemoveShareDialog
+        open={removeId !== null}
+        description={t("network.nfs.confirmRemove")}
+        capability={capability}
+        onClose={() => setRemoveId(null)}
+        onConfirm={removeShare}
+      />
     </div>
   )
 }
