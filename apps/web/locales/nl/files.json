@@ -159,7 +159,6 @@
     "tabLink": "Link",
     "tabNetwork": "Netwerk",
     "networkDescription": "Deel deze map met andere computers in je netwerk.",
-    "networkRootOnly": "Alleen een hele bestandslocatie kan via het netwerk worden gedeeld. Open de hoofdmap van de locatie.",
     "networkFolderOnly": "Alleen mappen kunnen via het netwerk worden gedeeld.",
     "mountUnavailable": "Cloudmappen kunnen nog niet vanaf deze computer worden gedeeld",
     "mountDescription": "Athena moet deze cloudmap eerst op deze computer koppelen voordat hij gedeeld kan worden. Cloudopslag is trager dan een schijf, voor iedereen die de share opent.",

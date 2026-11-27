@@ -154,7 +154,6 @@
     "tabLink": "链接",
     "tabNetwork": "网络",
     "networkDescription": "与网络中的其他电脑共享此文件夹。",
-    "networkRootOnly": "网络上只能共享整个文件位置。请打开该位置的顶层文件夹。",
     "networkFolderOnly": "网络上只能共享文件夹。",
     "mountUnavailable": "暂时无法从这台电脑共享云文件夹",
     "mountDescription": "共享前，Athena 需要先把这个云文件夹挂载到这台电脑上。云存储比磁盘慢，所有打开共享的人都会感受到。",

@@ -118,7 +118,12 @@ export function NfsSharesPanel() {
       return
     setPending(true)
     const { data, error: err } = await api.POST("/api/shares/nfs", {
-      body: { location: locationId, clients: list, read_only: readOnly },
+      body: {
+        location: locationId,
+        folder: "",
+        clients: list,
+        read_only: readOnly,
+      },
     })
     setPending(false)
     if (!data) {

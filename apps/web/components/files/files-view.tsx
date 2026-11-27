@@ -688,7 +688,7 @@ export function FilesView() {
           </Toggle>
           <Button
             variant="outline"
-            disabled={!place.available || (!onRemote && path !== "")}
+            disabled={!place.available}
             onClick={() =>
               setSharing(
                 onRemote
@@ -701,8 +701,8 @@ export function FilesView() {
                     }
                   : {
                       location: locId,
-                      path: "",
-                      name: place.name,
+                      path,
+                      name: path.split("/").pop() || place.name,
                       kind: "dir",
                     }
               )

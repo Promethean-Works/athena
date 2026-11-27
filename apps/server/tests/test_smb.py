@@ -1,5 +1,6 @@
 """SMB shares: detection, the Samba service, and the /api/shares/smb API."""
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -13,7 +14,7 @@ from athena.db import Database
 from athena.db.models import FileLocation
 from athena.files import smb
 from athena.files.netshare import ShareReloadFailed
-from athena.files.paths import BadPath, NotFound
+from athena.files.paths import BadPath, Forbidden, NotFound
 from athena.platform.detect import detect
 from athena.platform.probe import Probe
 
@@ -303,3 +304,49 @@ def test_real_windows_share_round_trip(tmp_path: Path) -> None:
         finally:
             smb.remove_share(session, entry.id, provider="smbshare")
     assert name not in listed().split()
+
+
+def test_a_folder_inside_the_location_can_be_shared(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _linux(monkeypatch)
+    conf = tmp_path / "smb.conf"
+    db, loc_id = _seed(tmp_path)
+    (tmp_path / "media" / "photos").mkdir()
+    for session in db.session():
+        entry = smb.create_share(session, loc_id, "photos", conf=conf, folder="photos")
+        assert entry.folder == "photos"
+        assert Path(entry.path) == (tmp_path / "media" / "photos").resolve()
+        assert f"   path = {entry.path}" in conf.read_text(encoding="utf-8")
+        whole = smb.create_share(session, loc_id, "all", conf=conf)
+        assert whole.folder == ""
+
+
+@pytest.mark.parametrize("folder", ["../etc", "a/../../x", "missing", "file.txt"])
+def test_a_folder_outside_the_location_or_not_a_folder_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, folder: str
+) -> None:
+    _linux(monkeypatch)
+    conf = tmp_path / "smb.conf"
+    db, loc_id = _seed(tmp_path)
+    (tmp_path / "media" / "file.txt").write_text("x", encoding="utf-8")
+    for session in db.session():
+        with pytest.raises((BadPath, NotFound, Forbidden)):
+            smb.create_share(session, loc_id, "x", conf=conf, folder=folder)
+        assert smb.list_shares(session) == []
+    assert not conf.exists()
+
+
+@pytest.mark.skipif(os.name == "nt", reason="symlinks need a privilege on Windows")
+def test_a_link_leading_out_of_the_location_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _linux(monkeypatch)
+    conf = tmp_path / "smb.conf"
+    db, loc_id = _seed(tmp_path)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (tmp_path / "media" / "escape").symlink_to(outside)
+    for session in db.session():
+        with pytest.raises(Forbidden):
+            smb.create_share(session, loc_id, "x", conf=conf, folder="escape")
