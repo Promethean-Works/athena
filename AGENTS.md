@@ -58,7 +58,7 @@ Layout: `apps/server` (Python 3.13, FastAPI, CLI `athena`), `apps/web` (Next.js 
 | Finish UI work (a change users see or do, or an API the UI uses) | skill `athena-ui-verify` and `docs/agents/gotchas/browser.md` |
 | Change installers, `athena service` or platform detection | skill `athena-host-test`, `docs/agents/gotchas/installers.md` |
 | Commit, push, open a PR or fix CI | skill `athena-ship`, `docs/agents/gotchas/git-ci.md` |
-| Hear "next", "check", "review" or "wrap up" | skills `athena-next`, `athena-check-prs`, `athena-review` (the `reviewer` subagent), `athena-handoff`, `athena-orchestrate`; also `/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship`, `/orchestrate` |
+| Hear "next", "check", "review" or "wrap up" | skills `athena-next`, `athena-check-prs`, `athena-review`, `athena-handoff`, `athena-orchestrate`; also `/next`, `/check-prs`, `/review-diff`, `/handoff`, `/ship`, `/orchestrate`, `/security-audit` |
 | Need a command | `docs/agents/commands.md` |
 | Need the design of a feature, or a past decision | `docs/design/README.md` (index), then one section |
 | Need a feature's history | `docs/HISTORY.md` (search it; don't read it whole) |
