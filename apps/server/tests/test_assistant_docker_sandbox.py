@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from pydantic_ai_harness.docker_sandbox import DockerSandbox
+from pydantic_ai_harness.docker_container import DockerContainer
 
 from athena.assistant.docker_sandbox import DEFAULT_IMAGE, docker_sandbox_capabilities
 from athena.platform.capabilities import Capability, CapabilityManifest
@@ -34,5 +34,5 @@ def test_sandbox_offers_docker_sandbox_when_containers_ready():
     caps = docker_sandbox_capabilities(True, manifest(("containers", "ready")))
     assert len(caps) == 1
     sandbox = caps[0]
-    assert isinstance(sandbox, DockerSandbox)
+    assert isinstance(sandbox, DockerContainer)
     assert sandbox.image == DEFAULT_IMAGE
