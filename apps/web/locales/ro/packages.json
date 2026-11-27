@@ -69,5 +69,23 @@
     "source": "Sursă",
     "size": "Dimensiune",
     "dependencies": "Dependențe"
+  },
+  "password": {
+    "title": "Introdu parola computerului",
+    "description": "{{name}} se instalează pentru tot sistemul, așa că modificările cer parola contului sub care rulează Athena. Se folosește o singură dată pentru această acțiune și nu este salvată niciodată.",
+    "label": "Parolă",
+    "continue": "Continuă"
+  },
+  "add": {
+    "button": "Adaugă un manager de pachete",
+    "title": "Adaugă un manager de pachete",
+    "description": "Manageri de pachete pe care acest computer îi acceptă și nu îi are încă. Athena descarcă programul de instalare oficial de la producător și îl rulează pe acest server.",
+    "none": "Nu e nimic de adăugat pe acest computer.",
+    "install": "Instalează",
+    "needsPassword": "Cere parola computerului tău.",
+    "unmetNote": "Îndeplinește cerințele afișate pentru a activa Instalează.",
+    "confirmTitle": "Instalezi {{name}}?",
+    "confirmDescription": "Athena va descărca programul de instalare oficial de la {{site}} și îl va rula pe acest server. Aceasta modifică computerul.",
+    "failed": "{{name}} nu a putut fi instalat"
   }
 }

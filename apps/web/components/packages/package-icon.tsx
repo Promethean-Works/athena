@@ -23,18 +23,21 @@ export function ManagerLogo({
   id,
   label,
   hasLogo,
+  src,
   className,
 }: {
   id: string
   label: string
   hasLogo: boolean
+  /** Where the server serves the logo, when it isn't an installed manager's. */
+  src?: string
   className?: string
 }) {
   return (
     <Avatar size="sm" className={cn("rounded-md after:rounded-md", className)}>
       {hasLogo ? (
         <AvatarImage
-          src={`/api/packages/${id}/logo`}
+          src={src ?? `/api/packages/${id}/logo`}
           alt=""
           className="rounded-md object-contain"
         />

@@ -68,5 +68,23 @@
     "source": "Origem",
     "size": "Tamanho",
     "dependencies": "Dependências"
+  },
+  "password": {
+    "title": "Digite a senha do computador",
+    "description": "{{name}} é instalado para todo o sistema, então as alterações pedem a senha da conta em que o Athena roda. Ela é usada uma vez nesta ação e nunca é salva.",
+    "label": "Senha",
+    "continue": "Continuar"
+  },
+  "add": {
+    "button": "Adicionar um gerenciador de pacotes",
+    "title": "Adicionar um gerenciador de pacotes",
+    "description": "Gerenciadores de pacotes que este computador suporta e ainda não tem. O Athena baixa o instalador oficial do fabricante e o executa neste servidor.",
+    "none": "Não há nada para adicionar neste computador.",
+    "install": "Instalar",
+    "needsPassword": "Pede a senha do seu computador.",
+    "unmetNote": "Atenda aos requisitos mostrados para habilitar Instalar.",
+    "confirmTitle": "Instalar {{name}}?",
+    "confirmDescription": "O Athena vai baixar o instalador oficial de {{site}} e executá-lo neste servidor. Isso altera o computador.",
+    "failed": "Não foi possível instalar {{name}}"
   }
 }

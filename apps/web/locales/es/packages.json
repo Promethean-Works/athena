@@ -69,5 +69,23 @@
     "source": "Origen",
     "size": "Tamaño",
     "dependencies": "Dependencias"
+  },
+  "password": {
+    "title": "Introduce la contraseña del equipo",
+    "description": "{{name}} se instala en todo el sistema, así que los cambios necesitan la contraseña de la cuenta con la que se ejecuta Athena. Se usa una vez para esta acción y nunca se guarda.",
+    "label": "Contraseña",
+    "continue": "Continuar"
+  },
+  "add": {
+    "button": "Añadir un gestor de paquetes",
+    "title": "Añadir un gestor de paquetes",
+    "description": "Gestores de paquetes que este equipo admite y aún no tiene. Athena descarga el instalador oficial del fabricante y lo ejecuta en este servidor.",
+    "none": "No hay nada que añadir en este equipo.",
+    "install": "Instalar",
+    "needsPassword": "Pide la contraseña de tu equipo.",
+    "unmetNote": "Cumple los requisitos indicados para activar Instalar.",
+    "confirmTitle": "¿Instalar {{name}}?",
+    "confirmDescription": "Athena descargará el instalador oficial de {{site}} y lo ejecutará en este servidor. Esto modifica el equipo.",
+    "failed": "No se pudo instalar {{name}}"
   }
 }

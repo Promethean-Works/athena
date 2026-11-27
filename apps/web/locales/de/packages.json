@@ -68,5 +68,23 @@
     "source": "Quelle",
     "size": "Größe",
     "dependencies": "Abhängigkeiten"
+  },
+  "password": {
+    "title": "Computer-Passwort eingeben",
+    "description": "{{name}} wird systemweit installiert, daher brauchen Änderungen das Passwort des Kontos, unter dem Athena läuft. Es wird einmal für diese Aktion verwendet und nie gespeichert.",
+    "label": "Passwort",
+    "continue": "Weiter"
+  },
+  "add": {
+    "button": "Paketmanager hinzufügen",
+    "title": "Paketmanager hinzufügen",
+    "description": "Paketmanager, die dieser Computer unterstützt und noch nicht hat. Athena lädt das offizielle Installationsprogramm vom Hersteller herunter und führt es auf diesem Server aus.",
+    "none": "Auf diesem Computer gibt es nichts hinzuzufügen.",
+    "install": "Installieren",
+    "needsPassword": "Fragt nach dem Passwort Ihres Computers.",
+    "unmetNote": "Erfüllen Sie die angezeigten Voraussetzungen, um die Installation freizugeben.",
+    "confirmTitle": "{{name}} installieren?",
+    "confirmDescription": "Athena lädt das offizielle Installationsprogramm von {{site}} herunter und führt es auf diesem Server aus. Das verändert den Computer.",
+    "failed": "{{name}} konnte nicht installiert werden"
   }
 }

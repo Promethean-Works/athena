@@ -68,5 +68,23 @@
     "source": "Source",
     "size": "Taille",
     "dependencies": "Dépendances"
+  },
+  "password": {
+    "title": "Saisissez le mot de passe de l'ordinateur",
+    "description": "{{name}} s'installe pour tout le système : les modifications demandent le mot de passe du compte sous lequel Athena s'exécute. Il sert une seule fois pour cette action et n'est jamais enregistré.",
+    "label": "Mot de passe",
+    "continue": "Continuer"
+  },
+  "add": {
+    "button": "Ajouter un gestionnaire de paquets",
+    "title": "Ajouter un gestionnaire de paquets",
+    "description": "Gestionnaires de paquets pris en charge par cet ordinateur et pas encore installés. Athena télécharge l'installateur officiel chez l'éditeur et l'exécute sur ce serveur.",
+    "none": "Il n'y a rien à ajouter sur cet ordinateur.",
+    "install": "Installer",
+    "needsPassword": "Demande le mot de passe de votre ordinateur.",
+    "unmetNote": "Remplissez les conditions affichées pour activer Installer.",
+    "confirmTitle": "Installer {{name}} ?",
+    "confirmDescription": "Athena va télécharger l'installateur officiel depuis {{site}} et l'exécuter sur ce serveur. Cela modifie l'ordinateur.",
+    "failed": "Impossible d'installer {{name}}"
   }
 }

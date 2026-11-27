@@ -61,6 +61,7 @@ import {
   PackageDetailsSheet,
   type DetailsTarget,
 } from "@/components/packages/package-details"
+import { usePasswordPrompt } from "@/components/packages/password-dialog"
 
 type Manager = Schemas["ManagerOut"]
 type Job = Schemas["JobOut"]
@@ -236,36 +237,57 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
     }
   }
 
-  const install = async (pkg: Pick<Found, "name" | "source">) =>
-    started(
-      await api.POST("/api/packages/{manager}/install", {
-        ...path,
-        body: { name: pkg.name, source: pkg.source ?? null },
-      }),
-      t("toast.installFailed", { name: pkg.name })
+  // A manager that installs system-wide (MacPorts) asks for the computer's password
+  // before each change; reads don't need it.
+  const needsPassword = !manager.available && manager.elevation === "password"
+  const { ask, dialog: passwordDialog } = usePasswordPrompt()
+  async function withPassword(run: (password: string | null) => Promise<void>) {
+    if (!needsPassword) return run(null)
+    const password = await ask(manager.label)
+    if (password) await run(password)
+  }
+
+  const install = (pkg: Pick<Found, "name" | "source">) =>
+    withPassword(async (password) =>
+      started(
+        await api.POST("/api/packages/{manager}/install", {
+          ...path,
+          body: { name: pkg.name, source: pkg.source ?? null, password },
+        }),
+        t("toast.installFailed", { name: pkg.name })
+      )
     )
-  const uninstall = async (name: string) =>
-    started(
-      await api.POST("/api/packages/{manager}/uninstall", {
-        ...path,
-        body: { name },
-      }),
-      t("toast.uninstallFailed", { name })
+  const uninstall = (name: string) =>
+    withPassword(async (password) =>
+      started(
+        await api.POST("/api/packages/{manager}/uninstall", {
+          ...path,
+          body: { name, password },
+        }),
+        t("toast.uninstallFailed", { name })
+      )
     )
-  const upgrade = async (name: string | null) =>
-    started(
-      await api.POST("/api/packages/{manager}/upgrade", {
-        ...path,
-        body: { name },
-      }),
-      name
-        ? t("toast.upgradeFailed", { name })
-        : t("toast.upgradeAllFailed")
+  const upgrade = (name: string | null) =>
+    withPassword(async (password) =>
+      started(
+        await api.POST("/api/packages/{manager}/upgrade", {
+          ...path,
+          body: { name, password },
+        }),
+        name
+          ? t("toast.upgradeFailed", { name })
+          : t("toast.upgradeAllFailed")
+      )
     )
-  const refresh = async () =>
-    started(
-      await api.POST("/api/packages/{manager}/refresh", path),
-      t("toast.refreshFailed")
+  const refresh = () =>
+    withPassword(async (password) =>
+      started(
+        await api.POST("/api/packages/{manager}/refresh", {
+          ...path,
+          body: { password },
+        }),
+        t("toast.refreshFailed")
+      )
     )
 
   const afterJob = React.useCallback(() => {
@@ -276,7 +298,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [installed.load, updates.load])
 
-  if (!manager.available) {
+  if (!manager.available && !needsPassword) {
     return (
       <Alert>
         <InfoIcon />
@@ -641,6 +663,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
         onUninstall={(name) => setPending({ kind: "uninstall", name })}
         onUpgrade={(name) => void upgrade(name)}
       />
+      {passwordDialog}
       <JobDialog job={job} onClose={() => setJob(null)} onFinished={afterJob} />
     </div>
   )

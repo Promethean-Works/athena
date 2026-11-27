@@ -67,5 +67,23 @@
     "source": "Nguồn",
     "size": "Kích thước",
     "dependencies": "Phụ thuộc"
+  },
+  "password": {
+    "title": "Nhập mật khẩu máy tính",
+    "description": "{{name}} được cài cho toàn hệ thống nên thay đổi cần mật khẩu của tài khoản đang chạy Athena. Mật khẩu chỉ dùng một lần cho thao tác này và không bao giờ được lưu.",
+    "label": "Mật khẩu",
+    "continue": "Tiếp tục"
+  },
+  "add": {
+    "button": "Thêm trình quản lý gói",
+    "title": "Thêm trình quản lý gói",
+    "description": "Các trình quản lý gói mà máy tính này hỗ trợ nhưng chưa có. Athena tải trình cài đặt chính thức từ nhà phát hành và chạy trên máy chủ này.",
+    "none": "Không có gì để thêm trên máy tính này.",
+    "install": "Cài đặt",
+    "needsPassword": "Sẽ hỏi mật khẩu máy tính của bạn.",
+    "unmetNote": "Đáp ứng các yêu cầu được hiển thị để bật Cài đặt.",
+    "confirmTitle": "Cài đặt {{name}}?",
+    "confirmDescription": "Athena sẽ tải trình cài đặt chính thức từ {{site}} và chạy trên máy chủ này. Việc này thay đổi máy tính.",
+    "failed": "Không thể cài đặt {{name}}"
   }
 }

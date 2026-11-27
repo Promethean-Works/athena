@@ -20,6 +20,7 @@ import {
   TabsTrigger,
 } from "@workspace/ui/components/tabs"
 
+import { AddManager } from "@/components/packages/add-manager"
 import { ManagerPanel } from "@/components/packages/manager-panel"
 import { ManagerLogo } from "@/components/packages/package-icon"
 import { useApi } from "@/hooks/use-api"
@@ -28,6 +29,19 @@ type Manager = Schemas["ManagerOut"]
 
 /** A tab per package manager detected on this host (docs/design/platform.md). */
 export function PackagesView() {
+  // Adding a manager re-reads the list: remount to load it again.
+  const [version, setVersion] = React.useState(0)
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-end">
+        <AddManager onAdded={() => setVersion((v) => v + 1)} />
+      </div>
+      <Managers key={version} />
+    </div>
+  )
+}
+
+function Managers() {
   const { t } = useTranslation("packages")
   const managers = useApi(() => api.GET("/api/packages"))
   const [tab, setTab] = React.useState<string | null>(null)

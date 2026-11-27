@@ -68,5 +68,23 @@
     "source": "Source",
     "size": "Size",
     "dependencies": "Dependencies"
+  },
+  "password": {
+    "title": "Enter your computer's password",
+    "description": "{{name}} installs system-wide, so changes need the password of the account Athena runs as. It's used once for this action and never stored.",
+    "label": "Password",
+    "continue": "Continue"
+  },
+  "add": {
+    "button": "Add a package manager",
+    "title": "Add a package manager",
+    "description": "Package managers this computer supports and doesn't have yet. Athena downloads the official installer from the vendor and runs it on this server.",
+    "none": "There's nothing to add on this computer.",
+    "install": "Install",
+    "needsPassword": "Asks for your computer's password.",
+    "unmetNote": "Meet the requirements shown to enable Install.",
+    "confirmTitle": "Install {{name}}?",
+    "confirmDescription": "Athena will download the official installer from {{site}} and run it on this server. This changes the computer.",
+    "failed": "Couldn't install {{name}}"
   }
 }

@@ -68,5 +68,23 @@
     "source": "Bron",
     "size": "Grootte",
     "dependencies": "Afhankelijkheden"
+  },
+  "password": {
+    "title": "Voer het wachtwoord van de computer in",
+    "description": "{{name}} wordt voor het hele systeem geïnstalleerd, dus wijzigingen vragen het wachtwoord van het account waaronder Athena draait. Het wordt eenmalig voor deze actie gebruikt en nooit opgeslagen.",
+    "label": "Wachtwoord",
+    "continue": "Doorgaan"
+  },
+  "add": {
+    "button": "Pakketbeheerder toevoegen",
+    "title": "Pakketbeheerder toevoegen",
+    "description": "Pakketbeheerders die deze computer ondersteunt en nog niet heeft. Athena downloadt het officiële installatieprogramma van de maker en voert het uit op deze server.",
+    "none": "Er is niets toe te voegen op deze computer.",
+    "install": "Installeren",
+    "needsPassword": "Vraagt om het wachtwoord van je computer.",
+    "unmetNote": "Voldoe aan de getoonde vereisten om Installeren in te schakelen.",
+    "confirmTitle": "{{name}} installeren?",
+    "confirmDescription": "Athena downloadt het officiële installatieprogramma van {{site}} en voert het uit op deze server. Dit wijzigt de computer.",
+    "failed": "{{name}} kon niet worden geïnstalleerd"
   }
 }
