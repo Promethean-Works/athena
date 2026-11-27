@@ -187,7 +187,7 @@ async def list_installable(request: Request, user: AdminUser) -> list[bootstrap.
 async def installable_logo(installer: InstallerId, user: AdminUser) -> Response:
     """The logo from the manager's own site, for the "Add a package manager" list."""
     inst = _installer(installer)
-    return _image(*await _read(http.fetch_image(inst.logo_url, inst.hosts)))
+    return await _fetched_image(inst.logo_url, inst.hosts)
 
 
 @router.post(
@@ -278,6 +278,15 @@ async def info(
     return fresh
 
 
+async def _fetched_image(url: str, hosts: tuple[str, ...]) -> Response:
+    """Fetch an image from a store. A failure is a plain 404, not an error: the UI shows a
+    letter instead, and a missing icon must not look like a broken page."""
+    try:
+        return _image(*await http.fetch_image(url, hosts))
+    except PackageError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+
+
 def _image(content: bytes, kind: str) -> Response:
     # The bytes only change when the store changes them, so browsers may keep them a day.
     return Response(content, media_type=kind, headers={"Cache-Control": "private, max-age=86400"})
@@ -294,16 +303,19 @@ async def icon(
     pm, details = await _details(request, manager, name, source)
     if not details.icon_url:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "This package has no icon")
-    return _image(*await _read(http.fetch_image(details.icon_url, pm.image_hosts())))
+    return await _fetched_image(details.icon_url, pm.image_hosts())
 
 
 @router.get("/{manager}/logo", operation_id="getPackageManagerLogo", response_class=Response)
 async def logo(manager: ManagerId, request: Request) -> Response:
-    """The manager's own logo from its official site (404 if it has none)."""
-    pm = await _manager(request, manager)
-    if not pm.logo_url:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, f"{pm.label} has no logo")
-    return _image(*await _read(http.fetch_image(pm.logo_url, pm.image_hosts())))
+    """The manager's own logo from its official site. 404 when it has none or the site can't
+    be reached: the page falls back to a letter. It doesn't need the manager to be usable."""
+    cls = MANAGERS.get(manager)
+    caps = {c.id: c for c in await _capabilities(request)}
+    cap = caps.get(f"packages.{manager}")
+    if cls is None or cap is None or cap.status == "missing" or not cls.logo_url:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"No logo for {manager}")
+    return await _fetched_image(cls.logo_url, cls.image_hosts())
 
 
 @router.get("/{manager}/installed", operation_id="listInstalledPackages")

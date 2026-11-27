@@ -11,6 +11,7 @@ import containers from "./containers.json"
 import dashboard from "./dashboard.json"
 import feedback from "./feedback.json"
 import files from "./files.json"
+import onboarding from "./onboarding.json"
 import packages from "./packages.json"
 import settings from "./settings.json"
 import share from "./share.json"
@@ -32,6 +33,7 @@ const resources = {
   dashboard,
   feedback,
   files,
+  onboarding,
   packages,
   settings,
   share,

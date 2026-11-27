@@ -176,7 +176,7 @@ def advisor_capabilities(model: Model | None) -> list[AbstractCapability[Any]]:
     other tool result. Its usage counts toward the chat's limits and spend."""
     if model is None:
         return []
-    return [Advisor(model, mode="local", max_uses=ADVISOR_USES, forward_history=False)]
+    return [Advisor(model, native=False, max_uses=ADVISOR_USES, forward_history=False)]
 
 
 def background_capabilities() -> list[AbstractCapability[Any]]:

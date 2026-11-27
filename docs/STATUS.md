@@ -8,8 +8,9 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Package manager UI (`docs/specs/package-manager-ui.md`): all 3 parts built on `feat/package-manager-ui`, PR next. Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; MacPorts, winget, scoop, choco use hand-written fixtures.
+- Package manager UI (`docs/specs/package-manager-ui.md`): built, PR #327. Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; hand-written MacPorts/winget/scoop/choco fixtures.
 - Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
+- Onboarding wizard: built; see HISTORY for what is unverified.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
 - Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Sub-folder sharing built; browser-checked on a faked host.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).
@@ -23,12 +24,12 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - Webhook app restart took 10 min and `GET /api/automation/jobs` hung (slow Colima): does a run block the DB?
 - Agent tooling: after merge, run `node scripts/agents-setup.mjs` and `hermes mcp remove github`; approve the Hermes hook once.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
-- Not yet verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell through Docker in WSL.
-- Not verified for real: dnf/pacman/zypper/apk install/uninstall (apt checked in Lima, #26) and every Windows manager (CI runs choco/winget reads).
-- Not yet verified in browser: compose variant picker (#109), cloud wizard (#97) and remote cards (#92) with real rclone remote.
-- Catalog smoke test (#169–#176): all store apps installed on macOS arm64 (Colima); `smoke: skip` marks GPU/account/RAM-heavy ones. Next: `Catalog smoke` workflow (amd64/arm64). Logins not verified.
-- Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested (macOS).
-- models.dev providers left out (SDK needed): watsonx, GitLab, SAP AI Core, gateways. Vertex is in, untried against real Vertex.
+- Not verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell in WSL.
+- Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
+- Not verified in browser: compose variant picker (#109), cloud wizard (#97), remote cards (#92) with a real remote.
+- Catalog smoke test (#169–#176): store apps installed on macOS arm64 (Colima); `smoke: skip` marks heavy ones. Next: `Catalog smoke` workflow (amd64/arm64).
+- Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested.
+- models.dev providers left out (SDK needed): watsonx, GitLab, SAP AI Core, gateways. Vertex untried.
 
 ## Next
 

@@ -1,0 +1,91 @@
+{
+  "progress": "Step {{current}} of {{total}}",
+  "steps": {
+    "language": "Language",
+    "runtime": "Containers",
+    "locations": "Folders",
+    "network": "Network",
+    "ai": "AI",
+    "done": "Done"
+  },
+  "continue": "Continue",
+  "skip": "Skip for now",
+  "back": "Back",
+  "saveFailed": "Couldn't save",
+  "language": {
+    "title": "Choose your language",
+    "description": "The language of Athena's pages. You can change it later in Settings.",
+    "label": "Language",
+    "auto": "Follow the browser"
+  },
+  "runtime": {
+    "title": "Container runtime",
+    "description": "Apps in the store run in containers, which need a container runtime on this server.",
+    "ready": "{{provider}} is ready: {{detail}}",
+    "loadFailed": "Couldn't list the runtimes",
+    "none": "No runtime can be offered on this host.",
+    "detected": "In use",
+    "recommended": "Recommended",
+    "tag": {
+      "new": "New",
+      "experimental": "Experimental"
+    },
+    "manualTitle": "Athena can't install this one. Do it by hand:",
+    "install": "Install {{name}}",
+    "installFailed": "Couldn't start the install",
+    "installed": "Installed. Start it, then check again.",
+    "start": "Start {{provider}}",
+    "startFailed": "Couldn't start the runtime",
+    "running": "The runtime is running",
+    "redetect": "Check again",
+    "stopped": "{{provider}} is installed but not running."
+  },
+  "locations": {
+    "title": "Folders for the file manager",
+    "description": "Pick the folders on this server that Files can open. Home and App data are there already.",
+    "existing": "Already added",
+    "name": "Name",
+    "namePlaceholder": "Media",
+    "path": "Folder path",
+    "pathPlaceholder": "/srv/media or D:\\Media",
+    "add": "Add folder",
+    "added": "Added {{name}}",
+    "addFailed": "Couldn't add the folder",
+    "loadFailed": "Couldn't load the folders"
+  },
+  "network": {
+    "title": "Network access",
+    "description": "Where Athena listens. HTTPS and remote access are in Settings.",
+    "host": "Who can reach Athena",
+    "hostAll": "Every device on the network",
+    "hostLocal": "This server only",
+    "port": "Port",
+    "portInvalid": "Use a port from 1 to 65535",
+    "save": "Save and continue",
+    "restart": "Restart Athena for the new address to apply.",
+    "loadFailed": "Couldn't load the network settings"
+  },
+  "done": {
+    "title": "You're set",
+    "description": "Everything here is also in Settings, so you can change it any time. Run the setup again from Settings or with the athena onboard command.",
+    "finish": "Open the dashboard",
+    "finishFailed": "Couldn't finish the setup"
+  },
+  "page": {
+    "title": "Setup",
+    "description": "Check the basics Athena needs to work."
+  },
+  "card": {
+    "title": "Finish setup",
+    "description": "A few minutes to set the language, containers, folders and network.",
+    "body": "Athena works, but some basics haven't been checked yet.",
+    "open": "Continue setup",
+    "dismiss": "Dismiss",
+    "dismissFailed": "Couldn't dismiss"
+  },
+  "again": {
+    "title": "Setup",
+    "description": "Walk through the first-run setup again: language, container runtime, folders and network.",
+    "button": "Run setup again"
+  }
+}

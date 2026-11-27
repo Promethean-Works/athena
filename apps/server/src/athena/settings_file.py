@@ -26,6 +26,7 @@ from athena.backup.settings import BackupSettings
 from athena.config import SETTINGS_FILE, ServerSettings
 from athena.files.webdav import WebDavConfig
 from athena.https.settings import HttpsSettings
+from athena.onboarding import OnboardingSettings
 from athena.system_settings import SystemSettings
 
 log = logging.getLogger(__name__)
@@ -35,7 +36,9 @@ SCHEMA_NAME = "athena.schema.json"
 BACKUP_SUFFIX = ".bak"
 SCHEMA_KEY = "$schema"
 
-Section = Literal["server", "system", "https", "ai", "webdav", "backup"]  # config.SECTIONS
+Section = Literal[
+    "server", "system", "https", "ai", "webdav", "backup", "onboarding"
+]  # config.SECTIONS
 
 # Read-only fields the API fills in; never written to the file.
 _WRITE_EXCLUDE: dict[str, Any] = {
@@ -67,6 +70,8 @@ class AthenaConfig(BaseModel):
     """WebDAV access to the file locations."""
     backup: BackupSettings = Field(default_factory=BackupSettings)
     """Host-wide backup knobs (`paused`, prune and check intervals, default retention)."""
+    onboarding: OnboardingSettings = Field(default_factory=OnboardingSettings)
+    """Whether the setup wizard was finished (`athena onboard --reset` opens it again)."""
 
 
 class SettingsFileError(Exception):

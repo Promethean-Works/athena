@@ -3,7 +3,7 @@
 | Area | In the MVP | Later |
 |---|---|---|
 | Dashboard | Host stats (CPU, RAM, disk, network, uptime), running apps grid, runtime status | Custom widget layout, multi-node |
-| Container runtime | Detect, report status, start the runtime (Colima on macOS), guided setup when missing | One-click runtime install on every OS |
+| Container runtime | Detect, report status, start the runtime (Colima on macOS), install one the admin picks in the setup wizard or Settings (package manager, or a pinned download for Kiri) | Installing a runtime without a click; closed-source runtimes |
 | Apps (containers) | List, start/stop/restart, logs, stats, remove, update image | Backups, auto-update policy |
 | App store | Built-in catalog plus remote catalogs (Git/HTTP), install with editable env/ports/volumes | Ratings, signed catalogs |
 | Custom apps | Import a `docker run` command, paste/upload a `compose.yaml`, edit before deploy | Import from a Git repo |

@@ -45,6 +45,7 @@
 | rclone | MIT |
 | restic (backups, downloaded at runtime, pinned version and SHA-256) | BSD-2-Clause |
 | lego (ACME client, downloaded at runtime for Let's Encrypt, pinned version and SHA-256) | MIT |
+| Kiri (container runtime, optional: installed on the admin's click from a pinned release and SHA-256, not bundled) | Apache-2.0 |
 | Pebble (Let's Encrypt's test ACME server, CI only, not shipped) | MPL-2.0 |
 | winget-cli, scoop, Chocolatey CLI | MIT / Unlicense / Apache-2.0 |
 | i18next, react-i18next (web UI translations) | MIT |

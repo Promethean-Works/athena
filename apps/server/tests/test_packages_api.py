@@ -350,3 +350,22 @@ def test_root_needs_no_password(client_for, monkeypatch: pytest.MonkeyPatch) -> 
     assert res.status_code == 202, res.text
     wait(client, res.json()["id"])
     assert runs[0][0][-3:] == ["-N", "uninstall", "jq"] and runs[0][1] is None
+
+
+def test_logo_works_for_a_manager_that_needs_privilege_and_fails_quietly(
+    client_for, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from athena.packages import http
+    from athena.packages.base import PackageError
+
+    async def fake_image(url, hosts):
+        if "debian" in url:
+            return b"ico", "image/x-icon"
+        raise PackageError("offline")
+
+    monkeypatch.setattr(http, "fetch_image", fake_image)
+    client = client_for(linux_store(root=False))  # apt and flatpak, apt needs root
+    assert client.get("/api/packages/apt/logo").status_code == 200
+    # An unreachable site is a 404 (the page shows a letter), never a 502 console error.
+    res = client.get("/api/packages/flatpak/logo")
+    assert res.status_code == 404 and "offline" in res.json()["detail"]
