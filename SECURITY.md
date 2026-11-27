@@ -23,3 +23,7 @@ Athena is pre-1.0. Only the latest release gets security fixes.
 In scope: the Athena server and web UI, the install scripts, and the default configuration.
 
 Out of scope: vulnerabilities in third-party apps installed from app catalogs, and in upstream dependencies (report those upstream; tell us too if Athena's use of them makes things worse).
+
+## Known-vulnerability monitoring
+
+Dependabot opens weekly update PRs. A weekly workflow (`.github/workflows/cve-scan.yml`, also `scripts/cve-scan.sh` locally) runs `pnpm audit`, `pip-audit` and Trivy over every store-app image, and records HIGH/CRITICAL findings that have a fix in one open "Weekly CVE scan" issue. It never blocks a PR.
