@@ -1533,6 +1533,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/system/host-password/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check Host Password
+         * @description Run a harmless `sudo true` with the password, so the UI can reject a typo before the
+         *     real action. The password is used for this request only; never stored or logged.
+         *
+         *     Only offered when some capability on this host asks for a password (`elevation:
+         *     "password"`), and throttled per admin like a sign-in.
+         */
+        post: operations["checkHostPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/shares/smb": {
         parameters: {
             query?: never;
@@ -3802,6 +3826,11 @@ export interface components {
              * Format: date-time
              */
             started_at: string;
+        };
+        /** HostPasswordIn */
+        HostPasswordIn: {
+            /** Password */
+            password: string;
         };
         /** HttpsSettings */
         HttpsSettings: {
@@ -8502,6 +8531,58 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    checkHostPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HostPasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The password didn't work */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description This host doesn't ask for a password */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Too many wrong passwords */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
