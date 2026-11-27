@@ -1,6 +1,6 @@
 # Spec: multi-user
 
-**Status:** Built, PR open (approved 2026-11-27 (all recommendations accepted; users also don't see menus they can't use) · **Milestone:** Release 0.1.0 candidate (not yet in `docs/plans/release-0.1.0.md`) · **Design:** `docs/design/security.md`, decision "Auth (M1)"
+**Status:** Built, PR open (approved 2026-11-27, all recommendations accepted; users don't see menus they can't use) · **Milestone:** Release 0.1.0 candidate (not yet in `docs/plans/release-0.1.0.md`) · **Design:** `docs/design/security.md`, decision "Auth (M1)"
 
 ## Goal
 
