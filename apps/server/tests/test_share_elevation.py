@@ -134,3 +134,50 @@ def test_api_asks_for_a_password_then_creates_the_share(fake_host: Path, tmp_pat
             "select action, target, detail from audit_log"
         )
         assert PASSWORD not in repr(rows.fetchall())
+
+
+# ---------------------------------------------------------------- password check
+
+
+def _checked(tmp_path: Path) -> TestClient:
+    return signed_in(TestClient(make_app(tmp_path, store=_macos_store())))
+
+
+@posix
+def test_check_accepts_the_right_password(fake_host: Path, tmp_path: Path) -> None:
+    res = _checked(tmp_path).post("/api/system/host-password/check", json={"password": PASSWORD})
+    assert res.status_code == 204
+    assert fake_host.read_text(encoding="utf-8").splitlines() == ["sudo: true"]
+
+
+@posix
+def test_check_refuses_a_wrong_password_without_echoing_it(fake_host: Path, tmp_path: Path) -> None:
+    res = _checked(tmp_path).post("/api/system/host-password/check", json={"password": "nope-pw"})
+    assert res.status_code == 403
+    assert "nope-pw" not in res.text
+    assert not fake_host.exists()
+
+
+@posix
+def test_check_is_throttled_after_five_wrong_passwords(fake_host: Path, tmp_path: Path) -> None:
+    client = _checked(tmp_path)
+    for _ in range(5):
+        assert (
+            client.post("/api/system/host-password/check", json={"password": "x"}).status_code
+            == 403
+        )
+    res = client.post("/api/system/host-password/check", json={"password": PASSWORD})
+    assert res.status_code == 429
+    assert "Retry-After" in res.headers
+
+
+def test_check_is_409_when_the_host_asks_for_no_password(tmp_path: Path) -> None:
+    store = CapabilityStore(detector=lambda: detect(FakeProbe(os="linux")))
+    client = signed_in(TestClient(make_app(tmp_path, store=store)))
+    res = client.post("/api/system/host-password/check", json={"password": "anything"})
+    assert res.status_code == 409
+
+
+def test_check_needs_a_session(tmp_path: Path) -> None:
+    client = TestClient(make_app(tmp_path, store=_macos_store()))
+    assert client.post("/api/system/host-password/check", json={"password": "x"}).status_code == 401
