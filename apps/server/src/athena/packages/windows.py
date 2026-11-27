@@ -8,16 +8,21 @@ elevated Athena. The fixtures for these are hand-written from the documented for
 
 import asyncio
 import json
+import re
 
 from athena.packages.base import (
     SEARCH_LIMIT,
     InstalledPackage,
+    PackageDetails,
     PackageError,
+    PackageField,
     PackageManager,
     PackageRef,
     UpgradablePackage,
     column_table,
     nonblank,
+    parse_fields,
+    split_description,
 )
 
 # ------------------------------------------------------------------ WinGet
@@ -70,9 +75,38 @@ def parse_winget_list(text: str) -> tuple[list[InstalledPackage], list[Upgradabl
     return installed, upgradable
 
 
+WINGET_FIELDS = {
+    "version", "publisher", "publisher url", "author", "moniker", "description", "homepage",
+    "license", "license url", "tags", "release notes", "installer", "privacy url", "copyright",
+}  # fmt: skip
+_WINGET_FOUND = re.compile(r"^Found (?P<title>.+?) \[(?P<id>[^\]]+)\]\s*$", re.M)
+
+
+def parse_winget_show(text: str, name: str) -> PackageDetails:
+    """`winget show --id X --exact`. Field names are English: winget localizes them, so on
+    another display language only the title and id are known (the UI still shows them)."""
+    found = _WINGET_FOUND.search(text)
+    f = parse_fields(text, WINGET_FIELDS)
+    tags = " ".join(f.get("tags", "").split())
+    summary, long = split_description(f.get("description"))
+    return PackageDetails(
+        name=found.group("id") if found else name,
+        title=found.group("title") if found else None,
+        version=f.get("version"),
+        summary=summary,
+        description=long,
+        homepage=f.get("homepage") or f.get("publisher url"),
+        license=f.get("license"),
+        maintainer=f.get("publisher") or f.get("author"),
+        extra=[PackageField(label="tags", value=tags)] if tags else [],
+    )
+
+
 class Winget(PackageManager):
     id = "winget"
     label = "WinGet"
+    logo_url = "https://github.com/microsoft.png"
+    icon_hosts = ("githubusercontent.com",)  # where github.com redirects avatars
 
     async def _read(self, argv: list[str], what: str) -> str:
         result = await self._run(argv, self.env)
@@ -91,6 +125,12 @@ class Winget(PackageManager):
         for r in results:
             r.installed = r.name in names
         return results
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        out = await self._read(
+            ["winget", "show", "--id", name, "--exact", *_WINGET_FLAGS], "winget show"
+        )
+        return parse_winget_show(out, name)
 
     async def installed(self) -> list[InstalledPackage]:
         return parse_winget_list(
@@ -156,9 +196,35 @@ def parse_scoop_status(text: str) -> list[UpgradablePackage]:
     ]
 
 
+SCOOP_FIELDS = {
+    "name", "description", "version", "website", "license", "installed", "binaries", "notes",
+    "updated by", "shortcuts",
+}  # fmt: skip
+
+
+def parse_scoop_info(text: str, name: str) -> PackageDetails:
+    """`scoop info name`: `Key : value` lines."""
+    f = parse_fields(text, SCOOP_FIELDS, flush_left=True)
+    return PackageDetails(
+        name=f.get("name") or name,
+        version=f.get("version"),
+        summary=f.get("description"),
+        homepage=f.get("website"),
+        license=f.get("license"),
+        installed=bool(f.get("installed")),
+        installed_version=f.get("installed") or None,
+        extra=[
+            PackageField(label=k, value=f[k])
+            for k in ("binaries", "shortcuts", "notes")
+            if f.get(k)
+        ],
+    )
+
+
 class Scoop(PackageManager):
     id = "scoop"
     label = "Scoop"
+    logo_url = "https://scoop.sh/favicon.ico"
     can_refresh = True
 
     async def search(self, query: str) -> list[PackageRef]:
@@ -170,6 +236,9 @@ class Scoop(PackageManager):
         for r in results:
             r.installed = r.name in names
         return results
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        return parse_scoop_info(await self.run(["scoop", "info", name], "scoop info"), name)
 
     async def installed(self) -> list[InstalledPackage]:
         return parse_scoop_export(await self.run(["scoop", "export"], "scoop export"))
@@ -217,9 +286,35 @@ def parse_choco_outdated(text: str) -> list[UpgradablePackage]:
     ]
 
 
+CHOCO_FIELDS = {
+    "title", "tags", "software site", "software license", "summary", "description",
+    "release notes", "package url",
+}  # fmt: skip
+_CHOCO_HEAD = re.compile(r"^(?P<name>\S+) (?P<version>\d\S*)(?: \[.*\])?\s*$", re.M)
+
+
+def parse_choco_info(text: str, name: str) -> PackageDetails:
+    """`choco info name` (the human output; `--limit-output` has only name and version)."""
+    head = _CHOCO_HEAD.search(text)
+    f = parse_fields(text, CHOCO_FIELDS)
+    title = f.get("title", "").split(" | ")[0].strip() or None
+    summary = f.get("summary") or None
+    return PackageDetails(
+        name=head.group("name") if head else name,
+        title=title,
+        version=head.group("version") if head else None,
+        summary=summary,
+        description=f.get("description") or None,
+        homepage=f.get("software site"),
+        license=f.get("software license"),
+        extra=[PackageField(label="tags", value=f["tags"])] if f.get("tags") else [],
+    )
+
+
 class Choco(PackageManager):
     id = "choco"
     label = "Chocolatey"
+    logo_url = "https://community.chocolatey.org/favicon.ico"
     note = "Chocolatey installs for all users, so Athena must run as an administrator."
     _Y = ("-y", "--no-progress")
 
@@ -233,6 +328,9 @@ class Choco(PackageManager):
         for r in results:
             r.installed = r.name.lower() in names
         return results
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        return parse_choco_info(await self.run(["choco", "info", name], "choco info"), name)
 
     async def installed(self) -> list[InstalledPackage]:
         return parse_choco_list(await self.run(["choco", "list", "--limit-output"], "choco list"))

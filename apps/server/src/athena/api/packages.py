@@ -5,19 +5,21 @@ the capability to be `ready` (docs/design/platform.md). Each manager runs one jo
 time, so two operations never fight over apt's or dnf's lock.
 """
 
+import time
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, HTTPException, Path, Query, Request, status
+from fastapi import APIRouter, HTTPException, Path, Query, Request, Response, status
 from pydantic import BaseModel, Field
 
 from athena import audit
 from athena.auth.deps import Authed, DbSession
 from athena.jobs import Job, JobManager, JobOut, run_or_fail
-from athena.packages import MANAGERS
+from athena.packages import MANAGERS, http
 from athena.packages.base import (
     PACKAGE_NAME,
     SEARCH_QUERY,
     InstalledPackage,
+    PackageDetails,
     PackageError,
     PackageManager,
     PackageRef,
@@ -32,6 +34,7 @@ router = APIRouter(prefix="/packages", tags=["packages"])
 
 ManagerId = Annotated[str, Path(pattern=r"^[a-z]{2,16}$")]
 PackageName = Annotated[str, Field(pattern=PACKAGE_NAME.pattern)]
+SOURCE_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
 
 
 class ManagerOut(BaseModel):
@@ -44,11 +47,13 @@ class ManagerOut(BaseModel):
     can_upgrade_one: bool
     can_refresh: bool
     note: str | None = None
+    has_logo: bool = False
+    """The manager's own logo is at `/api/packages/{id}/logo`."""
 
 
 class InstallIn(BaseModel):
     name: PackageName
-    source: Annotated[str, Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")] | None = None
+    source: Annotated[str, Field(pattern=SOURCE_PATTERN)] | None = None
     """Flatpak remote, Scoop bucket, or "cask" for Homebrew casks."""
 
 
@@ -76,6 +81,7 @@ def _out(cap: Capability, cls: type[PackageManager]) -> ManagerOut:
         can_upgrade_one=cls.can_upgrade_one,
         can_refresh=cls.can_refresh,
         note=cls.note,
+        has_logo=bool(cls.logo_url),
     )
 
 
@@ -116,6 +122,71 @@ async def search(
     q: Annotated[str, Query(pattern=SEARCH_QUERY.pattern)],
 ) -> list[PackageRef]:
     return await _read((await _manager(request, manager)).find(q.strip()))
+
+
+INFO_TTL = 600.0
+_info_cache: dict[tuple[str, str, str | None], tuple[float, PackageDetails]] = {}
+
+
+async def _details(
+    request: Request, manager: str, name: str, source: str | None
+) -> tuple[PackageManager, PackageDetails]:
+    pm = await _manager(request, manager)
+    key = (manager, name, source)
+    if (hit := _info_cache.get(key)) and hit[0] > time.monotonic():
+        return pm, hit[1]
+    details = await _read(pm.details(name, source))
+    if len(_info_cache) > 200:
+        _info_cache.clear()
+    _info_cache[key] = (time.monotonic() + INFO_TTL, details)
+    return pm, details
+
+
+@router.get("/{manager}/info", operation_id="getPackageInfo")
+async def info(
+    manager: ManagerId,
+    request: Request,
+    name: Annotated[str, Query(pattern=PACKAGE_NAME.pattern)],
+    source: Annotated[str, Query(pattern=SOURCE_PATTERN)] | None = None,
+) -> PackageDetails:
+    """What the manager knows about one package. Whether it is installed is never cached."""
+    pm, details = await _details(request, manager, name, source)
+    fresh = details.model_copy()
+    try:
+        have = {p.name: p.version for p in await pm.installed()}
+    except PackageError:
+        return fresh
+    fresh.installed = name in have
+    fresh.installed_version = have.get(name)
+    return fresh
+
+
+def _image(content: bytes, kind: str) -> Response:
+    # The bytes only change when the store changes them, so browsers may keep them a day.
+    return Response(content, media_type=kind, headers={"Cache-Control": "private, max-age=86400"})
+
+
+@router.get("/{manager}/icon", operation_id="getPackageIcon", response_class=Response)
+async def icon(
+    manager: ManagerId,
+    request: Request,
+    name: Annotated[str, Query(pattern=PACKAGE_NAME.pattern)],
+    source: Annotated[str, Query(pattern=SOURCE_PATTERN)] | None = None,
+) -> Response:
+    """The package's icon from the manager's own store, fetched by the server (404 if none)."""
+    pm, details = await _details(request, manager, name, source)
+    if not details.icon_url:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "This package has no icon")
+    return _image(*await _read(http.fetch_image(details.icon_url, pm.image_hosts())))
+
+
+@router.get("/{manager}/logo", operation_id="getPackageManagerLogo", response_class=Response)
+async def logo(manager: ManagerId, request: Request) -> Response:
+    """The manager's own logo from its official site (404 if it has none)."""
+    pm = await _manager(request, manager)
+    if not pm.logo_url:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"{pm.label} has no logo")
+    return _image(*await _read(http.fetch_image(pm.logo_url, pm.image_hosts())))
 
 
 @router.get("/{manager}/installed", operation_id="listInstalledPackages")

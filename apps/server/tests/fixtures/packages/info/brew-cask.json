@@ -1,0 +1,57 @@
+{
+ "formulae": [],
+ "casks": [
+  {
+   "token": "visual-studio-code",
+   "full_token": "visual-studio-code",
+   "old_tokens": [],
+   "tap": "homebrew/cask",
+   "name": [
+    "Microsoft Visual Studio Code",
+    "VS Code"
+   ],
+   "desc": "Open-source code editor",
+   "homepage": "https://code.visualstudio.com/",
+   "url": "https://update.code.visualstudio.com/1.148.0/darwin-arm64/stable",
+   "version": "1.148.0",
+   "autobump": true,
+   "no_autobump_message": null,
+   "skip_livecheck": false,
+   "installed": null,
+   "installed_time": null,
+   "bundle_version": "1.147.0",
+   "bundle_short_version": "1.147.0",
+   "pinned": false,
+   "pinned_version": null,
+   "outdated": false,
+   "sha256": "5a6d11ecf8bed45860f81379bc55d1551e561c37076cb4ab8e2c562b3017e183",
+   "caveats": null,
+   "caveats_rosetta": null,
+   "depends_on": {
+    "macos": {}
+   },
+   "conflicts_with": null,
+   "container": null,
+   "rename": [],
+   "auto_updates": true,
+   "deprecated": false,
+   "deprecation_date": null,
+   "deprecation_reason": null,
+   "deprecation_replacement_formula": null,
+   "deprecation_replacement_cask": null,
+   "deprecate_args": null,
+   "disabled": false,
+   "disable_date": null,
+   "disable_reason": null,
+   "disable_replacement_formula": null,
+   "disable_replacement_cask": null,
+   "disable_args": null,
+   "tap_git_head": "962cc6283d89f131d0c5fe2662ae6ac288660cd3",
+   "languages": [],
+   "ruby_source_path": "Casks/v/visual-studio-code.rb",
+   "ruby_source_checksum": {
+    "sha256": "506a8b241dff540868d9d7c7b7b5140dbd42efce6c1c03a72e49197577132672"
+   }
+  }
+ ]
+}

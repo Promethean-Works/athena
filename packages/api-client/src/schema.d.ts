@@ -894,6 +894,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/packages/{manager}/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Info
+         * @description What the manager knows about one package. Whether it is installed is never cached.
+         */
+        get: operations["getPackageInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/packages/{manager}/icon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Icon
+         * @description The package's icon from the manager's own store, fetched by the server (404 if none).
+         */
+        get: operations["getPackageIcon"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/packages/{manager}/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Logo
+         * @description The manager's own logo from its official site (404 if it has none).
+         */
+        get: operations["getPackageManagerLogo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/packages/{manager}/installed": {
         parameters: {
             query?: never;
@@ -3905,6 +3965,11 @@ export interface components {
             can_refresh: boolean;
             /** Note */
             note?: string | null;
+            /**
+             * Has Logo
+             * @default false
+             */
+            has_logo: boolean;
         };
         /**
          * McpHttp
@@ -4133,6 +4198,52 @@ export interface components {
             verb: "install" | "uninstall" | "upgrade" | "refresh";
             /** Source */
             source?: string | null;
+        };
+        /**
+         * PackageDetails
+         * @description What a package manager knows about one package (the Details view).
+         */
+        PackageDetails: {
+            /** Name */
+            name: string;
+            /** Title */
+            title?: string | null;
+            /** Version */
+            version?: string | null;
+            /** Summary */
+            summary?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Homepage */
+            homepage?: string | null;
+            /** License */
+            license?: string | null;
+            /** Source */
+            source?: string | null;
+            /**
+             * Installed
+             * @default false
+             */
+            installed: boolean;
+            /** Installed Version */
+            installed_version?: string | null;
+            /** Size */
+            size?: string | null;
+            /** Dependencies */
+            dependencies?: string[];
+            /** Maintainer */
+            maintainer?: string | null;
+            /** Extra */
+            extra?: components["schemas"]["PackageField"][];
+            /** Has Icon */
+            readonly has_icon: boolean;
+        };
+        /** PackageField */
+        PackageField: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
         };
         /**
          * PackageRef
@@ -6907,6 +7018,101 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PackageRef"][];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getPackageInfo: {
+        parameters: {
+            query: {
+                name: string;
+                source?: string | null;
+            };
+            header?: never;
+            path: {
+                manager: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PackageDetails"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getPackageIcon: {
+        parameters: {
+            query: {
+                name: string;
+                source?: string | null;
+            };
+            header?: never;
+            path: {
+                manager: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getPackageManagerLogo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                manager: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

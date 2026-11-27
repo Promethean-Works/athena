@@ -1,0 +1,14 @@
+            ID: org.gnome.Calculator
+           Ref: app/org.gnome.Calculator/aarch64/stable
+          Arch: aarch64
+        Branch: stable
+    Collection: org.flathub.Stable
+ Download Size: 1.9 MB
+Installed Size: 5.2 MB
+       Runtime: org.gnome.Platform/aarch64/51
+           Sdk: org.gnome.Sdk/aarch64/51
+
+        Commit: 40a4a730925db4404a8682525594caaa2989d4e00b281f3ca1b5b0d5bb17d3bc
+        Parent: 0465246cce284b39eef1312d6f5d74dcdce5dd6c264f4fa8ecfa36602fb88f18
+       Subject: Merge pull request #55 from flathub/update-master-db2c4e6 (6d83df014422)
+          Date: 2026-10-12 11:33:13 +0000

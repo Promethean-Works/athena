@@ -1,0 +1,44 @@
+{
+ "channel-map": [
+  {
+   "channel": {
+    "architecture": "amd64",
+    "name": "stable",
+    "released-at": "2026-09-22T13:42:44.025641+00:00",
+    "risk": "stable",
+    "track": "latest"
+   },
+   "download": {
+    "deltas": [],
+    "sha3-384": "2c00f12922016b1e94e98b2f127d08fa6598161c6a6ee5e459735991df790b4f5f15e6111decaadc012053538d26cd97",
+    "size": 277643264,
+    "url": "https://api.snapcraft.io/api/v1/snaps/download/RT9mcUhVsRYrDLG8qnvGiy26NKvv6Qkd_4472.snap"
+   },
+   "version": "3.0.24-rc1"
+  }
+ ],
+ "default-track": null,
+ "name": "vlc",
+ "snap": {
+  "contact": "https://www.videolan.org/support/",
+  "description": "VLC is a free and open source cross-platform multimedia player and framework\nthat plays most multimedia files as well as DVDs, Audio CDs, VCDs, and various\nstreaming protocols.\n\nSimple, fast and powerful\n\n* **Plays everything** : Files, Discs, Webcams\u00b9, Devices and Streams.\n* **Plays most codecs with no codec packs needed**: MPEG-2, MPEG-4, H.264, MKV, WebM, WMV, MP3...\n* **Completely Free** : no spyware, no ads and no user tracking.\n\n_1) Camera and microphone access are required for recording features._",
+  "license": "GPL-2.0+",
+  "media": [
+   {
+    "height": 256,
+    "type": "icon",
+    "url": "https://dashboard.snapcraft.io/site_media/appmedia/2016/07/vlc.png",
+    "width": 256
+   }
+  ],
+  "publisher": {
+   "display-name": "VideoLAN",
+   "id": "yBzXLuxwoWh5b2tgI8gxjziVNEHLm64z",
+   "username": "videolan",
+   "validation": "verified"
+  },
+  "summary": "The ultimate media player",
+  "website": "https://www.videolan.org/vlc/"
+ },
+ "snap-id": "RT9mcUhVsRYrDLG8qnvGiy26NKvv6Qkd"
+}

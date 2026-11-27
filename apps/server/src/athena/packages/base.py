@@ -15,8 +15,9 @@ import sys
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from typing import ClassVar
+from urllib.parse import urlsplit
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, computed_field
 
 log = logging.getLogger(__name__)
 
@@ -58,6 +59,41 @@ class UpgradablePackage(BaseModel):
     version: str | None = None
     """The installed version."""
     latest: str | None = None
+
+
+class PackageField(BaseModel):
+    label: str
+    value: str
+
+
+class PackageDetails(BaseModel):
+    """What a package manager knows about one package (the Details view)."""
+
+    name: str
+    title: str | None = None
+    version: str | None = None
+    summary: str | None = None
+    """One line."""
+    description: str | None = None
+    """The long text, when there is one."""
+    homepage: str | None = None
+    license: str | None = None
+    source: str | None = None
+    installed: bool = False
+    installed_version: str | None = None
+    size: str | None = None
+    dependencies: list[str] = Field(default_factory=list)
+    maintainer: str | None = None
+    extra: list[PackageField] = Field(default_factory=list)
+    """Anything else the manager reports, as label and value."""
+    icon_url: str | None = Field(default=None, exclude=True)
+    """Where the manager's store keeps the icon. Never sent to the browser: the server
+    fetches it (`GET /api/packages/{manager}/icon`)."""
+
+    @computed_field
+    @property
+    def has_icon(self) -> bool:
+        return bool(self.icon_url)
 
 
 @dataclass(frozen=True)
@@ -137,6 +173,11 @@ class PackageManager:
     """True when package lists can be refreshed separately (apt update)."""
     note: ClassVar[str | None] = None
     """Shown in the UI, e.g. that installs on Arch also upgrade the system."""
+    logo_url: ClassVar[str | None] = None
+    """The manager's own logo, on its official site (fetched by the server, never bundled)."""
+    icon_hosts: ClassVar[tuple[str, ...]] = ()
+    """Extra hosts its store may serve icons or redirect the logo from. The logo's own site
+    is always allowed."""
 
     def __init__(self, run: Runner = run_command) -> None:
         self._run = run
@@ -167,6 +208,30 @@ class PackageManager:
             except PackageError:
                 continue
         return merge_results(batches)[:SEARCH_LIMIT]
+
+    @classmethod
+    def image_hosts(cls) -> tuple[str, ...]:
+        """Where this manager's logo and package icons may come from (https only)."""
+        hosts = list(cls.icon_hosts)
+        if cls.logo_url:
+            host = urlsplit(cls.logo_url).hostname or ""
+            hosts.append(".".join(host.split(".")[-2:]))
+        return tuple(hosts)
+
+    async def details(self, name: str, source: str | None = None) -> PackageDetails:
+        raise NotImplementedError
+
+    async def info(self, name: str, source: str | None = None) -> PackageDetails:
+        """Details for one package, with whether it is installed filled in."""
+        details = await self.details(name, source)
+        if not details.installed:
+            try:
+                have = {p.name: p.version for p in await self.installed()}
+            except PackageError:
+                have = {}
+            if name in have:
+                details.installed, details.installed_version = True, have[name]
+        return details
 
     async def installed(self) -> list[InstalledPackage]:
         raise NotImplementedError
@@ -240,3 +305,59 @@ def column_table(text: str, min_columns: int = 2) -> list[list[str]]:
             cells.append(line[start:end].strip() if start < len(line) else "")
         rows.append(cells)
     return rows
+
+
+def parse_fields(text: str, known: set[str], flush_left: bool = False) -> dict[str, str]:
+    """`Key : value` lines (dnf, zypper, pacman, apt, winget, scoop, choco, flatpak).
+
+    Only keys in `known` (lowercase) start a field, so a description line that happens to
+    contain a colon stays part of the description. Other lines continue the field before
+    them (a leading `:` as dnf prints is dropped). Fields repeated keep the first value.
+    With `flush_left`, any unindented `Key : value` line also starts a field (dnf, zypper,
+    pacman, apt print every key at the left edge and indent continuations).
+    """
+    fields: dict[str, list[str]] = {}
+    current: list[str] | None = None
+    for raw in text.replace("\xa0", " ").splitlines():
+        match = re.match(r"^\s*([^:]{1,30}?)\s*:\s?(.*)$", raw)
+        key = match.group(1).strip().lower() if match else ""
+        if match and (key in known or (flush_left and not raw[:1].isspace())):
+            if key in fields:
+                current = None  # a repeated key (apt lists several stanzas): keep the first
+                continue
+            current = fields.setdefault(key, [])
+            current.append(match.group(2).strip())
+        elif current is not None:
+            current.append(raw.strip().lstrip(":").strip())
+    return {k: "\n".join(v).strip() for k, v in fields.items()}
+
+
+def split_description(text: str | None) -> tuple[str | None, str | None]:
+    """First line as the summary, the rest as the long text (apt's `.` is a blank line)."""
+    if not text:
+        return None, None
+    first, _, rest = text.partition("\n")
+    long = "\n".join("" if line.strip() == "." else line.strip() for line in rest.splitlines())
+    return first.strip() or None, re.sub(r"\n{3,}", "\n\n", long).strip() or None
+
+
+def clean_dependencies(items: list[str]) -> list[str]:
+    """Names only: `libc6 (>= 2.38)` and `glibc>=2.38` become `libc6` and `glibc`."""
+    out = []
+    for item in items:
+        item = item.strip()
+        if item.startswith(("so:", "cmd:", "pc:")):
+            continue  # apk lists shared libraries and commands next to packages
+        name = re.split(r"[\s(<>=:]", item, maxsplit=1)[0]
+        if name and name != "None":
+            out.append(name)
+    return list(dict.fromkeys(out))
+
+
+def human_kib(kib: float) -> str:
+    size, unit = float(kib), "KiB"
+    for unit in ("KiB", "MiB", "GiB"):
+        if size < 1024 or unit == "GiB":
+            break
+        size /= 1024
+    return f"{size:.1f} {unit}".replace(".0 ", " ")

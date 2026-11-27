@@ -1,0 +1,16 @@
+Chocolatey v2.4.0
+git 2.47.1 [Approved]
+ Title: Git | Published: 11/25/2024
+ Package approved as a trusted package on Nov 26 2024.
+ Package testing status: Passing on Nov 25 2024.
+ Number of Downloads: 123456 | Downloads for this version: 1234
+ Package url
+ Chocolatey Package Source: https://github.com/chocolatey-community/chocolatey-coreteampackages/tree/master/automatic/git
+ Package Checksum: 'abc' (SHA512)
+ Tags: git vcs dvcs version-control
+ Software Site: https://git-scm.com/
+ Software License: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ Summary: Git (for Windows)
+ Description: Git for Windows focuses on offering a lightweight, native set of tools.
+  Note: this is only a mirror.
+1 packages found.

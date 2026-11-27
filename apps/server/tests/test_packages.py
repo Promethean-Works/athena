@@ -17,6 +17,7 @@ from athena.packages.base import (
     CmdResult,
     PackageError,
     column_table,
+    parse_fields,
 )
 
 FIX = Path(__file__).parent / "fixtures" / "packages"
@@ -470,3 +471,176 @@ def test_find_merges_aliases_and_ignores_failing_alias() -> None:
 
     found = asyncio.run(Fake().find("vscode"))
     assert [r.name for r in found] == ["Microsoft.VisualStudioCode"]
+
+
+# ---------------------------------------------------------------- details (`info`)
+
+
+def info(path: str) -> str:
+    return fx(f"info/{path}")
+
+
+def test_apt_show() -> None:
+    d = pk_linux.parse_apt_show(info("apt.txt"))
+    assert (d.name, d.version) == ("jq", "1.7.1-6+deb13u4")
+    assert d.summary == "lightweight and flexible command-line JSON processor"
+    assert d.homepage == "https://jqlang.github.io/jq" and d.size == "161 KiB"
+    assert d.dependencies == ["libc6", "libjq1"]
+    assert d.source == "utils" and not d.has_icon
+
+
+def test_rpm_info_dnf_and_zypper() -> None:
+    d = pk_linux.parse_rpm_info(info("dnf.txt"))
+    assert (d.name, d.version) == ("jq", "1.8.2-5.fc45")
+    assert d.summary == "Command-line JSON processor"
+    assert d.license == "MIT AND ICU AND CC-BY-3.0" and d.homepage == "https://jqlang.org/"
+    assert d.source == "fedora" and d.maintainer == "Fedora Project"
+    assert d.description and "jq is like sed" in d.description
+    z = pk_linux.parse_rpm_info(info("zypper.txt"))
+    assert (z.name, z.version, z.source) == ("jq", "1.8.2-3.1", "openSUSE-Tumbleweed-Oss")
+    assert z.homepage == "https://github.com/jqlang"
+    assert z.description and z.description.startswith("A lightweight and flexible")
+
+
+def test_pacman_and_apk_info() -> None:
+    p = pk_linux.parse_pacman_info(info("pacman.txt"))
+    assert (p.name, p.version, p.license, p.source) == ("jq", "1.8.2-1", "MIT", "extra")
+    assert p.dependencies == ["glibc", "oniguruma"] and p.size == "480.87 KiB"
+    a = pk_linux.parse_apk_info(info("apk.txt"), "jq")
+    assert (a.version, a.license, a.size) == ("1.8.2-r0", "MIT", "387 KiB")
+    assert a.homepage == "https://jqlang.github.io/jq/" and a.dependencies == []
+
+
+def test_brew_details() -> None:
+    cask = pk_apps.parse_brew_details(info("brew-cask.json"), "cask")
+    assert cask.name == "visual-studio-code" and cask.title == "Microsoft Visual Studio Code"
+    assert cask.homepage == "https://code.visualstudio.com/" and cask.source == "cask"
+    assert not cask.installed and not cask.has_icon
+    formula = pk_apps.parse_brew_details(info("brew-formula.json"), "formula")
+    assert (formula.name, formula.license, formula.dependencies) == ("jq", "MIT", ["oniguruma"])
+    with pytest.raises(PackageError):
+        pk_apps.parse_brew_details('{"formulae": [], "casks": []}')
+
+
+def test_brew_info_argv_picks_cask() -> None:
+    calls = []
+
+    async def run(argv, env):
+        calls.append(argv)
+        return CmdResult(0, info("brew-cask.json"), "")
+
+    d = asyncio.run(pk_apps.Brew(run).details("visual-studio-code", "cask"))
+    assert calls[0] == ["brew", "info", "--json=v2", "--cask", "visual-studio-code"]
+    assert d.name == "visual-studio-code"
+
+
+def test_flatpak_info_uses_flathub_for_icon_and_text() -> None:
+    store = json.loads(info("flathub.json"))
+    d = pk_apps.parse_flatpak_info(info("flatpak.txt"), "org.gnome.Calculator", "flathub", store)
+    assert d.title == "Calculator" and d.license == "GPL-3.0-or-later"
+    assert d.summary == "Perform arithmetic, scientific or financial calculations"
+    assert d.description and "<p>" not in d.description
+    assert d.size == "5.2 MB" and d.has_icon and d.icon_url.startswith("https://dl.flathub.org/")
+    bare = pk_apps.parse_flatpak_info(info("flatpak.txt"), "org.gnome.Calculator", "other")
+    assert not bare.has_icon and bare.name == "org.gnome.Calculator"
+
+
+def test_snap_store_details() -> None:
+    d = pk_apps.parse_snap_store(json.loads(info("snap.json")), "vlc")
+    assert (d.name, d.license, d.maintainer) == ("vlc", "GPL-2.0+", "VideoLAN")
+    assert d.homepage == "https://www.videolan.org/vlc/" and d.size and d.size.endswith("MiB")
+    assert d.icon_url == "https://dashboard.snapcraft.io/site_media/appmedia/2016/07/vlc.png"
+
+
+def test_windows_details() -> None:
+    w = pk_win.parse_winget_show(info("winget.txt"), "Git.Git")
+    assert (w.name, w.title, w.version) == ("Git.Git", "Git", "2.47.1")
+    assert w.homepage == "https://gitforwindows.org/" and w.maintainer.startswith("The Git")
+    assert w.description and "BASH emulation" in w.description
+    assert w.extra[0].value == "git vcs"
+    s = pk_win.parse_scoop_info(info("scoop.txt"), "7zip")
+    assert (s.version, s.homepage, s.installed, s.installed_version) == (
+        "24.09", "https://www.7-zip.org", True, "24.09"
+    )  # fmt: skip
+    c = pk_win.parse_choco_info(info("choco.txt"), "git")
+    assert (c.name, c.version, c.title) == ("git", "2.47.1", "Git")
+    assert c.homepage == "https://git-scm.com/" and c.summary == "Git (for Windows)"
+    assert c.description and "Note: this is only a mirror" in c.description
+
+
+def test_info_fills_installed_state() -> None:
+    async def run(argv, env):
+        if argv[0] == "apt-cache":
+            return CmdResult(0, info("apt.txt"), "")
+        return CmdResult(0, "ii \tjq\t1.7\tjson processor\n", "")
+
+    d = asyncio.run(pk_linux.Apt(run).info("jq"))
+    assert d.installed and d.installed_version == "1.7"
+
+
+def test_parse_fields_ignores_colons_in_text() -> None:
+    f = parse_fields(
+        "Name : x\nDescription : first\n  Note: kept\nURL : https://a",
+        {"name", "description", "url"},
+    )
+    assert f == {"name": "x", "description": "first\nNote: kept", "url": "https://a"}
+
+
+def test_image_host_allow_list() -> None:
+    from athena.packages import http
+
+    assert http.host_allowed("https://dl.flathub.org/a.png", ("flathub.org",))
+    assert not http.host_allowed("http://dl.flathub.org/a.png", ("flathub.org",))
+    assert not http.host_allowed("https://evilflathub.org/a.png", ("flathub.org",))
+    assert not http.host_allowed("https://flathub.org.evil.com/a.png", ("flathub.org",))
+    assert pk_apps.Flatpak.image_hosts() == ("flathub.org", "flatpak.org")
+    assert "debian.org" in pk_linux.Apt.image_hosts()
+    with pytest.raises(PackageError):
+        asyncio.run(http.fetch_image("https://example.com/x.png", ("flathub.org",)))
+
+
+def _mock_client(monkeypatch: pytest.MonkeyPatch, handler) -> None:
+    import httpx2
+
+    from athena.packages import http
+
+    http._cache.clear()
+    real = httpx2.AsyncClient
+    monkeypatch.setattr(
+        http.httpx2,
+        "AsyncClient",
+        lambda **kw: real(transport=httpx2.MockTransport(handler), **kw),
+    )
+
+
+def test_fetch_image_checks_type_size_and_redirects(monkeypatch: pytest.MonkeyPatch) -> None:
+    import httpx2
+
+    from athena.packages import http
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        path = request.url.path
+        if path == "/ok.png":
+            return httpx2.Response(200, content=b"png", headers={"content-type": "image/png"})
+        if path == "/page":
+            return httpx2.Response(200, content=b"<html>", headers={"content-type": "text/html"})
+        if path == "/big.png":
+            big = b"x" * (http.MAX_IMAGE_BYTES + 1)
+            return httpx2.Response(200, content=big, headers={"content-type": "image/png"})
+        if path == "/away":
+            return httpx2.Response(302, headers={"location": "https://evil.example/x.png"})
+        if path == "/within":
+            return httpx2.Response(302, headers={"location": "https://cdn.flathub.org/ok.png"})
+        return httpx2.Response(404)
+
+    _mock_client(monkeypatch, handler)
+    hosts = ("flathub.org",)
+
+    async def get(path: str, host: str = "dl.flathub.org"):
+        return await http.fetch_image(f"https://{host}{path}", hosts)
+
+    assert asyncio.run(get("/ok.png")) == (b"png", "image/png")
+    assert asyncio.run(get("/within")) == (b"png", "image/png")
+    for bad in ("/page", "/big.png", "/away", "/missing"):
+        with pytest.raises(PackageError):
+            asyncio.run(get(bad))

@@ -1,0 +1,28 @@
+Available packages
+Name           : jq
+Epoch          : 0
+Version        : 1.8.2
+Release        : 5.fc45
+Architecture   : aarch64
+Download size  : 211.2 KiB
+Installed size : 547.6 KiB
+Source         : jq-1.8.2-5.fc45.src.rpm
+Repository     : fedora
+Summary        : Command-line JSON processor
+URL            : https://jqlang.org/
+License        : MIT AND ICU AND CC-BY-3.0
+Description    : lightweight and flexible command-line JSON processor
+               : 
+               :  jq is like sed for JSON data \xe2\x80\x93 you can use it to slice
+               :  and filter and map and transform structured data with
+               :  the same ease that sed, awk, grep and friends let you
+               :  play with text.
+               : 
+               :  It is written in portable C, and it has zero runtime
+               :  dependencies.
+               : 
+               :  jq can mangle the data format that you have into the
+               :  one that you want with very little effort, and the
+               :  program to do so is often shorter and simpler than
+               :  you'd expect.
+Vendor         : Fedora Project
