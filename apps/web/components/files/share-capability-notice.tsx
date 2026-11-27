@@ -23,9 +23,6 @@ export function ShareCapabilityNotice({
 }) {
   const { t } = useTranslation("files")
   if (capability?.status === "ready") return null
-  // Athena can still do it once the admin approves: the form asks, no notice needed.
-  if (capability?.status === "needs_privilege" && capability.elevation)
-    return null
   const title =
     capability?.status === "needs_privilege"
       ? t("network.notice.needsPrivilege", { kind })
