@@ -31,7 +31,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog"
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { Separator } from "@workspace/ui/components/separator"
+import { Switch } from "@workspace/ui/components/switch"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { toast } from "@workspace/ui/components/toast"
 import { useCapability } from "@/components/capabilities-provider"
@@ -39,12 +57,6 @@ import {
   ConnectionString,
   serverHost,
 } from "@/components/files/connection-string"
-import {
-  canCreateShare,
-  hostPasswordHeader,
-} from "@/components/files/elevation"
-import { RemoveShareDialog } from "@/components/files/remove-share-dialog"
-import { SmbShareForm } from "@/components/files/smb-share-form"
 import { ShareCapabilityNotice } from "@/components/files/share-capability-notice"
 
 type SmbShare = Schemas["SmbShareOut"]
@@ -57,7 +69,19 @@ export function SmbSharesPanel() {
   const [shares, setShares] = React.useState<SmbShare[] | null>(null)
   const [locations, setLocations] = React.useState<Location[] | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
-  const [removing, setRemoving] = React.useState<SmbShare | null>(null)
+  const [pending, setPending] = React.useState(false)
+
+  // create form
+  const [locationId, setLocationId] = React.useState<number | null>(null)
+  const [name, setName] = React.useState("")
+  const [readOnly, setReadOnly] = React.useState(false)
+  const [guestOk, setGuestOk] = React.useState(false)
+  const [formError, setFormError] = React.useState<string | null>(null)
+
+  const locationItems = React.useMemo(
+    () => (locations ?? []).map((loc) => ({ value: loc.id, label: loc.name })),
+    [locations]
+  )
 
   const load = React.useCallback(async () => {
     const { data } = await api.GET("/api/shares/smb")
@@ -69,22 +93,63 @@ export function SmbSharesPanel() {
     void load()
   }, [load])
 
-  async function removeShare(password: string): Promise<string | null> {
-    if (!removing) return null
-    const { error: err } = await api.DELETE("/api/shares/smb/{share_id}", {
-      params: {
-        path: { share_id: removing.id },
-        header: hostPasswordHeader(capability, password),
+  async function createShare(event: React.FormEvent) {
+    event.preventDefault()
+    setFormError(null)
+    if (locationId === null) {
+      setFormError(t("network.pickFolder"))
+      return
+    }
+    if (name.trim() === "") {
+      setFormError(t("network.nameRequired"))
+      return
+    }
+    setPending(true)
+    const { data, error: err } = await api.POST("/api/shares/smb", {
+      body: {
+        location: locationId,
+        name,
+        read_only: readOnly,
+        guest_ok: guestOk,
       },
     })
-    if (err) return errorMessage(err)
-    setRemoving(null)
+    setPending(false)
+    if (!data) {
+      setFormError(errorMessage(err))
+      return
+    }
+    setDialogOpen(false)
+    setName("")
+    setReadOnly(false)
+    setGuestOk(false)
     await load()
-    toast.add({ type: "success", title: t("smb.removed") })
-    return null
+    toast.add({
+      type: "success",
+      title: t("smb.created"),
+      description: `\\\\${serverHost()}\\${data.name}`,
+    })
   }
 
-  const ready = canCreateShare(capability)
+  async function removeShare(id: number) {
+    if (!window.confirm(t("smb.confirmRemove"))) return
+    const { error: err } = await api.DELETE("/api/shares/smb/{share_id}", {
+      params: { path: { share_id: id } },
+    })
+    if (err) {
+      toast.add({
+        type: "error",
+        title: t("smb.removeFailed"),
+        description: errorMessage(err),
+      })
+      return
+    }
+    await load()
+    toast.add({ type: "success", title: t("smb.removed") })
+  }
+
+  const ready = capability?.status === "ready"
+  // Windows can't share to guests from here (the server refuses it).
+  const canGuest = capability?.provider !== "smbshare"
 
   if (shares === null) {
     return <Skeleton className="h-40 w-full" />
@@ -95,7 +160,10 @@ export function SmbSharesPanel() {
       <ShareCapabilityNotice capability={capability} kind="SMB" />
 
       <div className="flex items-center justify-between">
-        <Button onClick={() => setDialogOpen(true)} disabled={!ready}>
+        <Button
+          onClick={() => setDialogOpen(true)}
+          disabled={pending || !ready}
+        >
           <PlusIcon className="mr-2 size-4 shrink-0" />
           {t("smb.createShare")}
         </Button>
@@ -135,7 +203,9 @@ export function SmbSharesPanel() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {shares.map((share) => renderShareRow(share, setRemoving, t))}
+              {shares.map((share) =>
+                renderShareRow(share, pending, removeShare, t)
+              )}
             </TableBody>
           </Table>
         </div>
@@ -152,47 +222,108 @@ export function SmbSharesPanel() {
 
           <Separator />
 
-          <SmbShareForm
-            id="new-smb-share"
-            locations={locations}
-            onCreated={() => {
-              setDialogOpen(false)
-              void load()
-            }}
-            actions={({ pending }) => (
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  disabled={pending}
+          <form id="new-smb-share" onSubmit={createShare}>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="smb-share-location">
+                  {t("smb.folderToShare")}
+                </FieldLabel>
+                <FieldDescription>{t("smb.folderHint")}</FieldDescription>
+                <Select
+                  items={locationItems}
+                  value={locationId}
+                  onValueChange={(v) => v !== null && setLocationId(v)}
+                  disabled={pending || locations === null}
                 >
-                  {t("smb.cancel")}
-                </Button>
-                <Button type="submit" form="new-smb-share" disabled={pending}>
-                  {pending ? <Spinner /> : null}
-                  {t("smb.createShare")}
-                </Button>
-              </DialogFooter>
-            )}
-          />
+                  <SelectTrigger id="smb-share-location" className="w-full">
+                    <SelectValue placeholder={t("smb.selectLocation")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {locationItems.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {formError ? <FieldError>{formError}</FieldError> : null}
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="smb-share-name">
+                  {t("smb.shareName")}
+                </FieldLabel>
+                <FieldDescription>{t("smb.shareNameHint")}</FieldDescription>
+                <Input
+                  id="smb-share-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("smb.shareNamePlaceholder")}
+                  maxLength={63}
+                  disabled={pending}
+                />
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field orientation="horizontal">
+                  <FieldContent>
+                    <FieldLabel htmlFor="smb-share-read-only">
+                      {t("smb.readOnly")}
+                    </FieldLabel>
+                    <FieldDescription>{t("smb.readOnlyHint")}</FieldDescription>
+                    <Switch
+                      id="smb-share-read-only"
+                      checked={readOnly}
+                      onCheckedChange={setReadOnly}
+                      disabled={pending}
+                    />
+                  </FieldContent>
+                </Field>
+                {canGuest ? (
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldLabel htmlFor="smb-share-guest-ok">
+                        {t("smb.guestOk")}
+                      </FieldLabel>
+                      <FieldDescription>
+                        {t("smb.guestOkHint")}
+                      </FieldDescription>
+                      <Switch
+                        id="smb-share-guest-ok"
+                        checked={guestOk}
+                        onCheckedChange={setGuestOk}
+                        disabled={pending}
+                      />
+                    </FieldContent>
+                  </Field>
+                ) : null}
+              </div>
+            </FieldGroup>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={pending}
+              >
+                {t("smb.cancel")}
+              </Button>
+              <Button type="submit" form="new-smb-share" disabled={pending}>
+                {pending ? <Spinner /> : null}
+                {t("smb.createShare")}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
-
-      <RemoveShareDialog
-        open={removing !== null}
-        description={t("smb.confirmRemove")}
-        capability={capability}
-        onClose={() => setRemoving(null)}
-        onConfirm={removeShare}
-      />
     </div>
   )
 }
 
 function renderShareRow(
   share: SmbShare,
-  onRemove: (share: SmbShare) => void,
+  pending: boolean,
+  onRemove: (id: number) => void,
   t: TFunction<"files">
 ) {
   return (
@@ -223,7 +354,8 @@ function renderShareRow(
           variant="outline"
           size="icon"
           aria-label={t("smb.removeShare", { name: share.name })}
-          onClick={() => onRemove(share)}
+          onClick={() => void onRemove(share.id)}
+          disabled={pending}
         >
           <Trash2Icon className="size-4" />
         </Button>

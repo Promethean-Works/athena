@@ -5,6 +5,11 @@ import { useTranslation } from "react-i18next"
 import { PlusIcon, Share2Icon, Trash2Icon } from "lucide-react"
 
 import { api, errorMessage, type Schemas } from "@workspace/api-client"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
@@ -21,9 +26,26 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@workspace/ui/components/empty"
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { Separator } from "@workspace/ui/components/separator"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { Switch } from "@workspace/ui/components/switch"
 import {
   Table,
   TableBody,
@@ -38,16 +60,15 @@ import {
   ConnectionString,
   serverHost,
 } from "@/components/files/connection-string"
-import {
-  canCreateShare,
-  hostPasswordHeader,
-} from "@/components/files/elevation"
-import { NfsShareForm } from "@/components/files/nfs-share-form"
-import { RemoveShareDialog } from "@/components/files/remove-share-dialog"
 import { ShareCapabilityNotice } from "@/components/files/share-capability-notice"
 
 type NfsShare = Schemas["NfsShareOut"]
 type Location = Schemas["LocationOut"]
+
+/** Split what the admin typed ("10.0.0.0/24, nas.local") into a client list. */
+function parseClients(text: string): string[] {
+  return text.split(/[\s,]+/).filter(Boolean)
+}
 
 /** The NFS tab of /files/network: list the exports Athena made and create new ones. */
 export function NfsSharesPanel() {
@@ -56,7 +77,17 @@ export function NfsSharesPanel() {
   const [shares, setShares] = React.useState<NfsShare[] | null>(null)
   const [locations, setLocations] = React.useState<Location[] | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
-  const [removing, setRemoving] = React.useState<NfsShare | null>(null)
+  const [pending, setPending] = React.useState(false)
+
+  const [locationId, setLocationId] = React.useState<number | null>(null)
+  const [clients, setClients] = React.useState("")
+  const [readOnly, setReadOnly] = React.useState(false)
+  const [formError, setFormError] = React.useState<string | null>(null)
+
+  const locationItems = React.useMemo(
+    () => (locations ?? []).map((loc) => ({ value: loc.id, label: loc.name })),
+    [locations]
+  )
 
   const load = React.useCallback(async () => {
     const { data } = await api.GET("/api/shares/nfs")
@@ -68,22 +99,61 @@ export function NfsSharesPanel() {
     void load()
   }, [load])
 
-  async function removeShare(password: string): Promise<string | null> {
-    if (!removing) return null
-    const { error: err } = await api.DELETE("/api/shares/nfs/{share_id}", {
-      params: {
-        path: { share_id: removing.id },
-        header: hostPasswordHeader(capability, password),
-      },
+  async function createShare(event: React.FormEvent) {
+    event.preventDefault()
+    setFormError(null)
+    if (locationId === null) {
+      setFormError(t("network.pickFolder"))
+      return
+    }
+    const list = parseClients(clients)
+    if (list.length === 0) {
+      setFormError(t("network.nfs.clientsRequired"))
+      return
+    }
+    if (
+      list.some((c) => /\/0$/.test(c)) &&
+      !window.confirm(t("network.nfs.confirmEverywhere"))
+    )
+      return
+    setPending(true)
+    const { data, error: err } = await api.POST("/api/shares/nfs", {
+      body: { location: locationId, clients: list, read_only: readOnly },
     })
-    if (err) return errorMessage(err)
-    setRemoving(null)
+    setPending(false)
+    if (!data) {
+      setFormError(errorMessage(err))
+      return
+    }
+    setDialogOpen(false)
+    setClients("")
+    setReadOnly(false)
     await load()
-    toast.add({ type: "success", title: t("network.nfs.removed") })
-    return null
+    toast.add({
+      type: "success",
+      title: t("network.nfs.created"),
+      description: `${serverHost()}:${data.path}`,
+    })
   }
 
-  const ready = canCreateShare(capability)
+  async function removeShare(id: number) {
+    if (!window.confirm(t("network.nfs.confirmRemove"))) return
+    const { error: err } = await api.DELETE("/api/shares/nfs/{share_id}", {
+      params: { path: { share_id: id } },
+    })
+    if (err) {
+      toast.add({
+        type: "error",
+        title: t("smb.removeFailed"),
+        description: errorMessage(err),
+      })
+      return
+    }
+    await load()
+    toast.add({ type: "success", title: t("network.nfs.removed") })
+  }
+
+  const ready = capability?.status === "ready"
 
   if (shares === null) {
     return <Skeleton className="h-40 w-full" />
@@ -94,7 +164,10 @@ export function NfsSharesPanel() {
       <ShareCapabilityNotice capability={capability} kind="NFS" />
 
       <div className="flex items-center justify-between">
-        <Button onClick={() => setDialogOpen(true)} disabled={!ready}>
+        <Button
+          onClick={() => setDialogOpen(true)}
+          disabled={pending || !ready}
+        >
           <PlusIcon className="mr-2 size-4 shrink-0" />
           {t("smb.createShare")}
         </Button>
@@ -159,7 +232,8 @@ export function NfsSharesPanel() {
                       aria-label={t("network.nfs.removeShare", {
                         name: share.location_name,
                       })}
-                      onClick={() => setRemoving(share)}
+                      onClick={() => void removeShare(share.id)}
+                      disabled={pending}
                     >
                       <Trash2Icon className="size-4" />
                     </Button>
@@ -184,40 +258,84 @@ export function NfsSharesPanel() {
 
           <Separator />
 
-          <NfsShareForm
-            id="new-nfs-share"
-            locations={locations}
-            onCreated={() => {
-              setDialogOpen(false)
-              void load()
-            }}
-            actions={({ pending }) => (
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  disabled={pending}
+          <form id="new-nfs-share" onSubmit={createShare}>
+            <FieldGroup>
+              <Alert>
+                <AlertTitle>{t("network.nfs.noPasswordsTitle")}</AlertTitle>
+                <AlertDescription>
+                  {t("network.nfs.noPasswordsDescription")}
+                </AlertDescription>
+              </Alert>
+              <Field>
+                <FieldLabel htmlFor="nfs-share-location">
+                  {t("smb.folderToShare")}
+                </FieldLabel>
+                <Select
+                  items={locationItems}
+                  value={locationId}
+                  onValueChange={(v) => v !== null && setLocationId(v)}
+                  disabled={pending || locations === null}
                 >
-                  {t("smb.cancel")}
-                </Button>
-                <Button type="submit" form="new-nfs-share" disabled={pending}>
-                  {pending ? <Spinner /> : null}
-                  {t("smb.createShare")}
-                </Button>
-              </DialogFooter>
-            )}
-          />
+                  <SelectTrigger id="nfs-share-location" className="w-full">
+                    <SelectValue placeholder={t("smb.selectLocation")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {locationItems.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="nfs-share-clients">
+                  {t("network.nfs.whoMayMount")}
+                </FieldLabel>
+                <FieldDescription>
+                  {t("network.nfs.clientsHint")}
+                </FieldDescription>
+                <Input
+                  id="nfs-share-clients"
+                  value={clients}
+                  onChange={(e) => setClients(e.target.value)}
+                  placeholder="192.168.1.0/24"
+                  disabled={pending}
+                />
+                {formError ? <FieldError>{formError}</FieldError> : null}
+              </Field>
+              <Field orientation="horizontal">
+                <Switch
+                  id="nfs-share-read-only"
+                  checked={readOnly}
+                  onCheckedChange={setReadOnly}
+                  disabled={pending}
+                />
+                <FieldLabel htmlFor="nfs-share-read-only">
+                  {t("smb.readOnly")}
+                </FieldLabel>
+              </Field>
+            </FieldGroup>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={pending}
+              >
+                {t("smb.cancel")}
+              </Button>
+              <Button type="submit" form="new-nfs-share" disabled={pending}>
+                {pending ? <Spinner /> : null}
+                {t("smb.createShare")}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
-
-      <RemoveShareDialog
-        open={removing !== null}
-        description={t("network.nfs.confirmRemove")}
-        capability={capability}
-        onClose={() => setRemoving(null)}
-        onConfirm={removeShare}
-      />
     </div>
   )
 }
