@@ -603,99 +603,6 @@
         }
       }
     },
-    "/api/onboarding": {
-      "get": {
-        "tags": [
-          "onboarding"
-        ],
-        "summary": "Get Onboarding",
-        "operationId": "getOnboarding",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OnboardingOut"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/onboarding/network": {
-      "put": {
-        "tags": [
-          "onboarding"
-        ],
-        "summary": "Set Network",
-        "description": "Save where Athena listens (`server.host` and `server.port` in athena.json).\nIt applies when Athena restarts.",
-        "operationId": "setOnboardingNetwork",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NetworkSettings"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OnboardingOut"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/onboarding/complete": {
-      "post": {
-        "tags": [
-          "onboarding"
-        ],
-        "summary": "Complete",
-        "description": "Finish (or dismiss) the wizard; the dashboard stops offering it.",
-        "operationId": "completeOnboarding",
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          }
-        }
-      }
-    },
-    "/api/onboarding/reset": {
-      "post": {
-        "tags": [
-          "onboarding"
-        ],
-        "summary": "Reset",
-        "description": "Open the wizard again (the dashboard offers it until it's finished).",
-        "operationId": "resetOnboarding",
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          }
-        }
-      }
-    },
     "/api/containers": {
       "get": {
         "tags": [
@@ -1047,6 +954,99 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/onboarding": {
+      "get": {
+        "tags": [
+          "onboarding"
+        ],
+        "summary": "Get Onboarding",
+        "operationId": "getOnboarding",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/onboarding/network": {
+      "put": {
+        "tags": [
+          "onboarding"
+        ],
+        "summary": "Set Network",
+        "description": "Save where Athena listens (`server.host` and `server.port` in athena.json).\nIt applies when Athena restarts.",
+        "operationId": "setOnboardingNetwork",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NetworkSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/onboarding/complete": {
+      "post": {
+        "tags": [
+          "onboarding"
+        ],
+        "summary": "Complete",
+        "description": "Finish (or dismiss) the wizard; the dashboard stops offering it.",
+        "operationId": "completeOnboarding",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/onboarding/reset": {
+      "post": {
+        "tags": [
+          "onboarding"
+        ],
+        "summary": "Reset",
+        "description": "Open the wizard again (the dashboard offers it until it's finished).",
+        "operationId": "resetOnboarding",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           }
         }
       }
