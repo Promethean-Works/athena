@@ -63,6 +63,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { cn } from "@workspace/ui/lib/utils"
 import { AppReportButton } from "@/components/feedback/app-report-dialog"
 import { AppIcon } from "@/components/store/app-icon"
+import { useAuth } from "@/components/auth-provider"
 import { InstallForm } from "@/components/store/install-form"
 import { StoreCover } from "@/components/store/store-cover"
 import { storeAppHref, SupportBadge } from "@/components/store/store-browser"
@@ -73,6 +74,7 @@ type StoreApp = Schemas["StoreApp"]
 
 export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
   const { t } = useTranslation("store")
+  const { user } = useAuth()
   const [app, setApp] = React.useState<Detail | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [selectedVariantSlug, setSelectedVariantSlug] = React.useState("")
@@ -163,15 +165,19 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
                 {app.installed.map((n, i) => (
                   <React.Fragment key={n}>
                     {i > 0 ? ", " : ""}
-                    <Link
-                      href={`/apps/view/?name=${encodeURIComponent(n)}`}
-                      className="underline underline-offset-4"
-                    >
-                      {n}
-                    </Link>
+                    {user.is_admin ? (
+                      <Link
+                        href={`/apps/view/?name=${encodeURIComponent(n)}`}
+                        className="underline underline-offset-4"
+                      >
+                        {n}
+                      </Link>
+                    ) : (
+                      n
+                    )}
                   </React.Fragment>
                 ))}
-                . {t("view.installAnother")}
+                {user.is_admin ? `. ${t("view.installAnother")}` : "."}
               </span>
             </AlertDescription>
           </Alert>
@@ -280,7 +286,12 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
           ) : null}
         </CardHeader>
         <CardContent>
-          {app.variants.length > 1 && (
+          {!user.is_admin ? (
+            <p className="text-sm text-muted-foreground">
+              {t("view.adminOnly")}
+            </p>
+          ) : null}
+          {user.is_admin && app.variants.length > 1 && (
             <Field className="pb-2">
               <FieldLabel>{t("view.variant")}</FieldLabel>
               <Select
@@ -303,7 +314,7 @@ export function StoreAppView({ catalog, id }: { catalog: string; id: string }) {
               </Select>
             </Field>
           )}
-          {app.support === "unsupported" ? (
+          {!user.is_admin ? null : app.support === "unsupported" ? (
             <p className="text-sm text-muted-foreground">
               {t("view.cannotInstall", {
                 title: app.title,

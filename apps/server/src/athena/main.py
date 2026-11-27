@@ -29,9 +29,10 @@ from athena.api import smb as smb_api
 from athena.api import store as store_api
 from athena.api import terminal as terminal_api
 from athena.api import tunnel as tunnel_api
+from athena.api import users as users_api
 from athena.api import webdav as webdav_api
 from athena.api.assistant_lazy import LazyAssistantRouter
-from athena.auth.deps import require_user
+from athena.auth.deps import require_admin, require_user
 from athena.auth.service import LoginThrottle
 from athena.automation import service as automation_service
 from athena.backup.service import ResticProvider
@@ -232,14 +233,14 @@ def create_app(
     app.include_router(apps.router, prefix="/api", dependencies=[require_user])
     app.include_router(store_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(settings_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(packages_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(packages_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(files_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(shares_api.public_router, prefix="/api")
-    app.include_router(smb_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(nfs_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(mounts_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(cloud_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(webdav_api.router, prefix="/api", dependencies=[require_user])
+    app.include_router(smb_api.router, prefix="/api", dependencies=[require_admin])
+    app.include_router(nfs_api.router, prefix="/api", dependencies=[require_admin])
+    app.include_router(mounts_api.router, prefix="/api", dependencies=[require_admin])
+    app.include_router(cloud_api.router, prefix="/api", dependencies=[require_admin])
+    app.include_router(webdav_api.router, prefix="/api", dependencies=[require_admin])
     app.include_router(shares_api.router, prefix="/api", dependencies=[require_user])
     # The lazy assistant router wraps its routes in an included router so OpenAPI
     # sees them. The real router has prefix="/assistant" stripped by LazyAssistantRouter.
@@ -261,15 +262,16 @@ def create_app(
     app.include_router(assistant_router, dependencies=[require_user])
     # Also mount for runtime (first request still lazy-loads via LazyAssistantRouter)
     app.mount("/api/assistant", lazy_assistant)
-    app.include_router(automation.router, prefix="/api", dependencies=[require_user])
+    app.include_router(automation.router, prefix="/api", dependencies=[require_admin])
     # The webhook is public: the trigger's secret token is the credential, so no
     # session is required (n8n, external agents).
     app.include_router(automation.public_router, prefix="/api")
     app.include_router(tunnel_api.router, prefix="/api", dependencies=[require_user])
     app.include_router(feedback_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(audit_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(https_api.router, prefix="/api", dependencies=[require_user])
-    app.include_router(backup_api.router, prefix="/api")
+    app.include_router(audit_api.router, prefix="/api", dependencies=[require_admin])
+    app.include_router(users_api.router, prefix="/api", dependencies=[require_admin])
+    app.include_router(https_api.router, prefix="/api", dependencies=[require_admin])
+    app.include_router(backup_api.router, prefix="/api", dependencies=[require_admin])
     # A WebSocket can't use require_user; the route checks the session and CSRF itself.
     app.include_router(terminal_api.router, prefix="/api")
     # MCP server: streamable-HTTP endpoint for external agents (n8n, Claude Desktop, …).

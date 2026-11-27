@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
 
 from athena import system_settings
-from athena.auth.deps import Authed, DbSession, SettingsStore, require_user
+from athena.auth.deps import Authed, DbSession, SettingsStore, require_admin, require_user
 from athena.crypto import SecretBox, SecretError
 from athena.jobs import Job, JobManager
 from athena.platform.store import CapabilityStore
@@ -26,11 +26,6 @@ def _jobs(request: Request) -> JobManager:
 
 def _box(request: Request) -> SecretBox:
     return request.app.state.secret_box
-
-
-def _require_admin(user: Authed) -> None:
-    if not user.user.is_admin:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can manage the tunnel")
 
 
 class TunnelStatusResponse(BaseModel):
@@ -112,14 +107,13 @@ async def get_tunnel_status(request: Request, settings_file: SettingsStore) -> T
     )
 
 
-@router.post("/start", response_model=TunnelStartResponse)
+@router.post("/start", response_model=TunnelStartResponse, dependencies=[require_admin])
 async def start_tunnel(
     request: Request,
     settings_file: SettingsStore,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Start the tunnel (admin only)."""
-    _require_admin(current_user)
     settings = load(settings_file)
 
     if not settings.tunnel_enabled:
@@ -142,14 +136,13 @@ async def start_tunnel(
     return TunnelStartResponse(job_id=job.id)
 
 
-@router.post("/stop", response_model=TunnelStartResponse)
+@router.post("/stop", response_model=TunnelStartResponse, dependencies=[require_admin])
 async def stop_tunnel(
     request: Request,
     settings_file: SettingsStore,
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Stop the tunnel (admin only)."""
-    _require_admin(current_user)
     settings = load(settings_file)
 
     if not settings.tunnel_provider:
@@ -179,7 +172,7 @@ async def stop_tunnel(
     return TunnelStartResponse(job_id=job.id)
 
 
-@router.put("/config", response_model=TunnelConfigResponse)
+@router.put("/config", response_model=TunnelConfigResponse, dependencies=[require_admin])
 async def update_tunnel_config(
     request: Request,
     body: TunnelConfigRequest,
@@ -189,7 +182,6 @@ async def update_tunnel_config(
     """Update tunnel configuration (admin only).
 
     Secrets left empty or out of `config` keep their stored value; `null` clears one."""
-    _require_admin(current_user)
     settings = load(settings_file)
 
     if body.provider is not None:
@@ -208,7 +200,7 @@ async def update_tunnel_config(
     return TunnelConfigResponse(ok=True, settings=system_settings.public(settings))
 
 
-@router.post("/install")
+@router.post("/install", dependencies=[require_admin])
 async def install_tunnel_binary(
     request: Request,
     body: TunnelInstallRequest,
@@ -216,7 +208,6 @@ async def install_tunnel_binary(
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Download and install tunnel binary (admin only)."""
-    _require_admin(current_user)
     provider = get_provider(f"tunnel.{body.provider}")
     if not provider:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown provider")
@@ -239,7 +230,7 @@ async def install_tunnel_binary(
     return TunnelStartResponse(job_id=job.id)
 
 
-@router.put("/service")
+@router.put("/service", dependencies=[require_admin])
 async def configure_tunnel_service(
     request: Request,
     enabled: bool,
@@ -247,7 +238,6 @@ async def configure_tunnel_service(
     current_user: Authed,
 ) -> TunnelStartResponse:
     """Enable/disable auto-start service (admin only)."""
-    _require_admin(current_user)
     settings = load(settings_file)
 
     if not settings.tunnel_provider:

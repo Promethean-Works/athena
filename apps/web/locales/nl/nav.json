@@ -17,5 +17,9 @@
   "roleUser": "Gebruiker",
   "tunnelAddress": "Tunneladres",
   "restartAthena": "Athena opnieuw starten",
-  "logOut": "Uitloggen"
+  "logOut": "Uitloggen",
+  "adminOnly": {
+    "title": "Alleen voor beheerders",
+    "description": "Vraag het een beheerder als je dit nodig hebt."
+  }
 }

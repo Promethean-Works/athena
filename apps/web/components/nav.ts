@@ -33,6 +33,8 @@ export type NavItem = {
    */
   showWhenUnavailable?: boolean
   external?: boolean
+  /** Hidden from users who aren't admins (the API refuses them too). */
+  adminOnly?: boolean
 }
 
 // Sections are added here as their milestones land (Apps, Store, Packages, Files,
@@ -55,6 +57,7 @@ export const navMain: NavItem[] = [
   },
   {
     titleKey: "packages",
+    adminOnly: true,
     url: "/packages/",
     icon: PackageIcon,
     // Shown when any package manager is installed, even one that needs root, so the
@@ -64,6 +67,7 @@ export const navMain: NavItem[] = [
   },
   {
     titleKey: "automation",
+    adminOnly: true,
     url: "/automation/",
     icon: ClockIcon,
     capability: "automation",
@@ -76,6 +80,7 @@ export const navMain: NavItem[] = [
   },
   {
     titleKey: "networkShares",
+    adminOnly: true,
     url: "/files/network/",
     icon: Share2Icon,
     // Shown even when the host can't create shares yet, so the page can say why
@@ -85,6 +90,7 @@ export const navMain: NavItem[] = [
   },
   {
     titleKey: "cloud",
+    adminOnly: true,
     url: "/cloud/",
     icon: CloudIcon,
     // Shown without rclone too, so the page can say how to install it.
@@ -93,6 +99,7 @@ export const navMain: NavItem[] = [
   },
   {
     titleKey: "containers",
+    adminOnly: true,
     url: "/containers/",
     icon: BoxIcon,
     capability: "containers",
@@ -100,13 +107,20 @@ export const navMain: NavItem[] = [
   },
   {
     titleKey: "terminal",
+    adminOnly: true,
     url: "/terminal/",
     icon: SquareTerminalIcon,
     capability: "terminal.host",
   },
-  { titleKey: "assistant", url: "/assistant/", icon: SparklesIcon },
+  {
+    titleKey: "assistant",
+    adminOnly: true,
+    url: "/assistant/",
+    icon: SparklesIcon,
+  },
   {
     titleKey: "backups",
+    adminOnly: true,
     url: "/backups/",
     icon: LayoutListIcon,
     capability: "backup",
@@ -139,6 +153,26 @@ export const navSecondary: NavItem[] = [
     external: true,
   },
 ]
+
+// Pages inside an otherwise open section that only admins may use.
+const ADMIN_ONLY_PATHS = [
+  "/settings/system/",
+  "/settings/https/",
+  "/settings/ai/",
+  "/settings/users/",
+  "/apps/new/",
+  "/apps/view/",
+  "/store/catalogs/",
+]
+
+/** True when `pathname` is a page only admins may open (nav items and extra pages). */
+export function isAdminPath(pathname: string): boolean {
+  const path = pathname.endsWith("/") ? pathname : `${pathname}/`
+  return (
+    ADMIN_ONLY_PATHS.some((prefix) => path.startsWith(prefix)) ||
+    navMain.some((item) => item.adminOnly && matches(item, pathname))
+  )
+}
 
 /** Title key for the header, from the nav item matching the current path. */
 export function titleKeyForPath(pathname: string): ParseKeys<"nav"> | null {

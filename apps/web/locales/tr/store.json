@@ -80,7 +80,8 @@
       "show": "{{number}}. ekran görüntüsünü göster",
       "description": "{{title}} ekran görüntüsü.",
       "close": "Kapat"
-    }
+    },
+    "adminOnly": "Uygulamaları yalnızca yöneticiler yükleyebilir. Birinden bunu sizin için eklemesini isteyin."
   },
   "catalogs": {
     "kindAuto": "Otomatik algıla",

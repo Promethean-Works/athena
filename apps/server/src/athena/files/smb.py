@@ -39,6 +39,7 @@ class SmbShareEntry:
     location_id: int
     location_name: str
     path: str
+    folder: str
     read_only: bool
     guest_ok: bool
     created_at: datetime
@@ -55,6 +56,7 @@ def _entry(db: Session, share: SmbShare) -> SmbShareEntry:
         location_id=share.location_id,
         location_name=loc.name if loc else "(removed)",
         path=share.path,
+        folder=netshare.subfolder_of(loc.path, share.path) if loc else "",
         read_only=share.read_only,
         guest_ok=share.guest_ok,
         created_at=share.created_at,
@@ -164,13 +166,15 @@ def create_share(
     guest_ok: bool = False,
     provider: str = "samba",
     conf: Path = SMB_CONF,
+    folder: str = "",
 ) -> SmbShareEntry:
-    """Create an SMB share for `location_id` and publish it through Samba.
+    """Create an SMB share for `location_id` (or a `folder` inside it) and publish it through Samba.
 
     The caller has checked the `shares.smb` capability. If Samba refuses the new
     configuration it is rolled back and `ShareReloadFailed` is raised.
     """
     loc = get_location(db, location_id)
+    shared = netshare.shared_folder(loc.path, folder)
     if not SHARE_NAME.fullmatch(name):
         raise BadPath(
             "Use letters, digits, _, - and . (up to 63 chars), not starting with - or a space"
@@ -185,18 +189,18 @@ def create_share(
                 "Windows can't share a folder to guests from here: turn off guest access "
                 "and sign in with a Windows account"
             )
-        _windows_add(name, loc.path, read_only)
+        _windows_add(name, shared, read_only)
     elif provider == "sharing":
-        _macos_add(name, loc.path, read_only, guest_ok)
+        _macos_add(name, shared, read_only, guest_ok)
     else:
         old = conf.read_text(encoding="utf-8") if conf.exists() else None
-        new = _with_share_section(old, name, loc.path, read_only, guest_ok)
+        new = _with_share_section(old, name, shared, read_only, guest_ok)
         netshare.swap_config(conf, new, _reload_smbd)
 
     share = SmbShare(
         name=name,
         location_id=location_id,
-        path=loc.path,
+        path=shared,
         read_only=read_only,
         guest_ok=guest_ok,
     )

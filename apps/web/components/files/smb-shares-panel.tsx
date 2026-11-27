@@ -108,6 +108,7 @@ export function SmbSharesPanel() {
     const { data, error: err } = await api.POST("/api/shares/smb", {
       body: {
         location: locationId,
+        folder: "",
         name,
         read_only: readOnly,
         guest_ok: guestOk,

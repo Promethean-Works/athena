@@ -48,12 +48,15 @@ export function NfsShareForm({
   id,
   locations,
   fixedLocation,
+  folder = "",
   onCreated,
   actions,
 }: {
   id: string
   locations: Location[] | null
   fixedLocation?: number
+  /** A folder inside `fixedLocation` to share, instead of the whole location. */
+  folder?: string
   onCreated: () => void
   actions: (state: { pending: boolean }) => React.ReactNode
 }) {
@@ -95,7 +98,12 @@ export function NfsShareForm({
       return
     setPending(true)
     const { data, error: err } = await api.POST("/api/shares/nfs", {
-      body: { location: locationId, clients: list, read_only: readOnly },
+      body: {
+        location: locationId,
+        folder,
+        clients: list,
+        read_only: readOnly,
+      },
       params: { header: hostPasswordHeader(capability, password) },
     })
     setPending(false)

@@ -46,12 +46,14 @@ import {
   DeleteAppDialog,
   OpenLinks,
 } from "@/components/apps/app-bits"
+import { useAuth } from "@/components/auth-provider"
 import { useAppJobs } from "@/components/apps/use-app-jobs"
 import { useAppsList } from "@/components/apps/use-apps-list"
 import { AppIcon } from "@/components/store/app-icon"
 
 export function AppsGrid() {
   const { t } = useTranslation("apps")
+  const { user } = useAuth()
   const { apps, error, load } = useAppsList()
   const [removing, setRemoving] = React.useState<string | null>(null)
 
@@ -95,12 +97,14 @@ export function AppsGrid() {
               />
             </EmptyDescription>
           </EmptyHeader>
-          <EmptyContent>
-            <Button render={<Link href="/apps/new/" />} nativeButton={false}>
-              <PlusIcon data-icon="inline-start" />
-              {t("newApp")}
-            </Button>
-          </EmptyContent>
+          {user.is_admin ? (
+            <EmptyContent>
+              <Button render={<Link href="/apps/new/" />} nativeButton={false}>
+                <PlusIcon data-icon="inline-start" />
+                {t("newApp")}
+              </Button>
+            </EmptyContent>
+          ) : null}
         </Empty>
         {jobs.dialog}
       </>
@@ -119,12 +123,16 @@ export function AppsGrid() {
                   icon={app.icon}
                   className="size-6"
                 />
-                <Link
-                  href={`/apps/view/?name=${encodeURIComponent(app.name)}`}
-                  className="truncate hover:underline"
-                >
-                  {app.name}
-                </Link>
+                {user.is_admin ? (
+                  <Link
+                    href={`/apps/view/?name=${encodeURIComponent(app.name)}`}
+                    className="truncate hover:underline"
+                  >
+                    {app.name}
+                  </Link>
+                ) : (
+                  <span className="truncate">{app.name}</span>
+                )}
               </CardTitle>
               <CardDescription>
                 {t("grid.containerCount", { count: app.total })}
@@ -167,23 +175,29 @@ export function AppsGrid() {
                           {t("actions.start")}
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem
-                        onClick={() => jobs.action(app.name, "update")}
-                      >
-                        <RefreshCcwIcon />
-                        {t("actions.updateImages")}
-                      </DropdownMenuItem>
+                      {user.is_admin ? (
+                        <DropdownMenuItem
+                          onClick={() => jobs.action(app.name, "update")}
+                        >
+                          <RefreshCcwIcon />
+                          {t("actions.updateImages")}
+                        </DropdownMenuItem>
+                      ) : null}
                     </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => setRemoving(app.name)}
-                      >
-                        <Trash2Icon />
-                        {t("actions.remove")}
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
+                    {user.is_admin ? (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => setRemoving(app.name)}
+                          >
+                            <Trash2Icon />
+                            {t("actions.remove")}
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </>
+                    ) : null}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardAction>

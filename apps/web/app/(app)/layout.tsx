@@ -1,3 +1,4 @@
+import { AdminGate } from "@/components/admin-gate"
 import { AppSidebar } from "@/components/app-sidebar"
 import { AuthProvider } from "@/components/auth-provider"
 import { CapabilitiesProvider } from "@/components/capabilities-provider"
@@ -28,7 +29,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="@container/main flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
                 <UpdateInterrupted />
                 <UpdateNotice />
-                {children}
+                <AdminGate>{children}</AdminGate>
               </div>
             </SidebarInset>
           </SidebarProvider>

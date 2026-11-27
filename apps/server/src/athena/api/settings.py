@@ -11,7 +11,7 @@ from athena import audit, system_settings
 from athena.api.terminal import close_all as close_terminals
 from athena.assistant import settings as ai_settings
 from athena.assistant.settings import AiSettings
-from athena.auth.deps import Authed, DbSession, SettingsStore
+from athena.auth.deps import Authed, DbSession, SettingsStore, require_admin
 from athena.db.models import AiProvider
 from athena.system_settings import SystemSettings
 
@@ -111,7 +111,7 @@ def get_system(settings_file: SettingsStore) -> SystemSettings:
     return system_settings.public(system_settings.load(settings_file))
 
 
-@router.put("/system", operation_id="setSystemSettings")
+@router.put("/system", operation_id="setSystemSettings", dependencies=[require_admin])
 def set_system(
     body: SystemSettings,
     request: Request,
@@ -122,8 +122,6 @@ def set_system(
     """Turning the terminal off also closes the terminals that are open.
 
     Tunnel secrets left empty or out of `tunnel_config` keep their stored value."""
-    if not user.user.is_admin:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change system settings")
     before = system_settings.load(settings_file)
     body.tunnel_config = system_settings.merge_tunnel_config(
         before.tunnel_config, body.tunnel_config, request.app.state.secret_box
@@ -150,12 +148,10 @@ class SettingsFileOut(BaseModel):
     """The version before the last save (`athena.json.bak`)."""
 
 
-@router.get("/file", operation_id="getSettingsFile")
-def get_settings_file(user: Authed, settings_file: SettingsStore) -> SettingsFileOut:
+@router.get("/file", operation_id="getSettingsFile", dependencies=[require_admin])
+def get_settings_file(settings_file: SettingsStore) -> SettingsFileOut:
     """Where the host-wide settings are saved, so an admin can fix them in an editor if
     a change keeps Athena from starting (docs/specs/settings-file.md). Admins only."""
-    if not user.user.is_admin:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can see this")
     return SettingsFileOut(path=str(settings_file.path), backup_path=str(settings_file.backup_path))
 
 
@@ -164,12 +160,10 @@ def get_ai(settings_file: SettingsStore) -> AiSettings:
     return ai_settings.load(settings_file)
 
 
-@router.put("/ai", operation_id="setAiSettings")
+@router.put("/ai", operation_id="setAiSettings", dependencies=[require_admin])
 def set_ai(
     body: AiSettings, user: Authed, db: DbSession, settings_file: SettingsStore
 ) -> AiSettings:
-    if not user.user.is_admin:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can change AI settings")
     for ref in (body.default_model, body.title_model, body.advisor_model):
         if ref is not None and db.get(AiProvider, ref.provider_id) is None:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "No such provider")

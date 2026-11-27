@@ -40,6 +40,7 @@ export function SmbShareForm({
   id,
   locations,
   fixedLocation,
+  folder = "",
   defaultName,
   onCreated,
   actions,
@@ -47,6 +48,8 @@ export function SmbShareForm({
   id: string
   locations: Location[] | null
   fixedLocation?: number
+  /** A folder inside `fixedLocation` to share, instead of the whole location. */
+  folder?: string
   defaultName?: string
   onCreated: () => void
   actions: (state: { pending: boolean }) => React.ReactNode
@@ -88,6 +91,7 @@ export function SmbShareForm({
     const { data, error: err } = await api.POST("/api/shares/smb", {
       body: {
         location: locationId,
+        folder,
         name,
         read_only: readOnly,
         guest_ok: guestOk,

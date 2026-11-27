@@ -17,5 +17,9 @@
   "roleUser": "उपयोगकर्ता",
   "tunnelAddress": "टनल पता",
   "restartAthena": "Athena रीस्टार्ट करें",
-  "logOut": "लॉग आउट"
+  "logOut": "लॉग आउट",
+  "adminOnly": {
+    "title": "केवल एडमिन के लिए",
+    "description": "ज़रूरत हो तो किसी एडमिन से कहें।"
+  }
 }

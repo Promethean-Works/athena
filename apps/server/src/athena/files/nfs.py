@@ -48,6 +48,7 @@ class NfsShareEntry:
     location_id: int
     location_name: str
     path: str
+    folder: str
     clients: list[str]
     read_only: bool
     created_at: datetime
@@ -194,6 +195,7 @@ def _entry(db: Session, share: NfsShare) -> NfsShareEntry:
         location_id=share.location_id,
         location_name=loc.name if loc else "(removed)",
         path=share.path,
+        folder=netshare.subfolder_of(loc.path, share.path) if loc else "",
         clients=share.clients.split(","),
         read_only=share.read_only,
         created_at=share.created_at,
@@ -215,19 +217,22 @@ def create_share(
     flavor: Flavor = LINUX,
     exports: Path | None = None,
     reload: Callable[[], None] | None = None,
+    folder: str = "",
 ) -> NfsShareEntry:
-    """Export `location_id` to `clients`. The caller has checked the `shares.nfs` capability."""
+    """Export `location_id` (or a `folder` inside it) to `clients`.
+
+    The caller has checked the `shares.nfs` capability."""
     loc = get_location(db, location_id)
+    shared = netshare.shared_folder(loc.path, folder)
     allowed = clean_clients(clients)
-    if any(c in loc.path for c in "\n\r") or (
-        flavor is MACOS and any(c in loc.path for c in "'\"\\")
-    ):
+    if any(c in shared for c in "\n\r") or (flavor is MACOS and any(c in shared for c in "'\"\\")):
         raise BadPath("This folder's path can't be exported")
-    if db.exec(select(NfsShare).where(NfsShare.path == loc.path)).first() is not None:
-        raise AlreadyExported(f"{loc.name} is already shared over NFS")
+    if db.exec(select(NfsShare).where(NfsShare.path == shared)).first() is not None:
+        what = f"{loc.name}/{folder.strip('/')}" if folder.strip("/") else loc.name
+        raise AlreadyExported(f"{what} is already shared over NFS")
 
     share = NfsShare(
-        location_id=location_id, path=loc.path, clients=",".join(allowed), read_only=read_only
+        location_id=location_id, path=shared, clients=",".join(allowed), read_only=read_only
     )
     current = list(db.exec(select(NfsShare)).all())
     _apply(flavor, exports, reload, [*current, share])

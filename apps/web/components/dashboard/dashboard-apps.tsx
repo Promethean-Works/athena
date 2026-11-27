@@ -45,9 +45,14 @@ import {
 } from "@workspace/ui/components/empty"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 
-import { AppStatusBadge, DeleteAppDialog, webPorts } from "@/components/apps/app-bits"
+import {
+  AppStatusBadge,
+  DeleteAppDialog,
+  webPorts,
+} from "@/components/apps/app-bits"
 import { useAppJobs } from "@/components/apps/use-app-jobs"
 import { useAppsList } from "@/components/apps/use-apps-list"
+import { useAuth } from "@/components/auth-provider"
 import { isAllowed, useCapabilities } from "@/components/capabilities-provider"
 import { RuntimeEmpty } from "@/components/containers/runtime-empty"
 import { cn } from "@workspace/ui/lib/utils"
@@ -61,6 +66,7 @@ const STATUS_LABEL: Record<string, ParseKeys<"dashboard">> = {
 }
 
 function AppsList() {
+  const { user } = useAuth()
   const { t } = useTranslation("dashboard")
   const { apps, error, load } = useAppsList()
   const [removing, setRemoving] = React.useState<string | null>(null)
@@ -124,7 +130,7 @@ function AppsList() {
                     ? "bg-emerald-500"
                     : app.status === "partial"
                       ? "bg-amber-500"
-                      : "bg-muted-foreground/50",
+                      : "bg-muted-foreground/50"
                 )}
               />
             </>
@@ -144,7 +150,7 @@ function AppsList() {
                 >
                   {icon}
                 </a>
-              ) : (
+              ) : user.is_admin ? (
                 <Link
                   href={`/apps/view/?name=${encodeURIComponent(app.name)}`}
                   title={info}
@@ -152,8 +158,15 @@ function AppsList() {
                 >
                   {icon}
                 </Link>
+              ) : (
+                <span title={info} className="relative rounded-xl">
+                  {icon}
+                </span>
               )}
-              <span className="w-full truncate text-sm font-medium" title={info}>
+              <span
+                className="w-full truncate text-sm font-medium"
+                title={info}
+              >
                 {label}
               </span>
               <DropdownMenu>
@@ -167,7 +180,9 @@ function AppsList() {
                   }
                 >
                   <EllipsisVerticalIcon />
-                  <span className="sr-only">{t("apps.actionsFor", { name: app.name })}</span>
+                  <span className="sr-only">
+                    {t("apps.actionsFor", { name: app.name })}
+                  </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-48">
                   <DropdownMenuGroup>
@@ -202,27 +217,35 @@ function AppsList() {
                             : t("apps.open")}
                         </DropdownMenuItem>
                       ))}
-                    <DropdownMenuItem
-                      render={
-                        <Link href={`/apps/view/?name=${encodeURIComponent(app.name)}`} />
-                      }
-                    >
-                      <InfoIcon />
-                      {t("apps.details")}
-                    </DropdownMenuItem>
+                    {user.is_admin ? (
+                      <DropdownMenuItem
+                        render={
+                          <Link
+                            href={`/apps/view/?name=${encodeURIComponent(app.name)}`}
+                          />
+                        }
+                      >
+                        <InfoIcon />
+                        {t("apps.details")}
+                      </DropdownMenuItem>
+                    ) : null}
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     {running ? (
                       <>
                         <DropdownMenuItem
-                          onClick={() => void jobs.action(app.name, "restart").then(load)}
+                          onClick={() =>
+                            void jobs.action(app.name, "restart").then(load)
+                          }
                         >
                           <RotateCwIcon />
                           {t("apps.restart")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => void jobs.action(app.name, "stop").then(load)}
+                          onClick={() =>
+                            void jobs.action(app.name, "stop").then(load)
+                          }
                         >
                           <SquareIcon />
                           {t("apps.stop")}
@@ -230,29 +253,39 @@ function AppsList() {
                       </>
                     ) : (
                       <DropdownMenuItem
-                        onClick={() => void jobs.action(app.name, "start").then(load)}
+                        onClick={() =>
+                          void jobs.action(app.name, "start").then(load)
+                        }
                       >
                         <PlayIcon />
                         {t("apps.start")}
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem
-                      onClick={() => void jobs.action(app.name, "update").then(load)}
-                    >
-                      <RefreshCcwIcon />
-                      {t("apps.updateImages")}
-                    </DropdownMenuItem>
+                    {user.is_admin ? (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          void jobs.action(app.name, "update").then(load)
+                        }
+                      >
+                        <RefreshCcwIcon />
+                        {t("apps.updateImages")}
+                      </DropdownMenuItem>
+                    ) : null}
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => setRemoving(app.name)}
-                    >
-                      <Trash2Icon />
-                      {t("apps.remove")}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
+                  {user.is_admin ? (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => setRemoving(app.name)}
+                        >
+                          <Trash2Icon />
+                          {t("apps.remove")}
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </>
+                  ) : null}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -287,11 +320,21 @@ export function DashboardApps() {
         <CardTitle>{t("apps.title")}</CardTitle>
         <CardDescription>{t("apps.subtitle")}</CardDescription>
         <CardAction className="flex gap-2">
-          <Button variant="outline" size="sm" render={<Link href="/store/" />} nativeButton={false}>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/store/" />}
+            nativeButton={false}
+          >
             <StoreIcon data-icon="inline-start" />
             {t("apps.store")}
           </Button>
-          <Button variant="ghost" size="sm" render={<Link href="/apps/" />} nativeButton={false}>
+          <Button
+            variant="ghost"
+            size="sm"
+            render={<Link href="/apps/" />}
+            nativeButton={false}
+          >
             {t("apps.all")}
           </Button>
         </CardAction>
