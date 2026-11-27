@@ -1,0 +1,41 @@
+x-athena:
+  title: Homarr
+  description: Modern dashboard with a drag-and-drop editor, integrations for your media and download apps, and multi-user support.
+  tagline: Drag-and-drop dashboard for your home server.
+  tags: [Dashboard, Startpage, Integrations]
+  license: Apache-2.0
+  category: utilities
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/homarr.svg
+  homepage: https://homarr.dev
+  web_port: WEB_PORT
+  notes: >-
+    Create the admin account on first open. Docker integration is off; add the Docker socket yourself if you want
+    container controls.
+  features:
+    - Drag-and-drop board editor, no config files
+    - Integrations for Jellyfin, Sonarr, Radarr, qBittorrent and more
+    - Users, groups and per-board permissions
+    - Built-in search and weather widgets
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8230"
+    - key: SECRET_ENCRYPTION_KEY
+      label: Encryption key
+      description: Encrypts integration secrets. Don't change it after first start.
+      type: password
+      generate: hex32
+      advanced: true
+
+services:
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:v2.14.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:7575"
+    environment:
+      SECRET_ENCRYPTION_KEY: ${SECRET_ENCRYPTION_KEY}
+    volumes:
+      - ${ATHENA_APP_DATA}/appdata:/appdata

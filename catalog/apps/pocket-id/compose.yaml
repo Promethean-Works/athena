@@ -1,0 +1,47 @@
+x-athena:
+  title: Pocket ID
+  description: Simple OIDC identity provider that signs you in to your self-hosted apps with passkeys, no passwords.
+  tagline: Passkey-only single sign-on for your apps.
+  tags: [Auth, SSO, OIDC]
+  license: BSD-2-Clause
+  category: security
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/pocket-id.svg
+  homepage: https://pocket-id.org
+  web_port: WEB_PORT
+  notes: >-
+    Set the public URL below to the address you open the app from, then finish setup at `/setup`. Passkeys only work
+    on `localhost` or over HTTPS, so put it behind HTTPS before using it from other devices.
+  features:
+    - Passkey sign-in, no passwords to leak
+    - OIDC provider for Immich, Grafana, Nextcloud, Gitea and more
+    - User groups and per-app access
+    - Small and fast
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8241"
+    - key: APP_URL
+      label: Public URL
+      description: Address you open Pocket ID from, without a trailing slash.
+      default: "http://localhost:8241"
+    - key: ENCRYPTION_KEY
+      label: Encryption key
+      description: Encrypts stored keys. Don't change it after first start.
+      type: password
+      generate: secret
+      advanced: true
+
+services:
+  pocket-id:
+    image: ghcr.io/pocket-id/pocket-id:v2.19.3
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:1411"
+    environment:
+      APP_URL: ${APP_URL}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      TRUST_PROXY: "false"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data

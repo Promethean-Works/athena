@@ -1,0 +1,39 @@
+x-athena:
+  title: Gotify
+  description: Simple self-hosted push notification server with a web app and Android client.
+  tagline: Send and receive push notifications.
+  tags: [Notifications, Push, API]
+  license: MIT
+  category: utilities
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/gotify.svg
+  homepage: https://gotify.net
+  web_port: WEB_PORT
+  notes: >-
+    Sign in as `admin` with the password below, then create an application to get a token for sending messages.
+  features:
+    - Send messages with a single HTTP call
+    - Real-time web UI and Android app
+    - Users, applications and tokens
+    - Plugins
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8236"
+    - key: ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+
+services:
+  gotify:
+    image: ghcr.io/gotify/server:3.1.1
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80"
+    environment:
+      GOTIFY_DEFAULTUSER_NAME: admin
+      GOTIFY_DEFAULTUSER_PASS: ${ADMIN_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/app/data

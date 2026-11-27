@@ -1,0 +1,39 @@
+x-athena:
+  title: linkding
+  description: Minimal, fast bookmark manager with tags, full-text search, archived copies and a browser extension.
+  tagline: Minimal self-hosted bookmark manager.
+  tags: [Bookmarks, Links, Search]
+  license: MIT
+  category: reading
+  platforms: [linux/amd64, linux/arm64, linux/arm/v7]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/linkding.svg
+  homepage: https://linkding.link
+  web_port: WEB_PORT
+  notes: >-
+    Sign in as `admin` with the password below.
+  features:
+    - Tags, bulk edit and full-text search
+    - Saves archived copies of pages
+    - Browser extensions and REST API
+    - Import and export in Netscape format
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8234"
+    - key: ADMIN_PASSWORD
+      label: Admin password
+      type: password
+      generate: secret
+
+services:
+  linkding:
+    image: sissbruecker/linkding:1.47.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:9090"
+    environment:
+      LD_SUPERUSER_NAME: admin
+      LD_SUPERUSER_PASSWORD: ${ADMIN_PASSWORD}
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/etc/linkding/data

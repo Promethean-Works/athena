@@ -1,0 +1,51 @@
+x-athena:
+  title: Homepage
+  description: Fast, customisable start page for your server with app shortcuts, service status and widgets for dozens of apps.
+  tagline: Customisable dashboard for your services.
+  tags: [Dashboard, Startpage, Widgets]
+  license: GPL-3.0
+  category: utilities
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/homepage.png
+  homepage: https://gethomepage.dev
+  web_port: WEB_PORT
+  notes: >-
+    Configured with YAML files in the app's `config` folder (services.yaml, widgets.yaml, …); sample files are
+    created on first start. Allowed hosts defaults to `*`: set your server's address instead if the app is exposed
+    beyond your home network.
+  features:
+    - Shortcuts and live widgets for 100+ services
+    - Configuration as simple YAML files
+    - Search bar, weather and system resource widgets
+    - Light and dark themes
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8229"
+    - key: ALLOWED_HOSTS
+      label: Allowed hosts
+      description: Comma-separated host names (with port) this page may be opened from. `*` allows any.
+      default: "*"
+      advanced: true
+    - key: PUID
+      label: User ID
+      default: "@uid"
+      advanced: true
+    - key: PGID
+      label: Group ID
+      default: "@gid"
+      advanced: true
+
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v2.8.0
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3000"
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: "${ALLOWED_HOSTS}"
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      - ${ATHENA_APP_DATA}/config:/app/config

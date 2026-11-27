@@ -1,0 +1,33 @@
+x-athena:
+  title: Vane
+  description: Private AI answering engine (formerly Perplexica) that searches the web and answers with cited sources, using your own local or cloud models.
+  tagline: Private AI search with cited answers.
+  tags: [AI, Search, LLM]
+  license: MIT
+  category: ai
+  platforms: [linux/amd64, linux/arm64]
+  icon: https://raw.githubusercontent.com/ItzCrazyKns/Vane/master/public/icon.png
+  homepage: https://github.com/ItzCrazyKns/Vane
+  web_port: WEB_PORT
+  notes: >-
+    Pick a model provider (Ollama, OpenAI, Anthropic, …) in the first-run setup. This image bundles its own
+    SearXNG for web search, so nothing else needs installing.
+  features:
+    - Answers with cited web sources
+    - Works with Ollama and other local models
+    - Focus modes for academic, video and discussion search
+    - Uploads documents to ask about them
+  env:
+    - key: WEB_PORT
+      label: Web port
+      type: port
+      default: "8220"
+
+services:
+  vane:
+    image: itzcrazykns1337/vane:full-v1.12.2
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:3000"
+    volumes:
+      - ${ATHENA_APP_DATA}/data:/home/vane/data
