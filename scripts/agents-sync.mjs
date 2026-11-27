@@ -117,6 +117,7 @@ const COMMANDS = {
   "review-diff": { skill: "athena-review", description: "Review the current diff against the project rules", agent: "reviewer" },
   orchestrate: { skill: "athena-orchestrate", description: "Take an issue through worker, checks and review to a PR with auto-merge" },
   "security-audit": { skill: "athena-security-audit", description: "Audit the repo for vulnerabilities, fix them with tests, write .security-reports/security-audit.md" },
+  pentest: { skill: "athena-pentest", description: "Authorized local penetration test of a throwaway Athena build, then fix, retest and report in .security-reports/" },
 };
 for (const c of Object.values(COMMANDS)) {
   if (!existsSync(join(root, ".agents", "skills", c.skill, "SKILL.md"))) throw new Error(`COMMANDS: skill ${c.skill} doesn't exist`);

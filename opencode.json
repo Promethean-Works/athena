@@ -246,6 +246,10 @@
     "security-audit": {
       "description": "Audit the repo for vulnerabilities, fix them with tests, write .security-reports/security-audit.md",
       "template": "Use the athena-security-audit skill (.agents/skills/athena-security-audit/SKILL.md) and follow it. $ARGUMENTS"
+    },
+    "pentest": {
+      "description": "Authorized local penetration test of a throwaway Athena build, then fix, retest and report in .security-reports/",
+      "template": "Use the athena-pentest skill (.agents/skills/athena-pentest/SKILL.md) and follow it. $ARGUMENTS"
     }
   },
   "instructions": [
