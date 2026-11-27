@@ -69,12 +69,6 @@
     "size": "Size",
     "dependencies": "Dependencies"
   },
-  "password": {
-    "title": "Enter your computer's password",
-    "description": "{{name}} installs system-wide, so changes need the password of the account Athena runs as. It's used once for this action and never stored.",
-    "label": "Password",
-    "continue": "Continue"
-  },
   "add": {
     "button": "Add a package manager",
     "title": "Add a package manager",

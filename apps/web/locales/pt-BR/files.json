@@ -270,9 +270,6 @@
     "copyFailed": "Não foi possível copiar",
     "smbAddress": "endereço do compartilhamento",
     "password": {
-      "label": "A senha do seu computador",
-      "hint": "Necessária uma vez para esta alteração. O Athena não a guarda.",
-      "required": "Digite a senha do seu computador",
       "systemHint": "Seu computador pedirá que você aprove como administrador."
     },
     "remove": {

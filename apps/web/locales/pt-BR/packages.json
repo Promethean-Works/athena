@@ -69,12 +69,6 @@
     "size": "Tamanho",
     "dependencies": "Dependências"
   },
-  "password": {
-    "title": "Digite a senha do computador",
-    "description": "{{name}} é instalado para todo o sistema, então as alterações pedem a senha da conta em que o Athena roda. Ela é usada uma vez nesta ação e nunca é salva.",
-    "label": "Senha",
-    "continue": "Continuar"
-  },
   "add": {
     "button": "Adicionar um gerenciador de pacotes",
     "title": "Adicionar um gerenciador de pacotes",

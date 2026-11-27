@@ -71,12 +71,6 @@
     "size": "Rozmiar",
     "dependencies": "Zależności"
   },
-  "password": {
-    "title": "Wpisz hasło komputera",
-    "description": "{{name}} instaluje się w całym systemie, więc zmiany wymagają hasła konta, na którym działa Athena. Jest używane jednorazowo do tej czynności i nigdy nie jest zapisywane.",
-    "label": "Hasło",
-    "continue": "Dalej"
-  },
   "add": {
     "button": "Dodaj menedżera pakietów",
     "title": "Dodaj menedżera pakietów",

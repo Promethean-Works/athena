@@ -105,5 +105,12 @@
     }
   },
   "restartLateBody": "Na wolnym hoście może to potrwać dłużej. Jeśli nadal nie działa, sprawdź log w folderze danych (logs/athena.log).",
-  "toggleSidebar": "Przełącz panel boczny"
+  "toggleSidebar": "Przełącz panel boczny",
+  "hostPassword": {
+    "title": "Wpisz hasło do swojego komputera",
+    "description": "{{reason}} wymaga hasła konta, na którym działa Athena, aby działać jako administrator na tym komputerze.",
+    "label": "Hasło",
+    "keep": "Athena trzyma je w pamięci tej karty przez {{minutes}} min od ostatniego użycia, nigdy na dysku. Zamknięcie karty lub wylogowanie je usuwa.",
+    "continue": "Dalej"
+  }
 }

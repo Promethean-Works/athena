@@ -103,5 +103,12 @@
     }
   },
   "restartLateBody": "It can take longer on a slow host. If it stays down, check the log in the data folder (logs/athena.log).",
-  "toggleSidebar": "Toggle sidebar"
+  "toggleSidebar": "Toggle sidebar",
+  "hostPassword": {
+    "title": "Enter your computer's password",
+    "description": "{{reason}} needs the password of the account Athena runs as, to act as an administrator on this computer.",
+    "label": "Password",
+    "keep": "Athena keeps it in this tab's memory for {{minutes}} minutes after you last use it, never on disk. Closing the tab or signing out forgets it.",
+    "continue": "Continue"
+  }
 }

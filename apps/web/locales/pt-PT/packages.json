@@ -69,12 +69,6 @@
     "size": "Tamanho",
     "dependencies": "Dependências"
   },
-  "password": {
-    "title": "Introduza a palavra-passe do computador",
-    "description": "{{name}} é instalado para todo o sistema, por isso as alterações pedem a palavra-passe da conta em que o Athena corre. É usada uma vez nesta ação e nunca é guardada.",
-    "label": "Palavra-passe",
-    "continue": "Continuar"
-  },
   "add": {
     "button": "Adicionar um gestor de pacotes",
     "title": "Adicionar um gestor de pacotes",

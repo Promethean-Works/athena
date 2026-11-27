@@ -68,12 +68,6 @@
     "size": "Kích thước",
     "dependencies": "Phụ thuộc"
   },
-  "password": {
-    "title": "Nhập mật khẩu máy tính",
-    "description": "{{name}} được cài cho toàn hệ thống nên thay đổi cần mật khẩu của tài khoản đang chạy Athena. Mật khẩu chỉ dùng một lần cho thao tác này và không bao giờ được lưu.",
-    "label": "Mật khẩu",
-    "continue": "Tiếp tục"
-  },
   "add": {
     "button": "Thêm trình quản lý gói",
     "title": "Thêm trình quản lý gói",

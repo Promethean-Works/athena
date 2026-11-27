@@ -278,9 +278,6 @@
     "copyFailed": "Nu s-a putut copia",
     "smbAddress": "adresa partajării",
     "password": {
-      "label": "Parola calculatorului tău",
-      "hint": "Necesară o singură dată pentru această modificare. Athena nu o păstrează.",
-      "required": "Introdu parola calculatorului tău",
       "systemHint": "Calculatorul îți va cere să aprobi ca administrator."
     },
     "remove": {

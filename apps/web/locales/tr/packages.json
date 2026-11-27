@@ -69,12 +69,6 @@
     "size": "Boyut",
     "dependencies": "Bağımlılıklar"
   },
-  "password": {
-    "title": "Bilgisayar parolasını girin",
-    "description": "{{name}} tüm sisteme kurulur, bu yüzden değişiklikler için Athena'nın çalıştığı hesabın parolası gerekir. Bu işlem için bir kez kullanılır ve asla saklanmaz.",
-    "label": "Parola",
-    "continue": "Devam"
-  },
   "add": {
     "button": "Paket yöneticisi ekle",
     "title": "Paket yöneticisi ekle",

@@ -270,9 +270,6 @@
     "copyFailed": "Kopyalanamadı",
     "smbAddress": "paylaşım adresi",
     "password": {
-      "label": "Bilgisayarınızın parolası",
-      "hint": "Bu değişiklik için bir kez gerekir. Athena onu saklamaz.",
-      "required": "Bilgisayarınızın parolasını girin",
       "systemHint": "Bilgisayarınız yönetici olarak onaylamanızı isteyecek."
     },
     "remove": {

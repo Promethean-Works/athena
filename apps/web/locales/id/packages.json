@@ -68,12 +68,6 @@
     "size": "Ukuran",
     "dependencies": "Dependensi"
   },
-  "password": {
-    "title": "Masukkan kata sandi komputer",
-    "description": "{{name}} dipasang untuk seluruh sistem, jadi perubahan memerlukan kata sandi akun tempat Athena berjalan. Kata sandi dipakai sekali untuk tindakan ini dan tidak pernah disimpan.",
-    "label": "Kata sandi",
-    "continue": "Lanjutkan"
-  },
   "add": {
     "button": "Tambah pengelola paket",
     "title": "Tambah pengelola paket",

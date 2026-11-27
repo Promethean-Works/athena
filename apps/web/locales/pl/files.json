@@ -286,9 +286,6 @@
     "copyFailed": "Nie udało się skopiować",
     "smbAddress": "adres udziału",
     "password": {
-      "label": "Hasło do komputera",
-      "hint": "Potrzebne jednorazowo do tej zmiany. Athena go nie zapisuje.",
-      "required": "Wpisz hasło do komputera",
       "systemHint": "Komputer poprosi o zatwierdzenie jako administrator."
     },
     "remove": {

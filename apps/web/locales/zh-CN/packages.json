@@ -68,12 +68,6 @@
     "size": "大小",
     "dependencies": "依赖项"
   },
-  "password": {
-    "title": "输入电脑密码",
-    "description": "{{name}} 安装到整个系统，因此更改需要 Athena 所运行账户的密码。它只在此操作中使用一次，不会被保存。",
-    "label": "密码",
-    "continue": "继续"
-  },
   "add": {
     "button": "添加包管理器",
     "title": "添加包管理器",

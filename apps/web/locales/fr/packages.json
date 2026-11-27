@@ -69,12 +69,6 @@
     "size": "Taille",
     "dependencies": "Dépendances"
   },
-  "password": {
-    "title": "Saisissez le mot de passe de l'ordinateur",
-    "description": "{{name}} s'installe pour tout le système : les modifications demandent le mot de passe du compte sous lequel Athena s'exécute. Il sert une seule fois pour cette action et n'est jamais enregistré.",
-    "label": "Mot de passe",
-    "continue": "Continuer"
-  },
   "add": {
     "button": "Ajouter un gestionnaire de paquets",
     "title": "Ajouter un gestionnaire de paquets",

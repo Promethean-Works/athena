@@ -262,9 +262,6 @@
     "copyFailed": "Tidak dapat menyalin",
     "smbAddress": "alamat berbagi",
     "password": {
-      "label": "Kata sandi komputer Anda",
-      "hint": "Diperlukan sekali untuk perubahan ini. Athena tidak menyimpannya.",
-      "required": "Masukkan kata sandi komputer Anda",
       "systemHint": "Komputer Anda akan meminta persetujuan sebagai administrator."
     },
     "remove": {

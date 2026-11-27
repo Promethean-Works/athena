@@ -103,5 +103,12 @@
     }
   },
   "restartLateBody": "Cela peut prendre plus de temps sur un hôte lent. Si Athena reste hors service, consultez le journal dans le dossier de données (logs/athena.log).",
-  "toggleSidebar": "Afficher/masquer la barre latérale"
+  "toggleSidebar": "Afficher/masquer la barre latérale",
+  "hostPassword": {
+    "title": "Saisissez le mot de passe de votre ordinateur",
+    "description": "{{reason}} nécessite le mot de passe du compte sous lequel Athena s'exécute, pour agir en administrateur sur cet ordinateur.",
+    "label": "Mot de passe",
+    "keep": "Athena le garde dans la mémoire de cet onglet pendant {{minutes}} minutes après la dernière utilisation, jamais sur le disque. Fermer l'onglet ou se déconnecter l'efface.",
+    "continue": "Continuer"
+  }
 }

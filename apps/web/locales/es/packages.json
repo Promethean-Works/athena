@@ -70,12 +70,6 @@
     "size": "Tamaño",
     "dependencies": "Dependencias"
   },
-  "password": {
-    "title": "Introduce la contraseña del equipo",
-    "description": "{{name}} se instala en todo el sistema, así que los cambios necesitan la contraseña de la cuenta con la que se ejecuta Athena. Se usa una vez para esta acción y nunca se guarda.",
-    "label": "Contraseña",
-    "continue": "Continuar"
-  },
   "add": {
     "button": "Añadir un gestor de paquetes",
     "title": "Añadir un gestor de paquetes",

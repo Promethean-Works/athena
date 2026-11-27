@@ -69,12 +69,6 @@
     "size": "Größe",
     "dependencies": "Abhängigkeiten"
   },
-  "password": {
-    "title": "Computer-Passwort eingeben",
-    "description": "{{name}} wird systemweit installiert, daher brauchen Änderungen das Passwort des Kontos, unter dem Athena läuft. Es wird einmal für diese Aktion verwendet und nie gespeichert.",
-    "label": "Passwort",
-    "continue": "Weiter"
-  },
   "add": {
     "button": "Paketmanager hinzufügen",
     "title": "Paketmanager hinzufügen",

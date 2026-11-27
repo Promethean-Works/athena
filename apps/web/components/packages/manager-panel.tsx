@@ -61,7 +61,7 @@ import {
   PackageDetailsSheet,
   type DetailsTarget,
 } from "@/components/packages/package-details"
-import { usePasswordPrompt } from "@/components/packages/password-dialog"
+import { useHostPassword } from "@/components/host-password-provider"
 
 type Manager = Schemas["ManagerOut"]
 type Job = Schemas["JobOut"]
@@ -128,13 +128,7 @@ function sourceBadge(source?: string | null) {
   return source && source !== "formula" ? source : null
 }
 
-function DetailsButton({
-  name,
-  onOpen,
-}: {
-  name: string
-  onOpen: () => void
-}) {
+function DetailsButton({ name, onOpen }: { name: string; onOpen: () => void }) {
   const { t } = useTranslation("packages")
   return (
     <Button
@@ -225,14 +219,20 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
   const [lastQuery, setLastQuery] = React.useState("")
   const [details, setDetails] = React.useState<DetailsTarget | null>(null)
 
-  const started = (result: { data?: Job; error?: unknown }, failTitle: string) => {
-    if (result.data) setJob(result.data)
-    else
-      toast.add({
-        type: "error",
-        title: failTitle,
-        description: errorMessage(result.error),
-      })
+  const started = (
+    result: { data?: Job; error?: unknown },
+    failTitle: string
+  ): boolean => {
+    if (result.data) {
+      setJob(result.data)
+      return true
+    }
+    toast.add({
+      type: "error",
+      title: failTitle,
+      description: errorMessage(result.error),
+    })
+    return false
   }
 
   async function runSearch(q: string) {
@@ -253,11 +253,19 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
   // A manager that installs system-wide (MacPorts) asks for the computer's password
   // before each change; reads don't need it.
   const needsPassword = !manager.available && manager.elevation === "password"
-  const { ask, dialog: passwordDialog } = usePasswordPrompt()
-  async function withPassword(run: (password: string | null) => Promise<void>) {
-    if (!needsPassword) return run(null)
+  const { ask, remember, forget } = useHostPassword()
+  async function withPassword(
+    run: (password: string | null) => Promise<boolean>
+  ) {
+    if (!needsPassword) {
+      await run(null)
+      return
+    }
     const password = await ask(manager.label)
-    if (password) await run(password)
+    if (!password) return
+    // Keep it for the next action only once this one was accepted.
+    if (await run(password)) remember(password)
+    else forget()
   }
 
   const install = (pkg: Pick<Found, "name" | "source">) =>
@@ -287,9 +295,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
           ...path,
           body: { name, password },
         }),
-        name
-          ? t("toast.upgradeFailed", { name })
-          : t("toast.upgradeAllFailed")
+        name ? t("toast.upgradeFailed", { name }) : t("toast.upgradeAllFailed")
       )
     )
   const refresh = () =>
@@ -455,7 +461,9 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
-                                aria-label={t("installed.upgradeLabel", { name: p.name })}
+                                aria-label={t("installed.upgradeLabel", {
+                                  name: p.name,
+                                })}
                                 title={t("installed.upgrade")}
                                 onClick={() => upgrade(p.name)}
                               >
@@ -465,7 +473,9 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              aria-label={t("installed.uninstallLabel", { name: p.name })}
+                              aria-label={t("installed.uninstallLabel", {
+                                name: p.name,
+                              })}
                               disabled={shortened}
                               title={
                                 shortened
@@ -489,7 +499,10 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
               </Table>
               {filtered.length > SHOWN ? (
                 <p className="text-sm text-muted-foreground">
-                  {t("installed.showing", { shown: SHOWN, total: filtered.length })}
+                  {t("installed.showing", {
+                    shown: SHOWN,
+                    total: filtered.length,
+                  })}
                 </p>
               ) : null}
             </>
@@ -686,8 +699,15 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
         onUninstall={(name) => setPending({ kind: "uninstall", name })}
         onUpgrade={(name) => void upgrade(name)}
       />
-      {passwordDialog}
-      <JobDialog job={job} onClose={() => setJob(null)} onFinished={afterJob} />
+      <JobDialog
+        job={job}
+        onClose={() => setJob(null)}
+        onFinished={(succeeded) => {
+          // A failed change may be a refused password: don't keep it.
+          if (!succeeded) forget()
+          afterJob()
+        }}
+      />
     </div>
   )
 }

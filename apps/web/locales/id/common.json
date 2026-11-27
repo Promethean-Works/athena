@@ -102,5 +102,12 @@
     }
   },
   "restartLateBody": "Bisa lebih lama pada host yang lambat. Jika tetap mati, periksa log di folder data (logs/athena.log).",
-  "toggleSidebar": "Buka/tutup sidebar"
+  "toggleSidebar": "Buka/tutup sidebar",
+  "hostPassword": {
+    "title": "Masukkan kata sandi komputer Anda",
+    "description": "{{reason}} memerlukan kata sandi akun tempat Athena berjalan, untuk bertindak sebagai administrator di komputer ini.",
+    "label": "Kata sandi",
+    "keep": "Athena menyimpannya di memori tab ini selama {{minutes}} menit setelah terakhir dipakai, tidak pernah di disk. Menutup tab atau keluar akan menghapusnya.",
+    "continue": "Lanjutkan"
+  }
 }

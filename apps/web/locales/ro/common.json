@@ -104,5 +104,12 @@
     }
   },
   "restartLateBody": "Poate dura mai mult pe o gazdă lentă. Dacă rămâne oprită, verifică jurnalul din dosarul de date (logs/athena.log).",
-  "toggleSidebar": "Comută bara laterală"
+  "toggleSidebar": "Comută bara laterală",
+  "hostPassword": {
+    "title": "Introdu parola computerului tău",
+    "description": "{{reason}} are nevoie de parola contului sub care rulează Athena, pentru a acționa ca administrator pe acest computer.",
+    "label": "Parolă",
+    "keep": "Athena o păstrează în memoria acestei file {{minutes}} minute după ultima utilizare, niciodată pe disc. Închiderea filei sau deconectarea o șterge.",
+    "continue": "Continuă"
+  }
 }

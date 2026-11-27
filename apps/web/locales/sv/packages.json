@@ -69,12 +69,6 @@
     "size": "Storlek",
     "dependencies": "Beroenden"
   },
-  "password": {
-    "title": "Ange datorns lösenord",
-    "description": "{{name}} installeras för hela systemet, så ändringar kräver lösenordet för kontot som Athena körs under. Det används en gång för den här åtgärden och sparas aldrig.",
-    "label": "Lösenord",
-    "continue": "Fortsätt"
-  },
   "add": {
     "button": "Lägg till en pakethanterare",
     "title": "Lägg till en pakethanterare",

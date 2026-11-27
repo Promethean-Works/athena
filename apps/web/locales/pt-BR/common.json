@@ -103,5 +103,12 @@
     }
   },
   "restartLateBody": "Pode demorar mais em um host lento. Se continuar fora do ar, confira o log na pasta de dados (logs/athena.log).",
-  "toggleSidebar": "Alternar barra lateral"
+  "toggleSidebar": "Alternar barra lateral",
+  "hostPassword": {
+    "title": "Digite a senha do seu computador",
+    "description": "{{reason}} precisa da senha da conta em que o Athena roda, para agir como administrador neste computador.",
+    "label": "Senha",
+    "keep": "O Athena a mantém na memória desta aba por {{minutes}} minutos após o último uso, nunca no disco. Fechar a aba ou sair a esquece.",
+    "continue": "Continuar"
+  }
 }

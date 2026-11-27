@@ -69,12 +69,6 @@
     "size": "Grootte",
     "dependencies": "Afhankelijkheden"
   },
-  "password": {
-    "title": "Voer het wachtwoord van de computer in",
-    "description": "{{name}} wordt voor het hele systeem geïnstalleerd, dus wijzigingen vragen het wachtwoord van het account waaronder Athena draait. Het wordt eenmalig voor deze actie gebruikt en nooit opgeslagen.",
-    "label": "Wachtwoord",
-    "continue": "Doorgaan"
-  },
   "add": {
     "button": "Pakketbeheerder toevoegen",
     "title": "Pakketbeheerder toevoegen",

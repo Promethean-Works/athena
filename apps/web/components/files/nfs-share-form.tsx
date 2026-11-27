@@ -29,10 +29,11 @@ import { Switch } from "@workspace/ui/components/switch"
 import { toast } from "@workspace/ui/components/toast"
 import { useCapability } from "@/components/capabilities-provider"
 import { serverHost } from "@/components/files/connection-string"
+import { useHostPassword } from "@/components/host-password-provider"
 import {
-  HostPasswordField,
+  ElevationHint,
+  passwordFor,
   hostPasswordHeader,
-  needsHostPassword,
 } from "@/components/files/elevation"
 
 type Location = Schemas["LocationOut"]
@@ -66,7 +67,7 @@ export function NfsShareForm({
   const [picked, setPicked] = React.useState<number | null>(null)
   const [clients, setClients] = React.useState("")
   const [readOnly, setReadOnly] = React.useState(false)
-  const [password, setPassword] = React.useState("")
+  const { ask, remember, forget } = useHostPassword()
   const [formError, setFormError] = React.useState<string | null>(null)
   const locationId = fixedLocation ?? picked
 
@@ -87,15 +88,13 @@ export function NfsShareForm({
       setFormError(t("network.nfs.clientsRequired"))
       return
     }
-    if (needsHostPassword(capability) && password === "") {
-      setFormError(t("network.password.required"))
-      return
-    }
     if (
       list.some((c) => /\/0$/.test(c)) &&
       !window.confirm(t("network.nfs.confirmEverywhere"))
     )
       return
+    const password = await passwordFor(capability, ask, t("smb.createShare"))
+    if (password === undefined) return
     setPending(true)
     const { data, error: err } = await api.POST("/api/shares/nfs", {
       body: {
@@ -107,11 +106,12 @@ export function NfsShareForm({
       params: { header: hostPasswordHeader(capability, password) },
     })
     setPending(false)
-    setPassword("")
     if (!data) {
+      forget()
       setFormError(errorMessage(err))
       return
     }
+    if (password) remember(password)
     setClients("")
     setReadOnly(false)
     toast.add({
@@ -181,13 +181,7 @@ export function NfsShareForm({
             {t("smb.readOnly")}
           </FieldLabel>
         </Field>
-        <HostPasswordField
-          id={`${id}-password`}
-          capability={capability}
-          value={password}
-          onChange={setPassword}
-          disabled={pending}
-        />
+        <ElevationHint capability={capability} />
         {formError ? <FieldError>{formError}</FieldError> : null}
       </FieldGroup>
       {actions({ pending })}

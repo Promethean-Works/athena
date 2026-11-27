@@ -102,5 +102,12 @@
     }
   },
   "restartLateBody": "느린 호스트에서는 더 오래 걸릴 수 있어요. 계속 응답이 없으면 데이터 폴더의 로그(logs/athena.log)를 확인하세요.",
-  "toggleSidebar": "사이드바 전환"
+  "toggleSidebar": "사이드바 전환",
+  "hostPassword": {
+    "title": "컴퓨터 비밀번호를 입력하세요",
+    "description": "{{reason}}에는 이 컴퓨터에서 관리자로 작업하기 위해 Athena가 실행 중인 계정의 비밀번호가 필요합니다.",
+    "label": "비밀번호",
+    "keep": "Athena는 마지막 사용 후 {{minutes}}분 동안 이 탭의 메모리에만 보관하며 디스크에는 저장하지 않습니다. 탭을 닫거나 로그아웃하면 지워집니다.",
+    "continue": "계속"
+  }
 }

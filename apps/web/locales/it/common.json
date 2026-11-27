@@ -104,5 +104,12 @@
     }
   },
   "restartLateBody": "Su un host lento può richiedere più tempo. Se resta fermo, controlla il log nella cartella dei dati (logs/athena.log).",
-  "toggleSidebar": "Mostra/nascondi barra laterale"
+  "toggleSidebar": "Mostra/nascondi barra laterale",
+  "hostPassword": {
+    "title": "Inserisci la password del tuo computer",
+    "description": "{{reason}} richiede la password dell'account con cui gira Athena, per agire da amministratore su questo computer.",
+    "label": "Password",
+    "keep": "Athena la tiene nella memoria di questa scheda per {{minutes}} minuti dopo l'ultimo uso, mai su disco. Chiudere la scheda o uscire la cancella.",
+    "continue": "Continua"
+  }
 }
