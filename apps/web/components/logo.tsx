@@ -1,10 +1,6 @@
-import * as React from "react"
-
-// Athena's mark: a gradient "A" (also a house, for the home server) with a status light.
+// Athena's mark: a temple with an owl's eye in the pediment.
 // Keep in step with site/favicon.svg and apps/web/app/icon.svg.
 export function Logo({ className }: { className?: string }) {
-  const id = React.useId()
-  const gradient = `${id}-g`
   return (
     <svg
       viewBox="0 0 64 64"
@@ -12,20 +8,18 @@ export function Logo({ className }: { className?: string }) {
       className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        <linearGradient id={gradient} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#6366f1" />
-          <stop offset=".55" stopColor="#8b5cf6" />
-          <stop offset="1" stopColor="#22d3ee" />
-        </linearGradient>
-      </defs>
-      <rect width="64" height="64" rx="14" fill="#0e0e12" />
-      <path
-        fill={`url(#${gradient})`}
-        fillRule="evenodd"
-        d="M8 56V29L32 7l24 22v27H46V44H18v12zM18 29.8 32 17l14 12.8V35H18z"
-      />
-      <circle cx="32" cy="29" r="3" fill={`url(#${gradient})`} />
+      <rect width="64" height="64" rx="14" fill="#4f46e5" />
+      <g fill="#fff" transform="translate(0 -1)">
+        <path d="M8 26 32 10l24 16z" />
+        <rect x="10" y="28.5" width="44" height="3.5" rx="1" />
+        <rect x="13" y="34.5" width="5.5" height="14" rx="1" />
+        <rect x="24" y="34.5" width="5.5" height="14" rx="1" />
+        <rect x="34.5" y="34.5" width="5.5" height="14" rx="1" />
+        <rect x="45.5" y="34.5" width="5.5" height="14" rx="1" />
+        <rect x="10" y="51" width="44" height="3.5" rx="1" />
+        <rect x="7" y="56" width="50" height="3.5" rx="1" />
+      </g>
+      <circle cx="32" cy="20.5" r="3" fill="#4f46e5" />
     </svg>
   )
 }
