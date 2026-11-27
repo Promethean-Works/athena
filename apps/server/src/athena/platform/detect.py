@@ -299,7 +299,11 @@ def detect_smb(probe: Probe) -> Capability:
             label=label,
             status="needs_privilege",
             provider="sharing",
-            detail="Sharing folders over SMB needs Athena to run as root.",
+            detail=(
+                "Sharing folders over SMB needs administrator rights. "
+                "Athena asks for your password when you create one."
+            ),
+            elevation="password",
         )
     if probe.os == "windows" and probe.which("powershell"):
         if probe.is_admin():
@@ -309,7 +313,11 @@ def detect_smb(probe: Probe) -> Capability:
             label=label,
             status="needs_privilege",
             provider="smbshare",
-            detail="Sharing folders over SMB needs Athena to run as an administrator.",
+            detail=(
+                "Sharing folders over SMB needs administrator rights. "
+                "Windows asks you to approve when you create one."
+            ),
+            elevation="system",
         )
     return Capability(
         id="shares.smb",
@@ -354,7 +362,11 @@ def detect_nfs(probe: Probe) -> Capability:
             label=label,
             status="needs_privilege",
             provider="nfsd",
-            detail="Exporting folders over NFS needs Athena to run as root.",
+            detail=(
+                "Exporting folders over NFS needs administrator rights. "
+                "Athena asks for your password when you create one."
+            ),
+            elevation="password",
         )
     return Capability(
         id="shares.nfs",
@@ -379,6 +391,75 @@ def detect_rclone(probe: Probe) -> Capability:
     version = probe.run([path, "version"]).first_line or None
     return Capability(
         id="cloud.rclone", label="Cloud storage", status="ready", provider="rclone", detail=version
+    )
+
+
+def detect_rclone_mount(probe: Probe) -> Capability:
+    """`cloud.mount`: mount a cloud remote as a folder with `rclone mount`, so it can be
+    shared over SMB or NFS (docs/specs/share-from-explorer.md). Needs rclone, a build that
+    can mount, and the OS's FUSE driver."""
+    label = "Mount cloud storage"
+    rclone = probe.which("rclone")
+    if not rclone:
+        return Capability(
+            id="cloud.mount",
+            label=label,
+            status="missing",
+            provider="rclone",
+            detail="rclone isn't installed.",
+            actions=["setup"],
+        )
+    if probe.os == "linux":
+        if probe.which("fusermount3") or probe.which("fusermount"):
+            return Capability(id="cloud.mount", label=label, status="ready", provider="fuse")
+        return Capability(
+            id="cloud.mount",
+            label=label,
+            status="missing",
+            provider="fuse",
+            detail="FUSE isn't installed. Install it (apt install fuse3) to mount cloud storage.",
+            actions=["setup"],
+        )
+    if probe.os == "darwin":
+        real = probe.real_path(rclone)
+        if "/Cellar/" in real or "/homebrew/" in real.lower():
+            return Capability(
+                id="cloud.mount",
+                label=label,
+                status="unsupported",
+                provider="macfuse",
+                detail=(
+                    "Homebrew's rclone can't mount. Install the official rclone from "
+                    "rclone.org/downloads, plus macFUSE or FUSE-T."
+                ),
+            )
+        drivers = ("/Library/Filesystems/macfuse.fs", "/Library/Filesystems/fuse-t.fs")
+        if any(probe.exists(d) for d in drivers):
+            return Capability(id="cloud.mount", label=label, status="ready", provider="macfuse")
+        return Capability(
+            id="cloud.mount",
+            label=label,
+            status="missing",
+            provider="macfuse",
+            detail="Install macFUSE or FUSE-T to mount cloud storage.",
+        )
+    if probe.os == "windows":
+        roots = ("C:/Program Files (x86)/WinFsp", "C:/Program Files/WinFsp")
+        if any(probe.exists(r) for r in roots):
+            return Capability(id="cloud.mount", label=label, status="ready", provider="winfsp")
+        return Capability(
+            id="cloud.mount",
+            label=label,
+            status="missing",
+            provider="winfsp",
+            detail="Install WinFsp to mount cloud storage.",
+        )
+    return Capability(
+        id="cloud.mount",
+        label=label,
+        status="unsupported",
+        provider="built-in",
+        detail="Mounting cloud storage isn't available on this operating system.",
     )
 
 
@@ -746,6 +827,7 @@ def detectors_for(probe: Probe) -> list[Detector]:
         detect_power,
         detect_smb,
         detect_nfs,
+        detect_rclone_mount,
         detect_ollama,
         detect_local_ai,
         detect_tunnel_cloudflare,

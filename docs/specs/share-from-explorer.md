@@ -1,6 +1,6 @@
 # Spec: Share from the file explorer, ask for root, share cloud remotes
 
-**Status:** Draft, waiting for a yes · **Milestone:** M6 follow-up (shares) · **Design:** `docs/design/files.md`, `docs/specs/network-shares.md`
+**Status:** Approved (2026-11-26), all 3 parts built (#317) · **Milestone:** M6 follow-up (shares) · **Design:** `docs/design/files.md`, `docs/specs/network-shares.md`
 
 ## Goal
 

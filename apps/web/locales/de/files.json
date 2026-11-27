@@ -74,7 +74,8 @@
     "truncated_one": "Nur der erste {{n}} Eintrag wird angezeigt.",
     "truncated_other": "Nur die ersten {{n}} Einträge werden angezeigt.",
     "renameTitle": "{{name}} umbenennen",
-    "create": "Erstellen"
+    "create": "Erstellen",
+    "shareFolder": "Ordner freigeben"
   },
   "preview": {
     "cantOpen": "Diese Datei kann hier nicht geöffnet werden",
@@ -154,7 +155,16 @@
     "passwordOptional": "Passwort (optional)",
     "expires": "Läuft ab",
     "allLinks": "Alle Links",
-    "create": "Link erstellen"
+    "create": "Link erstellen",
+    "tabLink": "Link",
+    "tabNetwork": "Netzwerk",
+    "networkDescription": "Gib diesen Ordner für andere Computer in deinem Netzwerk frei.",
+    "networkRootOnly": "Im Netzwerk kann nur ein ganzer Dateispeicherort freigegeben werden. Öffne den obersten Ordner des Speicherorts.",
+    "networkFolderOnly": "Im Netzwerk können nur Ordner freigegeben werden.",
+    "mountUnavailable": "Cloud-Ordner können von diesem Computer noch nicht freigegeben werden",
+    "mountDescription": "Athena muss diesen Cloud-Ordner zuerst auf diesem Computer einbinden, bevor er freigegeben werden kann. Cloud-Speicher ist langsamer als eine Festplatte, für alle, die die Freigabe öffnen.",
+    "mountReadOnly": "Nur lesen (empfohlen)",
+    "mountAction": "Einbinden und freigeben"
   },
   "sharesView": {
     "files": "Dateien",
@@ -259,6 +269,17 @@
     "copy": "{{label}} kopieren",
     "copied": "{{label}} kopiert",
     "copyFailed": "Kopieren fehlgeschlagen",
-    "smbAddress": "Freigabeadresse"
+    "smbAddress": "Freigabeadresse",
+    "password": {
+      "label": "Passwort deines Computers",
+      "hint": "Wird einmal für diese Änderung benötigt. Athena speichert es nicht.",
+      "required": "Gib das Passwort deines Computers ein",
+      "systemHint": "Dein Computer fragt dich nach der Bestätigung als Administrator."
+    },
+    "remove": {
+      "title": "Freigabe entfernen",
+      "action": "Entfernen"
+    },
+    "allShares": "Alle Netzwerkfreigaben"
   }
 }

@@ -74,7 +74,8 @@
     "truncated_one": "Bara den första {{n}} posten visas.",
     "truncated_other": "Bara de första {{n}} posterna visas.",
     "renameTitle": "Byt namn på {{name}}",
-    "create": "Skapa"
+    "create": "Skapa",
+    "shareFolder": "Dela mapp"
   },
   "preview": {
     "cantOpen": "Filen kan inte öppnas här",
@@ -154,7 +155,16 @@
     "passwordOptional": "Lösenord (valfritt)",
     "expires": "Går ut",
     "allLinks": "Alla länkar",
-    "create": "Skapa länk"
+    "create": "Skapa länk",
+    "tabLink": "Länk",
+    "tabNetwork": "Nätverk",
+    "networkDescription": "Dela den här mappen med andra datorer i ditt nätverk.",
+    "networkRootOnly": "Bara en hel filplats kan delas i nätverket. Öppna platsens översta mapp.",
+    "networkFolderOnly": "Bara mappar kan delas i nätverket.",
+    "mountUnavailable": "Molnmappar kan inte delas från den här datorn ännu",
+    "mountDescription": "Athena måste först montera den här molnmappen på datorn innan den kan delas. Molnlagring är långsammare än en disk för alla som öppnar delningen.",
+    "mountReadOnly": "Skrivskyddad (rekommenderas)",
+    "mountAction": "Montera och dela"
   },
   "sharesView": {
     "files": "Filer",
@@ -259,6 +269,17 @@
     "copy": "Kopiera {{label}}",
     "copied": "{{label}} kopierad",
     "copyFailed": "Det gick inte att kopiera",
-    "smbAddress": "delningsadress"
+    "smbAddress": "delningsadress",
+    "password": {
+      "label": "Datorns lösenord",
+      "hint": "Behövs en gång för den här ändringen. Athena sparar det inte.",
+      "required": "Ange datorns lösenord",
+      "systemHint": "Datorn ber dig godkänna som administratör."
+    },
+    "remove": {
+      "title": "Ta bort delning",
+      "action": "Ta bort"
+    },
+    "allShares": "Alla nätverksdelningar"
   }
 }

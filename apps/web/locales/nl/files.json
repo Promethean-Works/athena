@@ -74,7 +74,8 @@
     "truncated_one": "Alleen het eerste {{n}} item wordt getoond.",
     "truncated_other": "Alleen de eerste {{n}} items worden getoond.",
     "renameTitle": "{{name}} hernoemen",
-    "create": "Aanmaken"
+    "create": "Aanmaken",
+    "shareFolder": "Map delen"
   },
   "preview": {
     "cantOpen": "Dit bestand kan hier niet worden geopend",
@@ -154,7 +155,16 @@
     "passwordOptional": "Wachtwoord (optioneel)",
     "expires": "Verloopt",
     "allLinks": "Alle links",
-    "create": "Link aanmaken"
+    "create": "Link aanmaken",
+    "tabLink": "Link",
+    "tabNetwork": "Netwerk",
+    "networkDescription": "Deel deze map met andere computers in je netwerk.",
+    "networkRootOnly": "Alleen een hele bestandslocatie kan via het netwerk worden gedeeld. Open de hoofdmap van de locatie.",
+    "networkFolderOnly": "Alleen mappen kunnen via het netwerk worden gedeeld.",
+    "mountUnavailable": "Cloudmappen kunnen nog niet vanaf deze computer worden gedeeld",
+    "mountDescription": "Athena moet deze cloudmap eerst op deze computer koppelen voordat hij gedeeld kan worden. Cloudopslag is trager dan een schijf, voor iedereen die de share opent.",
+    "mountReadOnly": "Alleen lezen (aanbevolen)",
+    "mountAction": "Koppelen en delen"
   },
   "sharesView": {
     "files": "Bestanden",
@@ -259,6 +269,17 @@
     "copy": "{{label}} kopiëren",
     "copied": "{{label}} gekopieerd",
     "copyFailed": "Kopiëren mislukt",
-    "smbAddress": "shareadres"
+    "smbAddress": "shareadres",
+    "password": {
+      "label": "Het wachtwoord van je computer",
+      "hint": "Eénmalig nodig voor deze wijziging. Athena slaat het niet op.",
+      "required": "Voer het wachtwoord van je computer in",
+      "systemHint": "Je computer vraagt je dit goed te keuren als beheerder."
+    },
+    "remove": {
+      "title": "Share verwijderen",
+      "action": "Verwijderen"
+    },
+    "allShares": "Alle netwerkshares"
   }
 }

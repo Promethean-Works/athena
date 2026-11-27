@@ -70,7 +70,8 @@
     "link": "tautan",
     "truncated_other": "Hanya {{n}} entri pertama yang ditampilkan.",
     "renameTitle": "Ubah nama {{name}}",
-    "create": "Buat"
+    "create": "Buat",
+    "shareFolder": "Bagikan folder"
   },
   "preview": {
     "cantOpen": "File ini tidak dapat dibuka di sini",
@@ -149,7 +150,16 @@
     "passwordOptional": "Kata sandi (opsional)",
     "expires": "Kedaluwarsa",
     "allLinks": "Semua tautan",
-    "create": "Buat tautan"
+    "create": "Buat tautan",
+    "tabLink": "Tautan",
+    "tabNetwork": "Jaringan",
+    "networkDescription": "Bagikan folder ini ke komputer lain di jaringan Anda.",
+    "networkRootOnly": "Hanya seluruh lokasi berkas yang dapat dibagikan lewat jaringan. Buka folder teratas lokasi tersebut.",
+    "networkFolderOnly": "Hanya folder yang dapat dibagikan lewat jaringan.",
+    "mountUnavailable": "Folder cloud belum dapat dibagikan dari komputer ini",
+    "mountDescription": "Athena harus me-mount folder cloud ini di komputer ini sebelum membagikannya. Penyimpanan cloud lebih lambat daripada disk bagi semua orang yang membuka berbagi.",
+    "mountReadOnly": "Hanya baca (disarankan)",
+    "mountAction": "Mount dan bagikan"
   },
   "sharesView": {
     "files": "File",
@@ -251,6 +261,17 @@
     "copy": "Salin {{label}}",
     "copied": "{{label}} disalin",
     "copyFailed": "Tidak dapat menyalin",
-    "smbAddress": "alamat berbagi"
+    "smbAddress": "alamat berbagi",
+    "password": {
+      "label": "Kata sandi komputer Anda",
+      "hint": "Diperlukan sekali untuk perubahan ini. Athena tidak menyimpannya.",
+      "required": "Masukkan kata sandi komputer Anda",
+      "systemHint": "Komputer Anda akan meminta persetujuan sebagai administrator."
+    },
+    "remove": {
+      "title": "Hapus berbagi",
+      "action": "Hapus"
+    },
+    "allShares": "Semua berbagi jaringan"
   }
 }

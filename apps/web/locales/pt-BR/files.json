@@ -74,7 +74,8 @@
     "truncated_one": "Só a primeira entrada é mostrada.",
     "truncated_other": "Só as primeiras {{n}} entradas são mostradas.",
     "renameTitle": "Renomear {{name}}",
-    "create": "Criar"
+    "create": "Criar",
+    "shareFolder": "Compartilhar pasta"
   },
   "preview": {
     "cantOpen": "Não é possível abrir este arquivo aqui",
@@ -154,7 +155,16 @@
     "passwordOptional": "Senha (opcional)",
     "expires": "Expira",
     "allLinks": "Todos os links",
-    "create": "Criar link"
+    "create": "Criar link",
+    "tabLink": "Link",
+    "tabNetwork": "Rede",
+    "networkDescription": "Compartilhe esta pasta com outros computadores da sua rede.",
+    "networkRootOnly": "Só é possível compartilhar na rede um local de arquivos inteiro. Abra a pasta principal do local.",
+    "networkFolderOnly": "Só é possível compartilhar pastas na rede.",
+    "mountUnavailable": "Ainda não é possível compartilhar pastas da nuvem a partir deste computador",
+    "mountDescription": "O Athena precisa montar esta pasta da nuvem neste computador antes de compartilhá-la. O armazenamento na nuvem é mais lento que um disco para todos que abrirem o compartilhamento.",
+    "mountReadOnly": "Somente leitura (recomendado)",
+    "mountAction": "Montar e compartilhar"
   },
   "sharesView": {
     "files": "Arquivos",
@@ -259,6 +269,17 @@
     "copy": "Copiar {{label}}",
     "copied": "{{label}} copiado",
     "copyFailed": "Não foi possível copiar",
-    "smbAddress": "endereço do compartilhamento"
+    "smbAddress": "endereço do compartilhamento",
+    "password": {
+      "label": "A senha do seu computador",
+      "hint": "Necessária uma vez para esta alteração. O Athena não a guarda.",
+      "required": "Digite a senha do seu computador",
+      "systemHint": "Seu computador pedirá que você aprove como administrador."
+    },
+    "remove": {
+      "title": "Remover compartilhamento",
+      "action": "Remover"
+    },
+    "allShares": "Todos os compartilhamentos de rede"
   }
 }

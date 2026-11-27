@@ -13,10 +13,16 @@ from pydantic import BaseModel, Field
 
 from athena import audit
 from athena.api.files import _fail, _run
-from athena.api.netshares import require_share_capability
+from athena.api.netshares import (
+    HostPassword,
+    release_mount,
+    require_share_capability,
+    share_elevation,
+)
 from athena.auth.deps import Authed, DbSession
 from athena.db.models import NfsShare
 from athena.files import nfs
+from athena.files.netshare import with_elevation
 from athena.files.paths import FileError
 
 router = APIRouter(prefix="/shares/nfs", tags=["nfs shares"])
@@ -62,15 +68,23 @@ def list_nfs_shares(db: DbSession) -> list[NfsShareOut]:
 
 @router.post("", operation_id="createNfsShare", status_code=status.HTTP_201_CREATED)
 async def create_nfs_share(
-    body: NfsShareIn, request: Request, user: Authed, db: DbSession
+    body: NfsShareIn,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    password: HostPassword = None,
 ) -> NfsShareOut:
     """Export a location over NFS to the listed clients (501 if the host can't)."""
     cap = await require_share_capability(request, "shares.nfs")
     flavor = nfs.flavor_for(cap.provider)
+    elevation = share_elevation(cap, password)
     try:
         entry = await _run(
-            lambda: nfs.create_share(
-                db, body.location, body.clients, read_only=body.read_only, flavor=flavor
+            with_elevation(
+                elevation,
+                lambda: nfs.create_share(
+                    db, body.location, body.clients, read_only=body.read_only, flavor=flavor
+                ),
             )
         )
     except FileError as exc:
@@ -86,15 +100,24 @@ async def create_nfs_share(
 
 
 @router.delete("/{share_id}", operation_id="removeNfsShare", status_code=status.HTTP_204_NO_CONTENT)
-async def remove_nfs_share(share_id: int, request: Request, user: Authed, db: DbSession) -> None:
+async def remove_nfs_share(
+    share_id: int,
+    request: Request,
+    user: Authed,
+    db: DbSession,
+    password: HostPassword = None,
+) -> None:
     """Stop exporting a location and drop its tracking row."""
     share = db.get(NfsShare, share_id)
     if share is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such NFS share")
+    location_id = share.location_id
     cap = await require_share_capability(request, "shares.nfs")
     flavor = nfs.flavor_for(cap.provider)
+    elevation = share_elevation(cap, password)
     try:
-        await _run(lambda: nfs.remove_share(db, share_id, flavor=flavor))
+        await _run(with_elevation(elevation, lambda: nfs.remove_share(db, share_id, flavor=flavor)))
     except FileError as exc:
         raise _fail(exc) from exc
+    await release_mount(request, db, location_id)
     audit.record(db, user.user.username, "nfs.share.remove", f"NFS:{share.path}")

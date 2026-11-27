@@ -82,7 +82,8 @@
     "truncated_many": "Pokazano tylko pierwszych {{n}} wpisów.",
     "truncated_other": "Pokazano tylko pierwszych {{n}} wpisów.",
     "renameTitle": "Zmień nazwę {{name}}",
-    "create": "Utwórz"
+    "create": "Utwórz",
+    "shareFolder": "Udostępnij folder"
   },
   "preview": {
     "cantOpen": "Nie można tutaj otworzyć tego pliku",
@@ -164,7 +165,16 @@
     "passwordOptional": "Hasło (opcjonalnie)",
     "expires": "Wygasa",
     "allLinks": "Wszystkie linki",
-    "create": "Utwórz link"
+    "create": "Utwórz link",
+    "tabLink": "Link",
+    "tabNetwork": "Sieć",
+    "networkDescription": "Udostępnij ten folder innym komputerom w swojej sieci.",
+    "networkRootOnly": "W sieci można udostępnić tylko całą lokalizację plików. Otwórz główny folder lokalizacji.",
+    "networkFolderOnly": "W sieci można udostępniać tylko foldery.",
+    "mountUnavailable": "Folderów w chmurze nie można jeszcze udostępniać z tego komputera",
+    "mountDescription": "Athena musi najpierw zamontować ten folder w chmurze na tym komputerze, aby go udostępnić. Chmura jest wolniejsza niż dysk dla każdego, kto otworzy udział.",
+    "mountReadOnly": "Tylko do odczytu (zalecane)",
+    "mountAction": "Zamontuj i udostępnij"
   },
   "sharesView": {
     "files": "Pliki",
@@ -275,6 +285,17 @@
     "copy": "Kopiuj: {{label}}",
     "copied": "Skopiowano: {{label}}",
     "copyFailed": "Nie udało się skopiować",
-    "smbAddress": "adres udziału"
+    "smbAddress": "adres udziału",
+    "password": {
+      "label": "Hasło do komputera",
+      "hint": "Potrzebne jednorazowo do tej zmiany. Athena go nie zapisuje.",
+      "required": "Wpisz hasło do komputera",
+      "systemHint": "Komputer poprosi o zatwierdzenie jako administrator."
+    },
+    "remove": {
+      "title": "Usuń udział",
+      "action": "Usuń"
+    },
+    "allShares": "Wszystkie udziały sieciowe"
   }
 }

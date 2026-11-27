@@ -70,7 +70,8 @@
     "link": "リンク",
     "truncated_other": "最初の {{n}} 件のみ表示しています。",
     "renameTitle": "{{name}} の名前を変更",
-    "create": "作成"
+    "create": "作成",
+    "shareFolder": "フォルダーを共有"
   },
   "preview": {
     "cantOpen": "このファイルはここでは開けません",
@@ -149,7 +150,16 @@
     "passwordOptional": "パスワード（任意）",
     "expires": "有効期限",
     "allLinks": "すべてのリンク",
-    "create": "リンクを作成"
+    "create": "リンクを作成",
+    "tabLink": "リンク",
+    "tabNetwork": "ネットワーク",
+    "networkDescription": "このフォルダーをネットワーク上の他のコンピューターと共有します。",
+    "networkRootOnly": "ネットワークで共有できるのはファイルの場所全体だけです。場所の最上位フォルダーを開いてください。",
+    "networkFolderOnly": "ネットワークで共有できるのはフォルダーだけです。",
+    "mountUnavailable": "このコンピューターからはまだクラウドのフォルダーを共有できません",
+    "mountDescription": "共有する前に、Athena がこのクラウドのフォルダーをこのコンピューターにマウントする必要があります。クラウドストレージはディスクより遅く、共有を開く全員に影響します。",
+    "mountReadOnly": "読み取り専用（推奨）",
+    "mountAction": "マウントして共有"
   },
   "sharesView": {
     "files": "ファイル",
@@ -251,6 +261,17 @@
     "copy": "{{label}} をコピー",
     "copied": "{{label}} をコピーしました",
     "copyFailed": "コピーできませんでした",
-    "smbAddress": "共有のアドレス"
+    "smbAddress": "共有のアドレス",
+    "password": {
+      "label": "コンピューターのパスワード",
+      "hint": "この変更のために一度だけ必要です。Athena は保存しません。",
+      "required": "コンピューターのパスワードを入力してください",
+      "systemHint": "コンピューターが管理者としての承認を求めます。"
+    },
+    "remove": {
+      "title": "共有を削除",
+      "action": "削除"
+    },
+    "allShares": "すべてのネットワーク共有"
   }
 }

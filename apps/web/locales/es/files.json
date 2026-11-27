@@ -78,7 +78,8 @@
     "truncated_many": "Solo se muestran las primeras {{n}} de entradas.",
     "truncated_other": "Solo se muestran las primeras {{n}} entradas.",
     "renameTitle": "Renombrar {{name}}",
-    "create": "Crear"
+    "create": "Crear",
+    "shareFolder": "Compartir carpeta"
   },
   "preview": {
     "cantOpen": "No se puede abrir este archivo aquí",
@@ -159,7 +160,16 @@
     "passwordOptional": "Contraseña (opcional)",
     "expires": "Caduca",
     "allLinks": "Todos los enlaces",
-    "create": "Crear enlace"
+    "create": "Crear enlace",
+    "tabLink": "Enlace",
+    "tabNetwork": "Red",
+    "networkDescription": "Comparte esta carpeta con otros equipos de tu red.",
+    "networkRootOnly": "Solo se puede compartir en red una ubicación de archivos completa. Abre la carpeta superior de la ubicación.",
+    "networkFolderOnly": "Solo se pueden compartir carpetas en red.",
+    "mountUnavailable": "Todavía no se pueden compartir carpetas de la nube desde este equipo",
+    "mountDescription": "Athena debe montar esta carpeta de la nube en este equipo antes de compartirla. El almacenamiento en la nube es más lento que un disco para todos los que abran el recurso.",
+    "mountReadOnly": "Solo lectura (recomendado)",
+    "mountAction": "Montar y compartir"
   },
   "sharesView": {
     "files": "Archivos",
@@ -267,6 +277,17 @@
     "copy": "Copiar {{label}}",
     "copied": "{{label}} copiado",
     "copyFailed": "No se pudo copiar",
-    "smbAddress": "dirección del recurso compartido"
+    "smbAddress": "dirección del recurso compartido",
+    "password": {
+      "label": "La contraseña de tu equipo",
+      "hint": "Se necesita una vez para este cambio. Athena no la guarda.",
+      "required": "Introduce la contraseña de tu equipo",
+      "systemHint": "Tu equipo te pedirá que lo apruebes como administrador."
+    },
+    "remove": {
+      "title": "Quitar recurso compartido",
+      "action": "Quitar"
+    },
+    "allShares": "Todos los recursos compartidos en red"
   }
 }

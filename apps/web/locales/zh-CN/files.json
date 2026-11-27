@@ -70,7 +70,8 @@
     "link": "链接",
     "truncated_other": "仅显示前 {{n}} 项。",
     "renameTitle": "重命名 {{name}}",
-    "create": "创建"
+    "create": "创建",
+    "shareFolder": "共享文件夹"
   },
   "preview": {
     "cantOpen": "无法在此打开此文件",
@@ -149,7 +150,16 @@
     "passwordOptional": "密码（可选）",
     "expires": "过期时间",
     "allLinks": "所有链接",
-    "create": "创建链接"
+    "create": "创建链接",
+    "tabLink": "链接",
+    "tabNetwork": "网络",
+    "networkDescription": "与网络中的其他电脑共享此文件夹。",
+    "networkRootOnly": "网络上只能共享整个文件位置。请打开该位置的顶层文件夹。",
+    "networkFolderOnly": "网络上只能共享文件夹。",
+    "mountUnavailable": "暂时无法从这台电脑共享云文件夹",
+    "mountDescription": "共享前，Athena 需要先把这个云文件夹挂载到这台电脑上。云存储比磁盘慢，所有打开共享的人都会感受到。",
+    "mountReadOnly": "只读（推荐）",
+    "mountAction": "挂载并共享"
   },
   "sharesView": {
     "files": "文件",
@@ -251,6 +261,17 @@
     "copy": "复制{{label}}",
     "copied": "已复制{{label}}",
     "copyFailed": "无法复制",
-    "smbAddress": "共享地址"
+    "smbAddress": "共享地址",
+    "password": {
+      "label": "电脑密码",
+      "hint": "此更改需要输入一次。Athena 不会保存它。",
+      "required": "请输入电脑密码",
+      "systemHint": "电脑会要求你以管理员身份确认。"
+    },
+    "remove": {
+      "title": "移除共享",
+      "action": "移除"
+    },
+    "allShares": "所有网络共享"
   }
 }

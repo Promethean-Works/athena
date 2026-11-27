@@ -74,7 +74,8 @@
     "truncated_one": "Seule la première entrée ({{n}}) est affichée.",
     "truncated_other": "Seules les {{n}} premières entrées sont affichées.",
     "renameTitle": "Renommer {{name}}",
-    "create": "Créer"
+    "create": "Créer",
+    "shareFolder": "Partager le dossier"
   },
   "preview": {
     "cantOpen": "Impossible d'ouvrir ce fichier ici",
@@ -154,7 +155,16 @@
     "passwordOptional": "Mot de passe (facultatif)",
     "expires": "Expiration",
     "allLinks": "Tous les liens",
-    "create": "Créer le lien"
+    "create": "Créer le lien",
+    "tabLink": "Lien",
+    "tabNetwork": "Réseau",
+    "networkDescription": "Partagez ce dossier avec les autres ordinateurs de votre réseau.",
+    "networkRootOnly": "Seul un emplacement de fichiers entier peut être partagé sur le réseau. Ouvrez le dossier racine de l'emplacement.",
+    "networkFolderOnly": "Seuls les dossiers peuvent être partagés sur le réseau.",
+    "mountUnavailable": "Les dossiers cloud ne peuvent pas encore être partagés depuis cet ordinateur",
+    "mountDescription": "Athena doit d'abord monter ce dossier cloud sur cet ordinateur pour le partager. Le stockage cloud est plus lent qu'un disque pour tous ceux qui ouvrent le partage.",
+    "mountReadOnly": "Lecture seule (recommandé)",
+    "mountAction": "Monter et partager"
   },
   "sharesView": {
     "files": "Fichiers",
@@ -259,6 +269,17 @@
     "copy": "Copier {{label}}",
     "copied": "{{label}} copié",
     "copyFailed": "Impossible de copier",
-    "smbAddress": "adresse du partage"
+    "smbAddress": "adresse du partage",
+    "password": {
+      "label": "Le mot de passe de votre ordinateur",
+      "hint": "Nécessaire une fois pour cette modification. Athena ne le conserve pas.",
+      "required": "Saisissez le mot de passe de votre ordinateur",
+      "systemHint": "Votre ordinateur vous demandera d'approuver en tant qu'administrateur."
+    },
+    "remove": {
+      "title": "Supprimer le partage",
+      "action": "Supprimer"
+    },
+    "allShares": "Tous les partages réseau"
   }
 }
