@@ -95,7 +95,15 @@ function useList<T>(fetcher: () => Promise<{ data?: T; error?: unknown }>) {
   return { ...state, load }
 }
 
-function PackageName({ name, title }: { name: string; title?: string | null }) {
+function PackageName({
+  name,
+  title,
+  description,
+}: {
+  name: string
+  title?: string | null
+  description?: string | null
+}) {
   // Show the id under the title only when it says something new ("J" vs "j" doesn't).
   const showId = title && title.toLowerCase() !== name.toLowerCase()
   return (
@@ -104,6 +112,11 @@ function PackageName({ name, title }: { name: string; title?: string | null }) {
       {showId ? (
         <span className="truncate font-mono text-xs text-muted-foreground">
           {name}
+        </span>
+      ) : null}
+      {description ? (
+        <span className="line-clamp-2 text-sm whitespace-normal text-muted-foreground">
+          {description}
         </span>
       ) : null}
     </div>
@@ -575,17 +588,18 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                 <TableRow>
                   <TableHead>{t("table.package")}</TableHead>
                   <TableHead>{t("table.version")}</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    {t("table.description")}
-                  </TableHead>
                   <TableHead className="w-0" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {results.map((r) => (
                   <TableRow key={`${r.source ?? ""}/${r.name}`}>
-                    <TableCell className="max-w-56">
-                      <PackageName name={r.name} title={r.title} />
+                    <TableCell className="max-w-md min-w-48 whitespace-normal">
+                      <PackageName
+                        name={r.name}
+                        title={r.title}
+                        description={r.description}
+                      />
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {r.version}
@@ -594,9 +608,6 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                           {sourceBadge(r.source)}
                         </Badge>
                       ) : null}
-                    </TableCell>
-                    <TableCell className="hidden max-w-md truncate text-muted-foreground md:table-cell">
-                      {r.description}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">

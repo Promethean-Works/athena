@@ -26,7 +26,7 @@ from athena.packages.base import (
 # ------------------------------------------------------------------ Homebrew
 
 ABBREVIATION_LIMIT = 20
-BREW_INFO_LIMIT = 30  # `brew info` adds versions and descriptions for the top results
+BREW_INFO_LIMIT = SEARCH_LIMIT  # `brew info` adds versions and descriptions (50 take ~1.4 s)
 
 
 def parse_brew_search(text: str) -> list[str]:

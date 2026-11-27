@@ -68,7 +68,7 @@ Use machine-readable output where it exists (`brew --json`, `winget --output jso
 | pacman | `pacman -Ss` (regex-escaped) | `pacman -Q` | `pacman -Qu` | Installs use `-Syu --needed` and there's no single-package upgrade: Arch doesn't support partial upgrades |
 | apk | `apk search -v` | `apk list --installed` (skips virtual `.deps`) | `apk list --upgradable` | |
 | macports | `port -q search --name --glob` | `port -q installed` | `port -q outdated` | Installs into `/opt/local`, so changes need root: Athena asks for the computer's password and runs `sudo -S` (see below); found in `/opt/local/bin` even when the service's PATH lacks it. Fixtures are hand-written |
-| brew | `brew search`, then `brew info --json=v2` for the top 30 (`--desc` takes ~10 s) | `brew info --json=v2 --installed` | `brew outdated --json=v2` | Casks install with `--cask`; refresh = `brew update` |
+| brew | `brew search`, then `brew info --json=v2` for every result, so each has a version and description (`--desc` takes ~10 s) | `brew info --json=v2 --installed` | `brew outdated --json=v2` | Casks install with `--cask`; refresh = `brew update` |
 | flatpak | `search --columns=…` (tabs) | `list --app --columns=…` | `remote-ls --updates` | Installs from the result's remote (default flathub) |
 | snap | `snap find` (column table) | `snap list` | `snap refresh --list` | |
 | winget | `winget search` (positional columns, so localized headers work) | `winget list` | `winget upgrade` | `--accept-*-agreements --disable-interactivity`; "no package found" isn't an error. Ids of locally installed apps contain spaces (`ARP\Machine\X64\Mozilla Firefox`); ids winget shortens with `…` can't be acted on, so the UI disables those rows |
