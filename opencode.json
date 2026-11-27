@@ -242,6 +242,10 @@
     "orchestrate": {
       "description": "Take an issue through worker, checks and review to a PR with auto-merge",
       "template": "Use the athena-orchestrate skill (.agents/skills/athena-orchestrate/SKILL.md) and follow it. $ARGUMENTS"
+    },
+    "security-audit": {
+      "description": "Audit the repo for vulnerabilities, fix them with tests, write .security-reports/security-audit.md",
+      "template": "Use the athena-security-audit skill (.agents/skills/athena-security-audit/SKILL.md) and follow it. $ARGUMENTS"
     }
   },
   "instructions": [

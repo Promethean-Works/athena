@@ -71,3 +71,6 @@ catalog-smoke-report/
 
 # CodeQL local databases and results (scripts/codeql.sh)
 .codeql/
+
+# Security audit reports (athena-security-audit skill)
+.security-reports/
