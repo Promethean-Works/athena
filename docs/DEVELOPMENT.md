@@ -18,8 +18,17 @@ How to set up a machine to work on Athena, with or without AI coding agents, and
 ```bash
 git clone https://github.com/Promethean-Works/athena.git
 cd athena
-pnpm install
-(cd apps/server && uv sync)
+scripts/bootstrap.sh        # macOS and Linux
+```
+
+`scripts/bootstrap.sh` installs the tools in the `Brewfile` with Homebrew (git, node, pnpm, uv, gh, gitleaks, shellcheck, actionlint, trivy, semgrep, Docker with Colima on macOS, RTK), runs `pnpm install` and `uv sync`, turns on the git hooks, then runs `agents-setup.mjs` below. `--check` only reports what's missing; `--no-agents` skips the agent step. Without Homebrew it lists what to install by hand.
+
+On Windows (PowerShell), install the tools with winget, then run the three commands the script wraps:
+
+```powershell
+winget install Git.Git OpenJS.NodeJS.LTS pnpm.pnpm astral-sh.uv GitHub.cli Gitleaks.Gitleaks
+pnpm install; cd apps/server; uv sync; cd ../..
+git config core.hooksPath .githooks
 node scripts/agents-setup.mjs
 ```
 
