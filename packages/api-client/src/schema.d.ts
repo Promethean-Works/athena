@@ -877,6 +877,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/packages/installable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Installable
+         * @description Package managers this host doesn't have but Athena can install, with what each needs.
+         */
+        get: operations["listInstallablePackageManagers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/packages/installable/{installer}/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Installable Logo
+         * @description The logo from the manager's own site, for the "Add a package manager" list.
+         */
+        get: operations["getInstallablePackageManagerLogo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/packages/installable/{installer}/install": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Install Manager
+         * @description Download the vendor's official installer and run it as a job. Re-detects when done.
+         */
+        post: operations["installPackageManager"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/packages/{manager}/search": {
         parameters: {
             query?: never;
@@ -3022,6 +3082,11 @@ export interface components {
             /** Csrf Token */
             csrf_token: string | null;
         };
+        /** BootstrapIn */
+        BootstrapIn: {
+            /** Password */
+            password?: string | null;
+        };
         /** Capability */
         Capability: {
             /** Id */
@@ -3676,6 +3741,28 @@ export interface components {
             /** Dns Providers */
             dns_providers: components["schemas"]["DnsProvider"][];
         };
+        /** InstallableOut */
+        InstallableOut: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Summary */
+            summary: string;
+            /** Site */
+            site: string;
+            /** Requirements */
+            requirements: components["schemas"]["Requirement"][];
+            /** Ready */
+            ready: boolean;
+            /** Needs Password */
+            needs_password: boolean;
+            /**
+             * Has Logo
+             * @default true
+             */
+            has_logo: boolean;
+        };
         /** InstalledPackage */
         InstalledPackage: {
             /** Name */
@@ -3965,6 +4052,8 @@ export interface components {
             can_refresh: boolean;
             /** Note */
             note?: string | null;
+            /** Elevation */
+            elevation?: ("password" | "system") | null;
             /**
              * Has Logo
              * @default false
@@ -4080,6 +4169,8 @@ export interface components {
         NameIn: {
             /** Name */
             name: string;
+            /** Password */
+            password?: string | null;
         };
         /** NewApp */
         NewApp: {
@@ -4590,6 +4681,11 @@ export interface components {
             /** Filename */
             filename: string;
         };
+        /** RefreshIn */
+        RefreshIn: {
+            /** Password */
+            password?: string | null;
+        };
         /** RemoteDetail */
         RemoteDetail: {
             /** Name */
@@ -4646,6 +4742,15 @@ export interface components {
             path: string;
             /** Name */
             name: string;
+        };
+        /** Requirement */
+        Requirement: {
+            /** Label */
+            label: string;
+            /** Met */
+            met: boolean;
+            /** Hint */
+            hint?: string | null;
         };
         /** RestoreAppIn */
         RestoreAppIn: {
@@ -5299,6 +5404,8 @@ export interface components {
         UpgradeIn: {
             /** Name */
             name?: string | null;
+            /** Password */
+            password?: string | null;
         };
         /** UploadOut */
         UploadOut: {
@@ -5460,6 +5567,8 @@ export interface components {
             name: string;
             /** Source */
             source?: string | null;
+            /** Password */
+            password?: string | null;
         };
         /** InstallIn */
         athena__api__store__InstallIn: {
@@ -6997,6 +7106,90 @@ export interface operations {
             };
         };
     };
+    listInstallablePackageManagers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstallableOut"][];
+                };
+            };
+        };
+    };
+    getInstallablePackageManagerLogo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                installer: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    installPackageManager: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                installer: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BootstrapIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     searchPackages: {
         parameters: {
             query: {
@@ -7301,7 +7494,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RefreshIn"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             202: {

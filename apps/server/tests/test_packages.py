@@ -388,7 +388,7 @@ def test_every_detected_manager_has_an_implementation() -> None:
     import athena.platform.detect as detect
 
     source = Path(detect.__file__).read_text()
-    assert set(re.findall(r'PackageManagerSpec\("(\w+)"', source)) == set(MANAGERS)
+    assert set(re.findall(r'PackageManagerSpec\(\s*"(\w+)"', source)) == set(MANAGERS)
 
 
 # ---------------------------------------------------------------- real tools (read-only)
@@ -644,3 +644,45 @@ def test_fetch_image_checks_type_size_and_redirects(monkeypatch: pytest.MonkeyPa
     for bad in ("/page", "/big.png", "/away", "/missing"):
         with pytest.raises(PackageError):
             asyncio.run(get(bad))
+
+
+# ---------------------------------------------------------------- MacPorts (hand-written fixtures)
+
+from athena.packages import macports as pk_ports  # noqa: E402
+
+
+def test_macports_parsers() -> None:
+    found = pk_ports.parse_port_search(fx("macports/search.txt"))
+    assert [r.name for r in found] == ["jq", "gojq", "py312-jq"]
+    assert found[0].version == "1.7.1" and found[0].description.startswith("Lightweight")
+    assert found[2].source == "python, textproc"
+    inst = {p.name: p for p in pk_ports.parse_port_installed(fx("macports/installed.txt"))}
+    assert inst["jq"].version == "1.7.1_0"  # the active one, not the older install
+    assert set(inst) == {"jq", "oniguruma6", "zlib"}
+    ups = {u.name: u for u in pk_ports.parse_port_outdated(fx("macports/outdated.txt"))}
+    assert (ups["jq"].version, ups["jq"].latest) == ("1.7.1_0", "1.7.2_0")
+
+
+def test_macports_info_and_commands() -> None:
+    d = pk_ports.parse_port_info(fx("macports/info.txt"), "jq")
+    assert (d.name, d.version, d.license, d.source) == ("jq", "1.7.1", "MIT", "textproc")
+    assert d.homepage == "https://jqlang.github.io/jq/" and d.dependencies == ["oniguruma6"]
+    assert d.summary and d.summary.startswith("Lightweight and flexible")
+    pm = pk_ports.MacPorts()
+    assert pm.install_argv("jq") == ["port", "-N", "install", "jq"]
+    assert pm.upgrade_argv(None) == ["port", "-N", "upgrade", "outdated"]
+    assert pm.refresh_argv() == ["port", "-N", "selfupdate"]
+
+
+def test_macports_search_uses_a_glob_and_marks_installed() -> None:
+    calls = []
+
+    async def run(argv, env):
+        calls.append(argv)
+        if argv[2] == "search":
+            return CmdResult(0, fx("macports/search.txt"), "")
+        return CmdResult(0, fx("macports/installed.txt"), "")
+
+    found = asyncio.run(pk_ports.MacPorts(run).search("j q"))
+    assert calls[0] == ["port", "-q", "search", "--name", "--glob", "*j*q*"]
+    assert {r.name: r.installed for r in found} == {"jq": True, "gojq": False, "py312-jq": False}

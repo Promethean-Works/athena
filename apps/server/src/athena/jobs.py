@@ -6,6 +6,7 @@ reporting. Durable records of who did what go to the audit log.
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import secrets
@@ -136,15 +137,23 @@ class Job:
                 yield f"event: status\ndata: {json.dumps(payload)}\n\n"
                 return
 
-    async def run_command(self, argv: list[str], env: Mapping[str, str] | None = None) -> int:
-        """Run a command, streaming its combined output into the job. Returns the exit code."""
+    async def run_command(
+        self,
+        argv: list[str],
+        env: Mapping[str, str] | None = None,
+        stdin: str | None = None,
+    ) -> int:
+        """Run a command, streaming its combined output into the job. Returns the exit code.
+
+        `stdin` is written once and then closed (a password for `sudo -S`); it is never logged.
+        """
         await self.log(f"$ {' '.join(argv)}")
         try:
             proc = await asyncio.create_subprocess_exec(
                 *argv,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
-                stdin=asyncio.subprocess.DEVNULL,
+                stdin=asyncio.subprocess.DEVNULL if stdin is None else asyncio.subprocess.PIPE,
                 env=dict(env) if env is not None else None,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
@@ -152,6 +161,11 @@ class Job:
             await self.log(f"error: {exc}")
             return -1
         assert proc.stdout is not None
+        if stdin is not None and proc.stdin is not None:
+            proc.stdin.write(stdin.encode())
+            with contextlib.suppress(ConnectionError, OSError):
+                await proc.stdin.drain()
+            proc.stdin.close()
         async for raw in proc.stdout:
             await self.log(raw.decode(errors="replace"))
         return await proc.wait()
@@ -204,8 +218,12 @@ class CommandFailedError(RuntimeError):
 
 
 async def run_or_fail(
-    job: Job, argv: list[str], what: str, env: Mapping[str, str] | None = None
+    job: Job,
+    argv: list[str],
+    what: str,
+    env: Mapping[str, str] | None = None,
+    stdin: str | None = None,
 ) -> None:
-    code = await job.run_command(argv, env=env)
+    code = await job.run_command(argv, env=env, stdin=stdin)
     if code != 0:
         raise CommandFailedError(f"{what} failed (exit code {code})")

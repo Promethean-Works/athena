@@ -1,0 +1,8 @@
+jq                             @1.7.1 (textproc)
+    Lightweight and flexible command-line JSON processor
+
+gojq                           @0.12.16 (textproc)
+    Pure Go implementation of jq
+
+py312-jq                       @1.8.0 (python, textproc)
+    Python bindings for jq

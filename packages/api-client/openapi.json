@@ -2011,6 +2011,123 @@
         }
       }
     },
+    "/api/packages/installable": {
+      "get": {
+        "tags": [
+          "packages"
+        ],
+        "summary": "List Installable",
+        "description": "Package managers this host doesn't have but Athena can install, with what each needs.",
+        "operationId": "listInstallablePackageManagers",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InstallableOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listinstallablepackagemanagers"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/packages/installable/{installer}/logo": {
+      "get": {
+        "tags": [
+          "packages"
+        ],
+        "summary": "Installable Logo",
+        "description": "The logo from the manager's own site, for the \"Add a package manager\" list.",
+        "operationId": "getInstallablePackageManagerLogo",
+        "parameters": [
+          {
+            "name": "installer",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]{2,16}$",
+              "title": "Installer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/packages/installable/{installer}/install": {
+      "post": {
+        "tags": [
+          "packages"
+        ],
+        "summary": "Install Manager",
+        "description": "Download the vendor's official installer and run it as a job. Re-detects when done.",
+        "operationId": "installPackageManager",
+        "parameters": [
+          {
+            "name": "installer",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]{2,16}$",
+              "title": "Installer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BootstrapIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/packages/{manager}/search": {
       "get": {
         "tags": [
@@ -2514,6 +2631,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RefreshIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
         "responses": {
           "202": {
             "description": "Successful Response",
@@ -7985,6 +8119,24 @@
         ],
         "title": "AuthStatus"
       },
+      "BootstrapIn": {
+        "properties": {
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "title": "BootstrapIn"
+      },
       "Capability": {
         "properties": {
           "id": {
@@ -9794,6 +9946,57 @@
         ],
         "title": "HttpsStatus"
       },
+      "InstallableOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "site": {
+            "type": "string",
+            "title": "Site"
+          },
+          "requirements": {
+            "items": {
+              "$ref": "#/components/schemas/Requirement"
+            },
+            "type": "array",
+            "title": "Requirements"
+          },
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "needs_password": {
+            "type": "boolean",
+            "title": "Needs Password"
+          },
+          "has_logo": {
+            "type": "boolean",
+            "title": "Has Logo",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "summary",
+          "site",
+          "requirements",
+          "ready",
+          "needs_password"
+        ],
+        "title": "InstallableOut"
+      },
       "InstalledPackage": {
         "properties": {
           "name": {
@@ -10667,6 +10870,21 @@
             ],
             "title": "Note"
           },
+          "elevation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "password",
+                  "system"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elevation"
+          },
           "has_logo": {
             "type": "boolean",
             "title": "Has Logo",
@@ -10970,6 +11188,18 @@
             "type": "string",
             "pattern": "^[A-Za-z0-9][A-Za-z0-9._+:@/~-]{0,199}$",
             "title": "Name"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
           }
         },
         "type": "object",
@@ -12318,6 +12548,24 @@
         ],
         "title": "RecoveryKit"
       },
+      "RefreshIn": {
+        "properties": {
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "title": "RefreshIn"
+      },
       "RemoteDetail": {
         "properties": {
           "name": {
@@ -12450,6 +12698,35 @@
           "name"
         ],
         "title": "RenameIn"
+      },
+      "Requirement": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "met": {
+            "type": "boolean",
+            "title": "Met"
+          },
+          "hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hint"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "met"
+        ],
+        "title": "Requirement"
       },
       "RestoreAppIn": {
         "properties": {
@@ -14390,6 +14667,18 @@
               }
             ],
             "title": "Name"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
           }
         },
         "type": "object",
@@ -14895,6 +15184,18 @@
               }
             ],
             "title": "Source"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
           }
         },
         "type": "object",

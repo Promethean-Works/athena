@@ -278,3 +278,75 @@ def test_manager_logo(client_for, monkeypatch: pytest.MonkeyPatch) -> None:
     assert res.status_code == 200 and res.content == b"ico"
     assert asked == [("https://www.debian.org/favicon.ico", ("debian.org",))]
     assert client.get("/api/packages/snap/logo").status_code == 404  # not on this host
+
+
+# ------------------------------------------------ changes with the computer's password
+
+
+def macports_store(root: bool = False) -> CapabilityStore:
+    probe = FakeProbe(
+        os="darwin",
+        root=root,
+        paths={"/opt/local/bin/port"},
+        commands={("/opt/local/bin/port", "version"): RunResult(0, "Version: 2.12.7\n")},
+    )
+    return CapabilityStore(detector=lambda: detect(probe))
+
+
+async def port_runner(argv, env):
+    if argv[:3] == ["port", "-q", "search"]:
+        return CmdResult(0, (FIX / "macports/search.txt").read_text(), "")
+    if argv[:2] == ["port", "-q"]:
+        return CmdResult(0, (FIX / "macports/installed.txt").read_text(), "")
+    return CmdResult(127, "", "not found")
+
+
+def test_password_manager_reads_freely_and_changes_need_the_password(
+    client_for, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from athena.api import packages as api
+
+    runs = []
+
+    async def fake_run(job, argv, what, env=None, stdin=None):
+        runs.append((argv, stdin))
+
+    monkeypatch.setattr(api, "run_or_fail", fake_run)
+    client = client_for(macports_store(), port_runner)
+    listed = {m["id"]: m for m in client.get("/api/packages").json()}
+    assert listed["macports"]["elevation"] == "password" and not listed["macports"]["available"]
+    assert client.get("/api/packages/macports/search", params={"q": "jq"}).status_code == 200
+    assert client.get("/api/packages/macports/installed").status_code == 200
+
+    res = client.post("/api/packages/macports/install", json={"name": "jq"})
+    assert res.status_code == 403 and "password" in res.json()["detail"]
+    assert runs == []
+
+    res = client.post("/api/packages/macports/install", json={"name": "jq", "password": "hunter2"})
+    assert res.status_code == 202, res.text
+    job = wait(client, res.json()["id"])
+    assert job["status"] == "succeeded"
+    argv, stdin = runs[0]
+    assert argv[1:5] == ["-S", "-k", "-p", ""] and argv[-3:] == ["-N", "install", "jq"]
+    assert stdin == "hunter2\n"
+    assert "hunter2" not in str(job)
+    rows = list(client.app.state.db.engine.connect().exec_driver_sql("SELECT * FROM audit_log"))
+    assert not any("hunter2" in str(r) for r in rows)
+
+
+def test_root_needs_no_password(client_for, monkeypatch: pytest.MonkeyPatch) -> None:
+    from athena.api import packages as api
+
+    runs = []
+
+    async def fake_run(job, argv, what, env=None, stdin=None):
+        runs.append((argv, stdin))
+
+    monkeypatch.setattr(api, "run_or_fail", fake_run)
+    client = client_for(macports_store(root=True), port_runner)
+    res = client.post(
+        "/api/packages/macports/uninstall", json={"name": "jq", "password": "ignored"}
+    )
+    assert res.status_code == 202, res.text
+    wait(client, res.json()["id"])
+    assert runs[0][0][-3:] == ["-N", "uninstall", "jq"] and runs[0][1] is None

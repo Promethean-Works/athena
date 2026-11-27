@@ -19,7 +19,10 @@ def test_each_os_reports_only_its_own_package_managers() -> None:
     darwin = caps(FakeProbe(os="darwin"))
     windows = caps(FakeProbe(os="windows"))
     assert "packages.apt" in linux and "packages.winget" not in linux
-    assert set(k for k in darwin if k.startswith("packages.")) == {"packages.brew"}
+    assert set(k for k in darwin if k.startswith("packages.")) == {
+        "packages.brew",
+        "packages.macports",
+    }
     assert {"packages.winget", "packages.scoop", "packages.choco"} <= set(windows)
     assert "packages.apt" not in windows and "packages.brew" not in windows
 
@@ -412,3 +415,17 @@ def test_self_update_is_off_for_a_source_build_and_a_read_only_data_dir(
     monkeypatch.setattr(self_update, "writable", lambda path: path != tmp_path)
     c = caps(_service_probe("linux"))["self_update"]
     assert c.status == "needs_privilege" and "isn't writable" in (c.detail or "")
+
+
+def test_macports_is_found_outside_path_and_asks_for_the_password() -> None:
+    probe = FakeProbe(
+        os="darwin",
+        paths={"/opt/local/bin/port"},
+        commands={("/opt/local/bin/port", "version"): RunResult(0, "Version: 2.12.7\n")},
+    )
+    cap = caps(probe)["packages.macports"]
+    assert (cap.status, cap.elevation, cap.available) == ("needs_privilege", "password", False)
+    probe.root = True
+    cap = caps(probe)["packages.macports"]
+    assert (cap.status, cap.detail, cap.elevation) == ("ready", "Version: 2.12.7", None)
+    assert caps(FakeProbe(os="darwin"))["packages.macports"].status == "missing"

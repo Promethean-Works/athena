@@ -113,6 +113,15 @@ class PackageError(RuntimeError):
 def command_env(extra: Mapping[str, str] | None = None) -> dict[str, str]:
     """The environment for package commands: English, uncolored, non-interactive output."""
     env = dict(os.environ)
+    if sys.platform == "darwin":
+        # A launchd service has a short PATH: MacPorts lives outside it. Appended, so it
+        # never shadows a system tool.
+        env["PATH"] = (
+            f"{env.get('PATH', '/usr/bin:/bin:/usr/sbin:/sbin')}"
+            ":/opt/local/bin:/opt/local/sbin:/opt/homebrew/bin:/usr/local/bin"
+        )
+    if sys.platform.startswith("linux"):
+        env["PATH"] = f"{env.get('PATH', '/usr/bin:/bin')}:/home/linuxbrew/.linuxbrew/bin"
     if sys.platform != "win32":
         # Parsers expect English headers and messages. C.UTF-8 keeps non-ASCII intact.
         env["LC_ALL"] = "C.UTF-8"
@@ -125,7 +134,7 @@ def command_env(extra: Mapping[str, str] | None = None) -> dict[str, str]:
 def resolve(argv: list[str]) -> list[str]:
     """Use the executable's full path. On Windows this finds .cmd shims (Scoop), which
     launching by bare name doesn't."""
-    path = shutil.which(argv[0])
+    path = shutil.which(argv[0], path=command_env().get("PATH"))
     return [path, *argv[1:]] if path else argv
 
 
