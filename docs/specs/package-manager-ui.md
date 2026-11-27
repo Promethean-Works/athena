@@ -1,6 +1,6 @@
 # Spec: Package manager UI
 
-**Status:** Approved (2026-11-27) · **Milestone:** M5 follow-up · **Design:** `docs/design/platform.md` (Package managers per OS)
+**Status:** Built (2026-11-27), parts 1-3 in one PR · **Milestone:** M5 follow-up · **Design:** `docs/design/platform.md` (Package managers per OS)
 
 ## Goal
 
@@ -38,13 +38,14 @@ A new capability-style list `installable` on `GET /api/packages` says which mana
 - **Web:** in `manager-panel.tsx` each search/installed row gets a "Details" action opening a sheet (shadcn `Sheet`): icon, title, version, description, links (homepage opens in a new tab), license, dependencies, size, and the same Install / Uninstall / Upgrade buttons. Install from search can go straight there ("Install" stays on the row).
 - **Tab icons:** nothing is bundled in the repo. Each manager's logo and each package's icon comes from that manager or its own store, fetched through the icon proxy: Homebrew `brew.sh`, MacPorts `macports.org`, Flatpak the remote's appstream icon (Flathub), Snap the Snap Store media, winget the manifest `Icon`, Scoop/Chocolatey their site/package-feed icons. The proxy allow-list is per manager. Where the store gives none (or offline), the UI shows a letter avatar.
 
-### Part 3: install a package manager (server and web)
+### Part 3: install a package manager (server and web), as built
 
-- **Server:** `athena/packages/bootstrap.py` with an `INSTALLABLE` table per manager id: supported OSes, prerequisites checked with the existing probe, and an install **job** (argv, no shell). Official installers only, pinned URLs, downloaded to a temp file and run (never `curl | sh`): Homebrew `install.sh` (`NONINTERACTIVE=1`), Scoop `get.scoop.sh`, Chocolatey `install.ps1`, MacPorts the signed `.pkg` for the detected macOS version through `installer`. `POST /api/packages/{manager}/bootstrap` (`installPackageManager`, admin only, audited as `package.bootstrap`), rejects ids not offered for this OS/arch. After success the capability store re-detects, so the tab appears.
-- **Web:** an "Add a package manager" card/dialog on the Packages page lists installable managers with logo, what it is, prerequisites (met or not), and a streaming job log (existing job UI). Confirmation dialog states what will be downloaded and run, and that it needs admin rights.
-- **Assistant / MCP:** none (read-only search/info tools may be added later; bootstrap is never an assistant tool).
-- **Security:** admin only; fixed installer URLs with SHA-256 pins where the vendor publishes one (MacPorts), HTTPS only otherwise; names validated by the existing patterns; icon proxy allow-listed; everything audited. Uninstalling a manager is out of scope.
-- **Dependencies:** none new. No logo files are added to the repo.
+- **Server:** `athena/packages/bootstrap.py` has one installer per manager, each with requirements (checked with the probe) and a job body. Offered per OS: macOS Homebrew and MacPorts; Linux Homebrew and Flatpak (via the distro's own manager); Windows Scoop and Chocolatey. Winget and Snap are not offered (no scriptable official installer / distro-dependent). `GET /api/packages/installable` and `POST /api/packages/installable/{id}/install` (`listInstallablePackageManagers`, `installPackageManager`, admin only, audited as `package.bootstrap`). Downloads: temp file, allow-listed https hosts (redirects checked), MacPorts' `.pkg` checked against GitHub's published SHA-256; nothing is piped into a shell.
+- **MacPorts as a full manager** (`athena/packages/macports.py`): search, installed, outdated, details, install/uninstall/upgrade/selfupdate. It needs root, so the capability is `needs_privilege` with `elevation: "password"`: reads work; changes take an optional `password` and run through `sudo -S` (in memory, one job, never logged or stored).
+- **Web:** an "Add a package manager" button (always visible, even with no manager) opens a dialog with each installable manager, its logo from its own site, requirements (met or not), and Install, which confirms what will be downloaded and from where, asks for the password when needed, and streams the job. A password prompt also guards MacPorts changes in the manager panel.
+- **Assistant / MCP:** none; bootstrap is never an assistant tool.
+- **Security:** admin only; fixed vendor URLs on allow-listed hosts; the password never reaches logs, audit or responses.
+- **Dependencies:** none new.
 
 ## Parts
 

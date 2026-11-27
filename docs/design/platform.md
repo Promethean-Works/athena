@@ -38,7 +38,7 @@ class CapabilityManifest(BaseModel):
 | OS | Detected |
 |---|---|
 | Linux | apt, dnf, pacman, zypper, apk, flatpak, snap, brew (Linuxbrew) |
-| macOS | brew (formulae + casks) |
+| macOS | brew (formulae + casks), MacPorts |
 | Windows | winget, scoop, choco |
 
 Each one implements the same interface:
@@ -65,6 +65,7 @@ Use machine-readable output where it exists (`brew --json`, `winget --output jso
 | zypper | `--xmlout search` (exit 104 = none) | `rpm -qa` | `--xmlout list-updates` | |
 | pacman | `pacman -Ss` (regex-escaped) | `pacman -Q` | `pacman -Qu` | Installs use `-Syu --needed` and there's no single-package upgrade: Arch doesn't support partial upgrades |
 | apk | `apk search -v` | `apk list --installed` (skips virtual `.deps`) | `apk list --upgradable` | |
+| macports | `port -q search --name --glob` | `port -q installed` | `port -q outdated` | Installs into `/opt/local`, so changes need root: Athena asks for the computer's password and runs `sudo -S` (see below); found in `/opt/local/bin` even when the service's PATH lacks it. Fixtures are hand-written |
 | brew | `brew search`, then `brew info --json=v2` for the top 30 (`--desc` takes ~10 s) | `brew info --json=v2 --installed` | `brew outdated --json=v2` | Casks install with `--cask`; refresh = `brew update` |
 | flatpak | `search --columns=…` (tabs) | `list --app --columns=…` | `remote-ls --updates` | Installs from the result's remote (default flathub) |
 | snap | `snap find` (column table) | `snap list` | `snap refresh --list` | |
@@ -75,6 +76,10 @@ Use machine-readable output where it exists (`brew --json`, `winget --output jso
 **Search finds what people mean.** `PackageManager.find()` (used by the API and the assistant) runs `search` for the query and its spellings from `athena/packages/aliases.py` (a small alias table like `vscode` → `visual studio code`, hyphens ↔ spaces), merges and de-duplicates by name and source. Homebrew also adds formulae and casks whose words abbreviate to the query (`vscode` = **v**isual-**s**tudio-**code**, from the local `brew formulae` / `brew casks`) and ranks exact, abbreviation, prefix, substring.
 
 Fixtures (`tests/fixtures/packages/`, README says how each was captured): brew, apt, apk, dnf (4 and 5), zypper, pacman and flatpak search are real recordings, made in throwaway containers from the distros' own registries; winget's list is a real recording from the Windows CI runner; snap, Scoop, Chocolatey and the other winget files are hand-written from documented formats. Read-only tests run the real tool where it exists (brew on macOS, apt on Ubuntu, choco and winget on Windows CI). The first CI run caught a wrong assumption (winget ids can contain spaces), which is how the real winget fixture was captured.
+
+**Adding a package manager.** `GET /api/packages/installable` lists, for this OS, the managers that aren't installed yet with their requirements (admin only); `POST /api/packages/installable/{id}/install` runs the vendor's official installer as a job, then re-detects so the tab appears. `athena/packages/bootstrap.py` has one installer per manager: Homebrew (macOS, Linux; its script refuses root, so it runs as Athena's user with `SUDO_ASKPASS` fed from the password), MacPorts (the `.pkg` for this macOS from the latest GitHub release, checked against the SHA-256 GitHub publishes, then `installer`), Flatpak (Linux; installed with the distro's own manager, then the Flathub remote), Scoop and Chocolatey (Windows; PowerShell scripts). Downloads go to a temporary file from an allow-listed https host (every redirect hop checked); nothing is piped into a shell.
+
+**Password elevation.** A manager that installs system-wide while Athena runs as a normal user (MacPorts on macOS) reports `needs_privilege` with `elevation: "password"`. Reads work as Athena's user; install, uninstall, upgrade and refresh take an optional `password` in the body and run through `sudo -S -k -p ''` with the password on stdin. It is used for that one job, never logged, audited or stored, and root Athena ignores it.
 
 ## Privilege model
 

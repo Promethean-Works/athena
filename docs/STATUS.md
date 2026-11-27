@@ -8,7 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
-- Package manager UI (`docs/specs/package-manager-ui.md`, branch `feat/package-manager-ui`, one PR): parts 1–2 done and browser-checked on real Homebrew. Next: part 3 (install a package manager; MacPorts as a full manager), then open the one PR. Not verified: details/icons for apt, dnf, zypper, pacman, apk (real fixtures, no real host), winget/scoop/choco (hand-written fixtures), Flathub/Snap icons in a browser.
+- Package manager UI (`docs/specs/package-manager-ui.md`): all 3 parts built on `feat/package-manager-ui`, PR next. Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; MacPorts, winget, scoop, choco use hand-written fixtures.
 - Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
 - Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Sub-folder sharing built; browser-checked on a faked host.
@@ -21,14 +21,14 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 - M7 D stage 2 follow-ups: nest delegate tool calls; warn on small Ollama context; phone waiting-question card below the plan bar.
 - Dashboard follow-ups: touch dragging on phone; app "update available" badge (`AppOut` has no such field).
 - Webhook app restart took 10 min and `GET /api/automation/jobs` hung (slow Colima): does a run block the DB?
-- Agent tooling: after merge, run `node scripts/agents-setup.mjs` (Hermes guard hook, denies, aliases) and `hermes mcp remove github`; approve Hermes hook once.
+- Agent tooling: after merge, run `node scripts/agents-setup.mjs` and `hermes mcp remove github`; approve the Hermes hook once.
 - Fix the ESLint config: `pnpm lint` skips `apps/web` `.tsx` (gotchas/web.md).
 - Not yet verified for real: Windows terminal (ConPTY + PowerShell) beyond CI's pty tests, container shell through Docker in WSL.
-- Not yet verified for real: other Linux system managers' install/uninstall (dnf, pacman, zypper, apk; apt checked in Lima VM, see #26) and every Windows manager (hand-written fixtures; CI runs choco/winget reads on Windows).
+- Not verified for real: dnf/pacman/zypper/apk install/uninstall (apt checked in Lima, #26) and every Windows manager (CI runs choco/winget reads).
 - Not yet verified in browser: compose variant picker (#109), cloud wizard (#97) and remote cards (#92) with real rclone remote.
-- Catalog smoke test (#169–#176): every store app installed on macOS arm64 (Colima); skips marked `smoke: skip` (GPU, accounts, 12–16 GB RAM). Next: `Catalog smoke` workflow for `--all` on amd64/arm64. Logins/real use not verified.
-- Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested (macOS), not named tunnels, ngrok, Tailscale or Windows.
-- models.dev providers left out (pydantic-ai needs their SDK): watsonx, GitLab, SAP AI Core, gateways. Google Vertex in (service-account key; untried against real Vertex).
+- Catalog smoke test (#169–#176): all store apps installed on macOS arm64 (Colima); `smoke: skip` marks GPU/account/RAM-heavy ones. Next: `Catalog smoke` workflow (amd64/arm64). Logins not verified.
+- Tunnel follow-ups (#150): ngrok service files hold a `${NGROK_AUTHTOKEN}` placeholder; only a Cloudflare quick tunnel was tested (macOS).
+- models.dev providers left out (SDK needed): watsonx, GitLab, SAP AI Core, gateways. Vertex is in, untried against real Vertex.
 
 ## Next
 
