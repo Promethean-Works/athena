@@ -16,6 +16,9 @@ x-athena:
   screenshots:
   - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/screenshot-1.png
   - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/Gateway-go/screenshot-2.png
+  notes: >-
+    Uses the host's network directly, so its ports aren't isolated from the server's
+    own. Its web interface is reachable on whichever address the server has.
   env:
   - key: WEB_PORT
     label: Web port

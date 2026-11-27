@@ -5169,7 +5169,7 @@
           "shares"
         ],
         "summary": "List Shares",
-        "description": "All links, newest first, or only those for one location (and path).",
+        "description": "Your links, newest first (an admin sees everyone's), or only those for one location.",
         "operationId": "listShares",
         "parameters": [
           {
@@ -9292,10 +9292,12 @@
         "properties": {
           "username": {
             "type": "string",
+            "maxLength": 256,
             "title": "Username"
           },
           "password": {
             "type": "string",
+            "maxLength": 256,
             "title": "Password"
           }
         },

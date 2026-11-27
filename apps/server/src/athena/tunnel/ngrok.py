@@ -45,6 +45,26 @@ def _api_url() -> str | None:
     return None
 
 
+def install_command(system: str | None = None) -> list[str] | None:
+    """The package-manager command that installs ngrok here, or None if there is none.
+
+    macOS: Homebrew (a cask). Windows: Scoop, or Chocolatey from an elevated service.
+    Linux: Snap, only when Athena runs as root (it can't use sudo without a prompt).
+    """
+    system = (system or platform.system()).lower()
+    if system == "darwin" and (brew := shutil.which("brew")):
+        return [brew, "install", "--cask", "ngrok"]
+    if system == "windows":
+        if scoop := shutil.which("scoop"):
+            return [scoop, "install", "ngrok"]
+        if choco := shutil.which("choco"):
+            return [choco, "install", "ngrok", "-y"]
+    snap = shutil.which("snap")
+    if system == "linux" and snap and hasattr(os, "geteuid") and os.geteuid() == 0:
+        return [snap, "install", "ngrok"]
+    return None
+
+
 class NgrokTunnelProvider(TunnelProvider):
     """Ngrok tunnel provider."""
 
@@ -161,75 +181,22 @@ class NgrokTunnelProvider(TunnelProvider):
         }
 
     async def install(self, job: Any) -> None:
-        """Download and install ngrok."""
+        """Install ngrok with the host's package manager.
 
-        system = platform.system().lower()
-        arch = platform.machine().lower()
+        ngrok publishes no checksum or signature for its direct downloads, so Athena
+        doesn't fetch the binary itself: the package managers check what they install.
+        """
+        from athena.jobs import run_or_fail
 
-        # Map architecture
-        if arch in ("x86_64", "amd64"):
-            arch = "amd64"
-        elif arch in ("aarch64", "arm64"):
-            arch = "arm64"
-        elif arch in ("armv7l", "armv7"):
-            arch = "arm"
-        else:
-            raise ValueError(f"Unsupported architecture: {arch}")
-
-        # Download URL pattern
-        if system == "darwin":
-            filename = f"ngrok-v3-stable-darwin-{arch}.zip"
-        elif system == "linux":
-            filename = f"ngrok-v3-stable-linux-{arch}.tgz"
-        elif system == "windows":
-            filename = f"ngrok-v3-stable-windows-{arch}.zip"
-        else:
-            raise ValueError(f"Unsupported OS: {system}")
-
-        url = f"https://bin.equinox.io/c/bNyj1mQVY4c/{filename}"
-
-        # Download to temp
-        import tempfile
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-            archive_path = tmpdir_path / filename
-
-            # Download
-            await job.log(f"Downloading ngrok from {url}")
-            urllib.request.urlretrieve(url, archive_path)
-
-            # Extract
-            if filename.endswith(".tgz"):
-                import tarfile
-
-                with tarfile.open(archive_path, "r:gz") as tar:
-                    tar.extractall(tmpdir_path)
-                binary_path = tmpdir_path / "ngrok"
-            else:
-                import zipfile
-
-                with zipfile.ZipFile(archive_path, "r") as zipf:
-                    zipf.extractall(tmpdir_path)
-                binary_path = tmpdir_path / "ngrok.exe"
-
-            # Install to PATH
-            if system == "windows":
-                install_dir = Path.home() / "scoop" / "shims"
-                install_dir.mkdir(parents=True, exist_ok=True)
-                dest = install_dir / "ngrok.exe"
-            else:
-                install_dir = Path("/usr/local/bin")
-                if not os.access(install_dir, os.W_OK):
-                    install_dir = Path.home() / ".local" / "bin"
-                    install_dir.mkdir(parents=True, exist_ok=True)
-                dest = install_dir / "ngrok"
-
-            shutil.copy2(binary_path, dest)
-            if system != "windows":
-                dest.chmod(0o755)
-
-            await job.log(f"Installed ngrok to {dest}")
+        argv = install_command()
+        if argv is None:
+            raise RuntimeError(
+                "Athena can't install ngrok on this host automatically (no supported package "
+                "manager). Install it from https://ngrok.com/download, which has signed "
+                "packages, then try again."
+            )
+        await job.log(f"Installing ngrok with {Path(argv[0]).stem}")
+        await run_or_fail(job, argv, "Installing ngrok")
 
     async def configure_service(
         self,

@@ -157,6 +157,22 @@ def test_actions_edit_and_delete_are_audited(api: TestClient, tmp_path: Path) ->
     assert actions == ["app.create", "app.update", "app.edit", "app.delete"]
 
 
+def test_plain_users_follow_start_jobs_but_not_install_jobs(api: TestClient) -> None:
+    created = api.post("/api/apps", json={"name": "site", "compose": COMPOSE}).json()["id"]
+    wait(api, created)
+    started = api.post("/api/apps/site/start").json()["id"]
+    wait(api, started)
+    pw = "bobs-password-1"
+    api.post("/api/users", json={"username": "bob", "password": pw, "is_admin": False})
+    bob = TestClient(api.app)
+    bob.headers["X-CSRF-Token"] = bob.post(
+        "/api/auth/login", json={"username": "bob", "password": pw}
+    ).json()["csrf_token"]
+    assert bob.get(f"/api/jobs/{started}").status_code == 200  # his own kind of action
+    assert bob.get(f"/api/jobs/{created}").status_code == 404  # an install's log is admin-only
+    assert api.get(f"/api/jobs/{created}").status_code == 200
+
+
 def test_unknown_app_and_action(api: TestClient) -> None:
     assert api.get("/api/apps/nope").status_code == 404
     assert api.post("/api/apps/nope/start").status_code == 404

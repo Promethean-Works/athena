@@ -40,7 +40,10 @@ def _serve_args(
 
 
 def _systemd_quote(arg: str) -> str:
-    if any(c in arg for c in ' "\\'):
+    # systemd expands %specifiers and $VARIABLES in ExecStart= even inside quotes, so a
+    # path containing them must double the character. Quotes need quoting around them.
+    arg = arg.replace("%", "%%").replace("$", "$$")
+    if any(c in arg for c in " \t\"'\\;"):
         return '"' + arg.replace("\\", "\\\\").replace('"', '\\"') + '"'
     return arg
 

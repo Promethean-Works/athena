@@ -42,26 +42,72 @@ class _Job:
         self.lines.append(line)
 
 
-def test_install_copies_bare_linux_binary(monkeypatch, tmp_path) -> None:
+def _release(monkeypatch, asset: str, content: bytes, digest: str | None, urls: list[str]) -> None:
+    """A fake GitHub release whose asset downloads as `content`."""
+    from athena.tunnel import verify
+
+    url = f"https://github.com/cloudflare/cloudflared/releases/download/2026.1.0/{asset}"
+    entry = {"name": asset, "browser_download_url": url}
+    if digest is not None:
+        entry["digest"] = digest
+    monkeypatch.setattr(verify, "fetch_json", lambda _url: {"assets": [entry]})
+
+    def fake_download(got: str, dest) -> None:
+        urls.append(got)
+        dest.write_bytes(content)
+
+    monkeypatch.setattr(verify, "download", fake_download)
+
+
+def _arm64_linux(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(platform, "system", lambda: "Linux")
     monkeypatch.setattr(platform, "machine", lambda: "aarch64")
     monkeypatch.setattr(cloudflare.Path, "home", lambda: tmp_path)
     monkeypatch.setattr(cloudflare.os, "access", lambda *_: False)
+
+
+def test_install_copies_bare_linux_binary(monkeypatch, tmp_path) -> None:
+    import hashlib
+
+    _arm64_linux(monkeypatch, tmp_path)
     urls: list[str] = []
-
-    def fake_retrieve(url: str, dest) -> None:
-        urls.append(url)
-        dest.write_bytes(b"binary")
-
-    monkeypatch.setattr("urllib.request.urlretrieve", fake_retrieve)
+    digest = "sha256:" + hashlib.sha256(b"binary").hexdigest()
+    _release(monkeypatch, "cloudflared-linux-arm64", b"binary", digest, urls)
     job = _Job()
     asyncio.run(CloudflareTunnelProvider().install(job))
 
     assert urls == [
-        "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64"
+        "https://github.com/cloudflare/cloudflared/releases/download/2026.1.0/cloudflared-linux-arm64"
     ]
     installed = tmp_path / ".local" / "bin" / "cloudflared"
     assert installed.read_bytes() == b"binary"
     if not sys.platform.startswith("win"):  # Windows has no exec bit
         assert installed.stat().st_mode & 0o111
     assert job.lines[-1] == f"Installed cloudflared to {installed}"
+
+
+def test_install_refuses_a_download_that_does_not_match_its_checksum(monkeypatch, tmp_path) -> None:
+    import hashlib
+
+    import pytest
+
+    from athena.tunnel.verify import ChecksumError
+
+    _arm64_linux(monkeypatch, tmp_path)
+    digest = "sha256:" + hashlib.sha256(b"the real binary").hexdigest()
+    _release(monkeypatch, "cloudflared-linux-arm64", b"tampered", digest, [])
+    with pytest.raises(ChecksumError):
+        asyncio.run(CloudflareTunnelProvider().install(_Job()))
+    assert not (tmp_path / ".local" / "bin" / "cloudflared").exists()
+
+
+def test_install_refuses_an_asset_with_no_published_checksum(monkeypatch, tmp_path) -> None:
+    import pytest
+
+    from athena.tunnel.verify import ChecksumError
+
+    _arm64_linux(monkeypatch, tmp_path)
+    _release(monkeypatch, "cloudflared-linux-arm64", b"binary", None, [])
+    with pytest.raises(ChecksumError):
+        asyncio.run(CloudflareTunnelProvider().install(_Job()))
+    assert not (tmp_path / ".local" / "bin" / "cloudflared").exists()

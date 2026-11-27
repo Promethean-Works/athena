@@ -115,8 +115,6 @@ class Rclone:
                 binary,
                 "rcd",
                 f"--rc-addr=127.0.0.1:{port}",
-                f"--rc-user={user}",
-                f"--rc-pass={password}",
                 "--rc-serve",
                 f"--config={self.config}",
                 f"--cache-dir={self.dir / 'cache'}",
@@ -129,7 +127,9 @@ class Rclone:
                     stdin=subprocess.DEVNULL,
                     stdout=log_file,
                     stderr=subprocess.STDOUT,
-                    env=_clean_env(),
+                    # In the environment, not the arguments: any local user can read a
+                    # process's arguments, but only its owner can read its environment.
+                    env={**_clean_env(), "RCLONE_RC_USER": user, "RCLONE_RC_PASS": password},
                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 )
             except OSError as exc:

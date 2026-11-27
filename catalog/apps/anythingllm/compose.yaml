@@ -12,6 +12,9 @@ x-athena:
   screenshots:
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/AnythingLLM/screenshot-1.png
     - https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppStore/main/Apps/AnythingLLM/screenshot-2.png
+  notes: >-
+    Runs as root with the SYS_ADMIN capability, a broad extra permission inside the
+    container. Only install it if you trust the image.
   env:
     - key: WEB_PORT
       label: Web port

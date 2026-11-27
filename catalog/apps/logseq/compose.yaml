@@ -8,7 +8,9 @@ x-athena:
   web_port: WEB_PORT
   web_path: /
   platforms: [linux/amd64]
-  notes: null
+  notes: >-
+    Runs in a privileged container, which has almost the same access to the server as
+    a program running on it directly. Only install it if you trust the image.
   env:
   - key: WEB_PORT
     label: Web port

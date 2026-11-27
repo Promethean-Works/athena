@@ -613,3 +613,22 @@ def test_rclone_restarts_after_it_dies(tmp_path: Path) -> None:
     finally:
         rclone.stop()
     assert rclone._proc is None
+
+
+def test_rclone_password_is_not_on_the_command_line(tmp_path: Path, monkeypatch) -> None:
+    """Arguments are readable by every local user; the environment only by its owner."""
+    from athena.cloud import rclone as rclone_module
+
+    seen: dict[str, Any] = {}
+
+    def fake_popen(argv, **kwargs):
+        seen["argv"], seen["env"] = argv, kwargs["env"]
+        raise OSError("not really starting")
+
+    monkeypatch.setattr(rclone_module.subprocess, "Popen", fake_popen)
+    client = Rclone(tmp_path, binary=lambda: "/usr/bin/rclone")
+    with pytest.raises(rclone_module.RcloneUnavailable):
+        client._start()
+    secret = seen["env"]["RCLONE_RC_PASS"]
+    assert len(secret) >= 24
+    assert not any(secret in arg or arg.startswith("--rc-pass") for arg in seen["argv"])

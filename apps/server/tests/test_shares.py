@@ -254,3 +254,58 @@ def test_share_page_is_served_for_any_token(tmp_path: Path) -> None:
         assert res.text == "share page"
         assert res.headers["referrer-policy"] == "no-referrer"
         assert client.get("/s/abc123/").text == "share page"
+
+
+def test_a_user_cannot_change_or_remove_another_users_link(admin) -> None:
+    client, loc = admin
+    pw = "bobs-password-1"
+    made = client.post("/api/users", json={"username": "bob", "password": pw, "is_admin": False})
+    assert made.status_code == 201, made.text
+    bob = TestClient(client.app)
+    res = bob.post("/api/auth/login", json={"username": "bob", "password": pw})
+    assert res.status_code == 200, res.text
+    bob.headers["X-CSRF-Token"] = res.json()["csrf_token"]
+
+    theirs = share(client, loc, "photos")  # the admin's link
+    assert bob.put(f"/api/shares/{theirs['id']}", json={"mode": "upload"}).status_code == 403
+    assert bob.delete(f"/api/shares/{theirs['id']}").status_code == 403
+    assert client.get("/api/shares").json()[0]["mode"] == "read"
+
+    mine = share(bob, loc, "inbox")
+    assert bob.put(f"/api/shares/{mine['id']}", json={"mode": "read"}).status_code == 200
+    # An admin can still manage anyone's link.
+    assert client.delete(f"/api/shares/{mine['id']}").status_code == 204
+
+
+def test_a_non_ascii_unlock_cookie_is_refused_not_an_error(admin, visitor) -> None:
+    client, loc = admin
+    link = share(client, loc, "photos", password="open-sesame-1")
+    cookie = f"athena_share_{link['id']}=t\xe9st".encode("latin-1")
+    res = visitor.get(base(link), headers={"Cookie": cookie})
+    assert res.status_code < 500, res.text
+    assert res.json()["locked"] is True
+
+
+def test_links_are_private_to_their_owner_and_leave_with_them(admin) -> None:
+    client, loc = admin
+    pw = "carols-password-1"
+    body = {"username": "carol", "password": pw, "is_admin": False}
+    user_id = client.post("/api/users", json=body).json()["id"]
+    carol = TestClient(client.app)
+    res = carol.post("/api/auth/login", json={"username": "carol", "password": pw})
+    carol.headers["X-CSRF-Token"] = res.json()["csrf_token"]
+    hers = share(carol, loc, "inbox")
+    share(client, loc, "photos")  # the admin's
+    assert [s["id"] for s in carol.get("/api/shares").json()] == [hers["id"]]
+    assert len(client.get("/api/shares").json()) == 2  # an admin sees all
+
+    # Delete her and make a new account with the same name: it doesn't get her links.
+    assert client.delete(f"/api/users/{user_id}").status_code == 204
+    client.post("/api/users", json=body)
+    again = TestClient(client.app)
+    res = again.post("/api/auth/login", json={"username": "carol", "password": pw})
+    again.headers["X-CSRF-Token"] = res.json()["csrf_token"]
+    assert again.get("/api/shares").json() == []
+    assert again.delete(f"/api/shares/{hers['id']}").status_code in (403, 404)
+    assert [s["id"] for s in client.get("/api/shares").json()] != [hers["id"]]
+    assert hers["id"] not in [s["id"] for s in client.get("/api/shares").json()]

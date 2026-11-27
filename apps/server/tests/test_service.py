@@ -38,6 +38,13 @@ def test_systemd_unit_quotes_paths_with_spaces() -> None:
     assert '--data-dir "/srv/my data"' in systemd_unit(spec)
 
 
+def test_systemd_unit_does_not_let_systemd_expand_a_path() -> None:
+    """systemd expands %specifiers and $VARS in ExecStart= even inside quotes."""
+    spec = ServiceSpec(python=SPEC.python, data_dir=Path("/srv/50%/$HOME/it's"))
+    line = next(x for x in systemd_unit(spec).splitlines() if x.startswith("ExecStart="))
+    assert '--data-dir "/srv/50%%/$$HOME/it\'s"' in line
+
+
 def test_linux_install_plan() -> None:
     plan = build_install(SPEC, platform="linux")
     assert WriteFile(SYSTEMD_UNIT, systemd_unit(SPEC)) in plan.steps

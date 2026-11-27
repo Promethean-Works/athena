@@ -22,7 +22,7 @@ x-athena:
 
 services:
   virtmanager:
-    image: mbentley/virt-manager:latest
+    image: mbentley/virt-manager:latest@sha256:2657e28a76f4bb2ad99fad201d1d22e483b0d817989071237cd11650e1d311f1
     restart: unless-stopped
     ports:
       - "${WEB_PORT}:8185/tcp"

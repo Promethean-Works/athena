@@ -23,7 +23,7 @@ from athena.crypto import SecretBox, SecretError
 from athena.db.models import AiIntegration
 
 if TYPE_CHECKING:
-    from pydantic_ai.mcp import MCPToolset
+    from pydantic_ai.toolsets import AbstractToolset
 
 log = logging.getLogger(__name__)
 
@@ -146,7 +146,7 @@ def _token(row: AiIntegration, box: SecretBox, key: str | None) -> str | None:
     return None
 
 
-def integration_toolsets(rows: list[AiIntegration], box: SecretBox) -> list[MCPToolset[Any]]:
+def integration_toolsets(rows: list[AiIntegration], box: SecretBox) -> list[AbstractToolset[Any]]:
     """Build one MCP toolset per integration, injecting each decrypted token.
 
     A stdio server receives its token in `token_env`; an HTTP server in `token_header`.
@@ -155,7 +155,9 @@ def integration_toolsets(rows: list[AiIntegration], box: SecretBox) -> list[MCPT
     from fastmcp.client.transports import StdioTransport, StreamableHttpTransport
     from pydantic_ai.mcp import MCPToolset
 
-    toolsets: list[MCPToolset[Any]] = []
+    from athena.assistant.mcp import guard
+
+    toolsets: list[AbstractToolset[Any]] = []
     for row in rows:
         if row.kind not in BY_ID:
             continue
@@ -172,11 +174,9 @@ def integration_toolsets(rows: list[AiIntegration], box: SecretBox) -> list[MCPT
             if token is not None and key:
                 env[key] = token
             toolsets.append(
-                MCPToolset(
-                    StdioTransport(
-                        command=transport.command,
-                        args=transport.args,
-                        env=env,
+                guard(
+                    MCPToolset(
+                        StdioTransport(command=transport.command, args=transport.args, env=env)
                     )
                 )
             )
@@ -187,12 +187,7 @@ def integration_toolsets(rows: list[AiIntegration], box: SecretBox) -> list[MCPT
             if token is not None and key:
                 headers[key] = token
             toolsets.append(
-                MCPToolset(
-                    StreamableHttpTransport(
-                        url=transport.url,
-                        headers=headers,
-                    )
-                )
+                guard(MCPToolset(StreamableHttpTransport(url=transport.url, headers=headers)))
             )
     return toolsets
 

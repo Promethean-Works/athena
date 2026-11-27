@@ -1989,7 +1989,7 @@ export interface paths {
         };
         /**
          * List Shares
-         * @description All links, newest first, or only those for one location (and path).
+         * @description Your links, newest first (an admin sees everyone's), or only those for one location.
          */
         get: operations["listShares"];
         put?: never;

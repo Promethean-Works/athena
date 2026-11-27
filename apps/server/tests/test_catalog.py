@@ -724,3 +724,47 @@ def test_searxng_ships_json_enabled_settings() -> None:
     settings = yaml.safe_load(app.files["settings.yml"])
     assert "json" in settings["search"]["formats"]
     assert "./files/settings.yml" in app.compose
+
+
+def test_homepage_must_be_a_web_address() -> None:
+    import pytest
+    from pydantic import ValidationError
+
+    from athena.catalog.model import AppMeta
+
+    base = {"title": "A", "description": "d", "category": "utilities"}
+    assert AppMeta(**base, homepage="https://example.org").homepage == "https://example.org"
+    assert AppMeta(**base).homepage is None
+    for bad in ("javascript:alert(1)", "data:text/html,x", "//evil.example"):
+        with pytest.raises(ValidationError):
+            AppMeta(**base, homepage=bad)
+
+
+def _elevated(compose: str) -> list[str]:
+    """What an app's compose file asks for beyond an ordinary container."""
+    import yaml
+
+    found: set[str] = set()
+    for svc in (yaml.safe_load(compose).get("services") or {}).values():
+        if not isinstance(svc, dict):
+            continue
+        if svc.get("privileged") is True:
+            found.add("privileged")
+        if "SYS_ADMIN" in (svc.get("cap_add") or []):
+            found.add("SYS_ADMIN")
+        if str(svc.get("network_mode", "")).lower() == "host":
+            found.add("host network")
+        if any("docker.sock" in str(v) for v in (svc.get("volumes") or [])):
+            found.add("docker socket")
+    return sorted(found)
+
+
+def test_apps_that_ask_for_elevated_access_say_so() -> None:
+    apps, _ = builtin()
+    silent = {
+        app.id: _elevated(variant.compose)
+        for app in apps
+        for variant in app.variants
+        if _elevated(variant.compose) and not (app.meta.notes or "").strip()
+    }
+    assert silent == {}, "add a `notes:` warning to these apps in x-athena"

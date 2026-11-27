@@ -138,6 +138,16 @@ class AppMeta(BaseModel):
     web_path: str = "/"
     platforms: list[str] = Field(default_factory=lambda: ["linux/amd64", "linux/arm64"])
     env: list[EnvField] = Field(default_factory=list)
+
+    @field_validator("homepage")
+    @classmethod
+    def homepage_is_a_web_address(cls, value: str | None) -> str | None:
+        # The store page links to it; a catalog from elsewhere must not smuggle in
+        # javascript: or data: addresses.
+        if value and not value.startswith(("http://", "https://")):
+            raise ValueError(f"homepage {value!r} isn't an http(s) URL")
+        return value
+
     profiles: list[ProfileMeta] = Field(default_factory=list)
     """Optional parts of the app (Compose profiles) the admin can switch on."""
     notes: str | None = None

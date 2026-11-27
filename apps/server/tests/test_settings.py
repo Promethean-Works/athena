@@ -189,3 +189,16 @@ def test_audit_list_is_admin_only_newest_first_without_detail(tmp_path: Path) ->
     with client.app.state.db.engine.begin() as conn:  # type: ignore[attr-defined]
         conn.exec_driver_sql("UPDATE users SET is_admin = 0")
     assert client.get("/api/audit").status_code == 403
+
+
+def test_change_password_is_throttled_per_account_not_only_per_address(tmp_path: Path) -> None:
+    app = make_app(tmp_path)
+    client = signed_in(TestClient(app))
+    me = client.get("/api/auth/status").json()["user"]["id"]
+    for _ in range(5):  # wrong guesses that came from other addresses
+        app.state.login_throttle.fail(f"pw:{me}")
+    res = client.post(
+        "/api/auth/password",
+        json={"current_password": ADMIN["password"], "new_password": NEW},
+    )
+    assert res.status_code == 429

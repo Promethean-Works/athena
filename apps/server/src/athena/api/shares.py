@@ -135,6 +135,14 @@ def _share(db: Session, share_id: int) -> tuple[Share, FileLocation]:
     return share, loc
 
 
+def _own_share(db: Session, share_id: int, user: Authed) -> tuple[Share, FileLocation]:
+    """The link, for its creator or an admin; other users can't change or remove it."""
+    share, loc = _share(db, share_id)
+    if not user.user.is_admin and share.owner_id != user.user.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only its creator or an admin can do this")
+    return share, loc
+
+
 def _describe(share: Share) -> str:
     parts = [share.mode]
     if share.password_hash:
@@ -149,10 +157,15 @@ def _describe(share: Share) -> str:
 
 @router.get("", operation_id="listShares")
 def list_shares(
-    db: DbSession, location: Annotated[int | None, Query(ge=1)] = None, path: RelPath | None = None
+    user: Authed,
+    db: DbSession,
+    location: Annotated[int | None, Query(ge=1)] = None,
+    path: RelPath | None = None,
 ) -> list[ShareOut]:
-    """All links, newest first, or only those for one location (and path)."""
+    """Your links, newest first (an admin sees everyone's), or only those for one location."""
     query = select(Share, FileLocation).join(FileLocation)
+    if not user.user.is_admin:
+        query = query.where(Share.owner_id == user.user.id)
     if location is not None:
         query = query.where(Share.location_id == location)
         if path is not None:
@@ -174,6 +187,7 @@ async def create_share(body: ShareIn, user: Authed, db: DbSession) -> ShareOut:
         password_hash=hash_password(body.password) if body.password else None,
         expires_at=_future(body.expires_at),
         created_by=user.user.username,
+        owner_id=user.user.id,
     )
     db.add(share)
     db.commit()
@@ -185,7 +199,7 @@ async def create_share(body: ShareIn, user: Authed, db: DbSession) -> ShareOut:
 @router.put("/{share_id}", operation_id="updateShare")
 async def update_share(share_id: int, body: ShareUpdate, user: Authed, db: DbSession) -> ShareOut:
     """Changing or removing the password signs out everyone who unlocked the link."""
-    share, loc = _share(db, share_id)
+    share, loc = _own_share(db, share_id, user)
     if body.mode != share.mode:
         await _run(lambda: shares.check_target(loc, share.path, body.mode))
     share.mode = body.mode
@@ -203,7 +217,7 @@ async def update_share(share_id: int, body: ShareUpdate, user: Authed, db: DbSes
 
 @router.delete("/{share_id}", operation_id="removeShare", status_code=status.HTTP_204_NO_CONTENT)
 def remove_share(share_id: int, user: Authed, db: DbSession) -> Response:
-    share, loc = _share(db, share_id)
+    share, loc = _own_share(db, share_id, user)
     db.delete(share)
     db.commit()
     audit.record(db, user.user.username, "share.remove", _target(loc, share.path))

@@ -126,6 +126,12 @@ class Share(SQLModel, table=True):
     password_hash: str | None = None
     expires_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
     created_by: str = Field(max_length=64)
+    """The creator's username when the link was made, for display only."""
+    owner_id: int | None = Field(
+        default=None, foreign_key="users.id", index=True, ondelete="CASCADE"
+    )
+    """The creator's account. Who may see and change the link; deleting the user removes it.
+    None only for links whose creator no longer existed when this column was added."""
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
     downloads: int = 0
     uploads: int = 0

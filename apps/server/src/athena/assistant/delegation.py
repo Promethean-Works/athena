@@ -31,13 +31,13 @@ from typing import Any
 
 from pydantic_ai import Agent, FunctionToolset, RunContext, UsageLimits
 from pydantic_ai.capabilities import AbstractCapability, Caching, SetToolMetadata
-from pydantic_ai.mcp import MCPToolset
 from pydantic_ai.messages import (
     ModelMessage,
     ModelRequest,
     TextContent,
 )
 from pydantic_ai.models import Model, ModelRequestContext
+from pydantic_ai.toolsets import AbstractToolset
 from pydantic_ai_harness import Advisor, BackgroundTools, DynamicWorkflow, SubAgent, SubAgents
 from pydantic_ai_harness.background_tools import BackgroundToolResultPart
 
@@ -85,7 +85,7 @@ def investigator(
     model: Model,
     manifest: CapabilityManifest,
     data_dir: Any,
-    mcp: list[MCPToolset[Any]] = (),
+    mcp: list[AbstractToolset[Any]] = (),
 ) -> Agent[Deps, str]:
     """The read-only helper for one turn, on the chat's model."""
     return Agent(
@@ -111,7 +111,8 @@ def delegation_capabilities(
 ) -> list[AbstractCapability[Any]]:
     """`delegate_task` with the investigator. Goes after the safety capabilities, so the
     child's answer is screened like any other tool result."""
-    mcp = mcp_toolsets(mcp_servers)
+    # A helper can't ask the admin to approve anything: it gets read-only tools only.
+    mcp = mcp_toolsets(mcp_servers, can_ask=False)
     return [
         SubAgents(
             agents=[
@@ -154,7 +155,8 @@ def workflow_capabilities(
     helpers share the chat's usage, so the spend limit counts them."""
     if window_tokens < WORKFLOW_MIN_WINDOW:
         return []
-    mcp = mcp_toolsets(mcp_servers)
+    # A helper can't ask the admin to approve anything: it gets read-only tools only.
+    mcp = mcp_toolsets(mcp_servers, can_ask=False)
     return [
         DynamicWorkflow(
             agents=[investigator(model, manifest, data_dir, mcp=mcp)],
