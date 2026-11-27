@@ -57,5 +57,18 @@
     "upgradeAllDescription_few": "{{count}} pakiety zostaną zaktualizowane. To może chwilę potrwać.",
     "upgradeAllDescription_many": "{{count}} pakietów zostanie zaktualizowanych. To może chwilę potrwać.",
     "upgradeAllDescription_other": "{{count}} pakietu zostanie zaktualizowane. To może chwilę potrwać."
+  },
+  "details": {
+    "button": "Szczegóły",
+    "buttonLabel": "Szczegóły pakietu {{name}}",
+    "error": "Nie udało się wczytać szczegółów",
+    "updateAvailable": "Dostępna aktualizacja",
+    "installedVersion": "Zainstalowana wersja",
+    "homepage": "Strona domowa",
+    "license": "Licencja",
+    "maintainer": "Opiekun",
+    "source": "Źródło",
+    "size": "Rozmiar",
+    "dependencies": "Zależności"
   }
 }

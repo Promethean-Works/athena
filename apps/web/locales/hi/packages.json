@@ -55,5 +55,18 @@
     "upgradeAllTitle": "{{manager}} के सभी पैकेज अपग्रेड करें?",
     "upgradeAllDescription_one": "{{count}} पैकेज अपग्रेड किया जाएगा। इसमें समय लग सकता है।",
     "upgradeAllDescription_other": "{{count}} पैकेज अपग्रेड किए जाएँगे। इसमें समय लग सकता है।"
+  },
+  "details": {
+    "button": "विवरण",
+    "buttonLabel": "{{name}} का विवरण",
+    "error": "विवरण लोड नहीं हो सके",
+    "updateAvailable": "अपडेट उपलब्ध है",
+    "installedVersion": "इंस्टॉल किया गया संस्करण",
+    "homepage": "होमपेज",
+    "license": "लाइसेंस",
+    "maintainer": "मेंटेनर",
+    "source": "स्रोत",
+    "size": "आकार",
+    "dependencies": "निर्भरताएँ"
   }
 }

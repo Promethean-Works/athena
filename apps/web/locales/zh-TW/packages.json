@@ -54,5 +54,18 @@
     "uninstallDescription": "它會從此伺服器移除。依賴它的套件也可能一併移除。",
     "upgradeAllTitle": "要升級所有 {{manager}} 套件嗎？",
     "upgradeAllDescription_other": "將升級 {{count}} 個套件，可能需要一段時間。"
+  },
+  "details": {
+    "button": "詳細資料",
+    "buttonLabel": "{{name}} 的詳細資料",
+    "error": "無法載入詳細資料",
+    "updateAvailable": "有可用更新",
+    "installedVersion": "已安裝版本",
+    "homepage": "首頁",
+    "license": "授權條款",
+    "maintainer": "維護者",
+    "source": "來源",
+    "size": "大小",
+    "dependencies": "相依項目"
   }
 }

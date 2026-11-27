@@ -55,5 +55,18 @@
     "upgradeAllTitle": "Atualizar todos os pacotes de {{manager}}?",
     "upgradeAllDescription_one": "{{count}} pacote será atualizado. Isso pode demorar.",
     "upgradeAllDescription_other": "{{count}} pacotes serão atualizados. Isso pode demorar."
+  },
+  "details": {
+    "button": "Detalhes",
+    "buttonLabel": "Detalhes de {{name}}",
+    "error": "Não foi possível carregar os detalhes",
+    "updateAvailable": "Atualização disponível",
+    "installedVersion": "Versão instalada",
+    "homepage": "Página inicial",
+    "license": "Licença",
+    "maintainer": "Mantenedor",
+    "source": "Origem",
+    "size": "Tamanho",
+    "dependencies": "Dependências"
   }
 }

@@ -56,5 +56,18 @@
     "upgradeAllDescription_one": "Verrà aggiornato {{count}} pacchetto. Potrebbe richiedere un po' di tempo.",
     "upgradeAllDescription_many": "Verranno aggiornati {{count}} pacchetti. Potrebbe richiedere un po' di tempo.",
     "upgradeAllDescription_other": "Verranno aggiornati {{count}} pacchetti. Potrebbe richiedere un po' di tempo."
+  },
+  "details": {
+    "button": "Dettagli",
+    "buttonLabel": "Dettagli di {{name}}",
+    "error": "Impossibile caricare i dettagli",
+    "updateAvailable": "Aggiornamento disponibile",
+    "installedVersion": "Versione installata",
+    "homepage": "Sito web",
+    "license": "Licenza",
+    "maintainer": "Manutentore",
+    "source": "Origine",
+    "size": "Dimensione",
+    "dependencies": "Dipendenze"
   }
 }

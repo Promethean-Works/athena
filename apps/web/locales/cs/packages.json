@@ -57,5 +57,18 @@
     "upgradeAllDescription_few": "Upgradují se {{count}} balíčky. Může to chvíli trvat.",
     "upgradeAllDescription_many": "Upgraduje se {{count}} balíčku. Může to chvíli trvat.",
     "upgradeAllDescription_other": "Upgraduje se {{count}} balíčků. Může to chvíli trvat."
+  },
+  "details": {
+    "button": "Podrobnosti",
+    "buttonLabel": "Podrobnosti o {{name}}",
+    "error": "Podrobnosti se nepodařilo načíst",
+    "updateAvailable": "K dispozici je aktualizace",
+    "installedVersion": "Nainstalovaná verze",
+    "homepage": "Domovská stránka",
+    "license": "Licence",
+    "maintainer": "Správce balíčku",
+    "source": "Zdroj",
+    "size": "Velikost",
+    "dependencies": "Závislosti"
   }
 }

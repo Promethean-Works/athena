@@ -54,5 +54,18 @@
     "uninstallDescription": "它将从此服务器中移除。依赖它的软件包也可能被一并移除。",
     "upgradeAllTitle": "升级所有 {{manager}} 软件包？",
     "upgradeAllDescription_other": "将升级 {{count}} 个软件包。这可能需要一些时间。"
+  },
+  "details": {
+    "button": "详情",
+    "buttonLabel": "{{name}} 的详情",
+    "error": "无法加载详情",
+    "updateAvailable": "有可用更新",
+    "installedVersion": "已安装版本",
+    "homepage": "主页",
+    "license": "许可证",
+    "maintainer": "维护者",
+    "source": "来源",
+    "size": "大小",
+    "dependencies": "依赖项"
   }
 }

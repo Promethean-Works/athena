@@ -57,5 +57,18 @@
     "upgradeAllDescription_few": "Будет обновлено {{count}} пакета. Это может занять некоторое время.",
     "upgradeAllDescription_many": "Будет обновлено {{count}} пакетов. Это может занять некоторое время.",
     "upgradeAllDescription_other": "Будет обновлено {{count}} пакета. Это может занять некоторое время."
+  },
+  "details": {
+    "button": "Подробности",
+    "buttonLabel": "Подробности о {{name}}",
+    "error": "Не удалось загрузить подробности",
+    "updateAvailable": "Доступно обновление",
+    "installedVersion": "Установленная версия",
+    "homepage": "Домашняя страница",
+    "license": "Лицензия",
+    "maintainer": "Сопровождающий",
+    "source": "Источник",
+    "size": "Размер",
+    "dependencies": "Зависимости"
   }
 }

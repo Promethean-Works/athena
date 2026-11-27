@@ -55,5 +55,18 @@
     "upgradeAllTitle": "Uppgradera alla {{manager}}-paket?",
     "upgradeAllDescription_one": "{{count}} paket kommer att uppgraderas. Det kan ta en stund.",
     "upgradeAllDescription_other": "{{count}} paket kommer att uppgraderas. Det kan ta en stund."
+  },
+  "details": {
+    "button": "Detaljer",
+    "buttonLabel": "Detaljer för {{name}}",
+    "error": "Det gick inte att läsa in detaljerna",
+    "updateAvailable": "Uppdatering tillgänglig",
+    "installedVersion": "Installerad version",
+    "homepage": "Hemsida",
+    "license": "Licens",
+    "maintainer": "Underhållare",
+    "source": "Källa",
+    "size": "Storlek",
+    "dependencies": "Beroenden"
   }
 }

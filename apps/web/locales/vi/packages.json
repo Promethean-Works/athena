@@ -54,5 +54,18 @@
     "uninstallDescription": "Gói sẽ bị gỡ khỏi máy chủ này. Các gói phụ thuộc vào nó cũng có thể bị gỡ.",
     "upgradeAllTitle": "Nâng cấp tất cả gói {{manager}}?",
     "upgradeAllDescription_other": "{{count}} gói sẽ được nâng cấp. Việc này có thể mất một lúc."
+  },
+  "details": {
+    "button": "Chi tiết",
+    "buttonLabel": "Chi tiết về {{name}}",
+    "error": "Không tải được chi tiết",
+    "updateAvailable": "Có bản cập nhật",
+    "installedVersion": "Phiên bản đã cài",
+    "homepage": "Trang chủ",
+    "license": "Giấy phép",
+    "maintainer": "Người bảo trì",
+    "source": "Nguồn",
+    "size": "Kích thước",
+    "dependencies": "Phụ thuộc"
   }
 }

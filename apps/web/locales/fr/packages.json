@@ -55,5 +55,18 @@
     "upgradeAllTitle": "Mettre à niveau tous les paquets {{manager}} ?",
     "upgradeAllDescription_one": "{{count}} paquet sera mis à niveau. Cela peut prendre un moment.",
     "upgradeAllDescription_other": "{{count}} paquets seront mis à niveau. Cela peut prendre un moment."
+  },
+  "details": {
+    "button": "Détails",
+    "buttonLabel": "Détails de {{name}}",
+    "error": "Impossible de charger les détails",
+    "updateAvailable": "Mise à jour disponible",
+    "installedVersion": "Version installée",
+    "homepage": "Page d'accueil",
+    "license": "Licence",
+    "maintainer": "Mainteneur",
+    "source": "Source",
+    "size": "Taille",
+    "dependencies": "Dépendances"
   }
 }

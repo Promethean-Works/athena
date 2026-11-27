@@ -21,6 +21,7 @@ import {
 } from "@workspace/ui/components/tabs"
 
 import { ManagerPanel } from "@/components/packages/manager-panel"
+import { ManagerLogo } from "@/components/packages/package-icon"
 import { useApi } from "@/hooks/use-api"
 
 type Manager = Schemas["ManagerOut"]
@@ -58,6 +59,12 @@ export function PackagesView() {
       <TabsList>
         {list.map((m) => (
           <TabsTrigger key={m.id} value={m.id}>
+            <ManagerLogo
+              id={m.id}
+              label={m.label}
+              hasLogo={m.has_logo}
+              className="size-5"
+            />
             {m.label}
           </TabsTrigger>
         ))}

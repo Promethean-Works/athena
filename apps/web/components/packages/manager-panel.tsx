@@ -57,6 +57,10 @@ import {
 import { toast } from "@workspace/ui/components/toast"
 
 import { JobDialog } from "@/components/job-dialog"
+import {
+  PackageDetailsSheet,
+  type DetailsTarget,
+} from "@/components/packages/package-details"
 
 type Manager = Schemas["ManagerOut"]
 type Job = Schemas["JobOut"]
@@ -108,6 +112,27 @@ function PackageName({ name, title }: { name: string; title?: string | null }) {
 /** "formula" is Homebrew's default and says nothing; casks, remotes and buckets do. */
 function sourceBadge(source?: string | null) {
   return source && source !== "formula" ? source : null
+}
+
+function DetailsButton({
+  name,
+  onOpen,
+}: {
+  name: string
+  onOpen: () => void
+}) {
+  const { t } = useTranslation("packages")
+  return (
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      aria-label={t("details.buttonLabel", { name })}
+      title={t("details.button")}
+      onClick={onOpen}
+    >
+      <InfoIcon />
+    </Button>
+  )
 }
 
 function ListError({ error }: { error: string }) {
@@ -184,6 +209,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
   const [searching, setSearching] = React.useState(false)
   const [searchError, setSearchError] = React.useState<string | null>(null)
   const [lastQuery, setLastQuery] = React.useState("")
+  const [details, setDetails] = React.useState<DetailsTarget | null>(null)
 
   const started = (result: { data?: Job; error?: unknown }, failTitle: string) => {
     if (result.data) setJob(result.data)
@@ -210,7 +236,7 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
     }
   }
 
-  const install = async (pkg: Found) =>
+  const install = async (pkg: Pick<Found, "name" | "source">) =>
     started(
       await api.POST("/api/packages/{manager}/install", {
         ...path,
@@ -373,6 +399,18 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                         </TableCell>
                         <TableCell>
                           <div className="flex justify-end gap-1">
+                            {shortened ? null : (
+                              <DetailsButton
+                                name={p.name}
+                                onOpen={() =>
+                                  setDetails({
+                                    name: p.name,
+                                    source: p.source,
+                                    upgradable: !!up,
+                                  })
+                                }
+                              />
+                            )}
                             {up && manager.can_upgrade_one && !shortened ? (
                               <Button
                                 variant="ghost"
@@ -457,15 +495,23 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                       {u.latest ?? "—"}
                     </TableCell>
                     <TableCell>
-                      {manager.can_upgrade_one ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => upgrade(u.name)}
-                        >
-                          {t("installed.upgrade")}
-                        </Button>
-                      ) : null}
+                      <div className="flex justify-end gap-1">
+                        <DetailsButton
+                          name={u.name}
+                          onOpen={() =>
+                            setDetails({ name: u.name, upgradable: true })
+                          }
+                        />
+                        {manager.can_upgrade_one ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => upgrade(u.name)}
+                          >
+                            {t("installed.upgrade")}
+                          </Button>
+                        ) : null}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -531,18 +577,28 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
                       {r.description}
                     </TableCell>
                     <TableCell>
-                      {r.installed ? (
-                        <Badge variant="secondary">{t("tabs.installed")}</Badge>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => install(r)}
-                        >
-                          <DownloadIcon data-icon="inline-start" />
-                          {t("search.install")}
-                        </Button>
-                      )}
+                      <div className="flex items-center justify-end gap-1">
+                        <DetailsButton
+                          name={r.title ?? r.name}
+                          onOpen={() =>
+                            setDetails({ name: r.name, source: r.source })
+                          }
+                        />
+                        {r.installed ? (
+                          <Badge variant="secondary">
+                            {t("tabs.installed")}
+                          </Badge>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => install(r)}
+                          >
+                            <DownloadIcon data-icon="inline-start" />
+                            {t("search.install")}
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -576,6 +632,14 @@ export function ManagerPanel({ manager }: { manager: Manager }) {
           void upgrade(null)
           setPending(null)
         }}
+      />
+      <PackageDetailsSheet
+        manager={manager}
+        target={details}
+        onClose={() => setDetails(null)}
+        onInstall={(name, source) => void install({ name, source })}
+        onUninstall={(name) => setPending({ kind: "uninstall", name })}
+        onUpgrade={(name) => void upgrade(name)}
       />
       <JobDialog job={job} onClose={() => setJob(null)} onFinished={afterJob} />
     </div>

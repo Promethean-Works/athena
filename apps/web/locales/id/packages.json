@@ -54,5 +54,18 @@
     "uninstallDescription": "Paket dihapus dari server ini. Paket yang bergantung padanya mungkin ikut dihapus.",
     "upgradeAllTitle": "Perbarui semua paket {{manager}}?",
     "upgradeAllDescription_other": "{{count}} paket akan diperbarui. Ini dapat memakan waktu."
+  },
+  "details": {
+    "button": "Detail",
+    "buttonLabel": "Detail {{name}}",
+    "error": "Detail tidak dapat dimuat",
+    "updateAvailable": "Pembaruan tersedia",
+    "installedVersion": "Versi terpasang",
+    "homepage": "Beranda",
+    "license": "Lisensi",
+    "maintainer": "Pemelihara",
+    "source": "Sumber",
+    "size": "Ukuran",
+    "dependencies": "Dependensi"
   }
 }

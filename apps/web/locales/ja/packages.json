@@ -54,5 +54,18 @@
     "uninstallDescription": "このサーバーから削除されます。依存するパッケージも削除される場合があります。",
     "upgradeAllTitle": "{{manager}} のパッケージをすべてアップグレードしますか？",
     "upgradeAllDescription_other": "{{count}} 個のパッケージがアップグレードされます。時間がかかる場合があります。"
+  },
+  "details": {
+    "button": "詳細",
+    "buttonLabel": "{{name}} の詳細",
+    "error": "詳細を読み込めませんでした",
+    "updateAvailable": "アップデートがあります",
+    "installedVersion": "インストール済みのバージョン",
+    "homepage": "ホームページ",
+    "license": "ライセンス",
+    "maintainer": "メンテナー",
+    "source": "ソース",
+    "size": "サイズ",
+    "dependencies": "依存関係"
   }
 }

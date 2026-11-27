@@ -57,5 +57,18 @@
     "upgradeAllDescription_few": "Буде оновлено {{count}} пакети. Це може тривати певний час.",
     "upgradeAllDescription_many": "Буде оновлено {{count}} пакетів. Це може тривати певний час.",
     "upgradeAllDescription_other": "Буде оновлено {{count}} пакета. Це може тривати певний час."
+  },
+  "details": {
+    "button": "Подробиці",
+    "buttonLabel": "Подробиці про {{name}}",
+    "error": "Не вдалося завантажити подробиці",
+    "updateAvailable": "Доступне оновлення",
+    "installedVersion": "Встановлена версія",
+    "homepage": "Домашня сторінка",
+    "license": "Ліцензія",
+    "maintainer": "Супровідник",
+    "source": "Джерело",
+    "size": "Розмір",
+    "dependencies": "Залежності"
   }
 }

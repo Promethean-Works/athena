@@ -56,5 +56,18 @@
     "upgradeAllDescription_one": "Un pachet va fi actualizat. Poate dura ceva timp.",
     "upgradeAllDescription_few": "{{count}} pachete vor fi actualizate. Poate dura ceva timp.",
     "upgradeAllDescription_other": "{{count}} de pachete vor fi actualizate. Poate dura ceva timp."
+  },
+  "details": {
+    "button": "Detalii",
+    "buttonLabel": "Detalii despre {{name}}",
+    "error": "Detaliile nu s-au putut încărca",
+    "updateAvailable": "Actualizare disponibilă",
+    "installedVersion": "Versiune instalată",
+    "homepage": "Pagina principală",
+    "license": "Licență",
+    "maintainer": "Responsabil",
+    "source": "Sursă",
+    "size": "Dimensiune",
+    "dependencies": "Dependențe"
   }
 }

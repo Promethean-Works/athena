@@ -54,5 +54,18 @@
     "uninstallDescription": "이 서버에서 삭제돼요. 이 패키지에 의존하는 패키지도 함께 삭제될 수 있어요.",
     "upgradeAllTitle": "{{manager}} 패키지를 모두 업그레이드할까요?",
     "upgradeAllDescription_other": "패키지 {{count}}개를 업그레이드해요. 시간이 걸릴 수 있어요."
+  },
+  "details": {
+    "button": "상세 정보",
+    "buttonLabel": "{{name}} 상세 정보",
+    "error": "상세 정보를 불러오지 못했습니다",
+    "updateAvailable": "업데이트 가능",
+    "installedVersion": "설치된 버전",
+    "homepage": "홈페이지",
+    "license": "라이선스",
+    "maintainer": "관리자",
+    "source": "출처",
+    "size": "크기",
+    "dependencies": "종속성"
   }
 }

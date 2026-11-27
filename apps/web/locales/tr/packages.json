@@ -55,5 +55,18 @@
     "upgradeAllTitle": "Tüm {{manager}} paketleri yükseltilsin mi?",
     "upgradeAllDescription_one": "{{count}} paket yükseltilecek. Bu biraz sürebilir.",
     "upgradeAllDescription_other": "{{count}} paket yükseltilecek. Bu biraz sürebilir."
+  },
+  "details": {
+    "button": "Ayrıntılar",
+    "buttonLabel": "{{name}} ayrıntıları",
+    "error": "Ayrıntılar yüklenemedi",
+    "updateAvailable": "Güncelleme var",
+    "installedVersion": "Kurulu sürüm",
+    "homepage": "Ana sayfa",
+    "license": "Lisans",
+    "maintainer": "Bakımcı",
+    "source": "Kaynak",
+    "size": "Boyut",
+    "dependencies": "Bağımlılıklar"
   }
 }

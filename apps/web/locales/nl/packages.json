@@ -55,5 +55,18 @@
     "upgradeAllTitle": "Alle {{manager}}-pakketten bijwerken?",
     "upgradeAllDescription_one": "{{count}} pakket wordt bijgewerkt. Dit kan even duren.",
     "upgradeAllDescription_other": "{{count}} pakketten worden bijgewerkt. Dit kan even duren."
+  },
+  "details": {
+    "button": "Details",
+    "buttonLabel": "Details van {{name}}",
+    "error": "Kon de details niet laden",
+    "updateAvailable": "Update beschikbaar",
+    "installedVersion": "Geïnstalleerde versie",
+    "homepage": "Homepage",
+    "license": "Licentie",
+    "maintainer": "Beheerder",
+    "source": "Bron",
+    "size": "Grootte",
+    "dependencies": "Afhankelijkheden"
   }
 }
