@@ -6,6 +6,10 @@
     "open": "Aç"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "Sistem",
       "description": "Canlı CPU, bellek, ağ ve disk etkinliği."

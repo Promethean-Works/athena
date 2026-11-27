@@ -53,6 +53,29 @@ def _no_runtime(detail: str) -> Capability:
     )
 
 
+def _extra_runtime(probe: Probe) -> Capability | None:
+    """Newer Rust engines, tried after the usual ones: Kiri (any OS) and FerroCrate (Linux)."""
+    if probe.which("kiri"):
+        result = probe.run(
+            ["docker", "context", "inspect", "kiri", "--format", "{{.Endpoints.docker.Host}}"]
+        )
+        endpoint = result.first_line if result.ok else ""
+        if endpoint and (version := probe.docker_version(endpoint)):
+            return _engine("kiri", version, endpoint, endpoint)
+        return Capability(
+            id=CONTAINERS,
+            label=CONTAINERS_LABEL,
+            status="stopped",
+            provider="kiri",
+            detail="Kiri is installed but not running",
+            actions=["start"],
+        )
+    sock = "/var/run/ferrocrate.sock"
+    if probe.which("ferro-cli") and (version := probe.docker_version(f"unix://{sock}")):
+        return _engine("ferrocrate", version, sock, f"unix://{sock}")
+    return None
+
+
 def detect_containers_linux(probe: Probe) -> Capability:
     candidates = [
         ("docker-engine", "/var/run/docker.sock"),
@@ -81,7 +104,9 @@ def detect_containers_linux(probe: Probe) -> Capability:
             "(systemctl enable --now podman.socket)",
             actions=["start"],
         )
-    return _no_runtime("No container engine found. Install Docker Engine or Podman.")
+    return _extra_runtime(probe) or _no_runtime(
+        "No container engine found. Install Docker Engine, Podman or Kiri."
+    )
 
 
 def detect_containers_darwin(probe: Probe) -> Capability:
@@ -114,7 +139,7 @@ def detect_containers_darwin(probe: Probe) -> Capability:
             detail="Podman is installed but its machine isn't running",
             actions=["start"],
         )
-    return _no_runtime(
+    return _extra_runtime(probe) or _no_runtime(
         "Colima not found. Install it with: brew install colima docker docker-compose"
     )
 
@@ -152,8 +177,9 @@ def detect_containers_windows(probe: Probe) -> Capability:
             detail="A container runtime is installed but not running",
             actions=["start"],
         )
-    return _no_runtime(
-        "No container runtime found. Install Docker Engine in WSL2, Podman, or Rancher Desktop."
+    return _extra_runtime(probe) or _no_runtime(
+        "No container runtime found. Install Docker Engine in WSL2, Podman, Rancher Desktop "
+        "or Kiri."
     )
 
 

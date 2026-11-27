@@ -12,12 +12,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from athena import audit
 from athena.api.jobs import SSE_HEADERS
 from athena.auth.deps import Authed, DbSession
 from athena.containers import service
+from athena.containers.installers import RuntimeOption, options_for, plan_install, run_plan
 from athena.containers.runtime import (
     Runtime,
     RuntimeUnavailableError,
@@ -31,11 +32,17 @@ from athena.containers.service import (
     ContainerOut,
 )
 from athena.jobs import Job, JobManager, JobOut, run_or_fail
+from athena.packages.base import command_env, resolve
 from athena.platform.store import CapabilityStore
 
 router = APIRouter(prefix="/containers", tags=["containers"])
 
 ContainerRef = Annotated[str, Path(pattern=CONTAINER_REF, max_length=255)]
+
+
+def _require_admin(user: Authed) -> None:
+    if not user.user.is_admin:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can do this")
 
 
 async def get_runtime(request: Request) -> Runtime:
@@ -209,4 +216,67 @@ async def start_runtime(request: Request, user: Authed, db: DbSession) -> JobOut
 
     job = jobs.start(f"Start {capability.provider}", body)
     audit.record(db, user.user.username, "runtime.start", capability.provider)
+    return job.out()
+
+
+class RuntimeInstallIn(BaseModel):
+    id: Annotated[str, Field(pattern=r"^[a-z][a-z0-9-]{0,39}$")]
+    """One of `GET /containers/runtime/options`."""
+
+
+async def _install_context(request: Request) -> tuple[str, str, set[str], str | None]:
+    manifest = await request.app.state.capabilities.get()
+    managers = {
+        c.id.removeprefix("packages.")
+        for c in manifest.capabilities
+        if c.id.startswith("packages.") and c.available
+    }
+    containers = manifest.get("containers")
+    provider = containers.provider if containers and containers.available else None
+    return manifest.os, manifest.arch, managers, provider
+
+
+@runtime_router.get("/options", operation_id="listContainerRuntimeOptions")
+async def runtime_options(request: Request, user: Authed) -> list[RuntimeOption]:
+    """The runtimes that make sense on this host, and whether Athena can install each."""
+    _require_admin(user)
+    os_name, arch, managers, provider = await _install_context(request)
+    return options_for(os_name, arch, managers, provider)  # pyright: ignore[reportArgumentType]
+
+
+@runtime_router.post(
+    "/install", operation_id="installContainerRuntime", status_code=status.HTTP_202_ACCEPTED
+)
+async def install_runtime(
+    body: RuntimeInstallIn, request: Request, user: Authed, db: DbSession
+) -> JobOut:
+    """Install a runtime from `/options`. Follow progress at /api/jobs/{id}/events."""
+    _require_admin(user)
+    os_name, arch, managers, _ = await _install_context(request)
+    plan = plan_install(body.id, os_name, arch, managers)  # pyright: ignore[reportArgumentType]
+    if plan is None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, f"Athena can't install {body.id} on this host"
+        )
+    jobs: JobManager = request.app.state.jobs
+    store: CapabilityStore = request.app.state.capabilities
+
+    async def body_fn(job: Job) -> None:
+        async def step(argv: list[str]) -> None:
+            await run_or_fail(job, resolve(argv), f"{argv[0]}", env=command_env())
+
+        await run_plan(plan, step, job.log)
+        await job.log("Re-detecting capabilities…")
+        refreshed = await store.refresh()
+        containers = refreshed.get("containers")
+        if containers is not None and containers.available:
+            await job.log(containers.detail or "Container runtime is ready")
+        else:
+            await job.log(
+                (plan.note + " " if plan.note else "")
+                + "Installed. Start it from the runtime step, then check again."
+            )
+
+    job = jobs.start(f"Install {body.id}", body_fn)
+    audit.record(db, user.user.username, "containers.runtime_install", body.id)
     return job.out()

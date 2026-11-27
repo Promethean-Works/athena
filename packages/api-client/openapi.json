@@ -535,6 +535,167 @@
         }
       }
     },
+    "/api/containers/runtime/options": {
+      "get": {
+        "tags": [
+          "containers"
+        ],
+        "summary": "Runtime Options",
+        "description": "The runtimes that make sense on this host, and whether Athena can install each.",
+        "operationId": "listContainerRuntimeOptions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RuntimeOption"
+                  },
+                  "type": "array",
+                  "title": "Response Listcontainerruntimeoptions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/containers/runtime/install": {
+      "post": {
+        "tags": [
+          "containers"
+        ],
+        "summary": "Install Runtime",
+        "description": "Install a runtime from `/options`. Follow progress at /api/jobs/{id}/events.",
+        "operationId": "installContainerRuntime",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuntimeInstallIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/onboarding": {
+      "get": {
+        "tags": [
+          "onboarding"
+        ],
+        "summary": "Get Onboarding",
+        "operationId": "getOnboarding",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/onboarding/network": {
+      "put": {
+        "tags": [
+          "onboarding"
+        ],
+        "summary": "Set Network",
+        "description": "Save where Athena listens (`server.host` and `server.port` in athena.json).\nIt applies when Athena restarts.",
+        "operationId": "setOnboardingNetwork",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NetworkSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/onboarding/complete": {
+      "post": {
+        "tags": [
+          "onboarding"
+        ],
+        "summary": "Complete",
+        "description": "Finish (or dismiss) the wizard; the dashboard stops offering it.",
+        "operationId": "completeOnboarding",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/onboarding/reset": {
+      "post": {
+        "tags": [
+          "onboarding"
+        ],
+        "summary": "Reset",
+        "description": "Open the wizard again (the dashboard offers it until it's finished).",
+        "operationId": "resetOnboarding",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
     "/api/containers": {
       "get": {
         "tags": [
@@ -10649,6 +10810,30 @@
         ],
         "title": "NameIn"
       },
+      "NetworkSettings": {
+        "properties": {
+          "host": {
+            "type": "string",
+            "enum": [
+              "0.0.0.0",
+              "127.0.0.1"
+            ],
+            "title": "Host"
+          },
+          "port": {
+            "type": "integer",
+            "maximum": 65535.0,
+            "minimum": 1.0,
+            "title": "Port"
+          }
+        },
+        "type": "object",
+        "required": [
+          "host",
+          "port"
+        ],
+        "title": "NetworkSettings"
+      },
       "NewApp": {
         "properties": {
           "compose": {
@@ -10809,6 +10994,36 @@
           "created_at"
         ],
         "title": "NfsShareOut"
+      },
+      "OnboardingOut": {
+        "properties": {
+          "completed": {
+            "type": "boolean",
+            "title": "Completed"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/StepOut"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "network": {
+            "$ref": "#/components/schemas/NetworkSettings"
+          },
+          "restart_required": {
+            "type": "boolean",
+            "title": "Restart Required",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "completed",
+          "steps",
+          "network"
+        ],
+        "title": "OnboardingOut"
       },
       "OptionExample": {
         "properties": {
@@ -12008,6 +12223,77 @@
         "title": "Retention",
         "description": "How many versions of each item a plan keeps (`restic forget --keep-\u2026`)."
       },
+      "RuntimeInstallIn": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,39}$",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "RuntimeInstallIn"
+      },
+      "RuntimeOption": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "detected": {
+            "type": "boolean",
+            "title": "Detected",
+            "default": false
+          },
+          "recommended": {
+            "type": "boolean",
+            "title": "Recommended",
+            "default": false
+          },
+          "tag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tag"
+          },
+          "can_install": {
+            "type": "boolean",
+            "title": "Can Install",
+            "default": false
+          },
+          "manual": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Manual",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "description"
+        ],
+        "title": "RuntimeOption"
+      },
       "SettingsFileOut": {
         "properties": {
           "path": {
@@ -12591,6 +12877,32 @@
           "history"
         ],
         "title": "StatsSnapshot"
+      },
+      "StepOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "account",
+              "language",
+              "runtime",
+              "locations",
+              "network",
+              "ai"
+            ],
+            "title": "Id"
+          },
+          "done": {
+            "type": "boolean",
+            "title": "Done"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "done"
+        ],
+        "title": "StepOut"
       },
       "StoreApp": {
         "properties": {

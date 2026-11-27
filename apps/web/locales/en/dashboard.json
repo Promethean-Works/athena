@@ -6,6 +6,10 @@
     "open": "Open"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "System",
       "description": "Live CPU, memory, network and disk activity."

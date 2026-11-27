@@ -8,6 +8,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 ## In progress
 
+- Onboarding wizard (`docs/specs/onboarding-wizard.md`): built in one PR (web stepper at `/setup` and `/onboarding`, `athena onboard`, runtime install incl. Kiri). Not verified: a real runtime install on any OS (Install button and job dialog never clicked), Windows/macOS plans (fakes only), CLI `sudo`, the language step save, `/setup` stepper at 390px. Follow-ups: the runtime options list is stale after an install until reload; users with a saved dashboard layout add the "Finish setup" card from Customize; the 20 non-English `onboarding.json` files are English copies.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
 - Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Follow-up: share a sub-folder of a location.
 - Self-update (`docs/specs/self-update.md`): all 4 parts done (part 4: backup first + interrupted banner). Not verified: Fedora, hand failure cases, real UI update (E2E smoke), a real backup-then-update. Follow-up: CLI backup step and `--no-backup` (needs a CLI path into the backup code).

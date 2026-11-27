@@ -6,6 +6,10 @@
     "open": "開く"
   },
   "cards": {
+    "onboarding": {
+      "title": "Finish setup",
+      "description": "The first-run checklist, until it is finished."
+    },
     "stats": {
       "title": "システム",
       "description": "CPU、メモリ、ネットワーク、ディスクのリアルタイムの動作状況。"

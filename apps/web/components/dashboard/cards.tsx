@@ -9,6 +9,7 @@ import {
   HardDriveIcon,
   HistoryIcon,
   LayoutGridIcon,
+  ListChecksIcon,
   PlugZapIcon,
   ServerIcon,
   ShieldCheckIcon,
@@ -30,6 +31,7 @@ import { PowerCard } from "@/components/dashboard/power-card"
 import { RemoteAccessCard } from "@/components/dashboard/remote-access-card"
 import { HostCapabilities } from "@/components/host-capabilities"
 import { BackupCard } from "@/components/dashboard/backup-card"
+import { FinishSetupCard } from "@/components/onboarding/finish-setup-card"
 import { ServerOverview } from "@/components/server-overview"
 
 export type CardSize = "half" | "full"
@@ -56,6 +58,15 @@ export type DashboardCardDef = {
  * grid hides empty cells. Ids are stored per user, so never rename one.
  */
 export const DASHBOARD_CARDS: DashboardCardDef[] = [
+  {
+    id: "onboarding",
+    titleKey: "cards.onboarding.title",
+    descriptionKey: "cards.onboarding.description",
+    icon: ListChecksIcon,
+    defaultSize: "full",
+    adminOnly: true,
+    render: () => <FinishSetupCard />,
+  },
   {
     id: "stats",
     titleKey: "cards.stats.title",

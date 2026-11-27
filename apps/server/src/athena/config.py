@@ -32,7 +32,7 @@ def default_data_dir() -> Path:
 DEFAULT_FEEDBACK_REPO = "https://github.com/Promethean-Works/athena"
 DEFAULT_UPDATE_CHECK_URL = "https://api.github.com/repos/Promethean-Works/athena/releases/latest"
 SETTINGS_FILE = "athena.json"
-SECTIONS = ("server", "system", "https", "ai", "webdav", "backup")
+SECTIONS = ("server", "system", "https", "ai", "webdav", "backup", "onboarding")
 """The sections of athena.json, in file order (`athena.settings_file.AthenaConfig`)."""
 
 

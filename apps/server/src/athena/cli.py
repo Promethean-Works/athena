@@ -770,6 +770,13 @@ def _update(args: argparse.Namespace) -> int:
     return self_update.update(opts, print)
 
 
+def _onboard(args: argparse.Namespace) -> int:
+    """The setup wizard in the terminal (docs/specs/onboarding-wizard.md)."""
+    from athena import onboard_cli
+
+    return onboard_cli.run(args)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="athena", description="Athena home server")
     parser.add_argument("--version", action="version", version=f"athena {__version__}")
@@ -882,6 +889,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
     update.add_argument("--data-dir", type=Path, default=default_data_dir())
     update.set_defaults(func=_update)
+
+    onboard = sub.add_parser("onboard", help="run the setup wizard (account, runtime, folders…)")
+    onboard.add_argument("--data-dir", type=Path, default=default_data_dir())
+    onboard.add_argument("--yes", "-y", action="store_true", help="no prompts: use flags/current")
+    onboard.add_argument("--reset", action="store_true", help="open the web wizard again")
+    onboard.add_argument("--username", help="the admin account to create, if there is none")
+    onboard.add_argument("--password-stdin", action="store_true", help="read the password on stdin")
+    onboard.add_argument("--language", help="UI language: auto, en, pt-BR…")
+    onboard.add_argument("--runtime", help="install this container runtime (see the prompt)")
+    onboard.add_argument("--location", action="append", metavar="NAME=PATH", help="add a folder")
+    onboard.add_argument("--host", choices=["0.0.0.0", "127.0.0.1"], help="where to listen")
+    onboard.add_argument("--port", type=int, help="the HTTP port")
+    onboard.set_defaults(func=_onboard)
 
     return parser
 
