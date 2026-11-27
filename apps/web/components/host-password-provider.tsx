@@ -54,6 +54,7 @@ export function HostPasswordProvider({
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const [asking, setAsking] = React.useState<Asking | null>(null)
   const [value, setValue] = React.useState("")
+  const input = React.useRef<HTMLInputElement>(null)
   const [checking, setChecking] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -122,6 +123,8 @@ export function HostPasswordProvider({
     if (response.ok || response.status === 409) return finish(value)
     setError(errorMessage(err))
     setValue("")
+    // The button the admin clicked was disabled during the check and dropped focus.
+    requestAnimationFrame(() => input.current?.focus())
   }
 
   const session = React.useMemo(
@@ -150,6 +153,7 @@ export function HostPasswordProvider({
               <Label htmlFor="host-password">{t("hostPassword.label")}</Label>
               <Input
                 id="host-password"
+                ref={input}
                 type="password"
                 autoComplete="current-password"
                 autoFocus
