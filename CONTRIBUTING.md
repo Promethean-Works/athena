@@ -2,6 +2,31 @@
 
 Thanks for helping out! This guide covers how changes get into Athena. Set up your machine with [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), read [docs/design/README.md](docs/design/README.md) for the architecture and [docs/STATUS.md](docs/STATUS.md) for what's being worked on.
 
+## Quick start: clone, set up, open a PR
+
+```bash
+# 1. Clone and set up (tools, dependencies, git hooks, coding agents)
+git clone https://github.com/Promethean-Works/athena.git
+cd athena
+scripts/bootstrap.sh            # macOS and Linux; Windows steps are in docs/DEVELOPMENT.md
+gh auth login                   # once, for PRs and CI
+
+# 2. Work in your own worktree, never in this base checkout (it stays on main)
+scripts/new-worktree.sh feat/my-change
+cd ../worktrees/athena-my-change
+
+# 3. Change things, then run the CI checks
+scripts/check.sh
+
+# 4. Commit, push and open the PR (the title is a Conventional Commit)
+git add -A && git commit -m "feat(store): add install form"
+git push -u origin HEAD
+gh pr create --title "feat(store): add install form" --fill
+gh pr merge --squash --auto --delete-branch   # merges itself once CI passes
+```
+
+Details of each step are below; `scripts/bootstrap.sh --check` shows what's missing on your machine.
+
 ## Workflow
 
 `main` is protected. Nobody pushes to it directly, maintainers included. Every change goes through a branch and a pull request.

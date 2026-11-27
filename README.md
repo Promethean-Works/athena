@@ -101,7 +101,7 @@ Athena refuses to start with an invalid file rather than guessing, and keeps the
 
 ## Development
 
-The project is a monorepo: a Next.js + shadcn/ui frontend (pnpm + Turborepo) and a Python backend (uv). **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** is the full guide: setting up a machine (including AI coding agents, with one command), the daily workflow, and troubleshooting.
+The project is a monorepo: a Next.js + shadcn/ui frontend (pnpm + Turborepo) and a Python backend (uv). **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** is the full guide: setting up a machine (including AI coding agents, with one command), the daily workflow, and troubleshooting. To contribute: clone, run `scripts/bootstrap.sh`, and follow the quick start in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Requirements:** Node.js 20.9+, [pnpm](https://pnpm.io), and [uv](https://docs.astral.sh/uv/).
 
