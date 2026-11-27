@@ -5,6 +5,7 @@ import json
 import re
 from typing import ClassVar
 
+from athena.packages.aliases import abbreviation_match, match_rank, normalize
 from athena.packages.base import (
     SEARCH_LIMIT,
     InstalledPackage,
@@ -18,6 +19,7 @@ from athena.packages.base import (
 
 # ------------------------------------------------------------------ Homebrew
 
+ABBREVIATION_LIMIT = 20
 BREW_INFO_LIMIT = 30  # `brew info` adds versions and descriptions for the top results
 
 
@@ -118,8 +120,13 @@ class Brew(PackageManager):
 
     async def search(self, query: str) -> list[PackageRef]:
         # Exit code 1 means "no formulae or casks found".
-        names = parse_brew_search(await self.run(["brew", "search", query], "brew search", (0, 1)))
-        names = names[:SEARCH_LIMIT]
+        found = parse_brew_search(await self.run(["brew", "search", query], "brew search", (0, 1)))
+        # `brew search` only matches names as typed: add what the local lists match by
+        # abbreviation (vscode -> visual-studio-code), then rank everything by how it matches.
+        extra = await self._abbreviations(query)
+        names = list(dict.fromkeys([*found, *extra]))
+        ranks = {n: match_rank(query, n) for n in names}
+        names = sorted(names, key=lambda n: (ranks[n], len(n)))[:SEARCH_LIMIT]
         if not names:
             return []
         top = names[:BREW_INFO_LIMIT]
@@ -129,7 +136,23 @@ class Brew(PackageManager):
                 await self.run(["brew", "info", "--json=v2", *top], "brew info")
             )
         }
-        return [detailed.get(n) or PackageRef(name=n) for n in names]
+        results = [detailed.get(n) or PackageRef(name=n) for n in names]
+        # The display name ("VS Code") can match better than the token: rank again with it.
+        results.sort(
+            key=lambda r: (min(ranks[r.name], match_rank(query, r.name, r.title)), len(r.name))
+        )
+        return results
+
+    async def _abbreviations(self, query: str) -> list[str]:
+        """Formulae and casks whose words abbreviate to the query (both lists are local)."""
+        if len(normalize(query)) < 3:
+            return []
+        out: list[str] = []
+        for cmd in ("formulae", "casks"):
+            result = await self._run(["brew", cmd], self.env)
+            if result.code == 0:
+                out += [n for n in nonblank(result.stdout) if abbreviation_match(query, n.strip())]
+        return out[:ABBREVIATION_LIMIT]
 
     async def installed(self) -> list[InstalledPackage]:
         out = await self.run(["brew", "info", "--json=v2", "--installed"], "brew info")

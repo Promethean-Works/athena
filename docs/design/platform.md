@@ -72,6 +72,8 @@ Use machine-readable output where it exists (`brew --json`, `winget --output jso
 | scoop | `scoop search` (dash-row table) | `scoop export` (JSON) | `scoop status` | `.cmd` shim resolved with `shutil.which` |
 | choco | `--limit-output` (`name\|version`) | `choco list -r` | `choco outdated -r` | Machine-wide: needs an elevated Athena |
 
+**Search finds what people mean.** `PackageManager.find()` (used by the API and the assistant) runs `search` for the query and its spellings from `athena/packages/aliases.py` (a small alias table like `vscode` → `visual studio code`, hyphens ↔ spaces), merges and de-duplicates by name and source. Homebrew also adds formulae and casks whose words abbreviate to the query (`vscode` = **v**isual-**s**tudio-**code**, from the local `brew formulae` / `brew casks`) and ranks exact, abbreviation, prefix, substring.
+
 Fixtures (`tests/fixtures/packages/`, README says how each was captured): brew, apt, apk, dnf (4 and 5), zypper, pacman and flatpak search are real recordings, made in throwaway containers from the distros' own registries; winget's list is a real recording from the Windows CI runner; snap, Scoop, Chocolatey and the other winget files are hand-written from documented formats. Read-only tests run the real tool where it exists (brew on macOS, apt on Ubuntu, choco and winget on Windows CI). The first CI run caught a wrong assumption (winget ids can contain spaces), which is how the real winget fixture was captured.
 
 ## Privilege model

@@ -305,7 +305,7 @@ async def search_packages(ctx: Ctx, manager: str, query: str) -> list[dict[str, 
     _check(manager, MANAGER_ID, "manager")
     _check(query.strip(), SEARCH_QUERY.pattern, "query")
     pm = await _http(packages._manager(ctx.deps.request(), manager))
-    found = await _http(packages._read(pm.search(query.strip())))
+    found = await _http(packages._read(pm.find(query.strip())))
     return [p.model_dump() for p in found[:MAX_PACKAGES]]
 
 

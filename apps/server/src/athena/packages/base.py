@@ -152,6 +152,22 @@ class PackageManager:
     async def search(self, query: str) -> list[PackageRef]:
         raise NotImplementedError
 
+    async def find(self, query: str) -> list[PackageRef]:
+        """`search` over the query and its aliases (vscode -> visual studio code), merged.
+
+        The query itself decides success: an alias that errors or finds nothing is skipped.
+        """
+        from athena.packages.aliases import expand_query, merge_results
+
+        queries = expand_query(query)
+        batches = [await self.search(queries[0])]
+        for extra in queries[1:]:
+            try:
+                batches.append(await self.search(extra))
+            except PackageError:
+                continue
+        return merge_results(batches)[:SEARCH_LIMIT]
+
     async def installed(self) -> list[InstalledPackage]:
         raise NotImplementedError
 

@@ -115,7 +115,7 @@ async def search(
     request: Request,
     q: Annotated[str, Query(pattern=SEARCH_QUERY.pattern)],
 ) -> list[PackageRef]:
-    return await _read((await _manager(request, manager)).search(q.strip()))
+    return await _read((await _manager(request, manager)).find(q.strip()))
 
 
 @router.get("/{manager}/installed", operation_id="listInstalledPackages")

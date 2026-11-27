@@ -2,6 +2,7 @@
 plus the read flows with a fake runner. Runs on every OS."""
 
 import asyncio
+import json
 from pathlib import Path
 
 import pytest
@@ -217,17 +218,49 @@ def test_brew_search_enriches_top_results() -> None:
         calls.append(argv)
         if argv[1] == "search":
             return CmdResult(0, fx("brew/search.txt"), "")
+        if argv[1] in ("formulae", "casks"):
+            return CmdResult(0, "", "")
         return CmdResult(0, fx("brew/info-search.json"), "")
 
     results = asyncio.run(pk_apps.Brew(run).search("jq"))
     by = {r.name: r for r in results}
     assert by["gojq"].description and by["ijq"].description is None
-    assert calls[1][:3] == ["brew", "info", "--json=v2"]
+    assert results[0].name == "jq"  # exact name first
+    assert calls[-1][:3] == ["brew", "info", "--json=v2"]
     assert pk_apps.Brew().install_argv("jquake", "cask") == ["brew", "install", "--cask", "jquake"]
+
+
+def test_brew_search_finds_vscode_by_abbreviation() -> None:
+    """`brew search vscode` finds nothing; the cask is visual-studio-code (VS Code)."""
+    cask = {
+        "token": "visual-studio-code",
+        "name": ["Microsoft Visual Studio Code", "VS Code"],
+        "desc": "Open-source code editor",
+        "version": "1.9",
+    }
+    info = json.dumps({"formulae": [], "casks": [cask]})
+    asked = []
+
+    async def run(argv, env):
+        if argv[1] == "search":
+            return CmdResult(1, "", "Error: No formulae or casks found for vscode.")
+        if argv[1] == "formulae":
+            return CmdResult(0, "vscode-langservers-extracted\nvim\n", "")
+        if argv[1] == "casks":
+            return CmdResult(0, "visual-studio-code\nvisual-studio-code@insiders\nvlc\n", "")
+        asked.append(argv)
+        return CmdResult(0, info, "")
+
+    results = asyncio.run(pk_apps.Brew(run).search("vscode"))
+    assert results[0].name == "visual-studio-code"
+    assert results[0].title == "Microsoft Visual Studio Code"
+    assert "vlc" not in asked[0] and "visual-studio-code@insiders" in asked[0]
 
 
 def test_brew_no_results() -> None:
     async def run(argv, env):
+        if argv[1] in ("formulae", "casks"):
+            return CmdResult(0, "", "")
         return CmdResult(1, "", "Error: No formulae or casks found for zzz.")
 
     assert asyncio.run(pk_apps.Brew(run).search("zzz")) == []
@@ -393,3 +426,47 @@ def test_real_tool_reads(manager_id: str) -> None:
     if manager_id in ("apt", "brew"):  # searches that work from local package data
         found = asyncio.run(pm.search("jq"))
         assert any(r.name == "jq" for r in found), [r.name for r in found][:10]
+
+
+# ---------------------------------------------------------------- aliases and name matching
+
+
+def test_abbreviation_match() -> None:
+    from athena.packages.aliases import abbreviation_match as ab
+
+    assert ab("vscode", "visual-studio-code")
+    assert ab("vs code", "visual-studio-code@insiders")
+    assert ab("vsc", "visual-studio-code")
+    assert ab("gcp", "google-cloud-platform")
+    assert not ab("vscode", "vscode")  # a plain name isn't an abbreviation
+    assert not ab("vscode", "vlc")
+    assert not ab("code", "visual-studio-code")  # must start at the first word
+    assert not ab("vscode", "vscode-langservers-extracted")
+    assert not ab("vs", "visual-studio-code")  # too short
+
+
+def test_expand_query_and_rank() -> None:
+    from athena.packages.aliases import expand_query, match_rank
+
+    assert expand_query("vscode") == ["vscode", "visual studio code"]
+    assert expand_query("jq") == ["jq"]
+    assert expand_query("visual-studio") == ["visual-studio", "visual studio"]
+    assert match_rank("vscode", "visual-studio-code") == 1
+    assert match_rank("vscode", "x", "VS Code") == 0
+    assert match_rank("jq", "jq") == 0 < match_rank("jq", "jquake") == 2 < match_rank("jq", "gojq")
+
+
+def test_find_merges_aliases_and_ignores_failing_alias() -> None:
+    class Fake(pk_apps.PackageManager):
+        id = "fake"
+        label = "Fake"
+
+        async def search(self, query):
+            if query == "vscode":
+                return []
+            if query == "visual studio code":
+                return [pk_apps.PackageRef(name="Microsoft.VisualStudioCode")]
+            raise PackageError("boom")
+
+    found = asyncio.run(Fake().find("vscode"))
+    assert [r.name for r in found] == ["Microsoft.VisualStudioCode"]
