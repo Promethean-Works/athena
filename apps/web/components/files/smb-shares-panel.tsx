@@ -57,6 +57,11 @@ import {
   ConnectionString,
   serverHost,
 } from "@/components/files/connection-string"
+import {
+  canCreateShare,
+  HostPasswordField,
+  hostPasswordHeader,
+} from "@/components/files/elevation"
 import { ShareCapabilityNotice } from "@/components/files/share-capability-notice"
 
 type SmbShare = Schemas["SmbShareOut"]
@@ -76,6 +81,7 @@ export function SmbSharesPanel() {
   const [name, setName] = React.useState("")
   const [readOnly, setReadOnly] = React.useState(false)
   const [guestOk, setGuestOk] = React.useState(false)
+  const [password, setPassword] = React.useState("")
   const [formError, setFormError] = React.useState<string | null>(null)
 
   const locationItems = React.useMemo(
@@ -113,6 +119,7 @@ export function SmbSharesPanel() {
         read_only: readOnly,
         guest_ok: guestOk,
       },
+      params: { header: hostPasswordHeader(capability, password) },
     })
     setPending(false)
     if (!data) {
@@ -123,6 +130,7 @@ export function SmbSharesPanel() {
     setName("")
     setReadOnly(false)
     setGuestOk(false)
+    setPassword("")
     await load()
     toast.add({
       type: "success",
@@ -148,7 +156,7 @@ export function SmbSharesPanel() {
     toast.add({ type: "success", title: t("smb.removed") })
   }
 
-  const ready = capability?.status === "ready"
+  const ready = canCreateShare(capability)
   // Windows can't share to guests from here (the server refuses it).
   const canGuest = capability?.provider !== "smbshare"
 
@@ -299,6 +307,13 @@ export function SmbSharesPanel() {
                   </Field>
                 ) : null}
               </div>
+              <HostPasswordField
+                id="share-host-password"
+                capability={capability}
+                value={password}
+                onChange={setPassword}
+                disabled={pending}
+              />
             </FieldGroup>
 
             <DialogFooter>

@@ -60,6 +60,11 @@ import {
   ConnectionString,
   serverHost,
 } from "@/components/files/connection-string"
+import {
+  canCreateShare,
+  HostPasswordField,
+  hostPasswordHeader,
+} from "@/components/files/elevation"
 import { ShareCapabilityNotice } from "@/components/files/share-capability-notice"
 
 type NfsShare = Schemas["NfsShareOut"]
@@ -82,6 +87,7 @@ export function NfsSharesPanel() {
   const [locationId, setLocationId] = React.useState<number | null>(null)
   const [clients, setClients] = React.useState("")
   const [readOnly, setReadOnly] = React.useState(false)
+  const [password, setPassword] = React.useState("")
   const [formError, setFormError] = React.useState<string | null>(null)
 
   const locationItems = React.useMemo(
@@ -124,6 +130,7 @@ export function NfsSharesPanel() {
         clients: list,
         read_only: readOnly,
       },
+      params: { header: hostPasswordHeader(capability, password) },
     })
     setPending(false)
     if (!data) {
@@ -133,6 +140,7 @@ export function NfsSharesPanel() {
     setDialogOpen(false)
     setClients("")
     setReadOnly(false)
+    setPassword("")
     await load()
     toast.add({
       type: "success",
@@ -158,7 +166,7 @@ export function NfsSharesPanel() {
     toast.add({ type: "success", title: t("network.nfs.removed") })
   }
 
-  const ready = capability?.status === "ready"
+  const ready = canCreateShare(capability)
 
   if (shares === null) {
     return <Skeleton className="h-40 w-full" />
@@ -322,6 +330,13 @@ export function NfsSharesPanel() {
                   {t("smb.readOnly")}
                 </FieldLabel>
               </Field>
+              <HostPasswordField
+                id="share-host-password"
+                capability={capability}
+                value={password}
+                onChange={setPassword}
+                disabled={pending}
+              />
             </FieldGroup>
 
             <DialogFooter>
