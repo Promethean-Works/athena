@@ -137,7 +137,7 @@ function page(key, label) {
   <a class="l" href="index.html">Docs</a>
   <a class="l" href="comparison.html">Comparison</a>
   <a class="l" href="../index.html#install">Install</a>
-  <a class="btn sm" href="https://github.com/Promethean-Works/athena">GitHub</a>
+  <a class="btn sm star" href="https://github.com/Promethean-Works/athena" data-star><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span>Star on GitHub</span><b class="count" hidden></b></a>
 </div></header>
 <div class="wrap wide docs-layout">
   <details class="side" id="side" open><summary>Menu</summary><nav>${side}</nav></details>
@@ -151,6 +151,7 @@ ${pn}
 </div>
 <script>if (matchMedia("(max-width:900px)").matches) document.getElementById("side").open = false</script>
 <script src="../copy.js" defer></script>
+<script src="../star.js" defer></script>
 </body>
 </html>
 `
