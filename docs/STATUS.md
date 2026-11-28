@@ -10,7 +10,7 @@ Finished work is in `docs/HISTORY.md` (read it only when needed). When you finis
 
 - User folders (`docs/specs/user-folders.md`): PR open. Next: back up `users/` (in no snapshot; a restore leaves them in `athena.before-restore-*`), then pentest pass 2.
 - Package manager UI (`docs/specs/package-manager-ui.md`): merged (#327, #328). Not verified: real MacPorts/Homebrew/Scoop/Chocolatey installs; hand-written MacPorts/winget/scoop/choco fixtures.
-- Multi-user (`docs/specs/multi-user.md`): PR open. Follow-ups: per-user folders, user assistant.
+- Multi-user (`docs/specs/multi-user.md`): follow-up: user assistant. User-files restore has no UI button.
 - Onboarding wizard: built; see HISTORY for what is unverified.
 - i18n (`docs/specs/i18n.md`): in one PR. Next: native review (all but pt-BR are machine-made), check populated pages, stable API error codes, the hard-coded-text lint rule.
 - Network shares (#312 UI) + share-from-explorer (#317, `docs/specs/share-from-explorer.md`) built. Not verified: real sudo/UAC, real `rclone mount` + FUSE, real mounts. Sub-folder sharing built; browser-checked on a faked host.

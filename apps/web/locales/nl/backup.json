@@ -102,6 +102,8 @@
     "destination": "Bestemming",
     "athena": "Back-up van Athena (instellingen, database, geheimen, TLS)",
     "athenaHint": "Aanbevolen: standaard aan.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "Apps",
     "appsHint": "Welke apps in het plan worden opgenomen.",
     "noApps": "Geen apps gevonden. Start eerst apps via Store → Apps.",

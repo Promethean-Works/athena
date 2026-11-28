@@ -102,6 +102,8 @@
     "destination": "Cel",
     "athena": "Kopia Athena (ustawienia, baza danych, sekrety, TLS)",
     "athenaHint": "Zalecane: domyślnie włączone.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "Aplikacje",
     "appsHint": "Które aplikacje uwzględnić w planie.",
     "noApps": "Nie znaleziono aplikacji. Najpierw uruchom aplikacje w Sklep → Aplikacje.",

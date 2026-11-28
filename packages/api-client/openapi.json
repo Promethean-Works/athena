@@ -7634,6 +7634,48 @@
         }
       }
     },
+    "/api/backup/restore/users": {
+      "post": {
+        "tags": [
+          "backup"
+        ],
+        "summary": "Restore Users",
+        "description": "Replace everyone's files with a `users` version. The current folder is moved aside to\n`users.before-restore-<time>/` in the data folder. Follow progress at /api/jobs/{id}/events.",
+        "operationId": "restoreBackupUsers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreUsersIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/backup/restore/athena": {
       "post": {
         "tags": [
@@ -12138,6 +12180,11 @@
             "title": "Athena",
             "default": true
           },
+          "user_files": {
+            "type": "boolean",
+            "title": "User Files",
+            "default": true
+          },
           "apps": {
             "items": {
               "$ref": "#/components/schemas/PlanApp"
@@ -12150,7 +12197,7 @@
         "additionalProperties": false,
         "type": "object",
         "title": "PlanItems",
-        "description": "Athena itself and the apps a plan backs up. Each becomes its own restic snapshot."
+        "description": "Athena itself, the users' files and the apps a plan backs up. Each is its own snapshot."
       },
       "PlanOut": {
         "properties": {
@@ -13078,6 +13125,24 @@
           "version_id"
         ],
         "title": "RestoreAthenaIn"
+      },
+      "RestoreUsersIn": {
+        "properties": {
+          "destination_id": {
+            "type": "string",
+            "title": "Destination Id"
+          },
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "destination_id",
+          "version_id"
+        ],
+        "title": "RestoreUsersIn"
       },
       "Retention": {
         "properties": {

@@ -102,6 +102,8 @@
     "destination": "Mål",
     "athena": "Säkerhetskopiera Athena (inställningar, databas, hemligheter, TLS)",
     "athenaHint": "Rekommenderas: på som standard.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "Appar",
     "appsHint": "Vilka appar som ingår i planen.",
     "noApps": "Inga appar hittades. Starta appar från Butik → Appar först.",

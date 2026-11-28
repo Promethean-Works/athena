@@ -57,9 +57,8 @@ def staging_dir(data_dir: Path, version_id: str) -> Path:
     return data_dir / "cache" / "backup" / f"restore-{version_id[:16]}"
 
 
-async def plan_for(tool: Restic, repo: Repository, version_id: str) -> Plan:
-    """Look the version up. It must be an app version (`app:<name>` tag); Athena's own
-    versions are restored from the first-run screen, not here."""
+async def _lookup(tool: Restic, repo: Repository, version_id: str) -> tuple[str, list[str], str]:
+    """A version's full id, tags and backed-up folder, as restic lists them."""
     if not versions.SNAPSHOT_ID.match(version_id):
         raise ResticError("That isn't a version id")
     result = await tool.run_ok(repo, "snapshots", "--json", version_id)
@@ -67,13 +66,27 @@ async def plan_for(tool: Restic, repo: Repository, version_id: str) -> Plan:
         snap = json.loads(result.stdout or "[]")[0]
         tags = [t for t in snap["tags"] if isinstance(t, str)]
         root = versions.restic_path(snap["paths"][0])
-        full_id = str(snap["id"])
+        return str(snap["id"]), tags, root
     except (ValueError, KeyError, IndexError, TypeError) as exc:
         raise ResticError("No such version") from exc
+
+
+async def plan_for(tool: Restic, repo: Repository, version_id: str) -> Plan:
+    """Look the version up. It must be an app version (`app:<name>` tag); Athena's own
+    versions are restored from the first-run screen, not here."""
+    full_id, tags, root = await _lookup(tool, repo, version_id)
     item = next((t for t in tags if versions.ITEM.match(t)), None)
     if item is None or not item.startswith("app:"):
         raise ResticError("That version isn't an app's")
     return Plan(full_id, item[4:], root, versions._tag_value(tags, "os:"))
+
+
+async def users_plan_for(tool: Restic, repo: Repository, version_id: str) -> Plan:
+    """Look a `users` version up (the users' files, `<data-dir>/users/`)."""
+    full_id, tags, root = await _lookup(tool, repo, version_id)
+    if snapshots.USERS_TAG not in tags:
+        raise ResticError("That version isn't the users' files")
+    return Plan(full_id, snapshots.USERS_TAG, root, versions._tag_value(tags, "os:"))
 
 
 def _staged_folder(staging: Path, root: str) -> Path:
@@ -354,3 +367,113 @@ async def restore_athena(
         "Note: the HTTPS certificate will be reissued automatically by the next daily check "
         "(or run `athena https status` to trigger it)."
     )
+
+
+USERS_ASIDE_RE = re.compile(rf"^users{re.escape(ASIDE)}(\d{{8}}T\d{{6}}Z)(?:-\d+)?$")
+
+
+def users_asides(data_dir: Path) -> list[tuple[Path, datetime]]:
+    """The `users` folders a restore moved aside, and when."""
+    out: list[tuple[Path, datetime]] = []
+    for entry in data_dir.iterdir() if data_dir.is_dir() else []:
+        found = USERS_ASIDE_RE.match(entry.name)
+        if found and entry.is_dir():
+            out.append((entry, datetime.strptime(found.group(1), STAMP).replace(tzinfo=UTC)))
+    return out
+
+
+def sweep_users_asides(data_dir: Path, keep_days: int, now: datetime) -> int:
+    removed = 0
+    for path, when in users_asides(data_dir):
+        if keep_days < 0 or now - when >= timedelta(days=keep_days):
+            shutil.rmtree(path, ignore_errors=True)
+            removed += 1
+    return removed
+
+
+def check_staged_users(staged: Path, staging: Path, known_ids: set[int]) -> tuple[int, int]:
+    """Keep only `<id>/` folders of accounts that exist: a deleted account's folder stays
+    deleted, and nothing else a version might hold is put into the data folder. Returns
+    (kept, dropped)."""
+    real = os.path.realpath(staged)
+    if staged.is_symlink() or not staged.is_dir() or not _inside(real, os.path.realpath(staging)):
+        raise ResticError("The version doesn't hold the users' folder")
+    kept = dropped = 0
+    for entry in staged.iterdir():
+        keep = (
+            entry.name.isdecimal()
+            and int(entry.name) in known_ids
+            and entry.is_dir()
+            and not entry.is_symlink()
+        )
+        if keep:
+            kept += 1
+            continue
+        dropped += 1
+        if entry.is_dir() and not entry.is_symlink():
+            shutil.rmtree(entry, ignore_errors=True)
+        else:
+            entry.unlink(missing_ok=True)
+    return kept, dropped
+
+
+def _swap_users(data_dir: Path, staged: Path, aside: Path) -> bool:
+    """Like `_swap`, for `<data-dir>/users`."""
+    folder = data_dir / "users"
+    moved = False
+    if folder.exists():
+        os.replace(folder, aside)
+        moved = True
+    try:
+        os.replace(staged, folder)
+    except OSError:
+        if moved:
+            os.replace(aside, folder)
+        raise
+    return moved
+
+
+async def restore_users(
+    *,
+    tool: Restic,
+    repo: Repository,
+    job: Job,
+    data_dir: Path,
+    plan: Plan,
+    known_ids: set[int],
+    keep_days: int,
+) -> None:
+    """Restore the users' files from a `users` version.
+
+    Restic restores into a staging folder, which is checked there (only folders of accounts
+    that exist stay). Then the current `users` folder is moved aside to
+    `users.before-restore-<time>/` and the restored one put in its place. Nothing stops:
+    files uploaded during the swap itself can be missed, so run it when nobody is uploading.
+    """
+    staging = staging_dir(data_dir, plan.version_id)
+    try:
+        await asyncio.to_thread(shutil.rmtree, staging, True)
+        staging.mkdir(parents=True)
+        await job.log(f"Restoring version {plan.version_id[:8]} of the users' files")
+        await _restic_restore(tool, repo, job, plan.version_id, staging)
+        staged = _staged_folder(staging, plan.root)
+        kept, dropped = await asyncio.to_thread(check_staged_users, staged, staging, known_ids)
+        if dropped:
+            await job.log(f"Left out {dropped} folder(s) of accounts that no longer exist")
+        moment = snapshots.now()
+        aside = data_dir / f"users{ASIDE}{moment.strftime(STAMP)}"
+        n = 1
+        while aside.exists():
+            aside = data_dir / f"users{ASIDE}{moment.strftime(STAMP)}-{n}"
+            n += 1
+        await job.log("Replacing the users' folder")
+        # Shielded: a half-done swap would leave the accounts without their files.
+        moved = await asyncio.shield(asyncio.to_thread(_swap_users, data_dir, staged, aside))
+        if moved:
+            await job.log(f"The old folder is kept as {aside.name}")
+        await job.log(f"Restored the files of {kept} account(s)")
+    finally:
+        await asyncio.shield(asyncio.to_thread(shutil.rmtree, staging, True))
+    removed = await asyncio.to_thread(sweep_users_asides, data_dir, keep_days, snapshots.now())
+    if removed:
+        await job.log(f"Deleted {removed} old moved-aside folder(s)")

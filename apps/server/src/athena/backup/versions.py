@@ -8,9 +8,9 @@ from datetime import UTC, datetime
 
 from athena.apps.store import APP_NAME
 from athena.backup.restic import Repository, Restic, ResticError
-from athena.backup.snapshots import ATHENA_TAG
+from athena.backup.snapshots import ATHENA_TAG, USERS_TAG
 
-ITEM = re.compile(f"^(?:{ATHENA_TAG}|app:(?:{APP_NAME[1:-1]}))$")
+ITEM = re.compile(f"^(?:{ATHENA_TAG}|{USERS_TAG}|app:(?:{APP_NAME[1:-1]}))$")
 SNAPSHOT_ID = re.compile(r"^[0-9a-f]{8,64}$")
 DIFF_PARALLEL = 4
 
@@ -20,7 +20,7 @@ class Version:
     id: str
     time: datetime
     item: str
-    """`athena` or `app:<name>`."""
+    """`athena`, `users` or `app:<name>`."""
     size: int
     """Bytes the item held when it was backed up."""
     new_bytes: int
@@ -91,7 +91,7 @@ def parse_versions(stdout: str) -> list[Version]:
 
 async def list_versions(tool: Restic, repo: Repository, item: str | None = None) -> list[Version]:
     if item is not None and not ITEM.match(item):
-        raise ResticError("That isn't Athena or an app")
+        raise ResticError("That isn't Athena, the users' files or an app")
     args = ["snapshots", "--json", *(("--tag", item) if item else ())]
     result = await tool.run_ok(repo, *args)
     return parse_versions(result.stdout)

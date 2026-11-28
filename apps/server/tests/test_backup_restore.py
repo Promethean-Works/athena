@@ -405,3 +405,134 @@ def test_real_restic_restores_an_older_version_of_an_app(tmp_path: Path, compose
         [aside] = asides(c)
         assert (aside / "data" / "file.txt").read_text() == "broken"
         assert compose_calls(compose_log)[-2:] == ["site stop", "site up"]
+
+
+# ---------------------------------------------------------------- the users' files
+
+USERS_ROOT = "/data/users"
+
+
+class UsersRestic(RestoreRestic):
+    """A `users` version: `<id>/files/...` folders, some of accounts that don't exist."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.tags = ["users", "athena-version:0.1.0", f"os:{sys.platform}"]
+        self.files = {"1/files/mine.txt": "restored", "99/files/gone.txt": "ghost"}
+
+    async def run(self, repo, *args, timeout=0, stdin=None):  # type: ignore[no-untyped-def,override]
+        self.calls.append(args)
+        if args[0] == "snapshots":
+            return Result(0, snapshot_json(self.tags, [USERS_ROOT]), "")
+        return Result(0, "", "")
+
+    async def stream(self, repo, *args, on_line, timeout=0):  # type: ignore[no-untyped-def,override]
+        self.streamed.append(args)
+        target = Path(args[args.index("--target") + 1]) / USERS_ROOT.strip("/")
+        for name, text in self.files.items():
+            (target / name).parent.mkdir(parents=True, exist_ok=True)
+            (target / name).write_text(text)
+        (target / "stray.txt").write_text("not a user folder")
+        return Result(0, "", "")
+
+
+@pytest.fixture
+def users_tool() -> UsersRestic:
+    return UsersRestic()
+
+
+@pytest.fixture
+def users_api(tmp_path: Path, users_tool: UsersRestic) -> Iterator[TestClient]:
+    app = make_app(tmp_path, store=ready_store(), backup_allowed_roots=[tmp_path])
+    app.state.restic = FakeProvider(users_tool)
+    with TestClient(app) as client:
+        yield signed_in(client)
+
+
+def restore_users(c: TestClient, dest: dict, **kwargs):  # type: ignore[no-untyped-def]
+    return c.post(
+        "/api/backup/restore/users",
+        json={"destination_id": dest["id"], "version_id": VERSION, **kwargs},
+    )
+
+
+def test_restoring_the_users_files_swaps_the_folder_and_keeps_the_old_one(
+    users_api: TestClient, tmp_path: Path
+) -> None:
+    data = tmp_path / "data"
+    (data / "users" / "1" / "files").mkdir(parents=True)
+    (data / "users" / "1" / "files" / "mine.txt").write_text("current")
+    dest = add_destination(users_api, tmp_path)
+    res = restore_users(users_api, dest)
+    assert res.status_code == 202, res.text
+    job = wait(users_api, res.json()["id"])
+    assert job["status"] == "succeeded", job
+    assert (data / "users" / "1" / "files" / "mine.txt").read_text() == "restored"
+    # Accounts that don't exist, and anything that isn't an account's folder, stay out.
+    assert not (data / "users" / "99").exists() and not (data / "users" / "stray.txt").exists()
+    (aside,) = restore.users_asides(data)
+    assert (aside[0] / "1" / "files" / "mine.txt").read_text() == "current"
+    assert "backup.restore" in {e.action for e in audit_entries(users_api)}
+    assert users_api.app.state.app_jobs == {}  # type: ignore[attr-defined]
+    assert not restore.staging_dir(data, VERSION).exists()
+
+
+def test_a_version_that_is_not_the_users_files_is_refused(
+    users_api: TestClient, tmp_path: Path, users_tool: UsersRestic
+) -> None:
+    users_tool.tags = ["app:site", "os:linux"]
+    res = restore_users(users_api, add_destination(users_api, tmp_path))
+    assert res.status_code == 400 and "isn't the users' files" in res.text
+    assert users_tool.streamed == []
+
+
+def test_a_busy_users_restore_is_refused_and_ids_are_checked(
+    users_api: TestClient, tmp_path: Path
+) -> None:
+    dest = add_destination(users_api, tmp_path)
+    assert restore_users(users_api, dest, version_id="--bad").status_code == 400
+    users_api.app.state.app_jobs["@users"] = "other"  # type: ignore[attr-defined]
+    assert restore_users(users_api, dest).status_code == 409
+
+
+def test_a_symlinked_users_folder_in_a_version_is_refused(
+    users_api: TestClient, tmp_path: Path, users_tool: UsersRestic
+) -> None:
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "x.txt").write_text("outside")
+    users_tool.files = {}
+
+    async def stream(repo, *args, on_line, timeout=0):  # type: ignore[no-untyped-def]
+        target = Path(args[args.index("--target") + 1]) / USERS_ROOT.strip("/")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.symlink_to(outside, target_is_directory=True)
+        return Result(0, "", "")
+
+    users_tool.stream = stream  # type: ignore[method-assign,assignment]
+    data = tmp_path / "data"
+    (data / "users" / "1").mkdir(parents=True)
+    job = wait(
+        users_api,
+        restore_users(users_api, add_destination(users_api, tmp_path)).json()["id"],
+    )
+    assert job["status"] == "failed" and "doesn't hold the users' folder" in job["error"]
+    assert (data / "users" / "1").is_dir() and restore.users_asides(data) == []
+
+
+def test_old_users_asides_are_swept_by_age(tmp_path: Path) -> None:
+    now = datetime(2026, 11, 28, tzinfo=UTC)
+    old = tmp_path / f"users{restore.ASIDE}20261101T000000Z"
+    new = tmp_path / f"users{restore.ASIDE}20261127T000000Z"
+    other = tmp_path / f"apps{restore.ASIDE}20261101T000000Z"
+    for folder in (old, new, other):
+        folder.mkdir()
+    assert restore.sweep_users_asides(tmp_path, 7, now) == 1
+    assert not old.exists() and new.exists() and other.exists()
+
+
+def test_restoring_users_is_admin_only(users_api: TestClient, tmp_path: Path) -> None:
+    dest = add_destination(users_api, tmp_path)
+    with users_api.app.state.db.engine.begin() as conn:  # type: ignore[attr-defined]
+        conn.exec_driver_sql("UPDATE users SET is_admin = 0")
+    assert restore_users(users_api, dest).status_code == 403

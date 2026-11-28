@@ -102,6 +102,8 @@
     "destination": "Место назначения",
     "athena": "Копировать Athena (настройки, БД, секреты, TLS)",
     "athenaHint": "Рекомендуется: включено по умолчанию.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "Приложения",
     "appsHint": "Какие приложения включить в план.",
     "noApps": "Приложения не найдены. Сначала запустите приложения из раздела «Магазин → Приложения».",

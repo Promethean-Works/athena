@@ -25,7 +25,7 @@ from athena.cloud.rclone import RcloneUnavailable
 from athena.cloud.remotes import check_path, check_remote_name, remotes
 from athena.containers.runtime import Runtime, RuntimeUnavailableError, runtime_from
 from athena.crypto import SecretBox
-from athena.db.models import App, BackupDestination, BackupPlan
+from athena.db.models import App, BackupDestination, BackupPlan, User
 from athena.downloads import DownloadError
 from athena.jobs import JobManager, JobOut
 from athena.platform.store import CapabilityStore
@@ -332,7 +332,9 @@ def _check_plan(body: PlanIn, db: DbSession, plan_id: str | None = None) -> str 
     if not name:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Enter a name")
     if body.items.is_empty():
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Pick Athena or at least one app")
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "Pick Athena, the users' files or at least one app"
+        )
     if not body.retention.keeps_something():
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST, "Keep at least one version, or every backup would go"
@@ -783,6 +785,76 @@ async def restore_app(body: RestoreAppIn, request: Request, user: Authed, db: Db
     audit.record(
         db, username, "backup.restore", target, f"version {version_id[:8]} of {plan.source}"
     )
+    return job.out()
+
+
+class RestoreUsersIn(BaseModel):
+    destination_id: str
+    version_id: str
+    """A `users` version."""
+
+
+USERS_BUSY = "@users"
+"""The `app_jobs` key while the users' files are being restored (no app name has an `@`)."""
+
+
+@router.post(
+    "/restore/users", operation_id="restoreBackupUsers", status_code=status.HTTP_202_ACCEPTED
+)
+async def restore_users(
+    body: RestoreUsersIn, request: Request, user: Authed, db: DbSession
+) -> JobOut:
+    """Replace everyone's files with a `users` version. The current folder is moved aside to
+    `users.before-restore-<time>/` in the data folder. Follow progress at /api/jobs/{id}/events."""
+    _require_admin(user)
+    row = _destination(db, body.destination_id)
+    provider, repo = await _readable(request, row)
+    try:
+        tool = await provider.get()
+        plan = await restore.users_plan_for(tool, repo, body.version_id)
+    except DownloadError as exc:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(exc)) from exc
+    except ResticError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+    busy: dict[str, str] = request.app.state.app_jobs
+    if USERS_BUSY in busy:
+        raise HTTPException(status.HTTP_409_CONFLICT, "The users' files are busy with another job")
+    data_dir: Path = request.app.state.settings.data_dir
+    keep_days = request.app.state.settings_file.get().backup.before_restore_keep_days
+    known_ids = {i for i in db.exec(select(User.id)).all() if i is not None}
+    jobs: JobManager = request.app.state.jobs
+    version_id = plan.version_id
+
+    async def job_body(job):  # type: ignore[no-untyped-def]
+        work = asyncio.ensure_future(
+            restore.restore_users(
+                tool=tool,
+                repo=repo,
+                job=job,
+                data_dir=data_dir,
+                plan=plan,
+                known_ids=known_ids,
+                keep_days=keep_days,
+            )
+        )
+
+        async def cancel() -> None:
+            work.cancel()
+
+        job.cancel_hook = cancel
+        try:
+            await work
+        except asyncio.CancelledError:
+            if not job.cancelled:
+                raise
+            raise RuntimeError("Cancelled") from None
+        finally:
+            if busy.get(USERS_BUSY) == job.id:
+                busy.pop(USERS_BUSY, None)
+
+    job = jobs.start("Restore the users' files", job_body, cancellable=True)
+    busy[USERS_BUSY] = job.id
+    audit.record(db, user.user.username, "backup.restore", "users", f"version {version_id[:8]}")
     return job.out()
 
 

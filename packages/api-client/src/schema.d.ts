@@ -2922,6 +2922,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/backup/restore/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore Users
+         * @description Replace everyone's files with a `users` version. The current folder is moved aside to
+         *     `users.before-restore-<time>/` in the data folder. Follow progress at /api/jobs/{id}/events.
+         */
+        post: operations["restoreBackupUsers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/backup/restore/athena": {
         parameters: {
             query?: never;
@@ -4603,7 +4624,7 @@ export interface components {
         };
         /**
          * PlanItems
-         * @description Athena itself and the apps a plan backs up. Each becomes its own restic snapshot.
+         * @description Athena itself, the users' files and the apps a plan backs up. Each is its own snapshot.
          */
         PlanItems: {
             /**
@@ -4611,6 +4632,11 @@ export interface components {
              * @default true
              */
             athena: boolean;
+            /**
+             * User Files
+             * @default true
+             */
+            user_files: boolean;
             /** Apps */
             apps?: components["schemas"]["PlanApp"][];
         };
@@ -4957,6 +4983,13 @@ export interface components {
             location: string;
             /** Password */
             password: string;
+            /** Version Id */
+            version_id: string;
+        };
+        /** RestoreUsersIn */
+        RestoreUsersIn: {
+            /** Destination Id */
+            destination_id: string;
             /** Version Id */
             version_id: string;
         };
@@ -11329,6 +11362,39 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["RestoreAppIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restoreBackupUsers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestoreUsersIn"];
             };
         };
         responses: {

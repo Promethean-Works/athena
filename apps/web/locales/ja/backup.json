@@ -102,6 +102,8 @@
     "destination": "バックアップ先",
     "athena": "Athena をバックアップ（設定、DB、シークレット、TLS）",
     "athenaHint": "推奨: デフォルトでオンです。",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "アプリ",
     "appsHint": "プランに含めるアプリ。",
     "noApps": "アプリが見つかりません。先に「ストア → アプリ」でアプリを起動してください。",

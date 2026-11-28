@@ -102,6 +102,8 @@
     "destination": "गंतव्य",
     "athena": "Athena का बैकअप लें (सेटिंग्स, DB, सीक्रेट, TLS)",
     "athenaHint": "अनुशंसित: डिफ़ॉल्ट रूप से चालू।",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "ऐप्स",
     "appsHint": "प्लान में कौन-से ऐप्स शामिल करने हैं।",
     "noApps": "कोई ऐप नहीं मिला। पहले स्टोर → ऐप्स से ऐप्स शुरू करें।",

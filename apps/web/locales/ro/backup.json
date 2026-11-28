@@ -102,6 +102,8 @@
     "destination": "Destinație",
     "athena": "Copie de rezervă pentru Athena (setări, bază de date, secrete, TLS)",
     "athenaHint": "Recomandat: activat implicit.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "Aplicații",
     "appsHint": "Ce aplicații se includ în plan.",
     "noApps": "Nicio aplicație găsită. Pornește mai întâi aplicații din Magazin → Aplicații.",
