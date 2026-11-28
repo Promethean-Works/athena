@@ -13,7 +13,7 @@
   "removeFailed": "无法移除用户",
   "removed": "已移除 {{name}}",
   "removeTitle": "移除 {{name}}？",
-  "removeDescription": "该用户会被登出且无法再次登录。其应用和文件会保留。",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "移除",
   "cancel": "取消",
   "createTitle": "添加用户",

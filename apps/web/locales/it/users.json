@@ -13,7 +13,7 @@
   "removeFailed": "Impossibile rimuovere l'utente",
   "removed": "{{name}} rimosso",
   "removeTitle": "Rimuovere {{name}}?",
-  "removeDescription": "Verrà disconnesso e non potrà più accedere. Le sue app e i suoi file restano.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Rimuovi",
   "cancel": "Annulla",
   "createTitle": "Aggiungi un utente",

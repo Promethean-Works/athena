@@ -13,7 +13,7 @@
   "removeFailed": "Kullanıcı kaldırılamadı",
   "removed": "{{name}} kaldırıldı",
   "removeTitle": "{{name}} kaldırılsın mı?",
-  "removeDescription": "Oturumu kapatılır ve bir daha giriş yapamaz. Uygulamaları ve dosyaları kalır.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Kaldır",
   "cancel": "İptal",
   "createTitle": "Kullanıcı ekle",

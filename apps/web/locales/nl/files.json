@@ -75,7 +75,8 @@
     "truncated_other": "Alleen de eerste {{n}} items worden getoond.",
     "renameTitle": "{{name}} hernoemen",
     "create": "Aanmaken",
-    "shareFolder": "Map delen"
+    "shareFolder": "Map delen",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "Dit bestand kan hier niet worden geopend",
@@ -114,7 +115,11 @@
     "missing": "Ontbreekt",
     "readOnly": "Alleen lezen",
     "edit": "{{name}} bewerken",
-    "remove": "{{name}} verwijderen"
+    "remove": "{{name}} verwijderen",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "Link gekopieerd",

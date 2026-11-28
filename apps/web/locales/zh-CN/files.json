@@ -71,7 +71,8 @@
     "truncated_other": "仅显示前 {{n}} 项。",
     "renameTitle": "重命名 {{name}}",
     "create": "创建",
-    "shareFolder": "共享文件夹"
+    "shareFolder": "共享文件夹",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "无法在此打开此文件",
@@ -110,7 +111,11 @@
     "missing": "缺失",
     "readOnly": "只读",
     "edit": "编辑 {{name}}",
-    "remove": "移除 {{name}}"
+    "remove": "移除 {{name}}",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "链接已复制",

@@ -19,6 +19,15 @@ export type FileEntry = Schemas["FileEntry"]
 export type Location = Schemas["LocationOut"]
 export type Remote = Schemas["RemoteOut"]
 
+/** A location's name for the person looking: their own folder is "My files". */
+export function locationLabel(
+  loc: Location,
+  userId: number,
+  myFiles: string
+): string {
+  return loc.owner_id === userId ? myFiles : loc.name
+}
+
 /** Where files live: a location (by id) or a cloud remote (by name). */
 export type Source = { location: number } | { remote: string }
 

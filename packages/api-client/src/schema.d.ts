@@ -1248,7 +1248,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Locations */
+        /**
+         * List Locations
+         * @description What the caller can open: everyone gets their own folder (made on first need);
+         *     an admin opens every location, a user those an admin opened to users.
+         */
         get: operations["listFileLocations"];
         put?: never;
         /** Add Location */
@@ -2635,7 +2639,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete User */
+        /**
+         * Delete User
+         * @description Remove an account, its links and its "My files" folder with everything in it.
+         */
         delete: operations["deleteUser"];
         options?: never;
         head?: never;
@@ -4160,6 +4167,11 @@ export interface components {
             name: string;
             /** Path */
             path: string;
+            /**
+             * Users Can Open
+             * @default false
+             */
+            users_can_open: boolean;
         };
         /** LocationOut */
         LocationOut: {
@@ -4173,6 +4185,13 @@ export interface components {
             available: boolean;
             /** Writable */
             writable: boolean;
+            /**
+             * Users Can Open
+             * @default false
+             */
+            users_can_open: boolean;
+            /** Owner Id */
+            owner_id?: number | null;
         };
         /** LogsOut */
         LogsOut: {

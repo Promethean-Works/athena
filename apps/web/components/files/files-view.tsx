@@ -110,6 +110,7 @@ import {
   iconOf,
   isRemote,
   type Location,
+  locationLabel,
   sameSource,
   type Source,
   sourceFromKey,
@@ -259,7 +260,9 @@ function DeleteDialog({
               checked={permanent}
               onCheckedChange={(c) => setPermanent(c === true)}
             />
-            <Label htmlFor="delete-permanent">{t("deleteDialog.permanentLabel")}</Label>
+            <Label htmlFor="delete-permanent">
+              {t("deleteDialog.permanentLabel")}
+            </Label>
           </div>
         )}
         <AlertDialogFooter>
@@ -304,8 +307,10 @@ export function FilesView() {
 
   const loadLocations = React.useCallback(async () => {
     const { data } = await api.GET("/api/files/locations")
-    setLocations(data ?? [])
-  }, [])
+    // Your own folder first, so it is what opens by default.
+    const mine = (l: Location) => (l.owner_id === user.id ? 0 : 1)
+    setLocations((data ?? []).slice().sort((a, b) => mine(a) - mine(b)))
+  }, [user.id])
   React.useEffect(() => {
     void loadLocations()
   }, [loadLocations])
@@ -323,12 +328,19 @@ export function FilesView() {
         ? (locations?.find((l) => l.available) ?? locations?.[0])
         : undefined))
   const locId = location?.id ?? 0
-  const source: Source = remoteName ? { remote: remoteName } : { location: locId }
+  const source: Source = remoteName
+    ? { remote: remoteName }
+    : { location: locId }
   const key = sourceKey(source)
   // What the toolbar shows for the current location or remote.
   const place = remote
     ? { name: remote.name, available: true, writable: true }
     : location
+      ? {
+          ...location,
+          name: locationLabel(location, user.id, t("view.myFiles")),
+        }
+      : undefined
 
   const load = React.useCallback(async () => {
     const current = sourceFromKey(key)
@@ -461,7 +473,9 @@ export function FilesView() {
       toast.add({
         type: "error",
         title:
-          start.body.op === "copy" ? t("view.copyFailed") : t("view.moveFailed"),
+          start.body.op === "copy"
+            ? t("view.copyFailed")
+            : t("view.moveFailed"),
         description: errorMessage(error),
       })
   }
@@ -500,16 +514,22 @@ export function FilesView() {
               <HardDriveIcon />
             </EmptyMedia>
             <EmptyTitle>
-              {locations.length ? t("view.noSuchLocation") : t("view.noLocations")}
+              {locations.length
+                ? t("view.noSuchLocation")
+                : t("view.noLocations")}
             </EmptyTitle>
-            <EmptyDescription>
-              {t("view.locationsHint")}
-            </EmptyDescription>
+            <EmptyDescription>{t("view.locationsHint")}</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             {locations.length ? (
               <Button render={<Link href="/files/" />} nativeButton={false}>
-                {t("view.goTo", { name: locations[0]!.name })}
+                {t("view.goTo", {
+                  name: locationLabel(
+                    locations[0]!,
+                    user.id,
+                    t("view.myFiles")
+                  ),
+                })}
               </Button>
             ) : user.is_admin ? (
               <Button onClick={() => setLocationsOpen(true)}>
@@ -531,7 +551,7 @@ export function FilesView() {
   const crumbs = path ? path.split("/") : []
   const localItems = locations.map((l) => ({
     value: sourceKey({ location: l.id }),
-    label: l.name,
+    label: locationLabel(l, user.id, t("view.myFiles")),
   }))
   const remoteItems = (remotes ?? []).map((r) => ({
     value: sourceKey({ remote: r.name }),
@@ -544,7 +564,9 @@ export function FilesView() {
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
         <EllipsisVerticalIcon />
-        <span className="sr-only">{t("view.actionsFor", { name: entry.name })}</span>
+        <span className="sr-only">
+          {t("view.actionsFor", { name: entry.name })}
+        </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuGroup>
@@ -557,7 +579,9 @@ export function FilesView() {
               render={<a href={downloadUrl(source, entry.path)} download />}
             >
               <DownloadIcon />
-              {entry.kind === "dir" ? t("view.downloadZip") : t("view.download")}
+              {entry.kind === "dir"
+                ? t("view.downloadZip")
+                : t("view.download")}
             </DropdownMenuItem>
           )}
           {onRemote ? null : (
@@ -627,13 +651,18 @@ export function FilesView() {
           value={key}
           onValueChange={(v) => v && go("", sourceFromKey(v))}
         >
-          <SelectTrigger className="w-full sm:w-56" aria-label={t("view.location")}>
+          <SelectTrigger
+            className="w-full sm:w-56"
+            aria-label={t("view.location")}
+          >
             {onRemote ? <CloudIcon /> : <HardDriveIcon />}
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {remoteItems.length ? <SelectLabel>{t("view.locations")}</SelectLabel> : null}
+              {remoteItems.length ? (
+                <SelectLabel>{t("view.locations")}</SelectLabel>
+              ) : null}
               {localItems.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
@@ -736,9 +765,7 @@ export function FilesView() {
             aria-label={t("view.newFolder")}
           >
             <FolderPlusIcon />
-            <span className="hidden sm:inline">
-              {t("view.newFolder")}
-            </span>
+            <span className="hidden sm:inline">{t("view.newFolder")}</span>
           </Button>
           <Button
             disabled={readOnly || list.status !== "ok"}
@@ -797,7 +824,8 @@ export function FilesView() {
 
       {chosen.length ? (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2">
-          <span className="text-sm font-medium">{t("view.selected", { count: chosen.length })}
+          <span className="text-sm font-medium">
+            {t("view.selected", { count: chosen.length })}
           </span>
           <div className="ml-auto flex flex-wrap gap-2">
             {chosen.length === 1 && !(onRemote && chosen[0]!.kind === "dir") ? (
@@ -900,7 +928,9 @@ export function FilesView() {
           <div className="p-4">
             <Alert variant="destructive">
               <AlertTitle>
-                {list.code === 404 ? t("view.notFound") : t("view.cantOpenFolder")}
+                {list.code === 404
+                  ? t("view.notFound")
+                  : t("view.cantOpenFolder")}
               </AlertTitle>
               <AlertDescription>
                 {list.error}
@@ -925,9 +955,7 @@ export function FilesView() {
               </EmptyMedia>
               <EmptyTitle>{t("view.emptyTitle")}</EmptyTitle>
               <EmptyDescription>
-                {readOnly
-                  ? t("view.emptyReadOnly")
-                  : t("view.emptyWritable")}
+                {readOnly ? t("view.emptyReadOnly") : t("view.emptyWritable")}
               </EmptyDescription>
             </EmptyHeader>
           </Empty>

@@ -13,7 +13,7 @@
   "removeFailed": "Tidak dapat menghapus pengguna",
   "removed": "{{name}} dihapus",
   "removeTitle": "Hapus {{name}}?",
-  "removeDescription": "Mereka dikeluarkan dan tidak bisa masuk lagi. Aplikasi dan berkas mereka tetap ada.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Hapus",
   "cancel": "Batal",
   "createTitle": "Tambah pengguna",

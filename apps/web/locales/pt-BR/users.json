@@ -13,7 +13,7 @@
   "removeFailed": "Não foi possível remover o usuário",
   "removed": "{{name}} removido",
   "removeTitle": "Remover {{name}}?",
-  "removeDescription": "A pessoa será desconectada e não poderá entrar de novo. Os apps e arquivos dela continuam.",
+  "removeDescription": "A pessoa será desconectada e não poderá entrar de novo. Os apps continuam. A pasta Meus arquivos e tudo dentro dela serão apagados.",
   "removeConfirm": "Remover",
   "cancel": "Cancelar",
   "createTitle": "Adicionar um usuário",

@@ -38,11 +38,14 @@ export function LocationsStep({ onNext }: { onNext: () => void }) {
     setBusy(true)
     setError(null)
     const { data, error: err } = await api.POST("/api/files/locations", {
-      body: { name, path },
+      body: { name, path, users_can_open: false },
     })
     setBusy(false)
     if (!data) return setError(errorMessage(err, t("locations.addFailed")))
-    toast.add({ type: "success", title: t("locations.added", { name: data.name }) })
+    toast.add({
+      type: "success",
+      title: t("locations.added", { name: data.name }),
+    })
     setName("")
     setPath("")
     await load()
@@ -93,7 +96,12 @@ export function LocationsStep({ onNext }: { onNext: () => void }) {
           />
         </Field>
         {error && <FieldError>{error}</FieldError>}
-        <Button type="submit" variant="secondary" className="self-start" disabled={busy}>
+        <Button
+          type="submit"
+          variant="secondary"
+          className="self-start"
+          disabled={busy}
+        >
           {busy ? <Spinner data-icon="inline-start" /> : null}
           {t("locations.add")}
         </Button>

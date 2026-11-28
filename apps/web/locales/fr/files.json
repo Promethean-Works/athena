@@ -75,7 +75,8 @@
     "truncated_other": "Seules les {{n}} premières entrées sont affichées.",
     "renameTitle": "Renommer {{name}}",
     "create": "Créer",
-    "shareFolder": "Partager le dossier"
+    "shareFolder": "Partager le dossier",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "Impossible d'ouvrir ce fichier ici",
@@ -114,7 +115,11 @@
     "missing": "Introuvable",
     "readOnly": "Lecture seule",
     "edit": "Modifier {{name}}",
-    "remove": "Supprimer {{name}}"
+    "remove": "Supprimer {{name}}",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "Lien copié",

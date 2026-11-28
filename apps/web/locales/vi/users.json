@@ -13,7 +13,7 @@
   "removeFailed": "Không thể xóa người dùng",
   "removed": "Đã xóa {{name}}",
   "removeTitle": "Xóa {{name}}?",
-  "removeDescription": "Họ sẽ bị đăng xuất và không thể đăng nhập lại. Ứng dụng và tệp của họ vẫn được giữ.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Xóa",
   "cancel": "Hủy",
   "createTitle": "Thêm người dùng",

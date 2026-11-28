@@ -79,7 +79,8 @@
     "truncated_other": "Se afișează doar primele {{n}} de intrări.",
     "renameTitle": "Redenumește {{name}}",
     "create": "Creează",
-    "shareFolder": "Partajează dosarul"
+    "shareFolder": "Partajează dosarul",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "Acest fișier nu se poate deschide aici",
@@ -118,7 +119,11 @@
     "missing": "Lipsă",
     "readOnly": "Doar citire",
     "edit": "Editează {{name}}",
-    "remove": "Elimină {{name}}"
+    "remove": "Elimină {{name}}",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "Link copiat",

@@ -13,7 +13,7 @@
   "removeFailed": "Не удалось удалить пользователя",
   "removed": "Пользователь {{name}} удалён",
   "removeTitle": "Удалить пользователя {{name}}?",
-  "removeDescription": "Он выйдет из системы и не сможет войти снова. Его приложения и файлы останутся.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Удалить",
   "cancel": "Отмена",
   "createTitle": "Добавление пользователя",

@@ -13,7 +13,7 @@
   "removeFailed": "Couldn't remove the user",
   "removed": "{{name}} removed",
   "removeTitle": "Remove {{name}}?",
-  "removeDescription": "They are signed out and can't sign in again. Their apps and files stay.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Remove",
   "cancel": "Cancel",
   "createTitle": "Add a user",

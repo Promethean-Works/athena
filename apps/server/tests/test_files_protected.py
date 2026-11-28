@@ -24,7 +24,10 @@ def setup(tmp_path: Path) -> Iterator[tuple[TestClient, TestClient, int]]:
         (data / "apps" / "demo" / "compose.yaml").write_text("services: {}")
         (tmp_path / "home").mkdir()
         (tmp_path / "home" / "mine.txt").write_text("mine")
-        res = admin.post("/api/files/locations", json={"name": "Root", "path": str(tmp_path)})
+        res = admin.post(
+            "/api/files/locations",
+            json={"name": "Root", "path": str(tmp_path), "users_can_open": True},
+        )
         assert res.status_code == 201, res.text
         yield admin, make_user(admin), res.json()["id"]
 
@@ -60,7 +63,8 @@ def test_user_cannot_see_or_read_the_data_folder(setup) -> None:
 def test_user_still_reaches_app_data_without_env_files(setup, tmp_path: Path) -> None:
     admin, user, _ = setup
     apps = admin.post(
-        "/api/files/locations", json={"name": "Apps", "path": str(tmp_path / "data" / "apps")}
+        "/api/files/locations",
+        json={"name": "Apps", "path": str(tmp_path / "data" / "apps"), "users_can_open": True},
     )
     loc = apps.json()["id"]
     assert list_names(user, loc, "demo") == ["notes.txt"]
@@ -108,7 +112,8 @@ def test_share_link_does_not_serve_the_data_folder(setup) -> None:
 
 def apps_location(admin: TestClient, tmp_path: Path) -> int:
     res = admin.post(
-        "/api/files/locations", json={"name": "Apps", "path": str(tmp_path / "data" / "apps")}
+        "/api/files/locations",
+        json={"name": "Apps", "path": str(tmp_path / "data" / "apps"), "users_can_open": True},
     )
     return res.json()["id"]
 

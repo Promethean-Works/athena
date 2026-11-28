@@ -71,7 +71,8 @@
     "truncated_other": "Hanya {{n}} entri pertama yang ditampilkan.",
     "renameTitle": "Ubah nama {{name}}",
     "create": "Buat",
-    "shareFolder": "Bagikan folder"
+    "shareFolder": "Bagikan folder",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "File ini tidak dapat dibuka di sini",
@@ -110,7 +111,11 @@
     "missing": "Hilang",
     "readOnly": "Hanya baca",
     "edit": "Edit {{name}}",
-    "remove": "Hapus {{name}}"
+    "remove": "Hapus {{name}}",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "Tautan disalin",

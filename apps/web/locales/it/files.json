@@ -79,7 +79,8 @@
     "truncated_other": "Vengono mostrate solo le prime {{n}} voci.",
     "renameTitle": "Rinomina {{name}}",
     "create": "Crea",
-    "shareFolder": "Condividi cartella"
+    "shareFolder": "Condividi cartella",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "Impossibile aprire questo file qui",
@@ -118,7 +119,11 @@
     "missing": "Mancante",
     "readOnly": "Sola lettura",
     "edit": "Modifica {{name}}",
-    "remove": "Rimuovi {{name}}"
+    "remove": "Rimuovi {{name}}",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "Link copiato",

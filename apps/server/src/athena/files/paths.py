@@ -41,6 +41,11 @@ class _Guard:
     data: Path
     data_id: tuple[int, int] | None
     apps_id: tuple[int, int] | None
+    users_id: tuple[int, int] | None
+    own_id: tuple[int, int] | None
+    """The signed-in user's own `users/<id>/files` folder."""
+    any_user_folder: bool
+    """Public share visitors: any `users/<id>/files`, since the link itself picks the path."""
 
 
 _protected: ContextVar[_Guard | None] = ContextVar("protected_data_dir", default=None)
@@ -54,10 +59,21 @@ def _identity(path: Path) -> tuple[int, int] | None:
     return (st.st_dev, st.st_ino)
 
 
-def protect(data_dir: Path) -> None:
-    """Refuse the data folder (see above) for the rest of this request."""
+def protect(data_dir: Path, user_id: int | None = None, any_user_folder: bool = False) -> None:
+    """Refuse the data folder (see above) for the rest of this request. The user's own
+    `users/<id>/files` stays open (or every user's, for a share link's visitor)."""
     data = data_dir.resolve()
-    _protected.set(_Guard(data, _identity(data), _identity(data / "apps")))
+    own = data / "users" / str(user_id) / "files" if user_id is not None else None
+    _protected.set(
+        _Guard(
+            data,
+            _identity(data),
+            _identity(data / "apps"),
+            _identity(data / "users"),
+            _identity(own) if own is not None else None,
+            any_user_folder,
+        )
+    )
 
 
 def _chain(path: Path) -> list[Path]:
@@ -76,11 +92,23 @@ def is_protected(path: Path) -> bool:
         if ident == guard.data_id:
             if not below:
                 return True  # the data folder itself
-            if guard.apps_id is None or _identity(below[-1]) != guard.apps_id:
-                return True  # anything but apps/
+            top = _identity(below[-1])
+            if top is not None and top == guard.users_id:
+                return not _in_user_folder(guard, below[:-1])
+            if guard.apps_id is None or top != guard.apps_id:
+                return True  # anything but apps/ and users/
             return any(p.name.casefold() in APP_PRIVATE for p in below[:-1])
         below.append(ancestor)
     return False
+
+
+def _in_user_folder(guard: _Guard, below_users: list[Path]) -> bool:
+    """`below_users` runs from the path up to the folder under `users/`: `[..., files, <id>]`."""
+    if len(below_users) < 2:
+        return False  # users/ itself, or users/<id>
+    if guard.any_user_folder:
+        return True
+    return any(_identity(p) == guard.own_id for p in below_users[:-1]) and guard.own_id is not None
 
 
 def holds_protected(path: Path) -> bool:

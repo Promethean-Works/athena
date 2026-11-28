@@ -13,7 +13,7 @@
   "removeFailed": "Не вдалося видалити користувача",
   "removed": "Користувача {{name}} видалено",
   "removeTitle": "Видалити користувача {{name}}?",
-  "removeDescription": "Він вийде із системи й не зможе увійти знову. Його застосунки та файли залишаться.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Видалити",
   "cancel": "Скасувати",
   "createTitle": "Додавання користувача",
