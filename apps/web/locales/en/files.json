@@ -75,7 +75,8 @@
     "truncated_other": "Only the first {{n}} entries are shown.",
     "renameTitle": "Rename {{name}}",
     "create": "Create",
-    "shareFolder": "Share folder"
+    "shareFolder": "Share folder",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "Can't open this file here",
@@ -114,7 +115,11 @@
     "missing": "Missing",
     "readOnly": "Read-only",
     "edit": "Edit {{name}}",
-    "remove": "Remove {{name}}"
+    "remove": "Remove {{name}}",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "Link copied",

@@ -75,7 +75,8 @@
     "truncated_other": "केवल पहली {{n}} एंट्री दिखाई गई हैं।",
     "renameTitle": "{{name}} का नाम बदलें",
     "create": "बनाएँ",
-    "shareFolder": "फ़ोल्डर साझा करें"
+    "shareFolder": "फ़ोल्डर साझा करें",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "यह फ़ाइल यहाँ नहीं खुल सकती",
@@ -114,7 +115,11 @@
     "missing": "गुम",
     "readOnly": "केवल पढ़ने योग्य",
     "edit": "{{name}} बदलें",
-    "remove": "{{name}} हटाएँ"
+    "remove": "{{name}} हटाएँ",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "लिंक कॉपी हो गया",

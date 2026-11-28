@@ -176,7 +176,7 @@ def list_shares(
 
 @router.post("", operation_id="createShare", status_code=status.HTTP_201_CREATED)
 async def create_share(body: ShareIn, user: Authed, db: DbSession) -> ShareOut:
-    loc, _ = _location(db, body.location)
+    loc, _ = _location(db, body.location, user.user)
     rel = body.path.strip("/")
     await _run(lambda: shares.check_target(loc, rel, body.mode))
     share = Share(

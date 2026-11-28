@@ -117,12 +117,15 @@ def test_default_locations_are_seeded_once(tmp_path: Path) -> None:
     assert found["App data"]["path"] == str((tmp_path / "data" / "apps").resolve())
     assert found["App data"]["available"] and found["App data"]["writable"]
     for loc in found.values():
+        if loc["owner_id"] is not None:
+            continue  # an account's own folder goes with the account
         assert client.delete(f"/api/files/locations/{loc['id']}").status_code == 204
     # A restart doesn't bring removed defaults back.
     again = TestClient(make_app(tmp_path))
     again.headers.update(client.headers)
     again.cookies = client.cookies
-    assert again.get("/api/files/locations").json() == []
+    left = again.get("/api/files/locations").json()
+    assert [loc["name"] for loc in left] == ["My files (admin)"]
 
 
 def test_location_validation(api: tuple[TestClient, int], tree: Path) -> None:
@@ -149,7 +152,8 @@ def test_missing_location_folder(api: tuple[TestClient, int], tmp_path: Path) ->
     gone.mkdir()
     loc = client.post("/api/files/locations", json={"name": "Gone", "path": str(gone)}).json()
     gone.rmdir()
-    assert client.get("/api/files/locations").json()[-1]["available"] is False
+    found = {loc["name"]: loc for loc in client.get("/api/files/locations").json()}
+    assert found["Gone"]["available"] is False
     res = client.get("/api/files/list", params={"location": loc["id"]})
     assert res.status_code == 404
     assert client.get("/api/files/list", params={"location": 999}).status_code == 404

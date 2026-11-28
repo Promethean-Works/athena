@@ -1,12 +1,13 @@
 """File locations: the folders the file manager may reach (docs/design/files.md)."""
 
 import os
+import shutil
 import sys
 from pathlib import Path
 
 from sqlmodel import Session, select
 
-from athena.db.models import FileLocation, SystemSetting
+from athena.db.models import FileLocation, SystemSetting, User
 from athena.files.paths import BadPath, Conflict, NotFound
 
 SEEDED_KEY = "files_defaults_seeded"
@@ -41,9 +42,54 @@ def all_locations(db: Session) -> list[FileLocation]:
     return list(db.exec(select(FileLocation).order_by(FileLocation.id)))  # type: ignore[arg-type]
 
 
-def get(db: Session, location_id: int) -> FileLocation:
+def can_open(loc: FileLocation, user: User) -> bool:
+    """Admins open every location; a user their own folder and the ones shared with users."""
+    if user.is_admin:
+        return True
+    return loc.owner_id == user.id if loc.owner_id is not None else loc.users_can_open
+
+
+def visible_to(db: Session, user: User) -> list[FileLocation]:
+    return [loc for loc in all_locations(db) if can_open(loc, user)]
+
+
+def user_folder(data_dir: Path, user_id: int) -> Path:
+    return data_dir / "users" / str(user_id) / "files"
+
+
+def ensure_user_folder(db: Session, data_dir: Path, user: User) -> FileLocation:
+    """A user's own "My files" folder and its location, made on first need. The stored
+    name carries the username so it stays unique; the UI shows it as "My files"."""
+    assert user.id is not None
+    found = db.exec(select(FileLocation).where(FileLocation.owner_id == user.id)).first()
+    folder = user_folder(data_dir, user.id)
+    folder.mkdir(parents=True, exist_ok=True)
+    if found is not None:
+        if found.path != str(folder.resolve()):  # the data folder was moved
+            found.path = str(folder.resolve())
+            db.add(found)
+            db.commit()
+        return found
+    loc = FileLocation(
+        name=f"My files ({user.username})"[:64], path=str(folder.resolve()), owner_id=user.id
+    )
+    db.add(loc)
+    db.commit()
+    db.refresh(loc)
+    return loc
+
+
+def delete_user_folder(data_dir: Path, user_id: int) -> None:
+    """When an account is deleted, its folder (`users/<id>`) goes with it, so a later
+    account that gets the same id can't inherit the files."""
+    shutil.rmtree(user_folder(data_dir, user_id).parent, ignore_errors=True)
+
+
+def get(db: Session, location_id: int, user: User | None = None) -> FileLocation:
+    """The location, or NotFound. With `user`, a location they can't open is NotFound too
+    (404, so ids don't leak which locations exist)."""
     loc = db.get(FileLocation, location_id)
-    if loc is None:
+    if loc is None or (user is not None and not can_open(loc, user)):
         raise NotFound("No such location")
     return loc
 
@@ -58,7 +104,9 @@ def checked_path(raw: str) -> str:
     return str(path.resolve())
 
 
-def save(db: Session, loc: FileLocation, name: str, path: str) -> FileLocation:
+def save(
+    db: Session, loc: FileLocation, name: str, path: str, users_can_open: bool = False
+) -> FileLocation:
     name = name.strip()
     if not name:
         raise BadPath("Give the location a name")
@@ -67,6 +115,7 @@ def save(db: Session, loc: FileLocation, name: str, path: str) -> FileLocation:
         raise Conflict(f"A location named {name} already exists")
     loc.name = name
     loc.path = checked_path(path)
+    loc.users_can_open = users_can_open
     db.add(loc)
     db.commit()
     db.refresh(loc)

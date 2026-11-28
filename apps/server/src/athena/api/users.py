@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Path, status
+from fastapi import APIRouter, HTTPException, Path, Request, status
 from pydantic import BaseModel, Field, field_validator
 from sqlmodel import col, delete, func, select
 
@@ -11,7 +11,8 @@ from athena import audit
 from athena.api.auth import USERNAME_RE
 from athena.auth import service
 from athena.auth.deps import AdminUser, DbSession
-from athena.db.models import AuthSession, Share, User
+from athena.db.models import AuthSession, FileLocation, Share, User
+from athena.files import locations
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -112,7 +113,8 @@ def update_user(user_id: UserId, body: UserUpdate, me: AdminUser, db: DbSession)
 
 
 @router.delete("/{user_id}", operation_id="deleteUser", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: UserId, me: AdminUser, db: DbSession) -> None:
+def delete_user(request: Request, user_id: UserId, me: AdminUser, db: DbSession) -> None:
+    """Remove an account, its links and its "My files" folder with everything in it."""
     user = _get(db, user_id)
     if user.id == me.user.id:
         raise HTTPException(status.HTTP_409_CONFLICT, "You can't delete your own account")
@@ -122,6 +124,8 @@ def delete_user(user_id: UserId, me: AdminUser, db: DbSession) -> None:
     _sign_out(db, user_id)
     # Their links go with them (the database cascades too; this doesn't rely on it).
     db.exec(delete(Share).where(col(Share.owner_id) == user_id))
+    db.exec(delete(FileLocation).where(col(FileLocation.owner_id) == user_id))
     db.delete(user)
     db.commit()
-    audit.record(db, me.user.username, "user.delete", username)
+    locations.delete_user_folder(request.app.state.settings.data_dir, user_id)
+    audit.record(db, me.user.username, "user.delete", username, "folder deleted")

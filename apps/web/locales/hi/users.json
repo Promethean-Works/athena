@@ -13,7 +13,7 @@
   "removeFailed": "उपयोगकर्ता को हटाया नहीं जा सका",
   "removed": "{{name}} हटा दिया गया",
   "removeTitle": "{{name}} को हटाएँ?",
-  "removeDescription": "वे साइन आउट हो जाएँगे और दोबारा साइन इन नहीं कर पाएँगे। उनके ऐप और फ़ाइलें बनी रहेंगी।",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "हटाएँ",
   "cancel": "रद्द करें",
   "createTitle": "उपयोगकर्ता जोड़ें",

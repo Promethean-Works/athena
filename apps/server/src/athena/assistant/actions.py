@@ -175,7 +175,7 @@ async def write_text_file(
     from athena.api import files
 
     body = files.TextIn(location=location_id, path=path, content=content)
-    saved = await _http(files.write_text(body, ctx.deps.db))
+    saved = await _http(files.write_text(body, ctx.deps.db, ctx.deps.user))
     return {"path": saved.path, "saved": True}
 
 
@@ -184,7 +184,7 @@ async def create_folder(ctx: Ctx, location_id: int, path: RelPath, name: str) ->
     from athena.api import files
 
     body = files.NewFolderIn(location=location_id, path=path, name=name)
-    entry = await _http(files.create_folder(body, ctx.deps.db))
+    entry = await _http(files.create_folder(body, ctx.deps.db, ctx.deps.user))
     return entry.model_dump(mode="json", include={"name", "path", "kind"})
 
 
@@ -198,7 +198,7 @@ async def rename_file(
     from athena.api import files
 
     body = files.RenameIn(location=location_id, path=path, name=new_name)
-    entry = await _http(files.rename(body, ctx.deps.db))
+    entry = await _http(files.rename(body, ctx.deps.db, ctx.deps.user))
     return entry.model_dump(mode="json", include={"name", "path", "kind"})
 
 

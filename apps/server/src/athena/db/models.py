@@ -104,6 +104,13 @@ class FileLocation(SQLModel, table=True):
     name: str = Field(unique=True, max_length=64)
     path: str = Field(max_length=1024)
     """Absolute path on the host."""
+    owner_id: int | None = Field(
+        default=None, foreign_key="users.id", index=True, ondelete="CASCADE"
+    )
+    """Set on a user's own "My files" folder: only that user (and admins) can open it."""
+    users_can_open: bool = Field(default=False)
+    """Plain users may open this location (always false for a user's own folder, which
+    they open through `owner_id`). Admins open every location."""
     created_at: datetime = Field(default_factory=utcnow, sa_type=DateTime(timezone=True))
 
 

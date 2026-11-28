@@ -13,7 +13,7 @@
   "removeFailed": "Não foi possível remover o utilizador",
   "removed": "{{name}} removido",
   "removeTitle": "Remover {{name}}?",
-  "removeDescription": "A sessão será terminada e a pessoa não poderá iniciar sessão de novo. As aplicações e os ficheiros mantêm-se.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Remover",
   "cancel": "Cancelar",
   "createTitle": "Adicionar um utilizador",

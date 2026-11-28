@@ -13,7 +13,7 @@
   "removeFailed": "Nie udało się usunąć użytkownika",
   "removed": "Usunięto użytkownika {{name}}",
   "removeTitle": "Usunąć użytkownika {{name}}?",
-  "removeDescription": "Zostanie wylogowany i nie zaloguje się ponownie. Jego aplikacje i pliki zostaną.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Usuń",
   "cancel": "Anuluj",
   "createTitle": "Dodaj użytkownika",

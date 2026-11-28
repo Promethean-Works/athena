@@ -71,7 +71,8 @@
     "truncated_other": "最初の {{n}} 件のみ表示しています。",
     "renameTitle": "{{name}} の名前を変更",
     "create": "作成",
-    "shareFolder": "フォルダーを共有"
+    "shareFolder": "フォルダーを共有",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "このファイルはここでは開けません",
@@ -110,7 +111,11 @@
     "missing": "見つかりません",
     "readOnly": "読み取り専用",
     "edit": "{{name}} を編集",
-    "remove": "{{name}} を削除"
+    "remove": "{{name}} を削除",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "リンクをコピーしました",

@@ -75,7 +75,8 @@
     "truncated_other": "Só as primeiras {{n}} entradas são mostradas.",
     "renameTitle": "Renomear {{name}}",
     "create": "Criar",
-    "shareFolder": "Compartilhar pasta"
+    "shareFolder": "Compartilhar pasta",
+    "myFiles": "Meus arquivos"
   },
   "preview": {
     "cantOpen": "Não é possível abrir este arquivo aqui",
@@ -114,7 +115,11 @@
     "missing": "Ausente",
     "readOnly": "Somente leitura",
     "edit": "Editar {{name}}",
-    "remove": "Remover {{name}}"
+    "remove": "Remover {{name}}",
+    "usersCanOpen": "Permitir que os usuários abram",
+    "usersCanOpenHint": "Administradores sempre podem abrir. As demais pessoas só veem a própria pasta Meus arquivos, a menos que você ative isto.",
+    "personal": "Pasta pessoal",
+    "openToUsers": "Aberto aos usuários"
   },
   "links": {
     "copied": "Link copiado",

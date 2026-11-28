@@ -13,7 +13,7 @@
   "removeFailed": "No se pudo eliminar al usuario",
   "removed": "{{name}} eliminado",
   "removeTitle": "¿Eliminar a {{name}}?",
-  "removeDescription": "Se cerrará su sesión y no podrá volver a iniciarla. Sus aplicaciones y archivos se conservan.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Eliminar",
   "cancel": "Cancelar",
   "createTitle": "Añadir un usuario",

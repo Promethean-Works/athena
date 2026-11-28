@@ -2839,6 +2839,7 @@
           "files"
         ],
         "summary": "List Locations",
+        "description": "What the caller can open: everyone gets their own folder (made on first need);\nan admin opens every location, a user those an admin opened to users.",
         "operationId": "listFileLocations",
         "responses": {
           "200": {
@@ -6933,6 +6934,7 @@
           "users"
         ],
         "summary": "Delete User",
+        "description": "Remove an account, its links and its \"My files\" folder with everything in it.",
         "operationId": "deleteUser",
         "parameters": [
           {
@@ -10979,6 +10981,11 @@
             "maxLength": 1024,
             "minLength": 1,
             "title": "Path"
+          },
+          "users_can_open": {
+            "type": "boolean",
+            "title": "Users Can Open",
+            "default": false
           }
         },
         "type": "object",
@@ -11009,6 +11016,22 @@
           "writable": {
             "type": "boolean",
             "title": "Writable"
+          },
+          "users_can_open": {
+            "type": "boolean",
+            "title": "Users Can Open",
+            "default": false
+          },
+          "owner_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Id"
           }
         },
         "type": "object",

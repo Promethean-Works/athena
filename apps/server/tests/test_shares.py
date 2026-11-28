@@ -28,7 +28,10 @@ def tree(tmp_path: Path) -> Path:
 def admin(tmp_path: Path, tree: Path) -> Iterator[tuple[TestClient, int]]:
     with TestClient(make_app(tmp_path)) as client:
         signed_in(client)
-        res = client.post("/api/files/locations", json={"name": "Share", "path": str(tree)})
+        res = client.post(
+            "/api/files/locations",
+            json={"name": "Share", "path": str(tree), "users_can_open": True},
+        )
         assert res.status_code == 201, res.text
         yield client, res.json()["id"]
 

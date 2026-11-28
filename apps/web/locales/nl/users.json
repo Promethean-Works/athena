@@ -13,7 +13,7 @@
   "removeFailed": "Kan de gebruiker niet verwijderen",
   "removed": "{{name}} verwijderd",
   "removeTitle": "{{name}} verwijderen?",
-  "removeDescription": "Deze persoon wordt uitgelogd en kan niet meer inloggen. De apps en bestanden blijven staan.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Verwijderen",
   "cancel": "Annuleren",
   "createTitle": "Gebruiker toevoegen",

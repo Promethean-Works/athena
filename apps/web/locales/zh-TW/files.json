@@ -71,7 +71,8 @@
     "truncated_other": "僅顯示前 {{n}} 個項目。",
     "renameTitle": "重新命名 {{name}}",
     "create": "建立",
-    "shareFolder": "共用資料夾"
+    "shareFolder": "共用資料夾",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "無法在這裡開啟此檔案",
@@ -110,7 +111,11 @@
     "missing": "遺失",
     "readOnly": "唯讀",
     "edit": "編輯 {{name}}",
-    "remove": "移除 {{name}}"
+    "remove": "移除 {{name}}",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "已複製連結",

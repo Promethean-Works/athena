@@ -75,7 +75,8 @@
     "truncated_other": "Nur die ersten {{n}} Einträge werden angezeigt.",
     "renameTitle": "{{name}} umbenennen",
     "create": "Erstellen",
-    "shareFolder": "Ordner freigeben"
+    "shareFolder": "Ordner freigeben",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "Diese Datei kann hier nicht geöffnet werden",
@@ -114,7 +115,11 @@
     "missing": "Fehlt",
     "readOnly": "Nur Lesen",
     "edit": "{{name}} bearbeiten",
-    "remove": "{{name}} entfernen"
+    "remove": "{{name}} entfernen",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "Link kopiert",

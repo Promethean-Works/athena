@@ -13,7 +13,7 @@
   "removeFailed": "사용자를 삭제할 수 없어요",
   "removed": "{{name}} 님을 삭제했어요",
   "removeTitle": "{{name}} 님을 삭제할까요?",
-  "removeDescription": "로그아웃되고 다시 로그인할 수 없어요. 앱과 파일은 그대로 남아요.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "삭제",
   "cancel": "취소",
   "createTitle": "사용자 추가",

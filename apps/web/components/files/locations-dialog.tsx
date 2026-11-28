@@ -16,6 +16,7 @@ import {
 } from "@workspace/ui/components/dialog"
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -30,11 +31,17 @@ import {
   ItemTitle,
 } from "@workspace/ui/components/item"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { Switch } from "@workspace/ui/components/switch"
 import { toast } from "@workspace/ui/components/toast"
 
 import type { Location } from "@/components/files/file-utils"
 
-type Editing = { id: number | null; name: string; path: string }
+type Editing = {
+  id: number | null
+  name: string
+  path: string
+  usersCanOpen: boolean
+}
 
 function LocationForm({
   editing,
@@ -48,6 +55,7 @@ function LocationForm({
   const { t } = useTranslation("files")
   const [name, setName] = React.useState(editing.name)
   const [path, setPath] = React.useState(editing.path)
+  const [usersCanOpen, setUsersCanOpen] = React.useState(editing.usersCanOpen)
   const [error, setError] = React.useState<string | null>(null)
   const [pending, setPending] = React.useState(false)
 
@@ -55,7 +63,7 @@ function LocationForm({
     event.preventDefault()
     setPending(true)
     setError(null)
-    const body = { name, path }
+    const body = { name, path, users_can_open: usersCanOpen }
     const result =
       editing.id === null
         ? await api.POST("/api/files/locations", { body })
@@ -99,6 +107,19 @@ function LocationForm({
           />
           {error ? <FieldError>{error}</FieldError> : null}
         </Field>
+        <Field orientation="horizontal">
+          <Switch
+            id="location-users"
+            checked={usersCanOpen}
+            onCheckedChange={setUsersCanOpen}
+          />
+          <FieldLabel htmlFor="location-users">
+            {t("locationsDialog.usersCanOpen")}
+          </FieldLabel>
+        </Field>
+        <FieldDescription>
+          {t("locationsDialog.usersCanOpenHint")}
+        </FieldDescription>
         <Field orientation="horizontal">
           <Button type="submit" disabled={pending}>
             {pending ? <Spinner data-icon="inline-start" /> : null}
@@ -175,6 +196,15 @@ export function LocationsDialog({
               <ItemContent className="min-w-0">
                 <ItemTitle>
                   {loc.name}
+                  {loc.owner_id !== null ? (
+                    <Badge variant="outline">
+                      {t("locationsDialog.personal")}
+                    </Badge>
+                  ) : loc.users_can_open ? (
+                    <Badge variant="secondary">
+                      {t("locationsDialog.openToUsers")}
+                    </Badge>
+                  ) : null}
                   {!loc.available ? (
                     <Badge variant="destructive">
                       {t("locationsDialog.missing")}
@@ -189,27 +219,34 @@ export function LocationsDialog({
                   {loc.path}
                 </ItemDescription>
               </ItemContent>
-              <ItemActions>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t("locationsDialog.edit", { name: loc.name })}
-                  onClick={() =>
-                    setEditing({ id: loc.id, name: loc.name, path: loc.path })
-                  }
-                >
-                  <PencilIcon />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t("locationsDialog.remove", { name: loc.name })}
-                  disabled={removing === loc.id}
-                  onClick={() => remove(loc)}
-                >
-                  {removing === loc.id ? <Spinner /> : <Trash2Icon />}
-                </Button>
-              </ItemActions>
+              {loc.owner_id !== null ? null : (
+                <ItemActions>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t("locationsDialog.edit", { name: loc.name })}
+                    onClick={() =>
+                      setEditing({
+                        id: loc.id,
+                        name: loc.name,
+                        path: loc.path,
+                        usersCanOpen: loc.users_can_open ?? false,
+                      })
+                    }
+                  >
+                    <PencilIcon />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t("locationsDialog.remove", { name: loc.name })}
+                    disabled={removing === loc.id}
+                    onClick={() => remove(loc)}
+                  >
+                    {removing === loc.id ? <Spinner /> : <Trash2Icon />}
+                  </Button>
+                </ItemActions>
+              )}
             </Item>
           ))}
         </ItemGroup>
@@ -227,7 +264,9 @@ export function LocationsDialog({
           <Button
             variant="outline"
             className="self-start"
-            onClick={() => setEditing({ id: null, name: "", path: "" })}
+            onClick={() =>
+              setEditing({ id: null, name: "", path: "", usersCanOpen: false })
+            }
           >
             <PlusIcon />
             {t("locationsDialog.add")}

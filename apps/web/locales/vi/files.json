@@ -71,7 +71,8 @@
     "truncated_other": "Chỉ hiển thị {{n}} mục đầu tiên.",
     "renameTitle": "Đổi tên {{name}}",
     "create": "Tạo",
-    "shareFolder": "Chia sẻ thư mục"
+    "shareFolder": "Chia sẻ thư mục",
+    "myFiles": "My files"
   },
   "preview": {
     "cantOpen": "Không thể mở tệp này tại đây",
@@ -110,7 +111,11 @@
     "missing": "Bị thiếu",
     "readOnly": "Chỉ đọc",
     "edit": "Sửa {{name}}",
-    "remove": "Gỡ {{name}}"
+    "remove": "Gỡ {{name}}",
+    "usersCanOpen": "Let users open this",
+    "usersCanOpenHint": "Admins can always open it. Everyone else gets only their own My files folder unless you turn this on.",
+    "personal": "Personal folder",
+    "openToUsers": "Open to users"
   },
   "links": {
     "copied": "Đã sao chép liên kết",

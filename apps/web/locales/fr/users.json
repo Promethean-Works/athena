@@ -13,7 +13,7 @@
   "removeFailed": "Impossible de supprimer l'utilisateur",
   "removed": "{{name}} supprimé",
   "removeTitle": "Supprimer {{name}} ?",
-  "removeDescription": "Cette personne est déconnectée et ne peut plus se reconnecter. Ses applications et ses fichiers restent.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Supprimer",
   "cancel": "Annuler",
   "createTitle": "Ajouter un utilisateur",

@@ -13,7 +13,7 @@
   "removeFailed": "Uživatele se nepodařilo odebrat",
   "removed": "Uživatel {{name}} byl odebrán",
   "removeTitle": "Odebrat uživatele {{name}}?",
-  "removeDescription": "Budou odhlášeni a už se nepřihlásí. Jejich aplikace a soubory zůstanou.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Odebrat",
   "cancel": "Zrušit",
   "createTitle": "Přidat uživatele",

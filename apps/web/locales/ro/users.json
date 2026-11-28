@@ -13,7 +13,7 @@
   "removeFailed": "Nu s-a putut elimina utilizatorul",
   "removed": "{{name}} a fost eliminat",
   "removeTitle": "Elimini {{name}}?",
-  "removeDescription": "Persoana este deconectată și nu se mai poate autentifica. Aplicațiile și fișierele ei rămân.",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "Elimină",
   "cancel": "Anulează",
   "createTitle": "Adaugă un utilizator",

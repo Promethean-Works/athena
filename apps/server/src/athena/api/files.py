@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 
 from athena import audit
 from athena.auth.deps import Authed, DbSession, require_admin
-from athena.db.models import FileLocation
+from athena.db.models import FileLocation, User
 from athena.files import locations, ops
 from athena.files.ops import FileEntry, Listing, OnConflict, TextFile
 from athena.files.paths import (
@@ -43,13 +43,13 @@ async def keep_athena_files_private(request: Request) -> None:
     """Dependency for routes used by public share visitors: Athena's data folder stays
     closed. Async and never reset: it must set the rule in the request's own task, and a
     streamed zip is read after the endpoint returns. Each request has its own context."""
-    protect(request.app.state.settings.data_dir)
+    protect(request.app.state.settings.data_dir, any_user_folder=True)
 
 
 async def keep_athena_files_private_for_users(request: Request, user: Authed) -> None:
     """Same for signed-in routes: plain users get it, admins keep full access."""
     if not user.user.is_admin:
-        protect(request.app.state.settings.data_dir)
+        protect(request.app.state.settings.data_dir, user.user.id)
 
 
 LocationId = Annotated[int, Query(ge=1)]
@@ -97,11 +97,16 @@ class LocationOut(BaseModel):
     available: bool
     """The folder exists."""
     writable: bool
+    users_can_open: bool = False
+    owner_id: int | None = None
+    """Set on a user's own "My files" folder (shown to them as "My files")."""
 
 
 class LocationIn(BaseModel):
     name: Annotated[str, Field(min_length=1, max_length=64)]
     path: Annotated[str, Field(min_length=1, max_length=1024)]
+    users_can_open: bool = False
+    """Let plain users open this location (admins always can)."""
 
 
 class TextIn(BaseModel):
@@ -178,9 +183,12 @@ async def _run[T](fn: Callable[[], T]) -> T:
         raise _fail(exc) from exc
 
 
-def _location(db: DbSession, location_id: int) -> tuple[FileLocation, Path]:
+def _location(
+    db: DbSession, location_id: int, user: User | None = None
+) -> tuple[FileLocation, Path]:
+    """The location and its folder. With `user`, a location they can't open is a 404."""
     try:
-        loc = locations.get(db, location_id)
+        loc = locations.get(db, location_id, user)
         return loc, root_of(loc.path)
     except FileError as exc:
         raise _fail(exc) from exc
@@ -202,7 +210,20 @@ def _location_out(loc: FileLocation) -> LocationOut:
         path=loc.path,
         available=path.is_dir(),
         writable=path.is_dir() and os.access(path, os.W_OK),
+        users_can_open=loc.users_can_open,
+        owner_id=loc.owner_id,
     )
+
+
+def _access(loc: FileLocation) -> str:
+    return f"{loc.path} (users {'can' if loc.users_can_open else 'cannot'} open it)"
+
+
+def _refuse_users_folder(loc: FileLocation) -> None:
+    if loc.owner_id is not None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "That is a user's own folder; it goes with the account"
+        )
 
 
 def _target(loc: FileLocation, rel: str) -> str:
@@ -218,11 +239,16 @@ def _disposition(kind: str, name: str) -> str:
 
 
 @router.get("/locations", operation_id="listFileLocations")
-def list_locations(db: DbSession) -> list[LocationOut]:
+def list_locations(request: Request, db: DbSession, user: Authed) -> list[LocationOut]:
+    """What the caller can open: everyone gets their own folder (made on first need);
+    an admin opens every location, a user those an admin opened to users."""
     from athena.cloud.mounts import hidden_location_ids
 
+    locations.ensure_user_folder(db, request.app.state.settings.data_dir, user.user)
     hidden = hidden_location_ids(db)
-    return [_location_out(loc) for loc in locations.all_locations(db) if loc.id not in hidden]
+    return [
+        _location_out(loc) for loc in locations.visible_to(db, user.user) if loc.id not in hidden
+    ]
 
 
 @router.post(
@@ -232,8 +258,12 @@ def list_locations(db: DbSession) -> list[LocationOut]:
     status_code=status.HTTP_201_CREATED,
 )
 def add_location(body: LocationIn, user: Authed, db: DbSession) -> LocationOut:
-    loc = _check(lambda: locations.save(db, FileLocation(name="", path=""), body.name, body.path))
-    audit.record(db, user.user.username, "files.location.add", loc.name, loc.path)
+    loc = _check(
+        lambda: locations.save(
+            db, FileLocation(name="", path=""), body.name, body.path, body.users_can_open
+        )
+    )
+    audit.record(db, user.user.username, "files.location.add", loc.name, _access(loc))
     return _location_out(loc)
 
 
@@ -242,8 +272,9 @@ def add_location(body: LocationIn, user: Authed, db: DbSession) -> LocationOut:
 )
 def update_location(location_id: int, body: LocationIn, user: Authed, db: DbSession) -> LocationOut:
     loc = _check(lambda: locations.get(db, location_id))
-    loc = _check(lambda: locations.save(db, loc, body.name, body.path))
-    audit.record(db, user.user.username, "files.location.edit", loc.name, loc.path)
+    _refuse_users_folder(loc)
+    loc = _check(lambda: locations.save(db, loc, body.name, body.path, body.users_can_open))
+    audit.record(db, user.user.username, "files.location.edit", loc.name, _access(loc))
     return _location_out(loc)
 
 
@@ -256,6 +287,7 @@ def update_location(location_id: int, body: LocationIn, user: Authed, db: DbSess
 def remove_location(location_id: int, user: Authed, db: DbSession) -> Response:
     """Only Athena forgets the location; the folder and its files stay."""
     loc = _check(lambda: locations.get(db, location_id))
+    _refuse_users_folder(loc)
     db.delete(loc)
     db.commit()
     audit.record(db, user.user.username, "files.location.remove", loc.name, loc.path)
@@ -266,14 +298,16 @@ def remove_location(location_id: int, user: Authed, db: DbSession) -> Response:
 
 
 @router.get("/list", operation_id="listFiles")
-async def list_files(location: LocationId, db: DbSession, path: RelPath = "") -> Listing:
-    _, root = _location(db, location)
+async def list_files(
+    location: LocationId, db: DbSession, user: Authed, path: RelPath = ""
+) -> Listing:
+    _, root = _location(db, location, user.user)
     return await _run(lambda: ops.list_dir(root, resolve(root, path)))
 
 
 @router.get("/text", operation_id="readTextFile")
-async def read_text(location: LocationId, path: RelPath, db: DbSession) -> TextFile:
-    _, root = _location(db, location)
+async def read_text(location: LocationId, path: RelPath, db: DbSession, user: Authed) -> TextFile:
+    _, root = _location(db, location, user.user)
     return await _run(lambda: ops.read_text(root, resolve(root, path)))
 
 
@@ -284,11 +318,11 @@ async def read_text(location: LocationId, path: RelPath, db: DbSession) -> TextF
     responses={200: {"content": {"application/octet-stream": {}, "application/zip": {}}}},
 )
 async def download(
-    location: LocationId, db: DbSession, path: RelPath = "", inline: bool = False
+    location: LocationId, db: DbSession, user: Authed, path: RelPath = "", inline: bool = False
 ) -> Response:
     """A file, or a folder as a zip. With `inline`, images, audio and video are shown in
     the browser; everything else is always an attachment."""
-    loc, root = _location(db, location)
+    loc, root = _location(db, location, user.user)
     target = _check(lambda: resolve(root, path))
     return file_response(root, target, loc.name, inline)
 
@@ -324,16 +358,16 @@ def file_response(root: Path, target: Path, root_name: str, inline: bool) -> Res
 
 
 @router.put("/text", operation_id="writeTextFile")
-async def write_text(body: TextIn, db: DbSession) -> TextFile:
-    _, root = _location(db, body.location)
+async def write_text(body: TextIn, db: DbSession, user: Authed) -> TextFile:
+    _, root = _location(db, body.location, user.user)
     return await _run(
         lambda: ops.write_text(root, resolve(root, body.path), body.content, body.version)
     )
 
 
 @router.post("/folder", operation_id="createFolder", status_code=status.HTTP_201_CREATED)
-async def create_folder(body: NewFolderIn, db: DbSession) -> FileEntry:
-    _, root = _location(db, body.location)
+async def create_folder(body: NewFolderIn, db: DbSession, user: Authed) -> FileEntry:
+    _, root = _location(db, body.location, user.user)
 
     def work() -> FileEntry:
         name = check_new_name(body.name)
@@ -343,8 +377,8 @@ async def create_folder(body: NewFolderIn, db: DbSession) -> FileEntry:
 
 
 @router.post("/rename", operation_id="renameFile")
-async def rename(body: RenameIn, db: DbSession) -> FileEntry:
-    _, root = _location(db, body.location)
+async def rename(body: RenameIn, db: DbSession, user: Authed) -> FileEntry:
+    _, root = _location(db, body.location, user.user)
 
     def work() -> FileEntry:
         name = check_new_name(body.name)
@@ -356,7 +390,7 @@ async def rename(body: RenameIn, db: DbSession) -> FileEntry:
 @router.post("/delete", operation_id="deleteFiles")
 async def delete(body: DeleteIn, user: Authed, db: DbSession) -> DeleteOut:
     """Moves to the trash unless `permanent`. Each path succeeds or fails on its own."""
-    loc, root = _location(db, body.location)
+    loc, root = _location(db, body.location, user.user)
     deleted: list[str] = []
     errors: list[ItemError] = []
     for rel in body.paths:
@@ -378,8 +412,8 @@ async def delete(body: DeleteIn, user: Authed, db: DbSession) -> DeleteOut:
 @router.post("/transfer", operation_id="transferFiles", status_code=status.HTTP_202_ACCEPTED)
 async def transfer(body: TransferIn, request: Request, user: Authed, db: DbSession) -> JobOut:
     """Copy or move items, possibly to another location, as a job."""
-    loc, root = _location(db, body.location)
-    dest_loc, dest_root = _location(db, body.dest_location)
+    loc, root = _location(db, body.location, user.user)
+    dest_loc, dest_root = _location(db, body.dest_location, user.user)
 
     def check() -> tuple[list[tuple[str, Path]], Path]:
         dest = resolve(dest_root, body.dest_path)
@@ -439,6 +473,7 @@ async def upload_chunk(
     request: Request,
     location: LocationId,
     db: DbSession,
+    user: Authed,
     name: Annotated[str, Query(min_length=1, max_length=255)],
     upload_id: Annotated[str, Query(pattern=UPLOAD_ID.pattern)],
     offset: Annotated[int, Query(ge=0)],
@@ -449,7 +484,7 @@ async def upload_chunk(
     """One piece of a file, sent as the raw request body. Send the pieces in order with
     their `offset`; the file appears under its name after the last one. A piece at
     offset 0 starts over."""
-    _, root = _location(db, location)
+    _, root = _location(db, location, user.user)
     folder = _check(lambda: resolve(root, path))
     return await receive_chunk(
         request, root, folder, name, upload_id, offset, total, "overwrite" if overwrite else "fail"
@@ -522,9 +557,10 @@ async def receive_chunk(
 async def cancel_upload(
     location: LocationId,
     db: DbSession,
+    user: Authed,
     upload_id: Annotated[str, Query(pattern=UPLOAD_ID.pattern)],
     path: RelPath = "",
 ) -> Response:
-    _, root = _location(db, location)
+    _, root = _location(db, location, user.user)
     await _run(lambda: ops.upload_part(resolve(root, path), upload_id).unlink(missing_ok=True))
     return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -13,7 +13,7 @@
   "removeFailed": "ユーザーを削除できませんでした",
   "removed": "{{name}} を削除しました",
   "removeTitle": "{{name}} を削除しますか？",
-  "removeDescription": "サインアウトされ、再びサインインすることはできません。アプリとファイルは残ります。",
+  "removeDescription": "They are signed out and can't sign in again. Their apps stay. Their My files folder and everything in it is deleted.",
   "removeConfirm": "削除",
   "cancel": "キャンセル",
   "createTitle": "ユーザーを追加",
