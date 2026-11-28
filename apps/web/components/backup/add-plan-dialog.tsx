@@ -51,6 +51,7 @@ export function AddPlanDialog({
   const [name, setName] = React.useState("")
   const [destinationId, setDestinationId] = React.useState("")
   const [athena, setAthena] = React.useState(true)
+  const [userFiles, setUserFiles] = React.useState(true)
   const [appSelections, setAppSelections] = React.useState<
     Record<string, boolean>
   >({})
@@ -80,6 +81,7 @@ export function AddPlanDialog({
     try {
       const items: Schemas["PlanItems"] = {
         athena,
+        user_files: userFiles,
         apps: selectedApps.map((name) => ({ name, while_running: false })),
       }
       const { data, error: err } = await api.POST("/api/backup/plans", {
@@ -168,6 +170,16 @@ export function AddPlanDialog({
               {t("addPlan.athena")}
             </FieldLabel>
             <FieldDescription>{t("addPlan.athenaHint")}</FieldDescription>
+          </Field>
+          <Field>
+            <FieldLabel className="flex items-center gap-2">
+              <Checkbox
+                checked={userFiles}
+                onCheckedChange={(v) => setUserFiles(v)}
+              />
+              {t("addPlan.userFiles")}
+            </FieldLabel>
+            <FieldDescription>{t("addPlan.userFilesHint")}</FieldDescription>
           </Field>
           {apps.length ? (
             <>
@@ -262,7 +274,7 @@ export function AddPlanDialog({
               submitting ||
               !name ||
               !destinationId ||
-              (!athena && selectedApps.length === 0)
+              (!athena && !userFiles && selectedApps.length === 0)
             }
           >
             {t("addPlan.create")}

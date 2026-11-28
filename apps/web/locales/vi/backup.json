@@ -102,6 +102,8 @@
     "destination": "Đích sao lưu",
     "athena": "Sao lưu Athena (cài đặt, CSDL, bí mật, TLS)",
     "athenaHint": "Khuyến nghị: mặc định bật.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "Ứng dụng",
     "appsHint": "Những ứng dụng đưa vào kế hoạch.",
     "noApps": "Không tìm thấy ứng dụng. Hãy khởi động ứng dụng từ Cửa hàng → Ứng dụng trước.",

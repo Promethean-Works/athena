@@ -102,6 +102,8 @@
     "destination": "Tujuan",
     "athena": "Cadangkan Athena (pengaturan, DB, rahasia, TLS)",
     "athenaHint": "Disarankan: aktif secara bawaan.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "Aplikasi",
     "appsHint": "Aplikasi mana yang disertakan dalam rencana.",
     "noApps": "Tidak ada aplikasi. Mulai aplikasi dari Toko → Aplikasi terlebih dahulu.",

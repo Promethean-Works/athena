@@ -20,7 +20,7 @@ from test_containers import SAMPLE, ready_store
 from athena.apps.store import AppStore
 from athena.backup import retention, snapshots, versions
 from athena.backup.restic import ResticError, Result
-from athena.backup.service import ResticProvider
+from athena.backup.service import PlanRunner, ResticProvider
 from athena.backup.settings import Retention
 from athena.containers import service as containers_service
 from athena.db.models import App, AuditEntry, BackupDestination, BackupPlan
@@ -197,7 +197,7 @@ def audit_entries(c: TestClient) -> list[AuditEntry]:
 @pytest.mark.parametrize(
     ("patch", "message"),
     [
-        ({"items": {"athena": False, "apps": []}}, "Pick Athena"),
+        ({"items": {"athena": False, "user_files": False, "apps": []}}, "Pick Athena"),
         ({"items": {"athena": True, "apps": [{"name": "nope"}]}}, "No app named nope"),
         (
             {"items": {"athena": True, "apps": [{"name": "site"}, {"name": "site"}]}},
@@ -932,3 +932,94 @@ def test_real_restic_applies_retention_and_lists_versions(
             params={"destination_id": dest["id"], "path": root["root"] + "/data"},
         ).json()
         assert "file3.txt" not in [e["name"] for e in older["entries"]]
+
+
+def users_folder(tmp_path: Path) -> Path:
+    folder = tmp_path / "data" / "users" / "7" / "files"
+    folder.mkdir(parents=True)
+    (folder / "photo.txt").write_text("mine")
+    return tmp_path / "data" / "users"
+
+
+def test_user_files_are_their_own_snapshot(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic
+) -> None:
+    users = users_folder(tmp_path)
+    plan = add_plan(api, add_destination(api, tmp_path), items={"athena": True, "apps": []})
+    assert plan["items"]["user_files"] is True  # on by default
+    job = run(api, plan)
+    assert job["status"] == "succeeded", job
+    athena_args, users_args = (" ".join(a) for a in fake_tool.streamed)
+    assert "--tag athena " in athena_args
+    assert "--tag users " in users_args and users_args.endswith(str(users))
+    assert "--tag athena-version:" in users_args and "--tag os:" in users_args
+
+
+def test_user_files_can_be_left_out(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic
+) -> None:
+    users_folder(tmp_path)
+    dest = add_destination(api, tmp_path)
+    plan = add_plan(api, dest, items={"athena": True, "user_files": False, "apps": []})
+    assert run(api, plan)["status"] == "succeeded"
+    assert len(fake_tool.streamed) == 1 and "--tag users" not in " ".join(fake_tool.streamed[0])
+
+
+def test_no_users_folder_is_not_a_failure(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic
+) -> None:
+    plan = add_plan(
+        api, add_destination(api, tmp_path), items={"athena": False, "apps": [], "user_files": True}
+    )
+    job = run(api, plan)
+    assert job["status"] == "succeeded", job
+    assert fake_tool.streamed == []
+    assert not [c for c in fake_tool.calls if c[0] == "forget"]  # nothing taken, nothing to trim
+    assert any("No user files yet" in line for line in job["lines"])
+    assert plan_row(api, plan["id"]).last_status == "ok"
+
+
+def test_a_plan_of_only_user_files_is_allowed_and_an_empty_one_is_not(
+    api: TestClient, tmp_path: Path
+) -> None:
+    dest = add_destination(api, tmp_path)
+    only_users = {"athena": False, "user_files": True, "apps": []}
+    add_plan(api, dest, items=only_users)
+    nothing = {"athena": False, "user_files": False, "apps": []}
+    res = api.post(
+        "/api/backup/plans", json={"name": "Empty", "destination_id": dest["id"], "items": nothing}
+    )
+    assert res.status_code in (400, 422), res.text
+
+
+def test_users_versions_are_listed_and_filterable() -> None:
+    raw = json.dumps(
+        [
+            {
+                "id": "a" * 64,
+                "time": "2026-11-28T10:00:00Z",
+                "tags": ["users", "athena-version:0.1.0", "os:linux"],
+                "summary": {"total_bytes_processed": 5, "data_added": 5},
+            }
+        ]
+    )
+    (version,) = versions.parse_versions(raw)
+    assert version.item == "users" and version.os == "linux"
+    assert versions.ITEM.match("users") and not versions.ITEM.match("users:7")
+
+
+def test_the_update_backup_leaves_user_files_out(
+    api: TestClient, tmp_path: Path, fake_tool: StreamingFakeRestic
+) -> None:
+    users_folder(tmp_path)
+    plan = add_plan(api, add_destination(api, tmp_path), items={"athena": True, "apps": []})
+    runner = PlanRunner(api.app.state)  # type: ignore[attr-defined]
+
+    async def body(job):  # type: ignore[no-untyped-def]
+        await runner.run(job, plan["id"], "admin", None, only_athena=True)
+
+    async def start() -> str:
+        return api.app.state.jobs.start("Backup", body).id  # type: ignore[attr-defined]
+
+    assert wait(api, api.portal.call(start))["status"] == "succeeded"  # type: ignore[union-attr]
+    assert len(fake_tool.streamed) == 1 and "--tag users" not in " ".join(fake_tool.streamed[0])

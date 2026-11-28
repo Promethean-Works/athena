@@ -102,6 +102,8 @@
     "destination": "Destinazione",
     "athena": "Esegui il backup di Athena (impostazioni, DB, segreti, TLS)",
     "athenaHint": "Consigliato: attivo per impostazione predefinita.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "App",
     "appsHint": "Quali app includere nel piano.",
     "noApps": "Nessuna app trovata. Avvia prima le app da Store → App.",

@@ -102,6 +102,8 @@
     "destination": "Destino",
     "athena": "Copiar Athena (ajustes, BD, secretos, TLS)",
     "athenaHint": "Recomendado: activado por defecto.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "Apps",
     "appsHint": "Qué apps incluir en el plan.",
     "noApps": "No se encontraron apps. Primero inicia apps desde Tienda → Apps.",

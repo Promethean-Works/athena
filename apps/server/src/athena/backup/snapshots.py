@@ -1,5 +1,6 @@
 """Taking snapshots (docs/specs/backup.md): one restic snapshot per item of a plan.
 
+The users' files (`<data-dir>/users/`) are snapshotted as they are, with the tag `users`.
 Athena itself is staged first (a consistent copy of the database through SQLite's online
 backup API, never the live file) and snapshotted with the tag `athena`. Each app's folder
 is snapshotted with the tag `app:<name>`, after stopping the app (unless the plan says to
@@ -43,6 +44,7 @@ SNAPSHOT_HOST = "athena"
 the data is restored onto new hardware (restic matches parents by host and path)."""
 
 ATHENA_TAG = "athena"
+USERS_TAG = "users"
 
 
 def app_tag(name: str) -> str:
@@ -59,6 +61,8 @@ class ItemResult:
     error: str | None = None
     snapshot_id: str | None = None
     warning: str | None = None
+    nothing_to_back_up: bool = False
+    """No snapshot was taken because there was nothing to take (no retention to apply)."""
 
 
 def staging_dir(data_dir: Path) -> Path:
@@ -349,7 +353,7 @@ async def run_items(
 ) -> list[ItemResult]:
     """Back up every item in turn; one item failing doesn't stop the others."""
     results: list[ItemResult] = []
-    total = int(items.athena) + len(items.apps)
+    total = int(items.athena) + int(items.user_files) + len(items.apps)
     done = 0
 
     async def step(label: str, work: Callable[[], Awaitable[ItemResult]]) -> None:
@@ -377,6 +381,18 @@ async def run_items(
                 await asyncio.to_thread(shutil.rmtree, target, True)
 
         await step(ATHENA_TAG, athena)
+
+    if items.user_files:
+
+        async def user_files() -> ItemResult:
+            folder = data_dir / "users"
+            if not folder.is_dir():
+                await job.log("No user files yet; nothing to back up")
+                return ItemResult(USERS_TAG, nothing_to_back_up=True)
+            await job.log("Backing up the users' files")
+            return await backup_folder(tool, repo, job, folder, snapshot_tags(USERS_TAG), USERS_TAG)
+
+        await step(USERS_TAG, user_files)
 
     for app in items.apps:
 

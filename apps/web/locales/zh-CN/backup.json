@@ -102,6 +102,8 @@
     "destination": "目标",
     "athena": "备份 Athena（设置、数据库、密钥、TLS）",
     "athenaHint": "推荐：默认开启。",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "应用",
     "appsHint": "计划中要包含哪些应用。",
     "noApps": "未找到应用。请先在“商店 → 应用”中启动应用。",

@@ -102,6 +102,8 @@
     "destination": "目的地",
     "athena": "備份 Athena（設定、資料庫、密鑰、TLS）",
     "athenaHint": "建議：預設開啟。",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "應用程式",
     "appsHint": "要納入此計畫的應用程式。",
     "noApps": "找不到應用程式。請先從「商店」→「應用程式」啟動應用程式。",

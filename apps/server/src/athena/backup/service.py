@@ -90,7 +90,7 @@ class PlanRunner:
                 raise RuntimeError("That plan or its destination no longer exists")
             items = parse_items(plan.items)
             if only_athena:
-                items = PlanItems(athena=items.athena, apps=[])
+                items = PlanItems(athena=items.athena, user_files=False, apps=[])
             keep = parse_retention(plan.retention)
             plan_name, dest_id, location = plan.name, dest.id, dest.location
             env = (
@@ -172,7 +172,7 @@ class PlanRunner:
             )
         problems = [f"{r.item}: {r.error}" for r in results if r.error]
         for r in results:
-            if r.error:
+            if r.error or r.nothing_to_back_up:
                 continue  # an item that wasn't backed up has nothing new to trim around
             try:
                 removed = await retention.forget(tool, repo, r.item, keep)

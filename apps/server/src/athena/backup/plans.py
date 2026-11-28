@@ -21,11 +21,13 @@ class PlanApp(BaseModel):
 
 
 class PlanItems(BaseModel):
-    """Athena itself and the apps a plan backs up. Each becomes its own restic snapshot."""
+    """Athena itself, the users' files and the apps a plan backs up. Each is its own snapshot."""
 
     model_config = ConfigDict(extra="forbid")
 
     athena: bool = True
+    user_files: bool = True
+    """Everyone's personal folders (`<data-dir>/users/`), as one snapshot tagged `users`."""
     apps: list[PlanApp] = Field(default_factory=list, max_length=200)
 
     @field_validator("apps")
@@ -37,7 +39,7 @@ class PlanItems(BaseModel):
         return apps
 
     def is_empty(self) -> bool:
-        return not self.athena and not self.apps
+        return not self.athena and not self.user_files and not self.apps
 
 
 def parse_items(text: str) -> PlanItems:

@@ -33,9 +33,10 @@ New capability `backup`, reported on every host. Backups run the [restic](https:
 
 ### What a backup contains
 
-A backup plan picks **Athena** (on by default) and any number of **apps**. Each item becomes its own restic snapshot, tagged `athena` or `app:<name>`, so one app can be restored without the others and retention applies per item.
+A backup plan picks **Athena** (on by default), **User files** (on by default) and any number of **apps**. Each item becomes its own restic snapshot, tagged `athena`, `users` or `app:<name>`, so one app can be restored without the others and retention applies per item.
 
 - **Athena:** a consistent copy of `athena.db` made with SQLite's online backup API (never the live file), plus `athena.json` (the settings file, `settings_file.py`), `secret.key` (which decrypts the `enc:` values in both) and `tls/`. Not included: `athena.json.bak`, `athena.schema.json` (written again at start), `bin/` (downloaded again), logs, caches.
+- **User files:** `<data-dir>/users/` as it is (every account's "My files", `users/<id>/files`), snapshotted live without stopping anything. No folder yet means nothing to back up, not a failure. The update's "back up first" step leaves it out (Athena only). Browsable under Versions. **Restore** (`POST /api/backup/restore/users`, admin only, no stop): restic restores into staging, only `<id>/` folders of accounts that still exist are kept (a deleted account's folder stays deleted), then the current `users/` is moved aside to `<data-dir>/users.before-restore-<time>/` (swept after `before_restore_keep_days`). Run it when nobody is uploading. No button in the UI yet.
 - **App:** `<data-dir>/apps/<name>/`, meaning `compose.yaml`, `compose.prev.yaml`, `.env` and `data/`. Also:
   - **Named volumes** that the compose file declares: each is streamed as a tar through a helper container (`docker run --rm -v <vol>:/v:ro <helper> tar -C /v -cf - .`) into `restic backup --stdin --stdin-filename volumes/<vol>.tar`. Nothing is staged on disk.
   - **Bind mounts outside the app folder** (`/srv/media:/media`): listed in the plan. The admin opts in to each one, and they're off by default because they're often huge media libraries. Device and socket mounts (`/var/run/docker.sock`, `/dev/...`) are never offered.

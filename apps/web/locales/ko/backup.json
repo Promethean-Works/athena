@@ -102,6 +102,8 @@
     "destination": "대상",
     "athena": "Athena 백업 (설정, DB, 시크릿, TLS)",
     "athenaHint": "권장: 기본으로 켜져 있어요.",
+    "userFiles": "Back up users' files",
+    "userFilesHint": "Everyone's personal folders (My files). On by default.",
     "apps": "앱",
     "appsHint": "플랜에 포함할 앱을 선택하세요.",
     "noApps": "앱이 없어요. 먼저 스토어 → 앱에서 앱을 시작하세요.",
